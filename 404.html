@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 - Page Not Found | Kaasi</title>
+
+    <!-- SEO and Social Sharing Meta Tags -->
+    <meta name="robots" content="noindex" />
+    <meta
+      name="description"
+      content="Oops! It seems you've found a page that doesn't exist on Kaasi."
+    />
+    <meta property="og:title" content="404 - Page Not Found | Kaasi" />
+    <meta
+      property="og:description"
+      content="Oops! It seems you've found a page that doesn't exist on Kaasi."
+    />
+    <meta property="og:image" content="https://kaasi.com.lk/img/Metaimg.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="404 - Page Not Found | Kaasi" />
+    <meta
+      name="twitter:description"
+      content="Oops! It seems you've found a page that doesn't exist on Kaasi."
+    />
+    <meta name="twitter:image" content="https://kaasi.com.lk/img/Metaimg.jpg" />
+
+    <!-- Favicon -->
+    <link rel="icon" href="img/LogoIcon.svg" type="image/svg+xml" />
+
+    <!-- External assets for fonts and icons -->
+    <link
+      href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <style>
+      /* --- Internal CSS for Standalone 404 Page --- */
+
+      /* 1. Root Variables & Base Styles */
+      :root {
+        --brand-orange: #e67e26;
+        --brand-orange-dark: #d35400;
+        --bg-dark: #121212;
+        --card-bg: #1e1e1e;
+        --border-dark: rgba(255, 255, 255, 0.1);
+        --text-primary: #e0e0e0;
+        --text-secondary: #a0a0a0;
+        --font-family-sans: "Satoshi", sans-serif;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background-color: var(--bg-dark);
+        font-family: var(--font-family-sans);
+        color: var(--text-secondary);
+        margin: 0;
+        padding: 0;
+        overflow: hidden; /* Prevents scrollbars */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+
+      /* 2. Main Container & Layout */
+      .container-404 {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem;
+        width: 100%;
+      }
+
+      /* 3. Tilt Card Styling */
+      .tilt-container {
+        perspective: 1500px; /* Creates the 3D space for the tilt effect */
+        margin-bottom: 3rem;
+      }
+
+      #tilt-card {
+        background: linear-gradient(145deg, #2c2c2c, #1e1e1e);
+        padding: 3rem 5rem;
+        border-radius: 1.5rem;
+        border: 1px solid var(--border-dark);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        transition: transform 0.1s linear; /* Smooths the tilt effect */
+        transform-style: preserve-3d; /* Important for perspective */
+        will-change: transform;
+      }
+
+      #tilt-card h1 {
+        font-size: 6rem;
+        font-weight: 900;
+        color: var(--brand-orange);
+        text-shadow: 0 0 20px rgba(230, 126, 38, 0.4);
+        margin: 0;
+      }
+
+      /* 4. Message & Button Styling */
+      .message-404 {
+        max-width: 520px; /* Increased width to prevent awkward line break */
+      }
+
+      .message-404 h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0 0 1rem 0;
+        line-height: 1.3;
+      }
+
+      .message-404 p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin: 0 0 2.5rem 0;
+      }
+
+      .cta-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        background-color: var(--brand-orange);
+        color: white;
+        font-weight: 700;
+        padding: 0.875rem 2rem;
+        border-radius: 0.375rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2),
+          0 0 20px rgba(230, 126, 38, 0.4);
+      }
+
+      .cta-button:hover {
+        background-color: var(--brand-orange-dark);
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25),
+          0 0 30px rgba(211, 84, 0, 0.5);
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 640px) {
+        .message-404 {
+          max-width: 90%; /* Use percentage on smaller screens */
+        }
+        #tilt-card {
+          padding: 2rem 3rem;
+        }
+        #tilt-card h1 {
+          font-size: 4rem;
+        }
+        .message-404 h2 {
+          font-size: 1.5rem;
+        }
+        .message-404 p {
+          font-size: 1rem;
+        }
+      }
+    </style>
+
+    <!-- Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-2FSRSWZB28"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-2FSRSWZB28");
+    </script>
+  </head>
+  <body>
+    <div class="container-404">
+      <div class="tilt-container">
+        <div id="tilt-card">
+          <h1>404</h1>
+        </div>
+      </div>
+
+      <div class="message-404">
+        <h2>Are you some Kaasi in a pocket? Because you seem lost.</h2>
+        <p>
+          It seems you've taken a wrong turn. The page you're looking for
+          doesn't exist. Let's get you back to familiar territory.
+        </p>
+        <a href="https://kaasi.com.lk" class="cta-button">
+          <i class="fas fa-home"></i>
+          Go to Main Site
+        </a>
+      </div>
+    </div>
+
+    <script>
+      // --- Internal JavaScript for Standalone 404 Page ---
+      document.addEventListener("DOMContentLoaded", () => {
+        const tiltCard = document.getElementById("tilt-card");
+
+        if (tiltCard) {
+          const intensity = 16; // Adjust tilt intensity here
+
+          // Listen for mouse movement on the entire window
+          window.addEventListener("mousemove", (e) => {
+            const { innerWidth, innerHeight } = window;
+
+            // Calculate mouse position from the center of the window (-1 to 1 range)
+            const mouseX = (e.clientX / innerWidth) * 2 - 1;
+            const mouseY = (e.clientY / innerHeight) * 2 - 1;
+
+            // Calculate rotation values
+            const rotateY = mouseX * intensity;
+            const rotateX = -mouseY * intensity;
+
+            // Use requestAnimationFrame for a smoother animation
+            requestAnimationFrame(() => {
+              tiltCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+          });
+
+          // Optional: Reset on mouse leave from the window
+          document.body.addEventListener("mouseleave", () => {
+            requestAnimationFrame(() => {
+              tiltCard.style.transform = "rotateX(0deg) rotateY(0deg)";
+            });
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
