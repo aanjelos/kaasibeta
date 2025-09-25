@@ -1,1 +1,7144 @@
-const $=e=>document.querySelector(e),$$=e=>document.querySelectorAll(e),formatCurrency=e=>(("number"!=typeof e||isNaN(e))&&(e=0),`LKR ${e.toFixed(2).replace(/\d(?=(\d{3})+\.)/g,"$&,")}`),generateId=()=>"_"+Math.random().toString(36).substr(2,9),getDaysLeft=e=>{const t=new Date;t.setHours(0,0,0,0);const n=new Date(e);return n.setHours(0,0,0,0),Math.ceil((n-t)/864e5)},roundToTwoDecimals=e=>"number"!=typeof e||isNaN(e)?0:parseFloat(e.toFixed(2));function getCurrentDateString(){const e=new Date;return`${e.getFullYear()}-${String(e.getMonth()+1).padStart(2,"0")}-${String(e.getDate()).padStart(2,"0")}`}function getFormattedLocalStorageSize(e){const t=localStorage.getItem(e);if(null===t)return"N/A (No data found)";const n=t.length;return n<1024?`${n} Bytes`:n<1048576?`${(n/1024).toFixed(2)} KB`:`${(n/1048576).toFixed(2)} MB`}function displayAppVersion(){let e="N/A";try{const t=document.querySelector('meta[name="application-version"]');t?e=t.getAttribute("content"):console.warn("Application version meta tag not found.")}catch(e){console.error("Error reading application version:",e)}const t=document.getElementById("appVersionSettings");t&&(t.textContent=`Version: ${e}`);const n=document.getElementById("appVersionSetup");n&&(n.textContent=`Version: ${e}`)}function toggleCategoryVisibilityInModal(e,t,n){const a=document.getElementById(t),o=document.getElementById(n),s=e.form.elements.description||e.form.elements.modalDescription||e.form.elements.ccDescription||e.form.elements.modalCcDescription;"income"===e.value?(a&&(a.style.display="none"),o&&(o.required=!1),s&&(s.placeholder="e.g., Monthly Salary")):(a&&(a.style.display="block"),o&&(o.required=!0),s&&(s.placeholder="e.g., Lunch, Groceries"))}let ccHistorySearchDebounceTimer,state={},dashboardChartState="yearly",monthlyViewSearchScope="month",ccHistoryFilter="unpaid",ccHistoryOpenMonthKeys=new Set;function getDefaultState(){return JSON.parse(JSON.stringify({transactions:[],accounts:[{id:"cash",name:"Cash",balance:0,hidden:!1},{id:"bank_1",name:"Commercial",balance:0,hidden:!1},{id:"bank_2",name:"HNB",balance:0,hidden:!1},{id:"bank_3",name:"Genie",balance:0,hidden:!1}],categories:["Food & Dining","Groceries","Transportation","Healthcare","Personal Care","Shopping","Entertainment","Education","Gifts & Donations","Subscriptions & Memberships","Bank Charges","Other"].sort(((e,t)=>e.localeCompare(t))),debts:[],receivables:[],installments:[],creditCard:{limit:0,transactions:[]},settings:{initialSetupDone:!1,showCcDashboardSection:!0,theme:"dark"}}))}function openInitialSetupWizard(){const e=$("#initialSetupModal");if(!e)return void console.error("Initial Setup Modal not found in HTML.");console.log("Opening Initial Setup Wizard...");const t=$("#setupAccountBalances"),n=getDefaultState().accounts;let a=JSON.parse(JSON.stringify(n));const o=()=>{a.forEach((e=>{const n=t.querySelector(`#setupName-${e.id}`),a=t.querySelector(`#setupBalance-${e.id}`);if(n&&!n.readOnly&&(e.name=n.value.trim()||e.name),a){const t=parseFloat(a.value);isNaN(t)||(e.balance=t)}}))},s=()=>{t.innerHTML="",a.forEach((e=>{const n=document.createElement("div");n.className="grid grid-cols-[auto,2fr,3fr] gap-x-3 items-center mb-2 account-row",e.hidden&&n.classList.add("account-row-hidden");const r='style="background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);"',i=document.createElement("button");i.type="button",i.className="btn-icon-hide justify-self-center",i.dataset.accountId=e.id,i.innerHTML=`<i class="fas ${e.hidden?"fa-eye-slash":"fa-eye"}"></i>`,"cash"===e.id?(i.disabled=!0,i.style.opacity="0.3",i.style.cursor="not-allowed"):i.onclick=()=>{o();const t=a.find((t=>t.id===e.id));t&&(t.hidden=!t.hidden,s())},n.appendChild(i);const c=document.createElement("div");"cash"===e.id?c.innerHTML=`<label for="setupBalance-${e.id}" class="text-sm font-medium text-gray-300 justify-self-start">${e.name}</label>`:c.innerHTML=`<input type="text" id="setupName-${e.id}" name="setupName-${e.id}" value="${e.name}" data-account-id="${e.id}" class="!py-1.5 !px-2 text-sm w-full rounded placeholder-gray-400" ${r} placeholder="Account Name">`,n.appendChild(c);const l=document.createElement("div"),d=0!==e.balance||"cash"===e.id?e.balance.toString():"";l.innerHTML=`<input type="number" id="setupBalance-${e.id}" name="setupBalance-${e.id}" value="${d}" data-account-id="${e.id}" step="0.01" placeholder="0.00 (Optional)" class="!py-1.5 !px-2 text-sm w-full rounded placeholder-gray-400" ${r}>`,n.appendChild(l),t.appendChild(n)}))};s();const r=$("#setupEnableCc"),i=$("#setupCcLimitGroup"),c=$("#setupCcLimit");r&&i&&c&&(r.checked=!0,i.style.display="block",c.required=!0,c.style.backgroundColor="var(--bg-secondary)",c.style.borderColor="var(--border-color)",c.style.color="var(--text-primary)",r.onchange=()=>{r.checked?(i.style.display="block",c.required=!0):(i.style.display="none",c.required=!1,c.value="")});const l=$("#setupCategoriesList"),d=$("#setupNewCategoryName"),u=$("#setupAddCategoryBtn");let m=[...getDefaultState().categories];d&&(d.style.backgroundColor="var(--bg-secondary)",d.style.borderColor="var(--border-color)",d.style.color="var(--text-primary)");const p=()=>{l&&(l.innerHTML="",m.sort(((e,t)=>e.localeCompare(t))).forEach((e=>{const t=document.createElement("div");t.className="flex justify-between items-center p-2 rounded text-sm",t.style.backgroundColor="var(--bg-secondary)",t.style.borderColor="var(--border-color)",t.style.borderWidth="1px",t.innerHTML=`\n              <span>${e}</span>\n              <button type="button" class="text-red-400 hover:text-red-300 text-xs ml-2" data-category-name="${e}" title="Remove">\n                  <i class="fas fa-times"></i>\n              </button>\n          `,t.querySelector("button").onclick=e=>{const t=e.currentTarget.dataset.categoryName;m=m.filter((e=>e!==t)),p()},l.appendChild(t)})))};u&&(u.onclick=()=>{const e=d.value.trim();e&&!m.some((t=>t.toLowerCase()===e.toLowerCase()))?(m.push(e),p(),d.value=""):e&&showNotification(`Category "${e}" already exists.`,"warning"),d.focus()}),d&&(d.onkeypress=e=>{"Enter"===e.key&&(e.preventDefault(),u&&u.click())}),p(),$("#initialSetupForm").onsubmit=e=>{o(),handleInitialSetupSubmit(e,a)},$("#setupImportInput").onchange=handleSetupImport,e.style.display="block",displayAppVersion()}function handleInitialSetupSubmit(e,t){e.preventDefault(),console.log("Handling initial setup form submission...");let n=getDefaultState();n.accounts=t.map((e=>{const t=$(`#setupName-${e.id}`),n=$(`#setupBalance-${e.id}`);let a=e.name;if("cash"!==e.id&&t){const e=t.value.trim();e&&(a=e)}let o=0;if(n){const e=n.value.trim();if(""!==e&&null!==e){const t=parseFloat(e);o=isNaN(t)?0:t}}return{id:e.id,name:a,balance:roundToTwoDecimals(o),hidden:e.hidden}}));const a=$("#setupEnableCc").checked;if(n.settings.showCcDashboardSection=a,a){const e=$("#setupCcLimit").value.trim();if(""===e||null===e)n.creditCard.limit=0;else{const t=parseFloat(e);n.creditCard.limit=roundToTwoDecimals(isNaN(t)||t<0?0:t)}}else n.creditCard.limit=0;const o=[];$$("#setupCategoriesList span").forEach((e=>o.push(e.textContent))),n.categories=o.length>0?o.sort(((e,t)=>e.localeCompare(t))):getDefaultState().categories,n.settings.initialSetupDone=!0,state=n,saveData(),closeModal("initialSetupModal"),initializeUI(!0),showNotification("Setup complete! Welcome to Kaasi.","success",5e3)}function handleSetupImport(e){const t=e.target.files[0];if(!t)return;console.log("Importing data from setup wizard...");const n=new FileReader;n.onload=t=>{let n;try{if(n=JSON.parse(t.target.result),!n||"object"!=typeof n)throw new Error("Invalid data structure in imported file.");Array.isArray(n.transactions)&&n.transactions.forEach((e=>{"number"==typeof e.amount&&(e.amount=roundToTwoDecimals(e.amount))})),Array.isArray(n.accounts)&&n.accounts.forEach((e=>{"number"==typeof e.balance&&(e.balance=roundToTwoDecimals(e.balance))})),Array.isArray(n.debts)&&n.debts.forEach((e=>{"number"==typeof e.amount&&(e.amount=roundToTwoDecimals(e.amount)),"number"==typeof e.originalAmount&&(e.originalAmount=roundToTwoDecimals(e.originalAmount)),"number"==typeof e.remainingAmount&&(e.remainingAmount=roundToTwoDecimals(e.remainingAmount))})),Array.isArray(n.receivables)&&n.receivables.forEach((e=>{"number"==typeof e.amount&&(e.amount=roundToTwoDecimals(e.amount)),"number"==typeof e.originalAmount&&(e.originalAmount=roundToTwoDecimals(e.originalAmount)),"number"==typeof e.remainingAmount&&(e.remainingAmount=roundToTwoDecimals(e.remainingAmount))})),Array.isArray(n.installments)&&n.installments.forEach((e=>{"number"==typeof e.monthlyAmount&&(e.monthlyAmount=roundToTwoDecimals(e.monthlyAmount)),"number"==typeof e.originalFullAmount&&(e.originalFullAmount=roundToTwoDecimals(e.originalFullAmount))})),n.creditCard&&"object"==typeof n.creditCard&&("number"==typeof n.creditCard.limit&&(n.creditCard.limit=roundToTwoDecimals(n.creditCard.limit)),Array.isArray(n.creditCard.transactions)&&n.creditCard.transactions.forEach((e=>{"number"==typeof e.amount&&(e.amount=roundToTwoDecimals(e.amount)),"number"==typeof e.paidAmount&&(e.paidAmount=roundToTwoDecimals(e.paidAmount))}))),state=getDefaultState(),state=deepMerge(state,n),ensureDefaultAccounts(),ensureDefaultCategories(),state.accounts.forEach((e=>{isNaN(e.balance)||"number"!=typeof e.balance?e.balance=0:e.balance=roundToTwoDecimals(e.balance)})),state.creditCard?(isNaN(state.creditCard.limit)||"number"!=typeof state.creditCard.limit?state.creditCard.limit=0:state.creditCard.limit=roundToTwoDecimals(state.creditCard.limit),Array.isArray(state.creditCard.transactions)?state.creditCard.transactions.forEach((e=>{"number"==typeof e.amount&&(e.amount=roundToTwoDecimals(e.amount)),"number"==typeof e.paidAmount?e.paidAmount=roundToTwoDecimals(e.paidAmount):e.paidAmount=0})):state.creditCard.transactions=[]):state.creditCard={limit:0,transactions:[]},state.settings||(state.settings=getDefaultState().settings),state.settings.initialSetupDone=!0,saveData(),closeModal("initialSetupModal"),initializeUI(!0),showNotification("Data imported and sanitized successfully from setup wizard!","success")}catch(e){console.error("Import failed during setup:",e),showNotification(`Import failed: ${e.message}. Please try manual setup or a valid file.`,"error",1e4)}finally{e.target.value=null}},n.onerror=()=>{showNotification("Failed to read the import file.","error"),e.target.value=null},n.readAsText(t)}const STORAGE_KEY="KaasiData";function saveData(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state)),console.log("Data saved successfully.")}catch(e){console.error("Error saving data to localStorage:",e),"QuotaExceededError"===e.name?showNotification("Error: Local storage quota exceeded. Data is too large to save.","error",1e4):showNotification("Error saving data. Check console.","error",1e4)}}function loadData(){const e=localStorage.getItem(STORAGE_KEY);let t=null;if(e){console.log("Uncompressed data found. Attempting to parse...");try{t=JSON.parse(e)}catch(e){console.error("Error parsing data from localStorage:",e),showNotification("Error loading data. Data might be corrupted. Starting fresh.","error",8e3)}}state=getDefaultState(),t&&"object"==typeof t?(console.log("Merging loaded data into default state structure..."),state=deepMerge(state,t),console.log("Data merged successfully.")):e&&!t?console.log("Previous data existed but was unparsable. Using fresh default state."):console.log("No saved data found or data was null/invalid. Starting with fresh default state.");const n=getDefaultState();if(state.settings&&"object"==typeof state.settings)for(const e in n.settings)void 0===state.settings[e]&&(state.settings[e]=n.settings[e]);else console.warn("State.settings was missing or invalid after merge. Resetting to default settings structure."),state.settings={...n.settings};if(state.creditCard&&"object"==typeof state.creditCard){for(const e in n.creditCard)void 0===state.creditCard[e]&&(state.creditCard[e]=n.creditCard[e]);Array.isArray(state.creditCard.transactions)||(state.creditCard.transactions=[])}else console.warn("State.creditCard was missing or invalid after merge. Resetting to default creditCard structure."),state.creditCard={...n.creditCard},Array.isArray(state.creditCard.transactions)||(state.creditCard.transactions=[]);Array.isArray(state.transactions)||(state.transactions=[]),Array.isArray(state.accounts)||(state.accounts=[]),Array.isArray(state.categories)||(state.categories=[]),Array.isArray(state.debts)||(state.debts=[]),Array.isArray(state.receivables)||(state.receivables=[]),Array.isArray(state.installments)||(state.installments=[]),ensureDefaultAccounts(),ensureDefaultCategories(),state.accounts.forEach((e=>{(isNaN(e.balance)||"number"!=typeof e.balance)&&(e.balance=0)})),(isNaN(state.creditCard.limit)||"number"!=typeof state.creditCard.limit)&&(state.creditCard.limit=0),state.creditCard.transactions.forEach((e=>{void 0!==e.paidAmount&&"number"==typeof e.paidAmount||(e.paidAmount=0),void 0===e.paidOff&&(e.paidOff=e.paidAmount>=e.amount-.005),e.timestamp||(e.timestamp=new Date(e.date).getTime())})),state.transactions.forEach((e=>{e.timestamp||(e.timestamp=new Date(e.date).getTime())})),state.debts.forEach((e=>{e.timestamp||(e.timestamp=new Date(e.dueDate).getTime()),void 0===e.originalAmount&&(e.originalAmount=e.amount)})),state.receivables.forEach((e=>{e.timestamp||(e.timestamp=new Date(e.dateGiven).getTime()),void 0===e.originalAmount&&(e.originalAmount=e.amount)})),state.installments.forEach((e=>{e.timestamp||(e.timestamp=new Date(e.startDate).getTime())})),console.log("Final state after loadData and integrity checks:",JSON.parse(JSON.stringify(state)))}function deepMerge(e,t){for(const n in t)if(t.hasOwnProperty(n)){const a=t[n],o=e[n];a&&"object"==typeof a&&!Array.isArray(a)?(o&&"object"==typeof o&&!Array.isArray(o)||(e[n]={}),deepMerge(e[n],a)):void 0!==a&&(e[n]=a)}return e}function ensureDefaultAccounts(){const e=getDefaultState().accounts;if(!Array.isArray(state.accounts))return console.warn("state.accounts was not an array. Resetting to default accounts structure."),state.accounts=JSON.parse(JSON.stringify(e)),void state.accounts.forEach((e=>e.balance=0));e.forEach((e=>{const t=state.accounts.find((t=>t.id===e.id));t?("string"!=typeof t.name&&(t.name=e.name),("number"!=typeof t.balance||isNaN(t.balance))&&(console.warn(`Balance for account '${t.name}' was invalid. Resetting to 0.`),t.balance=0)):(console.warn(`Default account '${e.name}' (ID: ${e.id}) was missing. Adding it.`),state.accounts.push({...e,balance:0}))}))}function ensureDefaultCategories(){const e=getDefaultState().categories;state.categories&&Array.isArray(state.categories)||(console.warn("state.categories was missing or not an array. Initializing as empty array."),state.categories=[]),0===state.categories.length&&(console.warn("state.categories is empty. Populating with default categories."),state.categories=JSON.parse(JSON.stringify(e))),state.categories.sort(((e,t)=>e.localeCompare(t)));const t="Other";state.categories.some((e=>e.toLowerCase()===t.toLowerCase()))||(console.warn("'Other' category was missing. Adding it back."),state.categories.push(t),state.categories.sort(((e,t)=>e.localeCompare(t))))}function showNotification(e,t="success",n=4e3){const a=$("#notificationArea");if(!a)return;const o=document.createElement("div");let s,r;switch(t){case"error":s="bg-red-600",r="text-white";break;case"warning":s="bg-yellow-500",r="text-black";break;case"info":s="bg-blue-500",r="text-white";break;default:s="bg-green-600",r="text-white"}o.className=`p-3 rounded-md shadow-lg text-sm font-medium transition-all duration-300 ease-in-out transform translate-x-full opacity-0 force-word-wrap ${s} ${r}`,o.textContent=e,a.appendChild(o),o.offsetWidth,requestAnimationFrame((()=>{o.classList.remove("translate-x-full","opacity-0"),o.classList.add("translate-x-0","opacity-100")})),setTimeout((()=>{o.classList.remove("translate-x-0","opacity-100"),o.classList.add("translate-x-full","opacity-0"),o.addEventListener("transitionend",(()=>o.remove()),{once:!0})}),n)}function populateDropdowns(){const e=$$('select[name="account"], select[name="transferFrom"], select[name="transferTo"], select[name="receivableSourceAccount"], select[name="payDebtAccount"], select[name="recPaymentAccount"], select[name="instPayAccount"], select[name="ccPayFromAccount"], #modalAccount, #recSourceAccountAdd, #recSourceAccountEdit, #modalCcPayFromAccount, #modalInstPayAccount, #modalPayDebtAccount, #modalTransferFrom, #modalTransferTo'),t=$$("#category, #modalCategory, #modalPayDebtCategory, #modalInstPayCategory, #modalCcPayCategory"),n=state.accounts.filter((e=>!e.hidden));e.forEach((e=>{if(!e)return;const t=e.value;e.innerHTML="",n.forEach((t=>{const n=document.createElement("option");n.value=t.id,n.textContent=`${t.name} (${formatCurrency(t.balance)})`,e.appendChild(n)})),Array.from(e.options).some((e=>e.value===t))?e.value=t:e.options.length>0&&(e.value=e.options[0].value)}));t.forEach((e=>{if(!e)return;const t=e.value;e.innerHTML="";const n=document.createElement("option");n.value="",n.textContent="---- Select Category ----",n.disabled=!0,e.appendChild(n);const a="Other";let o=state.categories.filter((e=>"income"!==e.toLowerCase()&&"credit card payment"!==e.toLowerCase()&&e.toLowerCase()!==a.toLowerCase()));if(o.sort(((e,t)=>e.localeCompare(t))),"modalPayDebtCategory"===e.id){const e="Debt Repayment";!o.includes(e)&&state.categories.some((t=>t.toLowerCase()===e.toLowerCase()))}if(o.forEach((t=>{const n=document.createElement("option");n.value=t,n.textContent=t,e.appendChild(n)})),state.categories.some((e=>e.toLowerCase()===a.toLowerCase()))){const t=document.createElement("option");t.value=a,t.textContent=a,e.appendChild(t)}t&&Array.from(e.options).some((e=>e.value===t&&""!==e.value))?e.value=t:"modalPayDebtCategory"===e.id&&state.categories.includes("Debt Repayment")?e.value="Debt Repayment":e.value=""}))}function renderDashboard(){const e=state.accounts.filter((e=>!e.hidden)),t=$("#accountCardsContainer");t.innerHTML="";let n=0;state.accounts.forEach((e=>{n+=e.balance}));if(!(1===e.length&&"cash"===e[0].id&&Math.abs(e[0].balance-n)<.01)){switch(t.style.display="grid",e.length){case 1:t.className="grid grid-cols-1 gap-3 text-center";break;case 2:t.className="grid grid-cols-1 md:grid-cols-2 gap-3 text-center";break;case 3:t.className="grid grid-cols-1 md:grid-cols-3 gap-3 text-center";break;default:t.className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center"}e.forEach((e=>{const n=document.createElement("div");n.id=`accountBalance-${e.id}`,n.className="bg-gray-600 p-3 rounded",n.innerHTML=`\n        <p class="text-xs font-medium text-gray-300 truncate">${e.name}</p>\n        <p class="font-semibold text-sm tabular-nums">${formatCurrency(e.balance)}</p>\n      `,t.appendChild(n)}))}else t.style.display="none";$("#totalBalance").innerHTML=`<span class="tabular-nums">${formatCurrency(n)}</span>`;const a=state.receivables.filter((e=>"cash"===e.type||"cc"===e.type&&e.sourceAccount)).reduce(((e,t)=>e+t.remainingAmount),0);$("#totalPotentialBalance").innerHTML=`<span class="tabular-nums">${formatCurrency(n+a)}</span>`,$("#totalOwedToMe").innerHTML=`Total: <span class="tabular-nums">${formatCurrency(state.receivables.reduce(((e,t)=>e+t.remainingAmount),0))}</span>`,$("#totalOwed").innerHTML=`Total: <span class="tabular-nums">${formatCurrency(state.debts.reduce(((e,t)=>e+t.remainingAmount),0))}</span>`,$("#totalInstallmentsLeft").innerHTML=`Total Left: <span class="tabular-nums">${formatCurrency(state.installments.reduce(((e,t)=>e+t.monthlyAmount*t.monthsLeft),0))}</span>`,renderRecentTransactions(),renderDebtList(),renderReceivableList(),renderInstallmentList(),renderCreditCardSection(),renderMonthlyOverviewChart(),renderYearlyAndQuickStats()}function renderYearlyAndQuickStats(){const e=new Date,t=e.getFullYear(),n=new Date(t,0,1),a=new Date(e);a.setHours(23,59,59,999);const o=new Date(e);o.setHours(0,0,0,0);const s=new Date(a),r=new Date(a);r.setDate(r.getDate()-6),r.setHours(0,0,0,0);const i=new Date(r);i.setDate(i.getDate()-1),i.setHours(23,59,59,999);const c=new Date(i);c.setDate(c.getDate()-6),c.setHours(0,0,0,0);const l=new Date(o);l.setDate(o.getDate()-1);let d=0,u=0,m=0,p=0,f=0,y=0;state.transactions.forEach((e=>{const g=new Date(e.date);if(isNaN(g.getTime()))return;const b=new Date(g);b.setHours(12,0,0,0),b>=n&&b.getFullYear()===t&&("income"===e.type&&(d+=e.amount),"expense"===e.type&&(u+=e.amount)),"expense"===e.type&&(b>=r&&b<=s&&(m+=e.amount),b>=c&&b<=i&&(p+=e.amount),b>=o&&b<=a&&(f+=e.amount),b>=l&&b<o&&(y+=e.amount))})),$("#yearlyTotals").textContent=`Yearly: Earned ${formatCurrency(d)} / Spent ${formatCurrency(u)}`;$("#quickStats").innerHTML=`Today: ${formatCurrency(f)} <span id="todaySpendingIndicator"></span> | Past 7 Days: ${formatCurrency(m)} <span id="weekSpendingIndicator"></span>`;const g=$("#todaySpendingIndicator");g.innerHTML=f>y&&y>=0?`<i class="fas fa-arrow-up text-indicator-bad spending-indicator" title="More than yesterday (${formatCurrency(y)})"></i>`:f<y&&y>0?`<i class="fas fa-arrow-down text-indicator-good spending-indicator" title="Less than yesterday (${formatCurrency(y)})"></i>`:"";const b=$("#weekSpendingIndicator");b.innerHTML=m>p&&p>=0?`<i class="fas fa-arrow-up text-indicator-bad spending-indicator" title="More than previous 7 days (${formatCurrency(p)})"></i>`:m<p&&p>0?`<i class="fas fa-arrow-down text-indicator-good spending-indicator" title="Less than previous 7 days (${formatCurrency(p)})"></i>`:""}function openShortcutsHelpModal(){const e=$("#shortcutsHelpModal"),t=$("#shortcutsList");if(!e||!t)return console.error("Shortcut help modal elements not found!"),void showNotification("Could not display shortcuts help.","error");t.innerHTML="",[{key:"-",action:"Start an Expense Transaction."},{key:"+",action:"Start an Income Transaction."},{key:"M",action:"Open Monthly Breakdown."},{key:"S",action:"Open Settings (In Dashboard)."},{key:"S",action:"Start Search (In Monthly Breakdown)."},{key:"C",action:"Start a CC Transaction."},{key:"D",action:"View All Debts."},{key:"R",action:"View All Receivables."},{key:"T",action:"Transfer Money."},{key:"Ctrl + E",action:"Export Data."},{key:"Ctrl + I",action:"Import Data."},{key:"← / →",action:"Navigate Month Tabs in Breakdown."}].forEach((e=>{const n=document.createElement("li");n.className="flex justify-between items-center py-2 px-1 border-b border-gray-700 last:border-b-0";const a=document.createElement("span");a.className="font-semibold text-accent-primary w-1/3",a.textContent=e.key;const o=document.createElement("span");o.className="text-gray-300 text-sm text-left flex-grow px-2",o.textContent=e.action;const s=document.createElement("span");s.className="text-xs text-gray-500 text-right w-1/4 italic",s.textContent=e.context||"",n.appendChild(a),n.appendChild(o),e.context&&n.appendChild(s),t.appendChild(n)})),e.style.display="block"}function handleKeyboardShortcuts(e){const t=document.activeElement,n=t&&("INPUT"===t.tagName||"SELECT"===t.tagName||"TEXTAREA"===t.tagName||t.isContentEditable),a=e.ctrlKey||e.altKey||e.metaKey,o="block"===$("#monthlyViewModal")?.style.display,s="block"===$("#settingsModal")?.style.display;$("#transferMoneyModal")?.style.display,$("#debtsViewModal")?.style.display,$("#receivablesViewModal")?.style.display;if(!e.ctrlKey||"e"!==e.key&&"E"!==e.key){if(!e.ctrlKey||"i"!==e.key&&"I"!==e.key){if(!(a&&"Escape"!==e.key||n&&"Escape"!==e.key))switch(e.key){case"-":if(!n){e.preventDefault();const t=$("#transactionType"),n=$("#amount");t&&n&&(t.value="expense",t.dispatchEvent(new Event("change")),n.focus(),console.log("Shortcut: '-' pressed for Expense"))}break;case"+":case"=":if(!n){e.preventDefault();const t=$("#transactionType"),n=$("#amount");t&&n&&(t.value="income",t.dispatchEvent(new Event("change")),n.focus(),console.log("Shortcut: '+' pressed for Income"))}break;case"m":case"M":if(!n){e.preventDefault();const t=$("#monthlyViewBtn");t&&("block"!==$("#monthlyViewModal")?.style.display?(t.click(),console.log("Shortcut: 'm' pressed, opening Monthly View")):(closeModal("monthlyViewModal"),console.log("Shortcut: 'm' pressed, closing Monthly View")))}break;case"s":case"S":if(o&&!n){e.preventDefault();const t=$("#monthlySearchInput");t&&(t.focus(),console.log("Shortcut: 's' pressed, focusing Monthly Search"))}else if(!o&&!s&&!n){e.preventDefault();const t=$("#settingsBtn");t&&("block"!==$("#settingsModal")?.style.display?(t.click(),console.log("Shortcut: 's' pressed, opening Settings")):(closeModal("settingsModal"),console.log("Shortcut: 's' pressed, closing Settings")))}break;case"Escape":const a=$("#monthlySearchInput");if(a&&document.activeElement===a&&a.value){e.preventDefault();const t=$("#clearMonthlySearchBtn");t&&(t.click(),console.log("Shortcut: Escape pressed, clearing Monthly Search"))}else{const a=["confirmationModal","formModal","ccHistoryModal","cashCounterModal","debtsViewModal","receivablesViewModal","transferMoneyModal","monthlyViewModal","settingsModal"];let o=!1;for(const t of a){const n=$(`#${t}`);if(n&&"block"===n.style.display){e.preventDefault(),closeModal(t),console.log(`Shortcut: Escape pressed, closing modal ${t}`),o=!0;break}}!o&&n&&(t.blur(),console.log("Shortcut: Escape pressed, blurring active input field"))}break;case"c":case"C":if(!n){e.preventDefault();const t=$("#creditCardDashboardSection"),n=$("#ccAmount");t&&"none"!==t.style.display&&n?(n.focus(),console.log("Shortcut: 'c' pressed, focusing CC Amount")):t&&"none"===t.style.display&&showNotification("Credit Card section is currently hidden. Enable in Settings.","info")}break;case"d":case"D":if(!n){e.preventDefault();const t=$("#viewDebtsBtn");t&&("block"!==$("#debtsViewModal")?.style.display?(t.click(),console.log("Shortcut: 'd' pressed, opening Debts View")):(closeModal("debtsViewModal"),console.log("Shortcut: 'd' pressed, closing Debts View")))}break;case"r":case"R":if(!n){e.preventDefault();const t=$("#viewReceivablesBtn");t&&("block"!==$("#receivablesViewModal")?.style.display?(t.click(),console.log("Shortcut: 'r' pressed, opening Receivables View")):(closeModal("receivablesViewModal"),console.log("Shortcut: 'r' pressed, closing Receivables View")))}break;case"t":case"T":if(!n){e.preventDefault();const t=$("#openTransferModalBtn");t&&("block"!==$("#transferMoneyModal")?.style.display?(t.click(),console.log("Shortcut: 't' pressed, opening Transfer Modal")):(closeModal("transferMoneyModal"),console.log("Shortcut: 't' pressed, closing Transfer Modal")))}break;case"ArrowLeft":o&&!n&&(e.preventDefault(),navigateMonthTabs(-1),console.log("Shortcut: ArrowLeft pressed for previous month"));break;case"ArrowRight":o&&!n&&(e.preventDefault(),navigateMonthTabs(1),console.log("Shortcut: ArrowRight pressed for next month"))}}else if(!n){e.preventDefault();const t=$("#importDataInput"),n=$("#settingsModal");if(n&&"block"!==n.style.display)openSettingsModal(),setTimeout((()=>{const e=Array.from($$("#settingsTabsContainer button")).find((e=>"Data"===e.textContent));e&&e.click(),t&&t.click()}),100);else if(t){const e=Array.from($$("#settingsTabsContainer button")).find((e=>"Data"===e.textContent));e&&e.click(),t.click()}console.log("Shortcut: Ctrl+I pressed for Import Data")}}else n||(e.preventDefault(),exportData(),console.log("Shortcut: Ctrl+E pressed for Export Data"))}function navigateMonthTabs(e){const t=$$("#monthTabs .tab-button");if(0===t.length)return;let n=-1;if(t.forEach(((e,t)=>{e.classList.contains("active")&&(n=t)})),-1!==n){let a=n+e;a<0?a=t.length-1:a>=t.length&&(a=0),t[a].click()}else if(t.length>0){const e=(new Date).getMonth(),n=$("#yearSelector"),a=n?parseInt(n.value):(new Date).getFullYear(),o=$(`#monthTabs .tab-button[data-month="${e}"][data-year="${a}"]`)||t[0];o&&o.click()}}function renderRecentTransactions(){const e=$("#recentTransactionsList");if(!e)return;e.innerHTML="";const t=[...state.transactions].sort(((e,t)=>new Date(t.date).setHours(0,0,0,0)-new Date(e.date).setHours(0,0,0,0)||t.timestamp-e.timestamp)).slice(0,10);0!==t.length?t.forEach((t=>{const n=document.createElement("div");n.className="flex justify-between items-center p-2 rounded bg-gray-700/50 text-sm transition-colors hover:bg-gray-700/80";const a=state.accounts.find((e=>e.id===t.account)),o=a?a.name:"Unknown Acct",s="income"===t.type,r=s?"text-income":"text-expense";let i=`${new Date(t.date).toLocaleDateString([],{day:"2-digit",month:"short"})}`;i+=` - ${o}`,!s&&t.category?i+=` | ${t.category}`:s||t.category||(i+=" | Uncategorized"),n.innerHTML=`\n      <div class="flex-grow mr-2 overflow-hidden">\n        <p class="font-medium truncate ${r}" title="${t.description}">${t.description}</p>\n        <p class="text-xs text-gray-400">${i}</p>\n      </div>\n      <span class="font-semibold whitespace-nowrap ${r} tabular-nums">${s?"+":"-"}${formatCurrency(t.amount)}</span>\n      <div class="edit-btn-container flex-shrink-0">\n        <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionForm('${t.id}', event)" title="Edit"><i class="fas fa-edit"></i></button>\n        <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteTransaction('${t.id}',event)" title="Delete"><i class="fas fa-times"></i></button>\n      </div>`,e.appendChild(n)})):e.innerHTML='<p class="text-gray-400 text-sm">No transactions yet.</p>'}function renderDebtList(){const e=$("#debtModalListContainer");if(!e)return void console.warn("#debtModalListContainer element not found. Debts modal might not be open.");if(e.innerHTML="",0===state.debts.length)return void(e.innerHTML='<p class="text-gray-400 text-sm text-center py-4">No debts recorded.</p>');const t=state.debts.reduce(((e,t)=>{const n=t.who.trim();return e[n]||(e[n]={totalOwedTo:0,items:[]}),e[n].totalOwedTo+=t.remainingAmount,e[n].items.push(t),e}),{});Object.keys(t).sort(((e,t)=>e.localeCompare(t))).forEach((n=>{const a=t[n],o=`modal-debt-creditor-${generateId()}`,s=document.createElement("div");s.className="mb-3 border border-gray-700 rounded-md overflow-hidden shadow-sm";const r=document.createElement("div");r.className="flex justify-between items-center p-3 cursor-pointer hover:bg-gray-600/50 transition-colors",r.style.backgroundColor="var(--bg-tertiary)",r.innerHTML=` \n      <h4 class="text-md font-semibold text-gray-100 force-word-wrap">${n}</h4>\n      <div class="flex items-center flex-shrink-0 ml-2">\n        <span class="text-md font-semibold text-expense mr-3 whitespace-nowrap tabular-nums">${formatCurrency(a.totalOwedTo)}</span>\n        <span class="toggle-icon text-gray-400"><i class="fas fa-chevron-down text-xs"></i></span>\n      </div>\n    `,s.appendChild(r);const i=document.createElement("div");i.className="day-transactions-container",i.id=o,i.style.maxHeight="0px",i.style.backgroundColor="var(--bg-secondary)",a.items.sort(((e,t)=>new Date(e.dueDate)-new Date(t.dueDate))).forEach((e=>{const t=getDaysLeft(e.dueDate);let n,a;t<0?(n=`Overdue by ${Math.abs(t)} day(s)`,a="text-expense font-medium"):0===t?(n="Due Today",a="text-warning font-medium"):(n=`${t} day(s) left`,a="text-gray-300");const o=document.createElement("div");o.className="text-sm py-2 px-3 border-b border-gray-700 last:border-b-0",o.innerHTML=`\n          <div class="flex justify-between items-start mb-1 gap-x-2">\n            <div class="flex-grow">\n              <p class="font-medium text-gray-200 force-word-wrap">${e.why}</p>\n              <p class="text-xs ${a}">${n}</p>\n            </div>\n            <span class="font-semibold text-expense whitespace-nowrap tabular-nums">${formatCurrency(e.remainingAmount)}</span>\n          </div>\n          <div class="flex justify-between items-center text-xs text-gray-500 mt-1">\n            <span>Due: ${new Date(e.dueDate).toLocaleDateString()}</span>\n            <div class="edit-btn-container">\n              <button class="link-style text-xs mr-2 accent-text hover:text-accent-hover" onclick="openEditDebtForm('${e.id}')">Edit</button>\n              <button class="link-style text-xs mr-2 text-income hover:opacity-80" onclick="openPayDebtForm('${e.id}')">Pay</button>\n              <button class="text-gray-500 hover:text-expense text-xs focus:outline-none" onclick="deleteDebt('${e.id}')" title="Delete"><i class="fas fa-times"></i></button>\n            </div>\n          </div>\n        `,i.appendChild(o)})),s.appendChild(i),r.onclick=()=>{const e=r.querySelector(".toggle-icon i");"0px"===i.style.maxHeight?(i.style.maxHeight=i.scrollHeight+"px",e&&(e.classList.remove("fa-chevron-down"),e.classList.add("fa-chevron-up"))):(i.style.maxHeight="0px",e&&(e.classList.remove("fa-chevron-up"),e.classList.add("fa-chevron-down")))},e.appendChild(s)}))}function renderReceivableList(){const e=$("#receivableModalListContainer");if(!e)return;e.innerHTML="";const t=state.receivables.filter((e=>"cash"===e.type||!e.type)),n=state.receivables.filter((e=>"cc"===e.type));if(0===state.receivables.length)return void(e.innerHTML='<p class="text-gray-400 text-sm text-center py-4">No receivables recorded.</p>');const a=(t,n)=>{const a=document.createElement("div");a.className="mb-6";const o=document.createElement("div");o.className="flex justify-between items-center border-b border-gray-500 pb-2 mb-3";const s=document.createElement("h3");s.className="text-xl font-semibold text-gray-100",s.textContent=t,o.appendChild(s);const r=n.reduce(((e,t)=>e+t.remainingAmount),0),i=document.createElement("span");if(i.className="text-base font-normal text-gray-100 tabular-nums",i.textContent=`Total: ${formatCurrency(r)}`,o.appendChild(i),a.appendChild(o),0===n.length)return;const c=n.reduce(((e,t)=>{const n=t.who.trim();return e[n]||(e[n]={totalOwed:0,items:[]}),e[n].totalOwed+=t.remainingAmount,e[n].items.push(t),e}),{});Object.keys(c).sort(((e,t)=>e.localeCompare(t))).forEach((e=>{const n=c[e],o=`modal-receivable-${t.toLowerCase().replace(/[^a-z0-9]/g,"")}-${generateId()}`,s=document.createElement("div");s.className="mb-3 border border-gray-700 rounded-md overflow-hidden shadow-sm";const r=document.createElement("div");r.className="flex justify-between items-center p-3 cursor-pointer hover:bg-gray-600/50 transition-colors",r.style.backgroundColor="var(--bg-tertiary)",r.innerHTML=`\n          <h4 class="text-md font-semibold text-gray-100 force-word-wrap">${e}</h4>\n          <div class="flex items-center flex-shrink-0 ml-2">\n            <span class="text-md font-semibold text-income mr-3 whitespace-nowrap tabular-nums">${formatCurrency(n.totalOwed)}</span>\n            <span class="toggle-icon text-gray-400"><i class="fas fa-chevron-down text-xs"></i></span>\n          </div>\n      `,s.appendChild(r);const i=document.createElement("div");i.className="day-transactions-container",i.id=o,i.style.maxHeight="0px",i.style.backgroundColor="var(--bg-secondary)",n.items.sort(((e,t)=>new Date(t.dateGiven)-new Date(e.dateGiven))).forEach((e=>{const t=state.accounts.find((t=>t.id===e.sourceAccount));let n="cash"===e.type?`(From: ${t?.name||"Unknown"})`:"(Via CC)";const a=document.createElement("div");a.className="text-sm py-2 px-3 border-b border-gray-700 last:border-b-0",a.innerHTML=`\n          <div class="flex justify-between items-start mb-1 gap-x-2">\n            <div class="flex-grow">\n              <p class="font-medium text-gray-200 force-word-wrap">${e.why}</p>\n              <p class="text-xs text-gray-400">${n}</p>\n            </div>\n            <span class="font-semibold text-income whitespace-nowrap tabular-nums">${formatCurrency(e.remainingAmount)}</span>\n          </div>\n          <div class="flex justify-between items-center text-xs text-gray-500 mt-1">\n            <span>Given: ${new Date(e.dateGiven).toLocaleDateString()}</span>\n            <div class="edit-btn-container">\n              <button class="link-style text-xs mr-2 accent-text hover:text-accent-hover" onclick="openEditReceivableForm('${e.id}')">Edit</button>\n              <button class="link-style text-xs mr-2 text-income hover:opacity-80" onclick="openReceivePaymentForm('${e.id}')">Receive</button>\n              <button class="text-gray-500 hover:text-expense text-xs focus:outline-none" onclick="deleteReceivable('${e.id}')" title="Delete"><i class="fas fa-times"></i></button>\n            </div>\n          </div>\n        `,i.appendChild(a)})),s.appendChild(i),r.onclick=()=>{const e=r.querySelector(".toggle-icon i"),t="0px"===i.style.maxHeight;i.style.maxHeight=t?i.scrollHeight+"px":"0px",e.classList.toggle("fa-chevron-down",!t),e.classList.toggle("fa-chevron-up",t)},a.appendChild(s)})),e.appendChild(a)};a("Cash/Bank Loans",t),a("Credit Card Loans",n)}function renderInstallmentList(){const e=$("#installmentList");if(!e)return;e.innerHTML="";const t=[...state.installments].sort(((e,t)=>{const n=new Date(e.startDate);n.setMonth(n.getMonth()+e.totalMonths);const a=new Date(t.startDate);return a.setMonth(a.getMonth()+t.totalMonths),n-a}));0!==t.length?t.forEach((t=>{const n=new Date(t.startDate);n.setMonth(n.getMonth()+t.totalMonths);const a=getDaysLeft(n);let o=a<0?'<span class="text-gray-500">Finished</span>':`<span class="text-gray-300">${a} day(s) left</span>`;const s=t.monthlyAmount*t.monthsLeft,r=t.totalMonths>0?(t.totalMonths-t.monthsLeft)/t.totalMonths*100:0,i=document.createElement("div");i.className="p-3 rounded bg-gray-700/50 text-sm mb-2 flex items-center gap-x-3";const c=`\n      <div class="installment-progress-ring-container w-10 h-10 flex-shrink-0" title="${r.toFixed(0)}% Paid (${t.monthsLeft} months left)">\n          <svg class="w-full h-full" viewBox="0 0 36 36">\n              <path class="progress-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3"></path>\n              <path class="progress-ring-circle" stroke-dasharray="${r.toFixed(2)}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-linecap="round" stroke-width="3"></path>\n              <text x="18" y="17.5" class="progress-ring-text" text-anchor="middle" fill="var(--text-primary)">${t.monthsLeft}</text> \n          </svg>\n      </div>\n    `,l=`\n        <div class="edit-btn-container">\n            ${t.monthsLeft>0?`\n                <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditInstallmentForm('${t.id}')" title="Edit"><i class="fas fa-edit"></i></button>\n                <button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="payInstallmentMonth('${t.id}')" title="Pay Month"><i class="fas fa-credit-card"></i></button>\n              `:`\n                <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditInstallmentForm('${t.id}')" title="Edit"><i class="fas fa-edit"></i></button>\n              `}\n            <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteInstallment('${t.id}')" title="Delete"><i class="fas fa-times"></i></button>\n        </div>\n    `;i.innerHTML=`\n      ${c}\n      <div class="flex-grow">\n          <div class="flex justify-between items-start mb-1 gap-x-2">\n            <div class="flex-grow">\n                <p class="font-medium force-word-wrap">${t.description}</p>\n                <p class="text-xs text-gray-400 tabular-nums">${formatCurrency(t.monthlyAmount)} / month</p>\n            </div>\n            <span class="font-semibold text-gray-200 whitespace-nowrap tabular-nums">${formatCurrency(s)} Left</span> \n          </div>\n          <div class="flex justify-between items-center text-xs text-gray-400 mt-1">\n              <span>${t.monthsLeft} of ${t.totalMonths} months left (${o})</span>\n              ${l}\n          </div>\n      </div>\n    `,e.appendChild(i)})):e.innerHTML='<p class="text-gray-400 text-sm">No installments.</p>'}let monthlyOverviewChartInstance=null;function renderMonthlyOverviewChart(){const e=$("#monthlyOverviewChart");if(!e)return;const t=$("#dashboardChartTitle"),n=$("#toggleChartBtn"),a=n?n.querySelector("i"):null;monthlyOverviewChartInstance&&monthlyOverviewChartInstance.destroy();const o=e.getContext("2d"),s=getComputedStyle(document.documentElement),r=s.getPropertyValue("--chart-grid-color").trim()||"rgba(255,255,255,0.1)",i=s.getPropertyValue("--chart-tick-color").trim()||"#aaa",c=s.getPropertyValue("--chart-legend-color").trim()||"#e0e0e0",l=s.getPropertyValue("--chart-tooltip-bg").trim()||"rgba(0,0,0,0.8)",d=s.getPropertyValue("--chart-tooltip-text").trim()||"#fff",u="#2a9d8f",m="#e74c3c",p=(e,t=.3)=>{let n=0,a=0,o=0;return 4==e.length?(n=parseInt(e[1]+e[1],16),a=parseInt(e[2]+e[2],16),o=parseInt(e[3]+e[3],16)):7==e.length&&(n=parseInt(e.slice(1,3),16),a=parseInt(e.slice(3,5),16),o=parseInt(e.slice(5,7),16)),`rgba(${n}, ${a}, ${o}, ${t})`};let f,y;if("monthly"===dashboardChartState){t&&(t.textContent="Daily Expenses (Current Month)"),a&&(a.className="fas fa-calendar-alt fa-lg",n.dataset.tooltip="Switch to Yearly View");const e=new Date,o=e.getMonth(),s=e.getFullYear(),r=new Date(s,o+1,0).getDate();f=Array.from({length:r},((e,t)=>t+1));const i=new Array(r).fill(0);state.transactions.forEach((e=>{const t=new Date(e.date);if("expense"===e.type&&t.getMonth()===o&&t.getFullYear()===s){const n=t.getDate();i[n-1]+=e.amount}})),y=[{label:"Daily Expense",data:i,borderColor:m,backgroundColor:p(m,.3),fill:!0,tension:.4,pointBackgroundColor:m,pointBorderColor:"#fff",pointHoverRadius:6,pointHoverBackgroundColor:"#fff",pointHoverBorderColor:m}]}else{t&&(t.textContent="Monthly Income vs Expenses (Last 12 Months)"),a&&(a.className="fas fa-chart-line fa-lg",n.dataset.tooltip="Switch to Daily Expense View"),f=[];const e=[],o=[],s=new Date;for(let t=11;t>=0;t--){const n=new Date(s.getFullYear(),s.getMonth()-t,1),a=n.getFullYear(),r=n.getMonth();f.push(n.toLocaleString("default",{month:"short"}));let i=0,c=0;state.transactions.forEach((e=>{const t=new Date(e.date);isNaN(t.getTime())||t.getFullYear()===a&&t.getMonth()===r&&("income"===e.type?i+=e.amount:"expense"===e.type&&(c+=e.amount))})),e.push(i),o.push(c)}y=[{label:"Income",data:e,borderColor:u,backgroundColor:p(u,.3),fill:!0,tension:.4,pointBackgroundColor:u,pointBorderColor:"#fff",pointHoverRadius:6,pointHoverBackgroundColor:"#fff",pointHoverBorderColor:u},{label:"Expenses",data:o,borderColor:m,backgroundColor:p(m,.3),fill:!0,tension:.4,pointBackgroundColor:m,pointBorderColor:"#fff",pointHoverRadius:6,pointHoverBackgroundColor:"#fff",pointHoverBorderColor:m}]}monthlyOverviewChartInstance=new Chart(o,{type:"line",data:{labels:f,datasets:y},options:{responsive:!0,maintainAspectRatio:!1,scales:{y:{beginAtZero:!0,ticks:{color:i,callback:e=>e>=1e6?`LKR ${(e/1e6).toFixed(1)}M`:e>=1e3?`LKR ${(e/1e3).toFixed(0)}k`:formatCurrency(e)},grid:{color:r,drawBorder:!1}},x:{ticks:{color:i},grid:{display:!1}}},plugins:{legend:{position:"top",labels:{color:c,usePointStyle:!0,boxWidth:8}},tooltip:{backgroundColor:l,titleColor:d,bodyColor:d,padding:10,cornerRadius:4,usePointStyle:!0,callbacks:{label:e=>`${e.dataset.label||""}: ${formatCurrency(e.parsed.y)}`}}},interaction:{mode:"index",intersect:!1}}})}function handleTransactionSubmit(e){e.preventDefault();const t=e.target,n=new FormData(t),a=n.get("transactionType"),o=parseFloat(n.get("amount")),s=n.get("account"),r="expense"===a?n.get("category"):null,i=n.get("description").trim(),c=n.get("date");if(isNaN(o)||o<=0)return void showNotification("Valid amount required.","error");if(!s)return void showNotification("Account required.","error");if("expense"===a&&!r)return void showNotification("Category required for expense.","error");if(!i)return void showNotification("Description required.","error");if(!c)return void showNotification("Date required.","error");const l=state.accounts.find((e=>e.id===s));if(!l)return void showNotification("Account not found.","error");const d=Date.now();"expense"===a&&l.balance<o&&showNotification(`Insufficient funds in ${l.name}. Transaction still added.`,"warning");const u={id:generateId(),type:a,amount:roundToTwoDecimals(o),account:s,category:r,description:i,date:c,timestamp:d};state.transactions.push(u),l.balance=roundToTwoDecimals("income"===a?l.balance+u.amount:l.balance-u.amount),isNaN(l.balance)&&(l.balance=0),showNotification(`${a.charAt(0).toUpperCase()+a.slice(1)} added.`,"success"),saveData(),renderDashboard(),populateDropdowns(),t.reset();const m=t.querySelector("#category");m&&(m.value="");const p=t.querySelector("#date");p&&(p.value=getCurrentDateString());const f=t.querySelector("#transactionType");f&&f.dispatchEvent(new Event("change")),refreshMonthlyViewIfRelevant(c)}function openEditTransactionModal(e,t){t&&t.stopPropagation();const n=state.transactions.find((t=>t.id===e));if(!n)return void showNotification("Transaction not found for editing.","error");const a=state.accounts.map((e=>`<option value="${e.id}" ${n.account===e.id?"selected":""}>${e.name} (${formatCurrency(e.balance)})</option>`)).join(""),o=state.categories.sort(((e,t)=>e.localeCompare(t))).map((e=>`<option value="${e}" ${n.category===e?"selected":""}>${e}</option>`)).join("");openFormModal("Edit Transaction",`\n            <input type="hidden" name="editTransactionId" value="${n.id}">\n            <div>\n                <label for="modalTransactionType" class="block text-sm font-medium mb-1">Type</label>\n                <select id="modalTransactionType" name="transactionType" required onchange="toggleCategoryVisibilityInModal(this, 'modalCategoryGroup', 'modalCategory')">\n                    <option value="expense" ${"expense"===n.type?"selected":""}>Expense</option>\n                    <option value="income" ${"income"===n.type?"selected":""}>Income</option>\n                </select>\n            </div>\n            <div>\n                <label for="modalAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>\n                <input type="number" id="modalAmount" name="amount" value="${n.amount.toFixed(2)}" step="0.01" min="0" placeholder="e.g., 1500.50" required>\n            </div>\n            <div>\n                <label for="modalAccount" class="block text-sm font-medium mb-1">Account</label>\n                <select id="modalAccount" name="account" required>${a}</select>\n            </div>\n            <div id="modalCategoryGroup" style="display: ${"expense"===n.type?"block":"none"};">\n                <label for="modalCategory" class="block text-sm font-medium mb-1">Category</label>\n                <select id="modalCategory" name="category" ${"expense"===n.type?"required":""}>${o}</select>\n            </div>\n            <div>\n                <label for="modalDescription" class="block text-sm font-medium mb-1">Description</label>\n                <input type="text" id="modalDescription" name="description" value="${n.description}" placeholder="e.g., Lunch with friends" required>\n            </div>\n            <div>\n                <label for="modalDate" class="block text-sm font-medium mb-1">Date</label>\n                <input type="date" id="modalDate" name="date" value="${n.date}" required>\n            </div>\n            <button type="submit" class="btn btn-primary w-full"><i class="fas fa-save"></i> Update Transaction</button>\n        `,handleEditTransactionModalSubmit);const s=document.getElementById("modalTransactionType");s&&toggleCategoryVisibilityInModal(s,"modalCategoryGroup","modalCategory")}function handleEditTransactionModalSubmit(e){e.preventDefault();const t=e.target,n=new FormData(t),a=n.get("editTransactionId"),o=state.transactions.find((e=>e.id===a));if(!o)return showNotification("Transaction to edit not found.","error"),void closeModal("formModal");const s=o.date,r=n.get("transactionType"),i=parseFloat(n.get("amount")),c=n.get("account"),l="expense"===r?n.get("category"):null,d=n.get("description").trim(),u=n.get("date");if(isNaN(i)||i<=0)return void showNotification("Valid amount required.","error");if(!c)return void showNotification("Account required.","error");if("expense"===r&&!l)return void showNotification("Category required for expense.","error");if(!d)return void showNotification("Description required.","error");if(!u)return void showNotification("Date required.","error");const m=o.amount,p=state.accounts.find((e=>e.id===o.account));p&&("income"===o.type?p.balance=roundToTwoDecimals(p.balance-m):p.balance=roundToTwoDecimals(p.balance+m),isNaN(p.balance)&&(p.balance=0)),o.type=r,o.amount=roundToTwoDecimals(i),o.account=c,o.category=l,o.description=d,o.date=u;const f=state.accounts.find((e=>e.id===c));f?("income"===o.type?f.balance=roundToTwoDecimals(f.balance+o.amount):f.balance=roundToTwoDecimals(f.balance-o.amount),isNaN(f.balance)&&(f.balance=0),f.balance<0&&(p?.id!==f.id||"expense"===o.type)&&showNotification(`Warning: ${f.name} now has a negative balance.`,"warning")):showNotification("New account not found. Transaction update may be incomplete.","error"),saveData(),renderDashboard(),populateDropdowns(),closeModal("formModal"),showNotification("Transaction updated successfully.","success"),refreshMonthlyViewIfRelevant(u),s!==u&&refreshMonthlyViewIfRelevant(s)}function deleteTransaction(e,t){t&&t.stopPropagation();const n=state.transactions.findIndex((t=>t.id===e));if(-1===n)return;const a=state.transactions[n],o=state.accounts.find((e=>e.id===a.account));showConfirmationModal("Delete Transaction",`Are you sure you want to delete the transaction: <br><strong>"${a.description}"</strong> (${formatCurrency(a.amount)})?`,"Delete","Cancel",(()=>{o&&("income"===a.type?o.balance=roundToTwoDecimals(o.balance-a.amount):o.balance=roundToTwoDecimals(o.balance+a.amount),isNaN(o.balance)&&(o.balance=0));const e=a.date;state.transactions.splice(n,1),saveData(),renderDashboard(),populateDropdowns(),showNotification("Transaction deleted.","success"),refreshMonthlyViewIfRelevant(e)}))}function handleTransferSubmit(e){e.preventDefault();const t=e.target,n=new FormData(t),a=parseFloat(n.get("transferAmount")),o=n.get("transferFrom"),s=n.get("transferTo"),r=$("#modalTransferError");if(r?(r.textContent="",r.classList.add("hidden")):console.warn("Modal error element (#modalTransferError) not found!"),isNaN(a)||a<=0)return showNotification("Valid amount required for transfer.","error"),void(r&&(r.textContent="Please enter a valid positive amount.",r.classList.remove("hidden")));if(o===s)return showNotification("Cannot transfer to the same account.","error"),void(r&&(r.textContent="From and To accounts cannot be the same.",r.classList.remove("hidden")));const i=state.accounts.find((e=>e.id===o)),c=state.accounts.find((e=>e.id===s));if(!i||!c)return showNotification("Invalid account selected for transfer.","error"),void(r&&(r.textContent="Invalid source or destination account selected.",r.classList.remove("hidden")));const l=roundToTwoDecimals(a);if(i.balance<l)return showNotification(`Insufficient funds in ${i.name}.`,"warning"),void(r&&(r.textContent=`Insufficient funds in ${i.name}. Available: ${formatCurrency(i.balance)}`,r.classList.remove("hidden")));i.balance=roundToTwoDecimals(i.balance-l),c.balance=roundToTwoDecimals(c.balance+l),isNaN(i.balance)&&(i.balance=0),isNaN(c.balance)&&(c.balance=0),saveData(),renderDashboard(),populateDropdowns(),showNotification(`Transferred ${formatCurrency(l)} from ${i.name} to ${c.name}.`,"success"),closeModal("transferMoneyModal")}function refreshMonthlyViewIfRelevant(e){const t=$("#monthlyViewModal"),n=$("#monthTabs .tab-button.active");if("block"===t.style.display&&n){const t=parseInt(n.dataset.month),a=parseInt(n.dataset.year),o=new Date(e+"T00:00:00");if(!isNaN(o.getTime())&&o.getFullYear()===a&&o.getMonth()===t){const e=new Set;$$("#monthlyDetailsContainer .monthly-view-day-header").forEach((t=>{const n=t.closest(".monthly-view-day-group");if(n){const a=n.querySelector(".day-transactions-container"),o=t.dataset.dayKey;a&&"0px"!==a.style.maxHeight&&o&&e.add(o)}})),renderMonthlyDetails(t,a,e)}}}let monthlyPieChartInstance=null;function setupMonthlyView(){const e=$("#yearSelector"),t=(new Date).getFullYear();if(!e){console.error("#yearSelector not found in setupMonthlyView. Monthly view cannot be initialized.");const e=$("#monthlyViewBtn");return void(e&&(e.disabled=!0,e.dataset.tooltip="Monthly View unavailable (Error)"))}const n=new Set((state.transactions||[]).map((e=>{const n=new Date(e.date);return isNaN(n.getFullYear())?t:n.getFullYear()})));n.add(t),e.innerHTML="",[...n].sort(((e,t)=>t-e)).forEach((n=>{const a=document.createElement("option");a.value=n,a.textContent=n,n===t&&(a.selected=!0),e.appendChild(a)})),e.addEventListener("change",(()=>{const t=$("#monthlySearchInput"),n=$("#clearMonthlySearchBtn");t&&(t.value=""),n&&(n.style.display="none",n.disabled=!0),renderMonthTabs(parseInt(e.value)),$("#monthlyDetailsContainer").innerHTML='<p class="text-center text-gray-400">Select a month to view details.</p>',monthlyPieChartInstance&&(monthlyPieChartInstance.destroy(),monthlyPieChartInstance=null)}));renderMonthTabs(e.value?parseInt(e.value):t)}function renderMonthTabs(e){const t=$("#monthTabs");if(!t)return void console.error("#monthTabs container not found.");t.innerHTML="";["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].forEach(((n,a)=>{const o=document.createElement("button");o.className="tab-button !px-3 !py-1.5 !text-sm",o.textContent=n,o.dataset.month=a,o.dataset.year=e,o.onclick=()=>{$$("#monthTabs .tab-button").forEach((e=>e.classList.remove("active"))),o.classList.add("active");const t=$("#monthlySearchInput"),n=$("#clearMonthlySearchBtn");t&&(t.value=""),n&&(n.style.display="none",n.disabled=!0),renderMonthlyDetails(a,e,new Set,"",!1)},t.appendChild(o)}))}function renderMonthlyDetails(e,t,n=new Set,a="",o=!1){const s=$("#monthlyDetailsContainer");(o&&!a||!o&&!a)&&monthlyPieChartInstance&&(monthlyPieChartInstance.destroy(),monthlyPieChartInstance=null),s.innerHTML="";let r=[];r="year"===monthlyViewSearchScope?state.transactions.filter((e=>{const n=new Date(e.date+"T00:00:00");return!isNaN(n.getTime())&&n.getFullYear()===t})):state.transactions.filter((n=>{const a=new Date(n.date+"T00:00:00");return!isNaN(a.getTime())&&a.getFullYear()===t&&a.getMonth()===e}));const i=state.transactions.filter((n=>{const a=new Date(n.date+"T00:00:00");return!isNaN(a.getTime())&&a.getFullYear()===t&&a.getMonth()===e}));let c=0,l=0;const d={};state.categories&&Array.isArray(state.categories)&&state.categories.forEach((e=>d[e]=0));let u=0;const m=new Date(t,e-1,1);state.transactions.filter((e=>{const t=new Date(e.date+"T00:00:00");return"expense"===e.type&&!isNaN(t.getTime())&&t.getFullYear()===m.getFullYear()&&t.getMonth()===m.getMonth()})).forEach((e=>u+=e.amount)),i.forEach((e=>{if("income"===e.type)c+=e.amount;else if("expense"===e.type){l+=e.amount;const t=e.category||"Other";void 0!==d[t]?d[t]+=e.amount:(d.Other||(d.Other=0),d.Other+=e.amount)}}));const p=document.createElement("div");p.className="monthly-view-summary-grid grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6";let f="";l>u&&u>=0?f=`<i class="fas fa-arrow-up text-indicator-bad spending-indicator" title="More than last month (${formatCurrency(u)})"></i>`:l<u&&u>0&&(f=`<i class="fas fa-arrow-down text-indicator-good spending-indicator" title="Less than last month (${formatCurrency(u)})"></i>`),p.innerHTML=`\n      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Total Income</p><p class="text-xl font-semibold text-income tabular-nums">${formatCurrency(c)}</p></div>\n      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Total Expenses ${f}</p><p class="text-xl font-semibold text-expense tabular-nums">${formatCurrency(l)}</p></div>\n      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Net Flow</p><p class="text-xl font-semibold ${c-l>=0?"text-income":"text-expense"} tabular-nums">${formatCurrency(c-l)}</p></div>`,s.appendChild(p);const y=a?r.filter((e=>{const t=state.accounts.find((t=>t.id===e.account)),n=t?t.name.toLowerCase():"",o=e.description?e.description.toLowerCase():"",s=e.category?e.category.toLowerCase():"",r=e.amount.toFixed(2),i=e.type.toLowerCase(),c=a.toLowerCase();return o.includes(c)||s.includes(c)||n.includes(c)||r.includes(c)||i.includes(c)})):r;y.sort(((e,t)=>new Date(t.date).setHours(0,0,0,0)-new Date(e.date).setHours(0,0,0,0)||t.timestamp-e.timestamp));const g=document.createElement("div");g.className="monthly-view-content-grid grid grid-cols-1 md:grid-cols-5 gap-6 mt-6";const b=document.createElement("div");b.className="md:col-span-3 space-y-4";const h=document.createElement("div");h.className="flex justify-between items-center mb-3";const v=document.createElement("h3");v.className="text-lg font-semibold",v.textContent="Transactions "+(a?`(Matching "${a}")`:"");const w=document.createElement("button");if(w.id="exportPdfBtn",w.className="btn btn-secondary btn-sm",w.dataset.tooltip="Export as PDF",w.innerHTML='<i class="fas fa-file-pdf"></i> <span class="hidden md:inline">Export</span>',w.onclick=generateMonthlyPdfReport,h.appendChild(v),h.appendChild(w),b.appendChild(h),0===y.length){const e=document.createElement("p");e.className="text-gray-400 text-center py-4",e.textContent=a?"No transactions match your search.":"No transactions for this period.",b.appendChild(e)}else{const e=y.reduce(((e,t)=>{const n=new Date(t.date).toLocaleDateString("en-CA");return e[n]||(e[n]={date:new Date(t.date+"T00:00:00"),transactions:[],dayKey:n}),e[n].transactions.push(t),e}),{}),t=Object.values(e).sort(((e,t)=>t.date-e.date)),s=document.createElement("div");s.className="max-h-[60vh] overflow-y-auto pr-2",t.forEach((e=>{if(a&&0===e.transactions.length)return;const t=document.createElement("div");t.className="monthly-view-day-group",t.style.transition="opacity 0.3s ease-out, max-height 0.3s ease-out, margin-bottom 0.3s ease-out, padding-bottom 0.3s ease-out",t.style.overflow="hidden";const r=document.createElement("div");r.className="monthly-view-day-header items-center",r.style.cursor="pointer",r.dataset.dayKey=e.dayKey;const i=document.createElement("span");i.textContent=e.date.toLocaleDateString("en-US",{weekday:"short",day:"numeric",month:"short"});const c=document.createElement("div");c.className="flex items-center justify-end flex-grow";const l=e.transactions.filter((e=>"expense"===e.type)).reduce(((e,t)=>e+t.amount),0),d=document.createElement("span");d.className="text-sm text-expense mr-2 tabular-nums",d.textContent=`Spent: ${formatCurrency(l)}`;const u=document.createElement("i");u.className="fas text-xs text-gray-400",c.appendChild(d),c.appendChild(u),r.appendChild(i),r.appendChild(c),t.appendChild(r);const m=document.createElement("div");m.className="day-transactions-container";const p=o&&a&&e.transactions.length>0||!o&&!a&&n.has(e.dayKey);p?u.classList.add("fa-chevron-up"):(m.style.maxHeight="0px",u.classList.add("fa-chevron-down")),e.transactions.sort(((e,t)=>t.timestamp-e.timestamp)).forEach((e=>{const t=document.createElement("div");t.className="monthly-view-transaction-item";const n=state.accounts.find((t=>t.id===e.account)),a=n?n.name:"Unknown Acct",o="income"===e.type,s=o?"text-income":"text-expense";let r=a;!o&&e.category?r+=` | ${e.category}`:o||e.category||(r+=" | Uncategorized"),t.innerHTML=`\n              <div class="flex-grow mr-2 overflow-hidden">\n                <p class="font-medium truncate ${s}" title="${e.description}">${e.description}</p>\n                <p class="text-xs text-gray-400 mt-0.5">${r}</p>\n              </div>\n              <span class="font-semibold whitespace-nowrap ${s} ml-2 tabular-nums">${o?"+":"-"}${formatCurrency(e.amount)}</span>\n              <div class="edit-btn-container flex-shrink-0 ml-2">\n                <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionForm('${e.id}', event)" title="Edit"><i class="fas fa-edit"></i></button>\n                <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteTransaction('${e.id}', event)" title="Delete"><i class="fas fa-times"></i></button>\n              </div>`,m.appendChild(t)})),t.appendChild(m),p&&setTimeout((()=>{m.style.maxHeight=m.scrollHeight+"px"}),0),r.onclick=()=>{"0px"===m.style.maxHeight?(m.style.maxHeight=m.scrollHeight+"px",u.classList.remove("fa-chevron-down"),u.classList.add("fa-chevron-up"),a||n.add(e.dayKey)):(m.style.maxHeight="0px",u.classList.remove("fa-chevron-up"),u.classList.add("fa-chevron-down"),a||n.delete(e.dayKey))},s.appendChild(t)})),b.appendChild(s)}g.appendChild(b);const C=document.createElement("div");C.className="md:col-span-2 space-y-4";const D=document.createElement("div");D.className="p-4 rounded-lg",D.style.backgroundColor="var(--bg-tertiary)",D.innerHTML='<h3 class="text-lg font-semibold mb-3">Category Summary (Full Month)</h3>';const x=document.createElement("ul");x.className="monthly-view-category-list space-y-1 text-sm max-h-48 overflow-y-auto pr-2";const T=Object.entries(d).filter((([e,t])=>t>0)).sort((([,e],[,t])=>t-e));if(T.length>0?T.forEach((([e,t])=>{const n=document.createElement("li");n.innerHTML=`<span class="truncate pr-2" title="${e}">${e}</span><span class="font-medium whitespace-nowrap tabular-nums">${formatCurrency(t)}</span>`,x.appendChild(n)})):x.innerHTML='<li class="text-gray-400 text-sm">No expenses in any category this month.</li>',D.appendChild(x),C.appendChild(D),T.length>0&&(!monthlyPieChartInstance||o&&!a)){monthlyPieChartInstance&&(monthlyPieChartInstance.destroy(),monthlyPieChartInstance=null);const e=document.createElement("div");e.className="p-4 rounded-lg h-96 md:h-[450px] flex flex-col",e.style.backgroundColor="var(--bg-tertiary)";const t=document.createElement("h3");t.className="text-lg font-semibold mb-3 text-center",t.textContent="Category Distribution (Full Month)",e.appendChild(t);const n=document.createElement("div");n.className="flex-grow relative chart-container";const a=document.createElement("canvas");a.id="monthlyDetailPieChartCanvas",n.appendChild(a),e.appendChild(n),C.appendChild(e);const o={labels:T.map((([e,t])=>e)),values:T.map((([e,t])=>t))};setTimeout((()=>renderMonthlyPieChart(o)),100)}else if(0===T.length&&monthlyPieChartInstance)monthlyPieChartInstance.destroy(),monthlyPieChartInstance=null;else if(0===T.length&&!document.getElementById("monthlyDetailPieChartCanvas")){const e=document.createElement("div");e.className="p-4 rounded-lg h-72 md:h-80 flex items-center justify-center",e.style.backgroundColor="var(--bg-tertiary)",e.innerHTML='<p class="text-gray-400 text-sm">No expense data for chart.</p>',C.appendChild(e)}g.appendChild(C),s.appendChild(g)}function renderMonthlyPieChart(e){const t=document.getElementById("monthlyDetailPieChartCanvas");if(!t||!t.getContext)return console.error("Canvas for monthly pie chart (id: monthlyDetailPieChartCanvas) not found or invalid."),void(monthlyPieChartInstance&&(monthlyPieChartInstance.destroy(),monthlyPieChartInstance=null));const n=t.getContext("2d"),a=["#e67e26","#2a9d8f","#e74c3c","#3498db","#f1c40f","#9b59b6","#34495e","#1abc9c","#7f8c8d","#2ecc71","#d35400","#27ae60","#c0392b"],o=e.labels.map(((e,t)=>a[t%a.length]));monthlyPieChartInstance?(monthlyPieChartInstance.data.labels=e.labels,monthlyPieChartInstance.data.datasets[0].data=e.values,monthlyPieChartInstance.data.datasets[0].backgroundColor=o,monthlyPieChartInstance.update()):monthlyPieChartInstance=new Chart(n,{type:"pie",data:{labels:e.labels,datasets:[{label:"Expenses by Category",data:e.values,backgroundColor:o,borderColor:"var(--bg-secondary)",borderWidth:1,hoverOffset:8,hoverBorderColor:"var(--text-primary)"}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1},tooltip:{backgroundColor:"rgba(0,0,0,0.85)",titleColor:"#fff",bodyColor:"#fff",padding:12,cornerRadius:4,usePointStyle:!0,callbacks:{label:function(e){let t=e.label||"";if(t&&(t+=": "),null!==e.parsed){t+=formatCurrency(e.parsed);const n=e.chart.getDatasetMeta(0),a=n.total||n.data.reduce(((e,t)=>e+t.raw),0);t+=` (${a>0?(e.parsed/a*100).toFixed(1)+"%":"0.0%"})`}return t}}}}}})}function renderCreditCardSection(){const e=state.creditCard.limit||0,t=state.creditCard.transactions||[];$("#ccLimit").innerHTML=`<span class="tabular-nums">${formatCurrency(e)}</span>`;const n=e-t.filter((e=>!e.paidOff)).reduce(((e,t)=>e+t.amount-(t.paidAmount||0)),0),a=$("#ccAvailable");a.innerHTML=`<span class="tabular-nums">${formatCurrency(n)}</span>`,a.classList.toggle("text-danger",n<0),a.classList.toggle("accent-text",n>=0)}function openCcHistoryModal(){const e=$("#ccHistoryModal");if(!e)return;const t=(new Date).getFullYear(),n=$("#ccYearSelector"),a=$("#ccHistoryListContainer"),o=$("#ccHistorySearchInput"),s=$("#clearCcHistorySearchBtn");ccHistoryFilter="unpaid",o&&(o.value=""),s&&s.classList.add("hidden"),ccHistoryOpenMonthKeys.clear();const r=new Set((state.creditCard.transactions||[]).map((e=>new Date(e.date).getFullYear())));r.add(t),n.innerHTML="",[...r].sort(((e,t)=>t-e)).forEach((e=>{const a=document.createElement("option");a.value=e,a.textContent=e,e===t&&(a.selected=!0),n.appendChild(a)}));const i=()=>{const e=parseInt(n.value),t=o.value.trim().toLowerCase();let s=(state.creditCard.transactions||[]).filter((n=>{if(new Date(n.date).getFullYear()!==e)return!1;if("unpaid"===ccHistoryFilter&&n.paidOff)return!1;if("paid"===ccHistoryFilter&&!n.paidOff)return!1;if(t){const e=n.description.toLowerCase().includes(t),a=n.amount.toFixed(2).includes(t);if(!e&&!a)return!1}return!0}));const r=state.creditCard.limit||0,i=(state.creditCard.transactions||[]).filter((e=>!e.paidOff)).reduce(((e,t)=>e+t.amount-(t.paidAmount||0)),0),c=r-i;$("#ccHistoryLimit").innerHTML=`<span class="tabular-nums">${formatCurrency(r)}</span>`,$("#ccHistorySpentUnpaid").innerHTML=`<span class="tabular-nums">${formatCurrency(i)}</span>`;const l=$("#ccHistoryAvailable");if(l.innerHTML=`<span class="tabular-nums">${formatCurrency(c)}</span>`,l.classList.toggle("text-expense",c<0),l.classList.toggle("accent-text",c>=0),a.innerHTML="",0===s.length)return void(a.innerHTML='<p class="text-gray-400 text-sm text-center py-4">No transactions match your criteria.</p>');const d=s.reduce(((e,t)=>{const n=new Date(t.date).getMonth();return e[n]||(e[n]=[]),e[n].push(t),e}),{});Object.keys(d).sort(((e,t)=>t-e)).forEach((n=>{const o=d[n];o.sort(((e,t)=>new Date(t.date)-new Date(e.date)||t.timestamp-e.timestamp));const s=new Date(e,n).toLocaleString("default",{month:"long"}),r=document.createElement("div");r.className="cc-history-month-group";const i=document.createElement("div");i.className="cc-history-month-header";const c=o.reduce(((e,t)=>e+t.amount),0);i.innerHTML=`\n            <span>${s} ${e}</span>\n            <div class="flex items-center">\n                <span class="text-sm text-expense mr-3 tabular-nums">${formatCurrency(c)}</span>\n                <i class="fas fa-chevron-down text-xs text-gray-400"></i>\n            </div>\n        `;const l=document.createElement("div");l.className="cc-history-transactions-container",o.forEach((e=>{const t=document.createElement("div");t.className="cc-history-transaction-item "+(e.paidOff?"opacity-60":"");const n=e.amount-(e.paidAmount||0),a=`\n              <div class="edit-btn-container">\n                  ${!e.paidOff&&n>.005?`<button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="openPayCcItemForm('${e.id}')" title="Pay Item"><i class="fas fa-dollar-sign"></i></button>`:""}\n                  <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditCcTransactionForm('${e.id}')" title="Edit"><i class="fas fa-edit"></i></button>\n                  <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteCcTransaction('${e.id}')" title="Delete"><i class="fas fa-times"></i></button>\n              </div>`;t.innerHTML=`\n              <div class="flex-grow mr-3 overflow-hidden">\n                  <p class="font-medium truncate ${e.paidOff?"text-gray-500":""}" title="${e.description}">${e.description}</p>\n                  <p class="text-xs text-gray-400 mt-0.5">${new Date(e.date).toLocaleDateString()} ${e.paidAmount>0&&!e.paidOff?`(Paid: <span class="tabular-nums">${formatCurrency(e.paidAmount)}</span>)`:""}</p>\n              </div>\n              <div class="flex items-center flex-shrink-0">\n                  <span class="font-semibold mr-3 text-sm tabular-nums ${e.paidOff?"text-gray-500":n<=.005?"text-income":"text-expense"}">\n                      ${e.paidOff?formatCurrency(e.amount):formatCurrency(n)} ${e.paidOff?"":n<=.005?" (Settled)":" Left"}\n                  </span>\n                  ${a}\n              </div>`,l.appendChild(t)})),r.appendChild(i),r.appendChild(l),a.appendChild(r);const u=`${e}-${n}`;(ccHistoryOpenMonthKeys.has(u)||t)&&(l.style.maxHeight=l.scrollHeight+"px",i.querySelector("i").classList.replace("fa-chevron-down","fa-chevron-up")),i.onclick=()=>{const e=i.querySelector("i");"0px"===l.style.maxHeight||!l.style.maxHeight?(l.style.maxHeight=l.scrollHeight+"px",e.classList.replace("fa-chevron-down","fa-chevron-up"),ccHistoryOpenMonthKeys.add(u)):(l.style.maxHeight="0px",e.classList.replace("fa-chevron-up","fa-chevron-down"),ccHistoryOpenMonthKeys.delete(u))}})),$$("#ccHistoryFilterControls button").forEach((e=>{e.classList.toggle("active",e.dataset.filter===ccHistoryFilter)}))};n.onchange=()=>{ccHistoryOpenMonthKeys.clear(),i()},$$("#ccHistoryFilterControls button").forEach((e=>{e.onclick=()=>{ccHistoryFilter=e.dataset.filter,i()}})),document.body.renderCcHistoryList=i,i(),e.style.display="block"}function handleCcTransactionSubmit(e){e.preventDefault();const t=e.target,n=new FormData(t),a=parseFloat(n.get("ccAmount")),o=n.get("ccDescription").trim(),s=n.get("ccDate");if(isNaN(a)||a<=0)return void showNotification("Valid amount required for CC transaction.","error");if(!o)return void showNotification("Description required for CC transaction.","error");if(!s)return void showNotification("Date required for CC transaction.","error");state.creditCard.transactions||(state.creditCard.transactions=[]);const r=roundToTwoDecimals(a),i=Date.now(),c={id:generateId(),amount:r,description:o,date:s,paidAmount:0,paidOff:!1,timestamp:i};state.creditCard.transactions.push(c),showNotification("CC transaction added.","success"),saveData(),renderCreditCardSection(),"block"===$("#ccHistoryModal").style.display&&openCcHistoryModal(),t.reset();const l=t.querySelector("#ccDate");l&&(l.value=getCurrentDateString())}function openEditCcTransactionModal(e){const t=state.creditCard.transactions.find((t=>t.id===e));if(!t)return void showNotification("CC Transaction not found for editing.","error");"block"===$("#ccHistoryModal").style.display&&closeModal("ccHistoryModal");openFormModal("Edit CC Transaction",`\n            <input type="hidden" name="editCcTransactionId" value="${t.id}">\n            <div>\n                <label for="modalCcAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>\n                <input type="number" id="modalCcAmount" name="ccAmount" value="${t.amount.toFixed(2)}" step="0.01" min="0" placeholder="Amount spent" required>\n            </div>\n            <div>\n                <label for="modalCcDescription" class="block text-sm font-medium mb-1">Description</label>\n                <input type="text" id="modalCcDescription" name="ccDescription" value="${t.description}" placeholder="e.g., Online purchase" required>\n            </div>\n            <div>\n                <label for="modalCcDate" class="block text-sm font-medium mb-1">Date</label>\n                <input type="date" id="modalCcDate" name="ccDate" value="${t.date}" required>\n            </div>\n            <button type="submit" class="btn btn-primary w-full"><i class="fas fa-save"></i> Update CC Transaction</button>\n        `,handleEditCcTransactionModalSubmit)}function handleEditCcTransactionModalSubmit(e){e.preventDefault();const t=e.target,n=new FormData(t),a=n.get("editCcTransactionId"),o=state.creditCard.transactions.find((e=>e.id===a));if(!o)return showNotification("CC Transaction to edit not found.","error"),void closeModal("formModal");const s=parseFloat(n.get("ccAmount")),r=n.get("ccDescription").trim(),i=n.get("ccDate");if(isNaN(s)||s<=0)return void showNotification("Valid amount required for CC transaction.","error");if(!r)return void showNotification("Description required for CC transaction.","error");if(!i)return void showNotification("Date required for CC transaction.","error");const c=roundToTwoDecimals(s);o.amount=c,o.description=r,o.date=i,o.paidAmount>c&&(o.paidAmount=c),roundToTwoDecimals(o.paidAmount)>=c-.005?(o.paidOff=!0,o.paidAmount=c):o.paidOff=!1,saveData(),renderCreditCardSection();const l=document.body.renderCcHistoryList;l&&l(),closeModal("formModal"),showNotification("CC Transaction updated successfully.","success")}function deleteCcTransaction(e){const t=state.creditCard.transactions.findIndex((t=>t.id===e));if(-1===t)return;const n=state.creditCard.transactions[t];showConfirmationModal("Delete CC Transaction",`Are you sure you want to delete the CC transaction: <br><strong>"${n.description}"</strong> (${formatCurrency(n.amount)})?<br><br><strong class="text-warning">Warning:</strong> This will also remove any associated payment records made through the app for this specific CC item.`,"Delete","Cancel",(()=>{state.transactions=state.transactions.filter((e=>!("Credit Card Payment"===e.category&&e.description.includes(n.description.substring(0,15))))),state.creditCard.transactions.splice(t,1),saveData(),renderDashboard(),renderCreditCardSection(),"block"===$("#ccHistoryModal").style.display&&openCcHistoryModal(),showNotification("CC transaction and related payments deleted.","success")}))}function openAddDebtForm(){openFormModal("Add New Debt",'<div><label for="debtWho" class="block text-sm font-medium mb-1">Who do you owe?</label><input type="text" id="debtWho" name="debtWho" placeholder="e.g., John Doe" required></div><div><label for="debtWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="debtWhy" name="debtWhy" placeholder="e.g., Loan" required></div><div><label for="debtAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><input type="number" id="debtAmount" name="debtAmount" step="0.01" min="0.01" required></div><div><label for="debtDueDate" class="block text-sm font-medium mb-1">Due Date</label><input type="date" id="debtDueDate" name="debtDueDate" required></div><button type="submit" class="btn btn-primary w-full">Add Debt</button>',handleAddDebtSubmit);const e=new Date;e.setMonth(e.getMonth()+1);const t=$("#debtDueDate");t&&(t.value=e.toISOString().split("T")[0])}function handleAddDebtSubmit(e){e.preventDefault();const t=new FormData(e.target),n=parseFloat(t.get("debtAmount"));if(isNaN(n)||n<=0)return void showNotification("Invalid amount for debt.","error");const a=roundToTwoDecimals(n),o={id:generateId(),who:t.get("debtWho").trim(),why:t.get("debtWhy").trim(),amount:a,originalAmount:a,remainingAmount:a,dueDate:t.get("debtDueDate"),timestamp:Date.now()};o.who&&o.why&&o.dueDate?(state.debts.push(o),saveData(),renderDashboard(),closeModal("formModal"),showNotification("Debt added.","success")):showNotification("All fields required for debt.","error")}function openEditDebtForm(e){const t=state.debts.find((t=>t.id===e));t&&openFormModal("Edit Debt",` <input type="hidden" name="editDebtId" value="${t.id}"> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="debtWho" value="${t.who}" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="debtWhy" value="${t.why}" required></div> <div><label class="block text-sm font-medium mb-1">Original Amount</label><input type="number" name="debtOriginalAmount" value="${(t.originalAmount||t.amount).toFixed(2)}" step="0.01" min="0.01" required></div> <div><label class="block text-sm font-medium mb-1">Remaining Amount</label><input type="number" name="debtRemainingAmount" value="${t.remainingAmount.toFixed(2)}" step="0.01" min="0" required></div> <div><label class="block text-sm font-medium mb-1">Due Date</label><input type="date" name="debtDueDate" value="${t.dueDate}" required></div> <button type="submit" class="btn btn-primary w-full">Update Debt</button> `,handleEditDebtSubmit)}function handleEditDebtSubmit(e){e.preventDefault();const t=new FormData(e.target),n=t.get("editDebtId"),a=state.debts.find((e=>e.id===n));if(!a)return void showNotification("Debt not found for editing.","error");const o=parseFloat(t.get("debtOriginalAmount")),s=parseFloat(t.get("debtRemainingAmount"));isNaN(o)||o<=0||isNaN(s)||s<0||roundToTwoDecimals(s)>roundToTwoDecimals(o)?showNotification("Invalid amounts for debt. Remaining cannot exceed original, and amounts must be valid numbers.","error"):(a.who=t.get("debtWho").trim(),a.why=t.get("debtWhy").trim(),a.originalAmount=roundToTwoDecimals(o),a.remainingAmount=roundToTwoDecimals(s),a.dueDate=t.get("debtDueDate"),a.timestamp=Date.now(),a.amount=a.originalAmount,saveData(),renderDashboard(),closeModal("formModal"),showNotification("Debt updated.","success"))}function openPayDebtForm(e){const t=state.debts.find((t=>t.id===e));if(!t)return;const n="Debt Repayment";let a="";const o=state.categories.filter((e=>"income"!==e.toLowerCase()&&"credit card payment"!==e.toLowerCase()&&e.toLowerCase()!==n.toLowerCase())).sort(((e,t)=>e.localeCompare(t)));state.categories.some((e=>e.toLowerCase()===n.toLowerCase()))?a+=`<option value="${n}" selected>${n}</option>`:a+=`<option value="${n}" selected>${n} (Suggested)</option>`,o.forEach((e=>{a+=`<option value="${e}">${e}</option>`}));const s=`\n      <p class="mb-2 force-word-wrap">Owed: <span class="font-semibold tabular-nums">${formatCurrency(t.remainingAmount)}</span> to ${t.who} for ${t.why}</p>\n      <div>\n          <label for="payDebtAmount" class="block text-sm font-medium mb-1">Payment Amount (LKR)</label>\n          <input type="number" id="payDebtAmount" name="payDebtAmount" step="0.01" min="0.01" max="${t.remainingAmount.toFixed(2)}" value="${t.remainingAmount.toFixed(2)}" required>\n      </div>\n      <div>\n          <label for="modalPayDebtAccount" class="block text-sm font-medium mb-1">Pay From Account</label>\n          <select id="modalPayDebtAccount" name="payDebtAccount" required></select>\n      </div>\n      <div class="flex items-center mt-3 mb-1">\n          <input type="checkbox" id="logDebtPaymentAsExpense" name="logDebtPaymentAsExpense" class="h-4 w-4 text-accent-primary border-gray-500 rounded focus:ring-accent-primary mr-2" checked>\n          <label for="logDebtPaymentAsExpense" class="text-sm font-medium text-gray-300">Log this payment as an expense?</label>\n      </div>\n      <div id="debtPaymentCategoryGroup">\n          <label for="modalPayDebtCategory" class="block text-sm font-medium mb-1">Category for this Payment</label>\n          <select id="modalPayDebtCategory" name="payDebtCategory" required>${a}</select>\n      </div>\n      <input type="hidden" name="debtId" value="${e}">\n      <button type="submit" class="btn btn-primary w-full mt-3">Make Payment</button>\n  `;openFormModal(`Pay Debt: ${t.who}`,s,handlePayDebtSubmit),populateDropdowns();const r=document.getElementById("logDebtPaymentAsExpense"),i=document.getElementById("debtPaymentCategoryGroup"),c=document.getElementById("modalPayDebtCategory");r&&i&&c&&(i.style.display=r.checked?"block":"none",c.required=r.checked,r.onchange=()=>{r.checked?(i.style.display="block",c.required=!0):(i.style.display="none",c.required=!1)})}function handlePayDebtSubmit(e){e.preventDefault();const t=new FormData(e.target),n=t.get("debtId"),a=parseFloat(t.get("payDebtAmount")),o=t.get("payDebtAccount"),s="on"===t.get("logDebtPaymentAsExpense"),r=s?t.get("payDebtCategory"):null,i=getCurrentDateString(),c=state.debts.find((e=>e.id===n)),l=state.accounts.find((e=>e.id===o));if(!c||!l)return void showNotification("Debt or account not found.","error");const d=roundToTwoDecimals(a);if(isNaN(d)||d<=0||d>roundToTwoDecimals(c.remainingAmount+.005))return void showNotification("Invalid payment amount for debt.","error");if(s&&!r)return void showNotification("Please select a category for this payment if logging as an expense.","error");if(l.balance<d)return void showNotification(`Insufficient funds in ${l.name}.`,"warning");l.balance=roundToTwoDecimals(l.balance-d),isNaN(l.balance)&&(l.balance=0),c.remainingAmount=roundToTwoDecimals(c.remainingAmount-d);let u=`Payment of ${formatCurrency(d)} made for ${c.who}. Remaining: ${formatCurrency(c.remainingAmount)}.`;if(s){const e={id:generateId(),type:"expense",amount:d,account:o,category:r,description:`Debt Payment: ${c.who} - ${c.why}`,date:i,timestamp:Date.now()};state.transactions.push(e),u+=" Expense logged.",refreshMonthlyViewIfRelevant(i)}else u+=" Not logged as expense.";c.remainingAmount<=.005&&(c.remainingAmount=0,state.debts=state.debts.filter((e=>e.id!==n)),u=`Debt for ${c.who} fully paid.${s?" Expense logged.":" Not logged as expense."}`),saveData(),renderDashboard(),populateDropdowns(),closeModal("formModal"),showNotification(u,"success")}function deleteDebt(e){const t=state.debts.find((t=>t.id===e));t&&showConfirmationModal("Delete Debt",`Are you sure you want to delete the debt for <strong>"${t.who}"</strong> regarding "${t.why}" (${formatCurrency(t.remainingAmount)})?<br><br>This removes the record only.`,"Delete","Cancel",(()=>{state.debts=state.debts.filter((t=>t.id!==e)),saveData(),renderDashboard(),"block"===$("#debtsViewModal").style.display&&renderDebtList(),showNotification("Debt entry deleted.","success")}))}function openAddReceivableForm(){openFormModal("Add New Receivable",'\n            <div><label for="recWho" class="block text-sm font-medium mb-1">Who owes you?</label><input type="text" id="recWho" name="recWho" placeholder="e.g., Jane Doe" required></div>\n            <div><label for="recWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="recWhy" name="recWhy" placeholder="e.g., Friendly loan" required></div>\n            <div><label for="recAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><input type="number" id="recAmount" name="recAmount" step="0.01" min="0.01" required></div>\n            <div><label for="recDateGiven" class="block text-sm font-medium mb-1">Date Given</label><input type="date" id="recDateGiven" name="recDateGiven" required></div>\n            <div>\n                <label for="recType" class="block text-sm font-medium mb-1">Type</label>\n                <select id="recType" name="recType" required onchange="toggleReceivableSourceAccount(this.value, \'recSourceAccountGroupAdd\', \'recSourceAccountAdd\')">\n                    <option value="cash">Cash/Bank Loan</option>\n                    <option value="cc">Credit Card Loan</option>\n                </select>\n            </div>\n            <div id="recSourceAccountGroupAdd" style="display: block;"> <label for="recSourceAccountAdd" class="block text-sm font-medium mb-1">Source Account (if Cash/Bank)</label>\n                <select id="recSourceAccountAdd" name="receivableSourceAccount" required></select> </div>\n                <p id="receivableCcDisclaimer" class="disclaimer-text" style="display: none;">\n                <i class="fas fa-info-circle mr-1"></i>\n                <strong>Important:</strong> Selecting "Credit Card Loan" means you provided funds from your credit card. This entry tracks the money owed <em>to you</em>. It does not automatically create an expense on your credit card. If you used your credit card for this, please add a separate "CC Expense" manually to reflect the charge on your card.\n            </p>\n            <button type="submit" class="btn btn-primary w-full"><i class="fas fa-plus"></i> Add Receivable</button>\n        ',handleAddReceivableSubmit);const e=$("#recDateGiven");e&&(e.value=(new Date).toISOString().split("T")[0]);const t=$("#recSourceAccountAdd");t&&(t.innerHTML="",state.accounts.forEach((e=>{const n=document.createElement("option");n.value=e.id,n.textContent=`${e.name} (${formatCurrency(e.balance)})`,t.appendChild(n)})));const n=$("#recType");n&&toggleReceivableSourceAccount(n.value,"recSourceAccountGroupAdd","recSourceAccountAdd")}function toggleReceivableSourceAccount(e,t,n){const a=document.getElementById(t),o=document.getElementById(n),s=document.getElementById("receivableCcDisclaimer");a&&o?"cash"===e?(a.style.display="block",o.required=!0,s&&(s.style.display="none")):(a.style.display="none",o.required=!1,s&&(s.style.display="block")):(a||console.warn(`toggleReceivableSourceAccount: Group element with ID '${t}' not found.`),o||console.warn(`toggleReceivableSourceAccount: Select element with ID '${n}' not found.`)),s||"cc"!==e||console.warn("toggleReceivableSourceAccount: Disclaimer element with ID 'receivableCcDisclaimer' not found, but was expected for 'cc' type.")}function handleAddReceivableSubmit(e){e.preventDefault();const t=new FormData(e.target),n=parseFloat(t.get("recAmount")),a=t.get("recType"),o="cash"===a?t.get("receivableSourceAccount"):null;if(isNaN(n)||n<=0)return void showNotification("Invalid amount for receivable.","error");const s=roundToTwoDecimals(n),r={id:generateId(),who:t.get("recWho").trim(),why:t.get("recWhy").trim(),amount:s,originalAmount:s,remainingAmount:s,dateGiven:t.get("recDateGiven"),type:a,sourceAccount:o,ccTransactionId:null,timestamp:Date.now()};if(r.who&&r.why&&r.dateGiven){if("cash"===a){if(!o)return void showNotification("Source account required for cash loan.","error");let e=state.accounts.find((e=>e.id===o));if(!e)return void showNotification("Source account not found.","error");if(e.balance<s)return void showNotification(`Insufficient funds in ${e.name}.`,"warning");e.balance=roundToTwoDecimals(e.balance-s),isNaN(e.balance)&&(e.balance=0)}else"cc"===a&&console.log(`Receivable of type 'cc' added for ${r.who}. User to manually add CC expense if needed.`);state.receivables.push(r),saveData(),renderDashboard(),populateDropdowns(),"cc"===a&&renderCreditCardSection(),closeModal("formModal"),showNotification(`Receivable for ${r.who} added.${"cash"===a&&o?` ${formatCurrency(s)} deducted from account.`:""}`,"success")}else showNotification("All fields required for receivable.","error")}function openEditReceivableForm(e){const t=state.receivables.find((t=>t.id===e));if(!t)return;openFormModal("Edit Receivable",` <input type="hidden" name="editReceivableId" value="${t.id}"> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="recWho" value="${t.who}" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="recWhy" value="${t.why}" required></div> <div><label class="block text-sm font-medium mb-1">Original Amount</label><input type="number" name="recOriginalAmount" value="${(t.originalAmount||t.amount).toFixed(2)}" step="0.01" min="0.01" required></div> <div><label class="block text-sm font-medium mb-1">Remaining</label><input type="number" name="recRemainingAmount" value="${t.remainingAmount.toFixed(2)}" step="0.01" min="0" required></div> <div><label class="block text-sm font-medium mb-1">Date Given</label><input type="date" name="recDateGiven" value="${t.dateGiven}" required></div> <div><label class="block text-sm font-medium mb-1">Type</label><select id="recTypeEdit" name="recType" onchange="toggleReceivableSourceAccount(this.value, 'recSourceAccountGroupEdit', 'recSourceAccountEdit')"><option value="cash" ${"cash"===t.type?"selected":""}>Cash/Bank</option><option value="cc" ${"cc"===t.type?"selected":""}>Credit Card</option></select></div> <div id="recSourceAccountGroupEdit" style="display:${"cash"===t.type?"block":"none"}"><label class="block text-sm font-medium mb-1">Source Account</label><select id="recSourceAccountEdit" name="receivableSourceAccount">${state.accounts.map((e=>`<option value="${e.id}" ${t.sourceAccount===e.id?"selected":""}>${e.name} (${formatCurrency(e.balance)})</option>`)).join("")}</select></div> <button type="submit" class="btn btn-primary w-full">Update Receivable</button> `,handleEditReceivableSubmit);const n=$("#recTypeEdit");n&&toggleReceivableSourceAccount(n.value,"recSourceAccountGroupEdit","recSourceAccountEdit")}function handleEditReceivableSubmit(e){e.preventDefault();const t=new FormData(e.target),n=t.get("editReceivableId"),a=state.receivables.find((e=>e.id===n));if(!a)return void showNotification("Receivable not found for editing.","error");const o=a.sourceAccount,s=a.originalAmount,r=a.type,i=(a.ccTransactionId,parseFloat(t.get("recOriginalAmount"))),c=parseFloat(t.get("recRemainingAmount")),l=t.get("recType"),d="cash"===l?t.get("receivableSourceAccount"):null;if(isNaN(i)||i<=0||isNaN(c)||c<0||roundToTwoDecimals(c)>roundToTwoDecimals(i))return void showNotification("Invalid amounts for receivable. Remaining cannot exceed original, and amounts must be valid numbers.","error");if("cash"===l&&!d)return void showNotification("Source account required for cash loan type.","error");const u=roundToTwoDecimals(i),m=roundToTwoDecimals(c);if("cash"===r&&o){const e=state.accounts.find((e=>e.id===o));e&&(e.balance=roundToTwoDecimals(e.balance+s),isNaN(e.balance)&&(e.balance=0))}if(a.who=t.get("recWho").trim(),a.why=t.get("recWhy").trim(),a.originalAmount=u,a.amount=u,a.remainingAmount=m,a.dateGiven=t.get("recDateGiven"),a.type=l,a.sourceAccount=d,a.timestamp=Date.now(),a.ccTransactionId=null,"cash"===a.type&&a.sourceAccount){const e=state.accounts.find((e=>e.id===a.sourceAccount));if(e){if(e.balance<a.originalAmount){if(showNotification(`Insufficient funds in new source account ${e.name}. Reverting changes.`,"warning"),"cash"===r&&o){const e=state.accounts.find((e=>e.id===o));e&&(e.balance=roundToTwoDecimals(e.balance-s))}return}e.balance=roundToTwoDecimals(e.balance-a.originalAmount),isNaN(e.balance)&&(e.balance=0)}}else a.type;saveData(),renderDashboard(),populateDropdowns(),"cc"!==a.type&&"cc"!==r||renderCreditCardSection(),closeModal("formModal"),showNotification("Receivable updated.","success")}function openReceivePaymentForm(e){const t=state.receivables.find((t=>t.id===e));if(!t)return void showNotification("Receivable not found.","error");let n="";"cc"===t.type&&(n='\n      <p id="receivablePaymentCcDisclaimer" class="disclaimer-text mt-3 mb-2">\n        <i class="fas fa-info-circle mr-1"></i>\n        <strong>Credit Card Receivable:</strong> The amount you receive will be added to the selected account. Remember, this does not pay your credit card bill. You\'ll need to record a separate \'Credit Card Payment\' transaction later.\n      </p>\n    ');const a=`\n    <p id="overpaymentInfo" class="text-xs text-gray-400 mt-1 mb-2" style="display: none;">\n      Any amount received over <span class="tabular-nums">${formatCurrency(t.remainingAmount)}</span> will be logged as additional income.\n    </p>\n  `,o=`\n    <p class="mb-2 force-word-wrap">Owed: <span class="font-semibold tabular-nums">${formatCurrency(t.remainingAmount)}</span> by ${t.who} for ${t.why}</p>\n    <div>\n      <label for="recPaymentAmount" class="block text-sm font-medium mb-1">Amount Received (LKR)</label>\n      <input type="number" id="recPaymentAmount" name="recPaymentAmount" step="0.01" min="0.01" \n             value="${t.remainingAmount.toFixed(2)}" required> \n    </div>\n    ${a}\n    <div>\n      <label for="recPaymentAccount" class="block text-sm font-medium mb-1">Receive Into Account</label>\n      <select id="recPaymentAccount" name="recPaymentAccount" required></select>\n    </div>\n    ${n} \n    <input type="hidden" name="recId" value="${e}">\n    <button type="submit" class="btn btn-primary w-full mt-3">Record Payment</button>\n  `;openFormModal(`Receive Payment from: ${t.who}`,o,handleReceivePaymentSubmit),populateDropdowns();const s=document.getElementById("recPaymentAmount"),r=document.getElementById("overpaymentInfo");if(s&&r){const e=()=>{const e=parseFloat(s.value);!isNaN(e)&&t.remainingAmount>0&&e>t.remainingAmount?r.style.display="block":r.style.display="none"};s.addEventListener("input",e),e()}}function handleReceivePaymentSubmit(e){e.preventDefault();const t=new FormData(e.target),n=t.get("recId"),a=parseFloat(t.get("recPaymentAmount")),o=t.get("recPaymentAccount"),s=(new Date).toISOString().split("T")[0],r=state.receivables.find((e=>e.id===n)),i=state.accounts.find((e=>e.id===o));if(!r||!i)return void showNotification("Receivable or account not found.","error");if(isNaN(a)||a<=0)return void showNotification("Invalid payment amount. Must be greater than zero.","error");const c=roundToTwoDecimals(a);i.balance=roundToTwoDecimals(i.balance+c),isNaN(i.balance)&&(i.balance=0);let l="",d=!1;const u=r.remainingAmount;if(c>u){const e=roundToTwoDecimals(c-u);r.remainingAmount=0;const t={id:generateId(),type:"income",amount:e,account:o,category:null,description:`${r.who} Paid Back Extra`,date:s,timestamp:Date.now()};state.transactions.push(t),d=!0,console.log(`Logged extra income of ${formatCurrency(e)} from ${r.who}`)}else r.remainingAmount=roundToTwoDecimals(u-c);r.remainingAmount<=.005?(r.remainingAmount=0,state.receivables=state.receivables.filter((e=>e.id!==n)),l=`Receivable from ${r.who} fully paid.`,d&&(l+=` Extra ${formatCurrency(roundToTwoDecimals(c-u))} logged as income.`)):l=`Payment of ${formatCurrency(c)} received from ${r.who}. Remaining: ${formatCurrency(r.remainingAmount)}.`,saveData(),renderDashboard(),populateDropdowns(),closeModal("formModal"),showNotification(l,"success"),d&&refreshMonthlyViewIfRelevant(s)}function deleteReceivable(e){const t=state.receivables.find((t=>t.id===e));if(!t)return void showNotification("Receivable not found.","error");let n=`Are you sure you want to delete the receivable from <strong>"${t.who}"</strong> for "${t.why}" (${formatCurrency(t.remainingAmount)})?<br><br>This action only removes the record of them owing you money.`;if("cash"===t.type&&t.sourceAccount){n+=`<br><br><strong class="text-warning">Important:</strong> This will NOT automatically refund the amount to your source account ('${state.accounts.find((e=>e.id===t.sourceAccount))?.name||"Unknown Account"}'). That adjustment needs to be handled manually if required.`}else"cc"===t.type&&(n+='<br><br><strong class="text-warning">Note:</strong> This does NOT affect any separate credit card expense you might have recorded on your own card for giving out this loan.');showConfirmationModal("Delete Receivable",n,"Delete","Cancel",(()=>{state.receivables=state.receivables.filter((t=>t.id!==e)),saveData(),renderDashboard(),"block"===$("#receivablesViewModal").style.display&&renderReceivableList(),showNotification("Receivable entry deleted successfully.","success")}))}function openAddInstallmentForm(){openFormModal("Add New Installment Plan",'\n    <div>\n      <label for="instDescription" class="block text-sm font-medium mb-1">Description</label>\n      <input type="text" id="instDescription" name="instDescription" placeholder="e.g., New Phone" required>\n    </div>\n    <div>\n      <label for="instFullAmount" class="block text-sm font-medium mb-1">Full Original Amount (LKR)</label>\n      <input type="number" id="instFullAmount" name="instFullAmount" step="0.01" min="0.01" placeholder="Total original cost" required>\n    </div>\n    <div>\n      <label for="instTotalMonths" class="block text-sm font-medium mb-1">Total Months for Plan</label>\n      <input type="number" id="instTotalMonths" name="instTotalMonths" step="1" min="1" placeholder="e.g., 12" required>\n    </div>\n    <div>\n      <label for="instMonthsLeft" class="block text-sm font-medium mb-1">Months Left (if not full term)</label>\n      <input type="number" id="instMonthsLeft" name="instMonthsLeft" step="1" min="0" placeholder="Defaults to Total Months">\n    </div>\n    <div>\n      <label for="instStartDate" class="block text-sm font-medium mb-1">Start Date</label>\n      <input type="date" id="instStartDate" name="instStartDate" required>\n    </div>\n    \n    <p class="disclaimer-text mt-3 mb-2">\n      <i class="fas fa-info-circle mr-1"></i>\n      <strong>Important:</strong> This tracks installment status (months left). Actual payments (especially for CC installments) must be recorded manually via \'Add Transaction\' or \'Add CC Expense\' to update account balances.\n    </p>\n  \n    <button type="submit" class="btn btn-primary w-full mt-3">Add Plan</button>\n  ',handleAddInstallmentSubmit);const e=$("#instStartDate");e&&(e.value=(new Date).toISOString().split("T")[0]);const t=$("#instTotalMonths"),n=$("#instMonthsLeft");if(t&&n){const e=()=>{const e=parseInt(t.value);!isNaN(e)&&e>0?(n.max=e,parseInt(n.value)>e&&(n.value=e)):n.removeAttribute("max")};t.addEventListener("input",e),e()}}function handleAddInstallmentSubmit(e){e.preventDefault();const t=new FormData(e.target),n=parseFloat(t.get("instFullAmount")),a=parseInt(t.get("instTotalMonths"));let o=parseInt(t.get("instMonthsLeft"));if(isNaN(n)||n<=0||isNaN(a)||a<=0)return void showNotification("Invalid full amount or total months for installment.","error");(isNaN(o)||o>a||o<0)&&(o=a);const s=roundToTwoDecimals(n),r=roundToTwoDecimals(s/a),i={id:generateId(),description:t.get("instDescription").trim(),monthlyAmount:r,totalMonths:a,monthsLeft:o,startDate:t.get("instStartDate"),originalFullAmount:s,timestamp:Date.now()};i.description&&i.startDate?(state.installments.push(i),saveData(),renderDashboard(),closeModal("formModal"),showNotification("Installment plan added.","success")):showNotification("Description and Start Date are required for installment.","error")}function openEditInstallmentForm(e){const t=state.installments.find((t=>t.id===e));if(!t)return void showNotification("Installment plan not found for editing.","error");const n=t.originalFullAmount||t.monthlyAmount*t.totalMonths;openFormModal("Edit Installment Plan",`\n    <input type="hidden" name="editInstallmentId" value="${t.id}">\n    <div>\n      <label for="instDescription" class="block text-sm font-medium mb-1">Description</label>\n      <input type="text" id="instDescription" name="instDescription" value="${t.description}" required>\n    </div>\n    <div>\n      <label for="instFullAmount" class="block text-sm font-medium mb-1">Full Original Amount (LKR)</label>\n      <input type="number" id="instFullAmount" name="instFullAmount" value="${n.toFixed(2)}" step="0.01" min="0.01" required>\n    </div>\n    <div>\n      <label for="instTotalMonths" class="block text-sm font-medium mb-1">Total Months for Plan</label>\n      <input type="number" id="instTotalMonths" name="instTotalMonths" value="${t.totalMonths}" step="1" min="1" required>\n    </div>\n    <div>\n      <label for="instMonthsLeft" class="block text-sm font-medium mb-1">Months Left</label>\n      <input type="number" id="instMonthsLeft" name="instMonthsLeft" value="${t.monthsLeft}" step="1" min="0" max="${t.totalMonths}" required>\n    </div>\n    <div>\n      <label for="instStartDate" class="block text-sm font-medium mb-1">Start Date</label>\n      <input type="date" id="instStartDate" name="instStartDate" value="${t.startDate}" required>\n    </div>\n    \n    <p class="disclaimer-text mt-3 mb-2">\n      <i class="fas fa-info-circle mr-1"></i>\n      <strong>Important:</strong> This tracks installment status (months left). Actual payments (especially for CC installments) must be recorded manually via 'Add Transaction' or 'Add CC Expense' to update account balances.\n    </p>\n   \n    <button type="submit" class="btn btn-primary w-full mt-3">Update Plan</button>\n  `,handleEditInstallmentSubmit);const a=document.getElementById("instTotalMonths"),o=document.getElementById("instMonthsLeft");if(a&&o){const e=()=>{const e=parseInt(a.value);!isNaN(e)&&e>0?(o.max=e,parseInt(o.value)>e&&(o.value=e)):o.removeAttribute("max")};a.addEventListener("input",e),e()}}function handleEditInstallmentSubmit(e){e.preventDefault();const t=new FormData(e.target),n=t.get("editInstallmentId"),a=state.installments.find((e=>e.id===n));if(!a)return void showNotification("Installment plan not found for editing.","error");const o=parseFloat(t.get("instFullAmount")),s=parseInt(t.get("instTotalMonths")),r=parseInt(t.get("instMonthsLeft"));if(isNaN(o)||o<=0||isNaN(s)||s<=0)return void showNotification("Invalid full amount or total months for installment.","error");if(isNaN(r)||r<0||r>s)return void showNotification("Invalid months left for installment.","error");const i=roundToTwoDecimals(o),c=roundToTwoDecimals(i/s);a.description=t.get("instDescription").trim(),a.totalMonths=s,a.monthsLeft=r,a.startDate=t.get("instStartDate"),a.monthlyAmount=c,a.originalFullAmount=i,a.timestamp=Date.now(),saveData(),renderDashboard(),closeModal("formModal"),showNotification("Installment plan updated.","success")}function payInstallmentMonth(e){const t=state.installments.find((t=>t.id===e));if(!t||t.monthsLeft<=0)return void showNotification("This installment plan is already fully paid or not found.","info");const n=`\n    <p class="mb-4 text-center text-gray-300 force-word-wrap">\n      Mark one month as paid for "<strong>${t.description}</strong>"?\n    </p>\n    <p class="mb-4 text-center text-sm text-gray-400">\n      Amount: <span class="tabular-nums">${formatCurrency(t.monthlyAmount)}</span><br>\n      Months remaining after this: ${t.monthsLeft-1}\n    </p>\n    <p class="disclaimer-text mt-3 mb-4">\n      <i class="fas fa-exclamation-triangle mr-1"></i>\n      <strong>Note:</strong> This action only updates the installment status. No financial transaction will be recorded, and no account balances will be affected by this step. Remember to record the actual payment manually.\n    </p>\n    <div class="flex justify-end gap-3 mt-4">\n      <button type="button" id="cancelInstallmentConfirmBtn" class="btn btn-secondary">Cancel</button>\n      <button type="button" id="confirmInstallmentPayBtn" class="btn btn-primary">Confirm & Update Status</button>\n    </div>\n  `;openFormModal(`Confirm Installment Update: ${t.description}`,n,null);const a=document.getElementById("confirmInstallmentPayBtn"),o=document.getElementById("cancelInstallmentConfirmBtn");a&&(a.onclick=()=>{handleConfirmInstallmentPayment(e),closeModal("formModal")}),o&&(o.onclick=()=>{closeModal("formModal")})}function handleConfirmInstallmentPayment(e){const t=state.installments.find((t=>t.id===e));if(!t)return void showNotification("Installment plan not found.","error");if(t.monthsLeft<=0)return void showNotification("This installment plan is already marked as fully paid.","info");t.monthsLeft-=1;let n="";t.monthsLeft<=0?(state.installments=state.installments.filter((t=>t.id!==e)),n=`Installment plan "${t.description}" marked as fully paid and completed.`):n=`Installment status updated for "${t.description}". ${t.monthsLeft} months remaining.`,saveData(),renderDashboard(),showNotification(n,"success")}function deleteInstallment(e){const t=state.installments.find((t=>t.id===e));t&&showConfirmationModal("Delete Installment Plan",`Are you sure you want to delete the installment plan: <br><strong>"${t.description}"</strong>?<br><br>This removes the record only.`,"Delete","Cancel",(()=>{state.installments=state.installments.filter((t=>t.id!==e)),saveData(),renderDashboard(),showNotification("Installment plan deleted.","success")}))}function openPayCcItemForm(e){const t=state.creditCard.transactions.find((t=>t.id===e));if(!t)return;const n=t.amount-(t.paidAmount||0);if(n<=.005)return void showNotification("This item is already fully paid/settled.","info");const a="Credit Card Payment";let o="";const s=state.categories.filter((e=>"income"!==e.toLowerCase()&&e.toLowerCase()!==a.toLowerCase())).sort(((e,t)=>e.localeCompare(t)));state.categories.some((e=>e.toLowerCase()===a.toLowerCase()))?o+=`<option value="${a}" selected>${a}</option>`:o+=`<option value="${a}" selected>${a} (Suggested)</option>`,s.forEach((e=>{o+=`<option value="${e}">${e}</option>`}));const r=`\n      <input type="hidden" name="ccItemId" value="${t.id}">\n      <p class="mb-2 tabular-nums">Item Amount: ${formatCurrency(t.amount)}</p>\n      <p class="mb-2 tabular-nums">Paid So Far: ${formatCurrency(t.paidAmount||0)}</p>\n      <p class="mb-2">Remaining on Item: <strong class="text-danger tabular-nums">${formatCurrency(n)}</strong></p>\n      <div>\n          <label for="ccItemPayAmount" class="block text-sm font-medium mb-1">Payment Amount</label>\n          <input type="number" id="ccItemPayAmount" name="ccItemPayAmount" step="0.01" min="0.01" max="${n.toFixed(2)}" value="${n.toFixed(2)}" required>\n      </div>\n      <div>\n          <label for="modalCcPayFromAccount" class="block text-sm font-medium mb-1">Pay From Account</label>\n          <select id="modalCcPayFromAccount" name="ccPayFromAccount" required></select>\n      </div>\n      <div class="flex items-center mt-3 mb-1">\n          <input type="checkbox" id="logCcPaymentAsExpense" name="logCcPaymentAsExpense" class="h-4 w-4 text-accent-primary border-gray-500 rounded focus:ring-accent-primary mr-2" checked>\n          <label for="logCcPaymentAsExpense" class="text-sm font-medium text-gray-300">Log this payment as an expense?</label>\n      </div>\n      <div id="ccPaymentCategoryGroup">\n          <label for="modalCcPayCategory" class="block text-sm font-medium mb-1">Category for this Payment</label>\n          <select id="modalCcPayCategory" name="ccPayCategory" required>${o}</select>\n      </div>\n      <button type="submit" class="btn btn-primary w-full mt-3">Make Payment</button>\n  `;openFormModal(`Pay CC Item: ${t.description.substring(0,30)}...`,r,handlePayCcItemSubmit),populateDropdowns();const i=document.getElementById("logCcPaymentAsExpense"),c=document.getElementById("ccPaymentCategoryGroup"),l=document.getElementById("modalCcPayCategory");i&&c&&l&&(c.style.display=i.checked?"block":"none",l.required=i.checked,i.onchange=()=>{i.checked?(c.style.display="block",l.required=!0):(c.style.display="none",l.required=!1)})}function handlePayCcItemSubmit(e){e.preventDefault();const t=new FormData(e.target),n=t.get("ccItemId"),a=parseFloat(t.get("ccItemPayAmount")),o=t.get("ccPayFromAccount"),s="on"===t.get("logCcPaymentAsExpense"),r=s?t.get("ccPayCategory"):null,i=state.creditCard.transactions.find((e=>e.id===n)),c=state.accounts.find((e=>e.id===o));if(!i||!c)return void showNotification("CC item or account not found.","error");const l=roundToTwoDecimals(a),d=roundToTwoDecimals(i.amount-(i.paidAmount||0));if(isNaN(l)||l<=0||l>roundToTwoDecimals(d+.005))return void showNotification("Invalid payment amount for CC item.","error");if(s&&!r)return void showNotification("Please select a category for this payment if logging as an expense.","error");if(c.balance<l)return void showNotification(`Insufficient funds in ${c.name}.`,"warning");c.balance=roundToTwoDecimals(c.balance-l),isNaN(c.balance)&&(c.balance=0),i.paidAmount=roundToTwoDecimals((i.paidAmount||0)+l),i.paidAmount>=roundToTwoDecimals(i.amount-.005)&&(i.paidOff=!0,i.paidAmount=i.amount);let u=`Payment of ${formatCurrency(l)} for CC item "${i.description.substring(0,20)}..." recorded.`;const m=getCurrentDateString();if(s){const e={id:generateId(),type:"expense",amount:l,account:o,category:r,description:`Credit Card Payment: ${i.description}`,date:m,timestamp:Date.now()};state.transactions.push(e),u+=" Expense logged.",refreshMonthlyViewIfRelevant(m)}else u+=" Not logged as expense.";i.paidOff&&(u=`CC item "${i.description.substring(0,20)}..." fully paid.${s?" Expense logged.":" Not logged as expense."}`),saveData(),renderDashboard(),renderCreditCardSection(),populateDropdowns(),"block"===$("#ccHistoryModal").style.display&&openCcHistoryModal(),closeModal("formModal"),showNotification(u,"success")}function openSettingsModal(){renderSettingsForm(),setupSettingsTabs();const e=$("#storageSizeInfo");e&&(e.textContent=`Approx. Storage Used: ${getFormattedLocalStorageSize(STORAGE_KEY)}`),$("#settingsModal").style.display="block",cancelDeleteAllData(),displayAppVersion()}function renderSettingsForm(){const e=$("#accountManagementList");e?(e.innerHTML="",state.accounts.forEach((t=>{const n=document.createElement("div");n.className="grid grid-cols-[auto,1fr,1fr] gap-x-3 items-center py-1 account-row",t.hidden&&n.classList.add("account-row-hidden");const a=document.createElement("button");a.type="button",a.className="btn-icon-hide justify-self-center",a.dataset.accountId=t.id,a.innerHTML=`<i class="fas ${t.hidden?"fa-eye-slash":"fa-eye"}"></i>`,"cash"===t.id?(a.disabled=!0,a.style.opacity="0.3",a.style.cursor="not-allowed"):a.onclick=()=>toggleAccountVisibility(t.id),n.appendChild(a);const o=document.createElement("input");o.type="text",o.name=`accountName_${t.id}`,o.value=t.name,o.dataset.accountId=t.id,o.className="!py-1 !px-2 text-sm rounded placeholder-gray-400",o.style.backgroundColor="var(--bg-secondary)",o.style.borderColor="var(--border-color)",o.style.color="var(--text-primary)","cash"===t.id&&(o.readOnly=!0,o.classList.add("text-gray-400","cursor-not-allowed")),n.appendChild(o);const s=document.createElement("input");s.type="number",s.name=`accountBalance_${t.id}`,s.value=t.balance.toFixed(2),s.step="0.01",s.dataset.accountId=t.id,s.className="!py-1 !px-2 text-sm rounded placeholder-gray-400",s.style.backgroundColor="var(--bg-secondary)",s.style.borderColor="var(--border-color)",s.style.color="var(--text-primary)",n.appendChild(s),e.appendChild(n)}))):console.error("#accountManagementList element not found in #settingsAccountsPanel.");const t=$("#manageAccountsForm");t&&(t.onsubmit=handleManageAccountsSubmit);const n=$("#settingsCcLimitAmount");n&&(n.value=(state.creditCard&&state.creditCard.limit||0).toFixed(2),n.style.backgroundColor="var(--bg-secondary)",n.style.borderColor="var(--border-color)",n.style.color="var(--text-primary)");const a=$("#settingsCcLimitForm");a&&(a.onsubmit=e=>{e.preventDefault();const t=new FormData(a),n=parseFloat(t.get("ccLimitAmount"));isNaN(n)||n<0?showNotification("Invalid credit limit amount.","error"):(state.creditCard||(state.creditCard={limit:0,transactions:[]}),state.creditCard.limit=n,saveData(),renderCreditCardSection(),"block"===$("#ccHistoryModal").style.display&&openCcHistoryModal(),showNotification(`Credit limit set to ${formatCurrency(n)}.`,"success"))});const o=$("#toggleCcSection");o&&(state.settings||(state.settings={initialSetupDone:!1,showCcDashboardSection:!0,theme:"dark"}),o.checked=void 0===state.settings.showCcDashboardSection||state.settings.showCcDashboardSection,o.dataset.listenerAttached||(o.onchange=()=>{state.settings||(state.settings={initialSetupDone:!1,showCcDashboardSection:!0,theme:"dark"}),state.settings.showCcDashboardSection=o.checked,saveData(),updateCcDashboardSectionVisibility(),showNotification(`Credit Card section on dashboard will now be ${o.checked?"shown":"hidden"}.`,"info")},o.dataset.listenerAttached="true"));const s=$("#addCategoryForm");if(s){s.onsubmit=addCategory;const e=s.querySelector("#newCategoryName");e&&(e.style.backgroundColor="var(--bg-secondary)",e.style.borderColor="var(--border-color)",e.style.color="var(--text-primary)")}renderCategorySettingsList()}function toggleAccountVisibility(e){const t=state.accounts.find((t=>t.id===e));if(!t||"cash"===t.id)return;const n=()=>{t.hidden=!t.hidden,saveData(),renderDashboard(),populateDropdowns(),renderSettingsForm(),showNotification(`Account "${t.name}" is now ${t.hidden?"hidden":"visible"}.`,"info")};t.hidden||0===t.balance?n():showConfirmationModal("Hide Account?",`This account has a balance of <strong>${formatCurrency(t.balance)}</strong>. Hiding it will remove it from the dashboard, but its balance will still be included in your "Total Available" figure.<br><br>Are you sure you want to hide it?`,"Yes, Hide It","Cancel",n,null,"btn-primary")}function renderCategorySettingsList(){const e=$("#categorySettingsList");if(!e)return void console.error("#categorySettingsList element not found.");e.innerHTML="";[...state.categories].sort(((e,t)=>e.localeCompare(t))).forEach((t=>{const n=document.createElement("li");n.className="flex justify-between items-center p-2 rounded",n.style.backgroundColor="var(--bg-secondary)",n.style.borderColor="var(--border-color)",n.style.borderWidth="1px";const a=`<input type="text" value="${t}" data-original-name="${t}" class="bg-transparent border-none focus:ring-0 focus:outline-none p-0 flex-grow mr-2 text-sm">`,o=document.createElement("div");o.className="flex items-center gap-x-2";const s=`<button class="text-gray-400 hover:text-expense focus:outline-none" onclick="deleteCategory('${t}')" title="Delete Category"><i class="fas fa-times"></i></button>`;n.innerHTML=a,o.innerHTML='<button class="btn btn-primary btn-sm !py-0.5 !px-2 text-xs" onclick="renameCategory(this)">Save</button>'+s,n.appendChild(o),e.appendChild(n)}))}function renameCategory(e){const t=e.closest("li").querySelector('input[type="text"]'),n=t.value.trim(),a=t.dataset.originalName;if(!n)return showNotification("Category name cannot be empty.","error"),void(t.value=a);if(n===a)return;if(state.categories.some((e=>e.toLowerCase()===n.toLowerCase()&&e!==a)))return showNotification(`Category name "${n}" already exists.`,"error"),void(t.value=a);const o=state.categories.indexOf(a);if(o>-1){state.categories[o]=n,state.categories.sort(((e,t)=>e.localeCompare(t)));let e=0;state.transactions.forEach((t=>{t.category===a&&(t.category=n,e++)})),saveData(),populateDropdowns(),renderCategorySettingsList(),showNotification(`Category "${a}" renamed to "${n}". ${e} transaction(s) updated.`,"success")}else showNotification(`Original category "${a}" not found.`,"error"),t.value=a}function addCategory(e){e.preventDefault();const t=$("#newCategoryName"),n=t.value.trim();if(n){if(state.categories.some((e=>e.toLowerCase()===n.toLowerCase())))return showNotification(`Category "${n}" already exists.`,"warning"),void(t.value="");state.categories.push(n),state.categories.sort(((e,t)=>e.localeCompare(t))),saveData(),populateDropdowns(),renderCategorySettingsList(),t.value="",showNotification(`Category "${n}" added.`,"success")}else showNotification("Category name cannot be empty.","error")}function deleteCategory(e){if("Other"===e)return void showNotification("The 'Other' category cannot be deleted.","warning");state.transactions.some((t=>t.category===e))?showNotification(`Category "${e}" is in use and cannot be deleted. Reassign transactions first or rename the category.`,"error"):state.categories.includes(e)?confirm(`Are you sure you want to delete the category "${e}"? This action cannot be undone if the category is not in use.`)&&(state.categories=state.categories.filter((t=>t!==e)),saveData(),populateDropdowns(),renderCategorySettingsList(),showNotification(`Category "${e}" deleted.`,"success")):showNotification(`Category "${e}" not found.`,"error")}function updateCcDashboardSectionVisibility(){const e=$("#creditCardDashboardSection");if(e){let t=!0;state.settings&&void 0!==state.settings.showCcDashboardSection?t=state.settings.showCcDashboardSection:void 0===state.settings&&(state.settings={initialSetupDone:!1,showCcDashboardSection:!0},console.log("state.settings was undefined, initialized showCcDashboardSection to true")),e.style.display=t?"":"none"}$("#ccLimitSettingsCard")}function handleManageAccountsSubmit(e){e.preventDefault();const t=new FormData(e.target);let n=!1,a=[];if(state.accounts.forEach((e=>{const o=t.get(`accountName_${e.id}`),s=t.get(`accountBalance_${e.id}`);if(null===o||null===s)return void console.warn(`Inputs for account ${e.id} not found in form data.`);const r=o.trim(),i=parseFloat(s);if("cash"!==e.id&&(r?r!==e.name&&(state.accounts.some((t=>t.id!==e.id&&t.name.toLowerCase()===r.toLowerCase()))?a.push(`Account name "${r}" already exists. Please choose a unique name.`):(e.name=r,n=!0)):a.push(`Account name for "${e.name}" (ID: ${e.id}) cannot be empty.`)),isNaN(i))a.push(`Invalid balance entered for account "${e.name}". Please enter a valid number.`);else{const t=roundToTwoDecimals(i);Math.abs(e.balance-t)>.005?(e.balance=t,n=!0):e.balance!==t&&!1===n&&e.balance!==t&&(e.balance=t)}})),a.length>0)return a.forEach((e=>showNotification(e,"error",6e3))),void renderSettingsForm();if(n)state.settings&&!state.settings.initialSetupDone&&(state.settings.initialSetupDone=!0),saveData(),renderDashboard(),populateDropdowns(),renderSettingsForm(),showNotification("Account names and/or balances updated successfully.","success");else{let e=!1;state.accounts.forEach((n=>{const a=parseFloat(t.get(`accountBalance_${n.id}`));!isNaN(a)&&n.balance!==roundToTwoDecimals(a)&&Math.abs(n.balance-roundToTwoDecimals(a))<=.005&&(n.balance=roundToTwoDecimals(a),e=!0)})),e&&!n?(saveData(),renderDashboard(),populateDropdowns(),renderSettingsForm(),showNotification("Account balances formatted to two decimal places.","info")):n||showNotification("No changes detected in account names or balances.","info")}}function exportData(){try{const e=JSON.stringify(state,null,2),t=new Blob([e],{type:"application/json"}),n=URL.createObjectURL(t),a=document.createElement("a"),o=(new Date).toISOString().slice(0,19).replace(/[:T]/g,"-");a.download=`kaasi-backup-${o}.json`,a.href=n,document.body.appendChild(a),a.click(),document.body.removeChild(a),URL.revokeObjectURL(n),showNotification("Data exported.","success")}catch(e){console.error("Export failed:",e),showNotification("Data export failed.","error")}}function importData(e){const t=e.target.files[0];t?showConfirmationModal("Import Data","Importing data will <strong class='text-warning'>OVERWRITE ALL</strong> current data. This action cannot be undone.<br><br>Are you sure you want to proceed?","Import & Overwrite","Cancel",(()=>{const n=new FileReader;n.onload=t=>{try{let e=JSON.parse(t.target.result);if(!e||"object"!=typeof e)throw new Error("Invalid data structure in imported file. Ensure it's a Kaasi backup.");Array.isArray(e.transactions)&&e.transactions.forEach((e=>{"number"==typeof e.amount&&(e.amount=roundToTwoDecimals(e.amount))})),Array.isArray(e.accounts)&&e.accounts.forEach((e=>{"number"==typeof e.balance&&(e.balance=roundToTwoDecimals(e.balance))})),Array.isArray(e.debts)&&e.debts.forEach((e=>{"number"==typeof e.amount&&(e.amount=roundToTwoDecimals(e.amount)),"number"==typeof e.originalAmount&&(e.originalAmount=roundToTwoDecimals(e.originalAmount)),"number"==typeof e.remainingAmount&&(e.remainingAmount=roundToTwoDecimals(e.remainingAmount))})),Array.isArray(e.receivables)&&e.receivables.forEach((e=>{"number"==typeof e.amount&&(e.amount=roundToTwoDecimals(e.amount)),"number"==typeof e.originalAmount&&(e.originalAmount=roundToTwoDecimals(e.originalAmount)),"number"==typeof e.remainingAmount&&(e.remainingAmount=roundToTwoDecimals(e.remainingAmount))})),Array.isArray(e.installments)&&e.installments.forEach((e=>{"number"==typeof e.monthlyAmount&&(e.monthlyAmount=roundToTwoDecimals(e.monthlyAmount)),"number"==typeof e.originalFullAmount&&(e.originalFullAmount=roundToTwoDecimals(e.originalFullAmount))})),e.creditCard&&"object"==typeof e.creditCard&&("number"==typeof e.creditCard.limit&&(e.creditCard.limit=roundToTwoDecimals(e.creditCard.limit)),Array.isArray(e.creditCard.transactions)&&e.creditCard.transactions.forEach((e=>{"number"==typeof e.amount&&(e.amount=roundToTwoDecimals(e.amount)),"number"==typeof e.paidAmount&&(e.paidAmount=roundToTwoDecimals(e.paidAmount)),e.paidAmount>=roundToTwoDecimals(e.amount-.005)?(e.paidOff=!0,e.paidAmount=e.amount):e.paidOff=!1}))),state=deepMerge(getDefaultState(),e),ensureDefaultAccounts(),ensureDefaultCategories(),state.accounts.forEach((e=>{isNaN(e.balance)||"number"!=typeof e.balance?e.balance=0:e.balance=roundToTwoDecimals(e.balance)})),state.creditCard||(state.creditCard={limit:0,transactions:[]}),isNaN(state.creditCard.limit)||"number"!=typeof state.creditCard.limit?state.creditCard.limit=0:state.creditCard.limit=roundToTwoDecimals(state.creditCard.limit),Array.isArray(state.creditCard.transactions)||(state.creditCard.transactions=[]),state.creditCard.transactions.forEach((e=>{"number"!=typeof e.amount||isNaN(e.amount)?e.amount=0:e.amount=roundToTwoDecimals(e.amount),"number"!=typeof e.paidAmount||isNaN(e.paidAmount)?e.paidAmount=0:e.paidAmount=roundToTwoDecimals(e.paidAmount),e.paidAmount>=roundToTwoDecimals(e.amount-.005)?(e.paidOff=!0,e.paidAmount=e.amount):e.paidOff=!1,e.timestamp||(e.timestamp=new Date(e.date).getTime())})),state.transactions.forEach((e=>{e.timestamp||(e.timestamp=new Date(e.date).getTime())})),state.debts.forEach((e=>{e.timestamp||(e.timestamp=new Date(e.dueDate).getTime())})),state.receivables.forEach((e=>{e.timestamp||(e.timestamp=new Date(e.dateGiven).getTime())})),state.installments.forEach((e=>{e.timestamp||(e.timestamp=new Date(e.startDate).getTime())})),state.settings||(state.settings=getDefaultState().settings),state.settings.initialSetupDone=!0,saveData(),initializeUI(!0),showNotification("Data imported and sanitized successfully. Application refreshed.","success"),closeModal("settingsModal")}catch(e){console.error("Import failed during processing:",e),showNotification(`Import failed: ${e.message}`,"error",7e3)}finally{e&&e.target&&(e.target.value=null)}},n.onerror=()=>{showNotification("Failed to read the import file.","error"),e&&e.target&&(e.target.value=null)},n.readAsText(t)}),(()=>{e&&e.target&&(e.target.value=null),showNotification("Import cancelled.","info")}),"btn-primary"):e&&e.target&&(e.target.value=null)}function generateMonthlyPdfReport(){if(void 0===window.jspdf)return void showNotification("PDF generation library is not loaded.","error");const{jsPDF:e}=window.jspdf,t=$("#monthTabs .tab-button.active");if(!t)return void showNotification("Please select a month to generate a report.","info");const n=parseInt(t.dataset.month),a=parseInt(t.dataset.year),o=new Date(a,n).toLocaleString("default",{month:"long"});showNotification(`Generating PDF for ${o} ${a}...`,"info",3e3);const s=state.transactions.filter((e=>{const t=new Date(e.date);return t.getFullYear()===a&&t.getMonth()===n})).sort(((e,t)=>new Date(e.date)-new Date(t.date)));let r=0,i=0;const c={};s.forEach((e=>{if("income"===e.type)r+=e.amount;else{i+=e.amount;const t=e.category||"Other";c[t]||(c[t]=0),c[t]+=e.amount}}));const l=r-i,d=new e({orientation:"portrait",unit:"pt",format:"a4"}),u=d.internal.pageSize.getWidth(),m=d.internal.pageSize.getHeight(),p=40;let f=p;const y=()=>{d.addImage("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZwAAACNCAMAAAC0YjyBAAAAM1BMVEUAAADmfibmfibmfibmfibmfibmfibmfibmfibmfibmfibmfibmfibmfibmfibmfibmfibz/BTlAAAAEHRSTlMAgMBA8BBgoNAwIOCwcJBQIn4GGAAADw5JREFUeNrsnNnS2yAMRs2+GLDe/2nbSaebFfgA86dNxuc2Cw4HkIRxtlVIItqlLOII281/hqTfeGdvQ/8GY50WLTkPtLNmu3kpMXv6DpTzwOe43bwKm4ioIYeT7HbzAqLQREgOR4t7+nw10dEDLIfjbj2MxWqgnFvPi+BqsJxbz+sxQtN1OaTFnVovR+1EXXIgu9puVmISUa8cTLonz0KUppVySN+TZxmFqFeOTVJ6wpTtpoE5hJTiMBsiegJyGEbZAuaQj1s/Vv6JRUuw/BuxvRtZ0wOd8ZIG5NRQwi9a2gRrtYE7N/R2W+OOfuHag5YaCLx1naiK/RI5mU683bZe6V3/CwE5kJh3EHiWyglvH90U/YUCEwzIgRy1+OOWyzHnkeC3dyOd6g7gBsnBKAnsTMrBN/ver6TSp18A3EA583rcWjmCTrxhQUUnoBssB2M1sHNdzkEn8vZ2sKAZoBssB2MKsHNVTjzrT9sb0jNzCmHEit3TskyOPycD7xdwvnPqox3XN1jO/AaqHZXzsdXnAwdXFkUcj+VgMnHUEjn27avPZ4uzjuAND3QQQE4f4clXxwVygn736vMnFowwz6dN2ICcXsKTL78ux/i3rz6f2bE9yYA326wc3I9E5bKc9P7VJy8KpcLlwsMNkHPRznFRTv6A6vNPghXCho1j9BM3QM5VO9pckhM+oPrsIz1xA+Rct5OuyDEfUX32cFTcADlX7RwX5MiPqD47MDtPdK/Lwcn6bqbllM+oPjFcQdhWyMFhQszKOT6k+sREHlrXyMEJVpyTEz+m+oQ4FlqBnHWJh+uV87HVJyCwSADkrIxuakaO+6Tqs41k/bVMDt5dlRNy7Hz1GZQQRX5HiKzGlEaVhZDfKUKoOPCLrRDp0aJVlydO2ZbKQWlWGJYT9Fz1GbI8rxHu6H1SOZ0a1cl2uA3ltACDT6GIsxsgZ3Ha7kblmH2m+jTZ0zN0ibgKTPSUBGaC3bsfVxLPV5PICkMgZ3XBGwflJFB9ggeNOMWgLq4iA/gcaBDJKSwGADmrY1wZk5Mnqs9jn34AIsq5G8Om9bk9dMrRLLZiOUtzAj0kR01Un4UQGRwfGn7wKIDhcHTJsWziQDmrp44dkGM0KJRGxjD+mkwYb/AtWo6CcnhHqeVy8NSRA3LkePXpqQdbc4NJuJrj6IjlRNZPWM7yqRO75RT+ExGO+lDdp5FwlyTCeCwnsyvEcpZPndwr5xivPg/qZDe1TXRMmGnTQjmeHWaDctYfovN9cvhKvuOAo4njZdf4l8TZpSaObB4RJF+EEMWziwdyIhvCr5GT+bqG5RgPsyx0/frX38EFC46HsLwwZbU9iIfTrRmsKkVnPLVoW3L4qmpeJcfwy8RyHDHgjqdu/FlFTE3TqVHXG1GZOjwwHtUgloCcxN79Gjm8YSzHwhQYhHQf2snCXh8/2oLHZmMtPcz1iksDORoM4DE5prJ9FVAipDvkBJxkcRyYZa4e1y047GCrs44Jr4XA0JQT0KqG5WA3dOB1LUA5tdJBdiceCuYLuTbIHawHZOW+smuNhqMpJ6PfieXgisJ2lDoZyklTz2fDcrVUV1eJCrGjMvdVq7cye7Eqx4EeAnJm3fBx4VDLmjg4JwjwulV1DdpbXnlMiM+/stTaw3I8WFuAnFk3fEX11ZYxoq/YPTqeKau84Dr2ORT2zWnKYVF5Xo4YccNzkRk5+ARPkL8JTTn8m/B/u7jKsoO6C8thjklekWOBGxR01AU5chsDD/+JDhUVOSQm5VjwLUAOdiO6a3d7QQ6p/0uOpL/wdlgO6h8sB7tx/TuSYkCOLmCLDaKUEo8jMXrYclAqC+Gk3KvdktkFOxuH5Th2ZXNyggZu8M60G5BjNzm1a2HU42jT1BRUmbmsXkKkJ+wphyE5EsRkIAe6aQPihmjctFTjt3UOt8+uj6H4sZyx5l9Lobrl+Ck5E26wHN8tx7M5jxuLTs8GLyP24YQ+UgOZI5TDx+6kHLPPuMHzVrRu7xq2Z99UM59ZCGQVH0nlSPsiOcaD9HaxHPX8VQ/+f2dOTtgJgw9zc3Y1Jif1y8FuvNkgaUAOb30HFRXuJyzHUj9i8KPOjMgRU3KqbjBiQk6q3qfUBrrBqFk3vPuChyeqvlqOA+0ulrObekpUZs4T4rvN8zt81iM7LTlqXg52gxHg3A+4axcbR2BwB+vHMxniUL52EUZThR9PgVjlUPepdpJYvkwOdrNejmVvQDnIzief+8beGa3HCQJRmAEERdB9/6dtc5EmDY4/Itv2a/bcu7j8gHAYhuKWFvsm1kCzOAf2TX3sJOuA0hOHtQLxX6OHtQhRTzvaSn5Lrd7aVJXu2FvTAEVYboyHEyBg4DYcmi0HbBZZizlnOKXK0WQYjq4UDmwG/5ypNLO5P5Vmi2am9bHaUBnOXA3VBAc1Bat8JkcvQndgc38RSoMWW2yuYbzVPnwNZyMzw4GAqvAcOIsHNqPhyMUz+o1bIkmB4xpGlZnhwO68tBqf/gocZsPyZHxy00nnFpvwbnZoglOYq/ScV5bhWwa6EQ1surcM2iMXVviqNW+WO7ZVy/ELbvaT1KGY4WSlagGOZkSHGyfscxMcXsgUHDjrqmI4Oxcth4WmfjiivAHAmeZeNv3b1MK/UltsvNNr2+CIUjMIJwCc4QEeHWzuB3hIa/qRqP7ERs6bDmfmmaIc/qY9L3IfHhpl8XQXi0OjGA5bbEXrVJwkNME8fvFta/NyOoVJo4MKfXf0GAcVMhxu/VZt3fNEmeKd9np+AawPUbCGk+2v1ZzBWdvDcVnlxnxgvQIHLLagXkuzOsjp4VTnxxfIzSGab5HTR5nFVwOtDie3B7Kz/NR/8DAzHFVFf49YubLb7n5qF0v7OeEg+My9SY5tZtGfnOXtySC53ZXmGmI4/elpuV0wHLbY3OOanNYhWVLNsVHR6HDqlwc4Q8Ni8cl2OE5vkfZBWvVMcySrvKBrHml0OHUV7TfhrN2po+7ddpjVOcHyAM1OgcNZOHyqXpD2xvXa5gO7EeGApDPJW+6EwxabQAUvGhwGG4yH0Ap4nOAUPup+SanvqHvphcMWWzxnYwxG3+iVayFujdlwkghepw8/KhOA6UU400qBDnraM4xb0ys36y8o16645/QqbNyzduTCxTIcttiqWaoa12drOHxH97x8/WWBq+rqkkcnJmL56VmJiTSxxbbYw07ujCE4ZoqHPS7UlSeQRhKSfLak9IoAh7V15HxN/VfufwD4ot9+0+VqRbkclbO0HFDI4ajQ0Ji4dS78bzdlBZcuwPG+0wBNfz6d+rRv72fRbBZnrsiJnd/TTck+XXw2Wv8ex5jhafo0x3Y4ftmV8zOk+E3uiLityZ92HTmdhtouAzR9m1z3txUxdbHu1STOXskf72he0pQggEVRgHMa7VZYMi+1NuS1CU44c2DdlXuYrXmpvSXLlawp7nIsu/xf90c+W1UEL8IJ4I7I2Q7oq+Pc6TrzBHACnjFKlDCPO46TX/rrnSvJZ3V3gjCi62zncAq7g7Y9HEOTQEcEPbH5mk71/Y+kdw3hDAMWOpdCki/UM/+YHHwfB8PhSzeFJ8rLiQHKV+S/4Pxo71zXHAVhMFxCIBxt7v9q97EjRuq0oYc57K7fn2kZROAtIaDAw/uWZ9fBeWJ/Jxo6K9YdcHT5V44/doODHRf2xu+A84RPwKDAUReUh8F7jMNJ1rUPafkQL3PGxfRd1xxUL0ESLRqYfDefb8ic+1PdCKbzKBxnT84Tbe5ZjO+z4Seg6vZwbEtmn/k0p1qMeuIFqXBEZWSwQ8oknAonIiwtNbd2jQ6YAZl9f6MA3Vse4AID5M0gwcElTnHb/hAhMwzCsRyZAbbJBcbY2wlARn8Nh9h3OcXO/7KMMKmGjWkcTkJ9ApS0R9q6WasfNy8c1zgF50ckMWDc3Gj+uTqSIINwoeCZxAWyLcHGJszxLdIoHCQhC5csxcBJ2OB5jhbYCpwrNnXJqYQYzmZskxhwChxR1SZAHXwCX4HTPxhcsXjJgmlNxuHqW/hWVECJFhqSFissL4uHtS6DWyq9jsHpN2GnxXGdhP55CQoCp2dzZmrFEv+rjG52H5wCR9mg6Kwk/hCcZtASgsRZCVuZioW17HaN5q+rF6jZ+IbUCrYxOOcNnNZvIKy4zNq3CRxhMwsatrgGmtUo6DsO5jgKJ96dAI1ZWdw76q1ZLgGTxJHqQlr4SenZrNFcu1xg9Me1TFnSHIRj97u61gzSJX3mrRHX7vs+p6o/LcKgwWma7rzt4fF2q9Lh9KHdlUZsPMDec5Qi72t0YgYTP/MkH4Yjm00GhDu5Z0OdMb+V0/Fd1RU4ymAn3uJWT0/DsQqcapvSHTinVAsyuNXE2FWPw3EBzcXPh7twkMlsLmO6mVPVKdDh6KfIgewKpzgDw2Yto7tv1nruezgiZ3BqDQkl+HE4hv2uw0t7OHOxQ3bSkvRC63QeXjorqvrcjg6ncwgiF4mzekfiZOWyVr29Ccct41nKq0mP0oE/DAdycwP2DoGVnqX0Dl0IaznsCBwXnoeTkAcV3JNwCtv5H3Vn5FxAd92aiG/DiUy9u+0QZKT7OBxcWDNIUFxqBfqWMm2ckrM0PAXOIB2jd1k6m+fgeDat3C0O4FzUBJuqIrQfkeGOWcsYL99JfFVyH+W3z5i1evmDGaQiMV6lx6a1/jWnZxkK6XCEzjgcUXiFjf6wLWFYfuUyLesCI+R++qZwmKbAwd2BE5HzBBzSZjCAxRSUlB5yCBiJMkaa4cgdCBjttetspQqJM805TRqcJkfvOEto/A378cfU1qT2IUpZfAGYbN/CCID8Nql+sDgrTXA1E5oMALQIO8nV8kXk6se11vdhk3cS0MrhjXhRBFD6nCoiDc74lbovoOuveqzw9TLPwnGo91gHnKel7zCPxafxh3a90J8OOK9J3088F2N3hJI1JfM9hXg64LxBrrCqDGAWAWRWVdzpzfL/6yuJHvmtwmMZzhuVgN8oOBYT/NbGczSb98sRv0V0LF77CkXglwXxdOhrZOFFND++RuCfloUDzS9WJH5KdBi075CrgR9UqIcb8G2KU+Zh5eloNN+sWIEHBPUg8zOyBpBvCuHnV3D+53K2GgDsqYCp9uhlfpPsrKOtvF1/AIm5RsnYih/8AAAAAElFTkSuQmCC","PNG",p,f-12,80,0),d.setFont("helvetica","normal"),d.setFontSize(12),d.setTextColor("#333333"),d.text("Monthly Financial Statement",u/2,f,{align:"center"}),d.setFontSize(10),d.text(`${o} ${a}`,u-p,f,{align:"right"}),f+=30,d.setDrawColor("#DDDDDD"),d.line(p,f,u-p,f),f+=25},g=e=>{const t=m-p+10;d.setFont("helvetica","normal"),d.setFontSize(8),d.setTextColor("#AAAAAA"),d.text(`Page ${e}`,u/2,t,{align:"center"}),d.text("All amounts in LKR",u-p,t,{align:"right"}),d.textWithLink("Generated by Kaasi | kaasi.com.lk",p,t,{url:"https://kaasi.com.lk"})},b=e=>(("number"!=typeof e||isNaN(e))&&(e=0),e.toFixed(2).replace(/\d(?=(\d{3})+\.)/g,"$&,")),h=()=>{const e=["Date","Description","Category","Debit","Credit"],t=[60,215,100,70,70],n=20;let a=1;const o=()=>{y(),1===a&&((e=>{const t=(u-80-20)/3;d.setFont("helvetica","normal"),d.setFontSize(10),d.setTextColor("#666666"),d.text("Total Income",p+t/2,e+15,{align:"center"}),d.setFont("helvetica","bold"),d.setFontSize(12),d.setTextColor("#27ae60"),d.text(formatCurrency(r),p+t/2,e+35,{align:"center"}),d.setFont("helvetica","normal"),d.setFontSize(10),d.setTextColor("#666666"),d.text("Total Expenses",p+t+10+t/2,e+15,{align:"center"}),d.setFont("helvetica","bold"),d.setFontSize(12),d.setTextColor("#c0392b"),d.text(formatCurrency(i),p+t+10+t/2,e+35,{align:"center"}),d.setFont("helvetica","normal"),d.setFontSize(10),d.setTextColor("#666666"),d.text("Net Flow",p+2*(t+10)+t/2,e+15,{align:"center"}),d.setFont("helvetica","bold"),d.setFontSize(12),d.setTextColor(l>=0?"#27ae60":"#c0392b"),d.text(formatCurrency(l),p+2*(t+10)+t/2,e+35,{align:"center"})})(f),f+=70),f+=10,d.setFont("helvetica","bold"),d.setFontSize(9),d.setTextColor("#333333");let o=p;e.forEach(((e,n)=>{let a="left",s=o;n>=3&&(a="right",s=o+t[n]),d.text(e,s,f,{align:a}),o+=t[n]})),f+=5,d.setDrawColor("#DDDDDD"),d.line(p,f,u-p,f),f+=n};if(o(),s.forEach((e=>{const s=d.splitTextToSize(e.description,t[1]-5),r=d.splitTextToSize(e.category||"-",t[2]-5),i=Math.max(Array.isArray(s)?s.length:1,Array.isArray(r)?r.length:1),c=n*i;f+c>m-p-20&&(g(a),d.addPage(),a++,f=p,o()),d.setFont("helvetica","normal"),d.setFontSize(9),d.setTextColor("#555555");let l=p;const u=new Date(e.date).toLocaleDateString("en-GB"),y="expense"===e.type?b(e.amount):"",h="income"===e.type?b(e.amount):"";d.text(u,l,f),l+=t[0],d.text(s,l,f),l+=t[1],d.text(r,l,f),l+=t[2],d.text(y,l+t[3],f,{align:"right"}),l+=t[3],d.text(h,l+t[4],f,{align:"right"}),f+=c})),f>m-p-60&&(g(a),d.addPage(),a++,f=p,y()),f+=20,d.setDrawColor("#333333"),d.line(u-p-t[3]-t[4],f,u-p,f),f+=n,d.setFont("helvetica","bold"),d.text("Totals:",u-p-t[3]-t[4]-50,f,{align:"right"}),d.setTextColor("#c0392b"),d.text(b(i),u-p-t[4],f,{align:"right"}),d.setTextColor("#27ae60"),d.text(b(r),u-p,f,{align:"right"}),f+=5,d.setDrawColor("#333333"),d.line(u-p-t[3]-t[4],f,u-p,f),d.line(u-p-t[3]-t[4],f+2,u-p,f+2),g(a),Object.keys(c).length>0){d.addPage(),a++,f=p,y(),d.setFont("helvetica","bold"),d.setFontSize(14),d.setTextColor("#333333"),d.text("Category Breakdown",u/2,f,{align:"center"}),f+=30;const e=["Category","Total Spent"];d.setFont("helvetica","bold"),d.setFontSize(10),d.text(e[0],p,f),d.text(e[1],u-p,f,{align:"right"}),f+=5,d.setDrawColor("#DDDDDD"),d.line(p,f,u-p,f),f+=n;Object.entries(c).sort((([,e],[,t])=>t-e)).forEach((([e,t])=>{f>m-p-n&&(g(a),d.addPage(),a++,f=p,y()),d.setFont("helvetica","normal"),d.setFontSize(10),d.setTextColor("#555555");const o=e,s=b(t);d.text(o,p,f),d.text(s,u-p,f,{align:"right"});const r=d.getTextWidth(o),i=d.getTextWidth(s),c=p+r+5,l=u-p-i-5;d.setLineDashPattern([1,2],0),d.setDrawColor("#AAAAAA"),d.line(c,f-3,l,f-3),d.setLineDashPattern([],0),f+=n})),g(a)}};try{h(),d.save(`Kaasi-Report-${o}-${a}.pdf`)}catch(e){console.error("Failed to generate PDF:",e),showNotification("An error occurred while generating the PDF.","error")}}function initiateDeleteAllData(){$("#initiateDeleteBtn").classList.add("hidden"),$("#deleteConfirmationSection").classList.remove("hidden"),resetDeleteSlider()}function cancelDeleteAllData(){$("#initiateDeleteBtn").classList.remove("hidden"),$("#deleteConfirmationSection").classList.add("hidden"),resetDeleteSlider()}let maxTranslateX=0,isDragging=!1;function setupDeleteSlider(){const e=$("#deleteSliderContainer"),t=$("#deleteSliderHandle"),n=e.querySelector(".slide-to-confirm-track");if(!e||!t||!n)return;let a=0,o=0;const s=()=>{maxTranslateX=e.offsetWidth-t.offsetWidth-4};window.resetDeleteSlider=()=>{isDragging=!1,o=0,t.style.transition="transform 0.2s ease-out, background-color 0.2s ease-out",n.style.transition="width 0.2s ease-out, background-color 0.2s ease-out",t.style.transform="translateX(0px)",n.style.width="0px",n.style.backgroundColor="var(--button-success-bg)",t.innerHTML='<i class="fas fa-arrow-right"></i>',t.style.backgroundColor="var(--accent-primary)",t.style.cursor="grab",e.style.cursor="pointer"};const r=o=>{s(),isDragging=!0,a=o-t.getBoundingClientRect().left,t.style.transition="none",n.style.transition="none",t.style.cursor="grabbing",e.style.cursor="grabbing"},i=s=>{if(!isDragging)return;let r=s-e.getBoundingClientRect().left-a;o=Math.max(0,Math.min(r,maxTranslateX)),t.style.transform=`translateX(${o}px)`,n.style.width=`${o+t.offsetWidth/2}px`},c=()=>{isDragging&&(isDragging=!1,t.style.cursor="grab",e.style.cursor="pointer",t.style.transition="transform 0.2s ease-out, background-color 0.2s ease-out",n.style.transition="width 0.2s ease-out, background-color 0.2s ease-out",o>=maxTranslateX-1?completeDeletion():resetDeleteSlider())};t.addEventListener("mousedown",(e=>r(e.clientX))),document.addEventListener("mousemove",(e=>{isDragging&&i(e.clientX)})),document.addEventListener("mouseup",c),t.addEventListener("touchstart",(e=>{e.preventDefault(),r(e.touches[0].clientX)}),{passive:!1}),document.addEventListener("touchmove",(e=>{isDragging&&(e.preventDefault(),i(e.touches[0].clientX))}),{passive:!1}),document.addEventListener("touchend",c),window.addEventListener("resize",(()=>{$("#deleteConfirmationSection")&&!$("#deleteConfirmationSection").classList.contains("hidden")&&(s(),resetDeleteSlider())}))}function completeDeletion(){const e=$("#deleteSliderHandle"),t=$(".slide-to-confirm-track");e.innerHTML='<i class="fas fa-check"></i>',e.style.backgroundColor="var(--button-success-bg)",t.style.width="100%",t.style.backgroundColor="var(--button-success-bg)",e.style.transform=`translateX(${maxTranslateX}px)`,isDragging=!1,e.style.pointerEvents="none",setTimeout((()=>{localStorage.removeItem(STORAGE_KEY),state=getDefaultState(),ensureDefaultAccounts(),ensureDefaultCategories(),initializeUI(!0),closeModal("settingsModal"),showNotification("All data deleted.","success"),e.style.pointerEvents="auto"}),500)}function openCashCounter(){const e=$("#cashCounterForm").querySelector(".grid");for(;e.children.length>3;)e.removeChild(e.lastChild);[5e3,1e3,500,100,50,20,10,5,2,1].forEach((t=>{const n=document.createElement("span");n.className="font-medium text-right pr-2 text-sm",n.textContent=`Rs. ${t}`;const a=document.createElement("input");a.type="number",a.min="0",a.dataset.denom=t,a.className="text-center bg-gray-600 border border-gray-500 rounded px-1 py-0.5 w-16 mx-auto text-sm",a.placeholder="0",a.oninput=calculateCashTotal;const o=document.createElement("span");o.className="text-right text-gray-400 text-sm",o.id=`cashTotal-${t}`,o.textContent=formatCurrency(0),e.appendChild(n),e.appendChild(a),e.appendChild(o)})),calculateCashTotal(),$("#cashCounterModal").style.display="block",$("#cashCounterComparison").innerHTML=""}function calculateCashTotal(){let e=0;$$('#cashCounterForm input[type="number"]').forEach((t=>{const n=parseInt(t.value)||0,a=parseInt(t.dataset.denom),o=n*a;e+=o;const s=$(`#cashTotal-${a}`);s&&(s.innerHTML=`<span class="tabular-nums">${formatCurrency(o)}</span>`)})),$("#cashCounterTotal").innerHTML=`<span class="tabular-nums">${formatCurrency(e)}</span>`;const t=state.accounts.find((e=>"cash"===e.id));if(t){const n=e-t.balance,a=$("#cashCounterComparison");Math.abs(n)<.01?a.innerHTML=`<p class="text-success">Counted cash matches calculated balance: <span class="tabular-nums">${formatCurrency(t.balance)}</span></p>`:a.innerHTML=n>0?`<p class="text-warning">Counted cash is <span class="tabular-nums">${formatCurrency(n)}</span> MORE than calculated balance (<span class="tabular-nums">${formatCurrency(t.balance)}</span>)</p>`:`<p class="text-danger">Counted cash is <span class="tabular-nums">${formatCurrency(Math.abs(n))}</span> LESS than calculated balance (<span class="tabular-nums">${formatCurrency(t.balance)}</span>)</p>`}}function closeModal(e){const t=$(`#${e}`);t&&(t.style.display="none"),"formModal"===e&&($("#dynamicForm").innerHTML="",$("#dynamicForm").onsubmit=null),"settingsModal"===e&&cancelDeleteAllData(),"ccHistoryModal"===e&&(document.body.renderCcHistoryList=null)}function openFormModal(e,t,n){const a=$("#formModalTitle");a&&(a.textContent=e,a.classList.add("force-word-wrap"));const o=$("#dynamicForm");o.innerHTML=t,o.onsubmit=n,$("#formModal").style.display="block";const s=o.querySelector('input:not([type="hidden"]), select, textarea');s&&s.focus()}window.addEventListener("click",(e=>{$$(".modal").forEach((t=>{e.target===t&&"initialSetupModal"!==t.id&&closeModal(t.id)}))}));let currentConfirmCallback=null,currentCancelCallback=null;function showConfirmationModal(e,t,n="Confirm",a="Cancel",o,s,r="btn-danger"){const i=$("#confirmationModal"),c=$("#confirmationModalTitle"),l=$("#confirmationMessage"),d=$("#confirmModalConfirmBtn"),u=$("#confirmModalCancelBtn");if(!(i&&c&&l&&d&&u))return console.error("Confirmation modal elements not found!"),void(confirm(t.replace(/<br>/g,"\n").replace(/<[^>]+>/g,""))?"function"==typeof o&&o():"function"==typeof s&&s());c.textContent=e,l.innerHTML=t,l.classList.add("force-word-wrap"),d.textContent=n,u.textContent=a,d.className=`btn ${r}`,u.className="btn btn-secondary",currentConfirmCallback=o,currentCancelCallback=s;const m=d.cloneNode(!0);d.parentNode.replaceChild(m,d);const p=u.cloneNode(!0);u.parentNode.replaceChild(p,u),m.onclick=()=>{"function"==typeof currentConfirmCallback&&currentConfirmCallback(),closeModal("confirmationModal")},p.onclick=()=>{"function"==typeof currentCancelCallback&&currentCancelCallback(),closeModal("confirmationModal")},i.style.display="block"}function openEditTransactionForm(e,t){openEditTransactionModal(e,t)}function openEditCcTransactionForm(e){const t=state.creditCard.transactions.find((t=>t.id===e));if(!t)return void showNotification("CC Transaction not found for editing.","error");openFormModal("Edit CC Transaction",`\n            <input type="hidden" name="editCcTransactionId" value="${t.id}">\n            <div>\n                <label for="modalCcAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>\n                <input type="number" id="modalCcAmount" name="ccAmount" value="${t.amount.toFixed(2)}" step="0.01" min="0" placeholder="Amount spent" required>\n            </div>\n            <div>\n                <label for="modalCcDescription" class="block text-sm font-medium mb-1">Description</label>\n                <input type="text" id="modalCcDescription" name="ccDescription" value="${t.description}" placeholder="e.g., Online purchase" required>\n            </div>\n            <div>\n                <label for="modalCcDate" class="block text-sm font-medium mb-1">Date</label>\n                <input type="date" id="modalCcDate" name="ccDate" value="${t.date}" required>\n            </div>\n            <button type="submit" class="btn btn-primary w-full"><i class="fas fa-save"></i> Update CC Transaction</button>\n        `,handleEditCcTransactionModalSubmit)}function handleBackupReminderDismiss(e){try{localStorage.setItem(e,getCurrentDateString()),console.log(`Backup reminder dismissed for key: ${e} on ${getCurrentDateString()}`)}catch(e){console.error("Error saving backup reminder dismissal state:",e)}closeModal("confirmationModal")}function showBackupReminderPopup(e){showConfirmationModal("Backup Reminder","It's a good day to back up your data. Regular backups protect you from data loss!","Backup Now","Dismiss",(()=>{exportData(),handleBackupReminderDismiss(e)}),(()=>{handleBackupReminderDismiss(e)}),"btn-primary")}function checkAndTriggerBackupReminder(){if(!state.settings.initialSetupDone&&0===state.transactions.length)return void console.log("Skipping backup reminder: Initial setup not done or no transactions.");const e=(new Date).getDay(),t=getCurrentDateString();let n=null;if(0===e?n="lastReminderShownForSunday":3===e&&(n="lastReminderShownForWednesday"),n)try{const e=localStorage.getItem(n);e!==t?setTimeout((()=>{console.log(`Time to show backup reminder for: ${n}. Last shown: ${e}, Current: ${t}`),showBackupReminderPopup(n)}),500):console.log(`Backup reminder already shown for ${n} on ${t}`)}catch(e){console.error("Error checking backup reminder state from localStorage:",e)}}let activeSettingsTab=null;const settingsTabsConfig=[{label:"Accounts",targetPanelId:"settingsAccountsPanel"},{label:"Credit Card",targetPanelId:"settingsCreditCardPanel"},{label:"Categories",targetPanelId:"settingsCategoriesPanel"},{label:"Data",targetPanelId:"settingsDataManagementPanel"}];function setupSettingsTabs(){const e=document.getElementById("settingsTabsContainer"),t=document.getElementById("settingsTabContent");e&&t?(e.innerHTML="",activeSettingsTab=null,settingsTabsConfig.forEach(((t,n)=>{const a=document.createElement("li"),o=document.createElement("button");if(o.className="settings-tab-button inline-block p-3 border-b-2 rounded-t-lg",o.textContent=t.label,o.dataset.tabTarget=`#${t.targetPanelId}`,o.addEventListener("click",(()=>{switchSettingsTab(o,t.targetPanelId)})),a.appendChild(o),e.appendChild(a),0===n)switchSettingsTab(o,t.targetPanelId);else{const e=document.getElementById(t.targetPanelId);e&&e.classList.add("hidden")}}))):console.error("Settings tab containers not found!")}function switchSettingsTab(e,t){const n=document.getElementById("settingsTabContent");if(!n)return;if(activeSettingsTab&&activeSettingsTab.button!==e){activeSettingsTab.button.classList.remove("active");const e=activeSettingsTab.button.dataset.tabTarget;if(e){const t=n.querySelector(e);t&&t.classList.add("hidden")}}e.classList.add("active");const a=document.getElementById(t);a?a.classList.remove("hidden"):console.warn(`Target panel with ID '${t}' not found.`),activeSettingsTab={button:e,panelId:t}}let monthlySearchDebounceTimer;function initializeUI(e=!1){if(console.log("Initializing UI..."),e||loadData(),!(state.settings&&void 0!==state.settings.initialSetupDone&&!1!==state.settings.initialSetupDone||e))return console.log("Initial setup not done. Opening wizard."),void openInitialSetupWizard();const t=$("#date");t&&(t.value=getCurrentDateString());const n=$("#ccDate");n&&(n.value=getCurrentDateString()),populateDropdowns(),renderDashboard(),updateCcDashboardSectionVisibility(),setupMonthlyView(),window.deleteSliderInitialized||(setupDeleteSlider(),window.deleteSliderInitialized=!0),displayAppVersion(),$("#transactionForm").onsubmit=handleTransactionSubmit,$("#ccTransactionForm").onsubmit=handleCcTransactionSubmit,$("#settingsBtn").onclick=openSettingsModal,$("#toggleChartBtn").onclick=()=>{dashboardChartState="yearly"===dashboardChartState?"monthly":"yearly",renderMonthlyOverviewChart()},$("#monthlyViewBtn").onclick=()=>{const e=$("#yearSelector"),t=(new Date).getFullYear(),n=e&&e.value?parseInt(e.value):t;renderMonthTabs(n);const a=$("#monthlySearchInput"),o=$("#clearMonthlySearchBtn"),s=$("#searchScopeSelect");a&&(a.value=""),o&&(o.style.display="none",o.disabled=!0),s&&(s.value="month",monthlyViewSearchScope="month"),$("#monthlyViewModal").style.display="block";const r=(new Date).getMonth(),i=$(`#monthTabs .tab-button[data-month="${r}"][data-year="${n}"]`);i?i.click():$$("#monthTabs .tab-button").length>0?$$("#monthTabs .tab-button")[0].click():$("#monthlyDetailsContainer").innerHTML='<p class="text-center text-gray-400">Select a month.</p>'};const a=$("#shortcutsHelpBtn");a&&(a.onclick=openShortcutsHelpModal);const o=document.getElementById("donateModal"),s=document.getElementById("footerDonateBtn"),r=document.getElementById("closeDonateModal");if(o&&s&&r){s.addEventListener("click",(()=>{o.style.display="block"})),r.addEventListener("click",(()=>{o.style.display="none"})),o.addEventListener("click",(e=>{e.target===o&&(o.style.display="none")}));o.querySelectorAll(".copy-button").forEach((e=>{e.addEventListener("click",(()=>{const t=e.dataset.copyText,n=document.createElement("textarea");n.value=t,document.body.appendChild(n),n.select();try{document.execCommand("copy"),e.textContent="Copied!",setTimeout((()=>{e.innerHTML='<i class="far fa-copy"></i>'}),2e3)}catch(t){console.error("Failed to copy text: ",t),e.textContent="Failed!",setTimeout((()=>{e.innerHTML='<i class="far fa-copy"></i>'}),2e3)}document.body.removeChild(n)}))}))}else console.warn("One or more elements for the new donate modal were not found.");const i=$("#monthlySearchInput"),c=$("#clearMonthlySearchBtn"),l=$("#searchScopeSelect"),d=()=>{clearTimeout(monthlySearchDebounceTimer),monthlySearchDebounceTimer=setTimeout((()=>{const e=$("#monthTabs .tab-button.active");if(e){const t=parseInt(e.dataset.month),n=parseInt(e.dataset.year),a=i.value.trim();renderMonthlyDetails(t,n,new Set,a,!0)}}),400)};i&&c&&l&&(i.value.trim()||(c.style.display="none",c.disabled=!0),i.addEventListener("input",(()=>{i.value.trim()?(c.style.display="inline-flex",c.disabled=!1):(c.style.display="none",c.disabled=!0),d()})),c.addEventListener("click",(()=>{clearTimeout(monthlySearchDebounceTimer),i.value="",c.style.display="none",c.disabled=!0,d(),i.focus()})),l.addEventListener("change",(()=>{monthlyViewSearchScope=l.value,d()})));const u=$("#openTransferModalBtn");u&&(u.onclick=()=>{const e=$("#transferMoneyModal");if(e){populateDropdowns();const t=$("#transferModalForm");t&&t.reset();const n=$("#modalTransferError");n&&n.classList.add("hidden"),e.style.display="block";const a=e.querySelector('input[type="number"], select');a&&a.focus()}});const m=$("#transferModalForm");m&&(m.onsubmit=handleTransferSubmit);const p=$("#ccHistorySearchInput"),f=$("#clearCcHistorySearchBtn");if(p&&f){const e=()=>{const e=document.body.renderCcHistoryList;"function"==typeof e&&e()};p.addEventListener("input",(()=>{const t=p.value.trim();f.classList.toggle("hidden",!t),clearTimeout(ccHistorySearchDebounceTimer),ccHistorySearchDebounceTimer=setTimeout(e,400)})),f.addEventListener("click",(()=>{clearTimeout(ccHistorySearchDebounceTimer),p.value="",f.classList.add("hidden"),e(),p.focus()}))}$("#exportDataBtn").onclick=exportData,$("#importDataInput").onchange=importData,$("#initiateDeleteBtn").onclick=initiateDeleteAllData,$("#cancelDeleteBtn").onclick=cancelDeleteAllData,$("#addDebtBtn").onclick=openAddDebtForm,$("#addReceivableBtn").onclick=openAddReceivableForm,$("#addInstallmentBtn").onclick=openAddInstallmentForm,$("#cashCounterBtn").onclick=openCashCounter,$("#ccHistoryBtn").onclick=openCcHistoryModal;const y=$("#viewDebtsBtn");y&&(y.onclick=()=>{renderDebtList(),$("#debtsViewModal").style.display="block"});const g=$("#viewReceivablesBtn");g&&(g.onclick=()=>{renderReceivableList(),$("#receivablesViewModal").style.display="block"});const b=$("#transactionType"),h=$("#categoryGroup"),v=$("#description"),w=()=>{b&&h&&("income"===b.value?(h.style.display="none",$("#category").required=!1,v&&(v.placeholder="e.g., Monthly Salary")):(h.style.display="block",$("#category").required=!0,v&&(v.placeholder="e.g., Lunch, Groceries")))};b&&(b.onchange=w,w()),document.body.dataset.keyboardListenerAttached||(document.addEventListener("keydown",handleKeyboardShortcuts),document.body.dataset.keyboardListenerAttached="true",console.log("Keyboard shortcut listener attached."))}document.getElementById("footerDonateBtn").addEventListener("click",(function(){document.getElementById("donateModal").style.display="block"})),document.getElementById("closeDonateModal").addEventListener("click",(function(){document.getElementById("donateModal").style.display="none"})),window.addEventListener("click",(function(e){const t=document.getElementById("donateModal");e.target===t&&(t.style.display="none")})),document.addEventListener("DOMContentLoaded",(()=>{console.log("DOM Loaded. Initializing..."),loadData(),initializeUI(),checkAndTriggerBackupReminder(),document.addEventListener("visibilitychange",(()=>{if("visible"===document.visibilityState){console.log("Page became visible, attempting to focus and update dates."),window.focus();const e=$("#date");e&&(e.value=getCurrentDateString());const t=$("#ccDate");t&&(t.value=getCurrentDateString())}}));const e=document.getElementById("preloader"),t=document.getElementById("app-content");e&&t?(console.log("Preloader will be shown for 1.25 seconds."),setTimeout((()=>{console.log("Preloader timer finished. Hiding preloader, showing app content."),e.classList.add("hidden"),t.classList.add("visible"),setTimeout((()=>{e.style.display="none",console.log("Preloader display set to 'none' after fade-out.")}),750)}),1250)):(e||console.error("Preloader element with ID 'preloader' not found."),t||console.error("App content element with ID 'app-content' not found."),t&&(t.classList.add("visible"),console.warn("Attempted to show app content due to missing preloader elements.")),e&&(e.style.display="none"))}));
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => document.querySelectorAll(selector);
+
+// --- Google Drive API Configuration ---
+const CLIENT_ID =
+  "972920616869-mup1ekqms6gne28djev8hr9petpcsouj.apps.googleusercontent.com";
+const API_KEY = ""; // Not strictly needed for this auth flow
+const SCOPES = "https://www.googleapis.com/auth/drive.file";
+const KAASI_FOLDER_NAME = "Kaasi App Backups";
+
+let tokenClient;
+let gapiInited = false;
+let gisInited = false;
+let kaasiFolderId = null;
+
+const formatCurrency = (amount) => {
+  if (typeof amount !== "number" || isNaN(amount)) amount = 0;
+  return `LKR ${amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
+};
+const generateId = () => "_" + Math.random().toString(36).substr(2, 9);
+const getDaysLeft = (dueDate) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(dueDate);
+  due.setHours(0, 0, 0, 0);
+  return Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+};
+
+const roundToTwoDecimals = (num) => {
+  if (typeof num !== "number" || isNaN(num)) {
+    // console.warn(`Attempted to round non-number: ${num}. Returning 0.`);
+    return 0; // Default to 0 if not a valid number
+  }
+  return parseFloat(num.toFixed(2));
+};
+
+function getCurrentDateString() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function getFormattedLocalStorageSize(key) {
+  const item = localStorage.getItem(key);
+  if (item === null) {
+    return "N/A (No data found)";
+  }
+
+  const sizeInBytes = item.length;
+
+  if (sizeInBytes < 1024) {
+    return `${sizeInBytes} Bytes`;
+  } else if (sizeInBytes < 1024 * 1024) {
+    return `${(sizeInBytes / 1024).toFixed(2)} KB`;
+  } else {
+    return `${(sizeInBytes / (1024 * 1024)).toFixed(2)} MB`;
+  }
+}
+
+function displayAppVersion() {
+  let version = "N/A";
+  try {
+    const versionMetaTag = document.querySelector(
+      'meta[name="application-version"]'
+    );
+    if (versionMetaTag) {
+      version = versionMetaTag.getAttribute("content");
+    } else {
+      console.warn("Application version meta tag not found.");
+    }
+  } catch (error) {
+    console.error("Error reading application version:", error);
+  }
+
+  const versionElementSettings = document.getElementById("appVersionSettings");
+  if (versionElementSettings) {
+    versionElementSettings.textContent = `Version: ${version}`;
+  }
+
+  const versionElementSetup = document.getElementById("appVersionSetup");
+  if (versionElementSetup) {
+    versionElementSetup.textContent = `Version: ${version}`;
+  }
+}
+
+function toggleCategoryVisibilityInModal(
+  selectElement,
+  categoryGroupId,
+  categorySelectId
+) {
+  const categoryGroup = document.getElementById(categoryGroupId);
+  const categorySelect = document.getElementById(categorySelectId);
+
+  const descriptionInput =
+    selectElement.form.elements["description"] ||
+    selectElement.form.elements["modalDescription"] ||
+    selectElement.form.elements["ccDescription"] ||
+    selectElement.form.elements["modalCcDescription"];
+
+  if (selectElement.value === "income") {
+    if (categoryGroup) categoryGroup.style.display = "none";
+    if (categorySelect) categorySelect.required = false;
+    if (descriptionInput) descriptionInput.placeholder = "e.g., Monthly Salary";
+  } else {
+    if (categoryGroup) categoryGroup.style.display = "block";
+    if (categorySelect) categorySelect.required = true;
+    if (descriptionInput)
+      descriptionInput.placeholder = "e.g., Lunch, Groceries";
+  }
+}
+
+let state = {};
+let dashboardChartState = "yearly";
+let monthlyViewSearchScope = "month";
+let ccHistoryFilter = "unpaid";
+let ccHistorySearchDebounceTimer;
+let ccHistoryOpenMonthKeys = new Set();
+
+function getDefaultState() {
+  return JSON.parse(
+    JSON.stringify({
+      transactions: [],
+      accounts: [
+        { id: "cash", name: "Cash", balance: 0, hidden: false },
+        { id: "bank_1", name: "Commercial", balance: 0, hidden: false },
+        { id: "bank_2", name: "HNB", balance: 0, hidden: false },
+        { id: "bank_3", name: "Genie", balance: 0, hidden: false },
+      ],
+      categories: [
+        "Food & Dining",
+        "Groceries",
+        "Transportation",
+        "Healthcare",
+        "Personal Care",
+        "Shopping",
+        "Entertainment",
+        "Education",
+        "Gifts & Donations",
+        "Subscriptions & Memberships",
+        "Bank Charges",
+        "Other",
+      ].sort((a, b) => a.localeCompare(b)),
+      debts: [],
+      receivables: [],
+      installments: [],
+      creditCard: { limit: 0, transactions: [] },
+      settings: {
+        initialSetupDone: false,
+        showCcDashboardSection: true,
+        theme: "dark",
+        enableGdriveBackup: false,
+        useShortcutsForGdrive: false,
+      },
+    })
+  );
+}
+
+// ===================================================================================
+// GOOGLE DRIVE API FUNCTIONS
+// ===================================================================================
+
+/**
+ * Callback after the GAPI client library has loaded.
+ */
+function gapiLoaded() {
+  gapi.load("client", initializeGapiClient);
+}
+
+/**
+ * Callback after the GIS client library has loaded.
+ */
+function gisLoaded() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: "", // A callback is required, but we'll handle it later
+  });
+  gisInited = true;
+  maybeEnableAuthUI();
+}
+
+/**
+ * Initializes the GAPI client.
+ */
+async function initializeGapiClient() {
+  await gapi.client.init({
+    apiKey: API_KEY,
+    discoveryDocs: [
+      "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
+    ],
+  });
+  gapiInited = true;
+  maybeEnableAuthUI();
+}
+
+/**
+ * Enables the Google Sign-In button and attempts to silently restore the session if previously authorized.
+ */
+function maybeEnableAuthUI() {
+  if (gapiInited && gisInited) {
+    const authButton = document.getElementById("authorize_button");
+    if (authButton) authButton.disabled = false;
+
+    // Only attempt silent sign-in if the user has the feature enabled AND has signed in successfully before.
+    if (
+      state.settings.enableGdriveBackup &&
+      localStorage.getItem("kaasiGdriveAuthed") === "true"
+    ) {
+      tokenClient.requestAccessToken({ prompt: "" });
+    }
+  }
+}
+
+/**
+ * Sign in the user upon button click.
+ */
+function handleAuthClick() {
+  tokenClient.callback = async (resp) => {
+    if (resp.error !== undefined) {
+      console.error("Google Auth Error:", resp);
+      updateSigninStatus(false);
+      showNotification(
+        "Google authentication failed. Check console for details.",
+        "error"
+      );
+      localStorage.removeItem("kaasiGdriveAuthed"); // Clear flag on error
+      return;
+    }
+    // On successful auth, set the flag to remember the user has approved access
+    localStorage.setItem("kaasiGdriveAuthed", "true");
+    updateSigninStatus(true);
+    await findOrCreateKaasiFolder();
+    updateCloudButtonVisibility();
+  };
+
+  if (gapi.client.getToken() === null) {
+    // This will always show the consent pop-up the first time
+    tokenClient.requestAccessToken({ prompt: "consent" });
+  } else {
+    // This will attempt a silent refresh if a token already exists
+    tokenClient.requestAccessToken({ prompt: "" });
+  }
+}
+
+/**
+ * Sign out the user upon button click.
+ */
+function handleSignoutClick() {
+  const token = gapi.client.getToken();
+  if (token !== null) {
+    google.accounts.oauth2.revoke(token.access_token);
+    gapi.client.setToken("");
+    updateSigninStatus(false);
+    kaasiFolderId = null; // Reset folder ID on sign out
+    showNotification("Signed out from Google Drive.", "info");
+    // On sign out, remove the flag
+    localStorage.removeItem("kaasiGdriveAuthed");
+    updateCloudButtonVisibility();
+  }
+}
+
+/**
+ * Shows or hides the cloud import/export buttons based on login status.
+ */
+function updateCloudButtonVisibility() {
+  const gdriveExportBtn = $("#gdriveExportBtn");
+  const gdriveImportBtn = $("#gdriveImportBtn");
+  if (!gdriveExportBtn || !gdriveImportBtn) return;
+
+  const isCloudEnabled =
+    state.settings.enableGdriveBackup && gapi.client.getToken();
+  gdriveExportBtn.classList.toggle("hidden", !isCloudEnabled);
+  gdriveImportBtn.classList.toggle("hidden", !isCloudEnabled);
+}
+
+/**
+ * Updates the UI based on the user's sign-in status.
+ */
+function updateSigninStatus(isSignedIn) {
+  const statusEl = $("#gdriveStatus");
+  const authButton = $("#authorize_button");
+  const signoutButton = $("#signout_button");
+  if (!statusEl || !authButton || !signoutButton) return;
+
+  const indicatorEl = statusEl.querySelector(".gdrive-status-indicator");
+
+  if (isSignedIn) {
+    statusEl.innerHTML = `<span class="gdrive-status-indicator connected"></span>Status: Connected`;
+    authButton.classList.add("hidden");
+    signoutButton.classList.remove("hidden");
+  } else {
+    statusEl.innerHTML = `<span class="gdrive-status-indicator"></span>Status: Not Connected`;
+    authButton.classList.remove("hidden");
+    signoutButton.classList.add("hidden");
+  }
+}
+
+/**
+ * Finds the "Kaasi App Backups" folder or creates it if it doesn't exist.
+ */
+async function findOrCreateKaasiFolder() {
+  if (kaasiFolderId) return kaasiFolderId;
+
+  try {
+    const response = await gapi.client.drive.files.list({
+      q: `mimeType='application/vnd.google-apps.folder' and name='${KAASI_FOLDER_NAME}' and trashed=false`,
+      fields: "files(id, name)",
+    });
+
+    if (response.result.files.length > 0) {
+      kaasiFolderId = response.result.files[0].id;
+    } else {
+      const fileMetadata = {
+        name: KAASI_FOLDER_NAME,
+        mimeType: "application/vnd.google-apps.folder",
+      };
+      const createResponse = await gapi.client.drive.files.create({
+        resource: fileMetadata,
+        fields: "id",
+      });
+      kaasiFolderId = createResponse.result.id;
+    }
+    updateSigninStatus(true);
+    return kaasiFolderId;
+  } catch (err) {
+    console.error("Error with Kaasi folder:", err);
+    $(
+      "#gdriveStatus"
+    ).innerHTML = `<span class="gdrive-status-indicator error"></span>Error: Could not access Drive.`;
+    return null;
+  }
+}
+
+/**
+ * Creates a backup file and uploads it to the Kaasi folder in Google Drive.
+ */
+async function gdriveExport() {
+  if (!state.settings.enableGdriveBackup || !gapi.client.getToken()) {
+    return showNotification(
+      "Enable Google Drive Sync in settings and sign in first.",
+      "warning"
+    );
+  }
+  const folderId = await findOrCreateKaasiFolder();
+  if (!folderId)
+    return showNotification("Could not access Kaasi backup folder.", "error");
+
+  showNotification("Backing up to Google Drive...", "info");
+
+  const dataStr = JSON.stringify(state);
+  const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+  const fileName = `kaasi-backup-${timestamp}.json`;
+
+  const metadata = {
+    name: fileName,
+    parents: [folderId],
+    mimeType: "application/json",
+  };
+  const form = new FormData();
+  form.append(
+    "metadata",
+    new Blob([JSON.stringify(metadata)], { type: "application/json" })
+  );
+  form.append("file", new Blob([dataStr], { type: "application/json" }));
+
+  try {
+    const response = await fetch(
+      "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+      {
+        method: "POST",
+        headers: new Headers({
+          Authorization: `Bearer ${gapi.client.getToken().access_token}`,
+        }),
+        body: form,
+      }
+    );
+    const result = await response.json();
+    if (result.error) throw new Error(result.error.message);
+    showNotification("Backup successful.", "success");
+  } catch (err) {
+    showNotification(`Backup failed: ${err.message}`, "error");
+  }
+}
+
+/**
+ * Finds the latest backup file in Drive, downloads it, and triggers the import process.
+ */
+async function gdriveImport() {
+  if (!state.settings.enableGdriveBackup || !gapi.client.getToken()) {
+    return showNotification(
+      "Enable Google Drive Sync in settings and sign in first.",
+      "warning"
+    );
+  }
+  const folderId = await findOrCreateKaasiFolder();
+  if (!folderId)
+    return showNotification("Could not access Kaasi backup folder.", "error");
+
+  showNotification("Finding latest backup...", "info");
+
+  try {
+    const response = await gapi.client.drive.files.list({
+      q: `'${folderId}' in parents and trashed=false and mimeType='application/json'`,
+      orderBy: "name desc",
+      pageSize: 1,
+      fields: "files(id, name)",
+    });
+    if (response.result.files.length === 0)
+      return showNotification("No backups found.", "warning");
+    const latestFile = response.result.files[0];
+    showNotification(`Importing "${latestFile.name}"...`, "info");
+    const fileResponse = await gapi.client.drive.files.get({
+      fileId: latestFile.id,
+      alt: "media",
+    });
+    handleImportedData(fileResponse.body, "Google Drive");
+  } catch (err) {
+    showNotification(`Import failed: ${err.message}`, "error");
+  }
+}
+
+/**
+ * A new helper function to process imported data, used by both local and Drive imports.
+ */
+function handleImportedData(jsonDataString, source = "Local File") {
+  showConfirmationModal(
+    `Import from ${source}?`,
+    "This will <strong class='text-warning'>overwrite all current data</strong>. This action cannot be undone. Are you sure?",
+    "Yes, Import",
+    "Cancel",
+    () => {
+      try {
+        let importedData = JSON.parse(jsonDataString);
+        if (importedData && typeof importedData === "object") {
+          state = deepMerge(getDefaultState(), importedData);
+          ensureDefaultAccounts();
+          ensureDefaultCategories();
+          state.settings.initialSetupDone = true;
+          saveData();
+          initializeUI(true);
+          showNotification(
+            `Data from ${source} imported successfully.`,
+            "success"
+          );
+          if (source !== "Google Drive") closeModal("settingsModal");
+        } else throw new Error("Invalid file structure.");
+      } catch (error) {
+        showNotification(`Import failed: ${error.message}`, "error");
+      }
+    },
+    null,
+    "btn-primary"
+  );
+}
+
+function openInitialSetupWizard() {
+  const modal = $("#initialSetupModal");
+  if (!modal) {
+    console.error("Initial Setup Modal not found in HTML.");
+    return;
+  }
+  console.log("Opening Initial Setup Wizard...");
+
+  const accountsContainer = $("#setupAccountBalances");
+  const defaultAccounts = getDefaultState().accounts;
+
+  // Create a temporary state for setup that can be modified without saving
+  let tempSetupAccounts = JSON.parse(JSON.stringify(defaultAccounts));
+
+  const updateTempStateFromDOM = () => {
+    tempSetupAccounts.forEach((acc) => {
+      const nameInput = accountsContainer.querySelector(`#setupName-${acc.id}`);
+      const balanceInput = accountsContainer.querySelector(
+        `#setupBalance-${acc.id}`
+      );
+
+      if (nameInput && !nameInput.readOnly) {
+        acc.name = nameInput.value.trim() || acc.name;
+      }
+      if (balanceInput) {
+        const balanceValue = parseFloat(balanceInput.value);
+        // Only update if it's a valid number, otherwise keep the old value
+        if (!isNaN(balanceValue)) {
+          // We don't round here, just store what the user typed. Rounding happens on final save.
+          acc.balance = balanceValue;
+        }
+      }
+    });
+  };
+
+  const renderSetupAccounts = () => {
+    accountsContainer.innerHTML = "";
+    tempSetupAccounts.forEach((acc) => {
+      const accRow = document.createElement("div");
+      // A consistent 3-column grid for all rows: Icon, Name, Balance
+      accRow.className = `grid grid-cols-[auto,2fr,3fr] gap-x-3 items-center mb-2 account-row`;
+      if (acc.hidden) {
+        accRow.classList.add("account-row-hidden");
+      }
+
+      const inputStyle = `style="background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary);"`;
+
+      // 1. Hide/Show Button
+      const hideButton = document.createElement("button");
+      hideButton.type = "button";
+      hideButton.className = "btn-icon-hide justify-self-center";
+      hideButton.dataset.accountId = acc.id;
+      hideButton.innerHTML = `<i class="fas ${
+        acc.hidden ? "fa-eye-slash" : "fa-eye"
+      }"></i>`;
+
+      if (acc.id === "cash") {
+        hideButton.disabled = true;
+        hideButton.style.opacity = "0.3";
+        hideButton.style.cursor = "not-allowed";
+      } else {
+        hideButton.onclick = () => {
+          updateTempStateFromDOM(); // Save current input values before re-rendering
+          const accountToToggle = tempSetupAccounts.find(
+            (a) => a.id === acc.id
+          );
+          if (accountToToggle) {
+            accountToToggle.hidden = !accountToToggle.hidden;
+            renderSetupAccounts(); // Re-render the list to reflect the change
+          }
+        };
+      }
+      accRow.appendChild(hideButton);
+
+      // 2. Name field (Label for Cash, Input for others)
+      const nameWrapper = document.createElement("div");
+      if (acc.id === "cash") {
+        nameWrapper.innerHTML = `<label for="setupBalance-${acc.id}" class="text-sm font-medium text-gray-300 justify-self-start">${acc.name}</label>`;
+      } else {
+        nameWrapper.innerHTML = `<input type="text" id="setupName-${acc.id}" name="setupName-${acc.id}" value="${acc.name}" data-account-id="${acc.id}" class="!py-1.5 !px-2 text-sm w-full rounded placeholder-gray-400" ${inputStyle} placeholder="Account Name">`;
+      }
+      accRow.appendChild(nameWrapper);
+
+      // 3. Balance field (Input for all)
+      const balanceWrapper = document.createElement("div");
+      const balanceValue =
+        acc.balance !== 0 || acc.id === "cash" ? acc.balance.toString() : "";
+      balanceWrapper.innerHTML = `<input type="number" id="setupBalance-${acc.id}" name="setupBalance-${acc.id}" value="${balanceValue}" data-account-id="${acc.id}" step="0.01" placeholder="0.00 (Optional)" class="!py-1.5 !px-2 text-sm w-full rounded placeholder-gray-400" ${inputStyle}>`;
+      accRow.appendChild(balanceWrapper);
+
+      accountsContainer.appendChild(accRow);
+    });
+  };
+
+  renderSetupAccounts();
+
+  const setupEnableCcToggle = $("#setupEnableCc");
+  const setupCcLimitGroup = $("#setupCcLimitGroup");
+  const setupCcLimitInput = $("#setupCcLimit");
+  if (setupEnableCcToggle && setupCcLimitGroup && setupCcLimitInput) {
+    setupEnableCcToggle.checked = true;
+    setupCcLimitGroup.style.display = "block";
+    setupCcLimitInput.required = true;
+    setupCcLimitInput.style.backgroundColor = "var(--bg-secondary)";
+    setupCcLimitInput.style.borderColor = "var(--border-color)";
+    setupCcLimitInput.style.color = "var(--text-primary)";
+
+    setupEnableCcToggle.onchange = () => {
+      if (setupEnableCcToggle.checked) {
+        setupCcLimitGroup.style.display = "block";
+        setupCcLimitInput.required = true;
+      } else {
+        setupCcLimitGroup.style.display = "none";
+        setupCcLimitInput.required = false;
+        setupCcLimitInput.value = "";
+      }
+    };
+  }
+
+  const categoriesContainer = $("#setupCategoriesList");
+  const newCategoryInputForSetup = $("#setupNewCategoryName");
+  const addCategoryBtn = $("#setupAddCategoryBtn");
+  let currentSetupCategories = [...getDefaultState().categories];
+
+  if (newCategoryInputForSetup) {
+    newCategoryInputForSetup.style.backgroundColor = "var(--bg-secondary)";
+    newCategoryInputForSetup.style.borderColor = "var(--border-color)";
+    newCategoryInputForSetup.style.color = "var(--text-primary)";
+  }
+
+  const renderSetupCategories = () => {
+    if (!categoriesContainer) return;
+    categoriesContainer.innerHTML = "";
+    currentSetupCategories
+      .sort((a, b) => a.localeCompare(b))
+      .forEach((cat) => {
+        const div = document.createElement("div");
+
+        div.className = "flex justify-between items-center p-2 rounded text-sm";
+        div.style.backgroundColor = "var(--bg-secondary)";
+        div.style.borderColor = "var(--border-color)";
+        div.style.borderWidth = "1px";
+
+        div.innerHTML = `
+              <span>${cat}</span>
+              <button type="button" class="text-red-400 hover:text-red-300 text-xs ml-2" data-category-name="${cat}" title="Remove">
+                  <i class="fas fa-times"></i>
+              </button>
+          `;
+        div.querySelector("button").onclick = (e) => {
+          const catNameToRemove = e.currentTarget.dataset.categoryName;
+          currentSetupCategories = currentSetupCategories.filter(
+            (c) => c !== catNameToRemove
+          );
+          renderSetupCategories();
+        };
+        categoriesContainer.appendChild(div);
+      });
+  };
+
+  if (addCategoryBtn) {
+    addCategoryBtn.onclick = () => {
+      const newCat = newCategoryInputForSetup.value.trim();
+      if (
+        newCat &&
+        !currentSetupCategories.some(
+          (c) => c.toLowerCase() === newCat.toLowerCase()
+        )
+      ) {
+        currentSetupCategories.push(newCat);
+        renderSetupCategories();
+        newCategoryInputForSetup.value = "";
+      } else if (newCat) {
+        showNotification(`Category "${newCat}" already exists.`, "warning");
+      }
+      newCategoryInputForSetup.focus();
+    };
+  }
+  if (newCategoryInputForSetup) {
+    newCategoryInputForSetup.onkeypress = (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (addCategoryBtn) addCategoryBtn.click();
+      }
+    };
+  }
+  renderSetupCategories();
+
+  $("#initialSetupForm").onsubmit = (event) => {
+    updateTempStateFromDOM(); // Final save of values before submitting
+    handleInitialSetupSubmit(event, tempSetupAccounts);
+  };
+  $("#setupImportInput").onchange = handleSetupImport;
+
+  modal.style.display = "block";
+  displayAppVersion();
+}
+
+function handleInitialSetupSubmit(event, tempSetupAccounts) {
+  event.preventDefault();
+  console.log("Handling initial setup form submission...");
+  let newState = getDefaultState();
+
+  newState.accounts = tempSetupAccounts.map((acc) => {
+    const nameInput = $(`#setupName-${acc.id}`);
+    const balanceInput = $(`#setupBalance-${acc.id}`);
+
+    let finalName = acc.name;
+    if (acc.id !== "cash" && nameInput) {
+      const enteredName = nameInput.value.trim();
+      if (enteredName) {
+        finalName = enteredName;
+      }
+    }
+
+    let balance = 0;
+    if (balanceInput) {
+      const balanceStr = balanceInput.value.trim();
+      if (balanceStr !== "" && balanceStr !== null) {
+        const parsedBalance = parseFloat(balanceStr);
+        balance = isNaN(parsedBalance) ? 0 : parsedBalance;
+      }
+    }
+
+    return {
+      id: acc.id,
+      name: finalName,
+      balance: roundToTwoDecimals(balance),
+      hidden: acc.hidden, // Capture the hidden state
+    };
+  });
+
+  const ccEnabled = $("#setupEnableCc").checked;
+  newState.settings.showCcDashboardSection = ccEnabled;
+  if (ccEnabled) {
+    const ccLimitStr = $("#setupCcLimit").value.trim();
+    if (ccLimitStr === "" || ccLimitStr === null) {
+      newState.creditCard.limit = 0;
+    } else {
+      const limit = parseFloat(ccLimitStr);
+      newState.creditCard.limit = roundToTwoDecimals(
+        isNaN(limit) || limit < 0 ? 0 : limit
+      );
+    }
+  } else {
+    newState.creditCard.limit = 0;
+  }
+
+  const finalCategories = [];
+  $$("#setupCategoriesList span").forEach((span) =>
+    finalCategories.push(span.textContent)
+  );
+  newState.categories =
+    finalCategories.length > 0
+      ? finalCategories.sort((a, b) => a.localeCompare(b))
+      : getDefaultState().categories;
+  newState.settings.initialSetupDone = true;
+  state = newState;
+  saveData();
+  closeModal("initialSetupModal");
+  initializeUI(true);
+  showNotification("Setup complete! Welcome to Kaasi.", "success", 5000);
+}
+
+function handleSetupImport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  console.log("Importing data from setup wizard...");
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    let importedData;
+    try {
+      importedData = JSON.parse(e.target.result);
+      if (importedData && typeof importedData === "object") {
+        // Sanitize and round all monetary values in importedData
+        if (Array.isArray(importedData.transactions)) {
+          importedData.transactions.forEach((t) => {
+            if (typeof t.amount === "number")
+              t.amount = roundToTwoDecimals(t.amount);
+          });
+        }
+        if (Array.isArray(importedData.accounts)) {
+          importedData.accounts.forEach((acc) => {
+            if (typeof acc.balance === "number")
+              acc.balance = roundToTwoDecimals(acc.balance);
+          });
+        }
+        if (Array.isArray(importedData.debts)) {
+          importedData.debts.forEach((d) => {
+            if (typeof d.amount === "number")
+              d.amount = roundToTwoDecimals(d.amount);
+            if (typeof d.originalAmount === "number")
+              d.originalAmount = roundToTwoDecimals(d.originalAmount);
+            if (typeof d.remainingAmount === "number")
+              d.remainingAmount = roundToTwoDecimals(d.remainingAmount);
+          });
+        }
+        if (Array.isArray(importedData.receivables)) {
+          importedData.receivables.forEach((r) => {
+            if (typeof r.amount === "number")
+              r.amount = roundToTwoDecimals(r.amount);
+            if (typeof r.originalAmount === "number")
+              r.originalAmount = roundToTwoDecimals(r.originalAmount);
+            if (typeof r.remainingAmount === "number")
+              r.remainingAmount = roundToTwoDecimals(r.remainingAmount);
+          });
+        }
+        if (Array.isArray(importedData.installments)) {
+          importedData.installments.forEach((i) => {
+            if (typeof i.monthlyAmount === "number")
+              i.monthlyAmount = roundToTwoDecimals(i.monthlyAmount);
+            if (typeof i.originalFullAmount === "number")
+              i.originalFullAmount = roundToTwoDecimals(i.originalFullAmount);
+          });
+        }
+        if (
+          importedData.creditCard &&
+          typeof importedData.creditCard === "object"
+        ) {
+          if (typeof importedData.creditCard.limit === "number") {
+            importedData.creditCard.limit = roundToTwoDecimals(
+              importedData.creditCard.limit
+            );
+          }
+          if (Array.isArray(importedData.creditCard.transactions)) {
+            importedData.creditCard.transactions.forEach((ccTrans) => {
+              if (typeof ccTrans.amount === "number")
+                ccTrans.amount = roundToTwoDecimals(ccTrans.amount);
+              if (typeof ccTrans.paidAmount === "number")
+                ccTrans.paidAmount = roundToTwoDecimals(ccTrans.paidAmount);
+            });
+          }
+        }
+
+        // Merge sanitized data
+        state = getDefaultState(); // Start with a fresh default structure
+        state = deepMerge(state, importedData); // Merge sanitized imported data
+
+        // Ensure essential structures and perform final rounding post-merge
+        ensureDefaultAccounts();
+        ensureDefaultCategories();
+        state.accounts.forEach((acc) => {
+          if (isNaN(acc.balance) || typeof acc.balance !== "number")
+            acc.balance = 0;
+          else acc.balance = roundToTwoDecimals(acc.balance);
+        });
+        if (state.creditCard) {
+          if (
+            isNaN(state.creditCard.limit) ||
+            typeof state.creditCard.limit !== "number"
+          )
+            state.creditCard.limit = 0;
+          else
+            state.creditCard.limit = roundToTwoDecimals(state.creditCard.limit);
+          if (Array.isArray(state.creditCard.transactions)) {
+            state.creditCard.transactions.forEach((t) => {
+              if (typeof t.amount === "number")
+                t.amount = roundToTwoDecimals(t.amount);
+              if (typeof t.paidAmount === "number")
+                t.paidAmount = roundToTwoDecimals(t.paidAmount);
+              else t.paidAmount = 0;
+            });
+          } else {
+            state.creditCard.transactions = [];
+          }
+        } else {
+          state.creditCard = { limit: 0, transactions: [] };
+        }
+
+        if (!state.settings) state.settings = getDefaultState().settings;
+        state.settings.initialSetupDone = true; // Mark setup as done
+
+        saveData();
+        closeModal("initialSetupModal");
+        initializeUI(true); // Full refresh
+        showNotification(
+          "Data imported and sanitized successfully from setup wizard!",
+          "success"
+        );
+      } else {
+        throw new Error("Invalid data structure in imported file.");
+      }
+    } catch (error) {
+      console.error("Import failed during setup:", error);
+      showNotification(
+        `Import failed: ${error.message}. Please try manual setup or a valid file.`,
+        "error",
+        10000
+      );
+    } finally {
+      event.target.value = null; // Clear the file input
+    }
+  };
+  reader.onerror = () => {
+    showNotification("Failed to read the import file.", "error");
+    event.target.value = null;
+  };
+  reader.readAsText(file);
+}
+
+const STORAGE_KEY = "KaasiData";
+
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    console.log("Data saved successfully.");
+  } catch (e) {
+    console.error("Error saving data to localStorage:", e);
+    if (e.name === "QuotaExceededError") {
+      showNotification(
+        "Error: Local storage quota exceeded. Data is too large to save.",
+        "error",
+        10000
+      );
+    } else {
+      showNotification("Error saving data. Check console.", "error", 10000);
+    }
+  }
+}
+
+function loadData() {
+  const d = localStorage.getItem(STORAGE_KEY);
+  let parsedData = null;
+
+  if (d) {
+    console.log("Uncompressed data found. Attempting to parse...");
+    try {
+      parsedData = JSON.parse(d);
+    } catch (e) {
+      console.error("Error parsing data from localStorage:", e);
+
+      showNotification(
+        "Error loading data. Data might be corrupted. Starting fresh.",
+        "error",
+        8000
+      );
+    }
+  }
+
+  state = getDefaultState();
+
+  if (parsedData && typeof parsedData === "object") {
+    console.log("Merging loaded data into default state structure...");
+
+    state = deepMerge(state, parsedData);
+    console.log("Data merged successfully.");
+  } else if (d && !parsedData) {
+    console.log(
+      "Previous data existed but was unparsable. Using fresh default state."
+    );
+  } else {
+    console.log(
+      "No saved data found or data was null/invalid. Starting with fresh default state."
+    );
+  }
+
+  const defaultStateTemplate = getDefaultState();
+
+  if (!state.settings || typeof state.settings !== "object") {
+    console.warn(
+      "State.settings was missing or invalid after merge. Resetting to default settings structure."
+    );
+    state.settings = { ...defaultStateTemplate.settings };
+  } else {
+    for (const settingKey in defaultStateTemplate.settings) {
+      if (state.settings[settingKey] === undefined) {
+        state.settings[settingKey] = defaultStateTemplate.settings[settingKey];
+      }
+    }
+  }
+
+  if (!state.creditCard || typeof state.creditCard !== "object") {
+    console.warn(
+      "State.creditCard was missing or invalid after merge. Resetting to default creditCard structure."
+    );
+    state.creditCard = { ...defaultStateTemplate.creditCard };
+    if (!Array.isArray(state.creditCard.transactions)) {
+      state.creditCard.transactions = [];
+    }
+  } else {
+    for (const ccKey in defaultStateTemplate.creditCard) {
+      if (state.creditCard[ccKey] === undefined) {
+        state.creditCard[ccKey] = defaultStateTemplate.creditCard[ccKey];
+      }
+    }
+    if (!Array.isArray(state.creditCard.transactions)) {
+      state.creditCard.transactions = [];
+    }
+  }
+
+  if (!Array.isArray(state.transactions)) state.transactions = [];
+  if (!Array.isArray(state.accounts)) state.accounts = [];
+  if (!Array.isArray(state.categories)) state.categories = [];
+  if (!Array.isArray(state.debts)) state.debts = [];
+  if (!Array.isArray(state.receivables)) state.receivables = [];
+  if (!Array.isArray(state.installments)) state.installments = [];
+
+  ensureDefaultAccounts();
+  ensureDefaultCategories();
+
+  state.accounts.forEach((a) => {
+    if (isNaN(a.balance) || typeof a.balance !== "number") a.balance = 0;
+  });
+
+  if (
+    isNaN(state.creditCard.limit) ||
+    typeof state.creditCard.limit !== "number"
+  )
+    state.creditCard.limit = 0;
+  state.creditCard.transactions.forEach((t) => {
+    if (t.paidAmount === undefined || typeof t.paidAmount !== "number")
+      t.paidAmount = 0;
+    if (t.paidOff === undefined) t.paidOff = t.paidAmount >= t.amount - 0.005;
+    if (!t.timestamp) t.timestamp = new Date(t.date).getTime();
+  });
+
+  state.transactions.forEach((t) => {
+    if (!t.timestamp) t.timestamp = new Date(t.date).getTime();
+  });
+
+  state.debts.forEach((item) => {
+    if (!item.timestamp) item.timestamp = new Date(item.dueDate).getTime();
+    if (item.originalAmount === undefined) item.originalAmount = item.amount;
+  });
+
+  state.receivables.forEach((item) => {
+    if (!item.timestamp) item.timestamp = new Date(item.dateGiven).getTime();
+    if (item.originalAmount === undefined) item.originalAmount = item.amount;
+  });
+
+  state.installments.forEach((item) => {
+    if (!item.timestamp) item.timestamp = new Date(item.startDate).getTime();
+  });
+
+  console.log(
+    "Final state after loadData and integrity checks:",
+    JSON.parse(JSON.stringify(state))
+  );
+}
+
+function deepMerge(target, source) {
+  for (const key in source) {
+    if (source.hasOwnProperty(key)) {
+      const sourceValue = source[key];
+      const targetValue = target[key];
+
+      if (
+        sourceValue &&
+        typeof sourceValue === "object" &&
+        !Array.isArray(sourceValue)
+      ) {
+        if (
+          !targetValue ||
+          typeof targetValue !== "object" ||
+          Array.isArray(targetValue)
+        ) {
+          target[key] = {};
+        }
+        deepMerge(target[key], sourceValue);
+      } else if (sourceValue !== undefined) {
+        target[key] = sourceValue;
+      }
+    }
+  }
+
+  return target;
+}
+
+function ensureDefaultAccounts() {
+  const defaultAccounts = getDefaultState().accounts;
+  if (!Array.isArray(state.accounts)) {
+    console.warn(
+      "state.accounts was not an array. Resetting to default accounts structure."
+    );
+    state.accounts = JSON.parse(JSON.stringify(defaultAccounts));
+
+    state.accounts.forEach((acc) => (acc.balance = 0));
+    return;
+  }
+
+  defaultAccounts.forEach((defaultAcc) => {
+    const existingAccount = state.accounts.find(
+      (acc) => acc.id === defaultAcc.id
+    );
+    if (!existingAccount) {
+      console.warn(
+        `Default account '${defaultAcc.name}' (ID: ${defaultAcc.id}) was missing. Adding it.`
+      );
+      state.accounts.push({
+        ...defaultAcc,
+        balance: 0,
+      });
+    } else {
+      if (typeof existingAccount.name !== "string")
+        existingAccount.name = defaultAcc.name;
+      if (
+        typeof existingAccount.balance !== "number" ||
+        isNaN(existingAccount.balance)
+      ) {
+        console.warn(
+          `Balance for account '${existingAccount.name}' was invalid. Resetting to 0.`
+        );
+        existingAccount.balance = 0;
+      }
+    }
+  });
+}
+
+function ensureDefaultCategories() {
+  const defaultCategories = getDefaultState().categories;
+
+  if (!state.categories || !Array.isArray(state.categories)) {
+    console.warn(
+      "state.categories was missing or not an array. Initializing as empty array."
+    );
+    state.categories = [];
+  }
+
+  if (state.categories.length === 0) {
+    console.warn(
+      "state.categories is empty. Populating with default categories."
+    );
+    state.categories = JSON.parse(JSON.stringify(defaultCategories));
+  }
+
+  state.categories.sort((a, b) => a.localeCompare(b));
+
+  const otherCategory = "Other";
+  if (
+    !state.categories.some(
+      (cat) => cat.toLowerCase() === otherCategory.toLowerCase()
+    )
+  ) {
+    console.warn("'Other' category was missing. Adding it back.");
+    state.categories.push(otherCategory);
+    state.categories.sort((a, b) => a.localeCompare(b));
+  }
+}
+
+function showNotification(message, type = "success", duration = 4000) {
+  const area = $("#notificationArea");
+  if (!area) return;
+  const n = document.createElement("div");
+  let bg, tc;
+  switch (type) {
+    case "error":
+      bg = "bg-red-600";
+      tc = "text-white";
+      break;
+    case "warning":
+      bg = "bg-yellow-500";
+      tc = "text-black";
+      break;
+    case "info":
+      bg = "bg-blue-500";
+      tc = "text-white";
+      break;
+    default:
+      bg = "bg-green-600";
+      tc = "text-white";
+      break;
+  }
+
+  // Add the new class along with existing classes
+  n.className = `p-3 rounded-md shadow-lg text-sm font-medium transition-all duration-300 ease-in-out transform translate-x-full opacity-0 force-word-wrap ${bg} ${tc}`;
+
+  n.textContent = message;
+  area.appendChild(n);
+  void n.offsetWidth;
+  requestAnimationFrame(() => {
+    n.classList.remove("translate-x-full", "opacity-0");
+    n.classList.add("translate-x-0", "opacity-100");
+  });
+  setTimeout(() => {
+    n.classList.remove("translate-x-0", "opacity-100");
+    n.classList.add("translate-x-full", "opacity-0");
+    n.addEventListener("transitionend", () => n.remove(), {
+      once: true,
+    });
+  }, duration);
+}
+
+function populateDropdowns() {
+  const accountSelects = $$(
+    'select[name="account"], select[name="transferFrom"], select[name="transferTo"], select[name="receivableSourceAccount"], select[name="payDebtAccount"], select[name="recPaymentAccount"], select[name="instPayAccount"], select[name="ccPayFromAccount"], #modalAccount, #recSourceAccountAdd, #recSourceAccountEdit, #modalCcPayFromAccount, #modalInstPayAccount, #modalPayDebtAccount, #modalTransferFrom, #modalTransferTo'
+  );
+  const categorySelects = $$(
+    "#category, #modalCategory, #modalPayDebtCategory, #modalInstPayCategory, #modalCcPayCategory"
+  );
+
+  const visibleAccounts = state.accounts.filter((acc) => !acc.hidden);
+
+  accountSelects.forEach((s) => {
+    if (!s) return;
+    const currentValue = s.value;
+    s.innerHTML = "";
+    visibleAccounts.forEach((a) => {
+      const o = document.createElement("option");
+      o.value = a.id;
+      o.textContent = `${a.name} (${formatCurrency(a.balance)})`;
+      s.appendChild(o);
+    });
+
+    if (Array.from(s.options).some((opt) => opt.value === currentValue)) {
+      s.value = currentValue;
+    } else if (s.options.length > 0) {
+      // If previous selection is now hidden, default to first visible account
+      s.value = s.options[0].value;
+    }
+  });
+
+  const populateCategorySelect = (selectEl) => {
+    if (!selectEl) return;
+    const currentValue = selectEl.value;
+    selectEl.innerHTML = "";
+
+    const placeholderOption = document.createElement("option");
+    placeholderOption.value = "";
+    placeholderOption.textContent = "---- Select Category ----";
+    placeholderOption.disabled = true;
+
+    selectEl.appendChild(placeholderOption);
+
+    const otherCategoryName = "Other";
+    let generalCategories = state.categories.filter(
+      (c) =>
+        c.toLowerCase() !== "income" &&
+        c.toLowerCase() !== "credit card payment" &&
+        c.toLowerCase() !== otherCategoryName.toLowerCase()
+    );
+
+    generalCategories.sort((a, b) => a.localeCompare(b));
+
+    if (selectEl.id === "modalPayDebtCategory") {
+      const debtRepaymentCategory = "Debt Repayment";
+      if (
+        !generalCategories.includes(debtRepaymentCategory) &&
+        !state.categories.some(
+          (c) => c.toLowerCase() === debtRepaymentCategory.toLowerCase()
+        )
+      ) {
+      }
+    }
+
+    generalCategories.forEach((c) => {
+      const o = document.createElement("option");
+      o.value = c;
+      o.textContent = c;
+      selectEl.appendChild(o);
+    });
+
+    if (
+      state.categories.some(
+        (c) => c.toLowerCase() === otherCategoryName.toLowerCase()
+      )
+    ) {
+      const otherOption = document.createElement("option");
+      otherOption.value = otherCategoryName;
+      otherOption.textContent = otherCategoryName;
+      selectEl.appendChild(otherOption);
+    }
+
+    if (
+      currentValue &&
+      Array.from(selectEl.options).some(
+        (opt) => opt.value === currentValue && opt.value !== ""
+      )
+    ) {
+      selectEl.value = currentValue;
+    } else if (
+      selectEl.id === "modalPayDebtCategory" &&
+      state.categories.includes("Debt Repayment")
+    ) {
+      selectEl.value = "Debt Repayment";
+    } else {
+      selectEl.value = "";
+    }
+  };
+
+  categorySelects.forEach(populateCategorySelect);
+}
+
+function renderDashboard() {
+  const visibleAccounts = state.accounts.filter((acc) => !acc.hidden);
+  const accountCardsContainer = $("#accountCardsContainer");
+  accountCardsContainer.innerHTML = ""; // Clear previous cards
+
+  let totalBalance = 0;
+  state.accounts.forEach((acc) => {
+    totalBalance += acc.balance; // Calculate total balance from ALL accounts
+  });
+
+  // Refined logic for showing/hiding the cash card
+  const shouldShowAccountCards = !(
+    visibleAccounts.length === 1 &&
+    visibleAccounts[0].id === "cash" &&
+    Math.abs(visibleAccounts[0].balance - totalBalance) < 0.01
+  );
+
+  if (shouldShowAccountCards) {
+    accountCardsContainer.style.display = "grid";
+    // Dynamically adjust grid columns based on the number of visible accounts
+    switch (visibleAccounts.length) {
+      case 1:
+        accountCardsContainer.className = "grid grid-cols-1 gap-3 text-center";
+        break;
+      case 2:
+        accountCardsContainer.className =
+          "grid grid-cols-1 md:grid-cols-2 gap-3 text-center";
+        break;
+      case 3:
+        accountCardsContainer.className =
+          "grid grid-cols-1 md:grid-cols-3 gap-3 text-center";
+        break;
+      case 4:
+      default:
+        accountCardsContainer.className =
+          "grid grid-cols-2 md:grid-cols-4 gap-3 text-center";
+        break;
+    }
+
+    visibleAccounts.forEach((acc) => {
+      const card = document.createElement("div");
+      card.id = `accountBalance-${acc.id}`;
+      card.className = "bg-gray-600 p-3 rounded";
+      card.innerHTML = `
+        <p class="text-xs font-medium text-gray-300 truncate">${acc.name}</p>
+        <p class="font-semibold text-sm tabular-nums">${formatCurrency(
+          acc.balance
+        )}</p>
+      `;
+      accountCardsContainer.appendChild(card);
+    });
+  } else {
+    // Hide the container if the special condition is met
+    accountCardsContainer.style.display = "none";
+  }
+
+  $("#totalBalance").innerHTML = `<span class="tabular-nums">${formatCurrency(
+    totalBalance
+  )}</span>`;
+  const cashRecTotal = state.receivables
+    .filter((r) => r.type === "cash" || (r.type === "cc" && r.sourceAccount))
+    .reduce((s, r) => s + r.remainingAmount, 0);
+  $(
+    "#totalPotentialBalance"
+  ).innerHTML = `<span class="tabular-nums">${formatCurrency(
+    totalBalance + cashRecTotal
+  )}</span>`;
+  $(
+    "#totalOwedToMe"
+  ).innerHTML = `Total: <span class="tabular-nums">${formatCurrency(
+    state.receivables.reduce((s, r) => s + r.remainingAmount, 0)
+  )}</span>`;
+  $(
+    "#totalOwed"
+  ).innerHTML = `Total: <span class="tabular-nums">${formatCurrency(
+    state.debts.reduce((s, d) => s + d.remainingAmount, 0)
+  )}</span>`;
+  $(
+    "#totalInstallmentsLeft"
+  ).innerHTML = `Total Left: <span class="tabular-nums">${formatCurrency(
+    state.installments.reduce((s, i) => s + i.monthlyAmount * i.monthsLeft, 0)
+  )}</span>`;
+  renderRecentTransactions();
+  renderDebtList();
+  renderReceivableList();
+  renderInstallmentList();
+  renderCreditCardSection();
+  renderMonthlyOverviewChart();
+  renderYearlyAndQuickStats();
+}
+
+function renderYearlyAndQuickStats() {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const startOfYear = new Date(currentYear, 0, 1);
+
+  // --- Logic for Rolling 7-Day Periods ---
+  const todayEnd = new Date(now); // Capture current time for today
+  todayEnd.setHours(23, 59, 59, 999); // End of today
+
+  const todayStart = new Date(now);
+  todayStart.setHours(0, 0, 0, 0); // Start of today
+
+  // Current 7-day period (Past 7 Days including today)
+  const currentPeriodEnd = new Date(todayEnd);
+  const currentPeriodStart = new Date(todayEnd);
+  currentPeriodStart.setDate(currentPeriodStart.getDate() - 6); // Go back 6 days to get a 7-day window
+  currentPeriodStart.setHours(0, 0, 0, 0);
+
+  // Previous 7-day period
+  const previousPeriodEnd = new Date(currentPeriodStart);
+  previousPeriodEnd.setDate(previousPeriodEnd.getDate() - 1); // Day before the current 7-day period starts
+  previousPeriodEnd.setHours(23, 59, 59, 999);
+  const previousPeriodStart = new Date(previousPeriodEnd);
+  previousPeriodStart.setDate(previousPeriodStart.getDate() - 6); // Go back 6 days from its end
+  previousPeriodStart.setHours(0, 0, 0, 0);
+
+  // --- Logic for "Today" vs "Yesterday" ---
+  const yesterdayStart = new Date(todayStart);
+  yesterdayStart.setDate(todayStart.getDate() - 1);
+  // yesterdayEnd is effectively the moment just before todayStart
+
+  let yearlyEarned = 0;
+  let yearlySpent = 0;
+  let current7DaysSpent = 0;
+  let previous7DaysSpent = 0;
+  let todaySpent = 0;
+  let yesterdaySpent = 0;
+
+  state.transactions.forEach((t) => {
+    const transactionDate = new Date(t.date); // Assuming t.date is "YYYY-MM-DD"
+    if (isNaN(transactionDate.getTime())) return;
+
+    // To ensure fair date comparison, set time to midday for date-only comparisons
+    // or use the start/end of day variables defined above for period checks.
+    const tDateForPeriodChecks = new Date(transactionDate);
+    tDateForPeriodChecks.setHours(12, 0, 0, 0); // Midday to avoid timezone issues with just date part
+
+    // Yearly totals
+    if (
+      tDateForPeriodChecks >= startOfYear &&
+      tDateForPeriodChecks.getFullYear() === currentYear
+    ) {
+      if (t.type === "income") yearlyEarned += t.amount;
+      if (t.type === "expense") yearlySpent += t.amount;
+    }
+
+    if (t.type === "expense") {
+      // Current 7-day period spending
+      if (
+        tDateForPeriodChecks >= currentPeriodStart &&
+        tDateForPeriodChecks <= currentPeriodEnd
+      ) {
+        current7DaysSpent += t.amount;
+      }
+      // Previous 7-day period spending
+      if (
+        tDateForPeriodChecks >= previousPeriodStart &&
+        tDateForPeriodChecks <= previousPeriodEnd
+      ) {
+        previous7DaysSpent += t.amount;
+      }
+      // Today's spending
+      if (
+        tDateForPeriodChecks >= todayStart &&
+        tDateForPeriodChecks <= todayEnd
+      ) {
+        todaySpent += t.amount;
+      }
+      // Yesterday's spending
+      if (
+        tDateForPeriodChecks >= yesterdayStart &&
+        tDateForPeriodChecks < todayStart
+      ) {
+        // up to, but not including, todayStart
+        yesterdaySpent += t.amount;
+      }
+    }
+  });
+
+  $("#yearlyTotals").textContent = `Yearly: Earned ${formatCurrency(
+    yearlyEarned
+  )} / Spent ${formatCurrency(yearlySpent)}`;
+
+  const quickStatsEl = $("#quickStats");
+  // Update text to "Past 7 Days"
+  quickStatsEl.innerHTML = `Today: ${formatCurrency(
+    todaySpent
+  )} <span id="todaySpendingIndicator"></span> | Past 7 Days: ${formatCurrency(
+    current7DaysSpent
+  )} <span id="weekSpendingIndicator"></span>`; // ID "weekSpendingIndicator" is kept for now, but refers to 7-day period
+
+  const todayIndicator = $("#todaySpendingIndicator");
+  if (todaySpent > yesterdaySpent && yesterdaySpent >= 0) {
+    // Check yesterdaySpent >= 0 to avoid showing arrow if no data for yesterday
+    todayIndicator.innerHTML = `<i class="fas fa-arrow-up text-indicator-bad spending-indicator" title="More than yesterday (${formatCurrency(
+      yesterdaySpent
+    )})"></i>`;
+  } else if (todaySpent < yesterdaySpent && yesterdaySpent > 0) {
+    // Check yesterdaySpent > 0
+    todayIndicator.innerHTML = `<i class="fas fa-arrow-down text-indicator-good spending-indicator" title="Less than yesterday (${formatCurrency(
+      yesterdaySpent
+    )})"></i>`;
+  } else {
+    todayIndicator.innerHTML = ""; // No indicator if same or no comparison data
+  }
+
+  const sevenDayIndicator = $("#weekSpendingIndicator"); // This now compares rolling 7-day periods
+  if (current7DaysSpent > previous7DaysSpent && previous7DaysSpent >= 0) {
+    sevenDayIndicator.innerHTML = `<i class="fas fa-arrow-up text-indicator-bad spending-indicator" title="More than previous 7 days (${formatCurrency(
+      previous7DaysSpent
+    )})"></i>`;
+  } else if (current7DaysSpent < previous7DaysSpent && previous7DaysSpent > 0) {
+    sevenDayIndicator.innerHTML = `<i class="fas fa-arrow-down text-indicator-good spending-indicator" title="Less than previous 7 days (${formatCurrency(
+      previous7DaysSpent
+    )})"></i>`;
+  } else {
+    sevenDayIndicator.innerHTML = "";
+  }
+}
+
+// -------------
+// --- KEYBOARD SHORTCUTS ---
+// -------------
+
+function openShortcutsHelpModal() {
+  const modal = $("#shortcutsHelpModal");
+  const contentList = $("#shortcutsList");
+
+  if (!modal || !contentList) {
+    console.error("Shortcut help modal elements not found!");
+    showNotification("Could not display shortcuts help.", "error");
+    return;
+  }
+
+  // Define your shortcuts here.
+  const shortcuts = [
+    { key: "-", action: "Start an Expense Transaction." },
+    { key: "+", action: "Start an Income Transaction." },
+    { key: "M", action: "Open Monthly Breakdown." },
+    { key: "S", action: "Open Settings (In Dashboard)." },
+    { key: "S", action: "Start Search (In Monthly Breakdown)." },
+    { key: "C", action: "Start a CC Transaction." },
+    { key: "D", action: "View All Debts." },
+    { key: "R", action: "View All Receivables." },
+    { key: "T", action: "Transfer Money." },
+    { key: "Ctrl + E", action: "Export Data." },
+    { key: "Ctrl + I", action: "Import Data." },
+    { key: "← / →", action: "Navigate Month Tabs in Breakdown." },
+  ];
+
+  contentList.innerHTML = ""; // Clear previous list
+
+  shortcuts.forEach((shortcut) => {
+    const li = document.createElement("li");
+    li.className =
+      "flex justify-between items-center py-2 px-1 border-b border-gray-700 last:border-b-0";
+
+    const keySpan = document.createElement("span");
+    keySpan.className = "font-semibold text-accent-primary w-1/3"; // Key takes up roughly 1/3
+    keySpan.textContent = shortcut.key;
+
+    const actionSpan = document.createElement("span");
+    actionSpan.className = "text-gray-300 text-sm text-left flex-grow px-2"; // Action takes up most space
+    actionSpan.textContent = shortcut.action;
+
+    const contextSpan = document.createElement("span");
+    contextSpan.className = "text-xs text-gray-500 text-right w-1/4 italic"; // Context takes up roughly 1/4
+    contextSpan.textContent = shortcut.context || "";
+
+    li.appendChild(keySpan);
+    li.appendChild(actionSpan);
+    if (shortcut.context) {
+      // Only add context if it exists
+      li.appendChild(contextSpan);
+    }
+
+    contentList.appendChild(li);
+  });
+
+  modal.style.display = "block";
+}
+
+function handleKeyboardShortcuts(event) {
+  const activeElement = document.activeElement;
+  const inInputField =
+    activeElement &&
+    (activeElement.tagName === "INPUT" ||
+      activeElement.tagName === "SELECT" ||
+      activeElement.tagName === "TEXTAREA" ||
+      activeElement.isContentEditable);
+
+  // --- MODIFIED: Handle Ctrl+E and Ctrl+I with new handler functions ---
+  if (event.ctrlKey && (event.key === "e" || event.key === "E")) {
+    if (!inInputField) {
+      event.preventDefault();
+      handleExport(); // Use the new handler
+    }
+    return;
+  }
+
+  if (event.ctrlKey && (event.key === "i" || event.key === "I")) {
+    if (!inInputField) {
+      event.preventDefault();
+      handleImport(); // Use the new handler
+    }
+    return;
+  }
+  // --- END MODIFICATION ---
+
+  const modifierKeyPressed = event.ctrlKey || event.altKey || event.metaKey;
+  if (modifierKeyPressed && event.key !== "Escape") {
+    return;
+  }
+  if (inInputField && event.key !== "Escape") {
+    return;
+  }
+
+  const monthlyViewModalVisible =
+    $("#monthlyViewModal")?.style.display === "block";
+  const settingsModalVisible = $("#settingsModal")?.style.display === "block";
+
+  switch (event.key) {
+    case "-":
+      if (!inInputField) {
+        event.preventDefault();
+        const typeSelect = $("#transactionType");
+        const amountInput = $("#amount");
+        if (typeSelect && amountInput) {
+          typeSelect.value = "expense";
+          typeSelect.dispatchEvent(new Event("change"));
+          amountInput.focus();
+        }
+      }
+      break;
+    case "+":
+    case "=":
+      if (!inInputField) {
+        event.preventDefault();
+        const typeSelect = $("#transactionType");
+        const amountInput = $("#amount");
+        if (typeSelect && amountInput) {
+          typeSelect.value = "income";
+          typeSelect.dispatchEvent(new Event("change"));
+          amountInput.focus();
+        }
+      }
+      break;
+    case "m":
+    case "M":
+      if (!inInputField) {
+        event.preventDefault();
+        if ($("#monthlyViewModal")?.style.display !== "block") {
+          $("#monthlyViewBtn").click();
+        } else {
+          closeModal("monthlyViewModal");
+        }
+      }
+      break;
+    case "s":
+    case "S":
+      if (monthlyViewModalVisible && !inInputField) {
+        event.preventDefault();
+        $("#monthlySearchInput")?.focus();
+      } else if (!settingsModalVisible && !inInputField) {
+        event.preventDefault();
+        if ($("#settingsModal")?.style.display !== "block") {
+          $("#settingsBtn").click();
+        } else {
+          closeModal("settingsModal");
+        }
+      }
+      break;
+    case "Escape":
+      const modalsToClose = [
+        "confirmationModal",
+        "formModal",
+        "ccHistoryModal",
+        "cashCounterModal",
+        "debtsViewModal",
+        "receivablesViewModal",
+        "transferMoneyModal",
+        "monthlyViewModal",
+        "settingsModal",
+        "shortcutsHelpModal",
+      ];
+      let modalClosed = false;
+      for (const modalId of modalsToClose) {
+        const modal = $(`#${modalId}`);
+        if (modal && modal.style.display === "block") {
+          closeModal(modalId);
+          modalClosed = true;
+          break;
+        }
+      }
+      if (!modalClosed && inInputField) {
+        activeElement.blur();
+      }
+      break;
+    case "c":
+    case "C":
+      if (!inInputField) {
+        event.preventDefault();
+        $("#ccAmount")?.focus();
+      }
+      break;
+    case "d":
+    case "D":
+      if (!inInputField) {
+        event.preventDefault();
+        $("#viewDebtsBtn")?.click();
+      }
+      break;
+    case "r":
+    case "R":
+      if (!inInputField) {
+        event.preventDefault();
+        $("#viewReceivablesBtn")?.click();
+      }
+      break;
+    case "t":
+    case "T":
+      if (!inInputField) {
+        event.preventDefault();
+        $("#openTransferModalBtn")?.click();
+      }
+      break;
+    case "ArrowLeft":
+      if (monthlyViewModalVisible && !inInputField) {
+        event.preventDefault();
+        navigateMonthTabs(-1);
+      }
+      break;
+    case "ArrowRight":
+      if (monthlyViewModalVisible && !inInputField) {
+        event.preventDefault();
+        navigateMonthTabs(1);
+      }
+      break;
+  }
+}
+
+function handleExport() {
+  if (
+    state.settings.enableGdriveBackup &&
+    state.settings.useShortcutsForGdrive &&
+    gapi.client.getToken()
+  ) {
+    console.log("Exporting to Google Drive...");
+    gdriveExport();
+  } else {
+    console.log("Exporting to local file...");
+    exportData();
+  }
+}
+
+function handleImport() {
+  if (
+    state.settings.enableGdriveBackup &&
+    state.settings.useShortcutsForGdrive &&
+    gapi.client.getToken()
+  ) {
+    console.log("Importing from Google Drive...");
+    gdriveImport();
+  } else {
+    console.log("Importing from local file...");
+    $("#importDataInput").click();
+  }
+}
+
+// --- Helper function for month tab navigation ---
+function navigateMonthTabs(direction) {
+  const monthTabs = $$("#monthTabs .tab-button");
+  if (monthTabs.length === 0) return;
+
+  let currentIndex = -1;
+  monthTabs.forEach((tab, index) => {
+    if (tab.classList.contains("active")) {
+      currentIndex = index;
+    }
+  });
+
+  if (currentIndex !== -1) {
+    let newIndex = currentIndex + direction;
+    if (newIndex < 0) {
+      newIndex = monthTabs.length - 1; // Wrap around to last month
+    } else if (newIndex >= monthTabs.length) {
+      newIndex = 0; // Wrap around to first month
+    }
+    monthTabs[newIndex].click();
+  } else if (monthTabs.length > 0) {
+    // If no tab is active, default to current month or first tab
+    const currentMonth = new Date().getMonth();
+    const yearSelector = $("#yearSelector");
+    const currentYearVal = yearSelector
+      ? parseInt(yearSelector.value)
+      : new Date().getFullYear();
+    const targetTab =
+      $(
+        `#monthTabs .tab-button[data-month="${currentMonth}"][data-year="${currentYearVal}"]`
+      ) || monthTabs[0];
+    if (targetTab) targetTab.click();
+  }
+}
+
+function renderRecentTransactions() {
+  const list = $("#recentTransactionsList");
+  if (!list) return;
+  list.innerHTML = "";
+  const recent = [...state.transactions]
+    .sort(
+      (a, b) =>
+        new Date(b.date).setHours(0, 0, 0, 0) -
+          new Date(a.date).setHours(0, 0, 0, 0) || b.timestamp - a.timestamp
+    )
+    .slice(0, 10);
+
+  if (recent.length === 0) {
+    list.innerHTML =
+      '<p class="text-gray-400 text-sm">No transactions yet.</p>';
+    return;
+  }
+
+  recent.forEach((t) => {
+    const div = document.createElement("div");
+    div.className = `flex justify-between items-center p-2 rounded bg-gray-700/50 text-sm transition-colors hover:bg-gray-700/80`;
+
+    const account = state.accounts.find((a) => a.id === t.account);
+    const accountName = account ? account.name : "Unknown Acct";
+    const isIncome = t.type === "income";
+    const textColorClass = isIncome ? "text-income" : "text-expense";
+
+    let subDetailText = `${new Date(t.date).toLocaleDateString([], {
+      day: "2-digit",
+      month: "short",
+    })}`; // Date first
+    subDetailText += ` - ${accountName}`;
+    if (!isIncome && t.category) {
+      subDetailText += ` | ${t.category}`;
+    } else if (!isIncome && !t.category) {
+      subDetailText += ` | Uncategorized`;
+    }
+
+    div.innerHTML = `
+      <div class="flex-grow mr-2 overflow-hidden">
+        <p class="font-medium truncate ${textColorClass}" title="${
+      t.description
+    }">${t.description}</p>
+        <p class="text-xs text-gray-400">${subDetailText}</p>
+      </div>
+      <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums">${
+      isIncome ? "+" : "-"
+    }${formatCurrency(t.amount)}</span>
+      <div class="edit-btn-container flex-shrink-0">
+        <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionForm('${
+          t.id
+        }', event)" title="Edit"><i class="fas fa-edit"></i></button>
+        <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteTransaction('${
+          t.id
+        }',event)" title="Delete"><i class="fas fa-times"></i></button>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function renderDebtList() {
+  const listContainer = $("#debtModalListContainer");
+  if (!listContainer) {
+    console.warn(
+      "#debtModalListContainer element not found. Debts modal might not be open."
+    );
+    return;
+  }
+  listContainer.innerHTML = "";
+
+  if (state.debts.length === 0) {
+    listContainer.innerHTML =
+      '<p class="text-gray-400 text-sm text-center py-4">No debts recorded.</p>';
+    return;
+  }
+
+  const totalsByCreditor = state.debts.reduce((acc, d) => {
+    const creditorName = d.who.trim();
+    if (!acc[creditorName]) {
+      acc[creditorName] = {
+        totalOwedTo: 0,
+        items: [],
+      };
+    }
+    acc[creditorName].totalOwedTo += d.remainingAmount;
+    acc[creditorName].items.push(d);
+    return acc;
+  }, {});
+
+  const sortedCreditors = Object.keys(totalsByCreditor).sort((a, b) =>
+    a.localeCompare(b)
+  );
+
+  sortedCreditors.forEach((creditorName) => {
+    const creditorData = totalsByCreditor[creditorName];
+    const creditorId = `modal-debt-creditor-${generateId()}`;
+
+    const creditorWrapper = document.createElement("div");
+    creditorWrapper.className =
+      "mb-3 border border-gray-700 rounded-md overflow-hidden shadow-sm";
+
+    const creditorHeader = document.createElement("div");
+    creditorHeader.className =
+      "flex justify-between items-center p-3 cursor-pointer hover:bg-gray-600/50 transition-colors";
+    creditorHeader.style.backgroundColor = "var(--bg-tertiary)";
+
+    creditorHeader.innerHTML = ` 
+      <h4 class="text-md font-semibold text-gray-100 force-word-wrap">${creditorName}</h4>
+      <div class="flex items-center flex-shrink-0 ml-2">
+        <span class="text-md font-semibold text-expense mr-3 whitespace-nowrap tabular-nums">${formatCurrency(
+          creditorData.totalOwedTo
+        )}</span>
+        <span class="toggle-icon text-gray-400"><i class="fas fa-chevron-down text-xs"></i></span>
+      </div>
+    `;
+    creditorWrapper.appendChild(creditorHeader);
+
+    const itemsListContainer = document.createElement("div");
+    itemsListContainer.className = "day-transactions-container";
+    itemsListContainer.id = creditorId;
+    itemsListContainer.style.maxHeight = "0px";
+    itemsListContainer.style.backgroundColor = "var(--bg-secondary)";
+
+    creditorData.items
+      .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+      .forEach((d) => {
+        const daysLeft = getDaysLeft(d.dueDate);
+        let daysText, daysColor;
+        if (daysLeft < 0) {
+          daysText = `Overdue by ${Math.abs(daysLeft)} day(s)`;
+          daysColor = "text-expense font-medium";
+        } else if (daysLeft === 0) {
+          daysText = `Due Today`;
+          daysColor = "text-warning font-medium";
+        } else {
+          daysText = `${daysLeft} day(s) left`;
+          daysColor = "text-gray-300";
+        }
+
+        const itemDiv = document.createElement("div");
+        itemDiv.className =
+          "text-sm py-2 px-3 border-b border-gray-700 last:border-b-0";
+        itemDiv.innerHTML = `
+          <div class="flex justify-between items-start mb-1 gap-x-2">
+            <div class="flex-grow">
+              <p class="font-medium text-gray-200 force-word-wrap">${d.why}</p>
+              <p class="text-xs ${daysColor}">${daysText}</p>
+            </div>
+            <span class="font-semibold text-expense whitespace-nowrap tabular-nums">${formatCurrency(
+              d.remainingAmount
+            )}</span>
+          </div>
+          <div class="flex justify-between items-center text-xs text-gray-500 mt-1">
+            <span>Due: ${new Date(d.dueDate).toLocaleDateString()}</span>
+            <div class="edit-btn-container">
+              <button class="link-style text-xs mr-2 accent-text hover:text-accent-hover" onclick="openEditDebtForm('${
+                d.id
+              }')">Edit</button>
+              <button class="link-style text-xs mr-2 text-income hover:opacity-80" onclick="openPayDebtForm('${
+                d.id
+              }')">Pay</button>
+              <button class="text-gray-500 hover:text-expense text-xs focus:outline-none" onclick="deleteDebt('${
+                d.id
+              }')" title="Delete"><i class="fas fa-times"></i></button>
+            </div>
+          </div>
+        `;
+        itemsListContainer.appendChild(itemDiv);
+      });
+
+    creditorWrapper.appendChild(itemsListContainer);
+
+    creditorHeader.onclick = () => {
+      const icon = creditorHeader.querySelector(".toggle-icon i");
+      const isCurrentlyCollapsed = itemsListContainer.style.maxHeight === "0px";
+      if (isCurrentlyCollapsed) {
+        itemsListContainer.style.maxHeight =
+          itemsListContainer.scrollHeight + "px";
+        if (icon) {
+          icon.classList.remove("fa-chevron-down");
+          icon.classList.add("fa-chevron-up");
+        }
+      } else {
+        itemsListContainer.style.maxHeight = "0px";
+        if (icon) {
+          icon.classList.remove("fa-chevron-up");
+          icon.classList.add("fa-chevron-down");
+        }
+      }
+    };
+    listContainer.appendChild(creditorWrapper);
+  });
+}
+
+function renderReceivableList() {
+  const listContainer = $("#receivableModalListContainer");
+  if (!listContainer) {
+    return;
+  }
+  listContainer.innerHTML = "";
+  const cashBankReceivables = state.receivables.filter(
+    (r) => r.type === "cash" || !r.type
+  );
+  const ccReceivables = state.receivables.filter((r) => r.type === "cc");
+  if (state.receivables.length === 0) {
+    listContainer.innerHTML =
+      '<p class="text-gray-400 text-sm text-center py-4">No receivables recorded.</p>';
+    return;
+  }
+
+  const renderGroupInModal = (title, receivablesForGroup) => {
+    const sectionWrapper = document.createElement("div");
+    sectionWrapper.className = "mb-6";
+    const sectionTitleHeader = document.createElement("div");
+    sectionTitleHeader.className =
+      "flex justify-between items-center border-b border-gray-500 pb-2 mb-3";
+    const sectionTitle = document.createElement("h3");
+    sectionTitle.className = "text-xl font-semibold text-gray-100";
+    sectionTitle.textContent = title;
+    sectionTitleHeader.appendChild(sectionTitle);
+    const groupTotalAmount = receivablesForGroup.reduce(
+      (sum, r) => sum + r.remainingAmount,
+      0
+    );
+    const groupTotalSpan = document.createElement("span");
+    groupTotalSpan.className =
+      "text-base font-normal text-gray-100 tabular-nums";
+    groupTotalSpan.textContent = `Total: ${formatCurrency(groupTotalAmount)}`;
+    sectionTitleHeader.appendChild(groupTotalSpan);
+    sectionWrapper.appendChild(sectionTitleHeader);
+
+    if (receivablesForGroup.length === 0) {
+      return;
+    }
+
+    const totalsByPerson = receivablesForGroup.reduce((acc, r) => {
+      const personName = r.who.trim();
+      if (!acc[personName]) {
+        acc[personName] = { totalOwed: 0, items: [] };
+      }
+      acc[personName].totalOwed += r.remainingAmount;
+      acc[personName].items.push(r);
+      return acc;
+    }, {});
+
+    const sortedPeople = Object.keys(totalsByPerson).sort((a, b) =>
+      a.localeCompare(b)
+    );
+    sortedPeople.forEach((personName) => {
+      const personData = totalsByPerson[personName];
+      const personId = `modal-receivable-${title
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "")}-${generateId()}`;
+      const personWrapper = document.createElement("div");
+      personWrapper.className =
+        "mb-3 border border-gray-700 rounded-md overflow-hidden shadow-sm";
+      const personHeader = document.createElement("div");
+      personHeader.className =
+        "flex justify-between items-center p-3 cursor-pointer hover:bg-gray-600/50 transition-colors";
+      personHeader.style.backgroundColor = "var(--bg-tertiary)";
+      personHeader.innerHTML = `
+          <h4 class="text-md font-semibold text-gray-100 force-word-wrap">${personName}</h4>
+          <div class="flex items-center flex-shrink-0 ml-2">
+            <span class="text-md font-semibold text-income mr-3 whitespace-nowrap tabular-nums">${formatCurrency(
+              personData.totalOwed
+            )}</span>
+            <span class="toggle-icon text-gray-400"><i class="fas fa-chevron-down text-xs"></i></span>
+          </div>
+      `;
+      personWrapper.appendChild(personHeader);
+      const itemsListContainer = document.createElement("div");
+      itemsListContainer.className = "day-transactions-container";
+      itemsListContainer.id = personId;
+      itemsListContainer.style.maxHeight = "0px";
+      itemsListContainer.style.backgroundColor = "var(--bg-secondary)";
+      personData.items
+        .sort((a, b) => new Date(b.dateGiven) - new Date(a.dateGiven))
+        .forEach((r) => {
+          const srcAcc = state.accounts.find((a) => a.id === r.sourceAccount);
+          let srcTxt =
+            r.type === "cash"
+              ? `(From: ${srcAcc?.name || "Unknown"})`
+              : "(Via CC)";
+          const itemDiv = document.createElement("div");
+          itemDiv.className =
+            "text-sm py-2 px-3 border-b border-gray-700 last:border-b-0";
+          itemDiv.innerHTML = `
+          <div class="flex justify-between items-start mb-1 gap-x-2">
+            <div class="flex-grow">
+              <p class="font-medium text-gray-200 force-word-wrap">${r.why}</p>
+              <p class="text-xs text-gray-400">${srcTxt}</p>
+            </div>
+            <span class="font-semibold text-income whitespace-nowrap tabular-nums">${formatCurrency(
+              r.remainingAmount
+            )}</span>
+          </div>
+          <div class="flex justify-between items-center text-xs text-gray-500 mt-1">
+            <span>Given: ${new Date(r.dateGiven).toLocaleDateString()}</span>
+            <div class="edit-btn-container">
+              <button class="link-style text-xs mr-2 accent-text hover:text-accent-hover" onclick="openEditReceivableForm('${
+                r.id
+              }')">Edit</button>
+              <button class="link-style text-xs mr-2 text-income hover:opacity-80" onclick="openReceivePaymentForm('${
+                r.id
+              }')">Receive</button>
+              <button class="text-gray-500 hover:text-expense text-xs focus:outline-none" onclick="deleteReceivable('${
+                r.id
+              }')" title="Delete"><i class="fas fa-times"></i></button>
+            </div>
+          </div>
+        `;
+          itemsListContainer.appendChild(itemDiv);
+        });
+      personWrapper.appendChild(itemsListContainer);
+      personHeader.onclick = () => {
+        const icon = personHeader.querySelector(".toggle-icon i");
+        const isCollapsed = itemsListContainer.style.maxHeight === "0px";
+        itemsListContainer.style.maxHeight = isCollapsed
+          ? itemsListContainer.scrollHeight + "px"
+          : "0px";
+        icon.classList.toggle("fa-chevron-down", !isCollapsed);
+        icon.classList.toggle("fa-chevron-up", isCollapsed);
+      };
+      sectionWrapper.appendChild(personWrapper);
+    });
+    listContainer.appendChild(sectionWrapper);
+  };
+  renderGroupInModal("Cash/Bank Loans", cashBankReceivables);
+  renderGroupInModal("Credit Card Loans", ccReceivables);
+}
+
+function renderInstallmentList() {
+  const list = $("#installmentList");
+  if (!list) return;
+  list.innerHTML = "";
+  const sortedInstallments = [...state.installments].sort((a, b) => {
+    const endDateA = new Date(a.startDate);
+    endDateA.setMonth(endDateA.getMonth() + a.totalMonths);
+    const endDateB = new Date(b.startDate);
+    endDateB.setMonth(endDateB.getMonth() + b.totalMonths);
+    return endDateA - endDateB;
+  });
+
+  if (sortedInstallments.length === 0) {
+    list.innerHTML = '<p class="text-gray-400 text-sm">No installments.</p>';
+    return;
+  }
+
+  sortedInstallments.forEach((i) => {
+    const endDate = new Date(i.startDate);
+    endDate.setMonth(endDate.getMonth() + i.totalMonths);
+    const daysLeft = getDaysLeft(endDate);
+    let daysLeftText =
+      daysLeft < 0
+        ? `<span class="text-gray-500">Finished</span>`
+        : `<span class="text-gray-300">${daysLeft} day(s) left</span>`;
+    const totalLeftToPay = i.monthlyAmount * i.monthsLeft;
+    const progressPercent =
+      i.totalMonths > 0
+        ? ((i.totalMonths - i.monthsLeft) / i.totalMonths) * 100
+        : 0;
+
+    const div = document.createElement("div");
+    div.className =
+      "p-3 rounded bg-gray-700/50 text-sm mb-2 flex items-center gap-x-3";
+
+    const ringHtml = `
+      <div class="installment-progress-ring-container w-10 h-10 flex-shrink-0" title="${progressPercent.toFixed(
+        0
+      )}% Paid (${i.monthsLeft} months left)">
+          <svg class="w-full h-full" viewBox="0 0 36 36">
+              <path class="progress-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3"></path>
+              <path class="progress-ring-circle" stroke-dasharray="${progressPercent.toFixed(
+                2
+              )}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-linecap="round" stroke-width="3"></path>
+              <text x="18" y="17.5" class="progress-ring-text" text-anchor="middle" fill="var(--text-primary)">${
+                i.monthsLeft
+              }</text> 
+          </svg>
+      </div>
+    `;
+
+    const buttonsHtml = `
+        <div class="edit-btn-container">
+            ${
+              i.monthsLeft > 0
+                ? `
+                <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="payInstallmentMonth('${i.id}')" title="Pay Month"><i class="fas fa-credit-card"></i></button>
+              `
+                : `
+                <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+              `
+            }
+            <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteInstallment('${
+              i.id
+            }')" title="Delete"><i class="fas fa-times"></i></button>
+        </div>
+    `;
+
+    div.innerHTML = `
+      ${ringHtml}
+      <div class="flex-grow">
+          <div class="flex justify-between items-start mb-1 gap-x-2">
+            <div class="flex-grow">
+                <p class="font-medium force-word-wrap">${i.description}</p>
+                <p class="text-xs text-gray-400 tabular-nums">${formatCurrency(
+                  i.monthlyAmount
+                )} / month</p>
+            </div>
+            <span class="font-semibold text-gray-200 whitespace-nowrap tabular-nums">${formatCurrency(
+              totalLeftToPay
+            )} Left</span> 
+          </div>
+          <div class="flex justify-between items-center text-xs text-gray-400 mt-1">
+              <span>${i.monthsLeft} of ${
+      i.totalMonths
+    } months left (${daysLeftText})</span>
+              ${buttonsHtml}
+          </div>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+let monthlyOverviewChartInstance = null;
+
+function renderMonthlyOverviewChart() {
+  const canvas = $("#monthlyOverviewChart");
+  if (!canvas) return;
+
+  const chartTitleEl = $("#dashboardChartTitle");
+  const toggleBtn = $("#toggleChartBtn");
+  const toggleBtnIcon = toggleBtn ? toggleBtn.querySelector("i") : null;
+
+  if (monthlyOverviewChartInstance) {
+    monthlyOverviewChartInstance.destroy();
+  }
+
+  const ctx = canvas.getContext("2d");
+
+  // Get theme-dependent colors for grid lines, ticks, etc.
+  const computedStyle = getComputedStyle(document.documentElement);
+  const chartGridColor =
+    computedStyle.getPropertyValue("--chart-grid-color").trim() ||
+    "rgba(255,255,255,0.1)";
+  const chartTickColor =
+    computedStyle.getPropertyValue("--chart-tick-color").trim() || "#aaa";
+  const chartLegendColor =
+    computedStyle.getPropertyValue("--chart-legend-color").trim() || "#e0e0e0";
+  const chartTooltipBg =
+    computedStyle.getPropertyValue("--chart-tooltip-bg").trim() ||
+    "rgba(0,0,0,0.8)";
+  const chartTooltipText =
+    computedStyle.getPropertyValue("--chart-tooltip-text").trim() || "#fff";
+
+  // --- Using the exact hex codes from your reference code ---
+  const incomeColor = "#2a9d8f";
+  const expenseColor = "#e74c3c";
+
+  const hexToRgba = (hex, alpha = 0.3) => {
+    let r = 0,
+      g = 0,
+      b = 0;
+    if (hex.length == 4) {
+      r = parseInt(hex[1] + hex[1], 16);
+      g = parseInt(hex[2] + hex[2], 16);
+      b = parseInt(hex[3] + hex[3], 16);
+    } else if (hex.length == 7) {
+      r = parseInt(hex.slice(1, 3), 16);
+      g = parseInt(hex.slice(3, 5), 16);
+      b = parseInt(hex.slice(5, 7), 16);
+    }
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
+  let chartLabels, chartDatasets;
+
+  // --- LOGIC FOR MONTHLY (DAILY) EXPENSE VIEW ---
+  if (dashboardChartState === "monthly") {
+    if (chartTitleEl)
+      chartTitleEl.textContent = "Daily Expenses (Current Month)";
+    if (toggleBtnIcon) {
+      toggleBtnIcon.className = "fas fa-calendar-alt fa-lg";
+      toggleBtn.dataset.tooltip = "Switch to Yearly View";
+    }
+
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+    chartLabels = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    const dailyExpenseData = new Array(daysInMonth).fill(0);
+
+    state.transactions.forEach((t) => {
+      const tDate = new Date(t.date);
+      if (
+        t.type === "expense" &&
+        tDate.getMonth() === currentMonth &&
+        tDate.getFullYear() === currentYear
+      ) {
+        const dayOfMonth = tDate.getDate();
+        dailyExpenseData[dayOfMonth - 1] += t.amount;
+      }
+    });
+
+    chartDatasets = [
+      {
+        label: "Daily Expense",
+        data: dailyExpenseData,
+        borderColor: expenseColor,
+        backgroundColor: hexToRgba(expenseColor, 0.3),
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: expenseColor,
+        pointBorderColor: "#fff",
+        pointHoverRadius: 6,
+        pointHoverBackgroundColor: "#fff",
+        pointHoverBorderColor: expenseColor,
+      },
+    ];
+
+    // --- LOGIC FOR YEARLY (INCOME VS EXPENSE) VIEW ---
+  } else {
+    if (chartTitleEl)
+      chartTitleEl.textContent = "Monthly Income vs Expenses (Last 12 Months)";
+    if (toggleBtnIcon) {
+      toggleBtnIcon.className = "fas fa-chart-line fa-lg";
+      toggleBtn.dataset.tooltip = "Switch to Daily Expense View";
+    }
+
+    chartLabels = [];
+    const incomeData = [];
+    const expenseData = [];
+    const now = new Date();
+
+    for (let i = 11; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const year = date.getFullYear();
+      const month = date.getMonth();
+
+      chartLabels.push(date.toLocaleString("default", { month: "short" }));
+
+      let monthlyIncome = 0;
+      let monthlyExpense = 0;
+      state.transactions.forEach((t) => {
+        const tDate = new Date(t.date);
+        if (isNaN(tDate.getTime())) return;
+        if (tDate.getFullYear() === year && tDate.getMonth() === month) {
+          if (t.type === "income") monthlyIncome += t.amount;
+          else if (t.type === "expense") monthlyExpense += t.amount;
+        }
+      });
+      incomeData.push(monthlyIncome);
+      expenseData.push(monthlyExpense);
+    }
+
+    chartDatasets = [
+      {
+        label: "Income",
+        data: incomeData,
+        borderColor: incomeColor,
+        backgroundColor: hexToRgba(incomeColor, 0.3),
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: incomeColor,
+        pointBorderColor: "#fff",
+        pointHoverRadius: 6,
+        pointHoverBackgroundColor: "#fff",
+        pointHoverBorderColor: incomeColor,
+      },
+      {
+        label: "Expenses",
+        data: expenseData,
+        borderColor: expenseColor,
+        backgroundColor: hexToRgba(expenseColor, 0.3),
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: expenseColor,
+        pointBorderColor: "#fff",
+        pointHoverRadius: 6,
+        pointHoverBackgroundColor: "#fff",
+        pointHoverBorderColor: expenseColor,
+      },
+    ];
+  }
+
+  // --- Create the Chart ---
+  monthlyOverviewChartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: chartLabels,
+      datasets: chartDatasets,
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: chartTickColor,
+            callback: (v) =>
+              v >= 1000000
+                ? `LKR ${(v / 1000000).toFixed(1)}M`
+                : v >= 1000
+                ? `LKR ${(v / 1000).toFixed(0)}k`
+                : formatCurrency(v),
+          },
+          grid: { color: chartGridColor, drawBorder: false },
+        },
+        x: {
+          ticks: { color: chartTickColor },
+          grid: { display: false },
+        },
+      },
+      plugins: {
+        legend: {
+          position: "top",
+          labels: { color: chartLegendColor, usePointStyle: true, boxWidth: 8 },
+        },
+        tooltip: {
+          backgroundColor: chartTooltipBg,
+          titleColor: chartTooltipText,
+          bodyColor: chartTooltipText,
+          padding: 10,
+          cornerRadius: 4,
+          usePointStyle: true,
+          callbacks: {
+            label: (c) =>
+              `${c.dataset.label || ""}: ${formatCurrency(c.parsed.y)}`,
+          },
+        },
+      },
+      interaction: { mode: "index", intersect: false },
+    },
+  });
+}
+
+function handleTransactionSubmit(event) {
+  event.preventDefault();
+  const form = event.target,
+    formData = new FormData(form);
+  const type = formData.get("transactionType");
+  // Ensure amount from form is parsed and then immediately rounded if needed, though parseFloat is usually fine here.
+  // The main rounding will happen during balance calculations.
+  const amount = parseFloat(formData.get("amount"));
+  const accountId = formData.get("account");
+  const category = type === "expense" ? formData.get("category") : null,
+    description = formData.get("description").trim(),
+    date = formData.get("date");
+
+  if (isNaN(amount) || amount <= 0) {
+    showNotification("Valid amount required.", "error");
+    return;
+  }
+  if (!accountId) {
+    showNotification("Account required.", "error");
+    return;
+  }
+  if (type === "expense" && !category) {
+    showNotification("Category required for expense.", "error");
+    return;
+  }
+  if (!description) {
+    showNotification("Description required.", "error");
+    return;
+  }
+  if (!date) {
+    showNotification("Date required.", "error");
+    return;
+  }
+
+  const account = state.accounts.find((acc) => acc.id === accountId);
+  if (!account) {
+    showNotification("Account not found.", "error");
+    return;
+  }
+  const timestamp = Date.now();
+
+  if (type === "expense" && account.balance < amount) {
+    showNotification(
+      `Insufficient funds in ${account.name}. Transaction still added.`,
+      "warning"
+    );
+  }
+  const newTransaction = {
+    id: generateId(),
+    type,
+    amount: roundToTwoDecimals(amount), // Round the amount being stored in the transaction
+    account: accountId,
+    category,
+    description,
+    date,
+    timestamp,
+  };
+  state.transactions.push(newTransaction);
+
+  // Update account balance and round it
+  if (type === "income") {
+    account.balance = roundToTwoDecimals(
+      account.balance + newTransaction.amount
+    );
+  } else {
+    account.balance = roundToTwoDecimals(
+      account.balance - newTransaction.amount
+    );
+  }
+  // Fallback if somehow balance becomes NaN (though roundToTwoDecimals handles its input)
+  if (isNaN(account.balance)) account.balance = 0;
+
+  showNotification(
+    `${type.charAt(0).toUpperCase() + type.slice(1)} added.`,
+    "success"
+  );
+
+  saveData();
+  renderDashboard();
+  populateDropdowns();
+  form.reset();
+
+  const categorySelect = form.querySelector("#category");
+  if (categorySelect) {
+    categorySelect.value = "";
+  }
+
+  const dateInput = form.querySelector("#date");
+  if (dateInput) dateInput.value = getCurrentDateString(); // Use local date
+
+  const transactionTypeSelect = form.querySelector("#transactionType");
+  if (transactionTypeSelect) {
+    transactionTypeSelect.dispatchEvent(new Event("change"));
+  }
+
+  refreshMonthlyViewIfRelevant(date);
+}
+
+function openEditTransactionModal(transactionId, event) {
+  if (event) event.stopPropagation();
+  const transaction = state.transactions.find((tx) => tx.id === transactionId);
+  if (!transaction) {
+    showNotification("Transaction not found for editing.", "error");
+    return;
+  }
+
+  const accountOptions = state.accounts
+    .map(
+      (acc) =>
+        `<option value="${acc.id}" ${
+          transaction.account === acc.id ? "selected" : ""
+        }>${acc.name} (${formatCurrency(acc.balance)})</option>`
+    )
+    .join("");
+
+  const categoryOptions = state.categories
+    .sort((a, b) => a.localeCompare(b))
+    .map(
+      (cat) =>
+        `<option value="${cat}" ${
+          transaction.category === cat ? "selected" : ""
+        }>${cat}</option>`
+    )
+    .join("");
+
+  const formHtml = `
+            <input type="hidden" name="editTransactionId" value="${
+              transaction.id
+            }">
+            <div>
+                <label for="modalTransactionType" class="block text-sm font-medium mb-1">Type</label>
+                <select id="modalTransactionType" name="transactionType" required onchange="toggleCategoryVisibilityInModal(this, 'modalCategoryGroup', 'modalCategory')">
+                    <option value="expense" ${
+                      transaction.type === "expense" ? "selected" : ""
+                    }>Expense</option>
+                    <option value="income" ${
+                      transaction.type === "income" ? "selected" : ""
+                    }>Income</option>
+                </select>
+            </div>
+            <div>
+                <label for="modalAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>
+                <input type="number" id="modalAmount" name="amount" value="${transaction.amount.toFixed(
+                  2
+                )}" step="0.01" min="0" placeholder="e.g., 1500.50" required>
+            </div>
+            <div>
+                <label for="modalAccount" class="block text-sm font-medium mb-1">Account</label>
+                <select id="modalAccount" name="account" required>${accountOptions}</select>
+            </div>
+            <div id="modalCategoryGroup" style="display: ${
+              transaction.type === "expense" ? "block" : "none"
+            };">
+                <label for="modalCategory" class="block text-sm font-medium mb-1">Category</label>
+                <select id="modalCategory" name="category" ${
+                  transaction.type === "expense" ? "required" : ""
+                }>${categoryOptions}</select>
+            </div>
+            <div>
+                <label for="modalDescription" class="block text-sm font-medium mb-1">Description</label>
+                <input type="text" id="modalDescription" name="description" value="${
+                  transaction.description
+                }" placeholder="e.g., Lunch with friends" required>
+            </div>
+            <div>
+                <label for="modalDate" class="block text-sm font-medium mb-1">Date</label>
+                <input type="date" id="modalDate" name="date" value="${
+                  transaction.date
+                }" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-full"><i class="fas fa-save"></i> Update Transaction</button>
+        `;
+
+  openFormModal("Edit Transaction", formHtml, handleEditTransactionModalSubmit);
+  const typeSelectInModal = document.getElementById("modalTransactionType");
+  if (typeSelectInModal) {
+    toggleCategoryVisibilityInModal(
+      typeSelectInModal,
+      "modalCategoryGroup",
+      "modalCategory"
+    );
+  }
+}
+
+function handleEditTransactionModalSubmit(event) {
+  event.preventDefault();
+  const form = event.target;
+  const formData = new FormData(form);
+  const transactionId = formData.get("editTransactionId");
+
+  const transaction = state.transactions.find((t) => t.id === transactionId);
+  if (!transaction) {
+    showNotification("Transaction to edit not found.", "error");
+    closeModal("formModal");
+    return;
+  }
+  const originalDate = transaction.date;
+
+  const newType = formData.get("transactionType");
+  const newAmount = parseFloat(formData.get("amount")); // Parsed from form
+  const newAccountId = formData.get("account");
+  const newCategory = newType === "expense" ? formData.get("category") : null;
+  const newDescription = formData.get("description").trim();
+  const newDate = formData.get("date");
+
+  if (isNaN(newAmount) || newAmount <= 0) {
+    showNotification("Valid amount required.", "error");
+    return;
+  }
+  if (!newAccountId) {
+    showNotification("Account required.", "error");
+    return;
+  }
+  if (newType === "expense" && !newCategory) {
+    showNotification("Category required for expense.", "error");
+    return;
+  }
+  if (!newDescription) {
+    showNotification("Description required.", "error");
+    return;
+  }
+  if (!newDate) {
+    showNotification("Date required.", "error");
+    return;
+  }
+
+  // Store the original amount before updating the transaction for correct balance reversal
+  const originalTransactionAmount = transaction.amount;
+
+  // Revert old transaction's effect on account balance
+  const oldAccount = state.accounts.find(
+    (acc) => acc.id === transaction.account
+  );
+  if (oldAccount) {
+    if (transaction.type === "income") {
+      oldAccount.balance = roundToTwoDecimals(
+        oldAccount.balance - originalTransactionAmount
+      );
+    } else {
+      oldAccount.balance = roundToTwoDecimals(
+        oldAccount.balance + originalTransactionAmount
+      );
+    }
+    if (isNaN(oldAccount.balance)) oldAccount.balance = 0;
+  }
+
+  // Update transaction properties
+  transaction.type = newType;
+  transaction.amount = roundToTwoDecimals(newAmount); // Round the new amount for storage
+  transaction.account = newAccountId;
+  transaction.category = newCategory;
+  transaction.description = newDescription;
+  transaction.date = newDate;
+  // transaction.timestamp = Date.now(); // Timestamp is NOT updated to preserve original order
+
+  // Apply new transaction's effect on (potentially new) account balance
+  const newAccount = state.accounts.find((acc) => acc.id === newAccountId);
+  if (newAccount) {
+    if (transaction.type === "income") {
+      // Use updated transaction.type
+      newAccount.balance = roundToTwoDecimals(
+        newAccount.balance + transaction.amount
+      );
+    } else {
+      newAccount.balance = roundToTwoDecimals(
+        newAccount.balance - transaction.amount
+      );
+    }
+    if (isNaN(newAccount.balance)) newAccount.balance = 0;
+
+    if (
+      newAccount.balance < 0 &&
+      (oldAccount?.id !== newAccount.id || transaction.type === "expense")
+    ) {
+      showNotification(
+        `Warning: ${newAccount.name} now has a negative balance.`,
+        "warning"
+      );
+    }
+  } else {
+    showNotification(
+      "New account not found. Transaction update may be incomplete.",
+      "error"
+    );
+  }
+
+  saveData();
+  renderDashboard();
+  populateDropdowns();
+  closeModal("formModal");
+  showNotification("Transaction updated successfully.", "success");
+
+  refreshMonthlyViewIfRelevant(newDate);
+  if (originalDate !== newDate) {
+    refreshMonthlyViewIfRelevant(originalDate);
+  }
+}
+
+function deleteTransaction(id, event) {
+  if (event) event.stopPropagation();
+  const transactionIndex = state.transactions.findIndex((t) => t.id === id);
+  if (transactionIndex === -1) return;
+  const transaction = state.transactions[transactionIndex];
+  const account = state.accounts.find((acc) => acc.id === transaction.account);
+
+  showConfirmationModal(
+    "Delete Transaction",
+    `Are you sure you want to delete the transaction: <br><strong>"${
+      transaction.description
+    }"</strong> (${formatCurrency(transaction.amount)})?`,
+    "Delete",
+    "Cancel",
+    () => {
+      // onConfirm
+      if (account) {
+        if (transaction.type === "income") {
+          account.balance = roundToTwoDecimals(
+            account.balance - transaction.amount
+          );
+        } else {
+          account.balance = roundToTwoDecimals(
+            account.balance + transaction.amount
+          );
+        }
+        if (isNaN(account.balance)) account.balance = 0;
+      }
+      const deletedDate = transaction.date;
+      state.transactions.splice(transactionIndex, 1);
+      saveData();
+      renderDashboard();
+      populateDropdowns();
+      showNotification("Transaction deleted.", "success");
+      refreshMonthlyViewIfRelevant(deletedDate);
+    }
+  );
+}
+
+function handleTransferSubmit(event) {
+  event.preventDefault();
+  const form = event.target; // The form element itself
+  const formData = new FormData(form);
+  const amount = parseFloat(formData.get("transferAmount"));
+  const fromAccountId = formData.get("transferFrom");
+  const toAccountId = formData.get("transferTo");
+
+  // Use the correct ID for the error message paragraph in the transfer modal
+  const modalErrorEl = $("#modalTransferError");
+  if (modalErrorEl) {
+    modalErrorEl.textContent = ""; // Clear previous error message
+    modalErrorEl.classList.add("hidden"); // Hide it initially
+  } else {
+    console.warn("Modal error element (#modalTransferError) not found!");
+    // If the error element isn't found, we can't show modal-specific errors,
+    // but toast notifications will still work.
+  }
+
+  // Validate amount
+  if (isNaN(amount) || amount <= 0) {
+    showNotification("Valid amount required for transfer.", "error");
+    if (modalErrorEl) {
+      modalErrorEl.textContent = "Please enter a valid positive amount.";
+      modalErrorEl.classList.remove("hidden");
+    }
+    return;
+  }
+
+  // Check if From and To accounts are the same
+  if (fromAccountId === toAccountId) {
+    showNotification("Cannot transfer to the same account.", "error"); // Toast notification
+    if (modalErrorEl) {
+      modalErrorEl.textContent = "From and To accounts cannot be the same.";
+      modalErrorEl.classList.remove("hidden");
+    }
+    return;
+  }
+
+  const fromAccount = state.accounts.find((acc) => acc.id === fromAccountId);
+  const toAccount = state.accounts.find((acc) => acc.id === toAccountId);
+
+  // Check if accounts are valid
+  if (!fromAccount || !toAccount) {
+    showNotification("Invalid account selected for transfer.", "error");
+    if (modalErrorEl) {
+      modalErrorEl.textContent =
+        "Invalid source or destination account selected.";
+      modalErrorEl.classList.remove("hidden");
+    }
+    return;
+  }
+
+  const roundedAmount = roundToTwoDecimals(amount);
+
+  // Check for sufficient funds
+  if (fromAccount.balance < roundedAmount) {
+    showNotification(`Insufficient funds in ${fromAccount.name}.`, "warning");
+    if (modalErrorEl) {
+      modalErrorEl.textContent = `Insufficient funds in ${
+        fromAccount.name
+      }. Available: ${formatCurrency(fromAccount.balance)}`;
+      modalErrorEl.classList.remove("hidden");
+    }
+    return; // Stop the transfer if funds are insufficient
+  }
+
+  // Perform the transfer: Update account balances
+  fromAccount.balance = roundToTwoDecimals(fromAccount.balance - roundedAmount);
+  toAccount.balance = roundToTwoDecimals(toAccount.balance + roundedAmount);
+
+  // Fallback if somehow balance becomes NaN (though roundToTwoDecimals should prevent this for valid inputs)
+  if (isNaN(fromAccount.balance)) fromAccount.balance = 0;
+  if (isNaN(toAccount.balance)) toAccount.balance = 0;
+
+  saveData(); // Save the updated state
+  renderDashboard(); // Re-render dashboard elements to show new balances
+  populateDropdowns(); // Re-populate dropdowns that show account balances
+
+  showNotification(
+    `Transferred ${formatCurrency(roundedAmount)} from ${fromAccount.name} to ${
+      toAccount.name
+    }.`,
+    "success"
+  );
+
+  // IMPORTANT: Close the modal after a successful transfer
+  closeModal("transferMoneyModal");
+
+  // The form is typically reset when the modal is opened next,
+  // as handled by the 'openTransferModalBtn' click listener which calls form.reset().
+  // So, no explicit form.reset() is needed here if that behavior is desired.
+}
+
+function refreshMonthlyViewIfRelevant(dateString) {
+  const monthlyViewModal = $("#monthlyViewModal");
+  const activeTab = $("#monthTabs .tab-button.active");
+
+  if (monthlyViewModal.style.display === "block" && activeTab) {
+    const selectedMonth = parseInt(activeTab.dataset.month);
+    const selectedYear = parseInt(activeTab.dataset.year);
+    const transactionDate = new Date(dateString + "T00:00:00");
+
+    // Check if the modified transaction's date falls within the currently viewed month
+    if (
+      !isNaN(transactionDate.getTime()) &&
+      transactionDate.getFullYear() === selectedYear &&
+      transactionDate.getMonth() === selectedMonth
+    ) {
+      // --- NEW: Preserve accordion states ---
+      const openDayKeys = new Set();
+      // Query for all day group headers within the monthly details container
+      // Then check which ones have an expanded transaction list.
+      // We identify expanded lists if their maxHeight is not "0px".
+      // Each day group's unique identifier will be its date string (dayKey).
+      const dayHeaders = $$(
+        "#monthlyDetailsContainer .monthly-view-day-header"
+      );
+      dayHeaders.forEach((header) => {
+        const dayGroup = header.closest(".monthly-view-day-group");
+        if (dayGroup) {
+          const transactionsContainer = dayGroup.querySelector(
+            ".day-transactions-container"
+          );
+          // We need a reliable way to get the dayKey. Let's assume we can add it as a dataset attribute
+          // to the dayGroup or header when it's rendered in renderMonthlyDetails.
+          // For now, let's use the header's first child's text content (the date string) as a proxy,
+          // but this should be made more robust in renderMonthlyDetails.
+          const dayKey = header.dataset.dayKey; // We will add this dataset attribute in renderMonthlyDetails
+
+          if (
+            transactionsContainer &&
+            transactionsContainer.style.maxHeight !== "0px"
+          ) {
+            if (dayKey) {
+              openDayKeys.add(dayKey);
+            }
+          }
+        }
+      });
+      // --- END OF NEW ---
+
+      renderMonthlyDetails(selectedMonth, selectedYear, openDayKeys); // Pass the set of open keys
+    }
+  }
+}
+
+let monthlyPieChartInstance = null;
+
+function setupMonthlyView() {
+  const yearSelector = $("#yearSelector");
+  const currentYear = new Date().getFullYear();
+
+  if (!yearSelector) {
+    console.error(
+      "#yearSelector not found in setupMonthlyView. Monthly view cannot be initialized."
+    );
+    const monthlyViewBtn = $("#monthlyViewBtn");
+    if (monthlyViewBtn) {
+      monthlyViewBtn.disabled = true;
+      monthlyViewBtn.dataset.tooltip = "Monthly View unavailable (Error)";
+    }
+    return;
+  }
+
+  const years = new Set(
+    (state.transactions || []).map((t) => {
+      const date = new Date(t.date);
+      return isNaN(date.getFullYear()) ? currentYear : date.getFullYear();
+    })
+  );
+  years.add(currentYear);
+
+  yearSelector.innerHTML = "";
+  [...years]
+    .sort((a, b) => b - a)
+    .forEach((year) => {
+      const option = document.createElement("option");
+      option.value = year;
+      option.textContent = year;
+      if (year === currentYear) option.selected = true;
+      yearSelector.appendChild(option);
+    });
+
+  yearSelector.addEventListener("change", () => {
+    const monthlySearchInput = $("#monthlySearchInput");
+    const clearMonthlySearchBtn = $("#clearMonthlySearchBtn");
+    if (monthlySearchInput) {
+      monthlySearchInput.value = "";
+    }
+    if (clearMonthlySearchBtn) {
+      clearMonthlySearchBtn.style.display = "none"; // Use style.display
+      clearMonthlySearchBtn.disabled = true;
+    }
+    renderMonthTabs(parseInt(yearSelector.value));
+    $("#monthlyDetailsContainer").innerHTML =
+      '<p class="text-center text-gray-400">Select a month to view details.</p>';
+    if (monthlyPieChartInstance) {
+      monthlyPieChartInstance.destroy();
+      monthlyPieChartInstance = null;
+    }
+  });
+  const initialYear = yearSelector.value
+    ? parseInt(yearSelector.value)
+    : currentYear;
+  renderMonthTabs(initialYear);
+}
+
+function renderMonthTabs(year) {
+  const monthTabsContainer = $("#monthTabs");
+  if (!monthTabsContainer) {
+    console.error("#monthTabs container not found.");
+    return;
+  }
+  monthTabsContainer.innerHTML = "";
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  months.forEach((monthName, index) => {
+    const button = document.createElement("button");
+    button.className = "tab-button !px-3 !py-1.5 !text-sm";
+    button.textContent = monthName;
+    button.dataset.month = index;
+    button.dataset.year = year;
+    button.onclick = () => {
+      $$("#monthTabs .tab-button").forEach((btn) =>
+        btn.classList.remove("active")
+      );
+      button.classList.add("active");
+      const monthlySearchInput = $("#monthlySearchInput");
+      const clearMonthlySearchBtn = $("#clearMonthlySearchBtn");
+      if (monthlySearchInput) {
+        monthlySearchInput.value = "";
+      }
+      if (clearMonthlySearchBtn) {
+        clearMonthlySearchBtn.style.display = "none"; // Use style.display
+        clearMonthlySearchBtn.disabled = true;
+      }
+      renderMonthlyDetails(index, year, new Set(), "", false);
+    };
+    monthTabsContainer.appendChild(button);
+  });
+}
+
+function renderMonthlyDetails(
+  month,
+  year,
+  openDayKeys = new Set(),
+  searchTerm = "",
+  isSearchingOrJustCleared = false
+) {
+  const container = $("#monthlyDetailsContainer");
+
+  if (
+    (isSearchingOrJustCleared && !searchTerm) ||
+    (!isSearchingOrJustCleared && !searchTerm)
+  ) {
+    if (monthlyPieChartInstance) {
+      monthlyPieChartInstance.destroy();
+      monthlyPieChartInstance = null;
+    }
+  }
+  container.innerHTML = "";
+
+  // --- NEW: Determine the transaction pool based on search scope ---
+  const searchScope = monthlyViewSearchScope;
+  let transactionPool = [];
+
+  if (searchScope === "year") {
+    transactionPool = state.transactions.filter((t) => {
+      const tDate = new Date(t.date + "T00:00:00");
+      return !isNaN(tDate.getTime()) && tDate.getFullYear() === year;
+    });
+  } else {
+    // Default to 'month'
+    transactionPool = state.transactions.filter((t) => {
+      const tDate = new Date(t.date + "T00:00:00");
+      return (
+        !isNaN(tDate.getTime()) &&
+        tDate.getFullYear() === year &&
+        tDate.getMonth() === month
+      );
+    });
+  }
+
+  // --- Summary calculations are always based on the selected MONTH, not the search scope ---
+  const allTransactionsInMonth = state.transactions.filter((t) => {
+    const tDate = new Date(t.date + "T00:00:00");
+    return (
+      !isNaN(tDate.getTime()) &&
+      tDate.getFullYear() === year &&
+      tDate.getMonth() === month
+    );
+  });
+
+  let totalIncome = 0;
+  let totalExpense = 0;
+  const categoryTotals = {};
+  if (state.categories && Array.isArray(state.categories)) {
+    state.categories.forEach((cat) => (categoryTotals[cat] = 0));
+  }
+
+  let lastMonthTotalExpense = 0;
+  const lastMonthDate = new Date(year, month - 1, 1);
+  state.transactions
+    .filter((t) => {
+      const tDate = new Date(t.date + "T00:00:00");
+      return (
+        t.type === "expense" &&
+        !isNaN(tDate.getTime()) &&
+        tDate.getFullYear() === lastMonthDate.getFullYear() &&
+        tDate.getMonth() === lastMonthDate.getMonth()
+      );
+    })
+    .forEach((t) => (lastMonthTotalExpense += t.amount));
+
+  allTransactionsInMonth.forEach((t) => {
+    if (t.type === "income") {
+      totalIncome += t.amount;
+    } else if (t.type === "expense") {
+      totalExpense += t.amount;
+      const category = t.category || "Other";
+      if (categoryTotals[category] !== undefined) {
+        categoryTotals[category] += t.amount;
+      } else {
+        if (!categoryTotals["Other"]) categoryTotals["Other"] = 0;
+        categoryTotals["Other"] += t.amount;
+      }
+    }
+  });
+
+  const summaryGrid = document.createElement("div");
+  summaryGrid.className =
+    "monthly-view-summary-grid grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6";
+  let monthSpendingIndicatorHtml = "";
+  if (totalExpense > lastMonthTotalExpense && lastMonthTotalExpense >= 0) {
+    monthSpendingIndicatorHtml = `<i class="fas fa-arrow-up text-indicator-bad spending-indicator" title="More than last month (${formatCurrency(
+      lastMonthTotalExpense
+    )})"></i>`;
+  } else if (
+    totalExpense < lastMonthTotalExpense &&
+    lastMonthTotalExpense > 0
+  ) {
+    monthSpendingIndicatorHtml = `<i class="fas fa-arrow-down text-indicator-good spending-indicator" title="Less than last month (${formatCurrency(
+      lastMonthTotalExpense
+    )})"></i>`;
+  }
+  summaryGrid.innerHTML = `
+      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Total Income</p><p class="text-xl font-semibold text-income tabular-nums">${formatCurrency(
+        totalIncome
+      )}</p></div>
+      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Total Expenses ${monthSpendingIndicatorHtml}</p><p class="text-xl font-semibold text-expense tabular-nums">${formatCurrency(
+    totalExpense
+  )}</p></div>
+      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Net Flow</p><p class="text-xl font-semibold ${
+        totalIncome - totalExpense >= 0 ? "text-income" : "text-expense"
+      } tabular-nums">${formatCurrency(totalIncome - totalExpense)}</p></div>`;
+  container.appendChild(summaryGrid);
+
+  // --- NEW: Enhanced Search Logic ---
+  const transactionsToDisplay = searchTerm
+    ? transactionPool.filter((t) => {
+        const account = state.accounts.find((a) => a.id === t.account);
+        const accountName = account ? account.name.toLowerCase() : "";
+        const descriptionLower = t.description
+          ? t.description.toLowerCase()
+          : "";
+        const categoryLower = t.category ? t.category.toLowerCase() : "";
+        const amountStr = t.amount.toFixed(2);
+        const typeLower = t.type.toLowerCase();
+
+        const searchLower = searchTerm.toLowerCase();
+
+        return (
+          descriptionLower.includes(searchLower) ||
+          categoryLower.includes(searchLower) ||
+          accountName.includes(searchLower) ||
+          amountStr.includes(searchLower) || // Search by amount
+          typeLower.includes(searchLower) // Search by 'income' or 'expense'
+        );
+      })
+    : transactionPool;
+
+  transactionsToDisplay.sort(
+    (a, b) =>
+      new Date(b.date).setHours(0, 0, 0, 0) -
+        new Date(a.date).setHours(0, 0, 0, 0) || b.timestamp - a.timestamp
+  );
+
+  const contentGrid = document.createElement("div");
+  contentGrid.className =
+    "monthly-view-content-grid grid grid-cols-1 md:grid-cols-5 gap-6 mt-6";
+
+  const transactionListSection = document.createElement("div");
+  transactionListSection.className = "md:col-span-3 space-y-4";
+
+  // --- FIX: Create header and button here ---
+  const transactionHeader = document.createElement("div");
+  transactionHeader.className = "flex justify-between items-center mb-3";
+
+  const title = document.createElement("h3");
+  title.className = "text-lg font-semibold";
+  title.textContent = `Transactions ${
+    searchTerm ? `(Matching "${searchTerm}")` : ""
+  }`;
+
+  const exportButton = document.createElement("button");
+  exportButton.id = "exportPdfBtn";
+  exportButton.className = "btn btn-secondary btn-sm";
+  exportButton.dataset.tooltip = "Export as PDF";
+  exportButton.innerHTML = `<i class="fas fa-file-pdf"></i> <span class="hidden md:inline">Export</span>`;
+  exportButton.onclick = generateMonthlyPdfReport; // Attach event listener here
+
+  transactionHeader.appendChild(title);
+  transactionHeader.appendChild(exportButton);
+  transactionListSection.appendChild(transactionHeader);
+  // --- END FIX ---
+
+  if (transactionsToDisplay.length === 0) {
+    const noTransactionsP = document.createElement("p");
+    noTransactionsP.className = "text-gray-400 text-center py-4";
+    noTransactionsP.textContent = searchTerm
+      ? "No transactions match your search."
+      : "No transactions for this period.";
+    transactionListSection.appendChild(noTransactionsP);
+  } else {
+    const transactionsByDay = transactionsToDisplay.reduce((acc, t) => {
+      const dayKey = new Date(t.date).toLocaleDateString("en-CA");
+      if (!acc[dayKey]) {
+        acc[dayKey] = {
+          date: new Date(t.date + "T00:00:00"),
+          transactions: [],
+          dayKey: dayKey,
+        };
+      }
+      acc[dayKey].transactions.push(t);
+      return acc;
+    }, {});
+
+    const sortedDays = Object.values(transactionsByDay).sort(
+      (a, b) => b.date - a.date
+    );
+    const listContainerElement = document.createElement("div");
+    listContainerElement.className = "max-h-[60vh] overflow-y-auto pr-2";
+
+    sortedDays.forEach((dayData) => {
+      if (searchTerm && dayData.transactions.length === 0) return;
+
+      const dayGroup = document.createElement("div");
+      dayGroup.className = "monthly-view-day-group";
+      dayGroup.style.transition =
+        "opacity 0.3s ease-out, max-height 0.3s ease-out, margin-bottom 0.3s ease-out, padding-bottom 0.3s ease-out";
+      dayGroup.style.overflow = "hidden";
+
+      const dayHeader = document.createElement("div");
+      dayHeader.className = "monthly-view-day-header items-center";
+      dayHeader.style.cursor = "pointer";
+      dayHeader.dataset.dayKey = dayData.dayKey;
+
+      const dateSpan = document.createElement("span");
+      dateSpan.textContent = dayData.date.toLocaleDateString("en-US", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+      });
+
+      // --- FIX: Right-aligned container for amount and icon ---
+      const rightSideContainer = document.createElement("div");
+      rightSideContainer.className = "flex items-center justify-end flex-grow";
+
+      const dailyTotalExpenseForDisplay = dayData.transactions
+        .filter((t) => t.type === "expense")
+        .reduce((sum, t) => sum + t.amount, 0);
+      const spentSpan = document.createElement("span");
+      spentSpan.className = "text-sm text-expense mr-2 tabular-nums";
+      spentSpan.textContent = `Spent: ${formatCurrency(
+        dailyTotalExpenseForDisplay
+      )}`;
+      const chevronIcon = document.createElement("i");
+      chevronIcon.className = "fas text-xs text-gray-400";
+
+      rightSideContainer.appendChild(spentSpan);
+      rightSideContainer.appendChild(chevronIcon);
+      dayHeader.appendChild(dateSpan);
+      dayHeader.appendChild(rightSideContainer);
+      dayGroup.appendChild(dayHeader);
+
+      const dayTransactionsContainer = document.createElement("div");
+      dayTransactionsContainer.className = "day-transactions-container";
+
+      const shouldBeOpenInitially =
+        (isSearchingOrJustCleared &&
+          searchTerm &&
+          dayData.transactions.length > 0) ||
+        (!isSearchingOrJustCleared &&
+          !searchTerm &&
+          openDayKeys.has(dayData.dayKey));
+
+      if (shouldBeOpenInitially) {
+        chevronIcon.classList.add("fa-chevron-up");
+      } else {
+        dayTransactionsContainer.style.maxHeight = "0px";
+        chevronIcon.classList.add("fa-chevron-down");
+      }
+
+      dayData.transactions
+        .sort((a, b) => b.timestamp - a.timestamp)
+        .forEach((t) => {
+          const itemDiv = document.createElement("div");
+          itemDiv.className = "monthly-view-transaction-item";
+          const account = state.accounts.find((acc) => acc.id === t.account);
+          const accountName = account ? account.name : "Unknown Acct";
+          const isIncome = t.type === "income";
+          const textColorClass = isIncome ? "text-income" : "text-expense";
+
+          let subDetailText = accountName;
+          if (!isIncome && t.category) {
+            subDetailText += ` | ${t.category}`;
+          } else if (!isIncome && !t.category) {
+            subDetailText += ` | Uncategorized`;
+          }
+
+          itemDiv.innerHTML = `
+              <div class="flex-grow mr-2 overflow-hidden">
+                <p class="font-medium truncate ${textColorClass}" title="${
+            t.description
+          }">${t.description}</p>
+                <p class="text-xs text-gray-400 mt-0.5">${subDetailText}</p>
+              </div>
+              <span class="font-semibold whitespace-nowrap ${textColorClass} ml-2 tabular-nums">${
+            isIncome ? "+" : "-"
+          }${formatCurrency(t.amount)}</span>
+              <div class="edit-btn-container flex-shrink-0 ml-2">
+                <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionForm('${
+                  t.id
+                }', event)" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteTransaction('${
+                  t.id
+                }', event)" title="Delete"><i class="fas fa-times"></i></button>
+              </div>`;
+          dayTransactionsContainer.appendChild(itemDiv);
+        });
+      dayGroup.appendChild(dayTransactionsContainer);
+
+      if (shouldBeOpenInitially) {
+        setTimeout(() => {
+          dayTransactionsContainer.style.maxHeight =
+            dayTransactionsContainer.scrollHeight + "px";
+        }, 0);
+      }
+
+      dayHeader.onclick = () => {
+        const isCurrentlyCollapsed =
+          dayTransactionsContainer.style.maxHeight === "0px";
+        if (isCurrentlyCollapsed) {
+          dayTransactionsContainer.style.maxHeight =
+            dayTransactionsContainer.scrollHeight + "px";
+          chevronIcon.classList.remove("fa-chevron-down");
+          chevronIcon.classList.add("fa-chevron-up");
+          if (!searchTerm) openDayKeys.add(dayData.dayKey);
+        } else {
+          dayTransactionsContainer.style.maxHeight = "0px";
+          chevronIcon.classList.remove("fa-chevron-up");
+          chevronIcon.classList.add("fa-chevron-down");
+          if (!searchTerm) openDayKeys.delete(dayData.dayKey);
+        }
+      };
+      listContainerElement.appendChild(dayGroup);
+    });
+    transactionListSection.appendChild(listContainerElement);
+  }
+  contentGrid.appendChild(transactionListSection);
+
+  const categorySection = document.createElement("div");
+  categorySection.className = "md:col-span-2 space-y-4";
+  const summaryCard = document.createElement("div");
+  summaryCard.className = "p-4 rounded-lg";
+  summaryCard.style.backgroundColor = "var(--bg-tertiary)";
+  summaryCard.innerHTML = `<h3 class="text-lg font-semibold mb-3">Category Summary (Full Month)</h3>`;
+  const categoryList = document.createElement("ul");
+  categoryList.className =
+    "monthly-view-category-list space-y-1 text-sm max-h-48 overflow-y-auto pr-2";
+  const sortedCategories = Object.entries(categoryTotals)
+    .filter(([_, amount]) => amount > 0)
+    .sort(([, a], [, b]) => b - a);
+
+  if (sortedCategories.length > 0) {
+    sortedCategories.forEach(([category, amount]) => {
+      const li = document.createElement("li");
+      // --- FIX: Added tabular-nums class to the amount span ---
+      li.innerHTML = `<span class="truncate pr-2" title="${category}">${category}</span><span class="font-medium whitespace-nowrap tabular-nums">${formatCurrency(
+        amount
+      )}</span>`;
+      categoryList.appendChild(li);
+    });
+  } else {
+    categoryList.innerHTML =
+      '<li class="text-gray-400 text-sm">No expenses in any category this month.</li>';
+  }
+  summaryCard.appendChild(categoryList);
+  categorySection.appendChild(summaryCard);
+
+  if (
+    sortedCategories.length > 0 &&
+    (!monthlyPieChartInstance || (isSearchingOrJustCleared && !searchTerm))
+  ) {
+    if (monthlyPieChartInstance) {
+      monthlyPieChartInstance.destroy();
+      monthlyPieChartInstance = null;
+    }
+    const chartCard = document.createElement("div");
+    chartCard.className = "p-4 rounded-lg h-96 md:h-[450px] flex flex-col";
+    chartCard.style.backgroundColor = "var(--bg-tertiary)";
+    const titleEl = document.createElement("h3");
+    titleEl.className = "text-lg font-semibold mb-3 text-center";
+    titleEl.textContent = "Category Distribution (Full Month)";
+    chartCard.appendChild(titleEl);
+    const canvasContainer = document.createElement("div");
+    canvasContainer.className = "flex-grow relative chart-container";
+    const canvas = document.createElement("canvas");
+    canvas.id = "monthlyDetailPieChartCanvas";
+    canvasContainer.appendChild(canvas);
+    chartCard.appendChild(canvasContainer);
+    categorySection.appendChild(chartCard);
+    const pieData = {
+      labels: sortedCategories.map(([c, _]) => c),
+      values: sortedCategories.map(([_, a]) => a),
+    };
+    setTimeout(() => renderMonthlyPieChart(pieData), 100);
+  } else if (sortedCategories.length === 0 && monthlyPieChartInstance) {
+    monthlyPieChartInstance.destroy();
+    monthlyPieChartInstance = null;
+  } else if (
+    sortedCategories.length === 0 &&
+    !document.getElementById("monthlyDetailPieChartCanvas")
+  ) {
+    const noChartCard = document.createElement("div");
+    noChartCard.className =
+      "p-4 rounded-lg h-72 md:h-80 flex items-center justify-center";
+    noChartCard.style.backgroundColor = "var(--bg-tertiary)";
+    noChartCard.innerHTML =
+      '<p class="text-gray-400 text-sm">No expense data for chart.</p>';
+    categorySection.appendChild(noChartCard);
+  }
+
+  contentGrid.appendChild(categorySection);
+  container.appendChild(contentGrid);
+}
+function renderMonthlyPieChart(data) {
+  const canvas = document.getElementById("monthlyDetailPieChartCanvas");
+  if (!canvas || !canvas.getContext) {
+    console.error(
+      "Canvas for monthly pie chart (id: monthlyDetailPieChartCanvas) not found or invalid."
+    );
+
+    if (monthlyPieChartInstance) {
+      monthlyPieChartInstance.destroy();
+      monthlyPieChartInstance = null;
+    }
+    return;
+  }
+  const ctx = canvas.getContext("2d");
+
+  const brandPiePalette = [
+    "#e67e26",
+    "#2a9d8f",
+    "#e74c3c",
+    "#3498db",
+    "#f1c40f",
+    "#9b59b6",
+    "#34495e",
+    "#1abc9c",
+    "#7f8c8d",
+    "#2ecc71",
+    "#d35400",
+    "#27ae60",
+    "#c0392b",
+  ];
+  const backgroundColors = data.labels.map(
+    (_, index) => brandPiePalette[index % brandPiePalette.length]
+  );
+
+  if (monthlyPieChartInstance) {
+    monthlyPieChartInstance.data.labels = data.labels;
+    monthlyPieChartInstance.data.datasets[0].data = data.values;
+    monthlyPieChartInstance.data.datasets[0].backgroundColor = backgroundColors;
+    monthlyPieChartInstance.update();
+  } else {
+    monthlyPieChartInstance = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: data.labels,
+        datasets: [
+          {
+            label: "Expenses by Category",
+            data: data.values,
+            backgroundColor: backgroundColors,
+            borderColor: "var(--bg-secondary)",
+            borderWidth: 1,
+            hoverOffset: 8,
+            hoverBorderColor: "var(--text-primary)",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            backgroundColor: "rgba(0,0,0,0.85)",
+            titleColor: "#fff",
+            bodyColor: "#fff",
+            padding: 12,
+            cornerRadius: 4,
+            usePointStyle: true,
+            callbacks: {
+              label: function (context) {
+                let label = context.label || "";
+                if (label) {
+                  label += ": ";
+                }
+                if (context.parsed !== null) {
+                  label += formatCurrency(context.parsed);
+
+                  const datasetMeta = context.chart.getDatasetMeta(0);
+                  const total =
+                    datasetMeta.total ||
+                    datasetMeta.data.reduce((sum, el) => sum + el.raw, 0);
+                  const percentage =
+                    total > 0
+                      ? ((context.parsed / total) * 100).toFixed(1) + "%"
+                      : "0.0%";
+                  label += ` (${percentage})`;
+                }
+                return label;
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+}
+
+function renderCreditCardSection() {
+  const limit = state.creditCard.limit || 0,
+    transactions = state.creditCard.transactions || [];
+  $("#ccLimit").innerHTML = `<span class="tabular-nums">${formatCurrency(
+    limit
+  )}</span>`;
+  const spentUnpaid = transactions
+    .filter((t) => !t.paidOff)
+    .reduce((sum, t) => sum + t.amount - (t.paidAmount || 0), 0);
+  const available = limit - spentUnpaid,
+    availableEl = $("#ccAvailable");
+  availableEl.innerHTML = `<span class="tabular-nums">${formatCurrency(
+    available
+  )}</span>`;
+  availableEl.classList.toggle("text-danger", available < 0);
+  availableEl.classList.toggle("accent-text", available >= 0);
+}
+
+function openCcHistoryModal() {
+  const modal = $("#ccHistoryModal");
+  if (!modal) return;
+
+  const currentYear = new Date().getFullYear();
+  const yearSelector = $("#ccYearSelector");
+  const listContainer = $("#ccHistoryListContainer");
+  const searchInput = $("#ccHistorySearchInput");
+  const clearSearchBtn = $("#clearCcHistorySearchBtn");
+
+  // --- Reset state on open ---
+  ccHistoryFilter = "unpaid"; // Default filter
+  if (searchInput) searchInput.value = "";
+  if (clearSearchBtn) clearSearchBtn.classList.add("hidden");
+  ccHistoryOpenMonthKeys.clear();
+
+  // --- Populate Year Selector ---
+  const years = new Set(
+    (state.creditCard.transactions || []).map((t) =>
+      new Date(t.date).getFullYear()
+    )
+  );
+  years.add(currentYear);
+  yearSelector.innerHTML = "";
+  [...years]
+    .sort((a, b) => b - a)
+    .forEach((year) => {
+      const option = document.createElement("option");
+      option.value = year;
+      option.textContent = year;
+      if (year === currentYear) option.selected = true;
+      yearSelector.appendChild(option);
+    });
+
+  // --- Main Rendering Function ---
+  const renderFilteredCcList = () => {
+    const selectedYear = parseInt(yearSelector.value);
+    const searchTerm = searchInput.value.trim().toLowerCase();
+
+    // 1. Filter by Year, Status, and Search Term
+    let filteredTransactions = (state.creditCard.transactions || []).filter(
+      (t) => {
+        const tDate = new Date(t.date);
+        if (tDate.getFullYear() !== selectedYear) return false;
+
+        if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
+        if (ccHistoryFilter === "paid" && !t.paidOff) return false;
+
+        if (searchTerm) {
+          const descriptionMatch = t.description
+            .toLowerCase()
+            .includes(searchTerm);
+          const amountMatch = t.amount.toFixed(2).includes(searchTerm);
+          if (!descriptionMatch && !amountMatch) return false;
+        }
+        return true;
+      }
+    );
+
+    // 2. Update Summary Stats (always based on full data, not filters)
+    const limit = state.creditCard.limit || 0;
+    const allUnpaid = (state.creditCard.transactions || [])
+      .filter((t) => !t.paidOff)
+      .reduce((sum, t) => sum + t.amount - (t.paidAmount || 0), 0);
+    const available = limit - allUnpaid;
+    $(
+      "#ccHistoryLimit"
+    ).innerHTML = `<span class="tabular-nums">${formatCurrency(limit)}</span>`;
+    $(
+      "#ccHistorySpentUnpaid"
+    ).innerHTML = `<span class="tabular-nums">${formatCurrency(
+      allUnpaid
+    )}</span>`;
+    const availableEl = $("#ccHistoryAvailable");
+    availableEl.innerHTML = `<span class="tabular-nums">${formatCurrency(
+      available
+    )}</span>`;
+    availableEl.classList.toggle("text-expense", available < 0);
+    availableEl.classList.toggle("accent-text", available >= 0);
+
+    // 3. Group by Month and Render
+    listContainer.innerHTML = "";
+    if (filteredTransactions.length === 0) {
+      listContainer.innerHTML = `<p class="text-gray-400 text-sm text-center py-4">No transactions match your criteria.</p>`;
+      return;
+    }
+
+    const transactionsByMonth = filteredTransactions.reduce((acc, t) => {
+      const monthKey = new Date(t.date).getMonth(); // 0-11
+      if (!acc[monthKey]) {
+        acc[monthKey] = [];
+      }
+      acc[monthKey].push(t);
+      return acc;
+    }, {});
+
+    Object.keys(transactionsByMonth)
+      .sort((a, b) => b - a)
+      .forEach((monthKey) => {
+        const monthTransactions = transactionsByMonth[monthKey];
+        monthTransactions.sort(
+          (a, b) =>
+            new Date(b.date) - new Date(a.date) || b.timestamp - a.timestamp
+        );
+        const monthName = new Date(selectedYear, monthKey).toLocaleString(
+          "default",
+          { month: "long" }
+        );
+
+        const monthGroup = document.createElement("div");
+        monthGroup.className = "cc-history-month-group";
+
+        const monthHeader = document.createElement("div");
+        monthHeader.className = "cc-history-month-header";
+
+        const totalSpentInMonth = monthTransactions.reduce(
+          (sum, t) => sum + t.amount,
+          0
+        );
+
+        monthHeader.innerHTML = `
+            <span>${monthName} ${selectedYear}</span>
+            <div class="flex items-center">
+                <span class="text-sm text-expense mr-3 tabular-nums">${formatCurrency(
+                  totalSpentInMonth
+                )}</span>
+                <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+            </div>
+        `;
+
+        const transactionsContainer = document.createElement("div");
+        transactionsContainer.className = "cc-history-transactions-container";
+
+        monthTransactions.forEach((t) => {
+          const itemDiv = document.createElement("div");
+          itemDiv.className = `cc-history-transaction-item ${
+            t.paidOff ? "opacity-60" : ""
+          }`;
+          const remainingOnItem = t.amount - (t.paidAmount || 0);
+
+          const buttonsHtml = `
+              <div class="edit-btn-container">
+                  ${
+                    !t.paidOff && remainingOnItem > 0.005
+                      ? `<button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="openPayCcItemForm('${t.id}')" title="Pay Item"><i class="fas fa-dollar-sign"></i></button>`
+                      : ""
+                  }
+                  <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditCcTransactionForm('${
+                    t.id
+                  }')" title="Edit"><i class="fas fa-edit"></i></button>
+                  <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteCcTransaction('${
+                    t.id
+                  }')" title="Delete"><i class="fas fa-times"></i></button>
+              </div>`;
+
+          itemDiv.innerHTML = `
+              <div class="flex-grow mr-3 overflow-hidden">
+                  <p class="font-medium truncate ${
+                    t.paidOff ? "text-gray-500" : ""
+                  }" title="${t.description}">${t.description}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">${new Date(
+                    t.date
+                  ).toLocaleDateString()} ${
+            t.paidAmount > 0 && !t.paidOff
+              ? `(Paid: <span class="tabular-nums">${formatCurrency(
+                  t.paidAmount
+                )}</span>)`
+              : ""
+          }</p>
+              </div>
+              <div class="flex items-center flex-shrink-0">
+                  <span class="font-semibold mr-3 text-sm tabular-nums ${
+                    t.paidOff
+                      ? "text-gray-500"
+                      : remainingOnItem <= 0.005
+                      ? "text-income"
+                      : "text-expense"
+                  }">
+                      ${
+                        t.paidOff
+                          ? formatCurrency(t.amount)
+                          : formatCurrency(remainingOnItem)
+                      } ${
+            t.paidOff ? "" : remainingOnItem <= 0.005 ? " (Settled)" : " Left"
+          }
+                  </span>
+                  ${buttonsHtml}
+              </div>`;
+          transactionsContainer.appendChild(itemDiv);
+        });
+
+        monthGroup.appendChild(monthHeader);
+        monthGroup.appendChild(transactionsContainer);
+        listContainer.appendChild(monthGroup);
+
+        // Accordion Logic
+        const fullMonthKey = `${selectedYear}-${monthKey}`;
+        if (ccHistoryOpenMonthKeys.has(fullMonthKey) || searchTerm) {
+          // Expand if searching
+          transactionsContainer.style.maxHeight =
+            transactionsContainer.scrollHeight + "px";
+          monthHeader
+            .querySelector("i")
+            .classList.replace("fa-chevron-down", "fa-chevron-up");
+        }
+
+        monthHeader.onclick = () => {
+          const icon = monthHeader.querySelector("i");
+          const isCollapsed =
+            transactionsContainer.style.maxHeight === "0px" ||
+            !transactionsContainer.style.maxHeight;
+          if (isCollapsed) {
+            transactionsContainer.style.maxHeight =
+              transactionsContainer.scrollHeight + "px";
+            icon.classList.replace("fa-chevron-down", "fa-chevron-up");
+            ccHistoryOpenMonthKeys.add(fullMonthKey);
+          } else {
+            transactionsContainer.style.maxHeight = "0px";
+            icon.classList.replace("fa-chevron-up", "fa-chevron-down");
+            ccHistoryOpenMonthKeys.delete(fullMonthKey);
+          }
+        };
+      });
+
+    // 4. Update active filter button
+    $$("#ccHistoryFilterControls button").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.filter === ccHistoryFilter);
+    });
+  };
+
+  // --- Setup Event Listeners ---
+  yearSelector.onchange = () => {
+    ccHistoryOpenMonthKeys.clear(); // Reset open accordions when year changes
+    renderFilteredCcList();
+  };
+
+  $$("#ccHistoryFilterControls button").forEach((btn) => {
+    btn.onclick = () => {
+      ccHistoryFilter = btn.dataset.filter;
+      renderFilteredCcList();
+    };
+  });
+
+  // Expose the render function for the search listeners
+  document.body.renderCcHistoryList = renderFilteredCcList;
+
+  // Initial render
+  renderFilteredCcList();
+  modal.style.display = "block";
+}
+
+function handleCcTransactionSubmit(event) {
+  event.preventDefault();
+  const form = event.target,
+    formData = new FormData(form);
+  const amount = parseFloat(formData.get("ccAmount"));
+  const description = formData.get("ccDescription").trim();
+  const date = formData.get("ccDate");
+
+  if (isNaN(amount) || amount <= 0) {
+    showNotification("Valid amount required for CC transaction.", "error");
+    return;
+  }
+  if (!description) {
+    showNotification("Description required for CC transaction.", "error");
+    return;
+  }
+  if (!date) {
+    showNotification("Date required for CC transaction.", "error");
+    return;
+  }
+  if (!state.creditCard.transactions) state.creditCard.transactions = [];
+
+  const roundedAmount = roundToTwoDecimals(amount);
+  const timestamp = Date.now();
+
+  const newCcTransaction = {
+    id: generateId(),
+    amount: roundedAmount, // Store rounded amount
+    description,
+    date,
+    paidAmount: 0, // Initial paid amount is 0
+    paidOff: false,
+    timestamp,
+  };
+  state.creditCard.transactions.push(newCcTransaction);
+  showNotification("CC transaction added.", "success");
+
+  saveData();
+  renderCreditCardSection(); // This will use the rounded amount
+  if ($("#ccHistoryModal").style.display === "block") openCcHistoryModal();
+  form.reset();
+  const ccDateInput = form.querySelector("#ccDate");
+  if (ccDateInput) ccDateInput.value = getCurrentDateString(); // Use local date
+}
+
+function openEditCcTransactionModal(ccTransactionId) {
+  const transaction = state.creditCard.transactions.find(
+    (tx) => tx.id === ccTransactionId
+  );
+  if (!transaction) {
+    showNotification("CC Transaction not found for editing.", "error");
+    return;
+  }
+  if ($("#ccHistoryModal").style.display === "block") {
+    closeModal("ccHistoryModal");
+  }
+
+  const formHtml = `
+            <input type="hidden" name="editCcTransactionId" value="${
+              transaction.id
+            }">
+            <div>
+                <label for="modalCcAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>
+                <input type="number" id="modalCcAmount" name="ccAmount" value="${transaction.amount.toFixed(
+                  2
+                )}" step="0.01" min="0" placeholder="Amount spent" required>
+            </div>
+            <div>
+                <label for="modalCcDescription" class="block text-sm font-medium mb-1">Description</label>
+                <input type="text" id="modalCcDescription" name="ccDescription" value="${
+                  transaction.description
+                }" placeholder="e.g., Online purchase" required>
+            </div>
+            <div>
+                <label for="modalCcDate" class="block text-sm font-medium mb-1">Date</label>
+                <input type="date" id="modalCcDate" name="ccDate" value="${
+                  transaction.date
+                }" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-full"><i class="fas fa-save"></i> Update CC Transaction</button>
+        `;
+  openFormModal(
+    "Edit CC Transaction",
+    formHtml,
+    handleEditCcTransactionModalSubmit
+  );
+}
+
+function handleEditCcTransactionModalSubmit(event) {
+  event.preventDefault();
+  const form = event.target;
+  const formData = new FormData(form);
+  const ccTransactionId = formData.get("editCcTransactionId");
+
+  const transaction = state.creditCard.transactions.find(
+    (t) => t.id === ccTransactionId
+  );
+  if (!transaction) {
+    showNotification("CC Transaction to edit not found.", "error");
+    closeModal("formModal");
+    return;
+  }
+
+  const newAmount = parseFloat(formData.get("ccAmount"));
+  const newDescription = formData.get("ccDescription").trim();
+  const newDate = formData.get("ccDate");
+
+  if (isNaN(newAmount) || newAmount <= 0) {
+    showNotification("Valid amount required for CC transaction.", "error");
+    return;
+  }
+  if (!newDescription) {
+    showNotification("Description required for CC transaction.", "error");
+    return;
+  }
+  if (!newDate) {
+    showNotification("Date required for CC transaction.", "error");
+    return;
+  }
+
+  const roundedNewAmount = roundToTwoDecimals(newAmount);
+
+  transaction.amount = roundedNewAmount;
+  transaction.description = newDescription;
+  transaction.date = newDate;
+  // Do not update timestamp on edit to preserve original order in lists
+
+  // Adjust paidAmount and paidOff status if new amount is less than what was already paid
+  if (transaction.paidAmount > roundedNewAmount) {
+    transaction.paidAmount = roundedNewAmount; // Cap paidAmount at the new transaction amount
+  }
+  if (roundToTwoDecimals(transaction.paidAmount) >= roundedNewAmount - 0.005) {
+    transaction.paidOff = true;
+    transaction.paidAmount = roundedNewAmount; // Ensure paidAmount exactly matches if paid off
+  } else {
+    transaction.paidOff = false;
+  }
+
+  saveData();
+  renderCreditCardSection();
+
+  // If the history modal is open, just refresh its content
+  const renderFunction = document.body.renderCcHistoryList;
+  if (renderFunction) {
+    renderFunction();
+  }
+
+  closeModal("formModal");
+  showNotification("CC Transaction updated successfully.", "success");
+}
+
+function deleteCcTransaction(transactionId) {
+  const transactionIndex = state.creditCard.transactions.findIndex(
+    (t) => t.id === transactionId
+  );
+  if (transactionIndex === -1) return;
+  const transaction = state.creditCard.transactions[transactionIndex];
+
+  showConfirmationModal(
+    "Delete CC Transaction",
+    `Are you sure you want to delete the CC transaction: <br><strong>"${
+      transaction.description
+    }"</strong> (${formatCurrency(
+      transaction.amount
+    )})?<br><br><strong class="text-warning">Warning:</strong> This will also remove any associated payment records made through the app for this specific CC item.`,
+    "Delete",
+    "Cancel",
+    () => {
+      // onConfirm
+      state.transactions = state.transactions.filter(
+        (tx) =>
+          !(
+            (
+              tx.category === "Credit Card Payment" &&
+              tx.description.includes(transaction.description.substring(0, 15))
+            ) // Ensure this matching logic is your intent
+          )
+      );
+      state.creditCard.transactions.splice(transactionIndex, 1);
+      saveData();
+      renderDashboard();
+      renderCreditCardSection();
+      if ($("#ccHistoryModal").style.display === "block") openCcHistoryModal();
+      showNotification(
+        "CC transaction and related payments deleted.",
+        "success"
+      );
+    }
+  );
+}
+
+function openAddDebtForm() {
+  openFormModal(
+    "Add New Debt",
+    `<div><label for="debtWho" class="block text-sm font-medium mb-1">Who do you owe?</label><input type="text" id="debtWho" name="debtWho" placeholder="e.g., John Doe" required></div><div><label for="debtWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="debtWhy" name="debtWhy" placeholder="e.g., Loan" required></div><div><label for="debtAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><input type="number" id="debtAmount" name="debtAmount" step="0.01" min="0.01" required></div><div><label for="debtDueDate" class="block text-sm font-medium mb-1">Due Date</label><input type="date" id="debtDueDate" name="debtDueDate" required></div><button type="submit" class="btn btn-primary w-full">Add Debt</button>`,
+    handleAddDebtSubmit
+  );
+  const nextMonth = new Date();
+  nextMonth.setMonth(nextMonth.getMonth() + 1);
+  const debtDueDateInput = $("#debtDueDate");
+  if (debtDueDateInput)
+    debtDueDateInput.value = nextMonth.toISOString().split("T")[0];
+}
+
+function handleAddDebtSubmit(event) {
+  event.preventDefault();
+  const form = new FormData(event.target);
+  const amount = parseFloat(form.get("debtAmount"));
+
+  if (isNaN(amount) || amount <= 0) {
+    showNotification("Invalid amount for debt.", "error");
+    return;
+  }
+  const roundedAmount = roundToTwoDecimals(amount);
+
+  const newDebt = {
+    id: generateId(),
+    who: form.get("debtWho").trim(),
+    why: form.get("debtWhy").trim(),
+    amount: roundedAmount, // Store rounded amount
+    originalAmount: roundedAmount, // Store rounded original amount
+    remainingAmount: roundedAmount, // Store rounded remaining amount
+    dueDate: form.get("debtDueDate"),
+    timestamp: Date.now(),
+  };
+  if (!newDebt.who || !newDebt.why || !newDebt.dueDate) {
+    showNotification("All fields required for debt.", "error");
+    return;
+  }
+  state.debts.push(newDebt);
+  saveData();
+  renderDashboard(); // This will call renderDebtList which should use formatted values
+  closeModal("formModal");
+  showNotification("Debt added.", "success");
+}
+
+function openEditDebtForm(id) {
+  const d = state.debts.find((item) => item.id === id);
+  if (!d) return;
+  openFormModal(
+    "Edit Debt",
+    ` <input type="hidden" name="editDebtId" value="${
+      d.id
+    }"> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="debtWho" value="${
+      d.who
+    }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="debtWhy" value="${
+      d.why
+    }" required></div> <div><label class="block text-sm font-medium mb-1">Original Amount</label><input type="number" name="debtOriginalAmount" value="${(
+      d.originalAmount || d.amount
+    ).toFixed(
+      2
+    )}" step="0.01" min="0.01" required></div> <div><label class="block text-sm font-medium mb-1">Remaining Amount</label><input type="number" name="debtRemainingAmount" value="${d.remainingAmount.toFixed(
+      2
+    )}" step="0.01" min="0" required></div> <div><label class="block text-sm font-medium mb-1">Due Date</label><input type="date" name="debtDueDate" value="${
+      d.dueDate
+    }" required></div> <button type="submit" class="btn btn-primary w-full">Update Debt</button> `,
+    handleEditDebtSubmit
+  );
+}
+
+function handleEditDebtSubmit(event) {
+  event.preventDefault();
+  const form = new FormData(event.target);
+  const id = form.get("editDebtId");
+  const debt = state.debts.find((d) => d.id === id);
+  if (!debt) {
+    showNotification("Debt not found for editing.", "error");
+    return;
+  }
+
+  const originalAmount = parseFloat(form.get("debtOriginalAmount"));
+  const remainingAmount = parseFloat(form.get("debtRemainingAmount"));
+
+  if (
+    isNaN(originalAmount) ||
+    originalAmount <= 0 ||
+    isNaN(remainingAmount) ||
+    remainingAmount < 0 ||
+    roundToTwoDecimals(remainingAmount) > roundToTwoDecimals(originalAmount)
+  ) {
+    showNotification(
+      "Invalid amounts for debt. Remaining cannot exceed original, and amounts must be valid numbers.",
+      "error"
+    );
+    return;
+  }
+
+  debt.who = form.get("debtWho").trim();
+  debt.why = form.get("debtWhy").trim();
+  debt.originalAmount = roundToTwoDecimals(originalAmount);
+  debt.remainingAmount = roundToTwoDecimals(remainingAmount);
+  debt.dueDate = form.get("debtDueDate");
+  debt.timestamp = Date.now(); // Timestamp update is fine for edits if it signifies last modification
+  debt.amount = debt.originalAmount; // Ensure 'amount' (if used elsewhere) matches originalAmount
+
+  saveData();
+  renderDashboard();
+  closeModal("formModal");
+  showNotification("Debt updated.", "success");
+}
+
+function openPayDebtForm(debtId) {
+  const debt = state.debts.find((d) => d.id === debtId);
+  if (!debt) return;
+
+  const debtRepaymentCategoryName = "Debt Repayment";
+  let categoryOptions = "";
+  const otherCategories = state.categories
+    .filter(
+      (c) =>
+        c.toLowerCase() !== "income" &&
+        c.toLowerCase() !== "credit card payment" &&
+        c.toLowerCase() !== debtRepaymentCategoryName.toLowerCase()
+    )
+    .sort((a, b) => a.localeCompare(b));
+
+  if (
+    state.categories.some(
+      (c) => c.toLowerCase() === debtRepaymentCategoryName.toLowerCase()
+    )
+  ) {
+    categoryOptions += `<option value="${debtRepaymentCategoryName}" selected>${debtRepaymentCategoryName}</option>`;
+  } else {
+    categoryOptions += `<option value="${debtRepaymentCategoryName}" selected>${debtRepaymentCategoryName} (Suggested)</option>`;
+  }
+  otherCategories.forEach((cat) => {
+    categoryOptions += `<option value="${cat}">${cat}</option>`;
+  });
+
+  const formHtml = `
+      <p class="mb-2 force-word-wrap">Owed: <span class="font-semibold tabular-nums">${formatCurrency(
+        debt.remainingAmount
+      )}</span> to ${debt.who} for ${debt.why}</p>
+      <div>
+          <label for="payDebtAmount" class="block text-sm font-medium mb-1">Payment Amount (LKR)</label>
+          <input type="number" id="payDebtAmount" name="payDebtAmount" step="0.01" min="0.01" max="${debt.remainingAmount.toFixed(
+            2
+          )}" value="${debt.remainingAmount.toFixed(2)}" required>
+      </div>
+      <div>
+          <label for="modalPayDebtAccount" class="block text-sm font-medium mb-1">Pay From Account</label>
+          <select id="modalPayDebtAccount" name="payDebtAccount" required></select>
+      </div>
+      <div class="flex items-center mt-3 mb-1">
+          <input type="checkbox" id="logDebtPaymentAsExpense" name="logDebtPaymentAsExpense" class="h-4 w-4 text-accent-primary border-gray-500 rounded focus:ring-accent-primary mr-2" checked>
+          <label for="logDebtPaymentAsExpense" class="text-sm font-medium text-gray-300">Log this payment as an expense?</label>
+      </div>
+      <div id="debtPaymentCategoryGroup">
+          <label for="modalPayDebtCategory" class="block text-sm font-medium mb-1">Category for this Payment</label>
+          <select id="modalPayDebtCategory" name="payDebtCategory" required>${categoryOptions}</select>
+      </div>
+      <input type="hidden" name="debtId" value="${debtId}">
+      <button type="submit" class="btn btn-primary w-full mt-3">Make Payment</button>
+  `;
+  openFormModal(`Pay Debt: ${debt.who}`, formHtml, handlePayDebtSubmit);
+  populateDropdowns();
+
+  const logExpenseCheckbox = document.getElementById("logDebtPaymentAsExpense");
+  const categoryGroupDiv = document.getElementById("debtPaymentCategoryGroup");
+  const categorySelect = document.getElementById("modalPayDebtCategory");
+
+  if (logExpenseCheckbox && categoryGroupDiv && categorySelect) {
+    categoryGroupDiv.style.display = logExpenseCheckbox.checked
+      ? "block"
+      : "none";
+    categorySelect.required = logExpenseCheckbox.checked;
+
+    logExpenseCheckbox.onchange = () => {
+      if (logExpenseCheckbox.checked) {
+        categoryGroupDiv.style.display = "block";
+        categorySelect.required = true;
+      } else {
+        categoryGroupDiv.style.display = "none";
+        categorySelect.required = false;
+      }
+    };
+  }
+}
+
+function handlePayDebtSubmit(event) {
+  event.preventDefault();
+  const form = new FormData(event.target);
+  const debtId = form.get("debtId");
+  const paymentAmount = parseFloat(form.get("payDebtAmount"));
+  const accountId = form.get("payDebtAccount");
+  const logAsExpense = form.get("logDebtPaymentAsExpense") === "on";
+  const category = logAsExpense ? form.get("payDebtCategory") : null;
+  const currentDate = getCurrentDateString(); // Use local date
+
+  const debt = state.debts.find((d) => d.id === debtId);
+  const account = state.accounts.find((acc) => acc.id === accountId);
+
+  if (!debt || !account) {
+    showNotification("Debt or account not found.", "error");
+    return;
+  }
+
+  const roundedPaymentAmount = roundToTwoDecimals(paymentAmount);
+
+  if (
+    isNaN(roundedPaymentAmount) ||
+    roundedPaymentAmount <= 0 ||
+    roundedPaymentAmount > roundToTwoDecimals(debt.remainingAmount + 0.005)
+  ) {
+    showNotification("Invalid payment amount for debt.", "error");
+    return;
+  }
+  if (logAsExpense && !category) {
+    showNotification(
+      "Please select a category for this payment if logging as an expense.",
+      "error"
+    );
+    return;
+  }
+  if (account.balance < roundedPaymentAmount) {
+    showNotification(`Insufficient funds in ${account.name}.`, "warning");
+    return;
+  }
+
+  account.balance = roundToTwoDecimals(account.balance - roundedPaymentAmount);
+  if (isNaN(account.balance)) account.balance = 0;
+
+  debt.remainingAmount = roundToTwoDecimals(
+    debt.remainingAmount - roundedPaymentAmount
+  );
+
+  let message = `Payment of ${formatCurrency(roundedPaymentAmount)} made for ${
+    debt.who
+  }. Remaining: ${formatCurrency(debt.remainingAmount)}.`;
+
+  if (logAsExpense) {
+    const expenseTransaction = {
+      id: generateId(),
+      type: "expense",
+      amount: roundedPaymentAmount,
+      account: accountId,
+      category: category,
+      // CORRECTED: Store the full description, not the truncated version.
+      description: `Debt Payment: ${debt.who} - ${debt.why}`,
+      date: currentDate,
+      timestamp: Date.now(),
+    };
+    state.transactions.push(expenseTransaction);
+    message += " Expense logged.";
+    refreshMonthlyViewIfRelevant(currentDate);
+  } else {
+    message += " Not logged as expense.";
+  }
+
+  if (debt.remainingAmount <= 0.005) {
+    debt.remainingAmount = 0;
+    state.debts = state.debts.filter((d) => d.id !== debtId);
+    message = `Debt for ${debt.who} fully paid.${
+      logAsExpense ? " Expense logged." : " Not logged as expense."
+    }`;
+  }
+
+  saveData();
+  renderDashboard();
+  populateDropdowns();
+  closeModal("formModal");
+  showNotification(message, "success");
+}
+
+function deleteDebt(debtId) {
+  const debt = state.debts.find((d) => d.id === debtId);
+  if (!debt) return;
+
+  showConfirmationModal(
+    "Delete Debt",
+    `Are you sure you want to delete the debt for <strong>"${
+      debt.who
+    }"</strong> regarding "${debt.why}" (${formatCurrency(
+      debt.remainingAmount
+    )})?<br><br>This removes the record only.`,
+    "Delete",
+    "Cancel",
+    () => {
+      // onConfirm
+      state.debts = state.debts.filter((d) => d.id !== debtId);
+      saveData();
+      renderDashboard();
+      if ($("#debtsViewModal").style.display === "block") renderDebtList();
+      showNotification("Debt entry deleted.", "success");
+    }
+  );
+}
+
+function openAddReceivableForm() {
+  const formHtml = `
+            <div><label for="recWho" class="block text-sm font-medium mb-1">Who owes you?</label><input type="text" id="recWho" name="recWho" placeholder="e.g., Jane Doe" required></div>
+            <div><label for="recWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="recWhy" name="recWhy" placeholder="e.g., Friendly loan" required></div>
+            <div><label for="recAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><input type="number" id="recAmount" name="recAmount" step="0.01" min="0.01" required></div>
+            <div><label for="recDateGiven" class="block text-sm font-medium mb-1">Date Given</label><input type="date" id="recDateGiven" name="recDateGiven" required></div>
+            <div>
+                <label for="recType" class="block text-sm font-medium mb-1">Type</label>
+                <select id="recType" name="recType" required onchange="toggleReceivableSourceAccount(this.value, 'recSourceAccountGroupAdd', 'recSourceAccountAdd')">
+                    <option value="cash">Cash/Bank Loan</option>
+                    <option value="cc">Credit Card Loan</option>
+                </select>
+            </div>
+            <div id="recSourceAccountGroupAdd" style="display: block;"> <label for="recSourceAccountAdd" class="block text-sm font-medium mb-1">Source Account (if Cash/Bank)</label>
+                <select id="recSourceAccountAdd" name="receivableSourceAccount" required></select> </div>
+                <p id="receivableCcDisclaimer" class="disclaimer-text" style="display: none;">
+                <i class="fas fa-info-circle mr-1"></i>
+                <strong>Important:</strong> Selecting "Credit Card Loan" means you provided funds from your credit card. This entry tracks the money owed <em>to you</em>. It does not automatically create an expense on your credit card. If you used your credit card for this, please add a separate "CC Expense" manually to reflect the charge on your card.
+            </p>
+            <button type="submit" class="btn btn-primary w-full"><i class="fas fa-plus"></i> Add Receivable</button>
+        `;
+  openFormModal("Add New Receivable", formHtml, handleAddReceivableSubmit);
+
+  const dateGivenInput = $("#recDateGiven");
+  if (dateGivenInput)
+    dateGivenInput.value = new Date().toISOString().split("T")[0];
+
+  const sourceAccountSelect = $("#recSourceAccountAdd");
+  if (sourceAccountSelect) {
+    sourceAccountSelect.innerHTML = "";
+    state.accounts.forEach((a) => {
+      const o = document.createElement("option");
+      o.value = a.id;
+      o.textContent = `${a.name} (${formatCurrency(a.balance)})`;
+      sourceAccountSelect.appendChild(o);
+    });
+  }
+  const recTypeSelect = $("#recType");
+  if (recTypeSelect) {
+    toggleReceivableSourceAccount(
+      recTypeSelect.value,
+      "recSourceAccountGroupAdd",
+      "recSourceAccountAdd"
+    );
+  }
+}
+
+function toggleReceivableSourceAccount(type, groupId, selectId) {
+  const group = document.getElementById(groupId);
+  const select = document.getElementById(selectId);
+  const disclaimerElement = document.getElementById("receivableCcDisclaimer");
+
+  if (group && select) {
+    if (type === "cash") {
+      group.style.display = "block";
+      select.required = true;
+      if (disclaimerElement) {
+        disclaimerElement.style.display = "none";
+      }
+    } else {
+      group.style.display = "none";
+      select.required = false;
+      if (disclaimerElement) {
+        disclaimerElement.style.display = "block";
+      }
+    }
+  } else {
+    if (!group)
+      console.warn(
+        `toggleReceivableSourceAccount: Group element with ID '${groupId}' not found.`
+      );
+    if (!select)
+      console.warn(
+        `toggleReceivableSourceAccount: Select element with ID '${selectId}' not found.`
+      );
+  }
+
+  if (!disclaimerElement && type === "cc") {
+    console.warn(
+      "toggleReceivableSourceAccount: Disclaimer element with ID 'receivableCcDisclaimer' not found, but was expected for 'cc' type."
+    );
+  }
+}
+
+function handleAddReceivableSubmit(event) {
+  event.preventDefault();
+  const form = new FormData(event.target);
+  const amount = parseFloat(form.get("recAmount"));
+  const type = form.get("recType");
+  const sourceAccountId =
+    type === "cash" ? form.get("receivableSourceAccount") : null;
+
+  if (isNaN(amount) || amount <= 0) {
+    showNotification("Invalid amount for receivable.", "error");
+    return;
+  }
+  const roundedAmount = roundToTwoDecimals(amount);
+
+  const newRec = {
+    id: generateId(),
+    who: form.get("recWho").trim(),
+    why: form.get("recWhy").trim(),
+    amount: roundedAmount,
+    originalAmount: roundedAmount,
+    remainingAmount: roundedAmount,
+    dateGiven: form.get("recDateGiven"),
+    type: type,
+    sourceAccount: sourceAccountId,
+    ccTransactionId: null, // This might be set if type is 'cc' and a CC tx is auto-created
+    timestamp: Date.now(),
+  };
+  if (!newRec.who || !newRec.why || !newRec.dateGiven) {
+    showNotification("All fields required for receivable.", "error");
+    return;
+  }
+
+  if (type === "cash") {
+    if (!sourceAccountId) {
+      showNotification("Source account required for cash loan.", "error");
+      return;
+    }
+    let srcAcc = state.accounts.find((acc) => acc.id === sourceAccountId);
+    if (!srcAcc) {
+      showNotification("Source account not found.", "error");
+      return;
+    }
+    if (srcAcc.balance < roundedAmount) {
+      showNotification(`Insufficient funds in ${srcAcc.name}.`, "warning");
+      // Note: Original code proceeded here. Consider if this should be a hard stop.
+      // For now, matching original behavior of allowing it but warning.
+      // However, if we deduct, it should be from a valid balance.
+      // Let's make it a hard stop if funds are insufficient for cash type.
+      return;
+    }
+    srcAcc.balance = roundToTwoDecimals(srcAcc.balance - roundedAmount);
+    if (isNaN(srcAcc.balance)) srcAcc.balance = 0;
+  } else if (type === "cc") {
+    // If you were to auto-create a CC transaction here, its amount should also be rounded.
+    // Currently, no CC transaction is auto-created.
+    console.log(
+      `Receivable of type 'cc' added for ${newRec.who}. User to manually add CC expense if needed.`
+    );
+  }
+
+  state.receivables.push(newRec);
+  saveData();
+  renderDashboard();
+  populateDropdowns();
+  if (type === "cc") renderCreditCardSection(); // If it affects CC, re-render that section
+  closeModal("formModal");
+  showNotification(
+    `Receivable for ${newRec.who} added.${
+      type === "cash" && sourceAccountId
+        ? ` ${formatCurrency(roundedAmount)} deducted from account.`
+        : ""
+    }`,
+    "success"
+  );
+}
+
+function openEditReceivableForm(id) {
+  const r = state.receivables.find((item) => item.id === id);
+  if (!r) return;
+  openFormModal(
+    "Edit Receivable",
+    ` <input type="hidden" name="editReceivableId" value="${
+      r.id
+    }"> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="recWho" value="${
+      r.who
+    }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="recWhy" value="${
+      r.why
+    }" required></div> <div><label class="block text-sm font-medium mb-1">Original Amount</label><input type="number" name="recOriginalAmount" value="${(
+      r.originalAmount || r.amount
+    ).toFixed(
+      2
+    )}" step="0.01" min="0.01" required></div> <div><label class="block text-sm font-medium mb-1">Remaining</label><input type="number" name="recRemainingAmount" value="${r.remainingAmount.toFixed(
+      2
+    )}" step="0.01" min="0" required></div> <div><label class="block text-sm font-medium mb-1">Date Given</label><input type="date" name="recDateGiven" value="${
+      r.dateGiven
+    }" required></div> <div><label class="block text-sm font-medium mb-1">Type</label><select id="recTypeEdit" name="recType" onchange="toggleReceivableSourceAccount(this.value, 'recSourceAccountGroupEdit', 'recSourceAccountEdit')"><option value="cash" ${
+      r.type === "cash" ? "selected" : ""
+    }>Cash/Bank</option><option value="cc" ${
+      r.type === "cc" ? "selected" : ""
+    }>Credit Card</option></select></div> <div id="recSourceAccountGroupEdit" style="display:${
+      r.type === "cash" ? "block" : "none"
+    }"><label class="block text-sm font-medium mb-1">Source Account</label><select id="recSourceAccountEdit" name="receivableSourceAccount">${state.accounts
+      .map(
+        (acc) =>
+          `<option value="${acc.id}" ${
+            r.sourceAccount === acc.id ? "selected" : ""
+          }>${acc.name} (${formatCurrency(acc.balance)})</option>`
+      )
+      .join(
+        ""
+      )}</select></div> <button type="submit" class="btn btn-primary w-full">Update Receivable</button> `,
+    handleEditReceivableSubmit
+  );
+  const recTypeEditSelect = $("#recTypeEdit");
+  if (recTypeEditSelect)
+    toggleReceivableSourceAccount(
+      recTypeEditSelect.value,
+      "recSourceAccountGroupEdit",
+      "recSourceAccountEdit"
+    );
+}
+
+function handleEditReceivableSubmit(event) {
+  event.preventDefault();
+  const form = new FormData(event.target);
+  const id = form.get("editReceivableId");
+  const rec = state.receivables.find((r) => r.id === id);
+  if (!rec) {
+    showNotification("Receivable not found for editing.", "error");
+    return;
+  }
+
+  const oldSourceAccountId = rec.sourceAccount;
+  const oldOriginalAmount = rec.originalAmount; // Already rounded from previous save
+  const oldType = rec.type;
+  const oldCcTxId = rec.ccTransactionId;
+
+  const newOriginalAmountForm = parseFloat(form.get("recOriginalAmount"));
+  const newRemainingAmountForm = parseFloat(form.get("recRemainingAmount"));
+  const newType = form.get("recType");
+  const newSourceAccountId =
+    newType === "cash" ? form.get("receivableSourceAccount") : null;
+
+  if (
+    isNaN(newOriginalAmountForm) ||
+    newOriginalAmountForm <= 0 ||
+    isNaN(newRemainingAmountForm) ||
+    newRemainingAmountForm < 0 ||
+    roundToTwoDecimals(newRemainingAmountForm) >
+      roundToTwoDecimals(newOriginalAmountForm)
+  ) {
+    showNotification(
+      "Invalid amounts for receivable. Remaining cannot exceed original, and amounts must be valid numbers.",
+      "error"
+    );
+    return;
+  }
+  if (newType === "cash" && !newSourceAccountId) {
+    showNotification("Source account required for cash loan type.", "error");
+    return;
+  }
+
+  // Round amounts from form
+  const roundedNewOriginalAmount = roundToTwoDecimals(newOriginalAmountForm);
+  const roundedNewRemainingAmount = roundToTwoDecimals(newRemainingAmountForm);
+
+  // Revert effect of old receivable if type or source account or original amount changed
+  if (oldType === "cash" && oldSourceAccountId) {
+    const oldSrcAccount = state.accounts.find(
+      (acc) => acc.id === oldSourceAccountId
+    );
+    if (oldSrcAccount) {
+      oldSrcAccount.balance = roundToTwoDecimals(
+        oldSrcAccount.balance + oldOriginalAmount
+      );
+      if (isNaN(oldSrcAccount.balance)) oldSrcAccount.balance = 0;
+    }
+  } else if (oldType === "cc" && oldCcTxId) {
+    // If it was a CC type and had an associated CC transaction (if that logic existed)
+    // state.creditCard.transactions = state.creditCard.transactions.filter(tx => tx.id !== oldCcTxId);
+    // Currently, ccTransactionId is not actively used to link to an auto-created CC expense.
+  }
+
+  // Update receivable properties
+  rec.who = form.get("recWho").trim();
+  rec.why = form.get("recWhy").trim();
+  rec.originalAmount = roundedNewOriginalAmount;
+  rec.amount = roundedNewOriginalAmount; // Ensure amount also reflects original
+  rec.remainingAmount = roundedNewRemainingAmount;
+  rec.dateGiven = form.get("recDateGiven");
+  rec.type = newType;
+  rec.sourceAccount = newSourceAccountId;
+  rec.timestamp = Date.now();
+  rec.ccTransactionId = null; // Reset if type changed, or if it was never used for auto-creation
+
+  // Apply effect of new receivable
+  if (rec.type === "cash" && rec.sourceAccount) {
+    const newSrcAccount = state.accounts.find(
+      (acc) => acc.id === rec.sourceAccount
+    );
+    if (newSrcAccount) {
+      if (newSrcAccount.balance < rec.originalAmount) {
+        showNotification(
+          `Insufficient funds in new source account ${newSrcAccount.name}. Reverting changes.`,
+          "warning"
+        );
+        // Re-apply old state (simplified: ideally, store full old rec object and restore)
+        if (oldType === "cash" && oldSourceAccountId) {
+          const oldSrcAccForRevert = state.accounts.find(
+            (acc) => acc.id === oldSourceAccountId
+          );
+          if (oldSrcAccForRevert)
+            oldSrcAccForRevert.balance = roundToTwoDecimals(
+              oldSrcAccForRevert.balance - oldOriginalAmount
+            );
+        }
+        // This revert is partial; a full object clone and restore would be safer for complex edits.
+        // For now, we'll just stop the update. The form will retain user's bad input.
+        return;
+      }
+      newSrcAccount.balance = roundToTwoDecimals(
+        newSrcAccount.balance - rec.originalAmount
+      );
+      if (isNaN(newSrcAccount.balance)) newSrcAccount.balance = 0;
+    }
+  } else if (rec.type === "cc") {
+    // If auto-creating a CC transaction upon edit to 'cc' type:
+    // const ccTx = { id: generateId(), amount: rec.originalAmount, ... };
+    // state.creditCard.transactions.push(ccTx);
+    // rec.ccTransactionId = ccTx.id;
+    // For now, no auto CC transaction creation on edit.
+  }
+
+  saveData();
+  renderDashboard();
+  populateDropdowns();
+  if (rec.type === "cc" || oldType === "cc") renderCreditCardSection();
+  closeModal("formModal");
+  showNotification("Receivable updated.", "success");
+}
+
+function openReceivePaymentForm(recId) {
+  const receivable = state.receivables.find((r) => r.id === recId);
+  if (!receivable) {
+    showNotification("Receivable not found.", "error");
+    return;
+  }
+
+  let disclaimerHtml = "";
+  if (receivable.type === "cc") {
+    disclaimerHtml = `
+      <p id="receivablePaymentCcDisclaimer" class="disclaimer-text mt-3 mb-2">
+        <i class="fas fa-info-circle mr-1"></i>
+        <strong>Credit Card Receivable:</strong> The amount you receive will be added to the selected account. Remember, this does not pay your credit card bill. You'll need to record a separate 'Credit Card Payment' transaction later.
+      </p>
+    `;
+  }
+
+  const overpaymentInfoHtml = `
+    <p id="overpaymentInfo" class="text-xs text-gray-400 mt-1 mb-2" style="display: none;">
+      Any amount received over <span class="tabular-nums">${formatCurrency(
+        receivable.remainingAmount
+      )}</span> will be logged as additional income.
+    </p>
+  `;
+
+  const formHtml = `
+    <p class="mb-2 force-word-wrap">Owed: <span class="font-semibold tabular-nums">${formatCurrency(
+      receivable.remainingAmount
+    )}</span> by ${receivable.who} for ${receivable.why}</p>
+    <div>
+      <label for="recPaymentAmount" class="block text-sm font-medium mb-1">Amount Received (LKR)</label>
+      <input type="number" id="recPaymentAmount" name="recPaymentAmount" step="0.01" min="0.01" 
+             value="${receivable.remainingAmount.toFixed(2)}" required> 
+    </div>
+    ${overpaymentInfoHtml}
+    <div>
+      <label for="recPaymentAccount" class="block text-sm font-medium mb-1">Receive Into Account</label>
+      <select id="recPaymentAccount" name="recPaymentAccount" required></select>
+    </div>
+    ${disclaimerHtml} 
+    <input type="hidden" name="recId" value="${recId}">
+    <button type="submit" class="btn btn-primary w-full mt-3">Record Payment</button>
+  `;
+
+  openFormModal(
+    `Receive Payment from: ${receivable.who}`,
+    formHtml,
+    handleReceivePaymentSubmit
+  );
+  populateDropdowns();
+
+  const amountInput = document.getElementById("recPaymentAmount");
+  const overpaymentInfoP = document.getElementById("overpaymentInfo");
+  if (amountInput && overpaymentInfoP) {
+    const checkOverpayment = () => {
+      const enteredAmount = parseFloat(amountInput.value);
+      if (
+        !isNaN(enteredAmount) &&
+        receivable.remainingAmount > 0 &&
+        enteredAmount > receivable.remainingAmount
+      ) {
+        overpaymentInfoP.style.display = "block";
+      } else {
+        overpaymentInfoP.style.display = "none";
+      }
+    };
+    amountInput.addEventListener("input", checkOverpayment);
+    checkOverpayment();
+  }
+}
+
+function handleReceivePaymentSubmit(event) {
+  event.preventDefault();
+  const form = new FormData(event.target);
+  const recId = form.get("recId");
+  const paymentAmountForm = parseFloat(form.get("recPaymentAmount"));
+  const accountId = form.get("recPaymentAccount");
+  const currentDate = new Date().toISOString().split("T")[0];
+
+  const receivable = state.receivables.find((r) => r.id === recId);
+  const account = state.accounts.find((acc) => acc.id === accountId);
+
+  if (!receivable || !account) {
+    showNotification("Receivable or account not found.", "error");
+    return;
+  }
+
+  if (isNaN(paymentAmountForm) || paymentAmountForm <= 0) {
+    showNotification(
+      "Invalid payment amount. Must be greater than zero.",
+      "error"
+    );
+    return;
+  }
+
+  const roundedPaymentAmount = roundToTwoDecimals(paymentAmountForm);
+
+  account.balance = roundToTwoDecimals(account.balance + roundedPaymentAmount);
+  if (isNaN(account.balance)) account.balance = 0;
+
+  let notificationMessage = "";
+  let extraIncomeLogged = false;
+  const originalRemaining = receivable.remainingAmount; // Already rounded
+
+  if (roundedPaymentAmount > originalRemaining) {
+    const extraAmount = roundToTwoDecimals(
+      roundedPaymentAmount - originalRemaining
+    );
+    receivable.remainingAmount = 0;
+
+    const extraIncomeTransaction = {
+      id: generateId(),
+      type: "income",
+      amount: extraAmount,
+      account: accountId,
+      category: null,
+      description: `${receivable.who} Paid Back Extra`, // Capitalized as per user feedback
+      date: currentDate,
+      timestamp: Date.now(),
+    };
+    state.transactions.push(extraIncomeTransaction);
+    extraIncomeLogged = true;
+    console.log(
+      `Logged extra income of ${formatCurrency(extraAmount)} from ${
+        receivable.who
+      }`
+    );
+  } else {
+    receivable.remainingAmount = roundToTwoDecimals(
+      originalRemaining - roundedPaymentAmount
+    );
+  }
+
+  if (receivable.remainingAmount <= 0.005) {
+    receivable.remainingAmount = 0;
+    state.receivables = state.receivables.filter((r) => r.id !== recId);
+    notificationMessage = `Receivable from ${receivable.who} fully paid.`;
+    if (extraIncomeLogged) {
+      notificationMessage += ` Extra ${formatCurrency(
+        roundToTwoDecimals(roundedPaymentAmount - originalRemaining)
+      )} logged as income.`;
+    }
+  } else {
+    notificationMessage = `Payment of ${formatCurrency(
+      roundedPaymentAmount
+    )} received from ${receivable.who}. Remaining: ${formatCurrency(
+      receivable.remainingAmount
+    )}.`;
+  }
+
+  saveData();
+  renderDashboard();
+  populateDropdowns();
+  closeModal("formModal");
+  showNotification(notificationMessage, "success");
+
+  if (extraIncomeLogged) {
+    refreshMonthlyViewIfRelevant(currentDate);
+  }
+}
+
+function deleteReceivable(recId) {
+  const receivable = state.receivables.find((r) => r.id === recId);
+  if (!receivable) {
+    showNotification("Receivable not found.", "error");
+    return;
+  }
+
+  let modalMessage = `Are you sure you want to delete the receivable from <strong>"${
+    receivable.who
+  }"</strong> for "${receivable.why}" (${formatCurrency(
+    receivable.remainingAmount
+  )})?<br><br>This action only removes the record of them owing you money.`;
+
+  if (receivable.type === "cash" && receivable.sourceAccount) {
+    const sourceAccountName =
+      state.accounts.find((acc) => acc.id === receivable.sourceAccount)?.name ||
+      "Unknown Account";
+    modalMessage += `<br><br><strong class="text-warning">Important:</strong> This will NOT automatically refund the amount to your source account ('${sourceAccountName}'). That adjustment needs to be handled manually if required.`;
+  } else if (receivable.type === "cc") {
+    modalMessage += `<br><br><strong class="text-warning">Note:</strong> This does NOT affect any separate credit card expense you might have recorded on your own card for giving out this loan.`;
+  }
+
+  showConfirmationModal(
+    "Delete Receivable",
+    modalMessage,
+    "Delete",
+    "Cancel",
+    () => {
+      // onConfirm
+      state.receivables = state.receivables.filter((r) => r.id !== recId);
+      saveData();
+      renderDashboard();
+      if ($("#receivablesViewModal").style.display === "block") {
+        renderReceivableList();
+      }
+      showNotification("Receivable entry deleted successfully.", "success");
+    }
+  );
+}
+
+function openAddInstallmentForm() {
+  const disclaimerHtml = `
+    <p class="disclaimer-text mt-3 mb-2">
+      <i class="fas fa-info-circle mr-1"></i>
+      <strong>Important:</strong> This tracks installment status (months left). Actual payments (especially for CC installments) must be recorded manually via 'Add Transaction' or 'Add CC Expense' to update account balances.
+    </p>
+  `;
+
+  const formHtml = `
+    <div>
+      <label for="instDescription" class="block text-sm font-medium mb-1">Description</label>
+      <input type="text" id="instDescription" name="instDescription" placeholder="e.g., New Phone" required>
+    </div>
+    <div>
+      <label for="instFullAmount" class="block text-sm font-medium mb-1">Full Original Amount (LKR)</label>
+      <input type="number" id="instFullAmount" name="instFullAmount" step="0.01" min="0.01" placeholder="Total original cost" required>
+    </div>
+    <div>
+      <label for="instTotalMonths" class="block text-sm font-medium mb-1">Total Months for Plan</label>
+      <input type="number" id="instTotalMonths" name="instTotalMonths" step="1" min="1" placeholder="e.g., 12" required>
+    </div>
+    <div>
+      <label for="instMonthsLeft" class="block text-sm font-medium mb-1">Months Left (if not full term)</label>
+      <input type="number" id="instMonthsLeft" name="instMonthsLeft" step="1" min="0" placeholder="Defaults to Total Months">
+    </div>
+    <div>
+      <label for="instStartDate" class="block text-sm font-medium mb-1">Start Date</label>
+      <input type="date" id="instStartDate" name="instStartDate" required>
+    </div>
+    ${disclaimerHtml}
+    <button type="submit" class="btn btn-primary w-full mt-3">Add Plan</button>
+  `; // Added mt-3 to button for spacing after disclaimer
+
+  openFormModal(
+    "Add New Installment Plan",
+    formHtml,
+    handleAddInstallmentSubmit
+  );
+  const instStartDateInput = $("#instStartDate");
+  if (instStartDateInput)
+    instStartDateInput.value = new Date().toISOString().split("T")[0];
+
+  const totalMonthsInput = $("#instTotalMonths");
+  const monthsLeftInput = $("#instMonthsLeft");
+  if (totalMonthsInput && monthsLeftInput) {
+    const setMaxMonthsLeft = () => {
+      const total = parseInt(totalMonthsInput.value);
+      if (!isNaN(total) && total > 0) {
+        monthsLeftInput.max = total;
+        if (parseInt(monthsLeftInput.value) > total) {
+          monthsLeftInput.value = total;
+        }
+      } else {
+        monthsLeftInput.removeAttribute("max");
+      }
+    };
+    totalMonthsInput.addEventListener("input", setMaxMonthsLeft);
+    setMaxMonthsLeft();
+  }
+}
+
+function handleAddInstallmentSubmit(event) {
+  event.preventDefault();
+  const formData = new FormData(event.target);
+  const fullAmount = parseFloat(formData.get("instFullAmount"));
+  const totalMonths = parseInt(formData.get("instTotalMonths"));
+  let monthsLeft = parseInt(formData.get("instMonthsLeft"));
+
+  if (
+    isNaN(fullAmount) ||
+    fullAmount <= 0 ||
+    isNaN(totalMonths) ||
+    totalMonths <= 0
+  ) {
+    showNotification(
+      "Invalid full amount or total months for installment.",
+      "error"
+    );
+    return;
+  }
+
+  if (isNaN(monthsLeft) || monthsLeft > totalMonths || monthsLeft < 0) {
+    monthsLeft = totalMonths;
+  }
+
+  const roundedFullAmount = roundToTwoDecimals(fullAmount);
+  // Calculate monthlyAmount based on roundedFullAmount to avoid compounding rounding errors over months
+  const monthlyAmount = roundToTwoDecimals(roundedFullAmount / totalMonths);
+
+  const newInstallment = {
+    id: generateId(),
+    description: formData.get("instDescription").trim(),
+    monthlyAmount: monthlyAmount, // Store rounded monthly amount
+    totalMonths: totalMonths,
+    monthsLeft: monthsLeft,
+    startDate: formData.get("instStartDate"),
+    originalFullAmount: roundedFullAmount, // Store rounded full original amount
+    timestamp: Date.now(),
+  };
+
+  if (!newInstallment.description || !newInstallment.startDate) {
+    showNotification(
+      "Description and Start Date are required for installment.",
+      "error"
+    );
+    return;
+  }
+
+  state.installments.push(newInstallment);
+  saveData();
+  renderDashboard();
+  closeModal("formModal");
+  showNotification("Installment plan added.", "success");
+}
+
+function openEditInstallmentForm(id) {
+  const i = state.installments.find((item) => item.id === id);
+  if (!i) {
+    showNotification("Installment plan not found for editing.", "error");
+    return;
+  }
+
+  const disclaimerHtml = `
+    <p class="disclaimer-text mt-3 mb-2">
+      <i class="fas fa-info-circle mr-1"></i>
+      <strong>Important:</strong> This tracks installment status (months left). Actual payments (especially for CC installments) must be recorded manually via 'Add Transaction' or 'Add CC Expense' to update account balances.
+    </p>
+  `;
+
+  const currentFullAmount =
+    i.originalFullAmount || i.monthlyAmount * i.totalMonths;
+
+  const formHtml = `
+    <input type="hidden" name="editInstallmentId" value="${i.id}">
+    <div>
+      <label for="instDescription" class="block text-sm font-medium mb-1">Description</label>
+      <input type="text" id="instDescription" name="instDescription" value="${
+        i.description
+      }" required>
+    </div>
+    <div>
+      <label for="instFullAmount" class="block text-sm font-medium mb-1">Full Original Amount (LKR)</label>
+      <input type="number" id="instFullAmount" name="instFullAmount" value="${currentFullAmount.toFixed(
+        2
+      )}" step="0.01" min="0.01" required>
+    </div>
+    <div>
+      <label for="instTotalMonths" class="block text-sm font-medium mb-1">Total Months for Plan</label>
+      <input type="number" id="instTotalMonths" name="instTotalMonths" value="${
+        i.totalMonths
+      }" step="1" min="1" required>
+    </div>
+    <div>
+      <label for="instMonthsLeft" class="block text-sm font-medium mb-1">Months Left</label>
+      <input type="number" id="instMonthsLeft" name="instMonthsLeft" value="${
+        i.monthsLeft
+      }" step="1" min="0" max="${i.totalMonths}" required>
+    </div>
+    <div>
+      <label for="instStartDate" class="block text-sm font-medium mb-1">Start Date</label>
+      <input type="date" id="instStartDate" name="instStartDate" value="${
+        i.startDate
+      }" required>
+    </div>
+    ${disclaimerHtml} 
+    <button type="submit" class="btn btn-primary w-full mt-3">Update Plan</button>
+  `; // Added mt-3 to button for spacing
+
+  openFormModal("Edit Installment Plan", formHtml, handleEditInstallmentSubmit);
+
+  // Add listener to ensure monthsLeft is not greater than totalMonths for edit form
+  const totalMonthsInput = document.getElementById("instTotalMonths"); // Use document.getElementById for modals
+  const monthsLeftInput = document.getElementById("instMonthsLeft");
+  if (totalMonthsInput && monthsLeftInput) {
+    const setMaxMonthsLeftEdit = () => {
+      const total = parseInt(totalMonthsInput.value);
+      if (!isNaN(total) && total > 0) {
+        monthsLeftInput.max = total;
+        // If current monthsLeft exceeds new totalMonths, adjust it
+        if (parseInt(monthsLeftInput.value) > total) {
+          monthsLeftInput.value = total;
+        }
+      } else {
+        monthsLeftInput.removeAttribute("max");
+      }
+    };
+    totalMonthsInput.addEventListener("input", setMaxMonthsLeftEdit);
+    // Initial call to set max based on current totalMonths value
+    setMaxMonthsLeftEdit();
+  }
+}
+
+function handleEditInstallmentSubmit(event) {
+  event.preventDefault();
+  const form = new FormData(event.target);
+  const id = form.get("editInstallmentId");
+  const inst = state.installments.find((i) => i.id === id);
+  if (!inst) {
+    showNotification("Installment plan not found for editing.", "error");
+    return;
+  }
+
+  const fullAmount = parseFloat(form.get("instFullAmount"));
+  const totalMonths = parseInt(form.get("instTotalMonths"));
+  const monthsLeft = parseInt(form.get("instMonthsLeft"));
+
+  if (
+    isNaN(fullAmount) ||
+    fullAmount <= 0 ||
+    isNaN(totalMonths) ||
+    totalMonths <= 0
+  ) {
+    showNotification(
+      "Invalid full amount or total months for installment.",
+      "error"
+    );
+    return;
+  }
+  if (isNaN(monthsLeft) || monthsLeft < 0 || monthsLeft > totalMonths) {
+    showNotification("Invalid months left for installment.", "error");
+    return;
+  }
+
+  const roundedFullAmount = roundToTwoDecimals(fullAmount);
+  const newMonthlyAmount = roundToTwoDecimals(roundedFullAmount / totalMonths);
+
+  inst.description = form.get("instDescription").trim();
+  inst.totalMonths = totalMonths;
+  inst.monthsLeft = monthsLeft;
+  inst.startDate = form.get("instStartDate");
+  inst.monthlyAmount = newMonthlyAmount; // Update with newly calculated rounded monthly amount
+  inst.originalFullAmount = roundedFullAmount; // Update with new rounded full amount
+  inst.timestamp = Date.now();
+
+  saveData();
+  renderDashboard();
+  closeModal("formModal");
+  showNotification("Installment plan updated.", "success");
+}
+
+function payInstallmentMonth(installmentId) {
+  const installment = state.installments.find((i) => i.id === installmentId);
+  if (!installment || installment.monthsLeft <= 0) {
+    showNotification(
+      "This installment plan is already fully paid or not found.",
+      "info"
+    );
+    return;
+  }
+
+  const confirmationMessageHtml = `
+    <p class="mb-4 text-center text-gray-300 force-word-wrap">
+      Mark one month as paid for "<strong>${installment.description}</strong>"?
+    </p>
+    <p class="mb-4 text-center text-sm text-gray-400">
+      Amount: <span class="tabular-nums">${formatCurrency(
+        installment.monthlyAmount
+      )}</span><br>
+      Months remaining after this: ${installment.monthsLeft - 1}
+    </p>
+    <p class="disclaimer-text mt-3 mb-4">
+      <i class="fas fa-exclamation-triangle mr-1"></i>
+      <strong>Note:</strong> This action only updates the installment status. No financial transaction will be recorded, and no account balances will be affected by this step. Remember to record the actual payment manually.
+    </p>
+    <div class="flex justify-end gap-3 mt-4">
+      <button type="button" id="cancelInstallmentConfirmBtn" class="btn btn-secondary">Cancel</button>
+      <button type="button" id="confirmInstallmentPayBtn" class="btn btn-primary">Confirm & Update Status</button>
+    </div>
+  `;
+
+  openFormModal(
+    `Confirm Installment Update: ${installment.description}`,
+    confirmationMessageHtml,
+    null
+  );
+
+  const confirmBtn = document.getElementById("confirmInstallmentPayBtn");
+  const cancelBtn = document.getElementById("cancelInstallmentConfirmBtn");
+
+  if (confirmBtn) {
+    confirmBtn.onclick = () => {
+      handleConfirmInstallmentPayment(installmentId);
+      closeModal("formModal");
+    };
+  }
+  if (cancelBtn) {
+    cancelBtn.onclick = () => {
+      closeModal("formModal");
+    };
+  }
+}
+
+function handleConfirmInstallmentPayment(installmentId) {
+  const installment = state.installments.find((i) => i.id === installmentId);
+
+  if (!installment) {
+    showNotification("Installment plan not found.", "error");
+    return;
+  }
+
+  if (installment.monthsLeft <= 0) {
+    showNotification(
+      "This installment plan is already marked as fully paid.",
+      "info"
+    );
+    return;
+  }
+
+  installment.monthsLeft -= 1;
+
+  let notificationMessage = "";
+
+  if (installment.monthsLeft <= 0) {
+    state.installments = state.installments.filter(
+      (i) => i.id !== installmentId
+    );
+    notificationMessage = `Installment plan "${installment.description}" marked as fully paid and completed.`;
+  } else {
+    notificationMessage = `Installment status updated for "${installment.description}". ${installment.monthsLeft} months remaining.`;
+  }
+
+  saveData();
+  renderDashboard();
+  showNotification(notificationMessage, "success");
+}
+
+function deleteInstallment(installmentId) {
+  const installment = state.installments.find((i) => i.id === installmentId);
+  if (!installment) return;
+
+  showConfirmationModal(
+    "Delete Installment Plan",
+    `Are you sure you want to delete the installment plan: <br><strong>"${installment.description}"</strong>?<br><br>This removes the record only.`,
+    "Delete",
+    "Cancel",
+    () => {
+      // onConfirm
+      state.installments = state.installments.filter(
+        (i) => i.id !== installmentId
+      );
+      saveData();
+      renderDashboard();
+      showNotification("Installment plan deleted.", "success");
+    }
+  );
+}
+
+function openPayCcItemForm(ccTransactionId) {
+  const item = state.creditCard.transactions.find(
+    (t) => t.id === ccTransactionId
+  );
+  if (!item) return;
+  const remaining = item.amount - (item.paidAmount || 0);
+  if (remaining <= 0.005) {
+    showNotification("This item is already fully paid/settled.", "info");
+    return;
+  }
+
+  const ccPaymentCategoryName = "Credit Card Payment";
+  let categoryOptions = "";
+  const otherCcCategories = state.categories
+    .filter(
+      (c) =>
+        c.toLowerCase() !== "income" &&
+        c.toLowerCase() !== ccPaymentCategoryName.toLowerCase()
+    )
+    .sort((a, b) => a.localeCompare(b));
+
+  if (
+    state.categories.some(
+      (c) => c.toLowerCase() === ccPaymentCategoryName.toLowerCase()
+    )
+  ) {
+    categoryOptions += `<option value="${ccPaymentCategoryName}" selected>${ccPaymentCategoryName}</option>`;
+  } else {
+    categoryOptions += `<option value="${ccPaymentCategoryName}" selected>${ccPaymentCategoryName} (Suggested)</option>`;
+  }
+  otherCcCategories.forEach((cat) => {
+    categoryOptions += `<option value="${cat}">${cat}</option>`;
+  });
+
+  const formHtml = `
+      <input type="hidden" name="ccItemId" value="${item.id}">
+      <p class="mb-2 tabular-nums">Item Amount: ${formatCurrency(
+        item.amount
+      )}</p>
+      <p class="mb-2 tabular-nums">Paid So Far: ${formatCurrency(
+        item.paidAmount || 0
+      )}</p>
+      <p class="mb-2">Remaining on Item: <strong class="text-danger tabular-nums">${formatCurrency(
+        remaining
+      )}</strong></p>
+      <div>
+          <label for="ccItemPayAmount" class="block text-sm font-medium mb-1">Payment Amount</label>
+          <input type="number" id="ccItemPayAmount" name="ccItemPayAmount" step="0.01" min="0.01" max="${remaining.toFixed(
+            2
+          )}" value="${remaining.toFixed(2)}" required>
+      </div>
+      <div>
+          <label for="modalCcPayFromAccount" class="block text-sm font-medium mb-1">Pay From Account</label>
+          <select id="modalCcPayFromAccount" name="ccPayFromAccount" required></select>
+      </div>
+      <div class="flex items-center mt-3 mb-1">
+          <input type="checkbox" id="logCcPaymentAsExpense" name="logCcPaymentAsExpense" class="h-4 w-4 text-accent-primary border-gray-500 rounded focus:ring-accent-primary mr-2" checked>
+          <label for="logCcPaymentAsExpense" class="text-sm font-medium text-gray-300">Log this payment as an expense?</label>
+      </div>
+      <div id="ccPaymentCategoryGroup">
+          <label for="modalCcPayCategory" class="block text-sm font-medium mb-1">Category for this Payment</label>
+          <select id="modalCcPayCategory" name="ccPayCategory" required>${categoryOptions}</select>
+      </div>
+      <button type="submit" class="btn btn-primary w-full mt-3">Make Payment</button>
+  `;
+  openFormModal(
+    `Pay CC Item: ${item.description.substring(0, 30)}...`,
+    formHtml,
+    handlePayCcItemSubmit
+  );
+  populateDropdowns();
+
+  const logCcExpenseCheckbox = document.getElementById("logCcPaymentAsExpense");
+  const ccCategoryGroupDiv = document.getElementById("ccPaymentCategoryGroup");
+  const ccCategorySelect = document.getElementById("modalCcPayCategory");
+
+  if (logCcExpenseCheckbox && ccCategoryGroupDiv && ccCategorySelect) {
+    ccCategoryGroupDiv.style.display = logCcExpenseCheckbox.checked
+      ? "block"
+      : "none";
+    ccCategorySelect.required = logCcExpenseCheckbox.checked;
+
+    logCcExpenseCheckbox.onchange = () => {
+      if (logCcExpenseCheckbox.checked) {
+        ccCategoryGroupDiv.style.display = "block";
+        ccCategorySelect.required = true;
+      } else {
+        ccCategoryGroupDiv.style.display = "none";
+        ccCategorySelect.required = false;
+      }
+    };
+  }
+}
+
+function handlePayCcItemSubmit(event) {
+  event.preventDefault();
+  const form = new FormData(event.target);
+  const ccItemId = form.get("ccItemId");
+  const paymentAmountForm = parseFloat(form.get("ccItemPayAmount"));
+  const accountId = form.get("ccPayFromAccount");
+  const logAsExpense = form.get("logCcPaymentAsExpense") === "on";
+  const category = logAsExpense ? form.get("ccPayCategory") : null;
+
+  const item = state.creditCard.transactions.find((t) => t.id === ccItemId);
+  const account = state.accounts.find((acc) => acc.id === accountId);
+
+  if (!item || !account) {
+    showNotification("CC item or account not found.", "error");
+    return;
+  }
+
+  const roundedPaymentAmount = roundToTwoDecimals(paymentAmountForm);
+  const remainingOnItem = roundToTwoDecimals(
+    item.amount - (item.paidAmount || 0)
+  );
+
+  if (
+    isNaN(roundedPaymentAmount) ||
+    roundedPaymentAmount <= 0 ||
+    roundedPaymentAmount > roundToTwoDecimals(remainingOnItem + 0.005)
+  ) {
+    showNotification("Invalid payment amount for CC item.", "error");
+    return;
+  }
+  if (logAsExpense && !category) {
+    showNotification(
+      "Please select a category for this payment if logging as an expense.",
+      "error"
+    );
+    return;
+  }
+  if (account.balance < roundedPaymentAmount) {
+    showNotification(`Insufficient funds in ${account.name}.`, "warning");
+    return;
+  }
+
+  account.balance = roundToTwoDecimals(account.balance - roundedPaymentAmount);
+  if (isNaN(account.balance)) account.balance = 0;
+
+  item.paidAmount = roundToTwoDecimals(
+    (item.paidAmount || 0) + roundedPaymentAmount
+  );
+
+  if (item.paidAmount >= roundToTwoDecimals(item.amount - 0.005)) {
+    item.paidOff = true;
+    item.paidAmount = item.amount;
+  }
+
+  let notificationMessage = `Payment of ${formatCurrency(
+    roundedPaymentAmount
+  )} for CC item "${item.description.substring(0, 20)}..." recorded.`;
+
+  const paymentDate = getCurrentDateString();
+
+  if (logAsExpense) {
+    const expenseTx = {
+      id: generateId(),
+      type: "expense",
+      amount: roundedPaymentAmount,
+      account: accountId,
+      category: category,
+      // CORRECTED: Store the full description, not the truncated version.
+      description: `Credit Card Payment: ${item.description}`,
+      date: paymentDate,
+      timestamp: Date.now(),
+    };
+    state.transactions.push(expenseTx);
+    notificationMessage += " Expense logged.";
+    refreshMonthlyViewIfRelevant(paymentDate);
+  } else {
+    notificationMessage += " Not logged as expense.";
+  }
+  if (item.paidOff) {
+    notificationMessage = `CC item "${item.description.substring(
+      0,
+      20
+    )}..." fully paid.${
+      logAsExpense ? " Expense logged." : " Not logged as expense."
+    }`;
+  }
+
+  saveData();
+  renderDashboard();
+  renderCreditCardSection();
+  populateDropdowns();
+  if ($("#ccHistoryModal").style.display === "block") openCcHistoryModal();
+  closeModal("formModal");
+  showNotification(notificationMessage, "success");
+}
+
+function openSettingsModal() {
+  renderSettingsForm();
+
+  setupSettingsTabs();
+
+  const storageInfoElement = $("#storageSizeInfo");
+  if (storageInfoElement) {
+    storageInfoElement.textContent = `Approx. Storage Used: ${getFormattedLocalStorageSize(
+      STORAGE_KEY
+    )}`;
+  }
+
+  $("#settingsModal").style.display = "block";
+  cancelDeleteAllData();
+  displayAppVersion();
+}
+
+function renderSettingsForm() {
+  const accountManagementList = $("#accountManagementList");
+  if (!accountManagementList) {
+    console.error(
+      "#accountManagementList element not found in #settingsAccountsPanel."
+    );
+  } else {
+    accountManagementList.innerHTML = "";
+    state.accounts.forEach((acc) => {
+      const accRow = document.createElement("div");
+      accRow.className =
+        "grid grid-cols-[auto,1fr,1fr] gap-x-3 items-center py-1 account-row";
+      if (acc.hidden) {
+        accRow.classList.add("account-row-hidden");
+      }
+
+      // Hide/Show Button
+      const hideButton = document.createElement("button");
+      hideButton.type = "button";
+      hideButton.className = "btn-icon-hide justify-self-center";
+      hideButton.dataset.accountId = acc.id;
+      hideButton.innerHTML = `<i class="fas ${
+        acc.hidden ? "fa-eye-slash" : "fa-eye"
+      }"></i>`;
+
+      if (acc.id === "cash") {
+        hideButton.disabled = true;
+        hideButton.style.opacity = "0.3";
+        hideButton.style.cursor = "not-allowed";
+      } else {
+        hideButton.onclick = () => toggleAccountVisibility(acc.id);
+      }
+      accRow.appendChild(hideButton);
+
+      // Name Input
+      const nameInput = document.createElement("input");
+      nameInput.type = "text";
+      nameInput.name = `accountName_${acc.id}`;
+      nameInput.value = acc.name;
+      nameInput.dataset.accountId = acc.id;
+      nameInput.className = "!py-1 !px-2 text-sm rounded placeholder-gray-400";
+      nameInput.style.backgroundColor = "var(--bg-secondary)";
+      nameInput.style.borderColor = "var(--border-color)";
+      nameInput.style.color = "var(--text-primary)";
+      if (acc.id === "cash") {
+        nameInput.readOnly = true;
+        nameInput.classList.add("text-gray-400", "cursor-not-allowed");
+      }
+      accRow.appendChild(nameInput);
+
+      // Balance Input
+      const balanceInput = document.createElement("input");
+      balanceInput.type = "number";
+      balanceInput.name = `accountBalance_${acc.id}`;
+      balanceInput.value = acc.balance.toFixed(2);
+      balanceInput.step = "0.01";
+      balanceInput.dataset.accountId = acc.id;
+      balanceInput.className =
+        "!py-1 !px-2 text-sm rounded placeholder-gray-400";
+      balanceInput.style.backgroundColor = "var(--bg-secondary)";
+      balanceInput.style.borderColor = "var(--border-color)";
+      balanceInput.style.color = "var(--text-primary)";
+      accRow.appendChild(balanceInput);
+
+      accountManagementList.appendChild(accRow);
+    });
+  }
+
+  const manageAccountsForm = $("#manageAccountsForm");
+  if (manageAccountsForm) {
+    manageAccountsForm.onsubmit = handleManageAccountsSubmit;
+  }
+
+  const settingsCcLimitAmountInput = $("#settingsCcLimitAmount");
+  if (settingsCcLimitAmountInput) {
+    settingsCcLimitAmountInput.value = (
+      (state.creditCard && state.creditCard.limit) ||
+      0
+    ).toFixed(2);
+    settingsCcLimitAmountInput.style.backgroundColor = "var(--bg-secondary)";
+    settingsCcLimitAmountInput.style.borderColor = "var(--border-color)";
+    settingsCcLimitAmountInput.style.color = "var(--text-primary)";
+  }
+
+  const settingsCcLimitForm = $("#settingsCcLimitForm");
+  if (settingsCcLimitForm) {
+    settingsCcLimitForm.onsubmit = (event) => {
+      event.preventDefault();
+      const formData = new FormData(settingsCcLimitForm);
+      const limit = parseFloat(formData.get("ccLimitAmount"));
+      if (isNaN(limit) || limit < 0) {
+        showNotification("Invalid credit limit amount.", "error");
+        return;
+      }
+      if (!state.creditCard) {
+        state.creditCard = { limit: 0, transactions: [] };
+      }
+      state.creditCard.limit = limit;
+      saveData();
+      renderCreditCardSection();
+      if ($("#ccHistoryModal").style.display === "block") openCcHistoryModal();
+      showNotification(
+        `Credit limit set to ${formatCurrency(limit)}.`,
+        "success"
+      );
+    };
+  }
+
+  const toggleCcSectionElement = $("#toggleCcSection");
+  if (toggleCcSectionElement) {
+    if (!state.settings) {
+      state.settings = {
+        initialSetupDone: false,
+        showCcDashboardSection: true,
+        theme: "dark",
+      };
+    }
+    toggleCcSectionElement.checked =
+      state.settings.showCcDashboardSection !== undefined
+        ? state.settings.showCcDashboardSection
+        : true;
+
+    if (!toggleCcSectionElement.dataset.listenerAttached) {
+      toggleCcSectionElement.onchange = () => {
+        if (!state.settings) {
+          state.settings = {
+            initialSetupDone: false,
+            showCcDashboardSection: true,
+            theme: "dark",
+          };
+        }
+        state.settings.showCcDashboardSection = toggleCcSectionElement.checked;
+        saveData();
+        updateCcDashboardSectionVisibility();
+        showNotification(
+          `Credit Card section on dashboard will now be ${
+            toggleCcSectionElement.checked ? "shown" : "hidden"
+          }.`,
+          "info"
+        );
+      };
+      toggleCcSectionElement.dataset.listenerAttached = "true";
+    }
+  }
+
+  const addCategoryForm = $("#addCategoryForm");
+  if (addCategoryForm) {
+    addCategoryForm.onsubmit = addCategory;
+    const newCategoryNameInput =
+      addCategoryForm.querySelector("#newCategoryName");
+    if (newCategoryNameInput) {
+      newCategoryNameInput.style.backgroundColor = "var(--bg-secondary)";
+      newCategoryNameInput.style.borderColor = "var(--border-color)";
+      newCategoryNameInput.style.color = "var(--text-primary)";
+    }
+  }
+  renderCategorySettingsList();
+}
+
+function toggleAccountVisibility(accountId) {
+  const account = state.accounts.find((acc) => acc.id === accountId);
+  if (!account || account.id === "cash") return;
+
+  const performToggle = () => {
+    account.hidden = !account.hidden;
+    saveData();
+    renderDashboard();
+    populateDropdowns();
+    renderSettingsForm(); // Re-render settings to update the button and style
+    showNotification(
+      `Account "${account.name}" is now ${
+        account.hidden ? "hidden" : "visible"
+      }.`,
+      "info"
+    );
+  };
+
+  if (!account.hidden && account.balance !== 0) {
+    showConfirmationModal(
+      "Hide Account?",
+      `This account has a balance of <strong>${formatCurrency(
+        account.balance
+      )}</strong>. Hiding it will remove it from the dashboard, but its balance will still be included in your "Total Available" figure.<br><br>Are you sure you want to hide it?`,
+      "Yes, Hide It",
+      "Cancel",
+      performToggle, // onConfirm
+      null, // onCancel
+      "btn-primary" // Use a less destructive button color
+    );
+  } else {
+    performToggle(); // Hide if balance is zero or unhide without confirmation
+  }
+}
+
+function renderCategorySettingsList() {
+  const categoryList = $("#categorySettingsList");
+  if (!categoryList) {
+    console.error("#categorySettingsList element not found.");
+    return;
+  }
+  categoryList.innerHTML = "";
+
+  const sortedCategories = [...state.categories].sort((a, b) =>
+    a.localeCompare(b)
+  );
+
+  sortedCategories.forEach((cat) => {
+    const li = document.createElement("li");
+
+    li.className = "flex justify-between items-center p-2 rounded";
+    li.style.backgroundColor = "var(--bg-secondary)";
+    li.style.borderColor = "var(--border-color)";
+    li.style.borderWidth = "1px";
+
+    const inputElementHTML = `<input type="text" value="${cat}" data-original-name="${cat}" class="bg-transparent border-none focus:ring-0 focus:outline-none p-0 flex-grow mr-2 text-sm">`;
+
+    const buttonsDiv = document.createElement("div");
+    buttonsDiv.className = "flex items-center gap-x-2";
+
+    const saveButtonHTML = `<button class="btn btn-primary btn-sm !py-0.5 !px-2 text-xs" onclick="renameCategory(this)">Save</button>`;
+    const deleteButtonHTML = `<button class="text-gray-400 hover:text-expense focus:outline-none" onclick="deleteCategory('${cat}')" title="Delete Category"><i class="fas fa-times"></i></button>`;
+
+    li.innerHTML = inputElementHTML;
+    buttonsDiv.innerHTML = saveButtonHTML + deleteButtonHTML;
+    li.appendChild(buttonsDiv);
+
+    categoryList.appendChild(li);
+  });
+}
+
+function renameCategory(buttonElement) {
+  const liElement = buttonElement.closest("li");
+  const inputElement = liElement.querySelector('input[type="text"]');
+  const newName = inputElement.value.trim();
+  const originalName = inputElement.dataset.originalName;
+  if (!newName) {
+    showNotification("Category name cannot be empty.", "error");
+    inputElement.value = originalName;
+    return;
+  }
+  if (newName === originalName) return;
+  if (
+    state.categories.some(
+      (cat) =>
+        cat.toLowerCase() === newName.toLowerCase() && cat !== originalName
+    )
+  ) {
+    showNotification(`Category name "${newName}" already exists.`, "error");
+    inputElement.value = originalName;
+    return;
+  }
+  const index = state.categories.indexOf(originalName);
+  if (index > -1) {
+    state.categories[index] = newName;
+    state.categories.sort((a, b) => a.localeCompare(b));
+    let updateCount = 0;
+    state.transactions.forEach((t) => {
+      if (t.category === originalName) {
+        t.category = newName;
+        updateCount++;
+      }
+    });
+    saveData();
+    populateDropdowns();
+    renderCategorySettingsList();
+    showNotification(
+      `Category "${originalName}" renamed to "${newName}". ${updateCount} transaction(s) updated.`,
+      "success"
+    );
+  } else {
+    showNotification(`Original category "${originalName}" not found.`, "error");
+    inputElement.value = originalName;
+  }
+}
+
+function addCategory(event) {
+  event.preventDefault();
+  const input = $("#newCategoryName");
+  const newCategoryName = input.value.trim();
+  if (!newCategoryName) {
+    showNotification("Category name cannot be empty.", "error");
+    return;
+  }
+  if (
+    state.categories.some(
+      (cat) => cat.toLowerCase() === newCategoryName.toLowerCase()
+    )
+  ) {
+    showNotification(
+      `Category "${newCategoryName}" already exists.`,
+      "warning"
+    );
+    input.value = "";
+    return;
+  }
+  state.categories.push(newCategoryName);
+  state.categories.sort((a, b) => a.localeCompare(b));
+  saveData();
+  populateDropdowns();
+  renderCategorySettingsList();
+  input.value = "";
+  showNotification(`Category "${newCategoryName}" added.`, "success");
+}
+
+function deleteCategory(categoryName) {
+  if (categoryName === "Other") {
+    showNotification("The 'Other' category cannot be deleted.", "warning");
+    return;
+  }
+  const isUsed = state.transactions.some((t) => t.category === categoryName);
+  if (isUsed) {
+    showNotification(
+      `Category "${categoryName}" is in use and cannot be deleted. Reassign transactions first or rename the category.`,
+      "error"
+    );
+    return;
+  }
+  if (!state.categories.includes(categoryName)) {
+    showNotification(`Category "${categoryName}" not found.`, "error");
+    return;
+  }
+  if (
+    confirm(
+      `Are you sure you want to delete the category "${categoryName}"? This action cannot be undone if the category is not in use.`
+    )
+  ) {
+    state.categories = state.categories.filter((cat) => cat !== categoryName);
+    saveData();
+    populateDropdowns();
+    renderCategorySettingsList();
+    showNotification(`Category "${categoryName}" deleted.`, "success");
+  }
+}
+
+function updateCcDashboardSectionVisibility() {
+  const ccDashboardSection = $("#creditCardDashboardSection");
+  if (ccDashboardSection) {
+    let isVisible = true;
+    if (state.settings && state.settings.showCcDashboardSection !== undefined) {
+      isVisible = state.settings.showCcDashboardSection;
+    } else if (state.settings === undefined) {
+      state.settings = {
+        initialSetupDone: false,
+        showCcDashboardSection: true,
+      };
+      console.log(
+        "state.settings was undefined, initialized showCcDashboardSection to true"
+      );
+    }
+
+    if (isVisible) {
+      ccDashboardSection.style.display = "";
+    } else {
+      ccDashboardSection.style.display = "none";
+    }
+  }
+
+  const ccLimitSettingsCard = $("#ccLimitSettingsCard");
+  if (ccLimitSettingsCard) {
+  }
+}
+
+function handleManageAccountsSubmit(event) {
+  event.preventDefault();
+  const formData = new FormData(event.target);
+  let changesMade = false;
+  let errors = [];
+
+  state.accounts.forEach((acc) => {
+    const newNameInput = formData.get(`accountName_${acc.id}`);
+    const newBalanceInput = formData.get(`accountBalance_${acc.id}`);
+
+    if (newNameInput === null || newBalanceInput === null) {
+      console.warn(`Inputs for account ${acc.id} not found in form data.`);
+      return;
+    }
+
+    const newName = newNameInput.trim();
+    const newBalance = parseFloat(newBalanceInput);
+
+    if (acc.id !== "cash") {
+      if (!newName) {
+        errors.push(
+          `Account name for "${acc.name}" (ID: ${acc.id}) cannot be empty.`
+        );
+      } else if (newName !== acc.name) {
+        if (
+          state.accounts.some(
+            (existingAcc) =>
+              existingAcc.id !== acc.id &&
+              existingAcc.name.toLowerCase() === newName.toLowerCase()
+          )
+        ) {
+          errors.push(
+            `Account name "${newName}" already exists. Please choose a unique name.`
+          );
+        } else {
+          acc.name = newName;
+          changesMade = true;
+        }
+      }
+    }
+
+    if (isNaN(newBalance)) {
+      errors.push(
+        `Invalid balance entered for account "${acc.name}". Please enter a valid number.`
+      );
+    } else {
+      const roundedNewBalance = roundToTwoDecimals(newBalance);
+      // Check if balance actually changed (comparing rounded values)
+      if (Math.abs(acc.balance - roundedNewBalance) > 0.005) {
+        acc.balance = roundedNewBalance; // Store rounded balance
+        changesMade = true;
+      } else if (acc.balance !== roundedNewBalance && changesMade === false) {
+        // If the input was like 10.00001 but stored is 10.00, still update to ensure it's clean
+        // but only if no other more significant change was made (to avoid multiple notifications for tiny cleanups)
+        // This logic might be too nuanced, simpler to just update if toFixed(2) differs.
+        // For now, we rely on the > 0.005 check. If the user types "10.0000001" and current is 10.00,
+        // it might not register as a change unless the parseFloat(toFixed(2)) differs.
+        // Let's ensure it's always set to the rounded value if it was a valid number.
+        if (acc.balance !== roundedNewBalance) {
+          // If the stored balance isn't already the perfectly rounded one
+          acc.balance = roundedNewBalance;
+          // Don't mark changesMade = true for this minor cleanup unless it was a real value change.
+        }
+      }
+    }
+  });
+
+  if (errors.length > 0) {
+    errors.forEach((err) => showNotification(err, "error", 6000));
+    renderSettingsForm();
+    return;
+  }
+
+  if (changesMade) {
+    if (state.settings && !state.settings.initialSetupDone) {
+      state.settings.initialSetupDone = true;
+    }
+    saveData();
+    renderDashboard();
+    populateDropdowns();
+    renderSettingsForm();
+    showNotification(
+      "Account names and/or balances updated successfully.",
+      "success"
+    );
+  } else {
+    // Check if any balance was just re-formatted to 2 decimals without changing its value significantly
+    let formattingChangeOnly = false;
+    state.accounts.forEach((acc) => {
+      const newBalanceFromForm = parseFloat(
+        formData.get(`accountBalance_${acc.id}`)
+      );
+      if (
+        !isNaN(newBalanceFromForm) &&
+        acc.balance !== roundToTwoDecimals(newBalanceFromForm) &&
+        Math.abs(acc.balance - roundToTwoDecimals(newBalanceFromForm)) <= 0.005
+      ) {
+        // This means the value was like 10.001 and became 10.00.
+        // We should still save this to ensure clean data.
+        acc.balance = roundToTwoDecimals(newBalanceFromForm);
+        formattingChangeOnly = true;
+      }
+    });
+    if (formattingChangeOnly && !changesMade) {
+      // only save if it was just a formatting cleanup
+      saveData();
+      renderDashboard();
+      populateDropdowns();
+      renderSettingsForm();
+      showNotification(
+        "Account balances formatted to two decimal places.",
+        "info"
+      );
+    } else if (!changesMade) {
+      showNotification(
+        "No changes detected in account names or balances.",
+        "info"
+      );
+    }
+  }
+}
+
+function exportData() {
+  try {
+    const dataStr = JSON.stringify(state, null, 2);
+    const dataBlob = new Blob([dataStr], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement("a");
+    const timestamp = new Date()
+      .toISOString()
+      .slice(0, 19)
+      .replace(/[:T]/g, "-");
+    link.download = `kaasi-backup-${timestamp}.json`;
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showNotification("Data exported.", "success");
+  } catch (error) {
+    console.error("Export failed:", error);
+    showNotification("Data export failed.", "error");
+  }
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) {
+    if (event && event.target) event.target.value = null;
+    return;
+  }
+
+  showConfirmationModal(
+    "Import Data",
+    "Importing data will <strong class='text-warning'>OVERWRITE ALL</strong> current data. This action cannot be undone.<br><br>Are you sure you want to proceed?",
+    "Import & Overwrite",
+    "Cancel",
+    () => {
+      // onConfirm
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          let importedData = JSON.parse(e.target.result);
+          if (importedData && typeof importedData === "object") {
+            // Sanitization logic from your previous full script.js
+            if (Array.isArray(importedData.transactions)) {
+              importedData.transactions.forEach((t) => {
+                if (typeof t.amount === "number")
+                  t.amount = roundToTwoDecimals(t.amount);
+              });
+            }
+            if (Array.isArray(importedData.accounts)) {
+              importedData.accounts.forEach((acc) => {
+                if (typeof acc.balance === "number")
+                  acc.balance = roundToTwoDecimals(acc.balance);
+              });
+            }
+            if (Array.isArray(importedData.debts)) {
+              importedData.debts.forEach((d) => {
+                if (typeof d.amount === "number")
+                  d.amount = roundToTwoDecimals(d.amount);
+                if (typeof d.originalAmount === "number")
+                  d.originalAmount = roundToTwoDecimals(d.originalAmount);
+                if (typeof d.remainingAmount === "number")
+                  d.remainingAmount = roundToTwoDecimals(d.remainingAmount);
+              });
+            }
+            if (Array.isArray(importedData.receivables)) {
+              importedData.receivables.forEach((r) => {
+                if (typeof r.amount === "number")
+                  r.amount = roundToTwoDecimals(r.amount);
+                if (typeof r.originalAmount === "number")
+                  r.originalAmount = roundToTwoDecimals(r.originalAmount);
+                if (typeof r.remainingAmount === "number")
+                  r.remainingAmount = roundToTwoDecimals(r.remainingAmount);
+              });
+            }
+            if (Array.isArray(importedData.installments)) {
+              importedData.installments.forEach((i) => {
+                if (typeof i.monthlyAmount === "number")
+                  i.monthlyAmount = roundToTwoDecimals(i.monthlyAmount);
+                if (typeof i.originalFullAmount === "number")
+                  i.originalFullAmount = roundToTwoDecimals(
+                    i.originalFullAmount
+                  );
+              });
+            }
+            if (
+              importedData.creditCard &&
+              typeof importedData.creditCard === "object"
+            ) {
+              if (typeof importedData.creditCard.limit === "number") {
+                importedData.creditCard.limit = roundToTwoDecimals(
+                  importedData.creditCard.limit
+                );
+              }
+              if (Array.isArray(importedData.creditCard.transactions)) {
+                importedData.creditCard.transactions.forEach((ccTrans) => {
+                  if (typeof ccTrans.amount === "number")
+                    ccTrans.amount = roundToTwoDecimals(ccTrans.amount);
+                  if (typeof ccTrans.paidAmount === "number")
+                    ccTrans.paidAmount = roundToTwoDecimals(ccTrans.paidAmount);
+                  if (
+                    ccTrans.paidAmount >=
+                    roundToTwoDecimals(ccTrans.amount - 0.005)
+                  ) {
+                    ccTrans.paidOff = true;
+                    ccTrans.paidAmount = ccTrans.amount;
+                  } else {
+                    ccTrans.paidOff = false;
+                  }
+                });
+              }
+            }
+
+            state = deepMerge(getDefaultState(), importedData);
+            ensureDefaultAccounts();
+            ensureDefaultCategories();
+
+            state.accounts.forEach((acc) => {
+              if (isNaN(acc.balance) || typeof acc.balance !== "number")
+                acc.balance = 0;
+              else acc.balance = roundToTwoDecimals(acc.balance);
+            });
+
+            if (!state.creditCard)
+              state.creditCard = { limit: 0, transactions: [] };
+            if (
+              isNaN(state.creditCard.limit) ||
+              typeof state.creditCard.limit !== "number"
+            )
+              state.creditCard.limit = 0;
+            else
+              state.creditCard.limit = roundToTwoDecimals(
+                state.creditCard.limit
+              );
+
+            if (!Array.isArray(state.creditCard.transactions))
+              state.creditCard.transactions = [];
+            state.creditCard.transactions.forEach((t) => {
+              if (typeof t.amount !== "number" || isNaN(t.amount)) t.amount = 0;
+              else t.amount = roundToTwoDecimals(t.amount);
+              if (typeof t.paidAmount !== "number" || isNaN(t.paidAmount))
+                t.paidAmount = 0;
+              else t.paidAmount = roundToTwoDecimals(t.paidAmount);
+              if (t.paidAmount >= roundToTwoDecimals(t.amount - 0.005)) {
+                t.paidOff = true;
+                t.paidAmount = t.amount;
+              } else {
+                t.paidOff = false;
+              }
+              if (!t.timestamp) t.timestamp = new Date(t.date).getTime();
+            });
+            state.transactions.forEach((t) => {
+              if (!t.timestamp) t.timestamp = new Date(t.date).getTime();
+            });
+            state.debts.forEach((d) => {
+              if (!d.timestamp) d.timestamp = new Date(d.dueDate).getTime();
+            });
+            state.receivables.forEach((r) => {
+              if (!r.timestamp) r.timestamp = new Date(r.dateGiven).getTime();
+            });
+            state.installments.forEach((i) => {
+              if (!i.timestamp) i.timestamp = new Date(i.startDate).getTime();
+            });
+
+            if (!state.settings) state.settings = getDefaultState().settings;
+            state.settings.initialSetupDone = true;
+
+            saveData();
+            initializeUI(true);
+            showNotification(
+              "Data imported and sanitized successfully. Application refreshed.",
+              "success"
+            );
+            closeModal("settingsModal");
+          } else {
+            throw new Error(
+              "Invalid data structure in imported file. Ensure it's a Kaasi backup."
+            );
+          }
+        } catch (error) {
+          console.error("Import failed during processing:", error);
+          showNotification(`Import failed: ${error.message}`, "error", 7000);
+        } finally {
+          if (event && event.target) event.target.value = null;
+        }
+      };
+      reader.onerror = () => {
+        showNotification("Failed to read the import file.", "error");
+        if (event && event.target) event.target.value = null;
+      };
+      reader.readAsText(file);
+    },
+    () => {
+      // onCancel
+      if (event && event.target) event.target.value = null;
+      showNotification("Import cancelled.", "info");
+    },
+    "btn-primary"
+  );
+}
+
+function generateMonthlyPdfReport() {
+  if (typeof window.jspdf === "undefined") {
+    showNotification("PDF generation library is not loaded.", "error");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const activeTab = $("#monthTabs .tab-button.active");
+
+  if (!activeTab) {
+    showNotification("Please select a month to generate a report.", "info");
+    return;
+  }
+
+  const month = parseInt(activeTab.dataset.month);
+  const year = parseInt(activeTab.dataset.year);
+  const monthName = new Date(year, month).toLocaleString("default", {
+    month: "long",
+  });
+
+  showNotification(`Generating PDF for ${monthName} ${year}...`, "info", 3000);
+
+  // --- 1. Data Preparation ---
+  const transactionsInMonth = state.transactions
+    .filter((t) => {
+      const tDate = new Date(t.date);
+      return tDate.getFullYear() === year && tDate.getMonth() === month;
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  let totalIncome = 0;
+  let totalExpense = 0;
+  const categoryTotals = {};
+
+  transactionsInMonth.forEach((t) => {
+    if (t.type === "income") {
+      totalIncome += t.amount;
+    } else {
+      totalExpense += t.amount;
+      const category = t.category || "Other";
+      if (!categoryTotals[category]) {
+        categoryTotals[category] = 0;
+      }
+      categoryTotals[category] += t.amount;
+    }
+  });
+  const netFlow = totalIncome - totalExpense;
+
+  // --- 2. PDF Document Setup ---
+  const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 40;
+  let cursorY = margin;
+
+  // --- Base64 Encoded PNG Logo ---
+  const kaasiLogoBase64 =
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZwAAACNCAMAAAC0YjyBAAAAM1BMVEUAAADmfibmfibmfibmfibmfibmfibmfibmfibmfibmfibmfibmfibmfibmfibmfibmfibz/BTlAAAAEHRSTlMAgMBA8BBgoNAwIOCwcJBQIn4GGAAADw5JREFUeNrsnNnS2yAMRs2+GLDe/2nbSaebFfgA86dNxuc2Cw4HkIRxtlVIItqlLOII281/hqTfeGdvQ/8GY50WLTkPtLNmu3kpMXv6DpTzwOe43bwKm4ioIYeT7HbzAqLQREgOR4t7+nw10dEDLIfjbj2MxWqgnFvPi+BqsJxbz+sxQtN1OaTFnVovR+1EXXIgu9puVmISUa8cTLonz0KUppVySN+TZxmFqFeOTVJ6wpTtpoE5hJTiMBsiegJyGEbZAuaQj1s/Vv6JRUuw/BuxvRtZ0wOd8ZIG5NRQwi9a2gRrtYE7N/R2W+OOfuHag5YaCLx1naiK/RI5mU683bZe6V3/CwE5kJh3EHiWyglvH90U/YUCEwzIgRy1+OOWyzHnkeC3dyOd6g7gBsnBKAnsTMrBN/ver6TSp18A3EA583rcWjmCTrxhQUUnoBssB2M1sHNdzkEn8vZ2sKAZoBssB2MKsHNVTjzrT9sb0jNzCmHEit3TskyOPycD7xdwvnPqox3XN1jO/AaqHZXzsdXnAwdXFkUcj+VgMnHUEjn27avPZ4uzjuAND3QQQE4f4clXxwVygn736vMnFowwz6dN2ICcXsKTL78ux/i3rz6f2bE9yYA326wc3I9E5bKc9P7VJy8KpcLlwsMNkHPRznFRTv6A6vNPghXCho1j9BM3QM5VO9pckhM+oPrsIz1xA+Rct5OuyDEfUX32cFTcADlX7RwX5MiPqD47MDtPdK/Lwcn6bqbllM+oPjFcQdhWyMFhQszKOT6k+sREHlrXyMEJVpyTEz+m+oQ4FlqBnHWJh+uV87HVJyCwSADkrIxuakaO+6Tqs41k/bVMDt5dlRNy7Hz1GZQQRX5HiKzGlEaVhZDfKUKoOPCLrRDp0aJVlydO2ZbKQWlWGJYT9Fz1GbI8rxHu6H1SOZ0a1cl2uA3ltACDT6GIsxsgZ3Ha7kblmH2m+jTZ0zN0ibgKTPSUBGaC3bsfVxLPV5PICkMgZ3XBGwflJFB9ggeNOMWgLq4iA/gcaBDJKSwGADmrY1wZk5Mnqs9jn34AIsq5G8Om9bk9dMrRLLZiOUtzAj0kR01Un4UQGRwfGn7wKIDhcHTJsWziQDmrp44dkGM0KJRGxjD+mkwYb/AtWo6CcnhHqeVy8NSRA3LkePXpqQdbc4NJuJrj6IjlRNZPWM7yqRO75RT+ExGO+lDdp5FwlyTCeCwnsyvEcpZPndwr5xivPg/qZDe1TXRMmGnTQjmeHWaDctYfovN9cvhKvuOAo4njZdf4l8TZpSaObB4RJF+EEMWziwdyIhvCr5GT+bqG5RgPsyx0/frX38EFC46HsLwwZbU9iIfTrRmsKkVnPLVoW3L4qmpeJcfwy8RyHDHgjqdu/FlFTE3TqVHXG1GZOjwwHtUgloCcxN79Gjm8YSzHwhQYhHQf2snCXh8/2oLHZmMtPcz1iksDORoM4DE5prJ9FVAipDvkBJxkcRyYZa4e1y047GCrs44Jr4XA0JQT0KqG5WA3dOB1LUA5tdJBdiceCuYLuTbIHawHZOW+smuNhqMpJ6PfieXgisJ2lDoZyklTz2fDcrVUV1eJCrGjMvdVq7cye7Eqx4EeAnJm3fBx4VDLmjg4JwjwulV1DdpbXnlMiM+/stTaw3I8WFuAnFk3fEX11ZYxoq/YPTqeKau84Dr2ORT2zWnKYVF5Xo4YccNzkRk5+ARPkL8JTTn8m/B/u7jKsoO6C8thjklekWOBGxR01AU5chsDD/+JDhUVOSQm5VjwLUAOdiO6a3d7QQ6p/0uOpL/wdlgO6h8sB7tx/TuSYkCOLmCLDaKUEo8jMXrYclAqC+Gk3KvdktkFOxuH5Th2ZXNyggZu8M60G5BjNzm1a2HU42jT1BRUmbmsXkKkJ+wphyE5EsRkIAe6aQPihmjctFTjt3UOt8+uj6H4sZyx5l9Lobrl+Ck5E26wHN8tx7M5jxuLTs8GLyP24YQ+UgOZI5TDx+6kHLPPuMHzVrRu7xq2Z99UM59ZCGQVH0nlSPsiOcaD9HaxHPX8VQ/+f2dOTtgJgw9zc3Y1Jif1y8FuvNkgaUAOb30HFRXuJyzHUj9i8KPOjMgRU3KqbjBiQk6q3qfUBrrBqFk3vPuChyeqvlqOA+0ulrObekpUZs4T4rvN8zt81iM7LTlqXg52gxHg3A+4axcbR2BwB+vHMxniUL52EUZThR9PgVjlUPepdpJYvkwOdrNejmVvQDnIzief+8beGa3HCQJRmAEERdB9/6dtc5EmDY4/Itv2a/bcu7j8gHAYhuKWFvsm1kCzOAf2TX3sJOuA0hOHtQLxX6OHtQhRTzvaSn5Lrd7aVJXu2FvTAEVYboyHEyBg4DYcmi0HbBZZizlnOKXK0WQYjq4UDmwG/5ypNLO5P5Vmi2am9bHaUBnOXA3VBAc1Bat8JkcvQndgc38RSoMWW2yuYbzVPnwNZyMzw4GAqvAcOIsHNqPhyMUz+o1bIkmB4xpGlZnhwO68tBqf/gocZsPyZHxy00nnFpvwbnZoglOYq/ScV5bhWwa6EQ1surcM2iMXVviqNW+WO7ZVy/ELbvaT1KGY4WSlagGOZkSHGyfscxMcXsgUHDjrqmI4Oxcth4WmfjiivAHAmeZeNv3b1MK/UltsvNNr2+CIUjMIJwCc4QEeHWzuB3hIa/qRqP7ERs6bDmfmmaIc/qY9L3IfHhpl8XQXi0OjGA5bbEXrVJwkNME8fvFta/NyOoVJo4MKfXf0GAcVMhxu/VZt3fNEmeKd9np+AawPUbCGk+2v1ZzBWdvDcVnlxnxgvQIHLLagXkuzOsjp4VTnxxfIzSGab5HTR5nFVwOtDie3B7Kz/NR/8DAzHFVFf49YubLb7n5qF0v7OeEg+My9SY5tZtGfnOXtySC53ZXmGmI4/elpuV0wHLbY3OOanNYhWVLNsVHR6HDqlwc4Q8Ni8cl2OE5vkfZBWvVMcySrvKBrHml0OHUV7TfhrN2po+7ddpjVOcHyAM1OgcNZOHyqXpD2xvXa5gO7EeGApDPJW+6EwxabQAUvGhwGG4yH0Ap4nOAUPup+SanvqHvphcMWWzxnYwxG3+iVayFujdlwkghepw8/KhOA6UU400qBDnraM4xb0ys36y8o16645/QqbNyzduTCxTIcttiqWaoa12drOHxH97x8/WWBq+rqkkcnJmL56VmJiTSxxbbYw07ujCE4ZoqHPS7UlSeQRhKSfLak9IoAh7V15HxN/VfufwD4ot9+0+VqRbkclbO0HFDI4ajQ0Ji4dS78bzdlBZcuwPG+0wBNfz6d+rRv72fRbBZnrsiJnd/TTck+XXw2Wv8ex5jhafo0x3Y4ftmV8zOk+E3uiLityZ92HTmdhtouAzR9m1z3txUxdbHu1STOXskf72he0pQggEVRgHMa7VZYMi+1NuS1CU44c2DdlXuYrXmpvSXLlawp7nIsu/xf90c+W1UEL8IJ4I7I2Q7oq+Pc6TrzBHACnjFKlDCPO46TX/rrnSvJZ3V3gjCi62zncAq7g7Y9HEOTQEcEPbH5mk71/Y+kdw3hDAMWOpdCki/UM/+YHHwfB8PhSzeFJ8rLiQHKV+S/4Pxo71zXHAVhMFxCIBxt7v9q97EjRuq0oYc57K7fn2kZROAtIaDAw/uWZ9fBeWJ/Jxo6K9YdcHT5V44/doODHRf2xu+A84RPwKDAUReUh8F7jMNJ1rUPafkQL3PGxfRd1xxUL0ESLRqYfDefb8ic+1PdCKbzKBxnT84Tbe5ZjO+z4Seg6vZwbEtmn/k0p1qMeuIFqXBEZWSwQ8oknAonIiwtNbd2jQ6YAZl9f6MA3Vse4AID5M0gwcElTnHb/hAhMwzCsRyZAbbJBcbY2wlARn8Nh9h3OcXO/7KMMKmGjWkcTkJ9ApS0R9q6WasfNy8c1zgF50ckMWDc3Gj+uTqSIINwoeCZxAWyLcHGJszxLdIoHCQhC5csxcBJ2OB5jhbYCpwrNnXJqYQYzmZskxhwChxR1SZAHXwCX4HTPxhcsXjJgmlNxuHqW/hWVECJFhqSFissL4uHtS6DWyq9jsHpN2GnxXGdhP55CQoCp2dzZmrFEv+rjG52H5wCR9mg6Kwk/hCcZtASgsRZCVuZioW17HaN5q+rF6jZ+IbUCrYxOOcNnNZvIKy4zNq3CRxhMwsatrgGmtUo6DsO5jgKJ96dAI1ZWdw76q1ZLgGTxJHqQlr4SenZrNFcu1xg9Me1TFnSHIRj97u61gzSJX3mrRHX7vs+p6o/LcKgwWma7rzt4fF2q9Lh9KHdlUZsPMDec5Qi72t0YgYTP/MkH4Yjm00GhDu5Z0OdMb+V0/Fd1RU4ymAn3uJWT0/DsQqcapvSHTinVAsyuNXE2FWPw3EBzcXPh7twkMlsLmO6mVPVKdDh6KfIgewKpzgDw2Yto7tv1nruezgiZ3BqDQkl+HE4hv2uw0t7OHOxQ3bSkvRC63QeXjorqvrcjg6ncwgiF4mzekfiZOWyVr29Ccct41nKq0mP0oE/DAdycwP2DoGVnqX0Dl0IaznsCBwXnoeTkAcV3JNwCtv5H3Vn5FxAd92aiG/DiUy9u+0QZKT7OBxcWDNIUFxqBfqWMm2ckrM0PAXOIB2jd1k6m+fgeDat3C0O4FzUBJuqIrQfkeGOWcsYL99JfFVyH+W3z5i1evmDGaQiMV6lx6a1/jWnZxkK6XCEzjgcUXiFjf6wLWFYfuUyLesCI+R++qZwmKbAwd2BE5HzBBzSZjCAxRSUlB5yCBiJMkaa4cgdCBjttetspQqJM805TRqcJkfvOEto/A378cfU1qT2IUpZfAGYbN/CCID8Nql+sDgrTXA1E5oMALQIO8nV8kXk6se11vdhk3cS0MrhjXhRBFD6nCoiDc74lbovoOuveqzw9TLPwnGo91gHnKel7zCPxafxh3a90J8OOK9J3088F2N3hJI1JfM9hXg64LxBrrCqDGAWAWRWVdzpzfL/6yuJHvmtwmMZzhuVgN8oOBYT/NbGczSb98sRv0V0LF77CkXglwXxdOhrZOFFND++RuCfloUDzS9WJH5KdBi075CrgR9UqIcb8G2KU+Zh5eloNN+sWIEHBPUg8zOyBpBvCuHnV3D+53K2GgDsqYCp9uhlfpPsrKOtvF1/AIm5RsnYih/8AAAAAElFTkSuQmCC";
+
+  // --- 3. PDF Content Drawing Functions ---
+  const drawHeader = () => {
+    doc.addImage(kaasiLogoBase64, "PNG", margin, cursorY - 12, 80, 0);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.setTextColor("#333333");
+    doc.text("Monthly Financial Statement", pageWidth / 2, cursorY, {
+      align: "center",
+    });
+
+    doc.setFontSize(10);
+    doc.text(`${monthName} ${year}`, pageWidth - margin, cursorY, {
+      align: "right",
+    });
+
+    cursorY += 30;
+    doc.setDrawColor("#DDDDDD");
+    doc.line(margin, cursorY, pageWidth - margin, cursorY);
+    cursorY += 25;
+  };
+
+  const drawFooter = (pageNumber) => {
+    const footerY = pageHeight - margin + 10;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor("#AAAAAA");
+    doc.text(`Page ${pageNumber}`, pageWidth / 2, footerY, { align: "center" });
+    doc.text("All amounts in LKR", pageWidth - margin, footerY, {
+      align: "right",
+    });
+    doc.textWithLink("Generated by Kaasi | kaasi.com.lk", margin, footerY, {
+      url: "https://kaasi.com.lk",
+    });
+  };
+
+  const drawSummary = (yPosition) => {
+    const boxWidth = (pageWidth - margin * 2 - 20) / 3;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor("#666666");
+    doc.text("Total Income", margin + boxWidth / 2, yPosition + 15, {
+      align: "center",
+    });
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor("#27ae60");
+    doc.text(
+      formatCurrency(totalIncome),
+      margin + boxWidth / 2,
+      yPosition + 35,
+      { align: "center" }
+    );
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor("#666666");
+    doc.text(
+      "Total Expenses",
+      margin + boxWidth + 10 + boxWidth / 2,
+      yPosition + 15,
+      { align: "center" }
+    );
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor("#c0392b");
+    doc.text(
+      formatCurrency(totalExpense),
+      margin + boxWidth + 10 + boxWidth / 2,
+      yPosition + 35,
+      { align: "center" }
+    );
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor("#666666");
+    doc.text(
+      "Net Flow",
+      margin + (boxWidth + 10) * 2 + boxWidth / 2,
+      yPosition + 15,
+      { align: "center" }
+    );
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(netFlow >= 0 ? "#27ae60" : "#c0392b");
+    doc.text(
+      formatCurrency(netFlow),
+      margin + (boxWidth + 10) * 2 + boxWidth / 2,
+      yPosition + 35,
+      { align: "center" }
+    );
+  };
+
+  const formatNumberForPdf = (amount) => {
+    if (typeof amount !== "number" || isNaN(amount)) amount = 0;
+    return amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
+  };
+
+  const drawTable = () => {
+    // FIXED: Adjusted column widths to fit the page perfectly
+    const tableHeaders = ["Date", "Description", "Category", "Debit", "Credit"];
+    const colWidths = [60, 215, 100, 70, 70];
+    const rowHeight = 20;
+    let pageNumber = 1;
+
+    const drawPageContent = () => {
+      drawHeader();
+      if (pageNumber === 1) {
+        drawSummary(cursorY);
+        cursorY += 70;
+      }
+      cursorY += 10;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor("#333333");
+      let currentX = margin;
+      tableHeaders.forEach((header, i) => {
+        let align = "left";
+        let xPos = currentX;
+        if (i >= 3) {
+          align = "right";
+          xPos = currentX + colWidths[i];
+        }
+        doc.text(header, xPos, cursorY, { align: align });
+        currentX += colWidths[i];
+      });
+      cursorY += 5;
+      doc.setDrawColor("#DDDDDD");
+      doc.line(margin, cursorY, pageWidth - margin, cursorY);
+      cursorY += rowHeight;
+    };
+
+    drawPageContent();
+
+    transactionsInMonth.forEach((t) => {
+      const desc = doc.splitTextToSize(t.description, colWidths[1] - 5);
+      const category = doc.splitTextToSize(t.category || "-", colWidths[2] - 5);
+      const rowLineCount = Math.max(
+        Array.isArray(desc) ? desc.length : 1,
+        Array.isArray(category) ? category.length : 1
+      );
+      const requiredSpace = rowHeight * rowLineCount;
+
+      if (cursorY + requiredSpace > pageHeight - margin - 20) {
+        drawFooter(pageNumber);
+        doc.addPage();
+        pageNumber++;
+        cursorY = margin;
+        drawPageContent();
+      }
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor("#555555");
+      let currentX = margin;
+      const date = new Date(t.date).toLocaleDateString("en-GB");
+      const debit = t.type === "expense" ? formatNumberForPdf(t.amount) : "";
+      const credit = t.type === "income" ? formatNumberForPdf(t.amount) : "";
+
+      doc.text(date, currentX, cursorY);
+      currentX += colWidths[0];
+      doc.text(desc, currentX, cursorY);
+      currentX += colWidths[1];
+      doc.text(category, currentX, cursorY);
+      currentX += colWidths[2];
+      doc.text(debit, currentX + colWidths[3], cursorY, { align: "right" });
+      currentX += colWidths[3];
+      doc.text(credit, currentX + colWidths[4], cursorY, { align: "right" });
+      cursorY += requiredSpace;
+    });
+
+    if (cursorY > pageHeight - margin - 60) {
+      drawFooter(pageNumber);
+      doc.addPage();
+      pageNumber++;
+      cursorY = margin;
+      drawHeader();
+    }
+
+    cursorY += 20;
+    doc.setDrawColor("#333333");
+    doc.line(
+      pageWidth - margin - colWidths[3] - colWidths[4],
+      cursorY,
+      pageWidth - margin,
+      cursorY
+    );
+    cursorY += rowHeight;
+
+    doc.setFont("helvetica", "bold");
+    doc.text(
+      "Totals:",
+      pageWidth - margin - colWidths[3] - colWidths[4] - 50,
+      cursorY,
+      { align: "right" }
+    );
+
+    doc.setTextColor("#c0392b");
+    doc.text(
+      formatNumberForPdf(totalExpense),
+      pageWidth - margin - colWidths[4],
+      cursorY,
+      { align: "right" }
+    );
+    doc.setTextColor("#27ae60");
+    doc.text(formatNumberForPdf(totalIncome), pageWidth - margin, cursorY, {
+      align: "right",
+    });
+
+    cursorY += 5;
+    doc.setDrawColor("#333333");
+    doc.line(
+      pageWidth - margin - colWidths[3] - colWidths[4],
+      cursorY,
+      pageWidth - margin,
+      cursorY
+    );
+    doc.line(
+      pageWidth - margin - colWidths[3] - colWidths[4],
+      cursorY + 2,
+      pageWidth - margin,
+      cursorY + 2
+    );
+
+    drawFooter(pageNumber);
+
+    if (Object.keys(categoryTotals).length > 0) {
+      doc.addPage();
+      pageNumber++;
+      cursorY = margin;
+      drawHeader();
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.setTextColor("#333333");
+      doc.text("Category Breakdown", pageWidth / 2, cursorY, {
+        align: "center",
+      });
+      cursorY += 30;
+
+      const catTableHeaders = ["Category", "Total Spent"];
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.text(catTableHeaders[0], margin, cursorY);
+      doc.text(catTableHeaders[1], pageWidth - margin, cursorY, {
+        align: "right",
+      });
+      cursorY += 5;
+      doc.setDrawColor("#DDDDDD");
+      doc.line(margin, cursorY, pageWidth - margin, cursorY);
+      cursorY += rowHeight;
+
+      const sortedCategories = Object.entries(categoryTotals).sort(
+        ([, a], [, b]) => b - a
+      );
+
+      sortedCategories.forEach(([category, amount]) => {
+        if (cursorY > pageHeight - margin - rowHeight) {
+          drawFooter(pageNumber);
+          doc.addPage();
+          pageNumber++;
+          cursorY = margin;
+          drawHeader();
+        }
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor("#555555");
+
+        const categoryText = category;
+        const amountText = formatNumberForPdf(amount);
+
+        doc.text(categoryText, margin, cursorY);
+        doc.text(amountText, pageWidth - margin, cursorY, { align: "right" });
+
+        // NEW: Add dotted line
+        const categoryWidth = doc.getTextWidth(categoryText);
+        const amountWidth = doc.getTextWidth(amountText);
+        const startX = margin + categoryWidth + 5;
+        const endX = pageWidth - margin - amountWidth - 5;
+
+        doc.setLineDashPattern([1, 2], 0);
+        doc.setDrawColor("#AAAAAA");
+        doc.line(startX, cursorY - 3, endX, cursorY - 3);
+        doc.setLineDashPattern([], 0);
+
+        cursorY += rowHeight;
+      });
+      drawFooter(pageNumber);
+    }
+  };
+
+  // --- 4. Generate and Save PDF ---
+  try {
+    drawTable();
+    doc.save(`Kaasi-Report-${monthName}-${year}.pdf`);
+  } catch (error) {
+    console.error("Failed to generate PDF:", error);
+    showNotification("An error occurred while generating the PDF.", "error");
+  }
+}
+
+function initiateDeleteAllData() {
+  $("#initiateDeleteBtn").classList.add("hidden");
+  $("#deleteConfirmationSection").classList.remove("hidden");
+  resetDeleteSlider();
+}
+
+function cancelDeleteAllData() {
+  $("#initiateDeleteBtn").classList.remove("hidden");
+  $("#deleteConfirmationSection").classList.add("hidden");
+  resetDeleteSlider();
+}
+let maxTranslateX = 0;
+let isDragging = false;
+function setupDeleteSlider() {
+  const sliderContainer = $("#deleteSliderContainer");
+  const handle = $("#deleteSliderHandle");
+  const track = sliderContainer.querySelector(".slide-to-confirm-track");
+  if (!sliderContainer || !handle || !track) return;
+
+  let startX = 0;
+  let currentTranslateX = 0;
+
+  const calculateMaxTranslate = () => {
+    maxTranslateX = sliderContainer.offsetWidth - handle.offsetWidth - 4;
+  };
+
+  window.resetDeleteSlider = () => {
+    isDragging = false;
+    currentTranslateX = 0;
+    handle.style.transition =
+      "transform 0.2s ease-out, background-color 0.2s ease-out";
+    track.style.transition =
+      "width 0.2s ease-out, background-color 0.2s ease-out";
+    handle.style.transform = `translateX(0px)`;
+    track.style.width = `0px`;
+    track.style.backgroundColor = "var(--button-success-bg)";
+    handle.innerHTML = '<i class="fas fa-arrow-right"></i>';
+    handle.style.backgroundColor = "var(--accent-primary)";
+    handle.style.cursor = "grab";
+    sliderContainer.style.cursor = "pointer";
+  };
+
+  const startDrag = (clientX) => {
+    calculateMaxTranslate();
+    isDragging = true;
+    startX = clientX - handle.getBoundingClientRect().left;
+    handle.style.transition = "none";
+    track.style.transition = "none";
+    handle.style.cursor = "grabbing";
+    sliderContainer.style.cursor = "grabbing";
+  };
+
+  const drag = (clientX) => {
+    if (!isDragging) return;
+    let newTranslateX =
+      clientX - sliderContainer.getBoundingClientRect().left - startX;
+    currentTranslateX = Math.max(0, Math.min(newTranslateX, maxTranslateX));
+    handle.style.transform = `translateX(${currentTranslateX}px)`;
+    track.style.width = `${currentTranslateX + handle.offsetWidth / 2}px`;
+  };
+
+  const endDrag = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    handle.style.cursor = "grab";
+    sliderContainer.style.cursor = "pointer";
+
+    handle.style.transition =
+      "transform 0.2s ease-out, background-color 0.2s ease-out";
+    track.style.transition =
+      "width 0.2s ease-out, background-color 0.2s ease-out";
+
+    if (currentTranslateX >= maxTranslateX - 1) {
+      completeDeletion();
+    } else {
+      resetDeleteSlider();
+    }
+  };
+
+  handle.addEventListener("mousedown", (e) => startDrag(e.clientX));
+  document.addEventListener("mousemove", (e) => {
+    if (isDragging) drag(e.clientX);
+  });
+  document.addEventListener("mouseup", endDrag);
+
+  handle.addEventListener(
+    "touchstart",
+    (e) => {
+      e.preventDefault();
+      startDrag(e.touches[0].clientX);
+    },
+    {
+      passive: false,
+    }
+  );
+  document.addEventListener(
+    "touchmove",
+    (e) => {
+      if (isDragging) {
+        e.preventDefault();
+        drag(e.touches[0].clientX);
+      }
+    },
+    {
+      passive: false,
+    }
+  );
+  document.addEventListener("touchend", endDrag);
+
+  window.addEventListener("resize", () => {
+    if (
+      $("#deleteConfirmationSection") &&
+      !$("#deleteConfirmationSection").classList.contains("hidden")
+    ) {
+      calculateMaxTranslate();
+      resetDeleteSlider();
+    }
+  });
+}
+
+function completeDeletion() {
+  const handle = $("#deleteSliderHandle");
+  const track = $(".slide-to-confirm-track");
+  handle.innerHTML = '<i class="fas fa-check"></i>';
+  handle.style.backgroundColor = "var(--button-success-bg)";
+  track.style.width = "100%";
+  track.style.backgroundColor = "var(--button-success-bg)";
+  handle.style.transform = `translateX(${maxTranslateX}px)`;
+  isDragging = false;
+  handle.style.pointerEvents = "none";
+  setTimeout(() => {
+    localStorage.removeItem(STORAGE_KEY);
+    state = getDefaultState();
+    ensureDefaultAccounts();
+    ensureDefaultCategories();
+    initializeUI(true);
+    closeModal("settingsModal");
+    showNotification("All data deleted.", "success");
+    handle.style.pointerEvents = "auto";
+  }, 500);
+}
+
+function openCashCounter() {
+  const form = $("#cashCounterForm");
+  const denominations = [5000, 1000, 500, 100, 50, 20, 10, 5, 2, 1];
+  const gridContainer = form.querySelector(".grid");
+  while (gridContainer.children.length > 3)
+    gridContainer.removeChild(gridContainer.lastChild);
+  denominations.forEach((denom) => {
+    const denomEl = document.createElement("span");
+    denomEl.className = "font-medium text-right pr-2 text-sm";
+    denomEl.textContent = `Rs. ${denom}`;
+    const inputEl = document.createElement("input");
+    inputEl.type = "number";
+    inputEl.min = "0";
+    inputEl.dataset.denom = denom;
+    inputEl.className =
+      "text-center bg-gray-600 border border-gray-500 rounded px-1 py-0.5 w-16 mx-auto text-sm";
+    inputEl.placeholder = "0";
+    inputEl.oninput = calculateCashTotal;
+    const totalEl = document.createElement("span");
+    totalEl.className = "text-right text-gray-400 text-sm";
+    totalEl.id = `cashTotal-${denom}`;
+    totalEl.textContent = formatCurrency(0);
+    gridContainer.appendChild(denomEl);
+    gridContainer.appendChild(inputEl);
+    gridContainer.appendChild(totalEl);
+  });
+  calculateCashTotal();
+  $("#cashCounterModal").style.display = "block";
+  $("#cashCounterComparison").innerHTML = "";
+}
+
+function calculateCashTotal() {
+  let grandTotal = 0;
+  $$('#cashCounterForm input[type="number"]').forEach((input) => {
+    const count = parseInt(input.value) || 0;
+    const denomination = parseInt(input.dataset.denom);
+    const total = count * denomination;
+    grandTotal += total;
+    const totalEl = $(`#cashTotal-${denomination}`);
+    if (totalEl)
+      totalEl.innerHTML = `<span class="tabular-nums">${formatCurrency(
+        total
+      )}</span>`;
+  });
+  $(
+    "#cashCounterTotal"
+  ).innerHTML = `<span class="tabular-nums">${formatCurrency(
+    grandTotal
+  )}</span>`;
+  const cashAccount = state.accounts.find((acc) => acc.id === "cash");
+  if (cashAccount) {
+    const diff = grandTotal - cashAccount.balance;
+    const comparisonEl = $("#cashCounterComparison");
+    if (Math.abs(diff) < 0.01)
+      comparisonEl.innerHTML = `<p class="text-success">Counted cash matches calculated balance: <span class="tabular-nums">${formatCurrency(
+        cashAccount.balance
+      )}</span></p>`;
+    else if (diff > 0)
+      comparisonEl.innerHTML = `<p class="text-warning">Counted cash is <span class="tabular-nums">${formatCurrency(
+        diff
+      )}</span> MORE than calculated balance (<span class="tabular-nums">${formatCurrency(
+        cashAccount.balance
+      )}</span>)</p>`;
+    else
+      comparisonEl.innerHTML = `<p class="text-danger">Counted cash is <span class="tabular-nums">${formatCurrency(
+        Math.abs(diff)
+      )}</span> LESS than calculated balance (<span class="tabular-nums">${formatCurrency(
+        cashAccount.balance
+      )}</span>)</p>`;
+  }
+}
+
+function closeModal(modalId) {
+  const modal = $(`#${modalId}`);
+  if (modal) modal.style.display = "none";
+  if (modalId === "formModal") {
+    $("#dynamicForm").innerHTML = "";
+    $("#dynamicForm").onsubmit = null;
+  }
+  if (modalId === "settingsModal") cancelDeleteAllData();
+  if (modalId === "ccHistoryModal") {
+    document.body.renderCcHistoryList = null; // Cleanup
+  }
+}
+
+function openFormModal(title, formHtml, submitHandler) {
+  const modalTitleEl = $("#formModalTitle");
+  if (modalTitleEl) {
+    modalTitleEl.textContent = title;
+    // Add the class to handle long titles from any form modal
+    modalTitleEl.classList.add("force-word-wrap");
+  }
+
+  const form = $("#dynamicForm");
+  form.innerHTML = formHtml;
+  form.onsubmit = submitHandler;
+  $("#formModal").style.display = "block";
+  const firstInput = form.querySelector(
+    'input:not([type="hidden"]), select, textarea'
+  );
+  if (firstInput) firstInput.focus();
+}
+
+window.addEventListener("click", (event) => {
+  $$(".modal").forEach((modal) => {
+    if (event.target === modal && modal.id !== "initialSetupModal") {
+      closeModal(modal.id);
+    }
+  });
+});
+
+let currentConfirmCallback = null;
+let currentCancelCallback = null;
+
+function showConfirmationModal(
+  title,
+  message,
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  onConfirm,
+  onCancel,
+  confirmButtonClass = "btn-danger"
+) {
+  const modal = $("#confirmationModal");
+  const modalTitleEl = $("#confirmationModalTitle");
+  const messageEl = $("#confirmationMessage");
+  const confirmBtn = $("#confirmModalConfirmBtn");
+  const cancelBtn = $("#confirmModalCancelBtn");
+
+  if (!modal || !modalTitleEl || !messageEl || !confirmBtn || !cancelBtn) {
+    console.error("Confirmation modal elements not found!");
+    if (confirm(message.replace(/<br>/g, "\n").replace(/<[^>]+>/g, ""))) {
+      // Fallback with cleaned message
+      if (typeof onConfirm === "function") onConfirm();
+    } else {
+      if (typeof onCancel === "function") onCancel();
+    }
+    return;
+  }
+
+  modalTitleEl.textContent = title;
+  messageEl.innerHTML = message; // No need to replace \n if CSS has white-space: pre-line
+
+  // Add the class for word wrapping
+  messageEl.classList.add("force-word-wrap");
+
+  confirmBtn.textContent = confirmText;
+  cancelBtn.textContent = cancelText;
+
+  confirmBtn.className = `btn ${confirmButtonClass}`;
+  cancelBtn.className = "btn btn-secondary";
+
+  currentConfirmCallback = onConfirm;
+  currentCancelCallback = onCancel;
+
+  const newConfirmBtn = confirmBtn.cloneNode(true);
+  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+  const newCancelBtn = cancelBtn.cloneNode(true);
+  cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+  newConfirmBtn.onclick = () => {
+    if (typeof currentConfirmCallback === "function") {
+      currentConfirmCallback();
+    }
+    closeModal("confirmationModal");
+  };
+
+  newCancelBtn.onclick = () => {
+    if (typeof currentCancelCallback === "function") {
+      currentCancelCallback();
+    }
+    closeModal("confirmationModal");
+  };
+
+  modal.style.display = "block";
+}
+
+function openEditTransactionForm(id, event) {
+  openEditTransactionModal(id, event);
+}
+
+function openEditCcTransactionForm(ccTransactionId) {
+  const transaction = state.creditCard.transactions.find(
+    (tx) => tx.id === ccTransactionId
+  );
+  if (!transaction) {
+    showNotification("CC Transaction not found for editing.", "error");
+    return;
+  }
+
+  const formHtml = `
+            <input type="hidden" name="editCcTransactionId" value="${
+              transaction.id
+            }">
+            <div>
+                <label for="modalCcAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>
+                <input type="number" id="modalCcAmount" name="ccAmount" value="${transaction.amount.toFixed(
+                  2
+                )}" step="0.01" min="0" placeholder="Amount spent" required>
+            </div>
+            <div>
+                <label for="modalCcDescription" class="block text-sm font-medium mb-1">Description</label>
+                <input type="text" id="modalCcDescription" name="ccDescription" value="${
+                  transaction.description
+                }" placeholder="e.g., Online purchase" required>
+            </div>
+            <div>
+                <label for="modalCcDate" class="block text-sm font-medium mb-1">Date</label>
+                <input type="date" id="modalCcDate" name="ccDate" value="${
+                  transaction.date
+                }" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-full"><i class="fas fa-save"></i> Update CC Transaction</button>
+        `;
+  openFormModal(
+    "Edit CC Transaction",
+    formHtml,
+    handleEditCcTransactionModalSubmit
+  );
+}
+
+function handleBackupReminderDismiss(reminderKey) {
+  try {
+    localStorage.setItem(reminderKey, getCurrentDateString());
+    console.log(
+      `Backup reminder dismissed for key: ${reminderKey} on ${getCurrentDateString()}`
+    );
+  } catch (e) {
+    console.error("Error saving backup reminder dismissal state:", e);
+  }
+  closeModal("confirmationModal"); // Close the correct modal
+}
+
+function showBackupReminderPopup(reminderKey) {
+  const title = "Backup Reminder";
+  const message =
+    "It's a good day to back up your data. Regular backups protect you from data loss!";
+
+  // Check if GDrive is enabled and user is signed in
+  if (state.settings.enableGdriveBackup && gapi.client.getToken()) {
+    showConfirmationModal(
+      title,
+      `${message}<br><br>How would you like to back up?`,
+      "Cloud Backup", // confirmText
+      "Local Backup", // cancelText
+      () => {
+        // onConfirm: Cloud Backup
+        gdriveExport();
+        handleBackupReminderDismiss(reminderKey);
+      },
+      () => {
+        // onCancel: Local Backup
+        exportData();
+        handleBackupReminderDismiss(reminderKey);
+      },
+      "btn-primary" // Style for the main action
+    );
+  } else {
+    // Original behavior if GDrive is not active
+    showConfirmationModal(
+      title,
+      message,
+      "Backup Now", // confirmText
+      "Dismiss", // cancelText
+      () => {
+        // onConfirm: Local Backup
+        exportData();
+        handleBackupReminderDismiss(reminderKey);
+      },
+      () => {
+        // onCancel: Dismiss
+        handleBackupReminderDismiss(reminderKey);
+      },
+      "btn-primary"
+    );
+  }
+}
+
+function checkAndTriggerBackupReminder() {
+  if (!state.settings.initialSetupDone && state.transactions.length === 0) {
+    console.log(
+      "Skipping backup reminder: Initial setup not done or no transactions."
+    );
+    return;
+  }
+
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0 = Sunday, 3 = Wednesday
+  const currentDateStr = getCurrentDateString();
+
+  let reminderKey = null;
+
+  if (dayOfWeek === 0) {
+    // Sunday
+    reminderKey = "lastReminderShownForSunday";
+  } else if (dayOfWeek === 3) {
+    // Wednesday
+    reminderKey = "lastReminderShownForWednesday";
+  }
+
+  if (reminderKey) {
+    try {
+      const lastShownDate = localStorage.getItem(reminderKey);
+      if (lastShownDate !== currentDateStr) {
+        // Use a timeout to show the reminder after the app has loaded
+        setTimeout(() => {
+          console.log(
+            `Time to show backup reminder for: ${reminderKey}. Last shown: ${lastShownDate}, Current: ${currentDateStr}`
+          );
+          showBackupReminderPopup(reminderKey);
+        }, 500); // 5-second delay
+      } else {
+        console.log(
+          `Backup reminder already shown for ${reminderKey} on ${currentDateStr}`
+        );
+      }
+    } catch (e) {
+      console.error(
+        "Error checking backup reminder state from localStorage:",
+        e
+      );
+    }
+  }
+}
+let activeSettingsTab = null;
+
+const settingsTabsConfig = [
+  { label: "Accounts", targetPanelId: "settingsAccountsPanel" },
+  { label: "Credit Card", targetPanelId: "settingsCreditCardPanel" },
+  { label: "Categories", targetPanelId: "settingsCategoriesPanel" },
+  { label: "Sync", targetPanelId: "settingsSyncPanel" },
+  { label: "Data", targetPanelId: "settingsDataManagementPanel" },
+];
+
+function setupSettingsTabs() {
+  const tabsContainer = document.getElementById("settingsTabsContainer");
+  const tabContentContainer = document.getElementById("settingsTabContent");
+
+  if (!tabsContainer || !tabContentContainer) {
+    console.error("Settings tab containers not found!");
+    return;
+  }
+
+  tabsContainer.innerHTML = "";
+  activeSettingsTab = null;
+
+  settingsTabsConfig.forEach((tabConfig, index) => {
+    const li = document.createElement("li");
+
+    const button = document.createElement("button");
+    button.className =
+      "settings-tab-button inline-block p-3 border-b-2 rounded-t-lg";
+    button.textContent = tabConfig.label;
+    button.dataset.tabTarget = `#${tabConfig.targetPanelId}`;
+
+    button.addEventListener("click", () => {
+      switchSettingsTab(button, tabConfig.targetPanelId);
+    });
+
+    li.appendChild(button);
+    tabsContainer.appendChild(li);
+
+    if (index === 0) {
+      switchSettingsTab(button, tabConfig.targetPanelId);
+    } else {
+      const panel = document.getElementById(tabConfig.targetPanelId);
+      if (panel) {
+        panel.classList.add("hidden");
+      }
+    }
+  });
+}
+
+function switchSettingsTab(clickedButton, targetPanelId) {
+  const tabContentContainer = document.getElementById("settingsTabContent");
+  if (!tabContentContainer) return;
+
+  if (activeSettingsTab && activeSettingsTab.button !== clickedButton) {
+    activeSettingsTab.button.classList.remove("active");
+
+    const oldPanelSelector = activeSettingsTab.button.dataset.tabTarget;
+    if (oldPanelSelector) {
+      const oldPanel = tabContentContainer.querySelector(oldPanelSelector);
+      if (oldPanel) {
+        oldPanel.classList.add("hidden");
+      }
+    }
+  }
+
+  clickedButton.classList.add("active");
+  const targetPanel = document.getElementById(targetPanelId);
+  if (targetPanel) {
+    targetPanel.classList.remove("hidden");
+  } else {
+    console.warn(`Target panel with ID '${targetPanelId}' not found.`);
+  }
+
+  activeSettingsTab = { button: clickedButton, panelId: targetPanelId };
+}
+
+let monthlySearchDebounceTimer; // Timer for debouncing search input
+
+// Donate Modal logic
+document
+  .getElementById("footerDonateBtn")
+  .addEventListener("click", function () {
+    document.getElementById("donateModal").style.display = "block";
+  });
+document
+  .getElementById("closeDonateModal")
+  .addEventListener("click", function () {
+    document.getElementById("donateModal").style.display = "none";
+  });
+window.addEventListener("click", function (event) {
+  const modal = document.getElementById("donateModal");
+  if (event.target === modal) {
+    modal.style.display = "none";
+  }
+});
+
+function setupDonateModal() {
+  const donateModal = document.getElementById("donateModal");
+  const footerDonateBtn = document.getElementById("footerDonateBtn");
+  const closeDonateModalBtn = document.getElementById("closeDonateModal");
+
+  if (donateModal && footerDonateBtn && closeDonateModalBtn) {
+    footerDonateBtn.addEventListener("click", () => {
+      donateModal.style.display = "block";
+    });
+    closeDonateModalBtn.addEventListener("click", () => {
+      donateModal.style.display = "none";
+    });
+    donateModal.addEventListener("click", (e) => {
+      if (e.target === donateModal) {
+        donateModal.style.display = "none";
+      }
+    });
+
+    const copyButtons = donateModal.querySelectorAll(".copy-button");
+    copyButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const textToCopy = button.dataset.copyText;
+        navigator.clipboard
+          .writeText(textToCopy)
+          .then(() => {
+            button.textContent = "Copied!";
+            setTimeout(() => {
+              button.innerHTML = '<i class="far fa-copy"></i>';
+            }, 2000);
+          })
+          .catch((err) => {
+            console.error("Failed to copy text: ", err);
+          });
+      });
+    });
+  }
+}
+
+function initializeUI(isRefresh = false) {
+  // On a refresh, just re-run data integrity checks
+  if (isRefresh) {
+    ensureDefaultAccounts();
+    ensureDefaultCategories();
+  }
+
+  // Abort and open setup wizard if this is the first run
+  if (
+    !state.settings ||
+    state.settings.initialSetupDone === undefined ||
+    state.settings.initialSetupDone === false
+  ) {
+    if (!isRefresh) {
+      openInitialSetupWizard();
+      return;
+    }
+  }
+
+  // --- Setup UI elements with current data ---
+  $("#date").value = getCurrentDateString();
+  $("#ccDate").value = getCurrentDateString();
+  populateDropdowns();
+  renderDashboard();
+  updateCcDashboardSectionVisibility();
+  setupMonthlyView();
+  displayAppVersion();
+
+  if (!window.deleteSliderInitialized) {
+    setupDeleteSlider();
+    window.deleteSliderInitialized = true;
+  }
+
+  // --- Google Drive Sync Controls ---
+  const gdriveToggle = $("#toggleGdriveSync");
+  const gdriveControls = $("#gdriveControls");
+  const authButton = $("#authorize_button");
+  const signoutButton = $("#signout_button");
+  const shortcutToggle = $("#gdriveShortcutToggle");
+
+  if (gdriveToggle && gdriveControls) {
+    gdriveToggle.checked = state.settings.enableGdriveBackup;
+    gdriveControls.style.display = state.settings.enableGdriveBackup
+      ? "block"
+      : "none";
+
+    gdriveToggle.onchange = () => {
+      state.settings.enableGdriveBackup = gdriveToggle.checked;
+      gdriveControls.style.display = gdriveToggle.checked ? "block" : "none";
+      if (!gdriveToggle.checked) {
+        handleSignoutClick();
+      }
+      updateCloudButtonVisibility(); // Update buttons when toggle changes
+      saveData();
+    };
+  }
+
+  if (authButton) authButton.onclick = handleAuthClick;
+  if (signoutButton) {
+    signoutButton.onclick = () => {
+      handleSignoutClick();
+      updateCloudButtonVisibility();
+    };
+  }
+
+  if (shortcutToggle) {
+    shortcutToggle.checked = state.settings.useShortcutsForGdrive;
+    shortcutToggle.onchange = () => {
+      state.settings.useShortcutsForGdrive = shortcutToggle.checked;
+      saveData();
+    };
+  }
+
+  // --- Setup ALL Event Listeners (only once) ---
+  if (!document.body.dataset.listenersAttached) {
+    $("#transactionForm").onsubmit = handleTransactionSubmit;
+    $("#ccTransactionForm").onsubmit = handleCcTransactionSubmit;
+    $("#settingsBtn").onclick = openSettingsModal;
+    $("#toggleChartBtn").onclick = () => {
+      dashboardChartState =
+        dashboardChartState === "yearly" ? "monthly" : "yearly";
+      renderMonthlyOverviewChart();
+    };
+    $("#monthlyViewBtn").onclick = () => {
+      const yearSelector = $("#yearSelector");
+      const currentYear = new Date().getFullYear();
+      const selectedYear =
+        yearSelector && yearSelector.value
+          ? parseInt(yearSelector.value)
+          : currentYear;
+      renderMonthTabs(selectedYear);
+      $("#monthlySearchInput").value = "";
+      $("#clearMonthlySearchBtn").classList.add("hidden");
+      $("#searchScopeSelect").value = "month";
+      monthlyViewSearchScope = "month";
+      $("#monthlyViewModal").style.display = "block";
+      const currentMonthTab = $(
+        `#monthTabs .tab-button[data-month="${new Date().getMonth()}"][data-year="${selectedYear}"]`
+      );
+      if (currentMonthTab) currentMonthTab.click();
+      else if ($$("#monthTabs .tab-button").length > 0)
+        $$("#monthTabs .tab-button")[0].click();
+    };
+    $("#shortcutsHelpBtn").onclick = openShortcutsHelpModal;
+    setupDonateModal();
+    $("#openTransferModalBtn").onclick = () => {
+      const modal = $("#transferMoneyModal");
+      populateDropdowns();
+      $("#transferModalForm").reset();
+      $("#modalTransferError").classList.add("hidden");
+      modal.style.display = "block";
+      modal.querySelector('input[type="number"], select').focus();
+    };
+    $("#transferModalForm").onsubmit = handleTransferSubmit;
+
+    // --- Connect buttons to their dedicated functions ---
+    $("#exportDataBtn").onclick = exportData; // Local export
+    $("#importDataInput").onchange = (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => handleImportedData(e.target.result, "Local File");
+      reader.readAsText(file);
+      event.target.value = null;
+    };
+    $("#gdriveExportBtn").onclick = gdriveExport; // Cloud export
+    $("#gdriveImportBtn").onclick = gdriveImport; // Cloud import
+
+    $("#initiateDeleteBtn").onclick = initiateDeleteAllData;
+    $("#cancelDeleteBtn").onclick = cancelDeleteAllData;
+    $("#addDebtBtn").onclick = openAddDebtForm;
+    $("#addReceivableBtn").onclick = openAddReceivableForm;
+    $("#addInstallmentBtn").onclick = openAddInstallmentForm;
+    $("#cashCounterBtn").onclick = openCashCounter;
+    $("#ccHistoryBtn").onclick = openCcHistoryModal;
+    $("#viewDebtsBtn").onclick = () => {
+      renderDebtList();
+      $("#debtsViewModal").style.display = "block";
+    };
+    $("#viewReceivablesBtn").onclick = () => {
+      renderReceivableList();
+      $("#receivablesViewModal").style.display = "block";
+    };
+    $("#transactionType").onchange = () =>
+      toggleCategoryVisibilityInModal(
+        $("#transactionType"),
+        "categoryGroup",
+        "category"
+      );
+    document.addEventListener("keydown", handleKeyboardShortcuts);
+    document.body.dataset.listenersAttached = "true";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOM Loaded. Initializing...");
+  loadData(); // Step 1: Load data and create the 'state' object.
+  initializeUI(); // Step 2: Initialize the UI with the loaded data.
+  checkAndTriggerBackupReminder();
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      $("#date").value = getCurrentDateString();
+      $("#ccDate").value = getCurrentDateString();
+    }
+  });
+
+  const preloader = $("#preloader");
+  const appContent = $("#app-content");
+  if (preloader && appContent) {
+    setTimeout(() => {
+      preloader.classList.add("hidden");
+      appContent.classList.add("visible");
+      setTimeout(() => {
+        preloader.style.display = "none";
+      }, 750);
+    }, 1250);
+  }
+});
