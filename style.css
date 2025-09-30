@@ -1281,18 +1281,18 @@ footer a[href^="https://kaasi.com.lk"]:hover
 }
 
 /* ------------------------------------ */
-/* --- GOOGLE DRIVE INTEGRATION --- */
+/* --- SUPABASE CLOUD SYNC --- */
 /* ------------------------------------ */
 
-#driveStatusIndicator.connected {
+#cloudStatusIndicator.connected {
   background-color: var(--income-color); /* Green for connected */
 }
 
-#driveStatusIndicator.error {
+#cloudStatusIndicator.error {
   background-color: var(--expense-color); /* Red for error */
 }
 
-#driveStatusIndicator.loading {
+#cloudStatusIndicator.loading {
   background-color: var(--accent-primary); /* Orange for loading */
   animation: dot-pulse 1.5s infinite ease-in-out;
 }

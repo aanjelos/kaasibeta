@@ -1,15 +1,7 @@
-// --- Google Drive API Constants ---
-const CLIENT_ID =
-  "972920616869-mup1ekqms6gne28djev8hr9petpcsouj.apps.googleusercontent.com";
-const API_KEY = ""; // API Key is not needed for this OAuth flow
-const SCOPES = "https://www.googleapis.com/auth/drive.file";
-const KAASI_FOLDER_NAME = "Kaasi App Backups";
-
-// --- Global Auth Variables ---
-let gapiInited = false;
-let gisInited = false;
-let tokenClient;
-let gapiToken; // To store the access token
+// --- Supabase Constants ---
+const SUPABASE_URL = 'https://xcnirqsctkyyrvildqtm.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjbmlycXNjdGt5eXJ2aWxkcXRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg3MDc2OTEsImV4cCI6MjAzNDI4MzY5MX0.sb_publishable_cLW_C5L7xmIinyzSaKSmBQ_EFnjbntg';
+let supabase = null;
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
@@ -173,8 +165,8 @@ function getDefaultState() {
         initialSetupDone: false,
         showCcDashboardSection: true,
         theme: "dark",
-        driveSyncEnabled: false, // NEW
-        shortcutsUseDrive: false, // NEW
+        cloudSyncEnabled: false, // NEW
+        shortcutsUseCloud: false, // NEW
       },
     })
   );
@@ -1260,13 +1252,13 @@ function handleKeyboardShortcuts(event) {
   const monthlyViewModalVisible =
     $("#monthlyViewModal")?.style.display === "block";
 
-  // --- UPDATED: Handle Ctrl+E and Ctrl+I with Drive option ---
+  // --- UPDATED: Handle Ctrl+E and Ctrl+I with Cloud option ---
   if (event.ctrlKey && (event.key === "e" || event.key === "E")) {
     if (!inInputField) {
       event.preventDefault();
-      if (state.settings.shortcutsUseDrive && state.settings.driveSyncEnabled) {
-        console.log("Shortcut: Ctrl+E pressed for Drive Backup");
-        backupToDrive();
+      if (state.settings.shortcutsUseCloud && state.settings.cloudSyncEnabled) {
+        console.log("Shortcut: Ctrl+E pressed for Cloud Backup");
+        backupToCloud();
       } else {
         console.log("Shortcut: Ctrl+E pressed for Local Export");
         exportData();
@@ -1278,26 +1270,24 @@ function handleKeyboardShortcuts(event) {
   if (event.ctrlKey && (event.key === "i" || event.key === "I")) {
     if (!inInputField) {
       event.preventDefault();
-      if (state.settings.shortcutsUseDrive && state.settings.driveSyncEnabled) {
-        console.log("Shortcut: Ctrl+I pressed for Drive Restore");
-        restoreFromDrive();
+      if (state.settings.shortcutsUseCloud && state.settings.cloudSyncEnabled) {
+        console.log("Shortcut: Ctrl+I pressed for Cloud Restore");
+        restoreFromCloud();
       } else {
         console.log("Shortcut: Ctrl+I pressed for Local Import");
-        // This requires the settings modal to be open to work.
         const importInput = $("#importDataInput");
         if (importInput) {
           importInput.click();
         } else {
-          showNotification(
-            "Open Settings > Data to import a local file.",
-            "info"
-          );
+          showNotification("Open Settings > Data to import a local file.", "info");
         }
       }
     }
     return;
   }
   // --- END OF UPDATE ---
+
+  // ... (The rest of the function is the same as your original)
 
   if (modifierKeyPressed && event.key !== "Escape") {
     return;
@@ -1418,7 +1408,6 @@ function handleKeyboardShortcuts(event) {
           }
         }
         if (!modalClosed && inInputField) {
-          // If no modal was closed but an input had focus
           activeElement.blur();
           console.log("Shortcut: Escape pressed, blurring active input field");
         }
@@ -1497,7 +1486,7 @@ function handleKeyboardShortcuts(event) {
     case "ArrowLeft":
       if (monthlyViewModalVisible && !inInputField) {
         event.preventDefault();
-        navigateMonthTabs(-1); // Navigate to previous month
+        navigateMonthTabs(-1); 
         console.log("Shortcut: ArrowLeft pressed for previous month");
       }
       break;
@@ -1505,13 +1494,12 @@ function handleKeyboardShortcuts(event) {
     case "ArrowRight":
       if (monthlyViewModalVisible && !inInputField) {
         event.preventDefault();
-        navigateMonthTabs(1); // Navigate to next month
+        navigateMonthTabs(1);
         console.log("Shortcut: ArrowRight pressed for next month");
       }
       break;
 
     default:
-      // No action for other keys
       break;
   }
 }
@@ -3317,15 +3305,13 @@ function openCcHistoryModal() {
 
   // --- Reset state on open ---
   ccHistoryFilter = "unpaid"; // Default filter
-  if (searchInput) searchInput.value = "";
-  if (clearSearchBtn) clearSearchBtn.classList.add("hidden");
+  if(searchInput) searchInput.value = "";
+  if(clearSearchBtn) clearSearchBtn.classList.add('hidden');
   ccHistoryOpenMonthKeys.clear();
 
   // --- Populate Year Selector ---
   const years = new Set(
-    (state.creditCard.transactions || []).map((t) =>
-      new Date(t.date).getFullYear()
-    )
+    (state.creditCard.transactions || []).map((t) => new Date(t.date).getFullYear())
   );
   years.add(currentYear);
   yearSelector.innerHTML = "";
@@ -3345,24 +3331,20 @@ function openCcHistoryModal() {
     const searchTerm = searchInput.value.trim().toLowerCase();
 
     // 1. Filter by Year, Status, and Search Term
-    let filteredTransactions = (state.creditCard.transactions || []).filter(
-      (t) => {
-        const tDate = new Date(t.date);
-        if (tDate.getFullYear() !== selectedYear) return false;
+    let filteredTransactions = (state.creditCard.transactions || []).filter(t => {
+      const tDate = new Date(t.date);
+      if (tDate.getFullYear() !== selectedYear) return false;
 
-        if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
-        if (ccHistoryFilter === "paid" && !t.paidOff) return false;
-
-        if (searchTerm) {
-          const descriptionMatch = t.description
-            .toLowerCase()
-            .includes(searchTerm);
-          const amountMatch = t.amount.toFixed(2).includes(searchTerm);
-          if (!descriptionMatch && !amountMatch) return false;
-        }
-        return true;
+      if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
+      if (ccHistoryFilter === "paid" && !t.paidOff) return false;
+      
+      if (searchTerm) {
+        const descriptionMatch = t.description.toLowerCase().includes(searchTerm);
+        const amountMatch = t.amount.toFixed(2).includes(searchTerm);
+        if (!descriptionMatch && !amountMatch) return false;
       }
-    );
+      return true;
+    });
 
     // 2. Update Summary Stats (always based on full data, not filters)
     const limit = state.creditCard.limit || 0;
@@ -3370,18 +3352,10 @@ function openCcHistoryModal() {
       .filter((t) => !t.paidOff)
       .reduce((sum, t) => sum + t.amount - (t.paidAmount || 0), 0);
     const available = limit - allUnpaid;
-    $(
-      "#ccHistoryLimit"
-    ).innerHTML = `<span class="tabular-nums">${formatCurrency(limit)}</span>`;
-    $(
-      "#ccHistorySpentUnpaid"
-    ).innerHTML = `<span class="tabular-nums">${formatCurrency(
-      allUnpaid
-    )}</span>`;
+    $("#ccHistoryLimit").innerHTML = `<span class="tabular-nums">${formatCurrency(limit)}</span>`;
+    $("#ccHistorySpentUnpaid").innerHTML = `<span class="tabular-nums">${formatCurrency(allUnpaid)}</span>`;
     const availableEl = $("#ccHistoryAvailable");
-    availableEl.innerHTML = `<span class="tabular-nums">${formatCurrency(
-      available
-    )}</span>`;
+    availableEl.innerHTML = `<span class="tabular-nums">${formatCurrency(available)}</span>`;
     availableEl.classList.toggle("text-expense", available < 0);
     availableEl.classList.toggle("accent-text", available >= 0);
 
@@ -3401,99 +3375,54 @@ function openCcHistoryModal() {
       return acc;
     }, {});
 
-    Object.keys(transactionsByMonth)
-      .sort((a, b) => b - a)
-      .forEach((monthKey) => {
+    Object.keys(transactionsByMonth).sort((a, b) => b - a).forEach(monthKey => {
         const monthTransactions = transactionsByMonth[monthKey];
-        monthTransactions.sort(
-          (a, b) =>
-            new Date(b.date) - new Date(a.date) || b.timestamp - a.timestamp
-        );
-        const monthName = new Date(selectedYear, monthKey).toLocaleString(
-          "default",
-          { month: "long" }
-        );
+        monthTransactions.sort((a, b) => new Date(b.date) - new Date(a.date) || b.timestamp - a.timestamp);
+        const monthName = new Date(selectedYear, monthKey).toLocaleString('default', { month: 'long' });
+        
+        const monthGroup = document.createElement('div');
+        monthGroup.className = 'cc-history-month-group';
 
-        const monthGroup = document.createElement("div");
-        monthGroup.className = "cc-history-month-group";
-
-        const monthHeader = document.createElement("div");
-        monthHeader.className = "cc-history-month-header";
-
-        const totalSpentInMonth = monthTransactions.reduce(
-          (sum, t) => sum + t.amount,
-          0
-        );
+        const monthHeader = document.createElement('div');
+        monthHeader.className = 'cc-history-month-header';
+        
+        const totalSpentInMonth = monthTransactions.reduce((sum, t) => sum + t.amount, 0);
 
         monthHeader.innerHTML = `
             <span>${monthName} ${selectedYear}</span>
             <div class="flex items-center">
-                <span class="text-sm text-expense mr-3 tabular-nums">${formatCurrency(
-                  totalSpentInMonth
-                )}</span>
+                <span class="text-sm text-expense mr-3 tabular-nums">${formatCurrency(totalSpentInMonth)}</span>
                 <i class="fas fa-chevron-down text-xs text-gray-400"></i>
             </div>
         `;
-
-        const transactionsContainer = document.createElement("div");
-        transactionsContainer.className = "cc-history-transactions-container";
-
-        monthTransactions.forEach((t) => {
-          const itemDiv = document.createElement("div");
-          itemDiv.className = `cc-history-transaction-item ${
-            t.paidOff ? "opacity-60" : ""
-          }`;
-          const remainingOnItem = t.amount - (t.paidAmount || 0);
-
-          const buttonsHtml = `
+        
+        const transactionsContainer = document.createElement('div');
+        transactionsContainer.className = 'cc-history-transactions-container';
+        
+        monthTransactions.forEach(t => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = `cc-history-transaction-item ${t.paidOff ? "opacity-60" : ""}`;
+            const remainingOnItem = t.amount - (t.paidAmount || 0);
+            
+            const buttonsHtml = `
               <div class="edit-btn-container">
-                  ${
-                    !t.paidOff && remainingOnItem > 0.005
-                      ? `<button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="openPayCcItemForm('${t.id}')" title="Pay Item"><i class="fas fa-dollar-sign"></i></button>`
-                      : ""
-                  }
-                  <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditCcTransactionForm('${
-                    t.id
-                  }')" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteCcTransaction('${
-                    t.id
-                  }')" title="Delete"><i class="fas fa-times"></i></button>
+                  ${!t.paidOff && remainingOnItem > 0.005 ? `<button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="openPayCcItemForm('${t.id}')" title="Pay Item"><i class="fas fa-dollar-sign"></i></button>` : ""}
+                  <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditCcTransactionForm('${t.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                  <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteCcTransaction('${t.id}')" title="Delete"><i class="fas fa-times"></i></button>
               </div>`;
 
-          itemDiv.innerHTML = `
+            itemDiv.innerHTML = `
               <div class="flex-grow mr-3 overflow-hidden">
-                  <p class="font-medium truncate ${
-                    t.paidOff ? "text-gray-500" : ""
-                  }" title="${t.description}">${t.description}</p>
-                  <p class="text-xs text-gray-400 mt-0.5">${new Date(
-                    t.date
-                  ).toLocaleDateString()} ${
-            t.paidAmount > 0 && !t.paidOff
-              ? `(Paid: <span class="tabular-nums">${formatCurrency(
-                  t.paidAmount
-                )}</span>)`
-              : ""
-          }</p>
+                  <p class="font-medium truncate ${t.paidOff ? "text-gray-500" : ""}" title="${t.description}">${t.description}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">${new Date(t.date).toLocaleDateString()} ${t.paidAmount > 0 && !t.paidOff ? `(Paid: <span class="tabular-nums">${formatCurrency(t.paidAmount)}</span>)` : ""}</p>
               </div>
               <div class="flex items-center flex-shrink-0">
-                  <span class="font-semibold mr-3 text-sm tabular-nums ${
-                    t.paidOff
-                      ? "text-gray-500"
-                      : remainingOnItem <= 0.005
-                      ? "text-income"
-                      : "text-expense"
-                  }">
-                      ${
-                        t.paidOff
-                          ? formatCurrency(t.amount)
-                          : formatCurrency(remainingOnItem)
-                      } ${
-            t.paidOff ? "" : remainingOnItem <= 0.005 ? " (Settled)" : " Left"
-          }
+                  <span class="font-semibold mr-3 text-sm tabular-nums ${t.paidOff ? "text-gray-500" : remainingOnItem <= 0.005 ? "text-income" : "text-expense"}">
+                      ${t.paidOff ? formatCurrency(t.amount) : formatCurrency(remainingOnItem)} ${t.paidOff ? "" : remainingOnItem <= 0.005 ? " (Settled)" : " Left"}
                   </span>
                   ${buttonsHtml}
               </div>`;
-          transactionsContainer.appendChild(itemDiv);
+            transactionsContainer.appendChild(itemDiv);
         });
 
         monthGroup.appendChild(monthHeader);
@@ -3502,52 +3431,45 @@ function openCcHistoryModal() {
 
         // Accordion Logic
         const fullMonthKey = `${selectedYear}-${monthKey}`;
-        if (ccHistoryOpenMonthKeys.has(fullMonthKey) || searchTerm) {
-          // Expand if searching
-          transactionsContainer.style.maxHeight =
-            transactionsContainer.scrollHeight + "px";
-          monthHeader
-            .querySelector("i")
-            .classList.replace("fa-chevron-down", "fa-chevron-up");
+        if (ccHistoryOpenMonthKeys.has(fullMonthKey) || searchTerm) { // Expand if searching
+            transactionsContainer.style.maxHeight = transactionsContainer.scrollHeight + "px";
+            monthHeader.querySelector('i').classList.replace('fa-chevron-down', 'fa-chevron-up');
         }
 
         monthHeader.onclick = () => {
-          const icon = monthHeader.querySelector("i");
-          const isCollapsed =
-            transactionsContainer.style.maxHeight === "0px" ||
-            !transactionsContainer.style.maxHeight;
-          if (isCollapsed) {
-            transactionsContainer.style.maxHeight =
-              transactionsContainer.scrollHeight + "px";
-            icon.classList.replace("fa-chevron-down", "fa-chevron-up");
-            ccHistoryOpenMonthKeys.add(fullMonthKey);
-          } else {
-            transactionsContainer.style.maxHeight = "0px";
-            icon.classList.replace("fa-chevron-up", "fa-chevron-down");
-            ccHistoryOpenMonthKeys.delete(fullMonthKey);
-          }
+            const icon = monthHeader.querySelector('i');
+            const isCollapsed = transactionsContainer.style.maxHeight === '0px' || !transactionsContainer.style.maxHeight;
+            if (isCollapsed) {
+                transactionsContainer.style.maxHeight = transactionsContainer.scrollHeight + "px";
+                icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+                ccHistoryOpenMonthKeys.add(fullMonthKey);
+            } else {
+                transactionsContainer.style.maxHeight = '0px';
+                icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+                ccHistoryOpenMonthKeys.delete(fullMonthKey);
+            }
         };
-      });
+    });
 
     // 4. Update active filter button
-    $$("#ccHistoryFilterControls button").forEach((btn) => {
-      btn.classList.toggle("active", btn.dataset.filter === ccHistoryFilter);
+    $$("#ccHistoryFilterControls button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.filter === ccHistoryFilter);
     });
   };
 
   // --- Setup Event Listeners ---
   yearSelector.onchange = () => {
-    ccHistoryOpenMonthKeys.clear(); // Reset open accordions when year changes
-    renderFilteredCcList();
-  };
-
-  $$("#ccHistoryFilterControls button").forEach((btn) => {
-    btn.onclick = () => {
-      ccHistoryFilter = btn.dataset.filter;
+      ccHistoryOpenMonthKeys.clear(); // Reset open accordions when year changes
       renderFilteredCcList();
-    };
+  };
+  
+  $$("#ccHistoryFilterControls button").forEach(btn => {
+      btn.onclick = () => {
+          ccHistoryFilter = btn.dataset.filter;
+          renderFilteredCcList();
+      };
   });
-
+  
   // Expose the render function for the search listeners
   document.body.renderCcHistoryList = renderFilteredCcList;
 
@@ -4825,9 +4747,7 @@ function payInstallmentMonth(installmentId) {
       Mark one month as paid for "<strong>${installment.description}</strong>"?
     </p>
     <p class="mb-4 text-center text-sm text-gray-400">
-      Amount: <span class="tabular-nums">${formatCurrency(
-        installment.monthlyAmount
-      )}</span><br>
+      Amount: <span class="tabular-nums">${formatCurrency(installment.monthlyAmount)}</span><br>
       Months remaining after this: ${installment.monthsLeft - 1}
     </p>
     <p class="disclaimer-text mt-3 mb-4">
@@ -4953,12 +4873,8 @@ function openPayCcItemForm(ccTransactionId) {
 
   const formHtml = `
       <input type="hidden" name="ccItemId" value="${item.id}">
-      <p class="mb-2 tabular-nums">Item Amount: ${formatCurrency(
-        item.amount
-      )}</p>
-      <p class="mb-2 tabular-nums">Paid So Far: ${formatCurrency(
-        item.paidAmount || 0
-      )}</p>
+      <p class="mb-2 tabular-nums">Item Amount: ${formatCurrency(item.amount)}</p>
+      <p class="mb-2 tabular-nums">Paid So Far: ${formatCurrency(item.paidAmount || 0)}</p>
       <p class="mb-2">Remaining on Item: <strong class="text-danger tabular-nums">${formatCurrency(
         remaining
       )}</strong></p>
@@ -5107,16 +5023,17 @@ function handlePayCcItemSubmit(event) {
   showNotification(notificationMessage, "success");
 }
 
-function openSettingsModal() {
+async function openSettingsModal() {
   renderSettingsForm();
   setupSettingsTabs();
-  updateDriveUiState(); // <-- ADDED THIS LINE
+
+  // Get the current user session to update the UI
+  const { data: { user } } = await supabase.auth.getUser();
+  updateCloudUiState(user); 
 
   const storageInfoElement = $("#storageSizeInfo");
   if (storageInfoElement) {
-    storageInfoElement.textContent = `Approx. Storage Used: ${getFormattedLocalStorageSize(
-      STORAGE_KEY
-    )}`;
+    storageInfoElement.textContent = `Approx. Storage Used: ${getFormattedLocalStorageSize(STORAGE_KEY)}`;
   }
 
   $("#settingsModal").style.display = "block";
@@ -6351,16 +6268,9 @@ function calculateCashTotal() {
     const total = count * denomination;
     grandTotal += total;
     const totalEl = $(`#cashTotal-${denomination}`);
-    if (totalEl)
-      totalEl.innerHTML = `<span class="tabular-nums">${formatCurrency(
-        total
-      )}</span>`;
+    if (totalEl) totalEl.innerHTML = `<span class="tabular-nums">${formatCurrency(total)}</span>`;
   });
-  $(
-    "#cashCounterTotal"
-  ).innerHTML = `<span class="tabular-nums">${formatCurrency(
-    grandTotal
-  )}</span>`;
+  $("#cashCounterTotal").innerHTML = `<span class="tabular-nums">${formatCurrency(grandTotal)}</span>`;
   const cashAccount = state.accounts.find((acc) => acc.id === "cash");
   if (cashAccount) {
     const diff = grandTotal - cashAccount.balance;
@@ -6619,332 +6529,171 @@ function checkAndTriggerBackupReminder() {
 let activeSettingsTab = null;
 
 // =================================================================================
-// --- GOOGLE DRIVE INTEGRATION FUNCTIONS ---
+// --- SUPABASE CLOUD SYNC FUNCTIONS ---
 // =================================================================================
 
 /**
- * Callback after GAPI client library has loaded.
+ * Handles signing in with Google via Supabase.
  */
-function gapiLoaded() {
-  gapi.load("client", initializeGapiClient);
-}
-
-/**
- * Callback after the GIS client library has loaded.
- */
-function gisLoaded() {
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    callback: "", // Will be defined dynamically
-  });
-  gisInited = true;
-  // If gapi is already ready, check for a stored token.
-  if (gapiInited) {
-    // You might automatically sign in here if a token is stored/valid
-  }
-}
-
-/**
- * Initializes the GAPI client with the Drive API.
- */
-async function initializeGapiClient() {
-  await gapi.client.init({
-    apiKey: API_KEY,
-    discoveryDocs: [
-      "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
-    ],
-  });
-  gapiInited = true;
-  // If gis is already ready, check for a stored token.
-  if (gisInited) {
-    // You might automatically sign in here if a token is stored/valid
-  }
-}
-
-/**
- * Handles the user clicking the "Connect" button.
- */
-function handleAuthClick() {
-  tokenClient.callback = async (resp) => {
-    if (resp.error !== undefined) {
-      throw resp;
+async function handleCloudAuth() {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin // This tells Supabase to redirect back to the current page
     }
-    gapiToken = gapi.client.getToken();
-    state.settings.driveSyncEnabled = true;
-    saveData();
-    updateDriveUiState();
-    showNotification("Connected to Google Drive successfully!", "success");
-  };
+  });
+  if (error) {
+    showNotification(`Authentication error: ${error.message}`, 'error');
+    console.error('Supabase auth error:', error);
+  }
+}
 
-  if (gapi.client.getToken() === null) {
-    // Prompt the user to select an account and grant access.
-    tokenClient.requestAccessToken({ prompt: "consent" });
+/**
+ * Handles signing out from Supabase.
+ */
+async function handleCloudSignOut() {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    showNotification(`Sign out error: ${error.message}`, 'error');
+    console.error('Supabase sign out error:', error);
   } else {
-    // Skip display of account chooser and grant consent dialog for an existing session.
-    tokenClient.requestAccessToken({ prompt: "" });
+    // Clear local state flag and update UI
+    state.settings.cloudSyncEnabled = false;
+    saveData();
+    updateCloudUiState();
+    showNotification('Successfully logged out.', 'info');
   }
 }
 
 /**
- * Handles the user clicking the "Log Out" button.
+ * Updates the Cloud Sync UI elements based on the current auth state.
+ * @param {object|null} user - The Supabase user object, or null if logged out.
  */
-function handleSignoutClick() {
-  const token = gapi.client.getToken();
-  if (token !== null) {
-    google.accounts.oauth2.revoke(token.access_token, () => {
-      gapi.client.setToken("");
-      gapiToken = null;
-      state.settings.driveSyncEnabled = false;
-      saveData();
-      updateDriveUiState();
-      showNotification("Disconnected from Google Drive.", "info");
-    });
-  }
-}
+function updateCloudUiState(user) {
+  const statusIndicator = $('#cloudStatusIndicator');
+  const statusText = $('#cloudStatusText');
+  const authBtn = $('#cloudAuthBtn');
+  const signOutBtn = $('#cloudSignOutBtn');
+  const actionsContainer = $('#cloudActionsContainer');
+  const shortcutsToggle = $('#toggleCloudShortcuts');
 
-/**
- * Updates the Google Drive UI elements based on the current auth state.
- */
-function updateDriveUiState() {
-  const driveStatusIndicator = $("#driveStatusIndicator");
-  const driveStatusText = $("#driveStatusText");
-  const driveAuthBtn = $("#driveAuthBtn");
-  const driveSignOutBtn = $("#driveSignOutBtn");
-  const driveActionsContainer = $("#driveActionsContainer");
-  const toggleDriveShortcuts = $("#toggleDriveShortcuts");
-
-  if (state.settings.driveSyncEnabled && gapi.client.getToken() !== null) {
+  if (user) {
     // --- Logged IN state ---
-    driveStatusIndicator.className = "w-3 h-3 rounded-full connected"; // Green dot
-    driveStatusText.textContent = "Connected to Google Drive."; // Simple text, will expand later
-    driveAuthBtn.classList.add("hidden");
-    driveSignOutBtn.classList.remove("hidden");
-    driveActionsContainer.classList.remove("hidden");
-    toggleDriveShortcuts.checked = state.settings.shortcutsUseDrive;
+    statusIndicator.className = 'w-3 h-3 rounded-full connected';
+    statusText.textContent = `Connected as: ${user.email}`;
+    authBtn.classList.add('hidden');
+    signOutBtn.classList.remove('hidden');
+    actionsContainer.classList.remove('hidden');
+    shortcutsToggle.checked = state.settings.shortcutsUseCloud;
+    state.settings.cloudSyncEnabled = true;
   } else {
     // --- Logged OUT state ---
-    driveStatusIndicator.className = "w-3 h-3 rounded-full bg-gray-500"; // Grey dot
-    driveStatusText.textContent = "Not Connected.";
-    driveAuthBtn.classList.remove("hidden");
-    driveSignOutBtn.classList.add("hidden");
-    driveActionsContainer.classList.add("hidden");
+    statusIndicator.className = 'w-3 h-3 rounded-full bg-gray-500';
+    statusText.textContent = 'Not Connected.';
+    authBtn.classList.remove('hidden');
+    signOutBtn.classList.add('hidden');
+    actionsContainer.classList.add('hidden');
+    state.settings.cloudSyncEnabled = false;
   }
 }
 
 /**
- * Finds the "Kaasi App Backups" folder or creates it if it doesn't exist.
- * @returns {Promise<string>} The ID of the folder.
+ * Orchestrates the backup process to Supabase.
  */
-async function findOrCreateFolder() {
-  try {
-    // Search for the folder
-    const response = await gapi.client.drive.files.list({
-      q: `mimeType='application/vnd.google-apps.folder' and name='${KAASI_FOLDER_NAME}' and trashed=false`,
-      fields: "files(id, name)",
-    });
+async function backupToCloud() {
+  const user = (await supabase.auth.getSession()).data.session?.user;
+  if (!user) {
+    showNotification('You must be logged in to back up data.', 'error');
+    return;
+  }
 
-    if (response.result.files.length > 0) {
-      console.log(
-        `Folder '${KAASI_FOLDER_NAME}' found with ID: ${response.result.files[0].id}`
-      );
-      return response.result.files[0].id;
-    } else {
-      // Folder not found, so create it
-      console.log(`Folder '${KAASI_FOLDER_NAME}' not found. Creating it...`);
-      const createResponse = await gapi.client.drive.files.create({
-        resource: {
-          name: KAASI_FOLDER_NAME,
-          mimeType: "application/vnd.google-apps.folder",
-        },
-        fields: "id",
-      });
-      console.log(`Folder created with ID: ${createResponse.result.id}`);
-      return createResponse.result.id;
+  const exportBtn = $('#cloudExportBtn');
+  const originalBtnHtml = exportBtn.innerHTML;
+  exportBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Backing up...`;
+  exportBtn.disabled = true;
+
+  try {
+    // 'upsert' will create the record if it doesn't exist, or update it if it does.
+    // The 'user_id' is the primary key for our RLS policy.
+    const { data, error } = await supabase
+      .from('user_backups')
+      .upsert({ user_id: user.id, data: state })
+      .select();
+
+    if (error) {
+      throw error;
     }
-  } catch (err) {
-    console.error("Error finding or creating Google Drive folder:", err);
-    showNotification(
-      "Error accessing the Drive folder. Please check console.",
-      "error"
-    );
-    throw err; // Re-throw the error to stop the process
-  }
-}
 
-/**
- * Uploads a file to a specific folder in Google Drive.
- * @param {string} folderId The ID of the parent folder.
- * @param {string} fileName The name of the new file.
- * @param {string} fileContent The content of the file.
- */
-async function uploadFile(folderId, fileName, fileContent) {
-  const metadata = {
-    name: fileName,
-    mimeType: "application/json",
-    parents: [folderId],
-  };
-
-  const multipartRequestBody =
-    `--boundary\r\n` +
-    `Content-Type: application/json; charset=UTF-8\r\n\r\n` +
-    `${JSON.stringify(metadata)}\r\n` +
-    `--boundary\r\n` +
-    `Content-Type: application/json\r\n\r\n` +
-    `${fileContent}\r\n` +
-    `--boundary--`;
-
-  try {
-    await gapi.client.request({
-      path: "/upload/drive/v3/files",
-      method: "POST",
-      params: { uploadType: "multipart" },
-      headers: { "Content-Type": 'multipart/related; boundary="boundary"' },
-      body: multipartRequestBody,
-    });
-  } catch (err) {
-    console.error("Error uploading file to Google Drive:", err);
-    showNotification("File upload to Drive failed.", "error");
-    throw err;
-  }
-}
-
-/**
- * Lists all JSON files in a given folder, sorted by name descending.
- * @param {string} folderId The ID of the folder to search in.
- * @returns {Promise<Array>} A list of file objects.
- */
-async function listFiles(folderId) {
-  try {
-    const response = await gapi.client.drive.files.list({
-      q: `'${folderId}' in parents and mimeType='application/json' and trashed=false`,
-      fields: "files(id, name)",
-      orderBy: "name desc",
-    });
-    return response.result.files;
-  } catch (err) {
-    console.error("Error listing files from Google Drive:", err);
-    showNotification("Could not list backup files from Drive.", "error");
-    throw err;
-  }
-}
-
-/**
- * Downloads the content of a specific file from Google Drive.
- * @param {string} fileId The ID of the file to download.
- * @returns {Promise<string>} The content of the file.
- */
-async function getFileContent(fileId) {
-  try {
-    const response = await gapi.client.drive.files.get({
-      fileId: fileId,
-      alt: "media",
-    });
-    return response.body;
-  } catch (err) {
-    console.error("Error downloading file content from Google Drive:", err);
-    showNotification("Failed to download backup file from Drive.", "error");
-    throw err;
-  }
-}
-
-/**
- * Orchestrates the backup process to Google Drive.
- */
-async function backupToDrive() {
-  const driveExportBtn = $("#driveExportBtn");
-  const originalBtnHtml = driveExportBtn.innerHTML;
-  driveExportBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Backing up...`;
-  driveExportBtn.disabled = true;
-
-  try {
-    const folderId = await findOrCreateFolder();
-    const timestamp = new Date()
-      .toISOString()
-      .slice(0, 19)
-      .replace(/[:T]/g, "-");
-    const fileName = `kaasi-backup-${timestamp}.json`;
-    const fileContent = JSON.stringify(state);
-
-    await uploadFile(folderId, fileName, fileContent);
-    showNotification(`Backup '${fileName}' saved to Google Drive.`, "success");
-  } catch (err) {
-    console.error("Backup to Drive failed:", err);
-    // Specific error notifications are already in the helper functions
+    showNotification('Backup successful! Your data is saved to the cloud.', 'success');
+  } catch (error) {
+    console.error('Error backing up to Supabase:', error);
+    showNotification(`Backup failed: ${error.message}`, 'error');
   } finally {
-    driveExportBtn.innerHTML = originalBtnHtml;
-    driveExportBtn.disabled = false;
+    exportBtn.innerHTML = originalBtnHtml;
+    exportBtn.disabled = false;
   }
 }
 
 /**
- * Orchestrates the restore process from Google Drive.
+ * Orchestrates the restore process from Supabase.
  */
-async function restoreFromDrive() {
-  showConfirmationModal(
-    "Restore from Google Drive",
-    "This will overwrite all current data with the latest backup from your Google Drive. This action cannot be undone. Are you sure?",
-    "Yes, Restore",
-    "Cancel",
-    async () => {
-      // onConfirm
-      const driveImportBtn = $("#driveImportBtn");
-      const originalBtnHtml = driveImportBtn.innerHTML;
-      driveImportBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Restoring...`;
-      driveImportBtn.disabled = true;
-
-      try {
-        const folderId = await findOrCreateFolder();
-        const files = await listFiles(folderId);
-
-        if (!files || files.length === 0) {
-          showNotification(
-            "No backup files found in your Google Drive folder.",
-            "warning"
-          );
-          return;
-        }
-
-        const latestFile = files[0]; // The list is sorted by name desc
-        showNotification(
-          `Restoring from latest backup: '${latestFile.name}'...`,
-          "info"
-        );
-
-        const fileContent = await getFileContent(latestFile.id);
-        const importedData = JSON.parse(fileContent);
-
-        if (importedData && typeof importedData === "object") {
-          // Overwrite state and re-initialize
-          state = deepMerge(getDefaultState(), importedData);
-          ensureDefaultAccounts();
-          ensureDefaultCategories();
-          state.settings.initialSetupDone = true;
-          // Re-enable drive sync since they are logged in
-          state.settings.driveSyncEnabled = true;
-
-          saveData();
-          initializeUI(true); // Full refresh of the app
-          closeModal("settingsModal");
-          showNotification(
-            "Data successfully restored from Google Drive.",
-            "success"
-          );
-        } else {
-          throw new Error("Imported data is not a valid object.");
-        }
-      } catch (err) {
-        console.error("Restore from Drive failed:", err);
-        showNotification(
-          "An error occurred during the restore process.",
-          "error"
-        );
-      } finally {
-        driveImportBtn.innerHTML = originalBtnHtml;
-        driveImportBtn.disabled = false;
-      }
+async function restoreFromCloud() {
+    const user = (await supabase.auth.getSession()).data.session?.user;
+    if (!user) {
+        showNotification('You must be logged in to restore data.', 'error');
+        return;
     }
-  );
+
+    showConfirmationModal(
+        "Restore from Cloud",
+        "This will overwrite all current local data with your last cloud backup. This action cannot be undone. Are you sure?",
+        "Yes, Restore",
+        "Cancel",
+        async () => { // onConfirm
+            const importBtn = $('#cloudImportBtn');
+            const originalBtnHtml = importBtn.innerHTML;
+            importBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Restoring...`;
+            importBtn.disabled = true;
+
+            try {
+                const { data, error } = await supabase
+                    .from('user_backups')
+                    .select('data')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (error || !data) {
+                    if (error && error.code === 'PGRST116') { // "PostgREST error 116" means no rows found
+                        showNotification('No cloud backup found for your account.', 'warning');
+                        return;
+                    }
+                    throw error;
+                }
+
+                const importedData = data.data;
+                if (importedData && typeof importedData === 'object') {
+                    state = deepMerge(getDefaultState(), importedData);
+                    ensureDefaultAccounts();
+                    ensureDefaultCategories();
+                    state.settings.initialSetupDone = true;
+
+                    saveData();
+                    initializeUI(true); // Full refresh of the app
+                    closeModal('settingsModal');
+                    showNotification('Data successfully restored from the cloud.', 'success');
+                } else {
+                    throw new Error("Cloud data is not a valid object.");
+                }
+
+            } catch (error) {
+                console.error('Restore from Supabase failed:', error);
+                showNotification(`Restore failed: ${error.message}`, 'error');
+            } finally {
+                importBtn.innerHTML = originalBtnHtml;
+                importBtn.disabled = false;
+            }
+        }
+    );
 }
 
 const settingsTabsConfig = [
@@ -7079,7 +6828,6 @@ function initializeUI(isRefresh = false) {
   $("#transactionForm").onsubmit = handleTransactionSubmit;
   $("#ccTransactionForm").onsubmit = handleCcTransactionSubmit;
 
-  // --- Header & Footer Button Event Listeners ---
   $("#settingsBtn").onclick = openSettingsModal;
 
   $("#toggleChartBtn").onclick = () => {
@@ -7100,7 +6848,7 @@ function initializeUI(isRefresh = false) {
 
     const monthlySearchInput = $("#monthlySearchInput");
     const clearMonthlySearchBtn = $("#clearMonthlySearchBtn");
-    const searchScopeSelect = $("#searchScopeSelect"); // Get the dropdown
+    const searchScopeSelect = $("#searchScopeSelect"); 
 
     if (monthlySearchInput) {
       monthlySearchInput.value = "";
@@ -7109,7 +6857,6 @@ function initializeUI(isRefresh = false) {
       clearMonthlySearchBtn.style.display = "none";
       clearMonthlySearchBtn.disabled = true;
     }
-    // FIXED: Reset dropdown to 'month' and update the global scope variable
     if (searchScopeSelect) {
       searchScopeSelect.value = "month";
       monthlyViewSearchScope = "month";
@@ -7137,7 +6884,6 @@ function initializeUI(isRefresh = false) {
     shortcutsHelpBtn.onclick = openShortcutsHelpModal;
   }
 
-  // NEW: Donate Modal Logic moved inside initializeUI for robustness
   const donateModal = document.getElementById("donateModal");
   const footerDonateBtn = document.getElementById("footerDonateBtn");
   const closeDonateModalBtn = document.getElementById("closeDonateModal");
@@ -7149,47 +6895,31 @@ function initializeUI(isRefresh = false) {
     closeDonateModalBtn.addEventListener("click", () => {
       donateModal.style.display = "none";
     });
-    // Close modal if user clicks on the background overlay
     donateModal.addEventListener("click", (e) => {
       if (e.target === donateModal) {
         donateModal.style.display = "none";
       }
     });
 
-    // Handle copy to clipboard functionality for the new modal
     const copyButtons = donateModal.querySelectorAll(".copy-button");
     copyButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const textToCopy = button.dataset.copyText;
-        const textArea = document.createElement("textarea");
-        textArea.value = textToCopy;
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-          document.execCommand("copy");
+        navigator.clipboard.writeText(textToCopy).then(() => {
           button.textContent = "Copied!";
-          setTimeout(() => {
-            button.innerHTML = '<i class="far fa-copy"></i>'; // Revert back to icon
-          }, 2000);
-        } catch (err) {
-          console.error("Failed to copy text: ", err);
-          button.textContent = "Failed!";
           setTimeout(() => {
             button.innerHTML = '<i class="far fa-copy"></i>';
           }, 2000);
-        }
-        document.body.removeChild(textArea);
+        }).catch(err => {
+          console.error("Failed to copy text: ", err);
+        });
       });
     });
-  } else {
-    console.warn(
-      "One or more elements for the new donate modal were not found."
-    );
   }
 
   const monthlySearchInput = $("#monthlySearchInput");
   const clearMonthlySearchBtn = $("#clearMonthlySearchBtn");
-  const searchScopeSelect = $("#searchScopeSelect"); // New dropdown
+  const searchScopeSelect = $("#searchScopeSelect"); 
 
   const triggerSearch = () => {
     clearTimeout(monthlySearchDebounceTimer);
@@ -7212,13 +6942,8 @@ function initializeUI(isRefresh = false) {
 
     monthlySearchInput.addEventListener("input", () => {
       const searchTerm = monthlySearchInput.value.trim();
-      if (searchTerm) {
-        clearMonthlySearchBtn.style.display = "inline-flex";
-        clearMonthlySearchBtn.disabled = false;
-      } else {
-        clearMonthlySearchBtn.style.display = "none";
-        clearMonthlySearchBtn.disabled = true;
-      }
+      clearMonthlySearchBtn.style.display = searchTerm ? "inline-flex" : "none";
+      clearMonthlySearchBtn.disabled = !searchTerm;
       triggerSearch();
     });
 
@@ -7231,10 +6956,8 @@ function initializeUI(isRefresh = false) {
       monthlySearchInput.focus();
     });
 
-    // NEW: Event listener for the scope dropdown
     searchScopeSelect.addEventListener("change", () => {
       monthlyViewSearchScope = searchScopeSelect.value;
-      // Re-run the current search with the new scope
       triggerSearch();
     });
   }
@@ -7245,38 +6968,22 @@ function initializeUI(isRefresh = false) {
       const modal = $("#transferMoneyModal");
       if (modal) {
         populateDropdowns();
-        const transferModalForm = $("#transferModalForm");
-        if (transferModalForm) {
-          transferModalForm.reset();
-        }
-        const errorEl = $("#modalTransferError");
-        if (errorEl) {
-          errorEl.classList.add("hidden");
-        }
+        $("#transferModalForm")?.reset();
+        $("#modalTransferError")?.classList.add("hidden");
         modal.style.display = "block";
-        const firstInput = modal.querySelector('input[type="number"], select');
-        if (firstInput) {
-          firstInput.focus();
-        }
+        modal.querySelector('input[type="number"], select')?.focus();
       }
     };
   }
 
-  const transferModalFormElement = $("#transferModalForm");
-  if (transferModalFormElement) {
-    transferModalFormElement.onsubmit = handleTransferSubmit;
-  }
+  $("#transferModalForm")?.addEventListener('submit', handleTransferSubmit);
 
-  // --- CC History Modal Search Logic ---
   const ccHistorySearchInput = $("#ccHistorySearchInput");
   const clearCcHistorySearchBtn = $("#clearCcHistorySearchBtn");
 
   if (ccHistorySearchInput && clearCcHistorySearchBtn) {
     const triggerCcSearch = () => {
-      const renderFunction = document.body.renderCcHistoryList;
-      if (typeof renderFunction === "function") {
-        renderFunction();
-      }
+      document.body.renderCcHistoryList?.();
     };
 
     ccHistorySearchInput.addEventListener("input", () => {
@@ -7305,62 +7012,42 @@ function initializeUI(isRefresh = false) {
   $("#cashCounterBtn").onclick = openCashCounter;
   $("#ccHistoryBtn").onclick = openCcHistoryModal;
 
-  // --- NEW: Google Drive Button Listeners ---
-  $("#driveAuthBtn").onclick = handleAuthClick;
-  $("#driveSignOutBtn").onclick = handleSignoutClick;
-  // We will define backupToDrive and restoreFromDrive in the next steps
-  $("#driveExportBtn").onclick = () => backupToDrive();
-  $("#driveImportBtn").onclick = () => restoreFromDrive();
-  $("#toggleDriveShortcuts").onchange = (e) => {
-    state.settings.shortcutsUseDrive = e.target.checked;
+  $('#cloudAuthBtn').onclick = handleCloudAuth;
+  $('#cloudSignOutBtn').onclick = handleCloudSignOut;
+  $('#cloudExportBtn').onclick = backupToCloud;
+  $('#cloudImportBtn').onclick = restoreFromCloud;
+  $('#toggleCloudShortcuts').onchange = (e) => {
+    state.settings.shortcutsUseCloud = e.target.checked;
     saveData();
-    showNotification(
-      `Keyboard shortcuts will now use ${
-        e.target.checked ? "Google Drive" : "local files"
-      }.`,
-      "info"
-    );
+    showNotification(`Keyboard shortcuts will now use ${e.target.checked ? 'Cloud Sync' : 'local files'}.`, 'info');
   };
-  // --- END NEW ---
 
-  const viewDebtsBtn = $("#viewDebtsBtn");
-  if (viewDebtsBtn) {
-    viewDebtsBtn.onclick = () => {
-      renderDebtList();
-      $("#debtsViewModal").style.display = "block";
-    };
-  }
+  $("#viewDebtsBtn")?.addEventListener('click', () => {
+    renderDebtList();
+    $("#debtsViewModal").style.display = "block";
+  });
 
-  const viewReceivablesBtn = $("#viewReceivablesBtn");
-  if (viewReceivablesBtn) {
-    viewReceivablesBtn.onclick = () => {
-      renderReceivableList();
-      $("#receivablesViewModal").style.display = "block";
-    };
-  }
+  $("#viewReceivablesBtn")?.addEventListener('click', () => {
+    renderReceivableList();
+    $("#receivablesViewModal").style.display = "block";
+  });
 
   const transactionTypeSelect = $("#transactionType");
-  const categoryGroup = $("#categoryGroup");
-  const descriptionInput = $("#description");
-
-  const toggleMainCategoryVisibility = () => {
-    if (!transactionTypeSelect || !categoryGroup) return;
-    if (transactionTypeSelect.value === "income") {
-      categoryGroup.style.display = "none";
-      $("#category").required = false;
-      if (descriptionInput)
-        descriptionInput.placeholder = "e.g., Monthly Salary";
-    } else {
-      categoryGroup.style.display = "block";
-      $("#category").required = true;
-      if (descriptionInput)
-        descriptionInput.placeholder = "e.g., Lunch, Groceries";
-    }
-  };
-
   if (transactionTypeSelect) {
-    transactionTypeSelect.onchange = toggleMainCategoryVisibility;
-    toggleMainCategoryVisibility();
+    transactionTypeSelect.onchange = () => {
+        const categoryGroup = $("#categoryGroup");
+        const descriptionInput = $("#description");
+        if (transactionTypeSelect.value === "income") {
+            categoryGroup.style.display = "none";
+            $("#category").required = false;
+            if (descriptionInput) descriptionInput.placeholder = "e.g., Monthly Salary";
+        } else {
+            categoryGroup.style.display = "block";
+            $("#category").required = true;
+            if (descriptionInput) descriptionInput.placeholder = "e.g., Lunch, Groceries";
+        }
+    };
+    transactionTypeSelect.dispatchEvent(new Event('change'));
   }
 
   if (!document.body.dataset.keyboardListenerAttached) {
@@ -7371,67 +7058,44 @@ function initializeUI(isRefresh = false) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM Loaded. Initializing...");
-  loadData(); // Load existing data or set up default state
-  initializeUI(); // Set up all initial UI elements, event listeners, and render initial views
-  checkAndTriggerBackupReminder(); // <-- THIS LINE WAS MISSING
+  console.log("DOM Loaded. Initializing Supabase...");
 
-  // Event listener to update date fields and attempt to focus window when tab becomes visible
+  // Step 1: Initialize the Supabase client immediately.
+  const { createClient } = window.supabase;
+  supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Step 2: Set up the auth listener. This will fire on page load if tokens are in the URL.
+  // The Supabase client will automatically handle saving the session and cleaning the URL.
+  supabase.auth.onAuthStateChange((event, session) => {
+    console.log('Supabase auth state changed:', event, session);
+    const user = session?.user || null;
+    updateCloudUiState(user);
+  });
+
+  // Step 3: Now proceed with the rest of the app's initialization.
+  loadData();
+  initializeUI(); 
+  checkAndTriggerBackupReminder();
+
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
-      console.log("Page became visible, attempting to focus and update dates.");
-      window.focus(); // Attempt to bring focus to the window/document
-
-      const mainTransactionDateInput = $("#date"); // Main transaction form date
-      if (mainTransactionDateInput) {
-        mainTransactionDateInput.value = getCurrentDateString(); // Use local date
-      }
-
-      const ccTransactionDateInput = $("#ccDate"); // Credit Card transaction form date
-      if (ccTransactionDateInput) {
-        ccTransactionDateInput.value = getCurrentDateString(); // Use local date
-      }
+      window.focus();
+      $("#date").value = getCurrentDateString();
+      $("#ccDate").value = getCurrentDateString();
     }
   });
 
-  // Preloader logic
   const preloaderElement = document.getElementById("preloader");
   const appContentElement = document.getElementById("app-content");
-  const preloaderDuration = 1250; // Duration preloader is visible
+  const preloaderDuration = 1250;
 
   if (preloaderElement && appContentElement) {
-    console.log(
-      `Preloader will be shown for ${preloaderDuration / 1000} seconds.`
-    );
-
     setTimeout(() => {
-      console.log(
-        "Preloader timer finished. Hiding preloader, showing app content."
-      );
       preloaderElement.classList.add("hidden");
       appContentElement.classList.add("visible");
-
       setTimeout(() => {
         preloaderElement.style.display = "none";
-        console.log("Preloader display set to 'none' after fade-out.");
-      }, 750); // Matches CSS transition duration for opacity
+      }, 750);
     }, preloaderDuration);
-  } else {
-    if (!preloaderElement) {
-      console.error("Preloader element with ID 'preloader' not found.");
-    }
-    if (!appContentElement) {
-      console.error("App content element with ID 'app-content' not found.");
-    }
-    // Fallback to show app content if preloader elements are missing
-    if (appContentElement) {
-      appContentElement.classList.add("visible");
-      console.warn(
-        "Attempted to show app content due to missing preloader elements."
-      );
-    }
-    if (preloaderElement) {
-      preloaderElement.style.display = "none";
-    }
   }
 });
