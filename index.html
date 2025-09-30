@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v4.90g" />
+    <meta name="application-version" content="v4.82i" />
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
     <meta
       name="title"
@@ -54,9 +54,8 @@
     />
     <link rel="stylesheet" href="style.css" />
 
-    <!-- Google API & Identity Services Scripts -->
-    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script
       async
@@ -620,64 +619,63 @@
               id="settingsDataManagementPanel"
               class="settings-tab-panel space-y-6 hidden"
             >
-              <!-- NEW: Cloud Backup Card -->
+              <!-- Cloud Backup Card (Updated for Supabase) -->
               <div
                 class="card !p-4"
                 style="background-color: var(--bg-tertiary)"
               >
                 <h3 class="text-lg font-semibold mb-3">
-                  Cloud Backup (Google Drive)
+                  Cloud Sync (Supabase)
                 </h3>
                 <div
-                  id="driveStatusContainer"
+                  id="cloudStatusContainer"
                   class="flex items-center gap-x-3 mb-4"
                 >
                   <div
-                    id="driveStatusIndicator"
+                    id="cloudStatusIndicator"
                     class="w-3 h-3 rounded-full bg-gray-500"
                   ></div>
-                  <span id="driveStatusText" class="text-sm text-gray-400"
+                  <span id="cloudStatusText" class="text-sm text-gray-400"
                     >Initializing...</span
                   >
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3 mb-4">
-                  <button id="driveAuthBtn" class="btn btn-secondary flex-1">
-                    <i class="fab fa-google-drive mr-2"></i> Connect to Google
-                    Drive
+                  <button id="cloudAuthBtn" class="btn btn-secondary flex-1">
+                    <i class="fab fa-google mr-2"></i> Connect with Google
                   </button>
                   <button
-                    id="driveSignOutBtn"
+                    id="cloudSignOutBtn"
                     class="btn btn-danger flex-1 hidden"
                   >
                     <i class="fas fa-sign-out-alt mr-2"></i> Log Out
                   </button>
                 </div>
-                <div id="driveActionsContainer" class="hidden">
+                <div id="cloudActionsContainer" class="hidden">
                   <div class="flex flex-col sm:flex-row gap-3 mb-4">
-                    <button id="driveExportBtn" class="btn btn-secondary flex-1">
+                    <button id="cloudExportBtn" class="btn btn-secondary flex-1">
                       <i class="fas fa-cloud-upload-alt mr-2"></i> Backup to
-                      Drive
+                      Cloud
                     </button>
-                    <button id="driveImportBtn" class="btn btn-secondary flex-1">
+                    <button id="cloudImportBtn" class="btn btn-secondary flex-1">
                       <i class="fas fa-cloud-download-alt mr-2"></i> Restore from
-                      Drive
+                      Cloud
                     </button>
                   </div>
                   <div
                     class="flex items-center justify-between pt-3 border-t border-gray-600"
                   >
                     <label
-                      for="toggleDriveShortcuts"
+                      for="toggleCloudShortcuts"
                       class="text-sm font-medium text-gray-300"
                     >
-                      Use Ctrl+E / Ctrl+I for Drive
+                      Use Ctrl+E / Ctrl+I for Cloud
                     </label>
                     <label
                       class="relative inline-flex items-center cursor-pointer"
                     >
                       <input
                         type="checkbox"
-                        id="toggleDriveShortcuts"
+                        id="toggleCloudShortcuts"
                         class="sr-only peer"
                       />
                       <div
@@ -687,7 +685,7 @@
                   </div>
                   <p class="text-xs text-gray-400 mt-2">
                     When enabled, the export/import keyboard shortcuts will use
-                    Google Drive instead of local files.
+                    the cloud service instead of local files.
                   </p>
                 </div>
               </div>
@@ -1350,3 +1348,4 @@
     <script src="script.js" defer></script>
   </body>
 </html>
+
