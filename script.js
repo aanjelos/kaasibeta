@@ -1,6 +1,6 @@
 // --- Supabase Constants ---
-const SUPABASE_URL = 'https://xcnirqsctkyyrvildqtm.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjbmlycXNjdGt5eXJ2aWxkcXRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTg3MDc2OTEsImV4cCI6MjAzNDI4MzY5MX0.sb_publishable_cLW_C5L7xmIinyzSaKSmBQ_EFnjbntg';
+const SUPABASE_URL = "https://xcnirqsctkyyrvildqtm.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_cLW_C5L7xmIinyzSaKSmBQ_EFnjbntg";
 let supabase = null;
 
 const $ = (selector) => document.querySelector(selector);
@@ -1279,15 +1279,16 @@ function handleKeyboardShortcuts(event) {
         if (importInput) {
           importInput.click();
         } else {
-          showNotification("Open Settings > Data to import a local file.", "info");
+          showNotification(
+            "Open Settings > Data to import a local file.",
+            "info"
+          );
         }
       }
     }
     return;
   }
   // --- END OF UPDATE ---
-
-  // ... (The rest of the function is the same as your original)
 
   if (modifierKeyPressed && event.key !== "Escape") {
     return;
@@ -1298,6 +1299,7 @@ function handleKeyboardShortcuts(event) {
   }
 
   switch (event.key) {
+    // ... (The rest of this function is the same as your original file)
     case "-":
       if (!inInputField) {
         event.preventDefault();
@@ -1486,7 +1488,7 @@ function handleKeyboardShortcuts(event) {
     case "ArrowLeft":
       if (monthlyViewModalVisible && !inInputField) {
         event.preventDefault();
-        navigateMonthTabs(-1); 
+        navigateMonthTabs(-1);
         console.log("Shortcut: ArrowLeft pressed for previous month");
       }
       break;
@@ -3305,13 +3307,15 @@ function openCcHistoryModal() {
 
   // --- Reset state on open ---
   ccHistoryFilter = "unpaid"; // Default filter
-  if(searchInput) searchInput.value = "";
-  if(clearSearchBtn) clearSearchBtn.classList.add('hidden');
+  if (searchInput) searchInput.value = "";
+  if (clearSearchBtn) clearSearchBtn.classList.add("hidden");
   ccHistoryOpenMonthKeys.clear();
 
   // --- Populate Year Selector ---
   const years = new Set(
-    (state.creditCard.transactions || []).map((t) => new Date(t.date).getFullYear())
+    (state.creditCard.transactions || []).map((t) =>
+      new Date(t.date).getFullYear()
+    )
   );
   years.add(currentYear);
   yearSelector.innerHTML = "";
@@ -3331,20 +3335,24 @@ function openCcHistoryModal() {
     const searchTerm = searchInput.value.trim().toLowerCase();
 
     // 1. Filter by Year, Status, and Search Term
-    let filteredTransactions = (state.creditCard.transactions || []).filter(t => {
-      const tDate = new Date(t.date);
-      if (tDate.getFullYear() !== selectedYear) return false;
+    let filteredTransactions = (state.creditCard.transactions || []).filter(
+      (t) => {
+        const tDate = new Date(t.date);
+        if (tDate.getFullYear() !== selectedYear) return false;
 
-      if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
-      if (ccHistoryFilter === "paid" && !t.paidOff) return false;
-      
-      if (searchTerm) {
-        const descriptionMatch = t.description.toLowerCase().includes(searchTerm);
-        const amountMatch = t.amount.toFixed(2).includes(searchTerm);
-        if (!descriptionMatch && !amountMatch) return false;
+        if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
+        if (ccHistoryFilter === "paid" && !t.paidOff) return false;
+
+        if (searchTerm) {
+          const descriptionMatch = t.description
+            .toLowerCase()
+            .includes(searchTerm);
+          const amountMatch = t.amount.toFixed(2).includes(searchTerm);
+          if (!descriptionMatch && !amountMatch) return false;
+        }
+        return true;
       }
-      return true;
-    });
+    );
 
     // 2. Update Summary Stats (always based on full data, not filters)
     const limit = state.creditCard.limit || 0;
@@ -3352,10 +3360,18 @@ function openCcHistoryModal() {
       .filter((t) => !t.paidOff)
       .reduce((sum, t) => sum + t.amount - (t.paidAmount || 0), 0);
     const available = limit - allUnpaid;
-    $("#ccHistoryLimit").innerHTML = `<span class="tabular-nums">${formatCurrency(limit)}</span>`;
-    $("#ccHistorySpentUnpaid").innerHTML = `<span class="tabular-nums">${formatCurrency(allUnpaid)}</span>`;
+    $(
+      "#ccHistoryLimit"
+    ).innerHTML = `<span class="tabular-nums">${formatCurrency(limit)}</span>`;
+    $(
+      "#ccHistorySpentUnpaid"
+    ).innerHTML = `<span class="tabular-nums">${formatCurrency(
+      allUnpaid
+    )}</span>`;
     const availableEl = $("#ccHistoryAvailable");
-    availableEl.innerHTML = `<span class="tabular-nums">${formatCurrency(available)}</span>`;
+    availableEl.innerHTML = `<span class="tabular-nums">${formatCurrency(
+      available
+    )}</span>`;
     availableEl.classList.toggle("text-expense", available < 0);
     availableEl.classList.toggle("accent-text", available >= 0);
 
@@ -3375,54 +3391,99 @@ function openCcHistoryModal() {
       return acc;
     }, {});
 
-    Object.keys(transactionsByMonth).sort((a, b) => b - a).forEach(monthKey => {
+    Object.keys(transactionsByMonth)
+      .sort((a, b) => b - a)
+      .forEach((monthKey) => {
         const monthTransactions = transactionsByMonth[monthKey];
-        monthTransactions.sort((a, b) => new Date(b.date) - new Date(a.date) || b.timestamp - a.timestamp);
-        const monthName = new Date(selectedYear, monthKey).toLocaleString('default', { month: 'long' });
-        
-        const monthGroup = document.createElement('div');
-        monthGroup.className = 'cc-history-month-group';
+        monthTransactions.sort(
+          (a, b) =>
+            new Date(b.date) - new Date(a.date) || b.timestamp - a.timestamp
+        );
+        const monthName = new Date(selectedYear, monthKey).toLocaleString(
+          "default",
+          { month: "long" }
+        );
 
-        const monthHeader = document.createElement('div');
-        monthHeader.className = 'cc-history-month-header';
-        
-        const totalSpentInMonth = monthTransactions.reduce((sum, t) => sum + t.amount, 0);
+        const monthGroup = document.createElement("div");
+        monthGroup.className = "cc-history-month-group";
+
+        const monthHeader = document.createElement("div");
+        monthHeader.className = "cc-history-month-header";
+
+        const totalSpentInMonth = monthTransactions.reduce(
+          (sum, t) => sum + t.amount,
+          0
+        );
 
         monthHeader.innerHTML = `
             <span>${monthName} ${selectedYear}</span>
             <div class="flex items-center">
-                <span class="text-sm text-expense mr-3 tabular-nums">${formatCurrency(totalSpentInMonth)}</span>
+                <span class="text-sm text-expense mr-3 tabular-nums">${formatCurrency(
+                  totalSpentInMonth
+                )}</span>
                 <i class="fas fa-chevron-down text-xs text-gray-400"></i>
             </div>
         `;
-        
-        const transactionsContainer = document.createElement('div');
-        transactionsContainer.className = 'cc-history-transactions-container';
-        
-        monthTransactions.forEach(t => {
-            const itemDiv = document.createElement('div');
-            itemDiv.className = `cc-history-transaction-item ${t.paidOff ? "opacity-60" : ""}`;
-            const remainingOnItem = t.amount - (t.paidAmount || 0);
-            
-            const buttonsHtml = `
+
+        const transactionsContainer = document.createElement("div");
+        transactionsContainer.className = "cc-history-transactions-container";
+
+        monthTransactions.forEach((t) => {
+          const itemDiv = document.createElement("div");
+          itemDiv.className = `cc-history-transaction-item ${
+            t.paidOff ? "opacity-60" : ""
+          }`;
+          const remainingOnItem = t.amount - (t.paidAmount || 0);
+
+          const buttonsHtml = `
               <div class="edit-btn-container">
-                  ${!t.paidOff && remainingOnItem > 0.005 ? `<button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="openPayCcItemForm('${t.id}')" title="Pay Item"><i class="fas fa-dollar-sign"></i></button>` : ""}
-                  <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditCcTransactionForm('${t.id}')" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteCcTransaction('${t.id}')" title="Delete"><i class="fas fa-times"></i></button>
+                  ${
+                    !t.paidOff && remainingOnItem > 0.005
+                      ? `<button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="openPayCcItemForm('${t.id}')" title="Pay Item"><i class="fas fa-dollar-sign"></i></button>`
+                      : ""
+                  }
+                  <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditCcTransactionForm('${
+                    t.id
+                  }')" title="Edit"><i class="fas fa-edit"></i></button>
+                  <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteCcTransaction('${
+                    t.id
+                  }')" title="Delete"><i class="fas fa-times"></i></button>
               </div>`;
 
-            itemDiv.innerHTML = `
+          itemDiv.innerHTML = `
               <div class="flex-grow mr-3 overflow-hidden">
-                  <p class="font-medium truncate ${t.paidOff ? "text-gray-500" : ""}" title="${t.description}">${t.description}</p>
-                  <p class="text-xs text-gray-400 mt-0.5">${new Date(t.date).toLocaleDateString()} ${t.paidAmount > 0 && !t.paidOff ? `(Paid: <span class="tabular-nums">${formatCurrency(t.paidAmount)}</span>)` : ""}</p>
+                  <p class="font-medium truncate ${
+                    t.paidOff ? "text-gray-500" : ""
+                  }" title="${t.description}">${t.description}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">${new Date(
+                    t.date
+                  ).toLocaleDateString()} ${
+            t.paidAmount > 0 && !t.paidOff
+              ? `(Paid: <span class="tabular-nums">${formatCurrency(
+                  t.paidAmount
+                )}</span>)`
+              : ""
+          }</p>
               </div>
               <div class="flex items-center flex-shrink-0">
-                  <span class="font-semibold mr-3 text-sm tabular-nums ${t.paidOff ? "text-gray-500" : remainingOnItem <= 0.005 ? "text-income" : "text-expense"}">
-                      ${t.paidOff ? formatCurrency(t.amount) : formatCurrency(remainingOnItem)} ${t.paidOff ? "" : remainingOnItem <= 0.005 ? " (Settled)" : " Left"}
+                  <span class="font-semibold mr-3 text-sm tabular-nums ${
+                    t.paidOff
+                      ? "text-gray-500"
+                      : remainingOnItem <= 0.005
+                      ? "text-income"
+                      : "text-expense"
+                  }">
+                      ${
+                        t.paidOff
+                          ? formatCurrency(t.amount)
+                          : formatCurrency(remainingOnItem)
+                      } ${
+            t.paidOff ? "" : remainingOnItem <= 0.005 ? " (Settled)" : " Left"
+          }
                   </span>
                   ${buttonsHtml}
               </div>`;
-            transactionsContainer.appendChild(itemDiv);
+          transactionsContainer.appendChild(itemDiv);
         });
 
         monthGroup.appendChild(monthHeader);
@@ -3431,45 +3492,52 @@ function openCcHistoryModal() {
 
         // Accordion Logic
         const fullMonthKey = `${selectedYear}-${monthKey}`;
-        if (ccHistoryOpenMonthKeys.has(fullMonthKey) || searchTerm) { // Expand if searching
-            transactionsContainer.style.maxHeight = transactionsContainer.scrollHeight + "px";
-            monthHeader.querySelector('i').classList.replace('fa-chevron-down', 'fa-chevron-up');
+        if (ccHistoryOpenMonthKeys.has(fullMonthKey) || searchTerm) {
+          // Expand if searching
+          transactionsContainer.style.maxHeight =
+            transactionsContainer.scrollHeight + "px";
+          monthHeader
+            .querySelector("i")
+            .classList.replace("fa-chevron-down", "fa-chevron-up");
         }
 
         monthHeader.onclick = () => {
-            const icon = monthHeader.querySelector('i');
-            const isCollapsed = transactionsContainer.style.maxHeight === '0px' || !transactionsContainer.style.maxHeight;
-            if (isCollapsed) {
-                transactionsContainer.style.maxHeight = transactionsContainer.scrollHeight + "px";
-                icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
-                ccHistoryOpenMonthKeys.add(fullMonthKey);
-            } else {
-                transactionsContainer.style.maxHeight = '0px';
-                icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
-                ccHistoryOpenMonthKeys.delete(fullMonthKey);
-            }
+          const icon = monthHeader.querySelector("i");
+          const isCollapsed =
+            transactionsContainer.style.maxHeight === "0px" ||
+            !transactionsContainer.style.maxHeight;
+          if (isCollapsed) {
+            transactionsContainer.style.maxHeight =
+              transactionsContainer.scrollHeight + "px";
+            icon.classList.replace("fa-chevron-down", "fa-chevron-up");
+            ccHistoryOpenMonthKeys.add(fullMonthKey);
+          } else {
+            transactionsContainer.style.maxHeight = "0px";
+            icon.classList.replace("fa-chevron-up", "fa-chevron-down");
+            ccHistoryOpenMonthKeys.delete(fullMonthKey);
+          }
         };
-    });
+      });
 
     // 4. Update active filter button
-    $$("#ccHistoryFilterControls button").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.filter === ccHistoryFilter);
+    $$("#ccHistoryFilterControls button").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.filter === ccHistoryFilter);
     });
   };
 
   // --- Setup Event Listeners ---
   yearSelector.onchange = () => {
-      ccHistoryOpenMonthKeys.clear(); // Reset open accordions when year changes
-      renderFilteredCcList();
+    ccHistoryOpenMonthKeys.clear(); // Reset open accordions when year changes
+    renderFilteredCcList();
   };
-  
-  $$("#ccHistoryFilterControls button").forEach(btn => {
-      btn.onclick = () => {
-          ccHistoryFilter = btn.dataset.filter;
-          renderFilteredCcList();
-      };
+
+  $$("#ccHistoryFilterControls button").forEach((btn) => {
+    btn.onclick = () => {
+      ccHistoryFilter = btn.dataset.filter;
+      renderFilteredCcList();
+    };
   });
-  
+
   // Expose the render function for the search listeners
   document.body.renderCcHistoryList = renderFilteredCcList;
 
@@ -4747,7 +4815,9 @@ function payInstallmentMonth(installmentId) {
       Mark one month as paid for "<strong>${installment.description}</strong>"?
     </p>
     <p class="mb-4 text-center text-sm text-gray-400">
-      Amount: <span class="tabular-nums">${formatCurrency(installment.monthlyAmount)}</span><br>
+      Amount: <span class="tabular-nums">${formatCurrency(
+        installment.monthlyAmount
+      )}</span><br>
       Months remaining after this: ${installment.monthsLeft - 1}
     </p>
     <p class="disclaimer-text mt-3 mb-4">
@@ -4873,8 +4943,12 @@ function openPayCcItemForm(ccTransactionId) {
 
   const formHtml = `
       <input type="hidden" name="ccItemId" value="${item.id}">
-      <p class="mb-2 tabular-nums">Item Amount: ${formatCurrency(item.amount)}</p>
-      <p class="mb-2 tabular-nums">Paid So Far: ${formatCurrency(item.paidAmount || 0)}</p>
+      <p class="mb-2 tabular-nums">Item Amount: ${formatCurrency(
+        item.amount
+      )}</p>
+      <p class="mb-2 tabular-nums">Paid So Far: ${formatCurrency(
+        item.paidAmount || 0
+      )}</p>
       <p class="mb-2">Remaining on Item: <strong class="text-danger tabular-nums">${formatCurrency(
         remaining
       )}</strong></p>
@@ -5028,12 +5102,16 @@ async function openSettingsModal() {
   setupSettingsTabs();
 
   // Get the current user session to update the UI
-  const { data: { user } } = await supabase.auth.getUser();
-  updateCloudUiState(user); 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  updateCloudUiState(user);
 
   const storageInfoElement = $("#storageSizeInfo");
   if (storageInfoElement) {
-    storageInfoElement.textContent = `Approx. Storage Used: ${getFormattedLocalStorageSize(STORAGE_KEY)}`;
+    storageInfoElement.textContent = `Approx. Storage Used: ${getFormattedLocalStorageSize(
+      STORAGE_KEY
+    )}`;
   }
 
   $("#settingsModal").style.display = "block";
@@ -6268,9 +6346,16 @@ function calculateCashTotal() {
     const total = count * denomination;
     grandTotal += total;
     const totalEl = $(`#cashTotal-${denomination}`);
-    if (totalEl) totalEl.innerHTML = `<span class="tabular-nums">${formatCurrency(total)}</span>`;
+    if (totalEl)
+      totalEl.innerHTML = `<span class="tabular-nums">${formatCurrency(
+        total
+      )}</span>`;
   });
-  $("#cashCounterTotal").innerHTML = `<span class="tabular-nums">${formatCurrency(grandTotal)}</span>`;
+  $(
+    "#cashCounterTotal"
+  ).innerHTML = `<span class="tabular-nums">${formatCurrency(
+    grandTotal
+  )}</span>`;
   const cashAccount = state.accounts.find((acc) => acc.id === "cash");
   if (cashAccount) {
     const diff = grandTotal - cashAccount.balance;
@@ -6533,36 +6618,100 @@ let activeSettingsTab = null;
 // =================================================================================
 
 /**
- * Handles signing in with Google via Supabase.
+ * Handles new user sign-up.
  */
-async function handleCloudAuth() {
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: window.location.origin // This tells Supabase to redirect back to the current page
-    }
-  });
+async function handleSignUp() {
+  const email = $("#cloudEmail").value;
+  const password = $("#cloudPassword").value;
+
+  const { data, error } = await supabase.auth.signUp({ email, password });
+
   if (error) {
-    showNotification(`Authentication error: ${error.message}`, 'error');
-    console.error('Supabase auth error:', error);
+    showNotification(`Sign-up error: ${error.message}`, "error");
+    console.error("Sign-up error:", error);
+  } else {
+    showNotification(
+      "Sign-up successful! Please check your email to confirm your account.",
+      "success",
+      8000
+    );
   }
+}
+
+/**
+ * Handles existing user sign-in.
+ */
+async function handleSignIn() {
+  const email = $("#cloudEmail").value;
+  const password = $("#cloudPassword").value;
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    showNotification(`Login error: ${error.message}`, "error");
+    console.error("Login error:", error);
+  }
+  // On success, the onAuthStateChange listener will handle the UI update.
 }
 
 /**
  * Handles signing out from Supabase.
  */
-async function handleCloudSignOut() {
+async function handleSignOut() {
   const { error } = await supabase.auth.signOut();
   if (error) {
-    showNotification(`Sign out error: ${error.message}`, 'error');
-    console.error('Supabase sign out error:', error);
-  } else {
-    // Clear local state flag and update UI
-    state.settings.cloudSyncEnabled = false;
-    saveData();
-    updateCloudUiState();
-    showNotification('Successfully logged out.', 'info');
+    showNotification(`Sign out error: ${error.message}`, "error");
+    console.error("Supabase sign out error:", error);
   }
+  // The onAuthStateChange listener will handle the UI update.
+}
+
+/**
+ * Handles the "Forgot Password" flow.
+ */
+async function handlePasswordReset() {
+  const email = $("#resetEmail").value;
+  if (!email) {
+    showNotification("Please enter an email address.", "error");
+    return;
+  }
+
+  const sendBtn = $("#sendResetLinkBtn");
+  const originalBtnHtml = sendBtn.innerHTML;
+  sendBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Sending...`;
+  sendBtn.disabled = true;
+
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin,
+  });
+
+  if (error) {
+    showNotification(`Error: ${error.message}`, "error");
+    console.error("Password reset error:", error);
+  } else {
+    showNotification(
+      "Password reset link sent! Please check your email.",
+      "success",
+      8000
+    );
+    showSignInForm(); // Switch back to the login view after sending
+  }
+
+  sendBtn.innerHTML = originalBtnHtml;
+  sendBtn.disabled = false;
+}
+
+function showForgotPasswordForm() {
+  $("#cloudSignInSignUpForm").classList.add("hidden");
+  $("#forgotPasswordContainer").classList.remove("hidden");
+}
+
+function showSignInForm() {
+  $("#forgotPasswordContainer").classList.add("hidden");
+  $("#cloudSignInSignUpForm").classList.remove("hidden");
 }
 
 /**
@@ -6570,30 +6719,25 @@ async function handleCloudSignOut() {
  * @param {object|null} user - The Supabase user object, or null if logged out.
  */
 function updateCloudUiState(user) {
-  const statusIndicator = $('#cloudStatusIndicator');
-  const statusText = $('#cloudStatusText');
-  const authBtn = $('#cloudAuthBtn');
-  const signOutBtn = $('#cloudSignOutBtn');
-  const actionsContainer = $('#cloudActionsContainer');
-  const shortcutsToggle = $('#toggleCloudShortcuts');
+  const authContainer = $("#cloudAuthContainer");
+  const loggedInContainer = $("#cloudLoggedInContainer");
+  const statusIndicator = $("#cloudStatusIndicator");
+  const statusText = $("#cloudStatusText");
+  const shortcutsToggle = $("#toggleCloudShortcuts");
 
   if (user) {
     // --- Logged IN state ---
-    statusIndicator.className = 'w-3 h-3 rounded-full connected';
+    authContainer.classList.add("hidden");
+    loggedInContainer.classList.remove("hidden");
+    statusIndicator.className = "w-3 h-3 rounded-full connected";
     statusText.textContent = `Connected as: ${user.email}`;
-    authBtn.classList.add('hidden');
-    signOutBtn.classList.remove('hidden');
-    actionsContainer.classList.remove('hidden');
     shortcutsToggle.checked = state.settings.shortcutsUseCloud;
-    state.settings.cloudSyncEnabled = true;
   } else {
     // --- Logged OUT state ---
-    statusIndicator.className = 'w-3 h-3 rounded-full bg-gray-500';
-    statusText.textContent = 'Not Connected.';
-    authBtn.classList.remove('hidden');
-    signOutBtn.classList.add('hidden');
-    actionsContainer.classList.add('hidden');
-    state.settings.cloudSyncEnabled = false;
+    authContainer.classList.remove("hidden");
+    loggedInContainer.classList.add("hidden");
+    $("#cloudEmail").value = "";
+    $("#cloudPassword").value = "";
   }
 }
 
@@ -6601,33 +6745,34 @@ function updateCloudUiState(user) {
  * Orchestrates the backup process to Supabase.
  */
 async function backupToCloud() {
-  const user = (await supabase.auth.getSession()).data.session?.user;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
-    showNotification('You must be logged in to back up data.', 'error');
+    showNotification("You must be logged in to back up data.", "error");
     return;
   }
 
-  const exportBtn = $('#cloudExportBtn');
+  const exportBtn = $("#cloudExportBtn");
   const originalBtnHtml = exportBtn.innerHTML;
   exportBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Backing up...`;
   exportBtn.disabled = true;
 
   try {
-    // 'upsert' will create the record if it doesn't exist, or update it if it does.
-    // The 'user_id' is the primary key for our RLS policy.
-    const { data, error } = await supabase
-      .from('user_backups')
-      .upsert({ user_id: user.id, data: state })
-      .select();
+    // 'upsert' will create or update the user's single backup row.
+    const { error } = await supabase
+      .from("user_backups")
+      .upsert({ user_id: user.id, data: state });
 
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
 
-    showNotification('Backup successful! Your data is saved to the cloud.', 'success');
+    showNotification(
+      "Backup successful! Your data is saved to the cloud.",
+      "success"
+    );
   } catch (error) {
-    console.error('Error backing up to Supabase:', error);
-    showNotification(`Backup failed: ${error.message}`, 'error');
+    console.error("Error backing up to Supabase:", error);
+    showNotification(`Backup failed: ${error.message}`, "error");
   } finally {
     exportBtn.innerHTML = originalBtnHtml;
     exportBtn.disabled = false;
@@ -6638,62 +6783,68 @@ async function backupToCloud() {
  * Orchestrates the restore process from Supabase.
  */
 async function restoreFromCloud() {
-    const user = (await supabase.auth.getSession()).data.session?.user;
-    if (!user) {
-        showNotification('You must be logged in to restore data.', 'error');
-        return;
-    }
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    showNotification("You must be logged in to restore data.", "error");
+    return;
+  }
 
-    showConfirmationModal(
-        "Restore from Cloud",
-        "This will overwrite all current local data with your last cloud backup. This action cannot be undone. Are you sure?",
-        "Yes, Restore",
-        "Cancel",
-        async () => { // onConfirm
-            const importBtn = $('#cloudImportBtn');
-            const originalBtnHtml = importBtn.innerHTML;
-            importBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Restoring...`;
-            importBtn.disabled = true;
+  showConfirmationModal(
+    "Restore from Cloud",
+    "This will overwrite all current local data with your last cloud backup. This action cannot be undone. Are you sure?",
+    "Yes, Restore",
+    "Cancel",
+    async () => {
+      // onConfirm
+      const importBtn = $("#cloudImportBtn");
+      const originalBtnHtml = importBtn.innerHTML;
+      importBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Restoring...`;
+      importBtn.disabled = true;
 
-            try {
-                const { data, error } = await supabase
-                    .from('user_backups')
-                    .select('data')
-                    .eq('user_id', user.id)
-                    .single();
+      try {
+        const { data, error } = await supabase
+          .from("user_backups")
+          .select("data")
+          .eq("user_id", user.id)
+          .single();
 
-                if (error || !data) {
-                    if (error && error.code === 'PGRST116') { // "PostgREST error 116" means no rows found
-                        showNotification('No cloud backup found for your account.', 'warning');
-                        return;
-                    }
-                    throw error;
-                }
-
-                const importedData = data.data;
-                if (importedData && typeof importedData === 'object') {
-                    state = deepMerge(getDefaultState(), importedData);
-                    ensureDefaultAccounts();
-                    ensureDefaultCategories();
-                    state.settings.initialSetupDone = true;
-
-                    saveData();
-                    initializeUI(true); // Full refresh of the app
-                    closeModal('settingsModal');
-                    showNotification('Data successfully restored from the cloud.', 'success');
-                } else {
-                    throw new Error("Cloud data is not a valid object.");
-                }
-
-            } catch (error) {
-                console.error('Restore from Supabase failed:', error);
-                showNotification(`Restore failed: ${error.message}`, 'error');
-            } finally {
-                importBtn.innerHTML = originalBtnHtml;
-                importBtn.disabled = false;
-            }
+        if (error && error.code === "PGRST116") {
+          showNotification(
+            "No cloud backup found for your account.",
+            "warning"
+          );
+          return;
         }
-    );
+        if (error) throw error;
+
+        const importedData = data.data;
+        if (importedData && typeof importedData === "object") {
+          state = deepMerge(getDefaultState(), importedData);
+          ensureDefaultAccounts();
+          ensureDefaultCategories();
+          state.settings.initialSetupDone = true;
+
+          saveData();
+          initializeUI(true);
+          closeModal("settingsModal");
+          showNotification(
+            "Data successfully restored from the cloud.",
+            "success"
+          );
+        } else {
+          throw new Error("Cloud data is not valid.");
+        }
+      } catch (error) {
+        console.error("Restore from Supabase failed:", error);
+        showNotification(`Restore failed: ${error.message}`, "error");
+      } finally {
+        importBtn.innerHTML = originalBtnHtml;
+        importBtn.disabled = false;
+      }
+    }
+  );
 }
 
 const settingsTabsConfig = [
@@ -6848,11 +6999,9 @@ function initializeUI(isRefresh = false) {
 
     const monthlySearchInput = $("#monthlySearchInput");
     const clearMonthlySearchBtn = $("#clearMonthlySearchBtn");
-    const searchScopeSelect = $("#searchScopeSelect"); 
+    const searchScopeSelect = $("#searchScopeSelect");
 
-    if (monthlySearchInput) {
-      monthlySearchInput.value = "";
-    }
+    if (monthlySearchInput) monthlySearchInput.value = "";
     if (clearMonthlySearchBtn) {
       clearMonthlySearchBtn.style.display = "none";
       clearMonthlySearchBtn.disabled = true;
@@ -6884,9 +7033,9 @@ function initializeUI(isRefresh = false) {
     shortcutsHelpBtn.onclick = openShortcutsHelpModal;
   }
 
-  const donateModal = document.getElementById("donateModal");
-  const footerDonateBtn = document.getElementById("footerDonateBtn");
-  const closeDonateModalBtn = document.getElementById("closeDonateModal");
+  const donateModal = $("#donateModal");
+  const footerDonateBtn = $("#footerDonateBtn");
+  const closeDonateModalBtn = $("#closeDonateModal");
 
   if (donateModal && footerDonateBtn && closeDonateModalBtn) {
     footerDonateBtn.addEventListener("click", () => {
@@ -6901,25 +7050,26 @@ function initializeUI(isRefresh = false) {
       }
     });
 
-    const copyButtons = donateModal.querySelectorAll(".copy-button");
-    copyButtons.forEach((button) => {
+    donateModal.querySelectorAll(".copy-button").forEach((button) => {
       button.addEventListener("click", () => {
-        const textToCopy = button.dataset.copyText;
-        navigator.clipboard.writeText(textToCopy).then(() => {
-          button.textContent = "Copied!";
-          setTimeout(() => {
-            button.innerHTML = '<i class="far fa-copy"></i>';
-          }, 2000);
-        }).catch(err => {
-          console.error("Failed to copy text: ", err);
-        });
+        navigator.clipboard
+          .writeText(button.dataset.copyText)
+          .then(() => {
+            button.textContent = "Copied!";
+            setTimeout(() => {
+              button.innerHTML = '<i class="far fa-copy"></i>';
+            }, 2000);
+          })
+          .catch((err) => {
+            console.error("Failed to copy text: ", err);
+          });
       });
     });
   }
 
   const monthlySearchInput = $("#monthlySearchInput");
   const clearMonthlySearchBtn = $("#clearMonthlySearchBtn");
-  const searchScopeSelect = $("#searchScopeSelect"); 
+  const searchScopeSelect = $("#searchScopeSelect");
 
   const triggerSearch = () => {
     clearTimeout(monthlySearchDebounceTimer);
@@ -6962,41 +7112,34 @@ function initializeUI(isRefresh = false) {
     });
   }
 
-  const openTransferModalButton = $("#openTransferModalBtn");
-  if (openTransferModalButton) {
-    openTransferModalButton.onclick = () => {
-      const modal = $("#transferMoneyModal");
-      if (modal) {
-        populateDropdowns();
-        $("#transferModalForm")?.reset();
-        $("#modalTransferError")?.classList.add("hidden");
-        modal.style.display = "block";
-        modal.querySelector('input[type="number"], select')?.focus();
-      }
-    };
-  }
+  $("#openTransferModalBtn")?.addEventListener("click", () => {
+    const modal = $("#transferMoneyModal");
+    if (modal) {
+      populateDropdowns();
+      $("#transferModalForm")?.reset();
+      $("#modalTransferError")?.classList.add("hidden");
+      modal.style.display = "block";
+      modal.querySelector('input[type="number"], select')?.focus();
+    }
+  });
 
-  $("#transferModalForm")?.addEventListener('submit', handleTransferSubmit);
+  $("#transferModalForm")?.addEventListener("submit", handleTransferSubmit);
 
   const ccHistorySearchInput = $("#ccHistorySearchInput");
   const clearCcHistorySearchBtn = $("#clearCcHistorySearchBtn");
 
   if (ccHistorySearchInput && clearCcHistorySearchBtn) {
-    const triggerCcSearch = () => {
-      document.body.renderCcHistoryList?.();
-    };
-
+    const triggerCcSearch = () => document.body.renderCcHistoryList?.();
     ccHistorySearchInput.addEventListener("input", () => {
-      const searchTerm = ccHistorySearchInput.value.trim();
-      clearCcHistorySearchBtn.classList.toggle("hidden", !searchTerm);
+      clearCcHistorySearchBtn.classList.toggle(
+        "hidden",
+        !ccHistorySearchInput.value.trim()
+      );
       clearTimeout(ccHistorySearchDebounceTimer);
       ccHistorySearchDebounceTimer = setTimeout(triggerCcSearch, 400);
     });
-
     clearCcHistorySearchBtn.addEventListener("click", () => {
-      clearTimeout(ccHistorySearchDebounceTimer);
       ccHistorySearchInput.value = "";
-      clearCcHistorySearchBtn.classList.add("hidden");
       triggerCcSearch();
       ccHistorySearchInput.focus();
     });
@@ -7012,22 +7155,38 @@ function initializeUI(isRefresh = false) {
   $("#cashCounterBtn").onclick = openCashCounter;
   $("#ccHistoryBtn").onclick = openCcHistoryModal;
 
-  $('#cloudAuthBtn').onclick = handleCloudAuth;
-  $('#cloudSignOutBtn').onclick = handleCloudSignOut;
-  $('#cloudExportBtn').onclick = backupToCloud;
-  $('#cloudImportBtn').onclick = restoreFromCloud;
-  $('#toggleCloudShortcuts').onchange = (e) => {
+  // --- UPDATED Supabase Button Listeners ---
+  $("#cloudSignUpBtn").onclick = handleSignUp;
+  $("#cloudSignInBtn").onclick = handleSignIn;
+  $("#cloudSignOutBtn").onclick = handleSignOut;
+  $("#forgotPasswordLink").onclick = (e) => {
+    e.preventDefault();
+    showForgotPasswordForm();
+  };
+  $("#sendResetLinkBtn").onclick = handlePasswordReset;
+  $("#backToLoginLink").onclick = (e) => {
+    e.preventDefault();
+    showSignInForm();
+  };
+  $("#cloudExportBtn").onclick = backupToCloud;
+  $("#cloudImportBtn").onclick = restoreFromCloud;
+  $("#toggleCloudShortcuts").onchange = (e) => {
     state.settings.shortcutsUseCloud = e.target.checked;
     saveData();
-    showNotification(`Keyboard shortcuts will now use ${e.target.checked ? 'Cloud Sync' : 'local files'}.`, 'info');
+    showNotification(
+      `Keyboard shortcuts will now use ${
+        e.target.checked ? "Cloud Sync" : "local files"
+      }.`,
+      "info"
+    );
   };
 
-  $("#viewDebtsBtn")?.addEventListener('click', () => {
+  $("#viewDebtsBtn")?.addEventListener("click", () => {
     renderDebtList();
     $("#debtsViewModal").style.display = "block";
   });
 
-  $("#viewReceivablesBtn")?.addEventListener('click', () => {
+  $("#viewReceivablesBtn")?.addEventListener("click", () => {
     renderReceivableList();
     $("#receivablesViewModal").style.display = "block";
   });
@@ -7035,19 +7194,21 @@ function initializeUI(isRefresh = false) {
   const transactionTypeSelect = $("#transactionType");
   if (transactionTypeSelect) {
     transactionTypeSelect.onchange = () => {
-        const categoryGroup = $("#categoryGroup");
-        const descriptionInput = $("#description");
-        if (transactionTypeSelect.value === "income") {
-            categoryGroup.style.display = "none";
-            $("#category").required = false;
-            if (descriptionInput) descriptionInput.placeholder = "e.g., Monthly Salary";
-        } else {
-            categoryGroup.style.display = "block";
-            $("#category").required = true;
-            if (descriptionInput) descriptionInput.placeholder = "e.g., Lunch, Groceries";
-        }
+      const categoryGroup = $("#categoryGroup");
+      const descriptionInput = $("#description");
+      if (transactionTypeSelect.value === "income") {
+        categoryGroup.style.display = "none";
+        $("#category").required = false;
+        if (descriptionInput)
+          descriptionInput.placeholder = "e.g., Monthly Salary";
+      } else {
+        categoryGroup.style.display = "block";
+        $("#category").required = true;
+        if (descriptionInput)
+          descriptionInput.placeholder = "e.g., Lunch, Groceries";
+      }
     };
-    transactionTypeSelect.dispatchEvent(new Event('change'));
+    transactionTypeSelect.dispatchEvent(new Event("change"));
   }
 
   if (!document.body.dataset.keyboardListenerAttached) {
@@ -7064,24 +7225,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const { createClient } = window.supabase;
   supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // Step 2: Set up the auth listener. This will fire on page load if tokens are in the URL.
-  // The Supabase client will automatically handle saving the session and cleaning the URL.
+  // Step 2: Set up the auth listener. This is key for session persistence.
+  // It fires on page load, login, and logout.
   supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Supabase auth state changed:', event, session);
+    console.log("Supabase auth state changed:", event);
     const user = session?.user || null;
     updateCloudUiState(user);
+    // Also save the login state to our app's state
+    state.settings.cloudSyncEnabled = !!user;
+    saveData();
   });
 
   // Step 3: Now proceed with the rest of the app's initialization.
   loadData();
-  initializeUI(); 
+  initializeUI();
   checkAndTriggerBackupReminder();
 
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
       window.focus();
-      $("#date").value = getCurrentDateString();
-      $("#ccDate").value = getCurrentDateString();
+      const mainDateInput = $("#date");
+      if (mainDateInput) mainDateInput.value = getCurrentDateString();
+
+      const ccDateInput = $("#ccDate");
+      if (ccDateInput) ccDateInput.value = getCurrentDateString();
     }
   });
 
