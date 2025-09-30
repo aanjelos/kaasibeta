@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v4.79h" />
+    <meta name="application-version" content="v4.90g" />
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
     <meta
       name="title"
@@ -54,19 +54,9 @@
     />
     <link rel="stylesheet" href="style.css" />
 
-    <!-- Google API & Identity Scripts -->
-    <script
-      async
-      defer
-      src="https://apis.google.com/js/api.js"
-      onload="gapiLoaded()"
-    ></script>
-    <script
-      async
-      defer
-      src="https://accounts.google.com/gsi/client"
-      onload="gisLoaded()"
-    ></script>
+    <!-- Google API & Identity Services Scripts -->
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 
     <script
       async
@@ -627,70 +617,67 @@
               </div>
             </div>
             <div
-              id="settingsSyncPanel"
+              id="settingsDataManagementPanel"
               class="settings-tab-panel space-y-6 hidden"
             >
+              <!-- NEW: Cloud Backup Card -->
               <div
                 class="card !p-4"
                 style="background-color: var(--bg-tertiary)"
               >
-                <h3 class="text-lg font-semibold mb-3">Sync & Backup</h3>
-                <div class="flex items-center justify-between mb-4">
-                  <label
-                    for="toggleGdriveSync"
-                    class="text-sm font-medium text-gray-300"
-                    >Enable Google Drive Backup</label
+                <h3 class="text-lg font-semibold mb-3">
+                  Cloud Backup (Google Drive)
+                </h3>
+                <div
+                  id="driveStatusContainer"
+                  class="flex items-center gap-x-3 mb-4"
+                >
+                  <div
+                    id="driveStatusIndicator"
+                    class="w-3 h-3 rounded-full bg-gray-500"
+                  ></div>
+                  <span id="driveStatusText" class="text-sm text-gray-400"
+                    >Initializing...</span
                   >
-                  <label
-                    class="relative inline-flex items-center cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      id="toggleGdriveSync"
-                      class="sr-only peer"
-                    />
-                    <div
-                      class="w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent-primary/50 rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
-                    ></div>
-                  </label>
                 </div>
-                <div id="gdriveControls" class="hidden space-y-4">
-                  <div id="gdriveAuthSection">
-                    <button
-                      id="authorize_button"
-                      class="btn btn-secondary w-full"
-                      disabled
-                    >
-                      <i class="fab fa-google mr-2"></i>Sign in with Google
-                    </button>
-                    <button
-                      id="signout_button"
-                      class="btn btn-secondary w-full hidden"
-                    >
-                      <i class="fab fa-google mr-2"></i>Sign Out
-                    </button>
-                  </div>
-                  <div
-                    id="gdriveStatus"
-                    class="text-xs text-center text-gray-400"
+                <div class="flex flex-col sm:flex-row gap-3 mb-4">
+                  <button id="driveAuthBtn" class="btn btn-secondary flex-1">
+                    <i class="fab fa-google-drive mr-2"></i> Connect to Google
+                    Drive
+                  </button>
+                  <button
+                    id="driveSignOutBtn"
+                    class="btn btn-danger flex-1 hidden"
                   >
-                    Initializing...
+                    <i class="fas fa-sign-out-alt mr-2"></i> Log Out
+                  </button>
+                </div>
+                <div id="driveActionsContainer" class="hidden">
+                  <div class="flex flex-col sm:flex-row gap-3 mb-4">
+                    <button id="driveExportBtn" class="btn btn-secondary flex-1">
+                      <i class="fas fa-cloud-upload-alt mr-2"></i> Backup to
+                      Drive
+                    </button>
+                    <button id="driveImportBtn" class="btn btn-secondary flex-1">
+                      <i class="fas fa-cloud-download-alt mr-2"></i> Restore from
+                      Drive
+                    </button>
                   </div>
                   <div
-                    id="gdriveShortcutPref"
-                    class="flex items-center justify-between pt-4 border-t border-gray-600"
+                    class="flex items-center justify-between pt-3 border-t border-gray-600"
                   >
                     <label
-                      for="gdriveShortcutToggle"
+                      for="toggleDriveShortcuts"
                       class="text-sm font-medium text-gray-300"
-                      >Use Shortcuts for Drive Sync</label
                     >
+                      Use Ctrl+E / Ctrl+I for Drive
+                    </label>
                     <label
                       class="relative inline-flex items-center cursor-pointer"
                     >
                       <input
                         type="checkbox"
-                        id="gdriveShortcutToggle"
+                        id="toggleDriveShortcuts"
                         class="sr-only peer"
                       />
                       <div
@@ -698,46 +685,40 @@
                       ></div>
                     </label>
                   </div>
-                  <p class="text-xs text-gray-500 text-center">
-                    If enabled, Ctrl+E and Ctrl+I will sync with Google Drive.
-                    Otherwise, they will perform a local file download/upload.
+                  <p class="text-xs text-gray-400 mt-2">
+                    When enabled, the export/import keyboard shortcuts will use
+                    Google Drive instead of local files.
                   </p>
                 </div>
               </div>
-            </div>
-            <div
-              id="settingsDataManagementPanel"
-              class="settings-tab-panel space-y-6 hidden"
-            >
+
+              <!-- Existing Local Data Management Card -->
               <div
                 class="card !p-4"
                 style="background-color: var(--bg-tertiary)"
               >
-                <h3 class="text-lg font-semibold mb-3">Data Management</h3>
-                <!-- MODIFIED: Changed to a 2x2 grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button id="exportDataBtn" class="btn btn-secondary">
-                    <i class="fas fa-file-export mr-1"></i> Local Export
+                <h3 class="text-lg font-semibold mb-3">
+                  Local Data Management
+                </h3>
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <button id="exportDataBtn" class="btn btn-secondary flex-1">
+                    <i class="fas fa-file-export mr-1"></i> Export Data (Local)
                   </button>
-                  <label class="btn btn-secondary cursor-pointer"
-                    ><i class="fas fa-file-import mr-1"></i> Local Import<input
+                  <label class="btn btn-secondary flex-1 cursor-pointer"
+                    ><i class="fas fa-file-import mr-1"></i> Import Data
+                    (Local)<input
                       type="file"
                       id="importDataInput"
                       accept=".json"
                       class="hidden"
                   /></label>
-
-                  <!-- NEW: Cloud Buttons -->
-                  <button id="gdriveExportBtn" class="btn btn-secondary hidden">
-                    <i class="fab fa-google-drive mr-1"></i> Cloud Export
-                  </button>
-                  <button id="gdriveImportBtn" class="btn btn-secondary hidden">
-                    <i class="fab fa-google-drive mr-1"></i> Cloud Import
-                  </button>
                 </div>
                 <p class="text-xs text-gray-400 mt-2">
-                  Local backups are saved to your device. Cloud backups are
-                  saved to the "Kaasi App Backups" folder in your Google Drive.
+                  Exports create a backup file on your device. Imports from a
+                  local file overwrite existing data.
+                </p>
+                <p class="text-xs text-red-400 mt-1">
+                  Warning: Browser data can be lost. Export backups regularly!
                 </p>
               </div>
               <div class="card !bg-red-900/30 !border-red-700 !p-4">
