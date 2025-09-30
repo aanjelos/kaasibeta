@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v4.82i" />
+    <meta name="application-version" content="v2.70h" />
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
     <meta
       name="title"
@@ -44,6 +44,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- ADDED: Supabase library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -53,9 +55,6 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
-
-    <!-- Supabase JS Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script
       async
@@ -619,112 +618,62 @@
               id="settingsDataManagementPanel"
               class="settings-tab-panel space-y-6 hidden"
             >
-              <!-- Cloud Sync Card -->
+             <!-- UPDATED: Magic Link UI -->
+              <div class="card !p-4" style="background-color: var(--bg-tertiary)">
+                  <h3 class="text-lg font-semibold mb-3">Optional Cloud Sync</h3>
+                  <p class="text-xs text-gray-400 mb-4">
+                      Create or log in to a free, optional account to securely back up your data to the cloud.
+                  </p>
+
+                  <!-- Logged Out View -->
+                  <div id="cloudAuthContainer">
+                      <div id="magicLinkForm" class="space-y-3">
+                          <div>
+                              <label for="cloudEmail" class="block text-sm font-medium mb-1">Email</label>
+                              <input type="email" id="cloudEmail" name="cloudEmail" placeholder="you@example.com" required class="w-full">
+                          </div>
+                          <button id="sendMagicLinkBtn" class="btn btn-primary w-full">
+                              <i class="fas fa-magic mr-2"></i> Send Login Link
+                          </button>
+                      </div>
+                  </div>
+                  
+                  <!-- Logged In View -->
+                  <div id="cloudLoggedInContainer" class="hidden">
+                      <div class="flex items-center mb-4">
+                          <div id="cloudStatusIndicator" class="w-3 h-3 rounded-full bg-gray-500 mr-3"></div>
+                          <p id="cloudStatusText" class="text-sm text-gray-300 flex-grow">Not Connected.</p>
+                          <button id="cloudSignOutBtn" class="btn btn-secondary btn-sm">Log Out</button>
+                      </div>
+
+                      <div class="space-y-3 mt-4 pt-4 border-t border-gray-600">
+                          <div class="flex flex-col sm:flex-row gap-3">
+                              <button id="cloudExportBtn" class="btn btn-secondary flex-1"><i class="fas fa-cloud-upload-alt mr-2"></i>Backup to Cloud</button>
+                              <button id="cloudImportBtn" class="btn btn-secondary flex-1"><i class="fas fa-cloud-download-alt mr-2"></i>Restore from Cloud</button>
+                          </div>
+                          <div class="flex items-center justify-between pt-2">
+                              <label for="toggleCloudShortcuts" class="text-sm font-medium text-gray-300">Use Shortcuts for Cloud</label>
+                              <label class="relative inline-flex items-center cursor-pointer">
+                                  <input type="checkbox" id="toggleCloudShortcuts" class="sr-only peer" />
+                                  <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent-primary/50 rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                              </label>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+
               <div
                 class="card !p-4"
                 style="background-color: var(--bg-tertiary)"
               >
-                <h3 class="text-lg font-semibold mb-3">
-                  Optional Cloud Sync
-                </h3>
-
-                <!-- Logged OUT View: Forms Container -->
-                <div id="cloudAuthContainer">
-                   <!-- Main Auth Form -->
-                  <div id="cloudSignInSignUpForm">
-                    <p class="text-xs text-gray-400 mb-3">
-                      Create an account or log in to securely back up your data to the cloud. This is completely optional.
-                    </p>
-                    <form id="cloudAuthForm" class="space-y-3">
-                      <div>
-                        <label for="cloudEmail" class="block text-sm font-medium">Email</label>
-                        <input type="email" id="cloudEmail" name="cloudEmail" placeholder="you@example.com" required class="mt-1"/>
-                      </div>
-                      <div>
-                        <label for="cloudPassword" class="block text-sm font-medium">Password</label>
-                        <input type="password" id="cloudPassword" name="cloudPassword" required class="mt-1"/>
-                      </div>
-                      <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                        <button type="button" id="cloudSignInBtn" class="btn btn-secondary flex-1">
-                          <i class="fas fa-sign-in-alt mr-2"></i>Log In
-                        </button>
-                        <button type="button" id="cloudSignUpBtn" class="btn btn-primary flex-1">
-                          <i class="fas fa-user-plus mr-2"></i>Sign Up
-                        </button>
-                      </div>
-                      <div class="text-center mt-2">
-                        <a href="#" id="forgotPasswordLink" class="link-style text-xs">Forgot Password?</a>
-                      </div>
-                    </form>
-                  </div>
-                  <!-- Forgot Password Form (Initially Hidden) -->
-                  <div id="forgotPasswordContainer" class="hidden">
-                    <p class="text-xs text-gray-400 mb-3">
-                      Enter your email to receive a password reset link.
-                    </p>
-                    <form id="forgotPasswordForm" class="space-y-3">
-                       <div>
-                        <label for="resetEmail" class="block text-sm font-medium">Email</label>
-                        <input type="email" id="resetEmail" name="resetEmail" placeholder="you@example.com" required class="mt-1"/>
-                      </div>
-                       <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                         <button type="button" id="sendResetLinkBtn" class="btn btn-primary flex-1">
-                           <i class="fas fa-paper-plane mr-2"></i>Send Reset Link
-                         </button>
-                       </div>
-                       <div class="text-center mt-2">
-                         <a href="#" id="backToLoginLink" class="link-style text-xs">Back to Log In</a>
-                       </div>
-                    </form>
-                  </div>
-                </div>
-
-                <!-- Logged IN View: Status and Actions -->
-                <div id="cloudLoggedInContainer" class="hidden">
-                  <div id="cloudStatusContainer" class="flex items-center gap-x-3 mb-4">
-                    <div id="cloudStatusIndicator" class="w-3 h-3 rounded-full bg-gray-500"></div>
-                    <span id="cloudStatusText" class="text-sm text-gray-400">Initializing...</span>
-                  </div>
-                  <div id="cloudActionsContainer">
-                    <div class="flex flex-col sm:flex-row gap-3 mb-4">
-                      <button id="cloudExportBtn" class="btn btn-secondary flex-1">
-                        <i class="fas fa-cloud-upload-alt mr-2"></i> Backup to Cloud
-                      </button>
-                      <button id="cloudImportBtn" class="btn btn-secondary flex-1">
-                        <i class="fas fa-cloud-download-alt mr-2"></i> Restore from Cloud
-                      </button>
-                    </div>
-                    <div class="flex items-center justify-between pt-3 border-t border-gray-600">
-                      <label for="toggleCloudShortcuts" class="text-sm font-medium text-gray-300">
-                        Use Ctrl+E / Ctrl+I for Cloud
-                      </label>
-                      <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="toggleCloudShortcuts" class="sr-only peer"/>
-                        <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent-primary/50 rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                      </label>
-                    </div>
-                     <p class="text-xs text-gray-400 mt-2">
-                      When enabled, the export/import keyboard shortcuts will use the cloud service instead of local files.
-                    </p>
-                  </div>
-                   <button id="cloudSignOutBtn" class="btn btn-danger w-full mt-4">
-                      <i class="fas fa-sign-out-alt mr-2"></i> Log Out
-                    </button>
-                </div>
-              </div>
-
-              <!-- Local Data Management Card -->
-              <div class="card !p-4" style="background-color: var(--bg-tertiary)">
-                <h3 class="text-lg font-semibold mb-3">
-                  Local Data Management
-                </h3>
+                <h3 class="text-lg font-semibold mb-3">Local Data Management</h3>
                 <div class="flex flex-col sm:flex-row gap-3">
                   <button id="exportDataBtn" class="btn btn-secondary flex-1">
                     <i class="fas fa-file-export mr-1"></i> Export Data (Local)
                   </button>
                   <label class="btn btn-secondary flex-1 cursor-pointer"
-                    ><i class="fas fa-file-import mr-1"></i> Import Data
-                    (Local)<input
+                    ><i class="fas fa-file-import mr-1"></i> Import Data (Local)<input
                       type="file"
                       id="importDataInput"
                       accept=".json"
@@ -732,8 +681,10 @@
                   /></label>
                 </div>
                 <p class="text-xs text-gray-400 mt-2">
-                  Exports create a backup file on your device. Imports from a
-                  local file overwrite existing data.
+                  Exports create a backup file on your device. Imports from a file will overwrite existing data.
+                </p>
+                <p class="text-xs text-red-400 mt-1">
+                  Warning: Browser data can be lost. Export backups regularly!
                 </p>
               </div>
               <div class="card !bg-red-900/30 !border-red-700 !p-4">
@@ -802,7 +753,9 @@
             </p>
             <div class="max-w-lg mx-auto">
               <p>
-                All data are handled locally. Cloud sync is optional for backup purposes only.
+                This was made and refined using AI. All data are handled
+                locally. This cannot be automatically synced to a different
+                device.
               </p>
               <p>
                 Make sure to back up the data from time to time. You will get an
@@ -973,7 +926,9 @@
             </p>
             <div class="max-w-lg mx-auto">
               <p>
-                All data are handled locally. Cloud sync is optional for backup purposes only.
+                This was made and refined using AI. All data are handled
+                locally. This cannot be automatically synced to a different
+                device.
               </p>
               <p>
                 Make sure to back up the data from time to time. You will get an
