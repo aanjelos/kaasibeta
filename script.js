@@ -1,18 +1,18 @@
-const $ = (selector) => document.querySelector(selector);
-const $$ = (selector) => document.querySelectorAll(selector);
-
-// --- Google Drive API Configuration ---
+// --- Google Drive API Constants ---
 const CLIENT_ID =
   "972920616869-mup1ekqms6gne28djev8hr9petpcsouj.apps.googleusercontent.com";
-const API_KEY = ""; // Not strictly needed for this auth flow
+const API_KEY = ""; // API Key is not needed for this OAuth flow
 const SCOPES = "https://www.googleapis.com/auth/drive.file";
 const KAASI_FOLDER_NAME = "Kaasi App Backups";
 
-let tokenClient;
+// --- Global Auth Variables ---
 let gapiInited = false;
 let gisInited = false;
-let kaasiFolderId = null;
+let tokenClient;
+let gapiToken; // To store the access token
 
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => document.querySelectorAll(selector);
 const formatCurrency = (amount) => {
   if (typeof amount !== "number" || isNaN(amount)) amount = 0;
   return `LKR ${amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
@@ -123,10 +123,30 @@ function getDefaultState() {
     JSON.stringify({
       transactions: [],
       accounts: [
-        { id: "cash", name: "Cash", balance: 0, hidden: false },
-        { id: "bank_1", name: "Commercial", balance: 0, hidden: false },
-        { id: "bank_2", name: "HNB", balance: 0, hidden: false },
-        { id: "bank_3", name: "Genie", balance: 0, hidden: false },
+        {
+          id: "cash",
+          name: "Cash",
+          balance: 0,
+          hidden: false, // Cannot be hidden
+        },
+        {
+          id: "bank_1",
+          name: "Commercial",
+          balance: 0,
+          hidden: false,
+        },
+        {
+          id: "bank_2",
+          name: "HNB",
+          balance: 0,
+          hidden: false,
+        },
+        {
+          id: "bank_3",
+          name: "Genie",
+          balance: 0,
+          hidden: false,
+        },
       ],
       categories: [
         "Food & Dining",
@@ -145,313 +165,18 @@ function getDefaultState() {
       debts: [],
       receivables: [],
       installments: [],
-      creditCard: { limit: 0, transactions: [] },
+      creditCard: {
+        limit: 0,
+        transactions: [],
+      },
       settings: {
         initialSetupDone: false,
         showCcDashboardSection: true,
         theme: "dark",
-        enableGdriveBackup: false,
-        useShortcutsForGdrive: false,
+        driveSyncEnabled: false, // NEW
+        shortcutsUseDrive: false, // NEW
       },
     })
-  );
-}
-
-// ===================================================================================
-// GOOGLE DRIVE API FUNCTIONS
-// ===================================================================================
-
-/**
- * Callback after the GAPI client library has loaded.
- */
-function gapiLoaded() {
-  gapi.load("client", initializeGapiClient);
-}
-
-/**
- * Callback after the GIS client library has loaded.
- */
-function gisLoaded() {
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    callback: "", // A callback is required, but we'll handle it later
-  });
-  gisInited = true;
-  maybeEnableAuthUI();
-}
-
-/**
- * Initializes the GAPI client.
- */
-async function initializeGapiClient() {
-  await gapi.client.init({
-    apiKey: API_KEY,
-    discoveryDocs: [
-      "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
-    ],
-  });
-  gapiInited = true;
-  maybeEnableAuthUI();
-}
-
-/**
- * Enables the Google Sign-In button and attempts to silently restore the session if previously authorized.
- */
-function maybeEnableAuthUI() {
-  if (gapiInited && gisInited) {
-    const authButton = document.getElementById("authorize_button");
-    if (authButton) authButton.disabled = false;
-
-    // Only attempt silent sign-in if the user has the feature enabled AND has signed in successfully before.
-    if (
-      state.settings.enableGdriveBackup &&
-      localStorage.getItem("kaasiGdriveAuthed") === "true"
-    ) {
-      tokenClient.requestAccessToken({ prompt: "" });
-    }
-  }
-}
-
-/**
- * Sign in the user upon button click.
- */
-function handleAuthClick() {
-  tokenClient.callback = async (resp) => {
-    if (resp.error !== undefined) {
-      console.error("Google Auth Error:", resp);
-      updateSigninStatus(false);
-      showNotification(
-        "Google authentication failed. Check console for details.",
-        "error"
-      );
-      localStorage.removeItem("kaasiGdriveAuthed"); // Clear flag on error
-      return;
-    }
-    // On successful auth, set the flag to remember the user has approved access
-    localStorage.setItem("kaasiGdriveAuthed", "true");
-    updateSigninStatus(true);
-    await findOrCreateKaasiFolder();
-    updateCloudButtonVisibility();
-  };
-
-  if (gapi.client.getToken() === null) {
-    // This will always show the consent pop-up the first time
-    tokenClient.requestAccessToken({ prompt: "consent" });
-  } else {
-    // This will attempt a silent refresh if a token already exists
-    tokenClient.requestAccessToken({ prompt: "" });
-  }
-}
-
-/**
- * Sign out the user upon button click.
- */
-function handleSignoutClick() {
-  const token = gapi.client.getToken();
-  if (token !== null) {
-    google.accounts.oauth2.revoke(token.access_token);
-    gapi.client.setToken("");
-    updateSigninStatus(false);
-    kaasiFolderId = null; // Reset folder ID on sign out
-    showNotification("Signed out from Google Drive.", "info");
-    // On sign out, remove the flag
-    localStorage.removeItem("kaasiGdriveAuthed");
-    updateCloudButtonVisibility();
-  }
-}
-
-/**
- * Shows or hides the cloud import/export buttons based on login status.
- */
-function updateCloudButtonVisibility() {
-  const gdriveExportBtn = $("#gdriveExportBtn");
-  const gdriveImportBtn = $("#gdriveImportBtn");
-  if (!gdriveExportBtn || !gdriveImportBtn) return;
-
-  const isCloudEnabled =
-    state.settings.enableGdriveBackup && gapi.client.getToken();
-  gdriveExportBtn.classList.toggle("hidden", !isCloudEnabled);
-  gdriveImportBtn.classList.toggle("hidden", !isCloudEnabled);
-}
-
-/**
- * Updates the UI based on the user's sign-in status.
- */
-function updateSigninStatus(isSignedIn) {
-  const statusEl = $("#gdriveStatus");
-  const authButton = $("#authorize_button");
-  const signoutButton = $("#signout_button");
-  if (!statusEl || !authButton || !signoutButton) return;
-
-  const indicatorEl = statusEl.querySelector(".gdrive-status-indicator");
-
-  if (isSignedIn) {
-    statusEl.innerHTML = `<span class="gdrive-status-indicator connected"></span>Status: Connected`;
-    authButton.classList.add("hidden");
-    signoutButton.classList.remove("hidden");
-  } else {
-    statusEl.innerHTML = `<span class="gdrive-status-indicator"></span>Status: Not Connected`;
-    authButton.classList.remove("hidden");
-    signoutButton.classList.add("hidden");
-  }
-}
-
-/**
- * Finds the "Kaasi App Backups" folder or creates it if it doesn't exist.
- */
-async function findOrCreateKaasiFolder() {
-  if (kaasiFolderId) return kaasiFolderId;
-
-  try {
-    const response = await gapi.client.drive.files.list({
-      q: `mimeType='application/vnd.google-apps.folder' and name='${KAASI_FOLDER_NAME}' and trashed=false`,
-      fields: "files(id, name)",
-    });
-
-    if (response.result.files.length > 0) {
-      kaasiFolderId = response.result.files[0].id;
-    } else {
-      const fileMetadata = {
-        name: KAASI_FOLDER_NAME,
-        mimeType: "application/vnd.google-apps.folder",
-      };
-      const createResponse = await gapi.client.drive.files.create({
-        resource: fileMetadata,
-        fields: "id",
-      });
-      kaasiFolderId = createResponse.result.id;
-    }
-    updateSigninStatus(true);
-    return kaasiFolderId;
-  } catch (err) {
-    console.error("Error with Kaasi folder:", err);
-    $(
-      "#gdriveStatus"
-    ).innerHTML = `<span class="gdrive-status-indicator error"></span>Error: Could not access Drive.`;
-    return null;
-  }
-}
-
-/**
- * Creates a backup file and uploads it to the Kaasi folder in Google Drive.
- */
-async function gdriveExport() {
-  if (!state.settings.enableGdriveBackup || !gapi.client.getToken()) {
-    return showNotification(
-      "Enable Google Drive Sync in settings and sign in first.",
-      "warning"
-    );
-  }
-  const folderId = await findOrCreateKaasiFolder();
-  if (!folderId)
-    return showNotification("Could not access Kaasi backup folder.", "error");
-
-  showNotification("Backing up to Google Drive...", "info");
-
-  const dataStr = JSON.stringify(state);
-  const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
-  const fileName = `kaasi-backup-${timestamp}.json`;
-
-  const metadata = {
-    name: fileName,
-    parents: [folderId],
-    mimeType: "application/json",
-  };
-  const form = new FormData();
-  form.append(
-    "metadata",
-    new Blob([JSON.stringify(metadata)], { type: "application/json" })
-  );
-  form.append("file", new Blob([dataStr], { type: "application/json" }));
-
-  try {
-    const response = await fetch(
-      "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
-      {
-        method: "POST",
-        headers: new Headers({
-          Authorization: `Bearer ${gapi.client.getToken().access_token}`,
-        }),
-        body: form,
-      }
-    );
-    const result = await response.json();
-    if (result.error) throw new Error(result.error.message);
-    showNotification("Backup successful.", "success");
-  } catch (err) {
-    showNotification(`Backup failed: ${err.message}`, "error");
-  }
-}
-
-/**
- * Finds the latest backup file in Drive, downloads it, and triggers the import process.
- */
-async function gdriveImport() {
-  if (!state.settings.enableGdriveBackup || !gapi.client.getToken()) {
-    return showNotification(
-      "Enable Google Drive Sync in settings and sign in first.",
-      "warning"
-    );
-  }
-  const folderId = await findOrCreateKaasiFolder();
-  if (!folderId)
-    return showNotification("Could not access Kaasi backup folder.", "error");
-
-  showNotification("Finding latest backup...", "info");
-
-  try {
-    const response = await gapi.client.drive.files.list({
-      q: `'${folderId}' in parents and trashed=false and mimeType='application/json'`,
-      orderBy: "name desc",
-      pageSize: 1,
-      fields: "files(id, name)",
-    });
-    if (response.result.files.length === 0)
-      return showNotification("No backups found.", "warning");
-    const latestFile = response.result.files[0];
-    showNotification(`Importing "${latestFile.name}"...`, "info");
-    const fileResponse = await gapi.client.drive.files.get({
-      fileId: latestFile.id,
-      alt: "media",
-    });
-    handleImportedData(fileResponse.body, "Google Drive");
-  } catch (err) {
-    showNotification(`Import failed: ${err.message}`, "error");
-  }
-}
-
-/**
- * A new helper function to process imported data, used by both local and Drive imports.
- */
-function handleImportedData(jsonDataString, source = "Local File") {
-  showConfirmationModal(
-    `Import from ${source}?`,
-    "This will <strong class='text-warning'>overwrite all current data</strong>. This action cannot be undone. Are you sure?",
-    "Yes, Import",
-    "Cancel",
-    () => {
-      try {
-        let importedData = JSON.parse(jsonDataString);
-        if (importedData && typeof importedData === "object") {
-          state = deepMerge(getDefaultState(), importedData);
-          ensureDefaultAccounts();
-          ensureDefaultCategories();
-          state.settings.initialSetupDone = true;
-          saveData();
-          initializeUI(true);
-          showNotification(
-            `Data from ${source} imported successfully.`,
-            "success"
-          );
-          if (source !== "Google Drive") closeModal("settingsModal");
-        } else throw new Error("Invalid file structure.");
-      } catch (error) {
-        showNotification(`Import failed: ${error.message}`, "error");
-      }
-    },
-    null,
-    "btn-primary"
   );
 }
 
@@ -1530,11 +1255,22 @@ function handleKeyboardShortcuts(event) {
       activeElement.tagName === "TEXTAREA" ||
       activeElement.isContentEditable);
 
-  // --- MODIFIED: Handle Ctrl+E and Ctrl+I with new handler functions ---
+  const modifierKeyPressed = event.ctrlKey || event.altKey || event.metaKey;
+
+  const monthlyViewModalVisible =
+    $("#monthlyViewModal")?.style.display === "block";
+
+  // --- UPDATED: Handle Ctrl+E and Ctrl+I with Drive option ---
   if (event.ctrlKey && (event.key === "e" || event.key === "E")) {
     if (!inInputField) {
       event.preventDefault();
-      handleExport(); // Use the new handler
+      if (state.settings.shortcutsUseDrive && state.settings.driveSyncEnabled) {
+        console.log("Shortcut: Ctrl+E pressed for Drive Backup");
+        backupToDrive();
+      } else {
+        console.log("Shortcut: Ctrl+E pressed for Local Export");
+        exportData();
+      }
     }
     return;
   }
@@ -1542,23 +1278,34 @@ function handleKeyboardShortcuts(event) {
   if (event.ctrlKey && (event.key === "i" || event.key === "I")) {
     if (!inInputField) {
       event.preventDefault();
-      handleImport(); // Use the new handler
+      if (state.settings.shortcutsUseDrive && state.settings.driveSyncEnabled) {
+        console.log("Shortcut: Ctrl+I pressed for Drive Restore");
+        restoreFromDrive();
+      } else {
+        console.log("Shortcut: Ctrl+I pressed for Local Import");
+        // This requires the settings modal to be open to work.
+        const importInput = $("#importDataInput");
+        if (importInput) {
+          importInput.click();
+        } else {
+          showNotification(
+            "Open Settings > Data to import a local file.",
+            "info"
+          );
+        }
+      }
     }
     return;
   }
-  // --- END MODIFICATION ---
+  // --- END OF UPDATE ---
 
-  const modifierKeyPressed = event.ctrlKey || event.altKey || event.metaKey;
   if (modifierKeyPressed && event.key !== "Escape") {
     return;
   }
+
   if (inInputField && event.key !== "Escape") {
     return;
   }
-
-  const monthlyViewModalVisible =
-    $("#monthlyViewModal")?.style.display === "block";
-  const settingsModalVisible = $("#settingsModal")?.style.display === "block";
 
   switch (event.key) {
     case "-":
@@ -1570,9 +1317,11 @@ function handleKeyboardShortcuts(event) {
           typeSelect.value = "expense";
           typeSelect.dispatchEvent(new Event("change"));
           amountInput.focus();
+          console.log("Shortcut: '-' pressed for Expense");
         }
       }
       break;
+
     case "+":
     case "=":
       if (!inInputField) {
@@ -1583,128 +1332,187 @@ function handleKeyboardShortcuts(event) {
           typeSelect.value = "income";
           typeSelect.dispatchEvent(new Event("change"));
           amountInput.focus();
+          console.log("Shortcut: '+' pressed for Income");
         }
       }
       break;
+
     case "m":
     case "M":
       if (!inInputField) {
         event.preventDefault();
-        if ($("#monthlyViewModal")?.style.display !== "block") {
-          $("#monthlyViewBtn").click();
-        } else {
-          closeModal("monthlyViewModal");
+        const monthlyViewBtn = $("#monthlyViewBtn");
+        if (monthlyViewBtn) {
+          if ($("#monthlyViewModal")?.style.display !== "block") {
+            monthlyViewBtn.click();
+            console.log("Shortcut: 'm' pressed, opening Monthly View");
+          } else {
+            closeModal("monthlyViewModal");
+            console.log("Shortcut: 'm' pressed, closing Monthly View");
+          }
         }
       }
       break;
+
     case "s":
     case "S":
       if (monthlyViewModalVisible && !inInputField) {
         event.preventDefault();
-        $("#monthlySearchInput")?.focus();
-      } else if (!settingsModalVisible && !inInputField) {
+        const searchInput = $("#monthlySearchInput");
+        if (searchInput) {
+          searchInput.focus();
+          console.log("Shortcut: 's' pressed, focusing Monthly Search");
+        }
+      } else if (
+        !$("#settingsModal")?.style.display === "block" &&
+        !inInputField
+      ) {
         event.preventDefault();
-        if ($("#settingsModal")?.style.display !== "block") {
-          $("#settingsBtn").click();
-        } else {
-          closeModal("settingsModal");
+        const settingsBtn = $("#settingsBtn");
+        if (settingsBtn) {
+          if ($("#settingsModal")?.style.display !== "block") {
+            settingsBtn.click();
+            console.log("Shortcut: 's' pressed, opening Settings");
+          } else {
+            closeModal("settingsModal");
+            console.log("Shortcut: 's' pressed, closing Settings");
+          }
         }
       }
       break;
+
     case "Escape":
-      const modalsToClose = [
-        "confirmationModal",
-        "formModal",
-        "ccHistoryModal",
-        "cashCounterModal",
-        "debtsViewModal",
-        "receivablesViewModal",
-        "transferMoneyModal",
-        "monthlyViewModal",
-        "settingsModal",
-        "shortcutsHelpModal",
-      ];
-      let modalClosed = false;
-      for (const modalId of modalsToClose) {
-        const modal = $(`#${modalId}`);
-        if (modal && modal.style.display === "block") {
-          closeModal(modalId);
-          modalClosed = true;
-          break;
+      const monthlySearchInput = $("#monthlySearchInput");
+      if (
+        monthlySearchInput &&
+        document.activeElement === monthlySearchInput &&
+        monthlySearchInput.value
+      ) {
+        event.preventDefault();
+        const clearMonthlySearchBtn = $("#clearMonthlySearchBtn");
+        if (clearMonthlySearchBtn) {
+          clearMonthlySearchBtn.click();
+          console.log("Shortcut: Escape pressed, clearing Monthly Search");
+        }
+      } else {
+        const modalsToClose = [
+          "confirmationModal",
+          "formModal",
+          "ccHistoryModal",
+          "cashCounterModal",
+          "debtsViewModal",
+          "receivablesViewModal",
+          "transferMoneyModal",
+          "monthlyViewModal",
+          "settingsModal",
+        ];
+        let modalClosed = false;
+        for (const modalId of modalsToClose) {
+          const modal = $(`#${modalId}`);
+          if (modal && modal.style.display === "block") {
+            event.preventDefault();
+            closeModal(modalId);
+            console.log(`Shortcut: Escape pressed, closing modal ${modalId}`);
+            modalClosed = true;
+            break;
+          }
+        }
+        if (!modalClosed && inInputField) {
+          // If no modal was closed but an input had focus
+          activeElement.blur();
+          console.log("Shortcut: Escape pressed, blurring active input field");
         }
       }
-      if (!modalClosed && inInputField) {
-        activeElement.blur();
-      }
       break;
+
     case "c":
     case "C":
       if (!inInputField) {
         event.preventDefault();
-        $("#ccAmount")?.focus();
+        const ccSection = $("#creditCardDashboardSection");
+        const ccAmountInput = $("#ccAmount");
+        if (ccSection && ccSection.style.display !== "none" && ccAmountInput) {
+          ccAmountInput.focus();
+          console.log("Shortcut: 'c' pressed, focusing CC Amount");
+        } else if (ccSection && ccSection.style.display === "none") {
+          showNotification(
+            "Credit Card section is currently hidden. Enable in Settings.",
+            "info"
+          );
+        }
       }
       break;
+
     case "d":
     case "D":
       if (!inInputField) {
         event.preventDefault();
-        $("#viewDebtsBtn")?.click();
+        const viewDebtsBtn = $("#viewDebtsBtn");
+        if (viewDebtsBtn) {
+          if ($("#debtsViewModal")?.style.display !== "block") {
+            viewDebtsBtn.click();
+            console.log("Shortcut: 'd' pressed, opening Debts View");
+          } else {
+            closeModal("debtsViewModal");
+            console.log("Shortcut: 'd' pressed, closing Debts View");
+          }
+        }
       }
       break;
+
     case "r":
     case "R":
       if (!inInputField) {
         event.preventDefault();
-        $("#viewReceivablesBtn")?.click();
+        const viewReceivablesBtn = $("#viewReceivablesBtn");
+        if (viewReceivablesBtn) {
+          if ($("#receivablesViewModal")?.style.display !== "block") {
+            viewReceivablesBtn.click();
+            console.log("Shortcut: 'r' pressed, opening Receivables View");
+          } else {
+            closeModal("receivablesViewModal");
+            console.log("Shortcut: 'r' pressed, closing Receivables View");
+          }
+        }
       }
       break;
+
     case "t":
     case "T":
       if (!inInputField) {
         event.preventDefault();
-        $("#openTransferModalBtn")?.click();
+        const openTransferBtn = $("#openTransferModalBtn");
+        if (openTransferBtn) {
+          if ($("#transferMoneyModal")?.style.display !== "block") {
+            openTransferBtn.click();
+            console.log("Shortcut: 't' pressed, opening Transfer Modal");
+          } else {
+            closeModal("transferMoneyModal");
+            console.log("Shortcut: 't' pressed, closing Transfer Modal");
+          }
+        }
       }
       break;
+
     case "ArrowLeft":
       if (monthlyViewModalVisible && !inInputField) {
         event.preventDefault();
-        navigateMonthTabs(-1);
+        navigateMonthTabs(-1); // Navigate to previous month
+        console.log("Shortcut: ArrowLeft pressed for previous month");
       }
       break;
+
     case "ArrowRight":
       if (monthlyViewModalVisible && !inInputField) {
         event.preventDefault();
-        navigateMonthTabs(1);
+        navigateMonthTabs(1); // Navigate to next month
+        console.log("Shortcut: ArrowRight pressed for next month");
       }
       break;
-  }
-}
 
-function handleExport() {
-  if (
-    state.settings.enableGdriveBackup &&
-    state.settings.useShortcutsForGdrive &&
-    gapi.client.getToken()
-  ) {
-    console.log("Exporting to Google Drive...");
-    gdriveExport();
-  } else {
-    console.log("Exporting to local file...");
-    exportData();
-  }
-}
-
-function handleImport() {
-  if (
-    state.settings.enableGdriveBackup &&
-    state.settings.useShortcutsForGdrive &&
-    gapi.client.getToken()
-  ) {
-    console.log("Importing from Google Drive...");
-    gdriveImport();
-  } else {
-    console.log("Importing from local file...");
-    $("#importDataInput").click();
+    default:
+      // No action for other keys
+      break;
   }
 }
 
@@ -5301,8 +5109,8 @@ function handlePayCcItemSubmit(event) {
 
 function openSettingsModal() {
   renderSettingsForm();
-
   setupSettingsTabs();
+  updateDriveUiState(); // <-- ADDED THIS LINE
 
   const storageInfoElement = $("#storageSizeInfo");
   if (storageInfoElement) {
@@ -6743,44 +6551,23 @@ function showBackupReminderPopup(reminderKey) {
   const message =
     "It's a good day to back up your data. Regular backups protect you from data loss!";
 
-  // Check if GDrive is enabled and user is signed in
-  if (state.settings.enableGdriveBackup && gapi.client.getToken()) {
-    showConfirmationModal(
-      title,
-      `${message}<br><br>How would you like to back up?`,
-      "Cloud Backup", // confirmText
-      "Local Backup", // cancelText
-      () => {
-        // onConfirm: Cloud Backup
-        gdriveExport();
-        handleBackupReminderDismiss(reminderKey);
-      },
-      () => {
-        // onCancel: Local Backup
-        exportData();
-        handleBackupReminderDismiss(reminderKey);
-      },
-      "btn-primary" // Style for the main action
-    );
-  } else {
-    // Original behavior if GDrive is not active
-    showConfirmationModal(
-      title,
-      message,
-      "Backup Now", // confirmText
-      "Dismiss", // cancelText
-      () => {
-        // onConfirm: Local Backup
-        exportData();
-        handleBackupReminderDismiss(reminderKey);
-      },
-      () => {
-        // onCancel: Dismiss
-        handleBackupReminderDismiss(reminderKey);
-      },
-      "btn-primary"
-    );
-  }
+  // Use the robust confirmation modal for this
+  showConfirmationModal(
+    title,
+    message,
+    "Backup Now", // confirmText
+    "Dismiss", // cancelText
+    () => {
+      // onConfirm: This runs when "Backup Now" is clicked
+      exportData();
+      handleBackupReminderDismiss(reminderKey);
+    },
+    () => {
+      // onCancel: This runs when "Dismiss" is clicked
+      handleBackupReminderDismiss(reminderKey);
+    },
+    "btn-primary" // Use the primary button style for the confirm action
+  );
 }
 
 function checkAndTriggerBackupReminder() {
@@ -6831,11 +6618,339 @@ function checkAndTriggerBackupReminder() {
 }
 let activeSettingsTab = null;
 
+// =================================================================================
+// --- GOOGLE DRIVE INTEGRATION FUNCTIONS ---
+// =================================================================================
+
+/**
+ * Callback after GAPI client library has loaded.
+ */
+function gapiLoaded() {
+  gapi.load("client", initializeGapiClient);
+}
+
+/**
+ * Callback after the GIS client library has loaded.
+ */
+function gisLoaded() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: "", // Will be defined dynamically
+  });
+  gisInited = true;
+  // If gapi is already ready, check for a stored token.
+  if (gapiInited) {
+    // You might automatically sign in here if a token is stored/valid
+  }
+}
+
+/**
+ * Initializes the GAPI client with the Drive API.
+ */
+async function initializeGapiClient() {
+  await gapi.client.init({
+    apiKey: API_KEY,
+    discoveryDocs: [
+      "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
+    ],
+  });
+  gapiInited = true;
+  // If gis is already ready, check for a stored token.
+  if (gisInited) {
+    // You might automatically sign in here if a token is stored/valid
+  }
+}
+
+/**
+ * Handles the user clicking the "Connect" button.
+ */
+function handleAuthClick() {
+  tokenClient.callback = async (resp) => {
+    if (resp.error !== undefined) {
+      throw resp;
+    }
+    gapiToken = gapi.client.getToken();
+    state.settings.driveSyncEnabled = true;
+    saveData();
+    updateDriveUiState();
+    showNotification("Connected to Google Drive successfully!", "success");
+  };
+
+  if (gapi.client.getToken() === null) {
+    // Prompt the user to select an account and grant access.
+    tokenClient.requestAccessToken({ prompt: "consent" });
+  } else {
+    // Skip display of account chooser and grant consent dialog for an existing session.
+    tokenClient.requestAccessToken({ prompt: "" });
+  }
+}
+
+/**
+ * Handles the user clicking the "Log Out" button.
+ */
+function handleSignoutClick() {
+  const token = gapi.client.getToken();
+  if (token !== null) {
+    google.accounts.oauth2.revoke(token.access_token, () => {
+      gapi.client.setToken("");
+      gapiToken = null;
+      state.settings.driveSyncEnabled = false;
+      saveData();
+      updateDriveUiState();
+      showNotification("Disconnected from Google Drive.", "info");
+    });
+  }
+}
+
+/**
+ * Updates the Google Drive UI elements based on the current auth state.
+ */
+function updateDriveUiState() {
+  const driveStatusIndicator = $("#driveStatusIndicator");
+  const driveStatusText = $("#driveStatusText");
+  const driveAuthBtn = $("#driveAuthBtn");
+  const driveSignOutBtn = $("#driveSignOutBtn");
+  const driveActionsContainer = $("#driveActionsContainer");
+  const toggleDriveShortcuts = $("#toggleDriveShortcuts");
+
+  if (state.settings.driveSyncEnabled && gapi.client.getToken() !== null) {
+    // --- Logged IN state ---
+    driveStatusIndicator.className = "w-3 h-3 rounded-full connected"; // Green dot
+    driveStatusText.textContent = "Connected to Google Drive."; // Simple text, will expand later
+    driveAuthBtn.classList.add("hidden");
+    driveSignOutBtn.classList.remove("hidden");
+    driveActionsContainer.classList.remove("hidden");
+    toggleDriveShortcuts.checked = state.settings.shortcutsUseDrive;
+  } else {
+    // --- Logged OUT state ---
+    driveStatusIndicator.className = "w-3 h-3 rounded-full bg-gray-500"; // Grey dot
+    driveStatusText.textContent = "Not Connected.";
+    driveAuthBtn.classList.remove("hidden");
+    driveSignOutBtn.classList.add("hidden");
+    driveActionsContainer.classList.add("hidden");
+  }
+}
+
+/**
+ * Finds the "Kaasi App Backups" folder or creates it if it doesn't exist.
+ * @returns {Promise<string>} The ID of the folder.
+ */
+async function findOrCreateFolder() {
+  try {
+    // Search for the folder
+    const response = await gapi.client.drive.files.list({
+      q: `mimeType='application/vnd.google-apps.folder' and name='${KAASI_FOLDER_NAME}' and trashed=false`,
+      fields: "files(id, name)",
+    });
+
+    if (response.result.files.length > 0) {
+      console.log(
+        `Folder '${KAASI_FOLDER_NAME}' found with ID: ${response.result.files[0].id}`
+      );
+      return response.result.files[0].id;
+    } else {
+      // Folder not found, so create it
+      console.log(`Folder '${KAASI_FOLDER_NAME}' not found. Creating it...`);
+      const createResponse = await gapi.client.drive.files.create({
+        resource: {
+          name: KAASI_FOLDER_NAME,
+          mimeType: "application/vnd.google-apps.folder",
+        },
+        fields: "id",
+      });
+      console.log(`Folder created with ID: ${createResponse.result.id}`);
+      return createResponse.result.id;
+    }
+  } catch (err) {
+    console.error("Error finding or creating Google Drive folder:", err);
+    showNotification(
+      "Error accessing the Drive folder. Please check console.",
+      "error"
+    );
+    throw err; // Re-throw the error to stop the process
+  }
+}
+
+/**
+ * Uploads a file to a specific folder in Google Drive.
+ * @param {string} folderId The ID of the parent folder.
+ * @param {string} fileName The name of the new file.
+ * @param {string} fileContent The content of the file.
+ */
+async function uploadFile(folderId, fileName, fileContent) {
+  const metadata = {
+    name: fileName,
+    mimeType: "application/json",
+    parents: [folderId],
+  };
+
+  const multipartRequestBody =
+    `--boundary\r\n` +
+    `Content-Type: application/json; charset=UTF-8\r\n\r\n` +
+    `${JSON.stringify(metadata)}\r\n` +
+    `--boundary\r\n` +
+    `Content-Type: application/json\r\n\r\n` +
+    `${fileContent}\r\n` +
+    `--boundary--`;
+
+  try {
+    await gapi.client.request({
+      path: "/upload/drive/v3/files",
+      method: "POST",
+      params: { uploadType: "multipart" },
+      headers: { "Content-Type": 'multipart/related; boundary="boundary"' },
+      body: multipartRequestBody,
+    });
+  } catch (err) {
+    console.error("Error uploading file to Google Drive:", err);
+    showNotification("File upload to Drive failed.", "error");
+    throw err;
+  }
+}
+
+/**
+ * Lists all JSON files in a given folder, sorted by name descending.
+ * @param {string} folderId The ID of the folder to search in.
+ * @returns {Promise<Array>} A list of file objects.
+ */
+async function listFiles(folderId) {
+  try {
+    const response = await gapi.client.drive.files.list({
+      q: `'${folderId}' in parents and mimeType='application/json' and trashed=false`,
+      fields: "files(id, name)",
+      orderBy: "name desc",
+    });
+    return response.result.files;
+  } catch (err) {
+    console.error("Error listing files from Google Drive:", err);
+    showNotification("Could not list backup files from Drive.", "error");
+    throw err;
+  }
+}
+
+/**
+ * Downloads the content of a specific file from Google Drive.
+ * @param {string} fileId The ID of the file to download.
+ * @returns {Promise<string>} The content of the file.
+ */
+async function getFileContent(fileId) {
+  try {
+    const response = await gapi.client.drive.files.get({
+      fileId: fileId,
+      alt: "media",
+    });
+    return response.body;
+  } catch (err) {
+    console.error("Error downloading file content from Google Drive:", err);
+    showNotification("Failed to download backup file from Drive.", "error");
+    throw err;
+  }
+}
+
+/**
+ * Orchestrates the backup process to Google Drive.
+ */
+async function backupToDrive() {
+  const driveExportBtn = $("#driveExportBtn");
+  const originalBtnHtml = driveExportBtn.innerHTML;
+  driveExportBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Backing up...`;
+  driveExportBtn.disabled = true;
+
+  try {
+    const folderId = await findOrCreateFolder();
+    const timestamp = new Date()
+      .toISOString()
+      .slice(0, 19)
+      .replace(/[:T]/g, "-");
+    const fileName = `kaasi-backup-${timestamp}.json`;
+    const fileContent = JSON.stringify(state);
+
+    await uploadFile(folderId, fileName, fileContent);
+    showNotification(`Backup '${fileName}' saved to Google Drive.`, "success");
+  } catch (err) {
+    console.error("Backup to Drive failed:", err);
+    // Specific error notifications are already in the helper functions
+  } finally {
+    driveExportBtn.innerHTML = originalBtnHtml;
+    driveExportBtn.disabled = false;
+  }
+}
+
+/**
+ * Orchestrates the restore process from Google Drive.
+ */
+async function restoreFromDrive() {
+  showConfirmationModal(
+    "Restore from Google Drive",
+    "This will overwrite all current data with the latest backup from your Google Drive. This action cannot be undone. Are you sure?",
+    "Yes, Restore",
+    "Cancel",
+    async () => {
+      // onConfirm
+      const driveImportBtn = $("#driveImportBtn");
+      const originalBtnHtml = driveImportBtn.innerHTML;
+      driveImportBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Restoring...`;
+      driveImportBtn.disabled = true;
+
+      try {
+        const folderId = await findOrCreateFolder();
+        const files = await listFiles(folderId);
+
+        if (!files || files.length === 0) {
+          showNotification(
+            "No backup files found in your Google Drive folder.",
+            "warning"
+          );
+          return;
+        }
+
+        const latestFile = files[0]; // The list is sorted by name desc
+        showNotification(
+          `Restoring from latest backup: '${latestFile.name}'...`,
+          "info"
+        );
+
+        const fileContent = await getFileContent(latestFile.id);
+        const importedData = JSON.parse(fileContent);
+
+        if (importedData && typeof importedData === "object") {
+          // Overwrite state and re-initialize
+          state = deepMerge(getDefaultState(), importedData);
+          ensureDefaultAccounts();
+          ensureDefaultCategories();
+          state.settings.initialSetupDone = true;
+          // Re-enable drive sync since they are logged in
+          state.settings.driveSyncEnabled = true;
+
+          saveData();
+          initializeUI(true); // Full refresh of the app
+          closeModal("settingsModal");
+          showNotification(
+            "Data successfully restored from Google Drive.",
+            "success"
+          );
+        } else {
+          throw new Error("Imported data is not a valid object.");
+        }
+      } catch (err) {
+        console.error("Restore from Drive failed:", err);
+        showNotification(
+          "An error occurred during the restore process.",
+          "error"
+        );
+      } finally {
+        driveImportBtn.innerHTML = originalBtnHtml;
+        driveImportBtn.disabled = false;
+      }
+    }
+  );
+}
+
 const settingsTabsConfig = [
   { label: "Accounts", targetPanelId: "settingsAccountsPanel" },
   { label: "Credit Card", targetPanelId: "settingsCreditCardPanel" },
   { label: "Categories", targetPanelId: "settingsCategoriesPanel" },
-  { label: "Sync", targetPanelId: "settingsSyncPanel" },
   { label: "Data", targetPanelId: "settingsDataManagementPanel" },
 ];
 
@@ -6925,7 +7040,104 @@ window.addEventListener("click", function (event) {
   }
 });
 
-function setupDonateModal() {
+function initializeUI(isRefresh = false) {
+  console.log("Initializing UI...");
+
+  if (!isRefresh) {
+    loadData();
+  }
+
+  if (
+    !state.settings ||
+    state.settings.initialSetupDone === undefined ||
+    state.settings.initialSetupDone === false
+  ) {
+    if (!isRefresh) {
+      console.log("Initial setup not done. Opening wizard.");
+      openInitialSetupWizard();
+      return;
+    }
+  }
+
+  const mainDateInput = $("#date");
+  if (mainDateInput) mainDateInput.value = getCurrentDateString();
+  const mainCcDateInput = $("#ccDate");
+  if (mainCcDateInput) mainCcDateInput.value = getCurrentDateString();
+
+  populateDropdowns();
+  renderDashboard();
+  updateCcDashboardSectionVisibility();
+  setupMonthlyView();
+
+  if (!window.deleteSliderInitialized) {
+    setupDeleteSlider();
+    window.deleteSliderInitialized = true;
+  }
+
+  displayAppVersion();
+
+  $("#transactionForm").onsubmit = handleTransactionSubmit;
+  $("#ccTransactionForm").onsubmit = handleCcTransactionSubmit;
+
+  // --- Header & Footer Button Event Listeners ---
+  $("#settingsBtn").onclick = openSettingsModal;
+
+  $("#toggleChartBtn").onclick = () => {
+    dashboardChartState =
+      dashboardChartState === "yearly" ? "monthly" : "yearly";
+    renderMonthlyOverviewChart();
+  };
+
+  $("#monthlyViewBtn").onclick = () => {
+    const yearSelector = $("#yearSelector");
+    const currentYear = new Date().getFullYear();
+    const selectedYear =
+      yearSelector && yearSelector.value
+        ? parseInt(yearSelector.value)
+        : currentYear;
+
+    renderMonthTabs(selectedYear);
+
+    const monthlySearchInput = $("#monthlySearchInput");
+    const clearMonthlySearchBtn = $("#clearMonthlySearchBtn");
+    const searchScopeSelect = $("#searchScopeSelect"); // Get the dropdown
+
+    if (monthlySearchInput) {
+      monthlySearchInput.value = "";
+    }
+    if (clearMonthlySearchBtn) {
+      clearMonthlySearchBtn.style.display = "none";
+      clearMonthlySearchBtn.disabled = true;
+    }
+    // FIXED: Reset dropdown to 'month' and update the global scope variable
+    if (searchScopeSelect) {
+      searchScopeSelect.value = "month";
+      monthlyViewSearchScope = "month";
+    }
+
+    $("#monthlyViewModal").style.display = "block";
+
+    const currentMonth = new Date().getMonth();
+    const currentMonthTab = $(
+      `#monthTabs .tab-button[data-month="${currentMonth}"][data-year="${selectedYear}"]`
+    );
+
+    if (currentMonthTab) {
+      currentMonthTab.click();
+    } else if ($$("#monthTabs .tab-button").length > 0) {
+      $$("#monthTabs .tab-button")[0].click();
+    } else {
+      $("#monthlyDetailsContainer").innerHTML =
+        '<p class="text-center text-gray-400">Select a month.</p>';
+    }
+  };
+
+  const shortcutsHelpBtn = $("#shortcutsHelpBtn");
+  if (shortcutsHelpBtn) {
+    shortcutsHelpBtn.onclick = openShortcutsHelpModal;
+  }
+
+  // NEW: Donate Modal Logic moved inside initializeUI for robustness
   const donateModal = document.getElementById("donateModal");
   const footerDonateBtn = document.getElementById("footerDonateBtn");
   const closeDonateModalBtn = document.getElementById("closeDonateModal");
@@ -6937,208 +7149,289 @@ function setupDonateModal() {
     closeDonateModalBtn.addEventListener("click", () => {
       donateModal.style.display = "none";
     });
+    // Close modal if user clicks on the background overlay
     donateModal.addEventListener("click", (e) => {
       if (e.target === donateModal) {
         donateModal.style.display = "none";
       }
     });
 
+    // Handle copy to clipboard functionality for the new modal
     const copyButtons = donateModal.querySelectorAll(".copy-button");
     copyButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const textToCopy = button.dataset.copyText;
-        navigator.clipboard
-          .writeText(textToCopy)
-          .then(() => {
-            button.textContent = "Copied!";
-            setTimeout(() => {
-              button.innerHTML = '<i class="far fa-copy"></i>';
-            }, 2000);
-          })
-          .catch((err) => {
-            console.error("Failed to copy text: ", err);
-          });
+        const textArea = document.createElement("textarea");
+        textArea.value = textToCopy;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand("copy");
+          button.textContent = "Copied!";
+          setTimeout(() => {
+            button.innerHTML = '<i class="far fa-copy"></i>'; // Revert back to icon
+          }, 2000);
+        } catch (err) {
+          console.error("Failed to copy text: ", err);
+          button.textContent = "Failed!";
+          setTimeout(() => {
+            button.innerHTML = '<i class="far fa-copy"></i>';
+          }, 2000);
+        }
+        document.body.removeChild(textArea);
       });
     });
-  }
-}
-
-function initializeUI(isRefresh = false) {
-  // On a refresh, just re-run data integrity checks
-  if (isRefresh) {
-    ensureDefaultAccounts();
-    ensureDefaultCategories();
+  } else {
+    console.warn(
+      "One or more elements for the new donate modal were not found."
+    );
   }
 
-  // Abort and open setup wizard if this is the first run
-  if (
-    !state.settings ||
-    state.settings.initialSetupDone === undefined ||
-    state.settings.initialSetupDone === false
-  ) {
-    if (!isRefresh) {
-      openInitialSetupWizard();
-      return;
-    }
-  }
+  const monthlySearchInput = $("#monthlySearchInput");
+  const clearMonthlySearchBtn = $("#clearMonthlySearchBtn");
+  const searchScopeSelect = $("#searchScopeSelect"); // New dropdown
 
-  // --- Setup UI elements with current data ---
-  $("#date").value = getCurrentDateString();
-  $("#ccDate").value = getCurrentDateString();
-  populateDropdowns();
-  renderDashboard();
-  updateCcDashboardSectionVisibility();
-  setupMonthlyView();
-  displayAppVersion();
-
-  if (!window.deleteSliderInitialized) {
-    setupDeleteSlider();
-    window.deleteSliderInitialized = true;
-  }
-
-  // --- Google Drive Sync Controls ---
-  const gdriveToggle = $("#toggleGdriveSync");
-  const gdriveControls = $("#gdriveControls");
-  const authButton = $("#authorize_button");
-  const signoutButton = $("#signout_button");
-  const shortcutToggle = $("#gdriveShortcutToggle");
-
-  if (gdriveToggle && gdriveControls) {
-    gdriveToggle.checked = state.settings.enableGdriveBackup;
-    gdriveControls.style.display = state.settings.enableGdriveBackup
-      ? "block"
-      : "none";
-
-    gdriveToggle.onchange = () => {
-      state.settings.enableGdriveBackup = gdriveToggle.checked;
-      gdriveControls.style.display = gdriveToggle.checked ? "block" : "none";
-      if (!gdriveToggle.checked) {
-        handleSignoutClick();
+  const triggerSearch = () => {
+    clearTimeout(monthlySearchDebounceTimer);
+    monthlySearchDebounceTimer = setTimeout(() => {
+      const activeTab = $("#monthTabs .tab-button.active");
+      if (activeTab) {
+        const month = parseInt(activeTab.dataset.month);
+        const year = parseInt(activeTab.dataset.year);
+        const searchTerm = monthlySearchInput.value.trim();
+        renderMonthlyDetails(month, year, new Set(), searchTerm, true);
       }
-      updateCloudButtonVisibility(); // Update buttons when toggle changes
-      saveData();
-    };
+    }, 400);
+  };
+
+  if (monthlySearchInput && clearMonthlySearchBtn && searchScopeSelect) {
+    if (!monthlySearchInput.value.trim()) {
+      clearMonthlySearchBtn.style.display = "none";
+      clearMonthlySearchBtn.disabled = true;
+    }
+
+    monthlySearchInput.addEventListener("input", () => {
+      const searchTerm = monthlySearchInput.value.trim();
+      if (searchTerm) {
+        clearMonthlySearchBtn.style.display = "inline-flex";
+        clearMonthlySearchBtn.disabled = false;
+      } else {
+        clearMonthlySearchBtn.style.display = "none";
+        clearMonthlySearchBtn.disabled = true;
+      }
+      triggerSearch();
+    });
+
+    clearMonthlySearchBtn.addEventListener("click", () => {
+      clearTimeout(monthlySearchDebounceTimer);
+      monthlySearchInput.value = "";
+      clearMonthlySearchBtn.style.display = "none";
+      clearMonthlySearchBtn.disabled = true;
+      triggerSearch();
+      monthlySearchInput.focus();
+    });
+
+    // NEW: Event listener for the scope dropdown
+    searchScopeSelect.addEventListener("change", () => {
+      monthlyViewSearchScope = searchScopeSelect.value;
+      // Re-run the current search with the new scope
+      triggerSearch();
+    });
   }
 
-  if (authButton) authButton.onclick = handleAuthClick;
-  if (signoutButton) {
-    signoutButton.onclick = () => {
-      handleSignoutClick();
-      updateCloudButtonVisibility();
-    };
-  }
-
-  if (shortcutToggle) {
-    shortcutToggle.checked = state.settings.useShortcutsForGdrive;
-    shortcutToggle.onchange = () => {
-      state.settings.useShortcutsForGdrive = shortcutToggle.checked;
-      saveData();
-    };
-  }
-
-  // --- Setup ALL Event Listeners (only once) ---
-  if (!document.body.dataset.listenersAttached) {
-    $("#transactionForm").onsubmit = handleTransactionSubmit;
-    $("#ccTransactionForm").onsubmit = handleCcTransactionSubmit;
-    $("#settingsBtn").onclick = openSettingsModal;
-    $("#toggleChartBtn").onclick = () => {
-      dashboardChartState =
-        dashboardChartState === "yearly" ? "monthly" : "yearly";
-      renderMonthlyOverviewChart();
-    };
-    $("#monthlyViewBtn").onclick = () => {
-      const yearSelector = $("#yearSelector");
-      const currentYear = new Date().getFullYear();
-      const selectedYear =
-        yearSelector && yearSelector.value
-          ? parseInt(yearSelector.value)
-          : currentYear;
-      renderMonthTabs(selectedYear);
-      $("#monthlySearchInput").value = "";
-      $("#clearMonthlySearchBtn").classList.add("hidden");
-      $("#searchScopeSelect").value = "month";
-      monthlyViewSearchScope = "month";
-      $("#monthlyViewModal").style.display = "block";
-      const currentMonthTab = $(
-        `#monthTabs .tab-button[data-month="${new Date().getMonth()}"][data-year="${selectedYear}"]`
-      );
-      if (currentMonthTab) currentMonthTab.click();
-      else if ($$("#monthTabs .tab-button").length > 0)
-        $$("#monthTabs .tab-button")[0].click();
-    };
-    $("#shortcutsHelpBtn").onclick = openShortcutsHelpModal;
-    setupDonateModal();
-    $("#openTransferModalBtn").onclick = () => {
+  const openTransferModalButton = $("#openTransferModalBtn");
+  if (openTransferModalButton) {
+    openTransferModalButton.onclick = () => {
       const modal = $("#transferMoneyModal");
-      populateDropdowns();
-      $("#transferModalForm").reset();
-      $("#modalTransferError").classList.add("hidden");
-      modal.style.display = "block";
-      modal.querySelector('input[type="number"], select').focus();
+      if (modal) {
+        populateDropdowns();
+        const transferModalForm = $("#transferModalForm");
+        if (transferModalForm) {
+          transferModalForm.reset();
+        }
+        const errorEl = $("#modalTransferError");
+        if (errorEl) {
+          errorEl.classList.add("hidden");
+        }
+        modal.style.display = "block";
+        const firstInput = modal.querySelector('input[type="number"], select');
+        if (firstInput) {
+          firstInput.focus();
+        }
+      }
     };
-    $("#transferModalForm").onsubmit = handleTransferSubmit;
+  }
 
-    // --- Connect buttons to their dedicated functions ---
-    $("#exportDataBtn").onclick = exportData; // Local export
-    $("#importDataInput").onchange = (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => handleImportedData(e.target.result, "Local File");
-      reader.readAsText(file);
-      event.target.value = null;
+  const transferModalFormElement = $("#transferModalForm");
+  if (transferModalFormElement) {
+    transferModalFormElement.onsubmit = handleTransferSubmit;
+  }
+
+  // --- CC History Modal Search Logic ---
+  const ccHistorySearchInput = $("#ccHistorySearchInput");
+  const clearCcHistorySearchBtn = $("#clearCcHistorySearchBtn");
+
+  if (ccHistorySearchInput && clearCcHistorySearchBtn) {
+    const triggerCcSearch = () => {
+      const renderFunction = document.body.renderCcHistoryList;
+      if (typeof renderFunction === "function") {
+        renderFunction();
+      }
     };
-    $("#gdriveExportBtn").onclick = gdriveExport; // Cloud export
-    $("#gdriveImportBtn").onclick = gdriveImport; // Cloud import
 
-    $("#initiateDeleteBtn").onclick = initiateDeleteAllData;
-    $("#cancelDeleteBtn").onclick = cancelDeleteAllData;
-    $("#addDebtBtn").onclick = openAddDebtForm;
-    $("#addReceivableBtn").onclick = openAddReceivableForm;
-    $("#addInstallmentBtn").onclick = openAddInstallmentForm;
-    $("#cashCounterBtn").onclick = openCashCounter;
-    $("#ccHistoryBtn").onclick = openCcHistoryModal;
-    $("#viewDebtsBtn").onclick = () => {
+    ccHistorySearchInput.addEventListener("input", () => {
+      const searchTerm = ccHistorySearchInput.value.trim();
+      clearCcHistorySearchBtn.classList.toggle("hidden", !searchTerm);
+      clearTimeout(ccHistorySearchDebounceTimer);
+      ccHistorySearchDebounceTimer = setTimeout(triggerCcSearch, 400);
+    });
+
+    clearCcHistorySearchBtn.addEventListener("click", () => {
+      clearTimeout(ccHistorySearchDebounceTimer);
+      ccHistorySearchInput.value = "";
+      clearCcHistorySearchBtn.classList.add("hidden");
+      triggerCcSearch();
+      ccHistorySearchInput.focus();
+    });
+  }
+
+  $("#exportDataBtn").onclick = exportData;
+  $("#importDataInput").onchange = importData;
+  $("#initiateDeleteBtn").onclick = initiateDeleteAllData;
+  $("#cancelDeleteBtn").onclick = cancelDeleteAllData;
+  $("#addDebtBtn").onclick = openAddDebtForm;
+  $("#addReceivableBtn").onclick = openAddReceivableForm;
+  $("#addInstallmentBtn").onclick = openAddInstallmentForm;
+  $("#cashCounterBtn").onclick = openCashCounter;
+  $("#ccHistoryBtn").onclick = openCcHistoryModal;
+
+  // --- NEW: Google Drive Button Listeners ---
+  $("#driveAuthBtn").onclick = handleAuthClick;
+  $("#driveSignOutBtn").onclick = handleSignoutClick;
+  // We will define backupToDrive and restoreFromDrive in the next steps
+  $("#driveExportBtn").onclick = () => backupToDrive();
+  $("#driveImportBtn").onclick = () => restoreFromDrive();
+  $("#toggleDriveShortcuts").onchange = (e) => {
+    state.settings.shortcutsUseDrive = e.target.checked;
+    saveData();
+    showNotification(
+      `Keyboard shortcuts will now use ${
+        e.target.checked ? "Google Drive" : "local files"
+      }.`,
+      "info"
+    );
+  };
+  // --- END NEW ---
+
+  const viewDebtsBtn = $("#viewDebtsBtn");
+  if (viewDebtsBtn) {
+    viewDebtsBtn.onclick = () => {
       renderDebtList();
       $("#debtsViewModal").style.display = "block";
     };
-    $("#viewReceivablesBtn").onclick = () => {
+  }
+
+  const viewReceivablesBtn = $("#viewReceivablesBtn");
+  if (viewReceivablesBtn) {
+    viewReceivablesBtn.onclick = () => {
       renderReceivableList();
       $("#receivablesViewModal").style.display = "block";
     };
-    $("#transactionType").onchange = () =>
-      toggleCategoryVisibilityInModal(
-        $("#transactionType"),
-        "categoryGroup",
-        "category"
-      );
+  }
+
+  const transactionTypeSelect = $("#transactionType");
+  const categoryGroup = $("#categoryGroup");
+  const descriptionInput = $("#description");
+
+  const toggleMainCategoryVisibility = () => {
+    if (!transactionTypeSelect || !categoryGroup) return;
+    if (transactionTypeSelect.value === "income") {
+      categoryGroup.style.display = "none";
+      $("#category").required = false;
+      if (descriptionInput)
+        descriptionInput.placeholder = "e.g., Monthly Salary";
+    } else {
+      categoryGroup.style.display = "block";
+      $("#category").required = true;
+      if (descriptionInput)
+        descriptionInput.placeholder = "e.g., Lunch, Groceries";
+    }
+  };
+
+  if (transactionTypeSelect) {
+    transactionTypeSelect.onchange = toggleMainCategoryVisibility;
+    toggleMainCategoryVisibility();
+  }
+
+  if (!document.body.dataset.keyboardListenerAttached) {
     document.addEventListener("keydown", handleKeyboardShortcuts);
-    document.body.dataset.listenersAttached = "true";
+    document.body.dataset.keyboardListenerAttached = "true";
+    console.log("Keyboard shortcut listener attached.");
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM Loaded. Initializing...");
-  loadData(); // Step 1: Load data and create the 'state' object.
-  initializeUI(); // Step 2: Initialize the UI with the loaded data.
-  checkAndTriggerBackupReminder();
+  loadData(); // Load existing data or set up default state
+  initializeUI(); // Set up all initial UI elements, event listeners, and render initial views
+  checkAndTriggerBackupReminder(); // <-- THIS LINE WAS MISSING
 
+  // Event listener to update date fields and attempt to focus window when tab becomes visible
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
-      $("#date").value = getCurrentDateString();
-      $("#ccDate").value = getCurrentDateString();
+      console.log("Page became visible, attempting to focus and update dates.");
+      window.focus(); // Attempt to bring focus to the window/document
+
+      const mainTransactionDateInput = $("#date"); // Main transaction form date
+      if (mainTransactionDateInput) {
+        mainTransactionDateInput.value = getCurrentDateString(); // Use local date
+      }
+
+      const ccTransactionDateInput = $("#ccDate"); // Credit Card transaction form date
+      if (ccTransactionDateInput) {
+        ccTransactionDateInput.value = getCurrentDateString(); // Use local date
+      }
     }
   });
 
-  const preloader = $("#preloader");
-  const appContent = $("#app-content");
-  if (preloader && appContent) {
+  // Preloader logic
+  const preloaderElement = document.getElementById("preloader");
+  const appContentElement = document.getElementById("app-content");
+  const preloaderDuration = 1250; // Duration preloader is visible
+
+  if (preloaderElement && appContentElement) {
+    console.log(
+      `Preloader will be shown for ${preloaderDuration / 1000} seconds.`
+    );
+
     setTimeout(() => {
-      preloader.classList.add("hidden");
-      appContent.classList.add("visible");
+      console.log(
+        "Preloader timer finished. Hiding preloader, showing app content."
+      );
+      preloaderElement.classList.add("hidden");
+      appContentElement.classList.add("visible");
+
       setTimeout(() => {
-        preloader.style.display = "none";
-      }, 750);
-    }, 1250);
+        preloaderElement.style.display = "none";
+        console.log("Preloader display set to 'none' after fade-out.");
+      }, 750); // Matches CSS transition duration for opacity
+    }, preloaderDuration);
+  } else {
+    if (!preloaderElement) {
+      console.error("Preloader element with ID 'preloader' not found.");
+    }
+    if (!appContentElement) {
+      console.error("App content element with ID 'app-content' not found.");
+    }
+    // Fallback to show app content if preloader elements are missing
+    if (appContentElement) {
+      appContentElement.classList.add("visible");
+      console.warn(
+        "Attempted to show app content due to missing preloader elements."
+      );
+    }
+    if (preloaderElement) {
+      preloaderElement.style.display = "none";
+    }
   }
 });

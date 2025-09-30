@@ -1280,29 +1280,31 @@ footer a[href^="https://kaasi.com.lk"]:hover
   color: var(--text-primary);
 }
 
-/* --- GOOGLE DRIVE SYNC SETTINGS --- */
-.gdrive-status-indicator {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: var(--text-placeholder); /* Default grey */
-  margin-right: 8px;
-  vertical-align: middle;
-  transition: background-color 0.3s;
+/* ------------------------------------ */
+/* --- GOOGLE DRIVE INTEGRATION --- */
+/* ------------------------------------ */
+
+#driveStatusIndicator.connected {
+  background-color: var(--income-color); /* Green for connected */
 }
 
-.gdrive-status-indicator.connected {
-  background-color: var(--success-indicator-color); /* Green */
+#driveStatusIndicator.error {
+  background-color: var(--expense-color); /* Red for error */
 }
 
-.gdrive-status-indicator.error {
-  background-color: var(--expense-color); /* Red */
+#driveStatusIndicator.loading {
+  background-color: var(--accent-primary); /* Orange for loading */
+  animation: dot-pulse 1.5s infinite ease-in-out;
 }
 
-#gdriveControls {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
+/* Pulsing animation for loading indicator */
+@keyframes dot-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
 }
-
