@@ -1308,3 +1308,34 @@ footer a[href^="https://kaasi.com.lk"]:hover
   background-color: var(--bg-tertiary);
   border-color: var(--border-color);
 }
+
+/* --- NEW: Header Button Mobile Consistency --- */
+@media (max-width: 767px) { /* Tailwind 'md' breakpoint */
+  #monthlyViewBtn,
+  #headerBackupBtn,
+  #headerRestoreBtn {
+    padding-left: 0;
+    padding-right: 0;
+    width: 2.75rem; /* 44px */
+    height: 2.75rem; /* 44px */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  /* Ensure icon-only buttons in the header have their icons sized appropriately */
+  #monthlyViewBtn i {
+    font-size: 1rem; /* 16px */
+    line-height: 1;
+  }
+  
+  /* Ensure text-only buttons in the header are centered and sized */
+  #headerBackupBtn,
+  #headerRestoreBtn {
+    font-size: 0.875rem; /* 14px */
+    font-weight: 700; /* Bold */
+    line-height: 1;
+    /* The padding was already set to 0, so text will center */
+  }
+}

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v4.78i" />
+    <meta name="application-version" content="v2.79i" />
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
     <meta
       name="title"
@@ -52,7 +52,6 @@
       href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap"
       rel="stylesheet"
     />
-    <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="style.css" />
 
@@ -105,28 +104,42 @@
             <button
               id="monthlyViewBtn"
               class="btn btn-secondary mr-2"
-              data-tooltip="Monthly Breakdown"
+              data-tooltip="Monthly Breakdown (M)"
             >
               <i class="fas fa-calendar-alt"></i>
               <span class="hidden md:inline">Monthly View</span>
             </button>
+
+            <button
+              id="headerBackupBtn"
+              class="btn btn-secondary mr-2"
+              data-tooltip="Export Local File (Ctrl+E)"
+            >
+              E
+            </button>
+            <button
+              id="headerRestoreBtn"
+              class="btn btn-secondary mr-2"
+              data-tooltip="Import Local File (Ctrl+I)"
+            >
+              I
+            </button>
             <button
               id="shortcutsHelpBtn"
               class="btn btn-icon mr-2 hidden md:inline-flex"
-              data-tooltip="Keyboard Shortcuts"
+              data-tooltip="Keyboard Shortcuts (?)"
             >
               <i class="fas fa-keyboard fa-lg"></i>
             </button>
             <button
               id="settingsBtn"
               class="btn btn-icon"
-              data-tooltip="Settings"
+              data-tooltip="Settings (S)"
             >
               <i class="fas fa-cog fa-lg"></i>
             </button>
           </div>
         </header>
-
         <div
           class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 main-content-grid"
         >
@@ -270,7 +283,7 @@
                 <button
                   id="openTransferModalBtn"
                   class="btn btn-icon btn-sm"
-                  data-tooltip="Transfer Money"
+                  data-tooltip="Transfer Money (T)"
                 >
                   <i class="fas fa-exchange-alt fa-lg"></i>
                 </button>
@@ -311,10 +324,10 @@
                   >
                 </button>
               </div>
-              <!-- This container will be dynamically populated -->
-              <div id="accountCardsContainer" class="grid gap-3 text-center">
-                <!-- Account cards like Cash, Bank 1, etc., will be injected here by JS -->
-              </div>
+              <div
+                id="accountCardsContainer"
+                class="grid gap-3 text-center"
+              ></div>
               <div
                 class="mt-4 text-xs text-gray-400 flex flex-col sm:flex-row justify-between gap-2"
               >
@@ -360,6 +373,7 @@
                     <button
                       id="viewDebtsBtn"
                       class="btn btn-outline-expense btn-sm w-full"
+                      data-tooltip="View All Debts (D)"
                     >
                       <i class="fas fa-list-ul"></i> View All Debts
                     </button>
@@ -384,6 +398,7 @@
                     <button
                       id="viewReceivablesBtn"
                       class="btn btn-outline-income btn-sm w-full"
+                      data-tooltip="View All Receivables (R)"
                     >
                       <i class="fas fa-list-ul"></i> View All Receivables
                     </button>
@@ -445,7 +460,6 @@
           <div
             class="flex flex-col sm:flex-row justify-between items-center mb-4 border-b border-gray-600 pb-2 gap-2"
           >
-            <!-- Wrapper div for year selector and PDF button -->
             <div class="flex items-center gap-x-2">
               <div class="flex-shrink-0">
                 <select
@@ -459,7 +473,6 @@
               class="flex flex-wrap justify-center gap-x-1"
             ></div>
           </div>
-          <!-- MODIFIED: Replaced toggle with a dropdown -->
           <div
             class="my-4 flex flex-col sm:flex-row items-center gap-x-2 gap-y-3"
           >
@@ -614,19 +627,16 @@
                 <ul id="categorySettingsList" class="space-y-2"></ul>
               </div>
             </div>
-            <!-- START: UPDATED DATA MANAGEMENT PANEL -->
             <div
               id="settingsDataManagementPanel"
               class="settings-tab-panel space-y-6 hidden"
             >
-              <!-- NEW: Cloud Backup Card -->
               <div
                 class="card !p-4"
                 style="background-color: var(--bg-tertiary)"
               >
                 <h3 class="text-lg font-semibold mb-3">Cloud Backup (Beta)</h3>
 
-                <!-- Logged Out State (Visible by default) -->
                 <div id="cloudBackupLoggedOut">
                   <p class="text-sm text-gray-400 mb-3">
                     Sign in with Google to securely back up your data to the
@@ -637,7 +647,6 @@
                   </button>
                 </div>
 
-                <!-- Logged In State (Hidden by default) -->
                 <div id="cloudBackupLoggedIn" class="hidden space-y-4">
                   <p class="text-sm text-gray-300">
                     Logged in as:
@@ -670,7 +679,6 @@
                 </div>
               </div>
 
-              <!-- Existing: Local Data Management Card -->
               <div
                 class="card !p-4"
                 style="background-color: var(--bg-tertiary)"
@@ -679,10 +687,9 @@
                   Local Data Management
                 </h3>
 
-                <!-- NEW: Shortcut Target Radio Buttons -->
                 <div class="mb-4">
                   <label class="block text-sm font-medium mb-2"
-                    >Keyboard Shortcut Target (Ctrl+E / Ctrl+I)</label
+                    >Keyboard/Dashboard Shortcut Does:</label
                   >
                   <div class="flex gap-x-4" id="shortcutTargetGroup">
                     <label
@@ -715,12 +722,8 @@
                   </div>
                 </div>
 
-                <!-- Existing Local Buttons (Text updated) -->
                 <div class="flex flex-col sm:flex-row gap-3">
-                  <button
-                    id="exportDataBtn"
-                    class="btn btn-secondary flex-1"
-                  >
+                  <button id="exportDataBtn" class="btn btn-secondary flex-1">
                     <i class="fas fa-file-export mr-1"></i> Export Local File
                   </button>
                   <label class="btn btn-secondary flex-1 cursor-pointer"
@@ -741,7 +744,6 @@
                 </p>
               </div>
 
-              <!-- Existing: Danger Zone -->
               <div class="card !bg-red-900/30 !border-red-700 !p-4">
                 <h3 class="text-lg font-semibold mb-3 text-red-400">
                   Danger Zone
@@ -781,7 +783,6 @@
                 </div>
               </div>
             </div>
-            <!-- END: UPDATED DATA MANAGEMENT PANEL -->
           </div>
           <div
             id="settingsAboutSection"
@@ -1109,7 +1110,6 @@
               </p>
             </div>
           </div>
-          <!-- NEW: Control Bar -->
           <div
             class="flex flex-col sm:flex-row justify-between items-center mb-4 border-b border-gray-600 pb-3 gap-3"
           >
@@ -1139,7 +1139,6 @@
               </button>
             </div>
           </div>
-          <!-- NEW: Search Bar -->
           <div class="my-4 flex items-center gap-x-2">
             <input
               type="search"
@@ -1157,7 +1156,6 @@
               <i class="fas fa-times"></i>
             </button>
           </div>
-          <!-- NEW: Container for grouped list -->
           <div
             id="ccHistoryListContainer"
             class="mt-4 max-h-[50vh] overflow-y-auto pr-2"
@@ -1273,7 +1271,6 @@
       ></div>
     </div>
 
-    <!-- The main change is adding mt-16 to the footer and max-w-7xl to the inner div -->
     <footer
       class="mt-16 relative z-10 border-t border-gray-800/50 bg-[#121212]"
     >
@@ -1292,14 +1289,12 @@
           >
         </div>
         <div class="flex items-center gap-6 text-gray-400 text-sm">
-          <!-- Removed Tailwind hover and transition classes -->
           <button id="footerDonateBtn">Donate</button>
           <a href="https://kaasi.com.lk" target="_blank">Main Website</a>
         </div>
       </div>
     </footer>
 
-    <!-- NEW DONATE MODAL -->
     <div
       id="donateModal"
       class="modal"
