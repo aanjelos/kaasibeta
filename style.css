@@ -200,8 +200,6 @@ body {
 input[type="text"],
 input[type="number"],
 input[type="date"],
-input[type="email"],   /* ADDED */
-input[type="password"], /* ADDED */
 input[type="search"], /* Ensure type="search" is included here */
 textarea,
 select {
@@ -1282,32 +1280,31 @@ footer a[href^="https://kaasi.com.lk"]:hover
   color: var(--text-primary);
 }
 
-/* ------------------------------------ */
-/* --- SUPABASE CLOUD SYNC --- */
-/* ------------------------------------ */
+/* --- NEW: SUPABASE & DATA MANAGEMENT STYLES --- */
 
-#cloudStatusIndicator.connected {
-  background-color: var(--income-color); /* Green for connected */
+/* Style for the Google login button */
+#googleLoginBtn {
+  background-color: #4285F4; /* Google Blue */
+  border-color: #4285F4;
+  color: white;
+}
+#googleLoginBtn:hover {
+  background-color: #357ae8;
+  border-color: #357ae8;
+  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3);
 }
 
-#cloudStatusIndicator.error {
-  background-color: var(--expense-color); /* Red for error */
+/* Style for the shortcut radio buttons when disabled */
+/* This styles the label text (e.g., "Cloud Backup") */
+#shortcutTargetGroup label:has(input[type="radio"]:disabled) {
+  color: var(--text-placeholder);
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
-#cloudStatusIndicator.loading {
-  background-color: var(--accent-primary); /* Orange for loading */
-  animation: dot-pulse 1.5s infinite ease-in-out;
+/* This styles the radio button itself */
+#shortcutTargetGroup input[type="radio"]:disabled {
+  cursor: not-allowed;
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
 }
-
-/* Pulsing animation for loading indicator */
-@keyframes dot-pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(0.8);
-    opacity: 0.7;
-  }
-}
-

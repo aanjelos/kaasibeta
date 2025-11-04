@@ -1,8 +1,3 @@
-// --- Supabase Constants ---
-const SUPABASE_URL = 'https://xcnirqsctkyyrvildqtm.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_cLW_C5L7xmIinyzSaKSmBQ_EFnjbntg';
-let supabase = null;
-
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 const formatCurrency = (amount) => {
@@ -17,6 +12,28 @@ const getDaysLeft = (dueDate) => {
   due.setHours(0, 0, 0, 0);
   return Math.ceil((due - today) / (1000 * 60 * 60 * 24));
 };
+
+// --- NEW: SUPABASE CLIENT INITIALIZATION ---
+const SUPABASE_URL = "https://xcnirqsctkyyrvildqtm.supabase.co";
+const SUPABASE_KEY = "sb_publishable_cLW_C5L7xmIinyzSaKSmBQ_EFnjbntg"; // Your publishable key
+
+let supabase = null;
+try {
+  // Use window.supabase.createClient, as the library is from a CDN
+  if (window.supabase) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    console.log("Supabase client initialized.");
+  } else {
+    throw new Error("Supabase client library not found on window object.");
+  }
+} catch (e) {
+  console.error("Error initializing Supabase client:", e);
+  showNotification(
+    "Could not initialize cloud features. Please refresh.",
+    "error"
+  );
+}
+// --- END NEW ---
 
 const roundToTwoDecimals = (num) => {
   if (typeof num !== "number" || isNaN(num)) {
@@ -106,6 +123,7 @@ function toggleCategoryVisibilityInModal(
 let state = {};
 let dashboardChartState = "yearly";
 let monthlyViewSearchScope = "month";
+let supabaseUser = null;
 let ccHistoryFilter = "unpaid";
 let ccHistorySearchDebounceTimer;
 let ccHistoryOpenMonthKeys = new Set();
@@ -115,26 +133,56 @@ function getDefaultState() {
     JSON.stringify({
       transactions: [],
       accounts: [
-        { id: "cash", name: "Cash", balance: 0, hidden: false },
-        { id: "bank_1", name: "Commercial", balance: 0, hidden: false },
-        { id: "bank_2", name: "HNB", balance: 0, hidden: false },
-        { id: "bank_3", name: "Genie", balance: 0, hidden: false },
+        {
+          id: "cash",
+          name: "Cash",
+          balance: 0,
+          hidden: false, // Cannot be hidden
+        },
+        {
+          id: "bank_1",
+          name: "Commercial",
+          balance: 0,
+          hidden: false,
+        },
+        {
+          id: "bank_2",
+          name: "HNB",
+          balance: 0,
+          hidden: false,
+        },
+        {
+          id: "bank_3",
+          name: "Genie",
+          balance: 0,
+          hidden: false,
+        },
       ],
       categories: [
-        "Food & Dining", "Groceries", "Transportation", "Healthcare",
-        "Personal Care", "Shopping", "Entertainment", "Education",
-        "Gifts & Donations", "Subscriptions & Memberships", "Bank Charges", "Other"
+        "Food & Dining",
+        "Groceries",
+        "Transportation",
+        "Healthcare",
+        "Personal Care",
+        "Shopping",
+        "Entertainment",
+        "Education",
+        "Gifts & Donations",
+        "Subscriptions & Memberships",
+        "Bank Charges",
+        "Other",
       ].sort((a, b) => a.localeCompare(b)),
       debts: [],
       receivables: [],
       installments: [],
-      creditCard: { limit: 0, transactions: [] },
+      creditCard: {
+        limit: 0,
+        transactions: [],
+      },
       settings: {
         initialSetupDone: false,
         showCcDashboardSection: true,
         theme: "dark",
-        cloudSyncEnabled: false, // NEW
-        shortcutsUseCloud: false, // NEW
       },
     })
   );
@@ -1215,50 +1263,87 @@ function handleKeyboardShortcuts(event) {
       activeElement.tagName === "TEXTAREA" ||
       activeElement.isContentEditable);
 
+  // Check for modifier keys for single-character shortcuts
   const modifierKeyPressed = event.ctrlKey || event.altKey || event.metaKey;
 
   const monthlyViewModalVisible =
     $("#monthlyViewModal")?.style.display === "block";
-  
-  // --- UPDATED: Handle Ctrl+E and Ctrl+I with Cloud option ---
+  const settingsModalVisible = $("#settingsModal")?.style.display === "block";
+  const transferModalVisible =
+    $("#transferMoneyModal")?.style.display === "block";
+  const debtsModalVisible = $("#debtsViewModal")?.style.display === "block";
+  const receivablesModalVisible =
+    $("#receivablesViewModal")?.style.display === "block";
+
+  // --- MODIFIED: Ctrl+E for Export ---
   if (event.ctrlKey && (event.key === "e" || event.key === "E")) {
     if (!inInputField) {
       event.preventDefault();
-      if (state.settings.shortcutsUseCloud && state.settings.cloudSyncEnabled) {
+      const target =
+        $("#shortcutCloud")?.checked && !$("#shortcutCloud")?.disabled
+          ? "cloud"
+          : "local";
+
+      if (target === "cloud") {
         console.log("Shortcut: Ctrl+E pressed for Cloud Backup");
-        backupToCloud();
+        backupToSupabase();
       } else {
         console.log("Shortcut: Ctrl+E pressed for Local Export");
         exportData();
       }
     }
-    return;
+    return; // Consume the event
   }
 
+  // --- MODIFIED: Ctrl+I for Import ---
   if (event.ctrlKey && (event.key === "i" || event.key === "I")) {
     if (!inInputField) {
       event.preventDefault();
-      if (state.settings.shortcutsUseCloud && state.settings.cloudSyncEnabled) {
+      const target =
+        $("#shortcutCloud")?.checked && !$("#shortcutCloud")?.disabled
+          ? "cloud"
+          : "local";
+
+      if (target === "cloud") {
         console.log("Shortcut: Ctrl+I pressed for Cloud Restore");
-        restoreFromCloud();
+        restoreFromSupabase();
       } else {
         console.log("Shortcut: Ctrl+I pressed for Local Import");
         const importInput = $("#importDataInput");
         if (importInput) {
-          importInput.click();
-        } else {
-          showNotification("Open Settings > Data to import a local file.", "info");
+          // Ensure settings modal is open and on the correct tab
+          const settingsModal = $("#settingsModal");
+          if (settingsModal && settingsModal.style.display !== "block") {
+            openSettingsModal();
+            setTimeout(() => {
+              const dataTabButton = Array.from(
+                $$("#settingsTabsContainer button")
+              ).find((btn) => btn.textContent === "Data");
+              if (dataTabButton) dataTabButton.click();
+              importInput.click();
+            }, 100);
+          } else if (settingsModal) {
+            const dataTabButton = Array.from(
+              $$("#settingsTabsContainer button")
+            ).find((btn) => btn.textContent === "Data");
+            if (dataTabButton) dataTabButton.click();
+            importInput.click();
+          } else {
+            importInput.click(); // Fallback
+          }
         }
       }
     }
-    return;
+    return; // Consume the event
   }
-  // --- END OF UPDATE ---
 
+  // For other shortcuts, if a modifier key (Ctrl, Alt, Meta) is pressed, generally ignore,
+  // unless it's the Escape key or a specifically designed multi-key shortcut.
   if (modifierKeyPressed && event.key !== "Escape") {
     return;
   }
 
+  // Do not trigger other shortcuts if an input field is focused (already checked, but good to be explicit)
   if (inInputField && event.key !== "Escape") {
     return;
   }
@@ -1320,7 +1405,8 @@ function handleKeyboardShortcuts(event) {
           console.log("Shortcut: 's' pressed, focusing Monthly Search");
         }
       } else if (
-        !$("#settingsModal")?.style.display === "block" &&
+        !monthlyViewModalVisible &&
+        !settingsModalVisible &&
         !inInputField
       ) {
         event.preventDefault();
@@ -1361,6 +1447,7 @@ function handleKeyboardShortcuts(event) {
           "transferMoneyModal",
           "monthlyViewModal",
           "settingsModal",
+          "donateModal", // Added donate modal
         ];
         let modalClosed = false;
         for (const modalId of modalsToClose) {
@@ -1374,6 +1461,7 @@ function handleKeyboardShortcuts(event) {
           }
         }
         if (!modalClosed && inInputField) {
+          // If no modal was closed but an input had focus
           activeElement.blur();
           console.log("Shortcut: Escape pressed, blurring active input field");
         }
@@ -3272,13 +3360,15 @@ function openCcHistoryModal() {
 
   // --- Reset state on open ---
   ccHistoryFilter = "unpaid"; // Default filter
-  if(searchInput) searchInput.value = "";
-  if(clearSearchBtn) clearSearchBtn.classList.add('hidden');
+  if (searchInput) searchInput.value = "";
+  if (clearSearchBtn) clearSearchBtn.classList.add("hidden");
   ccHistoryOpenMonthKeys.clear();
 
   // --- Populate Year Selector ---
   const years = new Set(
-    (state.creditCard.transactions || []).map((t) => new Date(t.date).getFullYear())
+    (state.creditCard.transactions || []).map((t) =>
+      new Date(t.date).getFullYear()
+    )
   );
   years.add(currentYear);
   yearSelector.innerHTML = "";
@@ -3298,20 +3388,24 @@ function openCcHistoryModal() {
     const searchTerm = searchInput.value.trim().toLowerCase();
 
     // 1. Filter by Year, Status, and Search Term
-    let filteredTransactions = (state.creditCard.transactions || []).filter(t => {
-      const tDate = new Date(t.date);
-      if (tDate.getFullYear() !== selectedYear) return false;
+    let filteredTransactions = (state.creditCard.transactions || []).filter(
+      (t) => {
+        const tDate = new Date(t.date);
+        if (tDate.getFullYear() !== selectedYear) return false;
 
-      if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
-      if (ccHistoryFilter === "paid" && !t.paidOff) return false;
-      
-      if (searchTerm) {
-        const descriptionMatch = t.description.toLowerCase().includes(searchTerm);
-        const amountMatch = t.amount.toFixed(2).includes(searchTerm);
-        if (!descriptionMatch && !amountMatch) return false;
+        if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
+        if (ccHistoryFilter === "paid" && !t.paidOff) return false;
+
+        if (searchTerm) {
+          const descriptionMatch = t.description
+            .toLowerCase()
+            .includes(searchTerm);
+          const amountMatch = t.amount.toFixed(2).includes(searchTerm);
+          if (!descriptionMatch && !amountMatch) return false;
+        }
+        return true;
       }
-      return true;
-    });
+    );
 
     // 2. Update Summary Stats (always based on full data, not filters)
     const limit = state.creditCard.limit || 0;
@@ -3319,10 +3413,18 @@ function openCcHistoryModal() {
       .filter((t) => !t.paidOff)
       .reduce((sum, t) => sum + t.amount - (t.paidAmount || 0), 0);
     const available = limit - allUnpaid;
-    $("#ccHistoryLimit").innerHTML = `<span class="tabular-nums">${formatCurrency(limit)}</span>`;
-    $("#ccHistorySpentUnpaid").innerHTML = `<span class="tabular-nums">${formatCurrency(allUnpaid)}</span>`;
+    $(
+      "#ccHistoryLimit"
+    ).innerHTML = `<span class="tabular-nums">${formatCurrency(limit)}</span>`;
+    $(
+      "#ccHistorySpentUnpaid"
+    ).innerHTML = `<span class="tabular-nums">${formatCurrency(
+      allUnpaid
+    )}</span>`;
     const availableEl = $("#ccHistoryAvailable");
-    availableEl.innerHTML = `<span class="tabular-nums">${formatCurrency(available)}</span>`;
+    availableEl.innerHTML = `<span class="tabular-nums">${formatCurrency(
+      available
+    )}</span>`;
     availableEl.classList.toggle("text-expense", available < 0);
     availableEl.classList.toggle("accent-text", available >= 0);
 
@@ -3342,54 +3444,99 @@ function openCcHistoryModal() {
       return acc;
     }, {});
 
-    Object.keys(transactionsByMonth).sort((a, b) => b - a).forEach(monthKey => {
+    Object.keys(transactionsByMonth)
+      .sort((a, b) => b - a)
+      .forEach((monthKey) => {
         const monthTransactions = transactionsByMonth[monthKey];
-        monthTransactions.sort((a, b) => new Date(b.date) - new Date(a.date) || b.timestamp - a.timestamp);
-        const monthName = new Date(selectedYear, monthKey).toLocaleString('default', { month: 'long' });
-        
-        const monthGroup = document.createElement('div');
-        monthGroup.className = 'cc-history-month-group';
+        monthTransactions.sort(
+          (a, b) =>
+            new Date(b.date) - new Date(a.date) || b.timestamp - a.timestamp
+        );
+        const monthName = new Date(selectedYear, monthKey).toLocaleString(
+          "default",
+          { month: "long" }
+        );
 
-        const monthHeader = document.createElement('div');
-        monthHeader.className = 'cc-history-month-header';
-        
-        const totalSpentInMonth = monthTransactions.reduce((sum, t) => sum + t.amount, 0);
+        const monthGroup = document.createElement("div");
+        monthGroup.className = "cc-history-month-group";
+
+        const monthHeader = document.createElement("div");
+        monthHeader.className = "cc-history-month-header";
+
+        const totalSpentInMonth = monthTransactions.reduce(
+          (sum, t) => sum + t.amount,
+          0
+        );
 
         monthHeader.innerHTML = `
             <span>${monthName} ${selectedYear}</span>
             <div class="flex items-center">
-                <span class="text-sm text-expense mr-3 tabular-nums">${formatCurrency(totalSpentInMonth)}</span>
+                <span class="text-sm text-expense mr-3 tabular-nums">${formatCurrency(
+                  totalSpentInMonth
+                )}</span>
                 <i class="fas fa-chevron-down text-xs text-gray-400"></i>
             </div>
         `;
-        
-        const transactionsContainer = document.createElement('div');
-        transactionsContainer.className = 'cc-history-transactions-container';
-        
-        monthTransactions.forEach(t => {
-            const itemDiv = document.createElement('div');
-            itemDiv.className = `cc-history-transaction-item ${t.paidOff ? "opacity-60" : ""}`;
-            const remainingOnItem = t.amount - (t.paidAmount || 0);
-            
-            const buttonsHtml = `
+
+        const transactionsContainer = document.createElement("div");
+        transactionsContainer.className = "cc-history-transactions-container";
+
+        monthTransactions.forEach((t) => {
+          const itemDiv = document.createElement("div");
+          itemDiv.className = `cc-history-transaction-item ${
+            t.paidOff ? "opacity-60" : ""
+          }`;
+          const remainingOnItem = t.amount - (t.paidAmount || 0);
+
+          const buttonsHtml = `
               <div class="edit-btn-container">
-                  ${!t.paidOff && remainingOnItem > 0.005 ? `<button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="openPayCcItemForm('${t.id}')" title="Pay Item"><i class="fas fa-dollar-sign"></i></button>` : ""}
-                  <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditCcTransactionForm('${t.id}')" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteCcTransaction('${t.id}')" title="Delete"><i class="fas fa-times"></i></button>
+                  ${
+                    !t.paidOff && remainingOnItem > 0.005
+                      ? `<button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="openPayCcItemForm('${t.id}')" title="Pay Item"><i class="fas fa-dollar-sign"></i></button>`
+                      : ""
+                  }
+                  <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditCcTransactionForm('${
+                    t.id
+                  }')" title="Edit"><i class="fas fa-edit"></i></button>
+                  <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteCcTransaction('${
+                    t.id
+                  }')" title="Delete"><i class="fas fa-times"></i></button>
               </div>`;
 
-            itemDiv.innerHTML = `
+          itemDiv.innerHTML = `
               <div class="flex-grow mr-3 overflow-hidden">
-                  <p class="font-medium truncate ${t.paidOff ? "text-gray-500" : ""}" title="${t.description}">${t.description}</p>
-                  <p class="text-xs text-gray-400 mt-0.5">${new Date(t.date).toLocaleDateString()} ${t.paidAmount > 0 && !t.paidOff ? `(Paid: <span class="tabular-nums">${formatCurrency(t.paidAmount)}</span>)` : ""}</p>
+                  <p class="font-medium truncate ${
+                    t.paidOff ? "text-gray-500" : ""
+                  }" title="${t.description}">${t.description}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">${new Date(
+                    t.date
+                  ).toLocaleDateString()} ${
+            t.paidAmount > 0 && !t.paidOff
+              ? `(Paid: <span class="tabular-nums">${formatCurrency(
+                  t.paidAmount
+                )}</span>)`
+              : ""
+          }</p>
               </div>
               <div class="flex items-center flex-shrink-0">
-                  <span class="font-semibold mr-3 text-sm tabular-nums ${t.paidOff ? "text-gray-500" : remainingOnItem <= 0.005 ? "text-income" : "text-expense"}">
-                      ${t.paidOff ? formatCurrency(t.amount) : formatCurrency(remainingOnItem)} ${t.paidOff ? "" : remainingOnItem <= 0.005 ? " (Settled)" : " Left"}
+                  <span class="font-semibold mr-3 text-sm tabular-nums ${
+                    t.paidOff
+                      ? "text-gray-500"
+                      : remainingOnItem <= 0.005
+                      ? "text-income"
+                      : "text-expense"
+                  }">
+                      ${
+                        t.paidOff
+                          ? formatCurrency(t.amount)
+                          : formatCurrency(remainingOnItem)
+                      } ${
+            t.paidOff ? "" : remainingOnItem <= 0.005 ? " (Settled)" : " Left"
+          }
                   </span>
                   ${buttonsHtml}
               </div>`;
-            transactionsContainer.appendChild(itemDiv);
+          transactionsContainer.appendChild(itemDiv);
         });
 
         monthGroup.appendChild(monthHeader);
@@ -3398,45 +3545,52 @@ function openCcHistoryModal() {
 
         // Accordion Logic
         const fullMonthKey = `${selectedYear}-${monthKey}`;
-        if (ccHistoryOpenMonthKeys.has(fullMonthKey) || searchTerm) { // Expand if searching
-            transactionsContainer.style.maxHeight = transactionsContainer.scrollHeight + "px";
-            monthHeader.querySelector('i').classList.replace('fa-chevron-down', 'fa-chevron-up');
+        if (ccHistoryOpenMonthKeys.has(fullMonthKey) || searchTerm) {
+          // Expand if searching
+          transactionsContainer.style.maxHeight =
+            transactionsContainer.scrollHeight + "px";
+          monthHeader
+            .querySelector("i")
+            .classList.replace("fa-chevron-down", "fa-chevron-up");
         }
 
         monthHeader.onclick = () => {
-            const icon = monthHeader.querySelector('i');
-            const isCollapsed = transactionsContainer.style.maxHeight === '0px' || !transactionsContainer.style.maxHeight;
-            if (isCollapsed) {
-                transactionsContainer.style.maxHeight = transactionsContainer.scrollHeight + "px";
-                icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
-                ccHistoryOpenMonthKeys.add(fullMonthKey);
-            } else {
-                transactionsContainer.style.maxHeight = '0px';
-                icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
-                ccHistoryOpenMonthKeys.delete(fullMonthKey);
-            }
+          const icon = monthHeader.querySelector("i");
+          const isCollapsed =
+            transactionsContainer.style.maxHeight === "0px" ||
+            !transactionsContainer.style.maxHeight;
+          if (isCollapsed) {
+            transactionsContainer.style.maxHeight =
+              transactionsContainer.scrollHeight + "px";
+            icon.classList.replace("fa-chevron-down", "fa-chevron-up");
+            ccHistoryOpenMonthKeys.add(fullMonthKey);
+          } else {
+            transactionsContainer.style.maxHeight = "0px";
+            icon.classList.replace("fa-chevron-up", "fa-chevron-down");
+            ccHistoryOpenMonthKeys.delete(fullMonthKey);
+          }
         };
-    });
+      });
 
     // 4. Update active filter button
-    $$("#ccHistoryFilterControls button").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.filter === ccHistoryFilter);
+    $$("#ccHistoryFilterControls button").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.filter === ccHistoryFilter);
     });
   };
 
   // --- Setup Event Listeners ---
   yearSelector.onchange = () => {
-      ccHistoryOpenMonthKeys.clear(); // Reset open accordions when year changes
-      renderFilteredCcList();
+    ccHistoryOpenMonthKeys.clear(); // Reset open accordions when year changes
+    renderFilteredCcList();
   };
-  
-  $$("#ccHistoryFilterControls button").forEach(btn => {
-      btn.onclick = () => {
-          ccHistoryFilter = btn.dataset.filter;
-          renderFilteredCcList();
-      };
+
+  $$("#ccHistoryFilterControls button").forEach((btn) => {
+    btn.onclick = () => {
+      ccHistoryFilter = btn.dataset.filter;
+      renderFilteredCcList();
+    };
   });
-  
+
   // Expose the render function for the search listeners
   document.body.renderCcHistoryList = renderFilteredCcList;
 
@@ -4714,7 +4868,9 @@ function payInstallmentMonth(installmentId) {
       Mark one month as paid for "<strong>${installment.description}</strong>"?
     </p>
     <p class="mb-4 text-center text-sm text-gray-400">
-      Amount: <span class="tabular-nums">${formatCurrency(installment.monthlyAmount)}</span><br>
+      Amount: <span class="tabular-nums">${formatCurrency(
+        installment.monthlyAmount
+      )}</span><br>
       Months remaining after this: ${installment.monthsLeft - 1}
     </p>
     <p class="disclaimer-text mt-3 mb-4">
@@ -4840,8 +4996,12 @@ function openPayCcItemForm(ccTransactionId) {
 
   const formHtml = `
       <input type="hidden" name="ccItemId" value="${item.id}">
-      <p class="mb-2 tabular-nums">Item Amount: ${formatCurrency(item.amount)}</p>
-      <p class="mb-2 tabular-nums">Paid So Far: ${formatCurrency(item.paidAmount || 0)}</p>
+      <p class="mb-2 tabular-nums">Item Amount: ${formatCurrency(
+        item.amount
+      )}</p>
+      <p class="mb-2 tabular-nums">Paid So Far: ${formatCurrency(
+        item.paidAmount || 0
+      )}</p>
       <p class="mb-2">Remaining on Item: <strong class="text-danger tabular-nums">${formatCurrency(
         remaining
       )}</strong></p>
@@ -6234,9 +6394,16 @@ function calculateCashTotal() {
     const total = count * denomination;
     grandTotal += total;
     const totalEl = $(`#cashTotal-${denomination}`);
-    if (totalEl) totalEl.innerHTML = `<span class="tabular-nums">${formatCurrency(total)}</span>`;
+    if (totalEl)
+      totalEl.innerHTML = `<span class="tabular-nums">${formatCurrency(
+        total
+      )}</span>`;
   });
-  $("#cashCounterTotal").innerHTML = `<span class="tabular-nums">${formatCurrency(grandTotal)}</span>`;
+  $(
+    "#cashCounterTotal"
+  ).innerHTML = `<span class="tabular-nums">${formatCurrency(
+    grandTotal
+  )}</span>`;
   const cashAccount = state.accounts.find((acc) => acc.id === "cash");
   if (cashAccount) {
     const diff = grandTotal - cashAccount.balance;
@@ -6492,172 +6659,6 @@ function checkAndTriggerBackupReminder() {
     }
   }
 }
-
-// =================================================================================
-// --- SUPABASE CLOUD SYNC FUNCTIONS ---
-// =================================================================================
-
-/**
- * Handles sending a magic link to the user's email.
- */
-async function handleMagicLinkLogin() {
-  const email = $('#cloudEmail').value;
-  if (!email) {
-    showNotification('Please enter a valid email address.', 'error');
-    return;
-  }
-
-  const sendBtn = $('#sendMagicLinkBtn');
-  const originalBtnHtml = sendBtn.innerHTML;
-  sendBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Sending...`;
-  sendBtn.disabled = true;
-
-  const { error } = await supabase.auth.signInWithOtp({
-    email: email,
-    options: {
-      // This tells Supabase where to redirect the user back to after they click the link
-      emailRedirectTo: window.location.origin,
-    },
-  });
-
-  if (error) {
-    showNotification(`Error: ${error.message}`, 'error');
-    console.error('Magic Link error:', error);
-  } else {
-    showNotification('Login link sent! Please check your email.', 'success', 8000);
-  }
-
-  sendBtn.innerHTML = originalBtnHtml;
-  sendBtn.disabled = false;
-}
-
-/**
- * Handles signing out from Supabase.
- */
-async function handleSignOut() {
-  await supabase.auth.signOut();
-  // The onAuthStateChange listener will automatically update the UI.
-}
-
-/**
- * Updates the Cloud Sync UI elements based on the current auth state.
- * @param {object|null} user - The Supabase user object, or null if logged out.
- */
-function updateCloudUiState(user) {
-  const authContainer = $('#cloudAuthContainer');
-  const loggedInContainer = $('#cloudLoggedInContainer');
-  const statusIndicator = $('#cloudStatusIndicator');
-  const statusText = $('#cloudStatusText');
-  const shortcutsToggle = $('#toggleCloudShortcuts');
-  const emailInput = $('#cloudEmail'); // Find the element once
-
-  // Only proceed if the main containers are found
-  if (!authContainer || !loggedInContainer) {
-    return;
-  }
-
-  if (user) {
-    authContainer.classList.add('hidden');
-    loggedInContainer.classList.remove('hidden');
-    if (statusIndicator) statusIndicator.className = 'w-3 h-3 rounded-full connected';
-    if (statusText) statusText.textContent = `Connected as: ${user.email}`;
-    if (shortcutsToggle) shortcutsToggle.checked = state.settings.shortcutsUseCloud;
-  } else {
-    authContainer.classList.remove('hidden');
-    loggedInContainer.classList.add('hidden');
-    // Check if the email input exists before trying to set its value
-    if (emailInput) {
-      emailInput.value = '';
-    }
-  }
-}
-
-/**
- * Orchestrates the backup process to Supabase.
- */
-async function backupToCloud() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    showNotification('You must be logged in to back up data.', 'error');
-    return;
-  }
-
-  const exportBtn = $('#cloudExportBtn');
-  const originalBtnHtml = exportBtn.innerHTML;
-  exportBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Backing up...`;
-  exportBtn.disabled = true;
-
-  try {
-    const { error } = await supabase
-      .from('user_backups')
-      .upsert({ user_id: user.id, data: state });
-
-    if (error) throw error;
-
-    showNotification('Backup successful!', 'success');
-  } catch (error) {
-    console.error('Error backing up:', error);
-    showNotification(`Backup failed: ${error.message}`, 'error');
-  } finally {
-    exportBtn.innerHTML = originalBtnHtml;
-    exportBtn.disabled = false;
-  }
-}
-
-/**
- * Orchestrates the restore process from Supabase.
- */
-async function restoreFromCloud() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    showNotification('You must be logged in to restore data.', 'error');
-    return;
-  }
-
-  showConfirmationModal(
-    "Restore from Cloud",
-    "This will overwrite all current local data with your last cloud backup. This action cannot be undone.",
-    "Yes, Restore",
-    "Cancel",
-    async () => {
-      const importBtn = $('#cloudImportBtn');
-      const originalBtnHtml = importBtn.innerHTML;
-      importBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Restoring...`;
-      importBtn.disabled = true;
-
-      try {
-        const { data, error } = await supabase
-          .from('user_backups')
-          .select('data')
-          .eq('user_id', user.id)
-          .single();
-
-        if (error && error.code === 'PGRST116') { // No rows found
-          showNotification('No cloud backup found for your account.', 'warning');
-          return;
-        }
-        if (error) throw error;
-
-        state = deepMerge(getDefaultState(), data.data);
-        ensureDefaultAccounts();
-        ensureDefaultCategories();
-        state.settings.initialSetupDone = true;
-
-        saveData();
-        initializeUI(true); 
-        closeModal('settingsModal');
-        showNotification('Data successfully restored from the cloud.', 'success');
-      } catch (error) {
-        console.error('Restore failed:', error);
-        showNotification(`Restore failed: ${error.message}`, 'error');
-      } finally {
-        importBtn.innerHTML = originalBtnHtml;
-        importBtn.disabled = false;
-      }
-    }
-  );
-}
-
 let activeSettingsTab = null;
 
 const settingsTabsConfig = [
@@ -6755,6 +6756,12 @@ window.addEventListener("click", function (event) {
 
 function initializeUI(isRefresh = false) {
   console.log("Initializing UI...");
+
+  // --- NEW: Initialize Supabase and check auth state ---
+  if (!isRefresh && supabase) {
+    initializeSupabase(); // This will check for a user session
+  }
+  // --- END NEW ---
 
   if (!isRefresh) {
     loadData();
@@ -7008,6 +7015,38 @@ function initializeUI(isRefresh = false) {
     });
   }
 
+  // --- NEW: SUPABASE EVENT LISTENERS ---
+  const googleLoginButton = $("#googleLoginBtn");
+  if (googleLoginButton) {
+    googleLoginButton.onclick = signInWithGoogle;
+  }
+
+  const googleLogoutButton = $("#googleLogoutBtn");
+  if (googleLogoutButton) {
+    googleLogoutButton.onclick = signOut;
+  }
+
+  const backupToSupabaseButton = $("#backupToSupabaseBtn");
+  if (backupToSupabaseButton) {
+    backupToSupabaseButton.onclick = backupToSupabase;
+  }
+
+  const restoreFromSupabaseButton = $("#restoreFromSupabaseBtn");
+  if (restoreFromSupabaseButton) {
+    restoreFromSupabaseButton.onclick = restoreFromSupabase;
+  }
+
+  const shortcutTargetGroup = $("#shortcutTargetGroup");
+  if (shortcutTargetGroup) {
+    shortcutTargetGroup.onchange = (e) => {
+      if (e.target.name === "shortcutTarget") {
+        console.log(`Shortcut target changed to: ${e.target.value}`);
+        // We just need to read this value later, no action needed on change.
+      }
+    };
+  }
+  // --- END NEW ---
+
   $("#exportDataBtn").onclick = exportData;
   $("#importDataInput").onchange = importData;
   $("#initiateDeleteBtn").onclick = initiateDeleteAllData;
@@ -7017,29 +7056,6 @@ function initializeUI(isRefresh = false) {
   $("#addInstallmentBtn").onclick = openAddInstallmentForm;
   $("#cashCounterBtn").onclick = openCashCounter;
   $("#ccHistoryBtn").onclick = openCcHistoryModal;
-
-  // --- UPDATED: Supabase Button Listeners with checks ---
-  const sendMagicLinkBtn = $('#sendMagicLinkBtn');
-  if (sendMagicLinkBtn) sendMagicLinkBtn.onclick = handleMagicLinkLogin;
-
-  const cloudSignOutBtn = $('#cloudSignOutBtn');
-  if (cloudSignOutBtn) cloudSignOutBtn.onclick = handleSignOut;
-
-  const cloudExportBtn = $('#cloudExportBtn');
-  if (cloudExportBtn) cloudExportBtn.onclick = backupToCloud;
-  
-  const cloudImportBtn = $('#cloudImportBtn');
-  if (cloudImportBtn) cloudImportBtn.onclick = restoreFromCloud;
-  
-  const toggleCloudShortcuts = $('#toggleCloudShortcuts');
-  if (toggleCloudShortcuts) {
-    toggleCloudShortcuts.onchange = (e) => {
-      state.settings.shortcutsUseCloud = e.target.checked;
-      saveData();
-      showNotification(`Keyboard shortcuts will now use ${e.target.checked ? 'Cloud Sync' : 'local files'}.`, 'info');
-    };
-  }
-  // --- END UPDATE ---
 
   const viewDebtsBtn = $("#viewDebtsBtn");
   if (viewDebtsBtn) {
@@ -7088,29 +7104,311 @@ function initializeUI(isRefresh = false) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM Loaded. Initializing Supabase...");
+// --- NEW: SUPABASE AUTH & DATA FUNCTIONS ---
 
-  // Step 1: Initialize the Supabase client immediately.
-  const { createClient } = window.supabase;
-  supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+/**
+ * Initializes the Supabase client and checks for an active user session.
+ * Updates the UI based on the user's login status.
+ */
+async function initializeSupabase() {
+  if (!supabase) {
+    console.error("Supabase client not available.");
+    return;
+  }
+  console.log("Checking Supabase auth state...");
 
-  // Step 2: Set up the auth listener. This is key for session persistence.
-  // It fires on page load, login, and logout.
+  // Handle auth state changes (e.g., login, logout)
   supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Supabase auth state changed:', event);
+    console.log("Supabase auth state changed:", event, session);
     const user = session?.user || null;
-    updateCloudUiState(user);
-    // Also save the login state to our app's state
-    state.settings.cloudSyncEnabled = !!user;
-    saveData();
+    supabaseUser = user;
+    updateSupabaseUI(user);
   });
 
-  // Step 3: Now proceed with the rest of the app's initialization.
-  loadData();
-  initializeUI(); 
-  checkAndTriggerBackupReminder();
+  // Check for initial session
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if (error) {
+      console.error("Error getting session:", error.message);
+      throw error;
+    }
+    const user = data.session?.user || null;
+    supabaseUser = user;
+    updateSupabaseUI(user);
+    console.log(
+      "Initial session check complete. User:",
+      user ? user.email : "none"
+    );
+  } catch (error) {
+    console.error("Failed to initialize session:", error);
+    updateSupabaseUI(null);
+  }
+}
 
+/**
+ * Updates the Data Management UI based on login state.
+ * @param {object|null} user - The Supabase user object, or null if logged out.
+ */
+function updateSupabaseUI(user) {
+  const loggedOutView = $("#cloudBackupLoggedOut");
+  const loggedInView = $("#cloudBackupLoggedIn");
+  const userEmailEl = $("#userEmail");
+  const shortcutCloudInput = $("#shortcutCloud");
+  const shortcutCloudLabel = $("#shortcutCloudLabel");
+  const shortcutLocalInput = $("#shortcutLocal");
+
+  if (
+    !loggedOutView ||
+    !loggedInView ||
+    !userEmailEl ||
+    !shortcutCloudInput ||
+    !shortcutCloudLabel
+  ) {
+    console.warn(
+      "Could not find all Supabase UI elements in Settings to update."
+    );
+    return;
+  }
+
+  if (user) {
+    // User is logged IN
+    loggedOutView.classList.add("hidden");
+    loggedInView.classList.remove("hidden");
+    userEmailEl.textContent = user.email;
+    shortcutCloudInput.disabled = false;
+    shortcutCloudLabel.classList.remove(
+      "text-gray-400",
+      "opacity-60",
+      "cursor-not-allowed"
+    );
+    shortcutCloudLabel.classList.add("text-gray-300");
+  } else {
+    // User is logged OUT
+    loggedOutView.classList.remove("hidden");
+    loggedInView.classList.add("hidden");
+    userEmailEl.textContent = "...";
+    shortcutCloudInput.disabled = true;
+    shortcutCloudInput.checked = false; // Uncheck it
+    if (shortcutLocalInput) shortcutLocalInput.checked = true; // Default to local
+    shortcutCloudLabel.classList.add(
+      "text-gray-400",
+      "opacity-60",
+      "cursor-not-allowed"
+    );
+    shortcutCloudLabel.classList.remove("text-gray-300");
+  }
+}
+
+/**
+ * Initiates the Google Sign-In flow via Supabase.
+ */
+async function signInWithGoogle() {
+  if (!supabase) return;
+  console.log("Attempting Google Sign-In...");
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        // You can add scopes here if needed, e.g., 'email profile'
+        // redirectTo: 'https://app.kaasi.com.lk' // Supabase uses the URL Config settings
+      },
+    });
+    if (error) {
+      console.error("Error during Google sign-in:", error.message);
+      showNotification(`Google Sign-In Error: ${error.message}`, "error");
+    } else {
+      console.log("Sign-in data:", data);
+      // User will be redirected to Google, then back.
+    }
+  } catch (error) {
+    console.error("Exception during sign-in:", error);
+    showNotification("An unexpected error occurred during sign-in.", "error");
+  }
+}
+
+/**
+ * Signs the user out from Supabase.
+ */
+async function signOut() {
+  if (!supabase) return;
+  console.log("Attempting Sign-Out...");
+  try {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Error during sign-out:", error.message);
+      showNotification(`Sign-Out Error: ${error.message}`, "error");
+    } else {
+      console.log("User signed out successfully.");
+      supabaseUser = null;
+      updateSupabaseUI(null);
+      showNotification("You have been signed out.", "success");
+    }
+  } catch (error) {
+    console.error("Exception during sign-out:", error);
+    showNotification("An unexpected error occurred during sign-out.", "error");
+  }
+}
+
+/**
+ * Backs up the entire local 'state' object to the Supabase database.
+ */
+async function backupToSupabase() {
+  if (!supabaseUser) {
+    showNotification("You must be logged in to back up to the cloud.", "error");
+    return;
+  }
+
+  // Show loading state on button
+  const backupBtn = $("#backupToSupabaseBtn");
+  const originalText = backupBtn.innerHTML;
+  backupBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Backing up...`;
+  backupBtn.disabled = true;
+
+  console.log("Starting cloud backup...");
+
+  try {
+    // We use 'upsert' to either create a new record or update the existing one for this user.
+    // 'onConflict: 'user_id'' tells Supabase to update if a row with this user_id already exists.
+    const { data, error } = await supabase
+      .from("user_data")
+      .upsert({
+        user_id: supabaseUser.id,
+        data: state, // 'state' is our complete localstorage JSON object
+        updated_at: new Date().toISOString(),
+      })
+      .select() // Ask Supabase to return the saved row
+      .single(); // We only expect one row
+
+    if (error) {
+      console.error("Error backing up data:", error.message);
+      throw error;
+    }
+
+    console.log("Backup successful. Data saved:", data);
+    const backupTime = data.updated_at
+      ? new Date(data.updated_at).toLocaleString()
+      : "just now";
+    showNotification(
+      `Cloud backup successful! (Last sync: ${backupTime})`,
+      "success"
+    );
+  } catch (error) {
+    console.error("Exception during backup:", error);
+    showNotification(`Cloud backup failed: ${error.message}`, "error", 7000);
+  } finally {
+    // Restore button text and state
+    backupBtn.innerHTML = originalText;
+    backupBtn.disabled = false;
+  }
+}
+
+/**
+ * Restores the 'state' object from Supabase, overwriting local data.
+ */
+async function restoreFromSupabase() {
+  if (!supabaseUser) {
+    showNotification(
+      "You must be logged in to restore from the cloud.",
+      "error"
+    );
+    return;
+  }
+
+  // Show a confirmation modal first
+  showConfirmationModal(
+    "Restore from Cloud",
+    "This will <strong class='text-warning'>OVERWRITE ALL</strong> your current local data with the data from your last cloud backup.<br><br>Are you sure you want to proceed?",
+    "Restore & Overwrite",
+    "Cancel",
+    async () => {
+      // onConfirm: Proceed with restore
+      console.log("Starting cloud restore...");
+
+      const restoreBtn = $("#restoreFromSupabaseBtn");
+      const originalText = restoreBtn.innerHTML;
+      restoreBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Restoring...`;
+      restoreBtn.disabled = true;
+
+      try {
+        const { data, error } = await supabase
+          .from("user_data")
+          .select("data, updated_at")
+          .eq("user_id", supabaseUser.id)
+          .single(); // We only expect one row
+
+        if (error || !data) {
+          if (error && error.code === "PGRST116") {
+            // "PostgREST error: No rows found"
+            console.warn("No cloud backup found for this user.");
+            showNotification("No cloud backup found to restore.", "info");
+            return;
+          }
+          console.error(
+            "Error fetching data:",
+            error ? error.message : "No data found"
+          );
+          throw error || new Error("No data found to restore.");
+        }
+
+        console.log("Data fetched successfully:", data);
+
+        if (!data.data || typeof data.data !== "object") {
+          throw new Error("Cloud data is empty or in an invalid format.");
+        }
+
+        // --- Overwrite Local State ---
+        // We deep merge into a default state to ensure all functions exist,
+        // just like we do in loadData() and importData()
+        let importedData = data.data;
+        state = deepMerge(getDefaultState(), importedData);
+
+        // Run the same integrity checks as local import
+        ensureDefaultAccounts();
+        ensureDefaultCategories();
+
+        // Mark setup as done
+        if (state.settings) state.settings.initialSetupDone = true;
+
+        // Save the restored state to LocalStorage
+        saveData();
+
+        // Fully refresh the entire application UI
+        initializeUI(true);
+
+        const backupTime = new Date(data.updated_at).toLocaleString();
+        showNotification(
+          `Restore successful! (Data from ${backupTime})`,
+          "success"
+        );
+        closeModal("settingsModal");
+      } catch (error) {
+        console.error("Exception during restore:", error);
+        showNotification(
+          `Cloud restore failed: ${error.message}`,
+          "error",
+          7000
+        );
+      } finally {
+        restoreBtn.innerHTML = originalText;
+        restoreBtn.disabled = false;
+      }
+    },
+    () => {
+      // onCancel: Do nothing
+      console.log("Cloud restore cancelled by user.");
+    }
+  );
+}
+
+// --- END NEW SUPABASE FUNCTIONS ---
+
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOM Loaded. Initializing...");
+  loadData(); // Load existing data or set up default state
+  initializeUI(); // Set up all initial UI elements, event listeners, and render initial views
+  checkAndTriggerBackupReminder(); // <-- THIS LINE WAS MISSING
+
+  // Event listener to update date fields and attempt to focus window when tab becomes visible
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
       console.log("Page became visible, attempting to focus and update dates.");

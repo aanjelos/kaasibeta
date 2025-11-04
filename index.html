@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v2.70h" />
+    <meta name="application-version" content="v4.78i" />
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
     <meta
       name="title"
@@ -44,8 +44,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- ADDED: Supabase library -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -54,6 +52,8 @@
       href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap"
       rel="stylesheet"
     />
+    <!-- SUPABASE JAVASCRIPT CLIENT -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="style.css" />
 
     <script
@@ -614,66 +614,118 @@
                 <ul id="categorySettingsList" class="space-y-2"></ul>
               </div>
             </div>
+            <!-- START: UPDATED DATA MANAGEMENT PANEL -->
             <div
               id="settingsDataManagementPanel"
               class="settings-tab-panel space-y-6 hidden"
             >
-             <!-- UPDATED: Magic Link UI -->
-              <div class="card !p-4" style="background-color: var(--bg-tertiary)">
-                  <h3 class="text-lg font-semibold mb-3">Optional Cloud Sync</h3>
-                  <p class="text-xs text-gray-400 mb-4">
-                      Create or log in to a free, optional account to securely back up your data to the cloud.
-                  </p>
-
-                  <!-- Logged Out View -->
-                  <div id="cloudAuthContainer">
-                      <div id="magicLinkForm" class="space-y-3">
-                          <div>
-                              <label for="cloudEmail" class="block text-sm font-medium mb-1">Email</label>
-                              <input type="email" id="cloudEmail" name="cloudEmail" placeholder="you@example.com" required class="w-full">
-                          </div>
-                          <button id="sendMagicLinkBtn" class="btn btn-primary w-full">
-                              <i class="fas fa-magic mr-2"></i> Send Login Link
-                          </button>
-                      </div>
-                  </div>
-                  
-                  <!-- Logged In View -->
-                  <div id="cloudLoggedInContainer" class="hidden">
-                      <div class="flex items-center mb-4">
-                          <div id="cloudStatusIndicator" class="w-3 h-3 rounded-full bg-gray-500 mr-3"></div>
-                          <p id="cloudStatusText" class="text-sm text-gray-300 flex-grow">Not Connected.</p>
-                          <button id="cloudSignOutBtn" class="btn btn-secondary btn-sm">Log Out</button>
-                      </div>
-
-                      <div class="space-y-3 mt-4 pt-4 border-t border-gray-600">
-                          <div class="flex flex-col sm:flex-row gap-3">
-                              <button id="cloudExportBtn" class="btn btn-secondary flex-1"><i class="fas fa-cloud-upload-alt mr-2"></i>Backup to Cloud</button>
-                              <button id="cloudImportBtn" class="btn btn-secondary flex-1"><i class="fas fa-cloud-download-alt mr-2"></i>Restore from Cloud</button>
-                          </div>
-                          <div class="flex items-center justify-between pt-2">
-                              <label for="toggleCloudShortcuts" class="text-sm font-medium text-gray-300">Use Shortcuts for Cloud</label>
-                              <label class="relative inline-flex items-center cursor-pointer">
-                                  <input type="checkbox" id="toggleCloudShortcuts" class="sr-only peer" />
-                                  <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent-primary/50 rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                              </label>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-
-
+              <!-- NEW: Cloud Backup Card -->
               <div
                 class="card !p-4"
                 style="background-color: var(--bg-tertiary)"
               >
-                <h3 class="text-lg font-semibold mb-3">Local Data Management</h3>
+                <h3 class="text-lg font-semibold mb-3">Cloud Backup (Beta)</h3>
+
+                <!-- Logged Out State (Visible by default) -->
+                <div id="cloudBackupLoggedOut">
+                  <p class="text-sm text-gray-400 mb-3">
+                    Sign in with Google to securely back up your data to the
+                    cloud. This allows you to restore your data on any device.
+                  </p>
+                  <button id="googleLoginBtn" class="btn btn-primary w-full">
+                    <i class="fab fa-google mr-2"></i> Sign In with Google
+                  </button>
+                </div>
+
+                <!-- Logged In State (Hidden by default) -->
+                <div id="cloudBackupLoggedIn" class="hidden space-y-4">
+                  <p class="text-sm text-gray-300">
+                    Logged in as:
+                    <strong id="userEmail" class="text-accent-primary"
+                      >...</strong
+                    >
+                  </p>
+                  <div class="flex flex-col sm:flex-row gap-3">
+                    <button
+                      id="backupToSupabaseBtn"
+                      class="btn btn-primary flex-1"
+                    >
+                      <i class="fas fa-cloud-upload-alt mr-2"></i> Backup to
+                      Cloud
+                    </button>
+                    <button
+                      id="restoreFromSupabaseBtn"
+                      class="btn btn-secondary flex-1"
+                    >
+                      <i class="fas fa-cloud-download-alt mr-2"></i> Restore
+                      from Cloud
+                    </button>
+                  </div>
+                  <button
+                    id="googleLogoutBtn"
+                    class="btn btn-secondary btn-sm w-full sm:w-auto"
+                  >
+                    <i class="fas fa-sign-out-alt mr-1"></i> Sign Out
+                  </button>
+                </div>
+              </div>
+
+              <!-- Existing: Local Data Management Card -->
+              <div
+                class="card !p-4"
+                style="background-color: var(--bg-tertiary)"
+              >
+                <h3 class="text-lg font-semibold mb-3">
+                  Local Data Management
+                </h3>
+
+                <!-- NEW: Shortcut Target Radio Buttons -->
+                <div class="mb-4">
+                  <label class="block text-sm font-medium mb-2"
+                    >Keyboard Shortcut Target (Ctrl+E / Ctrl+I)</label
+                  >
+                  <div class="flex gap-x-4" id="shortcutTargetGroup">
+                    <label
+                      class="flex items-center text-sm text-gray-300 cursor-pointer"
+                    >
+                      <input
+                        type="radio"
+                        id="shortcutLocal"
+                        name="shortcutTarget"
+                        value="local"
+                        class="mr-2 text-accent-primary focus:ring-accent-primary"
+                        checked
+                      />
+                      Local File
+                    </label>
+                    <label
+                      class="flex items-center text-sm text-gray-400 cursor-pointer"
+                      id="shortcutCloudLabel"
+                    >
+                      <input
+                        type="radio"
+                        id="shortcutCloud"
+                        name="shortcutTarget"
+                        value="cloud"
+                        class="mr-2 text-accent-primary focus:ring-accent-primary"
+                        disabled
+                      />
+                      Cloud Backup
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Existing Local Buttons (Text updated) -->
                 <div class="flex flex-col sm:flex-row gap-3">
-                  <button id="exportDataBtn" class="btn btn-secondary flex-1">
-                    <i class="fas fa-file-export mr-1"></i> Export Data (Local)
+                  <button
+                    id="exportDataBtn"
+                    class="btn btn-secondary flex-1"
+                  >
+                    <i class="fas fa-file-export mr-1"></i> Export Local File
                   </button>
                   <label class="btn btn-secondary flex-1 cursor-pointer"
-                    ><i class="fas fa-file-import mr-1"></i> Import Data (Local)<input
+                    ><i class="fas fa-file-import mr-1"></i> Import Local
+                    File<input
                       type="file"
                       id="importDataInput"
                       accept=".json"
@@ -681,12 +733,15 @@
                   /></label>
                 </div>
                 <p class="text-xs text-gray-400 mt-2">
-                  Exports create a backup file on your device. Imports from a file will overwrite existing data.
+                  Exports create a local backup file. Imports overwrite existing
+                  data from a local file.
                 </p>
                 <p class="text-xs text-red-400 mt-1">
                   Warning: Browser data can be lost. Export backups regularly!
                 </p>
               </div>
+
+              <!-- Existing: Danger Zone -->
               <div class="card !bg-red-900/30 !border-red-700 !p-4">
                 <h3 class="text-lg font-semibold mb-3 text-red-400">
                   Danger Zone
@@ -726,6 +781,7 @@
                 </div>
               </div>
             </div>
+            <!-- END: UPDATED DATA MANAGEMENT PANEL -->
           </div>
           <div
             id="settingsAboutSection"
@@ -1316,4 +1372,3 @@
     <script src="script.js" defer></script>
   </body>
 </html>
-
