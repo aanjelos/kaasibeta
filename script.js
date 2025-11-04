@@ -7211,6 +7211,11 @@ function updateSupabaseUI(user) {
       "cursor-not-allowed"
     );
     shortcutCloudLabel.classList.add("text-gray-300");
+
+    // --- NEW: Default to Cloud Backup on login ---
+    shortcutCloudInput.checked = true;
+    shortcutLocalInput.checked = false;
+    // --- END NEW ---
   } else {
     // User is logged OUT
     loggedOutView.classList.remove("hidden");
@@ -7227,10 +7232,8 @@ function updateSupabaseUI(user) {
     shortcutCloudLabel.classList.remove("text-gray-300");
   }
 
-  // --- NEW ---
   // Update the header buttons to reflect the (new) shortcut state
   updateHeaderShortcutButtons();
-  // --- END NEW ---
 }
 
 /**
@@ -7254,24 +7257,24 @@ function updateHeaderShortcutButtons() {
 
   if (isCloud) {
     // Set to CLOUD mode
-    backupBtn.innerHTML = "Backup"; // Text for cloud
-    backupBtn.className = "btn btn-primary mr-2"; // Make it orange
-    backupBtn.dataset.tooltip = "Backup to Cloud (Ctrl+E)";
+    // backupBtn.innerHTML = 'Backup'; // No longer changing text
+    // backupBtn.className = "btn btn-primary mr-2"; // No longer changing class
+    backupBtn.dataset.tooltip = "Export to Cloud (Ctrl+E)";
     backupBtn.onclick = backupToSupabase; // Assign cloud backup function
 
-    restoreBtn.innerHTML = "Restore"; // Text for cloud
-    restoreBtn.className = "btn btn-secondary mr-2"; // Keep this one secondary
-    restoreBtn.dataset.tooltip = "Restore from Cloud (Ctrl+I)";
+    // restoreBtn.innerHTML = 'Restore'; // No longer changing text
+    // restoreBtn.className = "btn btn-secondary mr-2"; // No longer changing class
+    restoreBtn.dataset.tooltip = "Import from Cloud (Ctrl+I)";
     restoreBtn.onclick = restoreFromSupabase; // Assign cloud restore function
   } else {
     // Set to LOCAL mode (default)
-    backupBtn.innerHTML = "E"; // Abbreviated text for local
-    backupBtn.className = "btn btn-secondary mr-2"; // Secondary style
+    // backupBtn.innerHTML = 'Exp.'; // No longer changing text
+    // backupBtn.className = "btn btn-secondary mr-2"; // No longer changing class
     backupBtn.dataset.tooltip = "Export Local File (Ctrl+E)";
     backupBtn.onclick = exportData; // Assign local export function
 
-    restoreBtn.innerHTML = "I"; // Abbreviated text for local
-    restoreBtn.className = "btn btn-secondary mr-2"; // Secondary style
+    // restoreBtn.innerHTML = 'Imp.'; // No longer changing text
+    // restoreBtn.className = "btn btn-secondary mr-2"; // No longer changing class
     restoreBtn.dataset.tooltip = "Import Local File (Ctrl+I)";
     restoreBtn.onclick = () => {
       // For restore, we need to find the correct data tab and click the hidden input
