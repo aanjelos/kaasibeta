@@ -7257,7 +7257,7 @@ async function backupToSupabase() {
     showNotification("You must be logged in to back up to the cloud.", "error");
     return;
   }
-
+  
   // Show loading state on button
   const backupBtn = $("#backupToSupabaseBtn");
   const originalText = backupBtn.innerHTML;
@@ -7268,13 +7268,16 @@ async function backupToSupabase() {
 
   try {
     // We use 'upsert' to either create a new record or update the existing one for this user.
-    // 'onConflict: 'user_id'' tells Supabase to update if a row with this user_id already exists.
+    // ** THE FIX IS HERE: { onConflict: 'user_id' } **
+    // This tells Supabase to use the 'user_id' column to detect conflicts.
     const { data, error } = await supabase
       .from("user_data")
       .upsert({
         user_id: supabaseUser.id,
         data: state, // 'state' is our complete localstorage JSON object
         updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'user_id' // This is the magic line!
       })
       .select() // Ask Supabase to return the saved row
       .single(); // We only expect one row
@@ -7285,13 +7288,9 @@ async function backupToSupabase() {
     }
 
     console.log("Backup successful. Data saved:", data);
-    const backupTime = data.updated_at
-      ? new Date(data.updated_at).toLocaleString()
-      : "just now";
-    showNotification(
-      `Cloud backup successful! (Last sync: ${backupTime})`,
-      "success"
-    );
+    const backupTime = data.updated_at ? new Date(data.updated_at).toLocaleString() : "just now";
+    showNotification(`Cloud backup successful! (Last sync: ${backupTime})`, "success");
+
   } catch (error) {
     console.error("Exception during backup:", error);
     showNotification(`Cloud backup failed: ${error.message}`, "error", 7000);
@@ -7307,13 +7306,10 @@ async function backupToSupabase() {
  */
 async function restoreFromSupabase() {
   if (!supabaseUser) {
-    showNotification(
-      "You must be logged in to restore from the cloud.",
-      "error"
-    );
+    showNotification("You must be logged in to restore from the cloud.", "error");
     return;
   }
-
+  
   // Show a confirmation modal first
   showConfirmationModal(
     "Restore from Cloud",
@@ -7323,18 +7319,23 @@ async function restoreFromSupabase() {
     async () => {
       // onConfirm: Proceed with restore
       console.log("Starting cloud restore...");
-
+      
       const restoreBtn = $("#restoreFromSupabaseBtn");
       const originalText = restoreBtn.innerHTML;
       restoreBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Restoring...`;
       restoreBtn.disabled = true;
 
       try {
+        // ** THE FIX IS HERE: .order(...).limit(1) **
+        // This makes the query more robust by ensuring we *only* get the single, most recent
+        // backup for this user, which makes .single() safe to use.
         const { data, error } = await supabase
           .from("user_data")
           .select("data, updated_at")
           .eq("user_id", supabaseUser.id)
-          .single(); // We only expect one row
+          .order('updated_at', { ascending: false }) // Get newest one first
+          .limit(1) // Only take that one
+          .single(); // Now this is safe
 
         if (error || !data) {
           if (error && error.code === "PGRST116") {
@@ -7343,15 +7344,12 @@ async function restoreFromSupabase() {
             showNotification("No cloud backup found to restore.", "info");
             return;
           }
-          console.error(
-            "Error fetching data:",
-            error ? error.message : "No data found"
-          );
+          console.error("Error fetching data:", error ? error.message : "No data found");
           throw error || new Error("No data found to restore.");
         }
 
         console.log("Data fetched successfully:", data);
-
+        
         if (!data.data || typeof data.data !== "object") {
           throw new Error("Cloud data is empty or in an invalid format.");
         }
@@ -7361,33 +7359,27 @@ async function restoreFromSupabase() {
         // just like we do in loadData() and importData()
         let importedData = data.data;
         state = deepMerge(getDefaultState(), importedData);
-
+        
         // Run the same integrity checks as local import
         ensureDefaultAccounts();
         ensureDefaultCategories();
-
+        
         // Mark setup as done
         if (state.settings) state.settings.initialSetupDone = true;
-
+        
         // Save the restored state to LocalStorage
         saveData();
-
+        
         // Fully refresh the entire application UI
-        initializeUI(true);
-
+        initializeUI(true); 
+        
         const backupTime = new Date(data.updated_at).toLocaleString();
-        showNotification(
-          `Restore successful! (Data from ${backupTime})`,
-          "success"
-        );
+        showNotification(`Restore successful! (Data from ${backupTime})`, "success");
         closeModal("settingsModal");
+
       } catch (error) {
         console.error("Exception during restore:", error);
-        showNotification(
-          `Cloud restore failed: ${error.message}`,
-          "error",
-          7000
-        );
+        showNotification(`Cloud restore failed: ${error.message}`, "error", 7000);
       } finally {
         restoreBtn.innerHTML = originalText;
         restoreBtn.disabled = false;
