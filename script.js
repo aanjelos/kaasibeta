@@ -1423,6 +1423,24 @@ function handleKeyboardShortcuts(event) {
       }
       break;
 
+    // --- NEW: Shortcut for Help Modal ---
+    case "?":
+      if (!inInputField) {
+        event.preventDefault();
+        const shortcutsBtn = $("#shortcutsHelpBtn");
+        if (shortcutsBtn) {
+          if ($("#shortcutsHelpModal")?.style.display !== "block") {
+            shortcutsBtn.click();
+            console.log("Shortcut: '?' pressed, opening Shortcuts Help");
+          } else {
+            closeModal("shortcutsHelpModal");
+            console.log("Shortcut: '?' pressed, closing Shortcuts Help");
+          }
+        }
+      }
+      break;
+    // --- END NEW ---
+
     case "Escape":
       const monthlySearchInput = $("#monthlySearchInput");
       if (
@@ -1447,7 +1465,8 @@ function handleKeyboardShortcuts(event) {
           "transferMoneyModal",
           "monthlyViewModal",
           "settingsModal",
-          "donateModal", // Added donate modal
+          "donateModal",
+          "shortcutsHelpModal", // Added shortcuts modal
         ];
         let modalClosed = false;
         for (const modalId of modalsToClose) {
@@ -6789,6 +6808,12 @@ function initializeUI(isRefresh = false) {
   updateCcDashboardSectionVisibility();
   setupMonthlyView();
 
+  // --- NEW: Add new header button listeners ---
+  // The onclick logic is now dynamic, so we set it in updateHeaderShortcutButtons()
+  // This function will set their initial state (icons, tooltips, onclick)
+  updateHeaderShortcutButtons();
+  // --- END NEW ---
+
   if (!window.deleteSliderInitialized) {
     setupDeleteSlider();
     window.deleteSliderInitialized = true;
@@ -7036,15 +7061,20 @@ function initializeUI(isRefresh = false) {
     restoreFromSupabaseButton.onclick = restoreFromSupabase;
   }
 
+  // --- MODIFIED: shortcutTargetGroup listener ---
   const shortcutTargetGroup = $("#shortcutTargetGroup");
   if (shortcutTargetGroup) {
     shortcutTargetGroup.onchange = (e) => {
       if (e.target.name === "shortcutTarget") {
         console.log(`Shortcut target changed to: ${e.target.value}`);
-        // We just need to read this value later, no action needed on change.
+        // --- NEW: Update header buttons when radio changes ---
+        updateHeaderShortcutButtons();
+        // --- END NEW ---
       }
     };
   }
+  // --- END MODIFICATION ---
+
   // --- END NEW ---
 
   $("#exportDataBtn").onclick = exportData;
@@ -7147,7 +7177,6 @@ async function initializeSupabase() {
 
 /**
  * Updates the Data Management UI based on login state.
- * @param {object|null} user - The Supabase user object, or null if logged out.
  */
 function updateSupabaseUI(user) {
   const loggedOutView = $("#cloudBackupLoggedOut");
@@ -7196,6 +7225,81 @@ function updateSupabaseUI(user) {
       "cursor-not-allowed"
     );
     shortcutCloudLabel.classList.remove("text-gray-300");
+  }
+
+  // --- NEW ---
+  // Update the header buttons to reflect the (new) shortcut state
+  updateHeaderShortcutButtons();
+  // --- END NEW ---
+}
+
+/**
+ * Updates the header backup/restore buttons to reflect the selected shortcut target.
+ */
+function updateHeaderShortcutButtons() {
+  const backupBtn = $("#headerBackupBtn");
+  const restoreBtn = $("#headerRestoreBtn");
+  const localRadio = $("#shortcutLocal");
+  const cloudRadio = $("#shortcutCloud");
+
+  if (!backupBtn || !restoreBtn || !localRadio || !cloudRadio) {
+    console.warn("Header shortcut buttons or radio inputs not found.");
+    return;
+  }
+
+  const importInput = $("#importDataInput"); // Get the file input element
+
+  // Check if cloud is selected AND enabled
+  const isCloud = cloudRadio.checked && !cloudRadio.disabled;
+
+  if (isCloud) {
+    // Set to CLOUD mode
+    backupBtn.innerHTML = "Backup"; // Text for cloud
+    backupBtn.className = "btn btn-primary mr-2"; // Make it orange
+    backupBtn.dataset.tooltip = "Backup to Cloud (Ctrl+E)";
+    backupBtn.onclick = backupToSupabase; // Assign cloud backup function
+
+    restoreBtn.innerHTML = "Restore"; // Text for cloud
+    restoreBtn.className = "btn btn-secondary mr-2"; // Keep this one secondary
+    restoreBtn.dataset.tooltip = "Restore from Cloud (Ctrl+I)";
+    restoreBtn.onclick = restoreFromSupabase; // Assign cloud restore function
+  } else {
+    // Set to LOCAL mode (default)
+    backupBtn.innerHTML = "E"; // Abbreviated text for local
+    backupBtn.className = "btn btn-secondary mr-2"; // Secondary style
+    backupBtn.dataset.tooltip = "Export Local File (Ctrl+E)";
+    backupBtn.onclick = exportData; // Assign local export function
+
+    restoreBtn.innerHTML = "I"; // Abbreviated text for local
+    restoreBtn.className = "btn btn-secondary mr-2"; // Secondary style
+    restoreBtn.dataset.tooltip = "Import Local File (Ctrl+I)";
+    restoreBtn.onclick = () => {
+      // For restore, we need to find the correct data tab and click the hidden input
+      const importInput = $("#importDataInput");
+      if (importInput) {
+        const settingsModal = $("#settingsModal");
+        // Open settings if not open, and switch to data tab
+        if (settingsModal && settingsModal.style.display !== "block") {
+          openSettingsModal();
+          setTimeout(() => {
+            const dataTabButton = Array.from(
+              $$("#settingsTabsContainer button")
+            ).find((btn) => btn.textContent === "Data");
+            if (dataTabButton) dataTabButton.click();
+            importInput.click();
+          }, 100);
+        } else if (settingsModal) {
+          // If already open, just switch tab and click
+          const dataTabButton = Array.from(
+            $$("#settingsTabsContainer button")
+          ).find((btn) => btn.textContent === "Data");
+          if (dataTabButton) dataTabButton.click();
+          importInput.click();
+        } else {
+          importInput.click(); // Fallback
+        }
+      }
+    };
   }
 }
 
@@ -7257,7 +7361,7 @@ async function backupToSupabase() {
     showNotification("You must be logged in to back up to the cloud.", "error");
     return;
   }
-  
+
   // Show loading state on button
   const backupBtn = $("#backupToSupabaseBtn");
   const originalText = backupBtn.innerHTML;
@@ -7272,13 +7376,16 @@ async function backupToSupabase() {
     // This tells Supabase to use the 'user_id' column to detect conflicts.
     const { data, error } = await supabase
       .from("user_data")
-      .upsert({
-        user_id: supabaseUser.id,
-        data: state, // 'state' is our complete localstorage JSON object
-        updated_at: new Date().toISOString(),
-      }, {
-        onConflict: 'user_id' // This is the magic line!
-      })
+      .upsert(
+        {
+          user_id: supabaseUser.id,
+          data: state, // 'state' is our complete localstorage JSON object
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: "user_id", // This is the magic line!
+        }
+      )
       .select() // Ask Supabase to return the saved row
       .single(); // We only expect one row
 
@@ -7288,9 +7395,13 @@ async function backupToSupabase() {
     }
 
     console.log("Backup successful. Data saved:", data);
-    const backupTime = data.updated_at ? new Date(data.updated_at).toLocaleString() : "just now";
-    showNotification(`Cloud backup successful! (Last sync: ${backupTime})`, "success");
-
+    const backupTime = data.updated_at
+      ? new Date(data.updated_at).toLocaleString()
+      : "just now";
+    showNotification(
+      `Cloud backup successful! (Last sync: ${backupTime})`,
+      "success"
+    );
   } catch (error) {
     console.error("Exception during backup:", error);
     showNotification(`Cloud backup failed: ${error.message}`, "error", 7000);
@@ -7306,10 +7417,13 @@ async function backupToSupabase() {
  */
 async function restoreFromSupabase() {
   if (!supabaseUser) {
-    showNotification("You must be logged in to restore from the cloud.", "error");
+    showNotification(
+      "You must be logged in to restore from the cloud.",
+      "error"
+    );
     return;
   }
-  
+
   // Show a confirmation modal first
   showConfirmationModal(
     "Restore from Cloud",
@@ -7319,7 +7433,7 @@ async function restoreFromSupabase() {
     async () => {
       // onConfirm: Proceed with restore
       console.log("Starting cloud restore...");
-      
+
       const restoreBtn = $("#restoreFromSupabaseBtn");
       const originalText = restoreBtn.innerHTML;
       restoreBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Restoring...`;
@@ -7333,7 +7447,7 @@ async function restoreFromSupabase() {
           .from("user_data")
           .select("data, updated_at")
           .eq("user_id", supabaseUser.id)
-          .order('updated_at', { ascending: false }) // Get newest one first
+          .order("updated_at", { ascending: false }) // Get newest one first
           .limit(1) // Only take that one
           .single(); // Now this is safe
 
@@ -7344,12 +7458,15 @@ async function restoreFromSupabase() {
             showNotification("No cloud backup found to restore.", "info");
             return;
           }
-          console.error("Error fetching data:", error ? error.message : "No data found");
+          console.error(
+            "Error fetching data:",
+            error ? error.message : "No data found"
+          );
           throw error || new Error("No data found to restore.");
         }
 
         console.log("Data fetched successfully:", data);
-        
+
         if (!data.data || typeof data.data !== "object") {
           throw new Error("Cloud data is empty or in an invalid format.");
         }
@@ -7359,27 +7476,33 @@ async function restoreFromSupabase() {
         // just like we do in loadData() and importData()
         let importedData = data.data;
         state = deepMerge(getDefaultState(), importedData);
-        
+
         // Run the same integrity checks as local import
         ensureDefaultAccounts();
         ensureDefaultCategories();
-        
+
         // Mark setup as done
         if (state.settings) state.settings.initialSetupDone = true;
-        
+
         // Save the restored state to LocalStorage
         saveData();
-        
-        // Fully refresh the entire application UI
-        initializeUI(true); 
-        
-        const backupTime = new Date(data.updated_at).toLocaleString();
-        showNotification(`Restore successful! (Data from ${backupTime})`, "success");
-        closeModal("settingsModal");
 
+        // Fully refresh the entire application UI
+        initializeUI(true);
+
+        const backupTime = new Date(data.updated_at).toLocaleString();
+        showNotification(
+          `Restore successful! (Data from ${backupTime})`,
+          "success"
+        );
+        closeModal("settingsModal");
       } catch (error) {
         console.error("Exception during restore:", error);
-        showNotification(`Cloud restore failed: ${error.message}`, "error", 7000);
+        showNotification(
+          `Cloud restore failed: ${error.message}`,
+          "error",
+          7000
+        );
       } finally {
         restoreBtn.innerHTML = originalText;
         restoreBtn.disabled = false;
