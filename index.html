@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v2.79i" />
+    <meta name="application-version" content="v4.80i" />
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
     <meta
       name="title"
@@ -102,7 +102,7 @@
               />
             </a>
           </div>
-          <div class="flex items-center">
+          <div class="flex items-stretch">
             <button
               id="monthlyViewBtn"
               class="btn btn-secondary mr-2"
@@ -118,20 +118,20 @@
               class="btn btn-secondary mr-2"
               data-tooltip="Export Local File (Ctrl+E)"
             >
-              E
+              <i class="fas fa-floppy-disk fa-lg"></i>
             </button>
             <button
               id="headerRestoreBtn"
               class="btn btn-secondary mr-2"
               data-tooltip="Import Local File (Ctrl+I)"
             >
-              I
+              <i class="fas fa-download fa-lg"></i>
             </button>
             <!-- END UPDATED BUTTONS -->
 
             <button
               id="shortcutsHelpBtn"
-              class="btn btn-icon mr-2 hidden md:inline-flex"
+              class="btn btn-icon mr-2 ml-2 hidden md:inline-flex"
               data-tooltip="Keyboard Shortcuts (?)"
             >
               <i class="fas fa-keyboard fa-lg"></i>
@@ -646,7 +646,7 @@
                 class="card !p-4"
                 style="background-color: var(--bg-tertiary)"
               >
-                <h3 class="text-lg font-semibold mb-3">Cloud Backup</h3>
+                <h3 class="text-lg font-semibold mb-3">Cloud Backup (Beta)</h3>
 
                 <!-- Logged Out State (Visible by default) -->
                 <div id="cloudBackupLoggedOut">

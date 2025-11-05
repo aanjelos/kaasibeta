@@ -1325,17 +1325,11 @@ footer a[href^="https://kaasi.com.lk"]:hover
   }
   
   /* Ensure icon-only buttons in the header have their icons sized appropriately */
-  #monthlyViewBtn i {
+  #monthlyViewBtn i,
+  #headerBackupBtn i,
+  #headerRestoreBtn i {
     font-size: 1rem; /* 16px */
     line-height: 1;
   }
-  
-  /* Ensure text-only buttons in the header are centered and sized */
-  #headerBackupBtn,
-  #headerRestoreBtn {
-    font-size: 0.875rem; /* 14px */
-    font-weight: 700; /* Bold */
-    line-height: 1;
-    /* The padding was already set to 0, so text will center */
-  }
 }
+
