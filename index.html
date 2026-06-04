@@ -633,13 +633,7 @@
                       <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                     </label>
                   </div>
-                  <div class="flex items-center justify-between">
-                    <label class="text-sm font-medium text-gray-300">Hide from Monthly Breakdown Totals</label>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" id="rule_excludeFromMonthlyTotals" class="sr-only peer" onchange="toggleHiddenRule('excludeFromMonthlyTotals')">
-                      <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
-                    </label>
-                  </div>
+                  <!-- Removed excludeFromMonthlyTotals from here -->
                   <div class="flex items-center justify-between">
                     <label class="text-sm font-medium text-gray-300">Exclude from PDF Reports</label>
                     <label class="relative inline-flex items-center cursor-pointer">
@@ -655,6 +649,20 @@
                       <i id="advancedRulesIcon" class="fas fa-chevron-down text-gray-400 text-xs"></i>
                     </button>
                     <div id="advancedRulesContainer" class="p-3 space-y-3 bg-gray-800/30" style="display: none;">
+                      <div class="flex items-center justify-between">
+                        <label class="text-sm font-medium text-gray-300">Hide from Monthly Breakdown Totals</label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" id="rule_excludeFromMonthlyTotals" class="sr-only peer" onchange="toggleHiddenRule('excludeFromMonthlyTotals')">
+                          <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                        </label>
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <label class="text-sm font-medium text-gray-300">Hide from Monthly Pie Chart</label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" id="rule_excludeFromPieChart" class="sr-only peer" onchange="toggleHiddenRule('excludeFromPieChart')">
+                          <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                        </label>
+                      </div>
                       <div class="flex items-center justify-between">
                         <label class="text-sm font-medium text-gray-300">Hide from Today/Past 7 Days Stats</label>
                         <label class="relative inline-flex items-center cursor-pointer">

@@ -186,8 +186,9 @@ function getDefaultState() {
         theme: "dark",
         hiddenCategoryRules: {
           excludeFromDashboardCharts: true,
-          excludeFromMonthlyTotals: true,
           excludeFromReports: false,
+          excludeFromMonthlyTotals: true,
+          excludeFromPieChart: true,
           excludeFromQuickStats: true,
           excludeFromYearlyTotals: true,
           dimInTransactionLists: true
@@ -3261,8 +3262,7 @@ function renderMonthlyDetails(
     canvasContainer.appendChild(canvas);
     chartCard.appendChild(canvasContainer);
     categorySection.appendChild(chartCard);
-    
-    const pieDataCategories = sortedCategories.filter(([c, _]) => !isCategoryExcluded(c, 'excludeFromMonthlyTotals'));
+    const pieDataCategories = sortedCategories.filter(([c, _]) => !isCategoryExcluded(c, 'excludeFromPieChart'));
     const pieData = {
       labels: pieDataCategories.map(([c, _]) => c),
       values: pieDataCategories.map(([_, a]) => a),
