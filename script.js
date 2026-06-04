@@ -17,11 +17,11 @@ const getDaysLeft = (dueDate) => {
 const SUPABASE_URL = "https://xcnirqsctkyyrvildqtm.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cLW_C5L7xmIinyzSaKSmBQ_EFnjbntg"; // Your publishable key
 
-let supabase = null;
+let supabaseClient = null;
 try {
   // Use window.supabase.createClient, as the library is from a CDN
   if (window.supabase) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     console.log("Supabase client initialized.");
   } else {
     throw new Error("Supabase client library not found on window object.");
@@ -275,7 +275,7 @@ function openInitialSetupWizard() {
       const balanceWrapper = document.createElement("div");
       const balanceValue =
         acc.balance !== 0 || acc.id === "cash" ? acc.balance.toString() : "";
-      balanceWrapper.innerHTML = `<input type="number" id="setupBalance-${acc.id}" name="setupBalance-${acc.id}" value="${balanceValue}" data-account-id="${acc.id}" step="0.01" placeholder="0.00 (Optional)" class="!py-1.5 !px-2 text-sm w-full rounded placeholder-gray-400" ${inputStyle}>`;
+      balanceWrapper.innerHTML = `<input type="text" inputmode="decimal" class="calc-amount" id="setupBalance-${acc.id}" name="setupBalance-${acc.id}" value="${balanceValue}" data-account-id="${acc.id}" step="0.01" placeholder="0.00 (Optional)" class="!py-1.5 !px-2 text-sm w-full rounded placeholder-gray-400" ${inputStyle}>`;
       accRow.appendChild(balanceWrapper);
 
       accountsContainer.appendChild(accRow);
@@ -921,17 +921,6 @@ function populateDropdowns() {
     );
 
     generalCategories.sort((a, b) => a.localeCompare(b));
-
-    if (selectEl.id === "modalPayDebtCategory") {
-      const debtRepaymentCategory = "Debt Repayment";
-      if (
-        !generalCategories.includes(debtRepaymentCategory) &&
-        !state.categories.some(
-          (c) => c.toLowerCase() === debtRepaymentCategory.toLowerCase()
-        )
-      ) {
-      }
-    }
 
     generalCategories.forEach((c) => {
       const o = document.createElement("option");
@@ -1662,7 +1651,7 @@ function renderRecentTransactions() {
       isIncome ? "+" : "-"
     }${formatCurrency(t.amount)}</span>
       <div class="edit-btn-container flex-shrink-0">
-        <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionForm('${
+        <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionModal('${
           t.id
         }', event)" title="Edit"><i class="fas fa-edit"></i></button>
         <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteTransaction('${
@@ -2396,7 +2385,7 @@ function openEditTransactionModal(transactionId, event) {
             </div>
             <div>
                 <label for="modalAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>
-                <input type="number" id="modalAmount" name="amount" value="${transaction.amount.toFixed(
+                <input type="text" inputmode="decimal" class="calc-amount" id="modalAmount" name="amount" value="${transaction.amount.toFixed(
                   2
                 )}" step="0.01" min="0" placeholder="e.g., 1500.50" required>
             </div>
@@ -3135,7 +3124,7 @@ function renderMonthlyDetails(
             isIncome ? "+" : "-"
           }${formatCurrency(t.amount)}</span>
               <div class="edit-btn-container flex-shrink-0 ml-2">
-                <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionForm('${
+                <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionModal('${
                   t.id
                 }', event)" title="Edit"><i class="fas fa-edit"></i></button>
                 <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteTransaction('${
@@ -3681,7 +3670,7 @@ function openEditCcTransactionModal(ccTransactionId) {
             }">
             <div>
                 <label for="modalCcAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>
-                <input type="number" id="modalCcAmount" name="ccAmount" value="${transaction.amount.toFixed(
+                <input type="text" inputmode="decimal" class="calc-amount" id="modalCcAmount" name="ccAmount" value="${transaction.amount.toFixed(
                   2
                 )}" step="0.01" min="0" placeholder="Amount spent" required>
             </div>
@@ -3812,7 +3801,7 @@ function deleteCcTransaction(transactionId) {
 function openAddDebtForm() {
   openFormModal(
     "Add New Debt",
-    `<div><label for="debtWho" class="block text-sm font-medium mb-1">Who do you owe?</label><input type="text" id="debtWho" name="debtWho" placeholder="e.g., John Doe" required></div><div><label for="debtWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="debtWhy" name="debtWhy" placeholder="e.g., Loan" required></div><div><label for="debtAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><input type="number" id="debtAmount" name="debtAmount" step="0.01" min="0.01" required></div><div><label for="debtDueDate" class="block text-sm font-medium mb-1">Due Date</label><input type="date" id="debtDueDate" name="debtDueDate" required></div><button type="submit" class="btn btn-primary w-full">Add Debt</button>`,
+    `<div><label for="debtWho" class="block text-sm font-medium mb-1">Who do you owe?</label><input type="text" id="debtWho" name="debtWho" placeholder="e.g., John Doe" required></div><div><label for="debtWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="debtWhy" name="debtWhy" placeholder="e.g., Loan" required></div><div><label for="debtAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><input type="text" inputmode="decimal" class="calc-amount" id="debtAmount" name="debtAmount" step="0.01" min="0.01" required></div><div><label for="debtDueDate" class="block text-sm font-medium mb-1">Due Date</label><input type="date" id="debtDueDate" name="debtDueDate" required></div><button type="submit" class="btn btn-primary w-full">Add Debt</button>`,
     handleAddDebtSubmit
   );
   const nextMonth = new Date();
@@ -3865,11 +3854,11 @@ function openEditDebtForm(id) {
       d.who
     }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="debtWhy" value="${
       d.why
-    }" required></div> <div><label class="block text-sm font-medium mb-1">Original Amount</label><input type="number" name="debtOriginalAmount" value="${(
+    }" required></div> <div><label class="block text-sm font-medium mb-1">Original Amount</label><input type="text" inputmode="decimal" class="calc-amount" name="debtOriginalAmount" value="${(
       d.originalAmount || d.amount
     ).toFixed(
       2
-    )}" step="0.01" min="0.01" required></div> <div><label class="block text-sm font-medium mb-1">Remaining Amount</label><input type="number" name="debtRemainingAmount" value="${d.remainingAmount.toFixed(
+    )}" step="0.01" min="0.01" required></div> <div><label class="block text-sm font-medium mb-1">Remaining Amount</label><input type="text" inputmode="decimal" class="calc-amount" name="debtRemainingAmount" value="${d.remainingAmount.toFixed(
       2
     )}" step="0.01" min="0" required></div> <div><label class="block text-sm font-medium mb-1">Due Date</label><input type="date" name="debtDueDate" value="${
       d.dueDate
@@ -3953,7 +3942,7 @@ function openPayDebtForm(debtId) {
       )}</span> to ${debt.who} for ${debt.why}</p>
       <div>
           <label for="payDebtAmount" class="block text-sm font-medium mb-1">Payment Amount (LKR)</label>
-          <input type="number" id="payDebtAmount" name="payDebtAmount" step="0.01" min="0.01" max="${debt.remainingAmount.toFixed(
+          <input type="text" inputmode="decimal" class="calc-amount" id="payDebtAmount" name="payDebtAmount" step="0.01" min="0.01" max="${debt.remainingAmount.toFixed(
             2
           )}" value="${debt.remainingAmount.toFixed(2)}" required>
       </div>
@@ -4110,7 +4099,7 @@ function openAddReceivableForm() {
   const formHtml = `
             <div><label for="recWho" class="block text-sm font-medium mb-1">Who owes you?</label><input type="text" id="recWho" name="recWho" placeholder="e.g., Jane Doe" required></div>
             <div><label for="recWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="recWhy" name="recWhy" placeholder="e.g., Friendly loan" required></div>
-            <div><label for="recAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><input type="number" id="recAmount" name="recAmount" step="0.01" min="0.01" required></div>
+            <div><label for="recAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><input type="text" inputmode="decimal" class="calc-amount" id="recAmount" name="recAmount" step="0.01" min="0.01" required></div>
             <div><label for="recDateGiven" class="block text-sm font-medium mb-1">Date Given</label><input type="date" id="recDateGiven" name="recDateGiven" required></div>
             <div>
                 <label for="recType" class="block text-sm font-medium mb-1">Type</label>
@@ -4277,11 +4266,11 @@ function openEditReceivableForm(id) {
       r.who
     }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="recWhy" value="${
       r.why
-    }" required></div> <div><label class="block text-sm font-medium mb-1">Original Amount</label><input type="number" name="recOriginalAmount" value="${(
+    }" required></div> <div><label class="block text-sm font-medium mb-1">Original Amount</label><input type="text" inputmode="decimal" class="calc-amount" name="recOriginalAmount" value="${(
       r.originalAmount || r.amount
     ).toFixed(
       2
-    )}" step="0.01" min="0.01" required></div> <div><label class="block text-sm font-medium mb-1">Remaining</label><input type="number" name="recRemainingAmount" value="${r.remainingAmount.toFixed(
+    )}" step="0.01" min="0.01" required></div> <div><label class="block text-sm font-medium mb-1">Remaining</label><input type="text" inputmode="decimal" class="calc-amount" name="recRemainingAmount" value="${r.remainingAmount.toFixed(
       2
     )}" step="0.01" min="0" required></div> <div><label class="block text-sm font-medium mb-1">Date Given</label><input type="date" name="recDateGiven" value="${
       r.dateGiven
@@ -4462,7 +4451,7 @@ function openReceivePaymentForm(recId) {
     )}</span> by ${receivable.who} for ${receivable.why}</p>
     <div>
       <label for="recPaymentAmount" class="block text-sm font-medium mb-1">Amount Received (LKR)</label>
-      <input type="number" id="recPaymentAmount" name="recPaymentAmount" step="0.01" min="0.01" 
+      <input type="text" inputmode="decimal" class="calc-amount" id="recPaymentAmount" name="recPaymentAmount" step="0.01" min="0.01" 
              value="${receivable.remainingAmount.toFixed(2)}" required> 
     </div>
     ${overpaymentInfoHtml}
@@ -4647,15 +4636,15 @@ function openAddInstallmentForm() {
     </div>
     <div>
       <label for="instFullAmount" class="block text-sm font-medium mb-1">Full Original Amount (LKR)</label>
-      <input type="number" id="instFullAmount" name="instFullAmount" step="0.01" min="0.01" placeholder="Total original cost" required>
+      <input type="text" inputmode="decimal" class="calc-amount" id="instFullAmount" name="instFullAmount" step="0.01" min="0.01" placeholder="Total original cost" required>
     </div>
     <div>
       <label for="instTotalMonths" class="block text-sm font-medium mb-1">Total Months for Plan</label>
-      <input type="number" id="instTotalMonths" name="instTotalMonths" step="1" min="1" placeholder="e.g., 12" required>
+      <input type="text" inputmode="decimal" class="calc-amount" id="instTotalMonths" name="instTotalMonths" step="1" min="1" placeholder="e.g., 12" required>
     </div>
     <div>
       <label for="instMonthsLeft" class="block text-sm font-medium mb-1">Months Left (if not full term)</label>
-      <input type="number" id="instMonthsLeft" name="instMonthsLeft" step="1" min="0" placeholder="Defaults to Total Months">
+      <input type="text" inputmode="decimal" class="calc-amount" id="instMonthsLeft" name="instMonthsLeft" step="1" min="0" placeholder="Defaults to Total Months">
     </div>
     <div>
       <label for="instStartDate" class="block text-sm font-medium mb-1">Start Date</label>
@@ -4774,19 +4763,19 @@ function openEditInstallmentForm(id) {
     </div>
     <div>
       <label for="instFullAmount" class="block text-sm font-medium mb-1">Full Original Amount (LKR)</label>
-      <input type="number" id="instFullAmount" name="instFullAmount" value="${currentFullAmount.toFixed(
+      <input type="text" inputmode="decimal" class="calc-amount" id="instFullAmount" name="instFullAmount" value="${currentFullAmount.toFixed(
         2
       )}" step="0.01" min="0.01" required>
     </div>
     <div>
       <label for="instTotalMonths" class="block text-sm font-medium mb-1">Total Months for Plan</label>
-      <input type="number" id="instTotalMonths" name="instTotalMonths" value="${
+      <input type="text" inputmode="decimal" class="calc-amount" id="instTotalMonths" name="instTotalMonths" value="${
         i.totalMonths
       }" step="1" min="1" required>
     </div>
     <div>
       <label for="instMonthsLeft" class="block text-sm font-medium mb-1">Months Left</label>
-      <input type="number" id="instMonthsLeft" name="instMonthsLeft" value="${
+      <input type="text" inputmode="decimal" class="calc-amount" id="instMonthsLeft" name="instMonthsLeft" value="${
         i.monthsLeft
       }" step="1" min="0" max="${i.totalMonths}" required>
     </div>
@@ -5026,7 +5015,7 @@ function openPayCcItemForm(ccTransactionId) {
       )}</strong></p>
       <div>
           <label for="ccItemPayAmount" class="block text-sm font-medium mb-1">Payment Amount</label>
-          <input type="number" id="ccItemPayAmount" name="ccItemPayAmount" step="0.01" min="0.01" max="${remaining.toFixed(
+          <input type="text" inputmode="decimal" class="calc-amount" id="ccItemPayAmount" name="ccItemPayAmount" step="0.01" min="0.01" max="${remaining.toFixed(
             2
           )}" value="${remaining.toFixed(2)}" required>
       </div>
@@ -6407,7 +6396,7 @@ function openCashCounter() {
 
 function calculateCashTotal() {
   let grandTotal = 0;
-  $$('#cashCounterForm input[type="number"]').forEach((input) => {
+  $$('#cashCounterForm input[type="text" inputmode="decimal" class="calc-amount"]').forEach((input) => {
     const count = parseInt(input.value) || 0;
     const denomination = parseInt(input.dataset.denom);
     const total = count * denomination;
@@ -6552,10 +6541,6 @@ function showConfirmationModal(
   modal.style.display = "block";
 }
 
-function openEditTransactionForm(id, event) {
-  openEditTransactionModal(id, event);
-}
-
 function openEditCcTransactionForm(ccTransactionId) {
   const transaction = state.creditCard.transactions.find(
     (tx) => tx.id === ccTransactionId
@@ -6571,7 +6556,7 @@ function openEditCcTransactionForm(ccTransactionId) {
             }">
             <div>
                 <label for="modalCcAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>
-                <input type="number" id="modalCcAmount" name="ccAmount" value="${transaction.amount.toFixed(
+                <input type="text" inputmode="decimal" class="calc-amount" id="modalCcAmount" name="ccAmount" value="${transaction.amount.toFixed(
                   2
                 )}" step="0.01" min="0" placeholder="Amount spent" required>
             </div>
@@ -6777,7 +6762,7 @@ function initializeUI(isRefresh = false) {
   console.log("Initializing UI...");
 
   // --- NEW: Initialize Supabase and check auth state ---
-  if (!isRefresh && supabase) {
+  if (!isRefresh && supabaseClient) {
     initializeSupabase(); // This will check for a user session
   }
   // --- END NEW ---
@@ -6999,7 +6984,7 @@ function initializeUI(isRefresh = false) {
           errorEl.classList.add("hidden");
         }
         modal.style.display = "block";
-        const firstInput = modal.querySelector('input[type="number"], select');
+        const firstInput = modal.querySelector('input[type="text" inputmode="decimal" class="calc-amount"], select');
         if (firstInput) {
           firstInput.focus();
         }
@@ -7141,14 +7126,14 @@ function initializeUI(isRefresh = false) {
  * Updates the UI based on the user's login status.
  */
 async function initializeSupabase() {
-  if (!supabase) {
+  if (!supabaseClient) {
     console.error("Supabase client not available.");
     return;
   }
   console.log("Checking Supabase auth state...");
 
   // Handle auth state changes (e.g., login, logout)
-  supabase.auth.onAuthStateChange((event, session) => {
+  supabaseClient.auth.onAuthStateChange((event, session) => {
     console.log("Supabase auth state changed:", event, session);
     const user = session?.user || null;
     supabaseUser = user;
@@ -7157,7 +7142,7 @@ async function initializeSupabase() {
 
   // Check for initial session
   try {
-    const { data, error } = await supabase.auth.getSession();
+    const { data, error } = await supabaseClient.auth.getSession();
     if (error) {
       console.error("Error getting session:", error.message);
       throw error;
@@ -7310,10 +7295,10 @@ function updateHeaderShortcutButtons() {
  * Initiates the Google Sign-In flow via Supabase.
  */
 async function signInWithGoogle() {
-  if (!supabase) return;
+  if (!supabaseClient) return;
   console.log("Attempting Google Sign-In...");
   try {
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
       options: {
         // You can add scopes here if needed, e.g., 'email profile'
@@ -7337,10 +7322,10 @@ async function signInWithGoogle() {
  * Signs the user out from Supabase.
  */
 async function signOut() {
-  if (!supabase) return;
+  if (!supabaseClient) return;
   console.log("Attempting Sign-Out...");
   try {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await supabaseClient.auth.signOut();
     if (error) {
       console.error("Error during sign-out:", error.message);
       showNotification(`Sign-Out Error: ${error.message}`, "error");
@@ -7377,7 +7362,7 @@ async function backupToSupabase() {
     // We use 'upsert' to either create a new record or update the existing one for this user.
     // ** THE FIX IS HERE: { onConflict: 'user_id' } **
     // This tells Supabase to use the 'user_id' column to detect conflicts.
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from("user_data")
       .upsert(
         {
@@ -7446,7 +7431,7 @@ async function restoreFromSupabase() {
         // ** THE FIX IS HERE: .order(...).limit(1) **
         // This makes the query more robust by ensuring we *only* get the single, most recent
         // backup for this user, which makes .single() safe to use.
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
           .from("user_data")
           .select("data, updated_at")
           .eq("user_id", supabaseUser.id)
@@ -7585,3 +7570,135 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 });
+
+/* --------------------------------------------------- */
+/* --- INLINE AMOUNT CALCULATION & MATH TOOLBAR --- */
+/* --------------------------------------------------- */
+
+// Create the global math toolbar
+const mathToolbar = document.createElement("div");
+mathToolbar.className = "math-toolbar";
+mathToolbar.innerHTML = `
+  <div class="math-btn" data-op="+">+</div>
+  <div class="math-btn" data-op="-">-</div>
+  <div class="math-btn" data-op="*">×</div>
+  <div class="math-btn" data-op="/">÷</div>
+  <div class="math-btn math-btn-equal" data-op="=">=</div>
+`;
+document.body.appendChild(mathToolbar);
+
+let activeCalcInput = null;
+let toolbarHideTimeout = null;
+
+function evaluateMathExpression(inputStr) {
+  let expr = inputStr.trim();
+  if (expr.endsWith("=")) {
+    expr = expr.slice(0, -1);
+  }
+  expr = expr.replace(/×/g, "*").replace(/÷/g, "/");
+
+  if (!/^[\d\.\+\-\*\/\(\)\s]+$/.test(expr)) return null;
+  if (!/[\+\-\*\/]/.test(expr)) return null;
+
+  try {
+    const result = Function('"use strict";return (' + expr + ')')();
+    if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
+      return parseFloat(result.toFixed(2));
+    }
+  } catch (e) {
+    return null;
+  }
+  return null;
+}
+
+function processCalculation(inputEl) {
+  const result = evaluateMathExpression(inputEl.value);
+  if (result !== null) {
+    inputEl.value = result;
+    return true; 
+  }
+  return false; 
+}
+
+function positionMathToolbar(inputEl) {
+  const rect = inputEl.getBoundingClientRect();
+  mathToolbar.style.left = `${rect.left + window.scrollX}px`;
+  mathToolbar.style.top = `${rect.top + window.scrollY - 45}px`; 
+}
+
+function showMathToolbar(inputEl) {
+  activeCalcInput = inputEl;
+  positionMathToolbar(inputEl);
+  mathToolbar.classList.add("visible");
+  if (toolbarHideTimeout) clearTimeout(toolbarHideTimeout);
+}
+
+function hideMathToolbar() {
+  toolbarHideTimeout = setTimeout(() => {
+    mathToolbar.classList.remove("visible");
+    activeCalcInput = null;
+  }, 150);
+}
+
+document.addEventListener("focusin", (e) => {
+  if (e.target.classList && e.target.classList.contains("calc-amount")) {
+    showMathToolbar(e.target);
+  }
+});
+
+document.addEventListener("focusout", (e) => {
+  if (e.target.classList && e.target.classList.contains("calc-amount")) {
+    hideMathToolbar();
+    processCalculation(e.target);
+  }
+});
+
+document.addEventListener("input", (e) => {
+  if (e.target.classList && e.target.classList.contains("calc-amount")) {
+    const val = e.target.value;
+    if (val.endsWith("=")) {
+      processCalculation(e.target);
+    }
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && e.target.classList && e.target.classList.contains("calc-amount")) {
+    const calculated = processCalculation(e.target);
+    if (calculated) {
+      e.preventDefault(); 
+    }
+  }
+});
+
+window.addEventListener("scroll", () => {
+  if (activeCalcInput && mathToolbar.classList.contains("visible")) {
+    positionMathToolbar(activeCalcInput);
+  }
+}, true);
+
+window.addEventListener("resize", () => {
+  if (activeCalcInput && mathToolbar.classList.contains("visible")) {
+    positionMathToolbar(activeCalcInput);
+  }
+});
+
+mathToolbar.addEventListener("mousedown", (e) => {
+  e.preventDefault(); 
+});
+
+mathToolbar.addEventListener("click", (e) => {
+  if (e.target.classList.contains("math-btn") && activeCalcInput) {
+    const op = e.target.getAttribute("data-op");
+    if (op === "=") {
+      processCalculation(activeCalcInput);
+    } else {
+      activeCalcInput.value += op;
+      
+      const evt = new Event("input", { bubbles: true });
+      activeCalcInput.dispatchEvent(evt);
+    }
+    activeCalcInput.focus();
+  }
+});
+

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v4.80i" />
+    <meta name="application-version" content="v5.84k" />
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
     <meta
       name="title"
@@ -172,7 +172,7 @@
                   <label for="amount" class="block text-sm font-medium mb-1"
                     >Amount (LKR)</label
                   ><input
-                    type="number"
+                    type="text" inputmode="decimal" class="calc-amount"
                     id="amount"
                     name="amount"
                     step="0.01"
@@ -249,7 +249,7 @@
                   <label for="ccAmount" class="block text-sm font-medium mb-1"
                     >Amount (LKR)</label
                   ><input
-                    type="number"
+                    type="text" inputmode="decimal" class="calc-amount"
                     id="ccAmount"
                     name="ccAmount"
                     step="0.01"
@@ -573,7 +573,7 @@
                       >Current Limit (LKR)</label
                     >
                     <input
-                      type="number"
+                      type="text" inputmode="decimal" class="calc-amount"
                       id="settingsCcLimitAmount"
                       name="ccLimitAmount"
                       step="0.01"
@@ -917,7 +917,7 @@
                   >Credit Card Limit (LKR)</label
                 >
                 <input
-                  type="number"
+                  type="text" inputmode="decimal" class="calc-amount"
                   id="setupCcLimit"
                   name="setupCcLimit"
                   step="0.01"
@@ -1063,7 +1063,7 @@
                 class="block text-sm font-medium mb-1"
                 >Amount (LKR)</label
               ><input
-                type="number"
+                type="text" inputmode="decimal" class="calc-amount"
                 id="modalTransferAmount"
                 name="transferAmount"
                 step="0.01"
