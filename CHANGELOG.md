@@ -43,3 +43,7 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
   - **Cash Visibility**: Allowed the default "Cash" account card to be toggled visible/hidden from the Settings panel and during Initial Setup, matching the behavior of other custom bank and credit card accounts. For integrity, Cash remains un-renameable.
   - **Tooltip UI Fix**: Fixed a CSS bug where tooltip elements (`[data-tooltip]`) rendered above their target components, blocking user clicks on buttons directly above them (e.g., clicking the "View all debts" tooltip would intercept clicks intended for "Add new debt"). All tooltips are now repositioned to render below their respective elements.
 - **Scope**: Modified `index.html`, `script.js`, and `style.css`.
+
+### 8. [Minor] Cash Counter CSS Selector Fix
+- **Description**: Fixed a `DOMException` error caused by an invalid CSS selector string in the cash counter modal logic, which prevented the modal from opening. The selector `[class="..."]` syntax inside the attribute bracket was updated to properly chain the `.class` syntax.
+- **Scope**: Modified `script.js`.

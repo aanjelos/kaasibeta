@@ -6498,7 +6498,7 @@ function openCashCounter() {
 
 function calculateCashTotal() {
   let grandTotal = 0;
-  $$('#cashCounterForm input[type="text" inputmode="decimal" class="calc-amount"]').forEach((input) => {
+  $$('#cashCounterForm input[type="text"][inputmode="decimal"].calc-amount').forEach((input) => {
     const count = parseInt(input.value) || 0;
     const denomination = parseInt(input.dataset.denom);
     const total = count * denomination;
