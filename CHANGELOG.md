@@ -51,8 +51,3 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 ### 9. [Minor] Cash Counter Input Enhancements
 - **Description**: Fixed the cash counter's Total/Subtotal calculations which were broken due to the inputs missing the expected classes. Enhanced the inputs by changing them strictly to numbers (`step="1"`), actively blocking decimals (`.`, `e`, `+`, `-`), and implementing a custom scroll wheel listener to smoothly increase or decrease the bill counts without being overly sensitive.
 - **Scope**: Modified `script.js`.
-
-### 10. [Major] Privacy Filter Mode (v5.87k)
-- **Description**: Introduced a global "Privacy Filter" toggle (Eye icon in the header) designed to prevent shoulder surfing. When enabled, all sensitive currency totals across the app (Dashboard balance, Quick Stats, Monthly Breakdown totals, Account Cards) are smoothly blurred. It also safely hides account balances from all transaction dropdown menus.
-- **Interactivity**: Added a "hold-to-peek" functionality. Users can touch-and-hold (or hover on desktop) over any blurred number to temporarily reveal it with a smooth fade-in/fade-out CSS transition.
-- **Scope**: Modified `index.html`, `script.js`, and `style.css`.

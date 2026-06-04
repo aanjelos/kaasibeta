@@ -68,17 +68,6 @@ function getFormattedLocalStorageSize(key) {
   }
 }
 
-function togglePrivacyMode() {
-  state.settings.privacyMode = !state.settings.privacyMode;
-  saveData();
-  const btnIcon = $("#privacyToggleBtn i");
-  if (btnIcon) {
-    btnIcon.className = state.settings.privacyMode ? "fas fa-eye-slash fa-lg" : "fas fa-eye fa-lg";
-  }
-  document.body.classList.toggle("privacy-mode-active", state.settings.privacyMode);
-  populateDropdowns(); 
-}
-
 function displayAppVersion() {
   let version = "N/A";
   try {
@@ -194,7 +183,6 @@ function getDefaultState() {
       settings: {
         initialSetupDone: false,
         showCcDashboardSection: true,
-        privacyMode: false,
         theme: "dark",
         hiddenCategoryRules: {
           excludeFromDashboardCharts: true,
@@ -923,7 +911,7 @@ function populateDropdowns() {
     visibleAccounts.forEach((a) => {
       const o = document.createElement("option");
       o.value = a.id;
-      o.textContent = state.settings.privacyMode ? a.name : `${a.name} (${formatCurrency(a.balance)})`;
+      o.textContent = `${a.name} (${formatCurrency(a.balance)})`;
       s.appendChild(o);
     });
 
@@ -1043,10 +1031,9 @@ function renderDashboard() {
       const card = document.createElement("div");
       card.id = `accountBalance-${acc.id}`;
       card.className = "bg-gray-600 p-3 rounded";
-      const privacyClass = "privacy-blur";
       card.innerHTML = `
         <p class="text-xs font-medium text-gray-300 truncate">${acc.name}</p>
-        <p class="font-semibold text-sm tabular-nums ${privacyClass}">${formatCurrency(
+        <p class="font-semibold text-sm tabular-nums">${formatCurrency(
           acc.balance
         )}</p>
       `;
@@ -1057,8 +1044,7 @@ function renderDashboard() {
     accountCardsContainer.style.display = "none";
   }
 
-  const privacyClass = "privacy-blur";
-  $("#totalBalance").innerHTML = `<span class="tabular-nums ${privacyClass}">${formatCurrency(
+  $("#totalBalance").innerHTML = `<span class="tabular-nums">${formatCurrency(
     totalBalance
   )}</span>`;
   const cashRecTotal = state.receivables
@@ -1066,22 +1052,22 @@ function renderDashboard() {
     .reduce((s, r) => s + r.remainingAmount, 0);
   $(
     "#totalPotentialBalance"
-  ).innerHTML = `<span class="tabular-nums ${privacyClass}">${formatCurrency(
+  ).innerHTML = `<span class="tabular-nums">${formatCurrency(
     totalBalance + cashRecTotal
   )}</span>`;
   $(
     "#totalOwedToMe"
-  ).innerHTML = `Total: <span class="tabular-nums ${privacyClass}">${formatCurrency(
+  ).innerHTML = `Total: <span class="tabular-nums">${formatCurrency(
     state.receivables.reduce((s, r) => s + r.remainingAmount, 0)
   )}</span>`;
   $(
     "#totalOwed"
-  ).innerHTML = `Total: <span class="tabular-nums ${privacyClass}">${formatCurrency(
+  ).innerHTML = `Total: <span class="tabular-nums">${formatCurrency(
     state.debts.reduce((s, d) => s + d.remainingAmount, 0)
   )}</span>`;
   $(
     "#totalInstallmentsLeft"
-  ).innerHTML = `Total Left: <span class="tabular-nums ${privacyClass}">${formatCurrency(
+  ).innerHTML = `Total Left: <span class="tabular-nums">${formatCurrency(
     state.installments.reduce((s, i) => s + i.monthlyAmount * i.monthsLeft, 0)
   )}</span>`;
   renderRecentTransactions();
@@ -1182,18 +1168,17 @@ function renderYearlyAndQuickStats() {
     }
   });
 
-  const privacyClass = "privacy-blur";
-  $("#yearlyTotals").innerHTML = `Yearly: Earned <span class="${privacyClass}">${formatCurrency(
+  $("#yearlyTotals").textContent = `Yearly: Earned ${formatCurrency(
     yearlyEarned
-  )}</span> / Spent <span class="${privacyClass}">${formatCurrency(yearlySpent)}</span>`;
+  )} / Spent ${formatCurrency(yearlySpent)}`;
 
   const quickStatsEl = $("#quickStats");
   // Update text to "Past 7 Days"
-  quickStatsEl.innerHTML = `Today: <span class="${privacyClass}">${formatCurrency(
+  quickStatsEl.innerHTML = `Today: ${formatCurrency(
     todaySpent
-  )}</span> <span id="todaySpendingIndicator"></span> | Past 7 Days: <span class="${privacyClass}">${formatCurrency(
+  )} <span id="todaySpendingIndicator"></span> | Past 7 Days: ${formatCurrency(
     current7DaysSpent
-  )}</span> <span id="weekSpendingIndicator"></span>`; // ID "weekSpendingIndicator" is kept for now, but refers to 7-day period
+  )} <span id="weekSpendingIndicator"></span>`; // ID "weekSpendingIndicator" is kept for now, but refers to 7-day period
 
   const todayIndicator = $("#todaySpendingIndicator");
   if (todaySpent > yesterdaySpent && yesterdaySpent >= 0) {
@@ -1249,7 +1234,6 @@ function openShortcutsHelpModal() {
     { key: "D", action: "View All Debts." },
     { key: "R", action: "View All Receivables." },
     { key: "T", action: "Transfer Money." },
-    { key: "P", action: "Toggle Privacy Filter." },
     { key: "Ctrl + E", action: "Export Data." },
     { key: "Ctrl + I", action: "Import Data." },
     { key: "← / →", action: "Navigate Month Tabs in Breakdown." },
@@ -1407,18 +1391,6 @@ function handleKeyboardShortcuts(event) {
           typeSelect.dispatchEvent(new Event("change"));
           amountInput.focus();
           console.log("Shortcut: '+' pressed for Income");
-        }
-      }
-      break;
-
-    case "p":
-    case "P":
-      if (!inInputField) {
-        event.preventDefault();
-        const privacyToggleBtn = $("#privacyToggleBtn");
-        if (privacyToggleBtn) {
-          privacyToggleBtn.click();
-          console.log("Shortcut: 'p' pressed, toggling Privacy Mode");
         }
       }
       break;
@@ -3001,17 +2973,16 @@ function renderMonthlyDetails(
       lastMonthTotalExpense
     )})"></i>`;
   }
-  const privacyClass = "privacy-blur";
   summaryGrid.innerHTML = `
-      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Total Income</p><p class="text-xl font-semibold text-income tabular-nums ${privacyClass}">${formatCurrency(
+      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Total Income</p><p class="text-xl font-semibold text-income tabular-nums">${formatCurrency(
         totalIncome
       )}</p></div>
-      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Total Expenses ${monthSpendingIndicatorHtml}</p><p class="text-xl font-semibold text-expense tabular-nums ${privacyClass}">${formatCurrency(
+      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Total Expenses ${monthSpendingIndicatorHtml}</p><p class="text-xl font-semibold text-expense tabular-nums">${formatCurrency(
     totalExpense
   )}</p></div>
       <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Net Flow</p><p class="text-xl font-semibold ${
         totalIncome - totalExpense >= 0 ? "text-income" : "text-expense"
-      } tabular-nums ${privacyClass}">${formatCurrency(totalIncome - totalExpense)}</p></div>`;
+      } tabular-nums">${formatCurrency(totalIncome - totalExpense)}</p></div>`;
   container.appendChild(summaryGrid);
 
   // --- NEW: Enhanced Search Logic ---
@@ -3412,8 +3383,7 @@ function renderMonthlyPieChart(data) {
 function renderCreditCardSection() {
   const limit = state.creditCard.limit || 0,
     transactions = state.creditCard.transactions || [];
-  const privacyClass = "privacy-blur";
-  $("#ccLimit").innerHTML = `<span class="tabular-nums ${privacyClass}">${formatCurrency(
+  $("#ccLimit").innerHTML = `<span class="tabular-nums">${formatCurrency(
     limit
   )}</span>`;
   const spentUnpaid = transactions
@@ -3421,7 +3391,7 @@ function renderCreditCardSection() {
     .reduce((sum, t) => sum + t.amount - (t.paidAmount || 0), 0);
   const available = limit - spentUnpaid,
     availableEl = $("#ccAvailable");
-  availableEl.innerHTML = `<span class="tabular-nums ${privacyClass}">${formatCurrency(
+  availableEl.innerHTML = `<span class="tabular-nums">${formatCurrency(
     available
   )}</span>`;
   availableEl.classList.toggle("text-danger", available < 0);
@@ -6920,11 +6890,6 @@ function initializeUI(isRefresh = false) {
     loadData();
   }
 
-  // Apply Privacy Filter CSS class globally
-  if (state.settings && state.settings.privacyMode !== undefined) {
-    document.body.classList.toggle("privacy-mode-active", state.settings.privacyMode);
-  }
-
   if (
     !state.settings ||
     state.settings.initialSetupDone === undefined ||
@@ -6965,13 +6930,6 @@ function initializeUI(isRefresh = false) {
 
   // --- Header & Footer Button Event Listeners ---
   $("#settingsBtn").onclick = openSettingsModal;
-
-  const privacyToggleBtn = $("#privacyToggleBtn");
-  if (privacyToggleBtn) {
-    privacyToggleBtn.onclick = togglePrivacyMode;
-    const btnIcon = privacyToggleBtn.querySelector("i");
-    if (btnIcon) btnIcon.className = state.settings.privacyMode ? "fas fa-eye-slash fa-lg" : "fas fa-eye fa-lg";
-  }
 
   $("#toggleChartBtn").onclick = () => {
     dashboardChartState =
@@ -7667,20 +7625,6 @@ async function restoreFromSupabase() {
 // --- END NEW SUPABASE FUNCTIONS ---
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Privacy Peek Logic
-  document.addEventListener('touchstart', (e) => {
-    if (state.settings && state.settings.privacyMode) {
-      const blurredEl = e.target.closest('.privacy-blur');
-      if (blurredEl) {
-        blurredEl.classList.add('peek');
-      }
-    }
-  });
-  document.addEventListener('touchend', () => {
-    document.querySelectorAll('.privacy-blur.peek').forEach(el => el.classList.remove('peek'));
-  });
-
-  // --- System Theme Handling ---
   console.log("DOM Loaded. Initializing...");
   loadData(); // Load existing data or set up default state
   initializeUI(); // Set up all initial UI elements, event listeners, and render initial views
