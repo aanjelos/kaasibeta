@@ -75,7 +75,8 @@ function togglePrivacyMode() {
   if (btnIcon) {
     btnIcon.className = state.settings.privacyMode ? "fas fa-eye-slash fa-lg" : "fas fa-eye fa-lg";
   }
-  initializeUI(true); // Re-render to apply blurs
+  document.body.classList.toggle("privacy-mode-active", state.settings.privacyMode);
+  populateDropdowns(); 
 }
 
 function displayAppVersion() {
@@ -1042,7 +1043,7 @@ function renderDashboard() {
       const card = document.createElement("div");
       card.id = `accountBalance-${acc.id}`;
       card.className = "bg-gray-600 p-3 rounded";
-      const privacyClass = state.settings.privacyMode ? "privacy-blur" : "";
+      const privacyClass = "privacy-blur";
       card.innerHTML = `
         <p class="text-xs font-medium text-gray-300 truncate">${acc.name}</p>
         <p class="font-semibold text-sm tabular-nums ${privacyClass}">${formatCurrency(
@@ -1056,7 +1057,7 @@ function renderDashboard() {
     accountCardsContainer.style.display = "none";
   }
 
-  const privacyClass = state.settings.privacyMode ? "privacy-blur" : "";
+  const privacyClass = "privacy-blur";
   $("#totalBalance").innerHTML = `<span class="tabular-nums ${privacyClass}">${formatCurrency(
     totalBalance
   )}</span>`;
@@ -1181,7 +1182,7 @@ function renderYearlyAndQuickStats() {
     }
   });
 
-  const privacyClass = state.settings.privacyMode ? "privacy-blur" : "";
+  const privacyClass = "privacy-blur";
   $("#yearlyTotals").innerHTML = `Yearly: Earned <span class="${privacyClass}">${formatCurrency(
     yearlyEarned
   )}</span> / Spent <span class="${privacyClass}">${formatCurrency(yearlySpent)}</span>`;
@@ -1248,6 +1249,7 @@ function openShortcutsHelpModal() {
     { key: "D", action: "View All Debts." },
     { key: "R", action: "View All Receivables." },
     { key: "T", action: "Transfer Money." },
+    { key: "P", action: "Toggle Privacy Filter." },
     { key: "Ctrl + E", action: "Export Data." },
     { key: "Ctrl + I", action: "Import Data." },
     { key: "← / →", action: "Navigate Month Tabs in Breakdown." },
@@ -1405,6 +1407,18 @@ function handleKeyboardShortcuts(event) {
           typeSelect.dispatchEvent(new Event("change"));
           amountInput.focus();
           console.log("Shortcut: '+' pressed for Income");
+        }
+      }
+      break;
+
+    case "p":
+    case "P":
+      if (!inInputField) {
+        event.preventDefault();
+        const privacyToggleBtn = $("#privacyToggleBtn");
+        if (privacyToggleBtn) {
+          privacyToggleBtn.click();
+          console.log("Shortcut: 'p' pressed, toggling Privacy Mode");
         }
       }
       break;
@@ -2987,7 +3001,7 @@ function renderMonthlyDetails(
       lastMonthTotalExpense
     )})"></i>`;
   }
-  const privacyClass = state.settings.privacyMode ? "privacy-blur" : "";
+  const privacyClass = "privacy-blur";
   summaryGrid.innerHTML = `
       <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Total Income</p><p class="text-xl font-semibold text-income tabular-nums ${privacyClass}">${formatCurrency(
         totalIncome
@@ -3398,7 +3412,7 @@ function renderMonthlyPieChart(data) {
 function renderCreditCardSection() {
   const limit = state.creditCard.limit || 0,
     transactions = state.creditCard.transactions || [];
-  const privacyClass = state.settings.privacyMode ? "privacy-blur" : "";
+  const privacyClass = "privacy-blur";
   $("#ccLimit").innerHTML = `<span class="tabular-nums ${privacyClass}">${formatCurrency(
     limit
   )}</span>`;
@@ -6904,6 +6918,11 @@ function initializeUI(isRefresh = false) {
 
   if (!isRefresh) {
     loadData();
+  }
+
+  // Apply Privacy Filter CSS class globally
+  if (state.settings && state.settings.privacyMode !== undefined) {
+    document.body.classList.toggle("privacy-mode-active", state.settings.privacyMode);
   }
 
   if (
