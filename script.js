@@ -6786,7 +6786,6 @@ let activeSettingsTab = null;
 
 const settingsTabsConfig = [
   { label: "Accounts", targetPanelId: "settingsAccountsPanel" },
-  { label: "Credit Card", targetPanelId: "settingsCreditCardPanel" },
   { label: "Categories", targetPanelId: "settingsCategoriesPanel" },
   { label: "Data", targetPanelId: "settingsDataManagementPanel" },
 ];
