@@ -6478,11 +6478,28 @@ function openCashCounter() {
     const inputEl = document.createElement("input");
     inputEl.type = "number";
     inputEl.min = "0";
+    inputEl.step = "1";
     inputEl.dataset.denom = denom;
     inputEl.className =
       "text-center bg-gray-600 border border-gray-500 rounded px-1 py-0.5 w-16 mx-auto text-sm";
     inputEl.placeholder = "0";
     inputEl.oninput = calculateCashTotal;
+    inputEl.onkeydown = (e) => {
+      if (['.', 'e', 'E', '-', '+'].includes(e.key)) e.preventDefault();
+    };
+    inputEl._scrollAccumulator = 0;
+    inputEl.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      inputEl._scrollAccumulator += e.deltaY;
+      if (Math.abs(inputEl._scrollAccumulator) >= 100) {
+        let val = parseInt(inputEl.value) || 0;
+        let steps = Math.trunc(inputEl._scrollAccumulator / 100);
+        val = Math.max(0, val - steps); // Scroll up (negative delta) increases value
+        inputEl.value = val;
+        inputEl._scrollAccumulator -= steps * 100;
+        calculateCashTotal();
+      }
+    });
     const totalEl = document.createElement("span");
     totalEl.className = "text-right text-gray-400 text-sm";
     totalEl.id = `cashTotal-${denom}`;
@@ -6498,7 +6515,7 @@ function openCashCounter() {
 
 function calculateCashTotal() {
   let grandTotal = 0;
-  $$('#cashCounterForm input[type="text"][inputmode="decimal"].calc-amount').forEach((input) => {
+  $$('#cashCounterForm input[type="number"]').forEach((input) => {
     const count = parseInt(input.value) || 0;
     const denomination = parseInt(input.dataset.denom);
     const total = count * denomination;

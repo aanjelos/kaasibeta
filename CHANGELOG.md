@@ -47,3 +47,7 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 ### 8. [Minor] Cash Counter CSS Selector Fix
 - **Description**: Fixed a `DOMException` error caused by an invalid CSS selector string in the cash counter modal logic, which prevented the modal from opening. The selector `[class="..."]` syntax inside the attribute bracket was updated to properly chain the `.class` syntax.
 - **Scope**: Modified `script.js`.
+
+### 9. [Minor] Cash Counter Input Enhancements
+- **Description**: Fixed the cash counter's Total/Subtotal calculations which were broken due to the inputs missing the expected classes. Enhanced the inputs by changing them strictly to numbers (`step="1"`), actively blocking decimals (`.`, `e`, `+`, `-`), and implementing a custom scroll wheel listener to smoothly increase or decrease the bill counts without being overly sensitive.
+- **Scope**: Modified `script.js`.
