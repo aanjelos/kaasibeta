@@ -1394,3 +1394,17 @@ footer a[href^="https://kaasi.com.lk"]:hover
     display: none !important;
   }
 }
+ 
+ / *   P r i v a c y   F i l t e r   M o d e   * /  
+ . p r i v a c y - b l u r   {  
+     f i l t e r :   b l u r ( 6 p x ) ;  
+     o p a c i t y :   0 . 6 ;  
+     u s e r - s e l e c t :   n o n e ;  
+     - w e b k i t - t o u c h - c a l l o u t :   n o n e ;  
+     t r a n s i t i o n :   f i l t e r   0 . 3 s   e a s e ,   o p a c i t y   0 . 3 s   e a s e ;  
+ }  
+ . p r i v a c y - b l u r . p e e k   {  
+     f i l t e r :   b l u r ( 0 p x ) ;  
+     o p a c i t y :   1 ;  
+ }  
+ 

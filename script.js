@@ -68,6 +68,16 @@ function getFormattedLocalStorageSize(key) {
   }
 }
 
+function togglePrivacyMode() {
+  state.settings.privacyMode = !state.settings.privacyMode;
+  saveData();
+  const btnIcon = $("#privacyToggleBtn i");
+  if (btnIcon) {
+    btnIcon.className = state.settings.privacyMode ? "fas fa-eye-slash fa-lg" : "fas fa-eye fa-lg";
+  }
+  initializeUI(true); // Re-render to apply blurs
+}
+
 function displayAppVersion() {
   let version = "N/A";
   try {
@@ -183,6 +193,7 @@ function getDefaultState() {
       settings: {
         initialSetupDone: false,
         showCcDashboardSection: true,
+        privacyMode: false,
         theme: "dark",
         hiddenCategoryRules: {
           excludeFromDashboardCharts: true,
@@ -911,7 +922,7 @@ function populateDropdowns() {
     visibleAccounts.forEach((a) => {
       const o = document.createElement("option");
       o.value = a.id;
-      o.textContent = `${a.name} (${formatCurrency(a.balance)})`;
+      o.textContent = state.settings.privacyMode ? a.name : `${a.name} (${formatCurrency(a.balance)})`;
       s.appendChild(o);
     });
 
@@ -1031,9 +1042,10 @@ function renderDashboard() {
       const card = document.createElement("div");
       card.id = `accountBalance-${acc.id}`;
       card.className = "bg-gray-600 p-3 rounded";
+      const privacyClass = state.settings.privacyMode ? "privacy-blur" : "";
       card.innerHTML = `
         <p class="text-xs font-medium text-gray-300 truncate">${acc.name}</p>
-        <p class="font-semibold text-sm tabular-nums">${formatCurrency(
+        <p class="font-semibold text-sm tabular-nums ${privacyClass}">${formatCurrency(
           acc.balance
         )}</p>
       `;
@@ -1044,7 +1056,8 @@ function renderDashboard() {
     accountCardsContainer.style.display = "none";
   }
 
-  $("#totalBalance").innerHTML = `<span class="tabular-nums">${formatCurrency(
+  const privacyClass = state.settings.privacyMode ? "privacy-blur" : "";
+  $("#totalBalance").innerHTML = `<span class="tabular-nums ${privacyClass}">${formatCurrency(
     totalBalance
   )}</span>`;
   const cashRecTotal = state.receivables
@@ -1168,17 +1181,18 @@ function renderYearlyAndQuickStats() {
     }
   });
 
-  $("#yearlyTotals").textContent = `Yearly: Earned ${formatCurrency(
+  const privacyClass = state.settings.privacyMode ? "privacy-blur" : "";
+  $("#yearlyTotals").innerHTML = `Yearly: Earned <span class="${privacyClass}">${formatCurrency(
     yearlyEarned
-  )} / Spent ${formatCurrency(yearlySpent)}`;
+  )}</span> / Spent <span class="${privacyClass}">${formatCurrency(yearlySpent)}</span>`;
 
   const quickStatsEl = $("#quickStats");
   // Update text to "Past 7 Days"
-  quickStatsEl.innerHTML = `Today: ${formatCurrency(
+  quickStatsEl.innerHTML = `Today: <span class="${privacyClass}">${formatCurrency(
     todaySpent
-  )} <span id="todaySpendingIndicator"></span> | Past 7 Days: ${formatCurrency(
+  )}</span> <span id="todaySpendingIndicator"></span> | Past 7 Days: <span class="${privacyClass}">${formatCurrency(
     current7DaysSpent
-  )} <span id="weekSpendingIndicator"></span>`; // ID "weekSpendingIndicator" is kept for now, but refers to 7-day period
+  )}</span> <span id="weekSpendingIndicator"></span>`; // ID "weekSpendingIndicator" is kept for now, but refers to 7-day period
 
   const todayIndicator = $("#todaySpendingIndicator");
   if (todaySpent > yesterdaySpent && yesterdaySpent >= 0) {
@@ -2973,16 +2987,17 @@ function renderMonthlyDetails(
       lastMonthTotalExpense
     )})"></i>`;
   }
+  const privacyClass = state.settings.privacyMode ? "privacy-blur" : "";
   summaryGrid.innerHTML = `
-      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Total Income</p><p class="text-xl font-semibold text-income tabular-nums">${formatCurrency(
+      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Total Income</p><p class="text-xl font-semibold text-income tabular-nums ${privacyClass}">${formatCurrency(
         totalIncome
       )}</p></div>
-      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Total Expenses ${monthSpendingIndicatorHtml}</p><p class="text-xl font-semibold text-expense tabular-nums">${formatCurrency(
+      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Total Expenses ${monthSpendingIndicatorHtml}</p><p class="text-xl font-semibold text-expense tabular-nums ${privacyClass}">${formatCurrency(
     totalExpense
   )}</p></div>
       <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Net Flow</p><p class="text-xl font-semibold ${
         totalIncome - totalExpense >= 0 ? "text-income" : "text-expense"
-      } tabular-nums">${formatCurrency(totalIncome - totalExpense)}</p></div>`;
+      } tabular-nums ${privacyClass}">${formatCurrency(totalIncome - totalExpense)}</p></div>`;
   container.appendChild(summaryGrid);
 
   // --- NEW: Enhanced Search Logic ---
@@ -6931,6 +6946,13 @@ function initializeUI(isRefresh = false) {
   // --- Header & Footer Button Event Listeners ---
   $("#settingsBtn").onclick = openSettingsModal;
 
+  const privacyToggleBtn = $("#privacyToggleBtn");
+  if (privacyToggleBtn) {
+    privacyToggleBtn.onclick = togglePrivacyMode;
+    const btnIcon = privacyToggleBtn.querySelector("i");
+    if (btnIcon) btnIcon.className = state.settings.privacyMode ? "fas fa-eye-slash fa-lg" : "fas fa-eye fa-lg";
+  }
+
   $("#toggleChartBtn").onclick = () => {
     dashboardChartState =
       dashboardChartState === "yearly" ? "monthly" : "yearly";
@@ -7625,6 +7647,20 @@ async function restoreFromSupabase() {
 // --- END NEW SUPABASE FUNCTIONS ---
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Privacy Peek Logic
+  document.addEventListener('touchstart', (e) => {
+    if (state.settings && state.settings.privacyMode) {
+      const blurredEl = e.target.closest('.privacy-blur');
+      if (blurredEl) {
+        blurredEl.classList.add('peek');
+      }
+    }
+  });
+  document.addEventListener('touchend', () => {
+    document.querySelectorAll('.privacy-blur.peek').forEach(el => el.classList.remove('peek'));
+  });
+
+  // --- System Theme Handling ---
   console.log("DOM Loaded. Initializing...");
   loadData(); // Load existing data or set up default state
   initializeUI(); // Set up all initial UI elements, event listeners, and render initial views
