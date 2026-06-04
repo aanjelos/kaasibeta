@@ -3843,7 +3843,7 @@ function deleteCcTransaction(transactionId) {
 function openAddDebtForm() {
   openFormModal(
     "Add New Debt",
-    `<div><label for="debtWho" class="block text-sm font-medium mb-1">Who do you owe?</label><input type="text" id="debtWho" name="debtWho" placeholder="e.g., John Doe" required></div><div><label for="debtWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="debtWhy" name="debtWhy" placeholder="e.g., Loan" required></div><div><label for="debtAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><input type="text" inputmode="decimal" class="calc-amount" id="debtAmount" name="debtAmount" step="0.01" min="0.01" required></div><div><label for="debtDueDate" class="block text-sm font-medium mb-1">Due Date</label><input type="date" id="debtDueDate" name="debtDueDate" required></div><button type="submit" class="btn btn-primary w-full">Add Debt</button>`,
+    `<div><label for="debtAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><input type="text" inputmode="decimal" class="calc-amount" id="debtAmount" name="debtAmount" step="0.01" min="0.01" required></div><div><label for="debtWho" class="block text-sm font-medium mb-1">Who do you owe?</label><input type="text" id="debtWho" name="debtWho" placeholder="e.g., John Doe" required></div><div><label for="debtWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="debtWhy" name="debtWhy" placeholder="e.g., Loan" required></div><div><label for="debtDueDate" class="block text-sm font-medium mb-1">Due Date</label><input type="date" id="debtDueDate" name="debtDueDate" required></div><button type="submit" class="btn btn-primary w-full">Add Debt</button>`,
     handleAddDebtSubmit
   );
   const nextMonth = new Date();
@@ -3892,17 +3892,17 @@ function openEditDebtForm(id) {
     "Edit Debt",
     ` <input type="hidden" name="editDebtId" value="${
       d.id
-    }"> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="debtWho" value="${
-      d.who
-    }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="debtWhy" value="${
-      d.why
-    }" required></div> <div><label class="block text-sm font-medium mb-1">Original Amount</label><input type="text" inputmode="decimal" class="calc-amount" name="debtOriginalAmount" value="${(
+    }"> <div><label class="block text-sm font-medium mb-1">Original Amount</label><input type="text" inputmode="decimal" class="calc-amount" name="debtOriginalAmount" value="${(
       d.originalAmount || d.amount
     ).toFixed(
       2
     )}" step="0.01" min="0.01" required></div> <div><label class="block text-sm font-medium mb-1">Remaining Amount</label><input type="text" inputmode="decimal" class="calc-amount" name="debtRemainingAmount" value="${d.remainingAmount.toFixed(
       2
-    )}" step="0.01" min="0" required></div> <div><label class="block text-sm font-medium mb-1">Due Date</label><input type="date" name="debtDueDate" value="${
+    )}" step="0.01" min="0" required></div> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="debtWho" value="${
+      d.who
+    }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="debtWhy" value="${
+      d.why
+    }" required></div> <div><label class="block text-sm font-medium mb-1">Due Date</label><input type="date" name="debtDueDate" value="${
       d.dueDate
     }" required></div> <button type="submit" class="btn btn-primary w-full">Update Debt</button> `,
     handleEditDebtSubmit
@@ -4139,9 +4139,9 @@ function deleteDebt(debtId) {
 
 function openAddReceivableForm() {
   const formHtml = `
+            <div><label for="recAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><input type="text" inputmode="decimal" class="calc-amount" id="recAmount" name="recAmount" step="0.01" min="0.01" required></div>
             <div><label for="recWho" class="block text-sm font-medium mb-1">Who owes you?</label><input type="text" id="recWho" name="recWho" placeholder="e.g., Jane Doe" required></div>
             <div><label for="recWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="recWhy" name="recWhy" placeholder="e.g., Friendly loan" required></div>
-            <div><label for="recAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><input type="text" inputmode="decimal" class="calc-amount" id="recAmount" name="recAmount" step="0.01" min="0.01" required></div>
             <div><label for="recDateGiven" class="block text-sm font-medium mb-1">Date Given</label><input type="date" id="recDateGiven" name="recDateGiven" required></div>
             <div>
                 <label for="recType" class="block text-sm font-medium mb-1">Type</label>
@@ -4304,17 +4304,17 @@ function openEditReceivableForm(id) {
     "Edit Receivable",
     ` <input type="hidden" name="editReceivableId" value="${
       r.id
-    }"> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="recWho" value="${
-      r.who
-    }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="recWhy" value="${
-      r.why
-    }" required></div> <div><label class="block text-sm font-medium mb-1">Original Amount</label><input type="text" inputmode="decimal" class="calc-amount" name="recOriginalAmount" value="${(
+    }"> <div><label class="block text-sm font-medium mb-1">Original Amount</label><input type="text" inputmode="decimal" class="calc-amount" name="recOriginalAmount" value="${(
       r.originalAmount || r.amount
     ).toFixed(
       2
     )}" step="0.01" min="0.01" required></div> <div><label class="block text-sm font-medium mb-1">Remaining</label><input type="text" inputmode="decimal" class="calc-amount" name="recRemainingAmount" value="${r.remainingAmount.toFixed(
       2
-    )}" step="0.01" min="0" required></div> <div><label class="block text-sm font-medium mb-1">Date Given</label><input type="date" name="recDateGiven" value="${
+    )}" step="0.01" min="0" required></div> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="recWho" value="${
+      r.who
+    }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="recWhy" value="${
+      r.why
+    }" required></div> <div><label class="block text-sm font-medium mb-1">Date Given</label><input type="date" name="recDateGiven" value="${
       r.dateGiven
     }" required></div> <div><label class="block text-sm font-medium mb-1">Type</label><select id="recTypeEdit" name="recType" onchange="toggleReceivableSourceAccount(this.value, 'recSourceAccountGroupEdit', 'recSourceAccountEdit')"><option value="cash" ${
       r.type === "cash" ? "selected" : ""
