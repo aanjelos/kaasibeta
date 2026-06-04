@@ -703,13 +703,7 @@ function loadData() {
     state.hiddenCategories = [];
   }
   
-  // Migration logic from old categorySettings to new hiddenCategories
-  if (state.categorySettings && typeof state.categorySettings === "object") {
-    for (const [cat, settings] of Object.entries(state.categorySettings)) {
-      if ((settings.excludeFromTotals || settings.excludeFromReports) && !state.hiddenCategories.includes(cat)) {
-        state.hiddenCategories.push(cat);
-      }
-    }
+  if (state.categorySettings !== undefined) {
     delete state.categorySettings; // Cleanup old state structure
   }
 
