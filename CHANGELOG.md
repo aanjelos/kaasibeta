@@ -51,3 +51,12 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 ### 9. [Minor] Cash Counter Input Enhancements
 - **Description**: Fixed the cash counter's Total/Subtotal calculations which were broken due to the inputs missing the expected classes. Enhanced the inputs by changing them strictly to numbers (`step="1"`), actively blocking decimals (`.`, `e`, `+`, `-`), and implementing a custom scroll wheel listener to smoothly increase or decrease the bill counts without being overly sensitive.
 - **Scope**: Modified `script.js`.
+
+### 10. [Minor] Settings UI Consolidation (v5.87k)
+- **Description**: Consolidated the Settings modal by moving the "Credit Card Settings" card into the "Accounts" tab and removing the redundant "Credit Cards" tab. This simplifies navigation and groups all account settings in one place.
+- **Scope**: Modified `index.html` and `script.js`.
+
+### 11. [Minor] Debts and Receivables Form Rearrangement
+- **Description**: Reordered the input fields in the "Add/Edit Debt" and "Add/Edit Receivable" modals to place the "Amount" field first. This aligns them with other transaction forms and prevents accidental entry of amounts into description/name fields.
+- **Scope**: Modified `script.js`.
+
