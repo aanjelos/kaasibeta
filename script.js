@@ -179,11 +179,19 @@ function getDefaultState() {
         limit: 0,
         transactions: [],
       },
-      categorySettings: {}, // Maps category name to settings like { excludeFromTotals: boolean, excludeFromReports: boolean }
+      hiddenCategories: [], // List of categories marked as hidden
       settings: {
         initialSetupDone: false,
         showCcDashboardSection: true,
         theme: "dark",
+        hiddenCategoryRules: {
+          excludeFromDashboardCharts: true,
+          excludeFromMonthlyTotals: true,
+          excludeFromReports: false,
+          excludeFromQuickStats: true,
+          excludeFromYearlyTotals: true,
+          dimInTransactionLists: true
+        }
       },
     })
   );
@@ -659,6 +667,17 @@ function loadData() {
         state.settings[settingKey] = defaultStateTemplate.settings[settingKey];
       }
     }
+    
+    // Ensure hiddenCategoryRules is initialized
+    if (!state.settings.hiddenCategoryRules || typeof state.settings.hiddenCategoryRules !== "object") {
+      state.settings.hiddenCategoryRules = { ...defaultStateTemplate.settings.hiddenCategoryRules };
+    } else {
+      for (const rule in defaultStateTemplate.settings.hiddenCategoryRules) {
+        if (state.settings.hiddenCategoryRules[rule] === undefined) {
+          state.settings.hiddenCategoryRules[rule] = defaultStateTemplate.settings.hiddenCategoryRules[rule];
+        }
+      }
+    }
   }
 
   if (!state.creditCard || typeof state.creditCard !== "object") {
@@ -680,8 +699,18 @@ function loadData() {
     }
   }
 
-  if (!state.categorySettings || typeof state.categorySettings !== "object") {
-    state.categorySettings = {};
+  if (!Array.isArray(state.hiddenCategories)) {
+    state.hiddenCategories = [];
+  }
+  
+  // Migration logic from old categorySettings to new hiddenCategories
+  if (state.categorySettings && typeof state.categorySettings === "object") {
+    for (const [cat, settings] of Object.entries(state.categorySettings)) {
+      if ((settings.excludeFromTotals || settings.excludeFromReports) && !state.hiddenCategories.includes(cat)) {
+        state.hiddenCategories.push(cat);
+      }
+    }
+    delete state.categorySettings; // Cleanup old state structure
   }
 
   if (!Array.isArray(state.transactions)) state.transactions = [];
@@ -965,6 +994,11 @@ function populateDropdowns() {
   categorySelects.forEach(populateCategorySelect);
 }
 
+function isCategoryExcluded(categoryName, ruleKey) {
+  if (!state.hiddenCategories?.includes(categoryName)) return false;
+  return state.settings?.hiddenCategoryRules?.[ruleKey] === true;
+}
+
 function renderDashboard() {
   const visibleAccounts = state.accounts.filter((acc) => !acc.hidden);
   const accountCardsContainer = $("#accountCardsContainer");
@@ -1109,10 +1143,10 @@ function renderYearlyAndQuickStats() {
       tDateForPeriodChecks.getFullYear() === currentYear
     ) {
       if (t.type === "income") yearlyEarned += t.amount;
-      if (t.type === "expense" && !state.categorySettings?.[t.category]?.excludeFromTotals) yearlySpent += t.amount;
+      if (t.type === "expense" && !isCategoryExcluded(t.category || "Other", 'excludeFromYearlyTotals')) yearlySpent += t.amount;
     }
 
-    if (t.type === "expense" && !state.categorySettings?.[t.category]?.excludeFromTotals) {
+    if (t.type === "expense" && !isCategoryExcluded(t.category || "Other", 'excludeFromQuickStats')) {
       // Current 7-day period spending
       if (
         tDateForPeriodChecks >= currentPeriodStart &&
@@ -2109,7 +2143,7 @@ function renderMonthlyOverviewChart() {
         t.type === "expense" &&
         tDate.getMonth() === currentMonth &&
         tDate.getFullYear() === currentYear &&
-        !state.categorySettings?.[t.category]?.excludeFromTotals
+        !isCategoryExcluded(t.category || "Other", 'excludeFromDashboardCharts')
       ) {
         const dayOfMonth = tDate.getDate();
         dailyExpenseData[dayOfMonth - 1] += t.amount;
@@ -2160,7 +2194,7 @@ function renderMonthlyOverviewChart() {
         if (isNaN(tDate.getTime())) return;
         if (tDate.getFullYear() === year && tDate.getMonth() === month) {
           if (t.type === "income") monthlyIncome += t.amount;
-          else if (t.type === "expense" && !state.categorySettings?.[t.category]?.excludeFromTotals) monthlyExpense += t.amount;
+          else if (t.type === "expense" && !isCategoryExcluded(t.category || "Other", 'excludeFromDashboardCharts')) monthlyExpense += t.amount;
         }
       });
       incomeData.push(monthlyIncome);
@@ -2918,7 +2952,7 @@ function renderMonthlyDetails(
       totalIncome += t.amount;
     } else if (t.type === "expense") {
       const category = t.category || "Other";
-      const isExcluded = state.categorySettings?.[category]?.excludeFromTotals;
+      const isExcluded = isCategoryExcluded(category, 'excludeFromMonthlyTotals');
       
       if (!isExcluded) {
         totalExpense += t.amount;
@@ -3074,7 +3108,7 @@ function renderMonthlyDetails(
       rightSideContainer.className = "flex items-center justify-end flex-grow";
 
       const dailyTotalExpenseForDisplay = dayData.transactions
-        .filter((t) => t.type === "expense" && !state.categorySettings?.[t.category || "Other"]?.excludeFromTotals)
+        .filter((t) => t.type === "expense" && !isCategoryExcluded(t.category || "Other", 'excludeFromMonthlyTotals'))
         .reduce((sum, t) => sum + t.amount, 0);
       const spentSpan = document.createElement("span");
       spentSpan.className = "text-sm text-expense mr-2 tabular-nums";
@@ -3125,9 +3159,9 @@ function renderMonthlyDetails(
             subDetailText += ` | Uncategorized`;
           }
 
-          const isExcluded = t.type === "expense" && state.categorySettings?.[t.category || "Other"]?.excludeFromTotals;
+          const isExcluded = t.type === "expense" && isCategoryExcluded(t.category || "Other", 'dimInTransactionLists');
           const opacityClass = isExcluded ? "opacity-50" : "";
-          const tooltipSuffix = isExcluded ? " (Excluded from totals)" : "";
+          const tooltipSuffix = isExcluded ? " (Hidden Category)" : "";
 
           itemDiv.innerHTML = `
               <div class="flex-grow mr-2 overflow-hidden ${opacityClass}">
@@ -3195,10 +3229,10 @@ function renderMonthlyDetails(
 
   if (sortedCategories.length > 0) {
     sortedCategories.forEach(([category, amount]) => {
-      const isExcluded = state.categorySettings?.[category]?.excludeFromTotals;
+      const isExcluded = isCategoryExcluded(category, 'excludeFromMonthlyTotals');
       const li = document.createElement("li");
       const opacityClass = isExcluded ? "opacity-50" : "";
-      const tooltip = isExcluded ? `title="${category} (Excluded from totals)"` : `title="${category}"`;
+      const tooltip = isExcluded ? `title="${category} (Hidden Category)"` : `title="${category}"`;
       li.innerHTML = `<span class="truncate pr-2 ${opacityClass}" ${tooltip}>${category}</span><span class="font-medium whitespace-nowrap tabular-nums ${opacityClass}" ${tooltip}>${formatCurrency(
         amount
       )}</span>`;
@@ -3234,7 +3268,7 @@ function renderMonthlyDetails(
     chartCard.appendChild(canvasContainer);
     categorySection.appendChild(chartCard);
     
-    const pieDataCategories = sortedCategories.filter(([c, _]) => !state.categorySettings?.[c]?.excludeFromTotals);
+    const pieDataCategories = sortedCategories.filter(([c, _]) => !isCategoryExcluded(c, 'excludeFromMonthlyTotals'));
     const pieData = {
       labels: pieDataCategories.map(([c, _]) => c),
       values: pieDataCategories.map(([_, a]) => a),
@@ -5351,6 +5385,18 @@ function renderSettingsForm() {
       newCategoryNameInput.style.color = "var(--text-primary)";
     }
   }
+
+  // Populate hidden category rules checkboxes
+  if (state.settings && state.settings.hiddenCategoryRules) {
+    const rules = state.settings.hiddenCategoryRules;
+    for (const rule in rules) {
+      const checkbox = document.getElementById(`rule_${rule}`);
+      if (checkbox) {
+        checkbox.checked = rules[rule];
+      }
+    }
+  }
+
   renderCategorySettingsList();
 }
 
@@ -5404,7 +5450,7 @@ function renderCategorySettingsList() {
   sortedCategories.forEach((cat) => {
     const li = document.createElement("li");
 
-    li.className = "flex justify-between items-center p-2 rounded";
+    li.className = "flex justify-between items-center px-3 py-1.5 rounded";
     li.style.backgroundColor = "var(--bg-secondary)";
     li.style.borderColor = "var(--border-color)";
     li.style.borderWidth = "1px";
@@ -5414,47 +5460,65 @@ function renderCategorySettingsList() {
     const buttonsDiv = document.createElement("div");
     buttonsDiv.className = "flex items-center gap-x-3";
 
-    const isExcludedFromTotals = state.categorySettings?.[cat]?.excludeFromTotals;
-    const isExcludedFromReports = state.categorySettings?.[cat]?.excludeFromReports;
+    const isHidden = state.hiddenCategories?.includes(cat);
+    const eyeIconClass = isHidden ? "fa-eye-slash text-gray-500" : "fa-eye text-accent-primary";
+    const eyeTooltip = isHidden ? "Hidden Category (Click to make visible)" : "Visible Category (Click to hide)";
+    
+    const toggleBtn = `<button class="focus:outline-none hover:scale-110 transition-transform flex items-center justify-center w-6 h-6" onclick="toggleHiddenCategory('${cat}')" title="${eyeTooltip}"><i class="fas ${eyeIconClass}"></i></button>`;
 
-    const totalsIconClass = isExcludedFromTotals ? "fa-chart-pie text-gray-500 opacity-50" : "fa-chart-pie text-accent-primary";
-    const totalsTooltip = isExcludedFromTotals ? "Excluded from Charts & Totals" : "Included in Charts & Totals";
-
-    const reportsIconClass = isExcludedFromReports ? "fa-file-alt text-gray-500 opacity-50" : "fa-file-alt text-accent-primary";
-    const reportsTooltip = isExcludedFromReports ? "Excluded from Reports" : "Included in Reports";
-
-    const totalsToggleBtn = `<button class="focus:outline-none hover:scale-110 transition-transform" onclick="toggleCategorySetting('${cat}', 'excludeFromTotals')" title="${totalsTooltip}"><i class="fas ${totalsIconClass}"></i></button>`;
-    const reportsToggleBtn = `<button class="focus:outline-none hover:scale-110 transition-transform" onclick="toggleCategorySetting('${cat}', 'excludeFromReports')" title="${reportsTooltip}"><i class="fas ${reportsIconClass}"></i></button>`;
-
-    const saveButtonHTML = `<button class="btn btn-primary btn-sm !py-0.5 !px-2 text-xs ml-1" onclick="renameCategory(this)">Save</button>`;
-    const deleteButtonHTML = `<button class="text-gray-400 hover:text-expense focus:outline-none ml-1" onclick="deleteCategory('${cat}')" title="Delete Category"><i class="fas fa-times"></i></button>`;
+    const saveButtonHTML = `<button class="btn btn-primary btn-sm !py-1 !px-3 text-xs font-medium" onclick="renameCategory(this)">Save</button>`;
+    const deleteButtonHTML = `<button class="text-gray-400 hover:text-expense focus:outline-none w-6 h-6 flex items-center justify-center" onclick="deleteCategory('${cat}')" title="Delete Category"><i class="fas fa-times"></i></button>`;
 
     li.innerHTML = inputElementHTML;
-    buttonsDiv.innerHTML = totalsToggleBtn + reportsToggleBtn + saveButtonHTML + deleteButtonHTML;
+    buttonsDiv.innerHTML = toggleBtn + saveButtonHTML + deleteButtonHTML;
     li.appendChild(buttonsDiv);
 
     categoryList.appendChild(li);
   });
 }
 
-function toggleCategorySetting(categoryName, settingKey) {
-  if (!state.categorySettings) {
-    state.categorySettings = {};
-  }
-  if (!state.categorySettings[categoryName]) {
-    state.categorySettings[categoryName] = { excludeFromTotals: false, excludeFromReports: false };
+function toggleHiddenCategory(categoryName) {
+  if (!Array.isArray(state.hiddenCategories)) {
+    state.hiddenCategories = [];
   }
   
-  // Toggle boolean value
-  state.categorySettings[categoryName][settingKey] = !state.categorySettings[categoryName][settingKey];
+  const index = state.hiddenCategories.indexOf(categoryName);
+  if (index > -1) {
+    state.hiddenCategories.splice(index, 1);
+    showNotification(`${categoryName} is now visible`, "success");
+  } else {
+    state.hiddenCategories.push(categoryName);
+    showNotification(`${categoryName} is now hidden`, "success");
+  }
   
   saveData();
   renderCategorySettingsList();
-  renderDashboard(); // Re-render to reflect changes in quick stats and charts
+  renderDashboard();
+}
+
+function toggleAdvancedRules() {
+  const container = document.getElementById('advancedRulesContainer');
+  const icon = document.getElementById('advancedRulesIcon');
+  if (container.style.display === 'none') {
+    container.style.display = 'block';
+    icon.classList.remove('fa-chevron-down');
+    icon.classList.add('fa-chevron-up');
+  } else {
+    container.style.display = 'none';
+    icon.classList.remove('fa-chevron-up');
+    icon.classList.add('fa-chevron-down');
+  }
+}
+
+function toggleHiddenRule(ruleKey) {
+  if (!state.settings) state.settings = {};
+  if (!state.settings.hiddenCategoryRules) state.settings.hiddenCategoryRules = {};
   
-  const settingLabel = settingKey === 'excludeFromTotals' ? 'Charts & Totals' : 'Reports';
-  const action = state.categorySettings[categoryName][settingKey] ? 'Excluded from' : 'Included in';
-  showNotification(`${categoryName} ${action} ${settingLabel}`, "success");
+  const checkbox = document.getElementById(`rule_${ruleKey}`);
+  state.settings.hiddenCategoryRules[ruleKey] = checkbox.checked;
+  
+  saveData();
+  renderDashboard();
 }
 
 function renameCategory(buttonElement) {
@@ -5941,7 +6005,7 @@ function generateMonthlyPdfReport() {
     .filter((t) => {
       const tDate = new Date(t.date);
       if (tDate.getFullYear() !== year || tDate.getMonth() !== month) return false;
-      if (t.type === "expense" && state.categorySettings?.[t.category || "Other"]?.excludeFromReports) {
+      if (t.type === "expense" && isCategoryExcluded(t.category || "Other", 'excludeFromReports')) {
         return false;
       }
       return true;

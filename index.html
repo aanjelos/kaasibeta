@@ -619,6 +619,72 @@
                 style="background-color: var(--bg-tertiary)"
               >
                 <h3 class="text-lg font-semibold mb-3">
+                  Hidden Category Rules
+                </h3>
+                <p class="text-xs text-gray-400 mb-4">
+                  Define what happens when a category is marked as "Hidden" (using the <i class="fas fa-eye-slash mx-1"></i> icon below).
+                </p>
+                <div class="space-y-3" id="hiddenCategoryRulesContainer">
+                  <!-- Primary Rules -->
+                  <div class="flex items-center justify-between">
+                    <label class="text-sm font-medium text-gray-300">Hide from Dashboard Charts</label>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="rule_excludeFromDashboardCharts" class="sr-only peer" onchange="toggleHiddenRule('excludeFromDashboardCharts')">
+                      <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                    </label>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <label class="text-sm font-medium text-gray-300">Hide from Monthly Breakdown Totals</label>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="rule_excludeFromMonthlyTotals" class="sr-only peer" onchange="toggleHiddenRule('excludeFromMonthlyTotals')">
+                      <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                    </label>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <label class="text-sm font-medium text-gray-300">Exclude from PDF Reports</label>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="rule_excludeFromReports" class="sr-only peer" onchange="toggleHiddenRule('excludeFromReports')">
+                      <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                    </label>
+                  </div>
+                  
+                  <!-- Accordion for Advanced Rules -->
+                  <div class="mt-4 border border-gray-600 rounded-md overflow-hidden">
+                    <button type="button" class="w-full flex justify-between items-center p-3 bg-gray-700/50 hover:bg-gray-600/50 transition-colors focus:outline-none" onclick="toggleAdvancedRules()">
+                      <span class="text-sm font-medium text-gray-200">Advanced Exclusion Rules</span>
+                      <i id="advancedRulesIcon" class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                    </button>
+                    <div id="advancedRulesContainer" class="p-3 space-y-3 bg-gray-800/30" style="display: none;">
+                      <div class="flex items-center justify-between">
+                        <label class="text-sm font-medium text-gray-300">Hide from Today/Past 7 Days Stats</label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" id="rule_excludeFromQuickStats" class="sr-only peer" onchange="toggleHiddenRule('excludeFromQuickStats')">
+                          <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                        </label>
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <label class="text-sm font-medium text-gray-300">Hide from Yearly Totals</label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" id="rule_excludeFromYearlyTotals" class="sr-only peer" onchange="toggleHiddenRule('excludeFromYearlyTotals')">
+                          <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                        </label>
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <label class="text-sm font-medium text-gray-300">Dim in Transaction Lists (Grey out)</label>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" id="rule_dimInTransactionLists" class="sr-only peer" onchange="toggleHiddenRule('dimInTransactionLists')">
+                          <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="card !p-4"
+                style="background-color: var(--bg-tertiary)"
+              >
+                <h3 class="text-lg font-semibold mb-3">
                   Manage Expense Categories
                 </h3>
                 <form id="addCategoryForm" class="flex gap-2 mb-3">
