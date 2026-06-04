@@ -254,22 +254,16 @@ function openInitialSetupWizard() {
         acc.hidden ? "fa-eye-slash" : "fa-eye"
       }"></i>`;
 
-      if (acc.id === "cash") {
-        hideButton.disabled = true;
-        hideButton.style.opacity = "0.3";
-        hideButton.style.cursor = "not-allowed";
-      } else {
-        hideButton.onclick = () => {
-          updateTempStateFromDOM(); // Save current input values before re-rendering
-          const accountToToggle = tempSetupAccounts.find(
-            (a) => a.id === acc.id
-          );
-          if (accountToToggle) {
-            accountToToggle.hidden = !accountToToggle.hidden;
-            renderSetupAccounts(); // Re-render the list to reflect the change
-          }
-        };
-      }
+      hideButton.onclick = () => {
+        updateTempStateFromDOM(); // Save current input values before re-rendering
+        const accountToToggle = tempSetupAccounts.find(
+          (a) => a.id === acc.id
+        );
+        if (accountToToggle) {
+          accountToToggle.hidden = !accountToToggle.hidden;
+          renderSetupAccounts(); // Re-render the list to reflect the change
+        }
+      };
       accRow.appendChild(hideButton);
 
       // 2. Name field (Label for Cash, Input for others)
@@ -5248,13 +5242,7 @@ function renderSettingsForm() {
         acc.hidden ? "fa-eye-slash" : "fa-eye"
       }"></i>`;
 
-      if (acc.id === "cash") {
-        hideButton.disabled = true;
-        hideButton.style.opacity = "0.3";
-        hideButton.style.cursor = "not-allowed";
-      } else {
-        hideButton.onclick = () => toggleAccountVisibility(acc.id);
-      }
+      hideButton.onclick = () => toggleAccountVisibility(acc.id);
       accRow.appendChild(hideButton);
 
       // Name Input
@@ -5396,7 +5384,7 @@ function renderSettingsForm() {
 
 function toggleAccountVisibility(accountId) {
   const account = state.accounts.find((acc) => acc.id === accountId);
-  if (!account || account.id === "cash") return;
+  if (!account) return;
 
   const performToggle = () => {
     account.hidden = !account.hidden;
