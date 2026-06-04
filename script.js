@@ -1065,22 +1065,22 @@ function renderDashboard() {
     .reduce((s, r) => s + r.remainingAmount, 0);
   $(
     "#totalPotentialBalance"
-  ).innerHTML = `<span class="tabular-nums">${formatCurrency(
+  ).innerHTML = `<span class="tabular-nums ${privacyClass}">${formatCurrency(
     totalBalance + cashRecTotal
   )}</span>`;
   $(
     "#totalOwedToMe"
-  ).innerHTML = `Total: <span class="tabular-nums">${formatCurrency(
+  ).innerHTML = `Total: <span class="tabular-nums ${privacyClass}">${formatCurrency(
     state.receivables.reduce((s, r) => s + r.remainingAmount, 0)
   )}</span>`;
   $(
     "#totalOwed"
-  ).innerHTML = `Total: <span class="tabular-nums">${formatCurrency(
+  ).innerHTML = `Total: <span class="tabular-nums ${privacyClass}">${formatCurrency(
     state.debts.reduce((s, d) => s + d.remainingAmount, 0)
   )}</span>`;
   $(
     "#totalInstallmentsLeft"
-  ).innerHTML = `Total Left: <span class="tabular-nums">${formatCurrency(
+  ).innerHTML = `Total Left: <span class="tabular-nums ${privacyClass}">${formatCurrency(
     state.installments.reduce((s, i) => s + i.monthlyAmount * i.monthsLeft, 0)
   )}</span>`;
   renderRecentTransactions();
@@ -3398,7 +3398,8 @@ function renderMonthlyPieChart(data) {
 function renderCreditCardSection() {
   const limit = state.creditCard.limit || 0,
     transactions = state.creditCard.transactions || [];
-  $("#ccLimit").innerHTML = `<span class="tabular-nums">${formatCurrency(
+  const privacyClass = state.settings.privacyMode ? "privacy-blur" : "";
+  $("#ccLimit").innerHTML = `<span class="tabular-nums ${privacyClass}">${formatCurrency(
     limit
   )}</span>`;
   const spentUnpaid = transactions
@@ -3406,7 +3407,7 @@ function renderCreditCardSection() {
     .reduce((sum, t) => sum + t.amount - (t.paidAmount || 0), 0);
   const available = limit - spentUnpaid,
     availableEl = $("#ccAvailable");
-  availableEl.innerHTML = `<span class="tabular-nums">${formatCurrency(
+  availableEl.innerHTML = `<span class="tabular-nums ${privacyClass}">${formatCurrency(
     available
   )}</span>`;
   availableEl.classList.toggle("text-danger", available < 0);
