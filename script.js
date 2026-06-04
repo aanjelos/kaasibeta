@@ -179,6 +179,7 @@ function getDefaultState() {
         limit: 0,
         transactions: [],
       },
+      categorySettings: {}, // Maps category name to settings like { excludeFromTotals: boolean, excludeFromReports: boolean }
       settings: {
         initialSetupDone: false,
         showCcDashboardSection: true,
@@ -679,6 +680,10 @@ function loadData() {
     }
   }
 
+  if (!state.categorySettings || typeof state.categorySettings !== "object") {
+    state.categorySettings = {};
+  }
+
   if (!Array.isArray(state.transactions)) state.transactions = [];
   if (!Array.isArray(state.accounts)) state.accounts = [];
   if (!Array.isArray(state.categories)) state.categories = [];
@@ -1104,10 +1109,10 @@ function renderYearlyAndQuickStats() {
       tDateForPeriodChecks.getFullYear() === currentYear
     ) {
       if (t.type === "income") yearlyEarned += t.amount;
-      if (t.type === "expense") yearlySpent += t.amount;
+      if (t.type === "expense" && !state.categorySettings?.[t.category]?.excludeFromTotals) yearlySpent += t.amount;
     }
 
-    if (t.type === "expense") {
+    if (t.type === "expense" && !state.categorySettings?.[t.category]?.excludeFromTotals) {
       // Current 7-day period spending
       if (
         tDateForPeriodChecks >= currentPeriodStart &&
@@ -2103,7 +2108,8 @@ function renderMonthlyOverviewChart() {
       if (
         t.type === "expense" &&
         tDate.getMonth() === currentMonth &&
-        tDate.getFullYear() === currentYear
+        tDate.getFullYear() === currentYear &&
+        !state.categorySettings?.[t.category]?.excludeFromTotals
       ) {
         const dayOfMonth = tDate.getDate();
         dailyExpenseData[dayOfMonth - 1] += t.amount;
@@ -2154,7 +2160,7 @@ function renderMonthlyOverviewChart() {
         if (isNaN(tDate.getTime())) return;
         if (tDate.getFullYear() === year && tDate.getMonth() === month) {
           if (t.type === "income") monthlyIncome += t.amount;
-          else if (t.type === "expense") monthlyExpense += t.amount;
+          else if (t.type === "expense" && !state.categorySettings?.[t.category]?.excludeFromTotals) monthlyExpense += t.amount;
         }
       });
       incomeData.push(monthlyIncome);
@@ -2911,8 +2917,14 @@ function renderMonthlyDetails(
     if (t.type === "income") {
       totalIncome += t.amount;
     } else if (t.type === "expense") {
-      totalExpense += t.amount;
       const category = t.category || "Other";
+      const isExcluded = state.categorySettings?.[category]?.excludeFromTotals;
+      
+      if (!isExcluded) {
+        totalExpense += t.amount;
+      }
+      
+      // Still accumulate in categoryTotals for the breakdown list (will be greyed out)
       if (categoryTotals[category] !== undefined) {
         categoryTotals[category] += t.amount;
       } else {
@@ -3062,7 +3074,7 @@ function renderMonthlyDetails(
       rightSideContainer.className = "flex items-center justify-end flex-grow";
 
       const dailyTotalExpenseForDisplay = dayData.transactions
-        .filter((t) => t.type === "expense")
+        .filter((t) => t.type === "expense" && !state.categorySettings?.[t.category || "Other"]?.excludeFromTotals)
         .reduce((sum, t) => sum + t.amount, 0);
       const spentSpan = document.createElement("span");
       spentSpan.className = "text-sm text-expense mr-2 tabular-nums";
@@ -3113,14 +3125,18 @@ function renderMonthlyDetails(
             subDetailText += ` | Uncategorized`;
           }
 
+          const isExcluded = t.type === "expense" && state.categorySettings?.[t.category || "Other"]?.excludeFromTotals;
+          const opacityClass = isExcluded ? "opacity-50" : "";
+          const tooltipSuffix = isExcluded ? " (Excluded from totals)" : "";
+
           itemDiv.innerHTML = `
-              <div class="flex-grow mr-2 overflow-hidden">
+              <div class="flex-grow mr-2 overflow-hidden ${opacityClass}">
                 <p class="font-medium truncate ${textColorClass}" title="${
             t.description
-          }">${t.description}</p>
+          }${tooltipSuffix}">${t.description}</p>
                 <p class="text-xs text-gray-400 mt-0.5">${subDetailText}</p>
               </div>
-              <span class="font-semibold whitespace-nowrap ${textColorClass} ml-2 tabular-nums">${
+              <span class="font-semibold whitespace-nowrap ${textColorClass} ml-2 tabular-nums ${opacityClass}" title="${isExcluded ? 'Excluded from totals' : ''}">${
             isIncome ? "+" : "-"
           }${formatCurrency(t.amount)}</span>
               <div class="edit-btn-container flex-shrink-0 ml-2">
@@ -3179,9 +3195,11 @@ function renderMonthlyDetails(
 
   if (sortedCategories.length > 0) {
     sortedCategories.forEach(([category, amount]) => {
+      const isExcluded = state.categorySettings?.[category]?.excludeFromTotals;
       const li = document.createElement("li");
-      // --- FIX: Added tabular-nums class to the amount span ---
-      li.innerHTML = `<span class="truncate pr-2" title="${category}">${category}</span><span class="font-medium whitespace-nowrap tabular-nums">${formatCurrency(
+      const opacityClass = isExcluded ? "opacity-50" : "";
+      const tooltip = isExcluded ? `title="${category} (Excluded from totals)"` : `title="${category}"`;
+      li.innerHTML = `<span class="truncate pr-2 ${opacityClass}" ${tooltip}>${category}</span><span class="font-medium whitespace-nowrap tabular-nums ${opacityClass}" ${tooltip}>${formatCurrency(
         amount
       )}</span>`;
       categoryList.appendChild(li);
@@ -3215,9 +3233,11 @@ function renderMonthlyDetails(
     canvasContainer.appendChild(canvas);
     chartCard.appendChild(canvasContainer);
     categorySection.appendChild(chartCard);
+    
+    const pieDataCategories = sortedCategories.filter(([c, _]) => !state.categorySettings?.[c]?.excludeFromTotals);
     const pieData = {
-      labels: sortedCategories.map(([c, _]) => c),
-      values: sortedCategories.map(([_, a]) => a),
+      labels: pieDataCategories.map(([c, _]) => c),
+      values: pieDataCategories.map(([_, a]) => a),
     };
     setTimeout(() => renderMonthlyPieChart(pieData), 100);
   } else if (sortedCategories.length === 0 && monthlyPieChartInstance) {
@@ -5392,17 +5412,49 @@ function renderCategorySettingsList() {
     const inputElementHTML = `<input type="text" value="${cat}" data-original-name="${cat}" class="bg-transparent border-none focus:ring-0 focus:outline-none p-0 flex-grow mr-2 text-sm">`;
 
     const buttonsDiv = document.createElement("div");
-    buttonsDiv.className = "flex items-center gap-x-2";
+    buttonsDiv.className = "flex items-center gap-x-3";
 
-    const saveButtonHTML = `<button class="btn btn-primary btn-sm !py-0.5 !px-2 text-xs" onclick="renameCategory(this)">Save</button>`;
-    const deleteButtonHTML = `<button class="text-gray-400 hover:text-expense focus:outline-none" onclick="deleteCategory('${cat}')" title="Delete Category"><i class="fas fa-times"></i></button>`;
+    const isExcludedFromTotals = state.categorySettings?.[cat]?.excludeFromTotals;
+    const isExcludedFromReports = state.categorySettings?.[cat]?.excludeFromReports;
+
+    const totalsIconClass = isExcludedFromTotals ? "fa-chart-pie text-gray-500 opacity-50" : "fa-chart-pie text-accent-primary";
+    const totalsTooltip = isExcludedFromTotals ? "Excluded from Charts & Totals" : "Included in Charts & Totals";
+
+    const reportsIconClass = isExcludedFromReports ? "fa-file-alt text-gray-500 opacity-50" : "fa-file-alt text-accent-primary";
+    const reportsTooltip = isExcludedFromReports ? "Excluded from Reports" : "Included in Reports";
+
+    const totalsToggleBtn = `<button class="focus:outline-none hover:scale-110 transition-transform" onclick="toggleCategorySetting('${cat}', 'excludeFromTotals')" title="${totalsTooltip}"><i class="fas ${totalsIconClass}"></i></button>`;
+    const reportsToggleBtn = `<button class="focus:outline-none hover:scale-110 transition-transform" onclick="toggleCategorySetting('${cat}', 'excludeFromReports')" title="${reportsTooltip}"><i class="fas ${reportsIconClass}"></i></button>`;
+
+    const saveButtonHTML = `<button class="btn btn-primary btn-sm !py-0.5 !px-2 text-xs ml-1" onclick="renameCategory(this)">Save</button>`;
+    const deleteButtonHTML = `<button class="text-gray-400 hover:text-expense focus:outline-none ml-1" onclick="deleteCategory('${cat}')" title="Delete Category"><i class="fas fa-times"></i></button>`;
 
     li.innerHTML = inputElementHTML;
-    buttonsDiv.innerHTML = saveButtonHTML + deleteButtonHTML;
+    buttonsDiv.innerHTML = totalsToggleBtn + reportsToggleBtn + saveButtonHTML + deleteButtonHTML;
     li.appendChild(buttonsDiv);
 
     categoryList.appendChild(li);
   });
+}
+
+function toggleCategorySetting(categoryName, settingKey) {
+  if (!state.categorySettings) {
+    state.categorySettings = {};
+  }
+  if (!state.categorySettings[categoryName]) {
+    state.categorySettings[categoryName] = { excludeFromTotals: false, excludeFromReports: false };
+  }
+  
+  // Toggle boolean value
+  state.categorySettings[categoryName][settingKey] = !state.categorySettings[categoryName][settingKey];
+  
+  saveData();
+  renderCategorySettingsList();
+  renderDashboard(); // Re-render to reflect changes in quick stats and charts
+  
+  const settingLabel = settingKey === 'excludeFromTotals' ? 'Charts & Totals' : 'Reports';
+  const action = state.categorySettings[categoryName][settingKey] ? 'Excluded from' : 'Included in';
+  showNotification(`${categoryName} ${action} ${settingLabel}`, "success");
 }
 
 function renameCategory(buttonElement) {
@@ -5888,7 +5940,11 @@ function generateMonthlyPdfReport() {
   const transactionsInMonth = state.transactions
     .filter((t) => {
       const tDate = new Date(t.date);
-      return tDate.getFullYear() === year && tDate.getMonth() === month;
+      if (tDate.getFullYear() !== year || tDate.getMonth() !== month) return false;
+      if (t.type === "expense" && state.categorySettings?.[t.category || "Other"]?.excludeFromReports) {
+        return false;
+      }
+      return true;
     })
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
