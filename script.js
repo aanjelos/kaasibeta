@@ -4140,9 +4140,6 @@ function deleteDebt(debtId) {
 function openAddReceivableForm() {
   const formHtml = `
             <div><label for="recAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><input type="text" inputmode="decimal" class="calc-amount" id="recAmount" name="recAmount" step="0.01" min="0.01" required></div>
-            <div><label for="recWho" class="block text-sm font-medium mb-1">Who owes you?</label><input type="text" id="recWho" name="recWho" placeholder="e.g., Jane Doe" required></div>
-            <div><label for="recWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="recWhy" name="recWhy" placeholder="e.g., Friendly loan" required></div>
-            <div><label for="recDateGiven" class="block text-sm font-medium mb-1">Date Given</label><input type="date" id="recDateGiven" name="recDateGiven" required></div>
             <div>
                 <label for="recType" class="block text-sm font-medium mb-1">Type</label>
                 <select id="recType" name="recType" required onchange="toggleReceivableSourceAccount(this.value, 'recSourceAccountGroupAdd', 'recSourceAccountAdd')">
@@ -4156,6 +4153,9 @@ function openAddReceivableForm() {
                 <i class="fas fa-info-circle mr-1"></i>
                 <strong>Important:</strong> Selecting "Credit Card Loan" means you provided funds from your credit card. This entry tracks the money owed <em>to you</em>. It does not automatically create an expense on your credit card. If you used your credit card for this, please add a separate "CC Expense" manually to reflect the charge on your card.
             </p>
+            <div><label for="recWho" class="block text-sm font-medium mb-1">Who owes you?</label><input type="text" id="recWho" name="recWho" placeholder="e.g., Jane Doe" required></div>
+            <div><label for="recWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="recWhy" name="recWhy" placeholder="e.g., Friendly loan" required></div>
+            <div><label for="recDateGiven" class="block text-sm font-medium mb-1">Date Given</label><input type="date" id="recDateGiven" name="recDateGiven" required></div>
             <button type="submit" class="btn btn-primary w-full"><i class="fas fa-plus"></i> Add Receivable</button>
         `;
   openFormModal("Add New Receivable", formHtml, handleAddReceivableSubmit);
@@ -4310,13 +4310,7 @@ function openEditReceivableForm(id) {
       2
     )}" step="0.01" min="0.01" required></div> <div><label class="block text-sm font-medium mb-1">Remaining</label><input type="text" inputmode="decimal" class="calc-amount" name="recRemainingAmount" value="${r.remainingAmount.toFixed(
       2
-    )}" step="0.01" min="0" required></div> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="recWho" value="${
-      r.who
-    }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="recWhy" value="${
-      r.why
-    }" required></div> <div><label class="block text-sm font-medium mb-1">Date Given</label><input type="date" name="recDateGiven" value="${
-      r.dateGiven
-    }" required></div> <div><label class="block text-sm font-medium mb-1">Type</label><select id="recTypeEdit" name="recType" onchange="toggleReceivableSourceAccount(this.value, 'recSourceAccountGroupEdit', 'recSourceAccountEdit')"><option value="cash" ${
+    )}" step="0.01" min="0" required></div> <div><label class="block text-sm font-medium mb-1">Type</label><select id="recTypeEdit" name="recType" onchange="toggleReceivableSourceAccount(this.value, 'recSourceAccountGroupEdit', 'recSourceAccountEdit')"><option value="cash" ${
       r.type === "cash" ? "selected" : ""
     }>Cash/Bank</option><option value="cc" ${
       r.type === "cc" ? "selected" : ""
@@ -4331,7 +4325,13 @@ function openEditReceivableForm(id) {
       )
       .join(
         ""
-      )}</select></div> <button type="submit" class="btn btn-primary w-full">Update Receivable</button> `,
+      )}</select></div> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="recWho" value="${
+      r.who
+    }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="recWhy" value="${
+      r.why
+    }" required></div> <div><label class="block text-sm font-medium mb-1">Date Given</label><input type="date" name="recDateGiven" value="${
+      r.dateGiven
+    }" required></div> <button type="submit" class="btn btn-primary w-full">Update Receivable</button> `,
     handleEditReceivableSubmit
   );
   const recTypeEditSelect = $("#recTypeEdit");

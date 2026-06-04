@@ -57,6 +57,6 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 - **Scope**: Modified `index.html` and `script.js`.
 
 ### 11. [Minor] Debts and Receivables Form Rearrangement
-- **Description**: Reordered the input fields in the "Add/Edit Debt" and "Add/Edit Receivable" modals to place the "Amount" field first. This aligns them with other transaction forms and prevents accidental entry of amounts into description/name fields.
+- **Description**: Reordered the input fields in the "Add/Edit Debt" and "Add/Edit Receivable" modals to place the "Amount" field first, and positioned the "Type" and "Account" selectors immediately after the amount in the Receivables form. This aligns them with other transaction forms and prevents accidental entry of amounts into description/name fields.
 - **Scope**: Modified `script.js`.
 
