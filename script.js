@@ -5262,10 +5262,10 @@ function setupAppearanceListeners() {
       const accent = state.settings.accent || "orange";
       accentBtns.forEach(btn => {
         if (btn.dataset.accent === accent) {
-          btn.classList.add("ring-offset-2", "ring-accent-primary");
+          btn.classList.add("ring-2", "ring-offset-2", "ring-accent-primary");
           btn.classList.remove("ring-transparent");
         } else {
-          btn.classList.remove("ring-offset-2", "ring-accent-primary");
+          btn.classList.remove("ring-2", "ring-offset-2", "ring-accent-primary");
           btn.classList.add("ring-transparent");
         }
       });
