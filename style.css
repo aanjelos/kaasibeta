@@ -78,10 +78,10 @@
 
 /* Light Theme Variables */
 [data-theme="light"] {
-  --bg-primary: #f1f5f9;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #ffffff;
-  --bg-quaternary: #e2e8f0;
+  --bg-primary: #e2e8f0;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f8fafc;
+  --bg-quaternary: #f1f5f9;
 
   --text-primary: #0f172a;
   --text-secondary: #334155;
@@ -1544,6 +1544,201 @@ footer a[href^="https://kaasi.com.lk"]:hover
     display: none !important;
   }
 }
+  padding-left: 0.75rem;
+  padding-right: 2.5rem; /* Keep space for the dropdown arrow */
+}
+
+/* --- FOOTER LINKS --- */
+/* This targets the 'Donate' button and 'Main Website' link */
+footer #footerDonateBtn,
+footer a[href^="https://kaasi.com.lk"]
+{
+  font-weight: 700; /* bold */
+  color: var(--text-secondary);
+  transition: color 0.2s ease-in-out;
+  text-decoration: none; /* remove underline from link */
+  background: none; /* ensure no background */
+  border: none; /* ensure no border */
+  padding: 0; /* remove default button padding */
+  cursor: pointer;
+}
+
+footer #footerDonateBtn:hover,
+footer a[href^="https://kaasi.com.lk"]:hover
+{
+  color: var(--accent-primary); /* orange on hover */
+  text-decoration: none; /* ensure no underline on hover */
+}
+
+/* --- DONATE MODAL SPECIFICS --- */
+#donateModal .modal-content {
+  background-color: #18181b; /* A slightly different dark shade from landing page */
+  border-radius: 1rem; /* 16px */
+  padding: 2rem;
+  max-width: 600px;
+  border: 1px solid var(--border-color);
+}
+
+.donate-bank-details-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+.donate-bank-block {
+  margin-bottom: 0.3rem;
+}
+.bank-title {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  font-size: 1.08rem;
+  letter-spacing: 0.01em;
+}
+.bank-pair {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.1rem;
+}
+.bank-label {
+  color: var(--text-secondary);
+  min-width: 56px;
+  font-size: 0.97rem;
+}
+.bank-value {
+  color: var(--text-primary);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  font-size: 1rem;
+}
+.copy-button {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.6rem;
+  margin-left: auto; /* Pushes button to the right */
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.copy-button:hover {
+  background-color: var(--bg-quaternary);
+  color: var(--text-primary);
+}
+
+/* --- NEW: SUPABASE & DATA MANAGEMENT STYLES --- */
+
+/* Style for the Google login button */
+#googleLoginBtn {
+  background-color: #4285F4; /* Google Blue */
+  border-color: #4285F4;
+  color: white;
+}
+#googleLoginBtn:hover {
+  background-color: #357ae8;
+  border-color: #357ae8;
+  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3);
+}
+
+/* Style for the shortcut radio buttons when disabled */
+/* This styles the label text (e.g., "Cloud Backup") */
+#shortcutTargetGroup label:has(input[type="radio"]:disabled) {
+  color: var(--text-placeholder);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* This styles the radio button itself */
+#shortcutTargetGroup input[type="radio"]:disabled {
+  cursor: not-allowed;
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+/* --- NEW: Header Button Mobile Consistency --- */
+@media (max-width: 767px) { /* Tailwind 'md' breakpoint */
+  #monthlyViewBtn,
+  #headerBackupBtn,
+  #headerRestoreBtn {
+    padding-left: 0;
+    padding-right: 0;
+    width: 2.75rem; /* 44px */
+    height: 2.75rem; /* 44px */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  /* Ensure icon-only buttons in the header have their icons sized appropriately */
+  #monthlyViewBtn i,
+  #headerBackupBtn i,
+  #headerRestoreBtn i {
+    font-size: 1rem; /* 16px */
+    line-height: 1;
+  }
+}
+
+
+/* ------------------------- */
+/* --- MATH TOOLBAR --- */
+/* ------------------------- */
+.math-toolbar {
+  position: absolute;
+  display: flex;
+  gap: 0.25rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 50;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+}
+
+.math-toolbar.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.math-btn {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+}
+
+.math-btn:active {
+  background: var(--border-color);
+}
+
+.math-btn.math-btn-equal {
+  background: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+}
+
+.math-btn.math-btn-equal:active {
+  background: var(--accent-hover);
+}
+
+@media (pointer: fine) {
+  .math-toolbar {
+    display: none !important;
+  }
+}
 
 /* Custom Utilities for Javascript Toggles */
 .border-accent-primary {
@@ -1551,4 +1746,68 @@ footer a[href^="https://kaasi.com.lk"]:hover
 }
 .ring-accent-primary {
   --tw-ring-color: var(--accent-primary) !important;
+}
+
+/* Custom Utilities for Danger Zone */
+.danger-zone-card {
+  background-color: rgba(127, 29, 29, 0.3) !important;
+  border-color: #b91c1c !important;
+}
+.danger-zone-text {
+  color: #f87171 !important;
+}
+.danger-zone-subtext {
+  color: #fca5a5 !important;
+}
+
+[data-theme="light"] .danger-zone-card {
+  background-color: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+}
+[data-theme="light"] .danger-zone-text {
+  color: #dc2626 !important;
+}
+[data-theme="light"] .danger-zone-subtext {
+  color: #ef4444 !important;
+}
+
+/* Custom Utilities for Advanced Rules */
+.advanced-rules-btn {
+  background-color: rgba(55, 65, 81, 0.5);
+}
+.advanced-rules-btn:hover {
+  background-color: rgba(75, 85, 99, 0.5);
+}
+.advanced-rules-content {
+  background-color: rgba(31, 41, 55, 0.3);
+}
+
+[data-theme="light"] .advanced-rules-btn {
+  background-color: var(--bg-tertiary);
+}
+[data-theme="light"] .advanced-rules-btn:hover {
+  background-color: var(--button-secondary-hover-bg);
+}
+[data-theme="light"] .advanced-rules-content {
+  background-color: var(--bg-secondary);
+}
+
+/* Custom Utilities for Footer */
+.footer-border {
+  border-color: rgba(31, 41, 55, 0.5);
+}
+.footer-bg {
+  background-color: #121212;
+}
+
+[data-theme="light"] .footer-border {
+  border-color: var(--border-color);
+}
+[data-theme="light"] .footer-bg {
+  background-color: var(--bg-primary);
+}
+
+/* Settings Modal Logo */
+[data-theme="light"] .theme-logo-type {
+  filter: brightness(0) invert(14%) sepia(1%) saturate(0%) hue-rotate(345deg) brightness(97%) contrast(85%);
 }

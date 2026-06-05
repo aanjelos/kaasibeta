@@ -638,12 +638,12 @@
                   </div>
                   
                   <!-- Accordion for Advanced Rules -->
-                  <div class="mt-4 border border-gray-600 rounded-md overflow-hidden">
-                    <button type="button" class="w-full flex justify-between items-center p-3 bg-gray-700/50 hover:bg-gray-600/50 transition-colors focus:outline-none" onclick="toggleAdvancedRules()">
+                  <div class="mt-4">
+                    <button type="button" class="w-full flex justify-between items-center p-3 advanced-rules-btn transition-colors focus:outline-none" onclick="toggleAdvancedRules()">
                       <span class="text-sm font-medium text-gray-200">Advanced Exclusion Rules</span>
                       <i id="advancedRulesIcon" class="fas fa-chevron-down text-gray-400 text-xs"></i>
                     </button>
-                    <div id="advancedRulesContainer" class="p-3 space-y-3 bg-gray-800/30" style="display: none;">
+                    <div id="advancedRulesContainer" class="p-3 space-y-3 advanced-rules-content" style="display: none;">
                       <div class="flex items-center justify-between">
                         <label class="text-sm font-medium text-gray-300">Hide from Monthly Breakdown Totals</label>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -828,8 +828,8 @@
               </div>
 
               <!-- Existing: Danger Zone -->
-              <div class="card !bg-red-900/30 !border-red-700 !p-4">
-                <h3 class="text-lg font-semibold mb-3 text-red-400">
+              <div class="card danger-zone-card !p-4">
+                <h3 class="text-lg font-semibold mb-3 danger-zone-text">
                   Danger Zone
                 </h3>
                 <button id="initiateDeleteBtn" class="btn btn-danger w-full">
@@ -839,10 +839,10 @@
                   id="deleteConfirmationSection"
                   class="mt-4 hidden space-y-3"
                 >
-                  <p class="text-red-300 font-medium">
+                  <p class="danger-zone-text font-medium">
                     Are you absolutely sure? This action cannot be undone!
                   </p>
-                  <p class="text-sm text-red-400">
+                  <p class="text-sm danger-zone-subtext">
                     Slide the handle fully to the right to confirm deletion.
                   </p>
                   <div
@@ -896,14 +896,14 @@
                 style="background-color: var(--bg-tertiary)"
               >
                 <h3 class="text-lg font-semibold mb-3">Accent Color</h3>
-                <div class="flex flex-wrap gap-4" id="accentColorContainer">
+                <div class="flex justify-center gap-2 sm:gap-4" id="accentColorContainer">
                   <!-- The ring styles will be applied via JS when selected -->
-                  <button data-accent="orange" class="w-10 h-10 rounded-full cursor-pointer transition-all" style="background-color: #e67e26" title="Orange"></button>
-                  <button data-accent="blue" class="w-10 h-10 rounded-full cursor-pointer transition-all" style="background-color: #339af0" title="Blue"></button>
-                  <button data-accent="teal" class="w-10 h-10 rounded-full cursor-pointer transition-all" style="background-color: #20c997" title="Teal"></button>
-                  <button data-accent="red" class="w-10 h-10 rounded-full cursor-pointer transition-all" style="background-color: #ff6b6b" title="Red"></button>
-                  <button data-accent="purple" class="w-10 h-10 rounded-full cursor-pointer transition-all" style="background-color: #cc5de8" title="Purple"></button>
-                  <button data-accent="green" class="w-10 h-10 rounded-full cursor-pointer transition-all" style="background-color: #51cf66" title="Green"></button>
+                  <button data-accent="orange" class="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full cursor-pointer transition-all" style="background-color: #e67e26" title="Orange"></button>
+                  <button data-accent="blue" class="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full cursor-pointer transition-all" style="background-color: #339af0" title="Blue"></button>
+                  <button data-accent="teal" class="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full cursor-pointer transition-all" style="background-color: #20c997" title="Teal"></button>
+                  <button data-accent="red" class="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full cursor-pointer transition-all" style="background-color: #ff6b6b" title="Red"></button>
+                  <button data-accent="purple" class="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full cursor-pointer transition-all" style="background-color: #cc5de8" title="Purple"></button>
+                  <button data-accent="green" class="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full cursor-pointer transition-all" style="background-color: #51cf66" title="Green"></button>
                 </div>
               </div>
             </div>
@@ -983,7 +983,7 @@
             <img
               src="img/LogoType.svg"
               alt="Kaasi Text Logo"
-              class="h-8 ml-2 inline-block"
+              class="h-8 ml-2 inline-block theme-logo-type"
               onerror="this.onerror=null; this.src='https://placehold.co/120x30/e67e26/white?text=Kaasi&font=satoshi';"
             />
           </h2>
@@ -1402,7 +1402,7 @@
 
     <!-- The main change is adding mt-16 to the footer and max-w-7xl to the inner div -->
     <footer
-      class="mt-16 relative z-10 border-t border-gray-800/50 bg-[#121212]"
+      class="mt-16 relative z-10 border-t footer-border footer-bg"
     >
       <div
         class="container mx-auto max-w-7xl px-6 py-6 flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-6"
