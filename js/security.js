@@ -218,22 +218,4 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-/* --------------------------------------------------- */
-/* --- INLINE AMOUNT CALCULATION & MATH TOOLBAR --- */
-/* --------------------------------------------------- */
-
-// Create the global math toolbar
-const mathToolbar = document.createElement("div");
-mathToolbar.className = "math-toolbar";
-mathToolbar.innerHTML = `
-  <div class="math-btn" data-op="+">+</div>
-  <div class="math-btn" data-op="-">-</div>
-  <div class="math-btn" data-op="*">×</div>
-  <div class="math-btn" data-op="/">÷</div>
-  <div class="math-btn math-btn-equal" data-op="=">=</div>
-`;
-document.body.appendChild(mathToolbar);
-
-let activeCalcInput = null;
-let toolbarHideTimeout = null;
 
