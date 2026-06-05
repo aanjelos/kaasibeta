@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.94k" />
+    <meta name="application-version" content="v5.95k" />
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
     <meta
       name="title"
@@ -1635,6 +1637,7 @@
         </div>
         <div class="flex items-center gap-6 text-gray-400 text-sm">
           <!-- Removed Tailwind hover and transition classes -->
+          <button id="pwaInstallBtn" class="accent-text font-medium hidden" style="display: none;"><i class="fas fa-download mr-1"></i> Install App</button>
           <button id="footerDonateBtn">Donate</button>
           <a href="https://kaasi.com.lk" target="_blank">Main Website</a>
         </div>

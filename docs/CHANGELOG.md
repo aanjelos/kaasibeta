@@ -112,3 +112,10 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 ### 20. [Major] Chart.js Rendering Optimization (v5.94k)
 - **Description**: Optimized the rendering logic for the main dashboard chart. Instead of aggressively destroying and completely re-rendering the HTML canvas element every time a transaction is added or deleted, the chart now simply updates its `chart.data` and config references, and calls `chart.update()`. This enables smooth, native Chart.js animations when transitioning between data states and entirely eliminates the browser layout thrashing that was previously causing the UI to jitter during quick edits.
 - **Scope**: Modified `renderMonthlyOverviewChart` in `js/features.js` and updated version in `index.html`.
+
+### 21. [Major] PWA Offline Support & Custom Install UI (v5.95k)
+- **Description**: Upgraded Kaasi into a fully installable Progressive Web App (PWA). The app can now be installed directly to a user's home screen or desktop and works entirely offline.
+  - Implemented a `manifest.json` using the existing SVG logo and dark theme colors to provide a native, full-screen standalone app experience.
+  - Built a Service Worker (`sw.js`) utilizing a Stale-While-Revalidate caching strategy. This instantly serves cached core files (HTML, CSS, JS, Images) for lightning-fast offline loading, while silently fetching updates in the background to ensure seamless version updates without manual refreshes.
+  - Engineered a custom, non-intrusive "Install App" button in the footer that safely intercepts and replaces the default browser installation prompts. This button dynamically hides itself if the app is already installed or if the user is running the app in standalone mode, guaranteeing zero UX spam.
+- **Scope**: Created `manifest.json`, created `sw.js`, modified `index.html` (linked manifest, added footer button), modified `js/app.js` (registered SW, handled `beforeinstallprompt`), and updated version to `v5.95k`.

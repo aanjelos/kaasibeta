@@ -41,6 +41,3 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ## 🛠️ Technical Refinements
 
 
-### 1. PWA Offline Support
-- **Concept**: Ensure Kaasi is fully installable and works offline.
-- **Details**: Register a Service Worker to cache static assets (HTML, CSS, JS, images) so the app loads instantly from the home screen, even without an internet connection.

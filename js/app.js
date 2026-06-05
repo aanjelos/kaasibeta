@@ -816,3 +816,63 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 });
+
+// --- PWA Offline Support & Install Logic ---
+let deferredPrompt;
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").then((reg) => {
+      console.log("Service Worker registered successfully.", reg);
+    }).catch((err) => {
+      console.error("Service Worker registration failed:", err);
+    });
+  });
+}
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  // Prevent Chrome 67 and earlier from automatically showing the prompt
+  e.preventDefault();
+  // Stash the event so it can be triggered later.
+  deferredPrompt = e;
+  
+  // Show the custom install button if not in standalone mode
+  if (!window.matchMedia('(display-mode: standalone)').matches) {
+    const installBtn = document.getElementById("pwaInstallBtn");
+    if (installBtn) {
+      installBtn.style.display = "inline-flex";
+      installBtn.classList.remove("hidden");
+    }
+  }
+});
+
+// Add click event to the custom install button
+document.addEventListener("DOMContentLoaded", () => {
+  const installBtn = document.getElementById("pwaInstallBtn");
+  if (installBtn) {
+    installBtn.addEventListener("click", async () => {
+      if (deferredPrompt) {
+        // Show the install prompt
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        // We've used the prompt, and can't use it again, throw it away
+        deferredPrompt = null;
+        // Hide the button
+        installBtn.style.display = "none";
+      }
+    });
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  // Hide the app-provided install promotion
+  const installBtn = document.getElementById("pwaInstallBtn");
+  if (installBtn) {
+    installBtn.style.display = "none";
+  }
+  // Clear the deferredPrompt so it can be garbage collected
+  deferredPrompt = null;
+  console.log('PWA was installed');
+});

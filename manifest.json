@@ -1,0 +1,17 @@
+{
+  "name": "Kaasi Expense Tracker",
+  "short_name": "Kaasi",
+  "description": "Manage your finances, track expenses, and view insights effortlessly.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "icons": [
+    {
+      "src": "img/LogoIcon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
