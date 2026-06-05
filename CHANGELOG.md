@@ -95,4 +95,6 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
   - Fixed lock screen height stretching and matched the dark theme background color precisely.
   - Hid visual numpad on large screens and added global keyboard event listeners for seamless desktop entry.
   - Corrected input field styling by properly registering password inputs to Kaasi's global theme.
+  - Added horizontal scrollability (`overflow-x-auto`) to the Settings tabs to prevent multi-line wrapping on mobile screens, implementing a clean `hide-scrollbar` utility.
+  - Added the full Kaasi logo to the App PIN Lock screen for better branding.
 - **Scope**: Modified `index.html`, `script.js`, and `style.css`.
