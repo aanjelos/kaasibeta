@@ -80,21 +80,18 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
   - **Styling**: Fixed an issue where the `=` button text was completely invisible in Light Mode by properly referencing the active `--accent-primary` color variable instead of an undefined variable.
 - **Scope**: Modified `index.html`, `script.js`, and `style.css`.
 
-### 16. [Major] App PIN Lock Security (v5.91k)
-- **Description**: Implemented a 4-digit PIN lock screen that secures the app on load.
+### 16. [Major] App PIN Lock Security & Refinements (v5.91k)
+- **Description**: 
+  - Implemented a 4-digit PIN lock screen that secures the app on load.
   - **Fallback Recovery**: If a user forgets their PIN, they can recover access by answering a preset Security Question they configured during setup.
   - **Emergency Reset**: If the security question is also forgotten, an emergency "Export Data & Factory Reset" option is available to safely backup data to a JSON file before wiping the app to regain access.
-  - **Settings Management**: Added a new "Security" tab in Settings to enable, change, or remove the PIN lock and security questions.
+  - **Settings Management**: Added a new "Security" tab in Settings to enable, change, or remove the PIN lock and security questions. Clean inline forms are used rather than browser default prompts.
   - **Deferred Dialogs**: Ensured background dialogs like the Cloud Backup Reminder are deferred until the PIN is successfully entered.
+  - **UI Polish**: Fixed lock screen height stretching, matched the dark theme background color precisely, hid visual numpad on large screens (with global keyboard event listeners for seamless desktop entry), and corrected password input field styling.
 - **Scope**: Modified `index.html`, `script.js`, and `style.css`.
 
-### 17. [Minor] Security Lock UI Refinements (v5.92k)
+### 17. [Minor] Settings Tabs & Branding Refinements (v5.92k)
 - **Description**: 
-  - Overhauled the Security Settings tab to use clean inline forms rather than browser default prompts.
-  - Added the ability to change the security question after setup.
-  - Fixed lock screen height stretching and matched the dark theme background color precisely.
-  - Hid visual numpad on large screens and added global keyboard event listeners for seamless desktop entry.
-  - Corrected input field styling by properly registering password inputs to Kaasi's global theme.
-  - Added horizontal scrollability (`overflow-x-auto`) to the Settings tabs to prevent multi-line wrapping on mobile screens, implementing a clean `hide-scrollbar` utility.
+  - Added horizontal scrollability (`overflow-x-auto`) to the Settings tabs to prevent multi-line wrapping on mobile screens, implementing a clean `hide-scrollbar` utility and edge fade effects.
   - Added the full Kaasi logo to the App PIN Lock screen for better branding.
-- **Scope**: Modified `index.html`, `script.js`, and `style.css`.
+- **Scope**: Modified `index.html` and `style.css`.
