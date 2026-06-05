@@ -79,9 +79,9 @@
 /* Light Theme Variables */
 [data-theme="light"] {
   --bg-primary: #e2e8f0;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #f8fafc;
-  --bg-quaternary: #f1f5f9;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-quaternary: #e2e8f0;
 
   --text-primary: #0f172a;
   --text-secondary: #334155;
@@ -114,15 +114,19 @@
 [data-theme="light"] .bg-gray-700,
 [data-theme="light"] .bg-gray-800,
 [data-theme="light"] .bg-gray-900 {
-  background-color: var(--bg-secondary) !important;
+  background-color: var(--bg-tertiary) !important;
 }
 [data-theme="light"] .bg-gray-600\/50,
 [data-theme="light"] .bg-gray-700\/50,
 [data-theme="light"] .bg-gray-800\/50,
 [data-theme="light"] .bg-gray-900\/50 {
-  background-color: var(--bg-tertiary) !important;
+  background-color: var(--bg-quaternary) !important;
 }
-[data-theme="light"] .text-gray-200,
+[data-theme="light"] .text-gray-50,
+[data-theme="light"] .text-gray-100,
+[data-theme="light"] .text-gray-200 {
+  color: var(--text-primary) !important;
+}
 [data-theme="light"] .text-gray-300,
 [data-theme="light"] .text-gray-400 {
   color: var(--text-secondary) !important;
@@ -1783,13 +1787,13 @@ footer a[href^="https://kaasi.com.lk"]:hover
 }
 
 [data-theme="light"] .advanced-rules-btn {
-  background-color: var(--bg-tertiary);
+  background-color: var(--bg-quaternary);
 }
 [data-theme="light"] .advanced-rules-btn:hover {
-  background-color: var(--button-secondary-hover-bg);
+  background-color: #cbd5e1; /* Slate 300 for hover */
 }
 [data-theme="light"] .advanced-rules-content {
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-tertiary);
 }
 
 /* Custom Utilities for Footer */
