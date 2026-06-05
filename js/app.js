@@ -746,10 +746,73 @@ async function restoreFromSupabase() {
 
 // --- END NEW SUPABASE FUNCTIONS ---
 
-// --- PIN LOCK & SECURITY LOGIC ---
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOM Loaded. Initializing...");
+  loadData(); // Load existing data or set up default state
+  initializeUI(); // Set up all initial UI elements, event listeners, and render initial views
+  
+  if (state.settings && state.settings.appPin && state.settings.appPin.enabled) {
+    showPinLockScreen();
+  } else {
+    onAppUnlocked();
+  }
 
-let currentPinInput = "";
-let expectedPin = "";
-let failedSecurityAttempts = 0;
-let lockScreenKeydownListener = null;
+  // Event listener to update date fields and attempt to focus window when tab becomes visible
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      console.log("Page became visible, attempting to focus and update dates.");
+      window.focus(); // Attempt to bring focus to the window/document
 
+      const mainTransactionDateInput = $("#date"); // Main transaction form date
+      if (mainTransactionDateInput) {
+        mainTransactionDateInput.value = getCurrentDateString(); // Use local date
+      }
+
+      const ccTransactionDateInput = $("#ccDate"); // Credit Card transaction form date
+      if (ccTransactionDateInput) {
+        ccTransactionDateInput.value = getCurrentDateString(); // Use local date
+      }
+    }
+  });
+
+  // Preloader logic
+  const preloaderElement = document.getElementById("preloader");
+  const appContentElement = document.getElementById("app-content");
+  const preloaderDuration = 1250; // Duration preloader is visible
+
+  if (preloaderElement && appContentElement) {
+    console.log(
+      `Preloader will be shown for ${preloaderDuration / 1000} seconds.`
+    );
+
+    setTimeout(() => {
+      console.log(
+        "Preloader timer finished. Hiding preloader, showing app content."
+      );
+      preloaderElement.classList.add("hidden");
+      appContentElement.classList.add("visible");
+
+      setTimeout(() => {
+        preloaderElement.style.display = "none";
+        console.log("Preloader display set to 'none' after fade-out.");
+      }, 750); // Matches CSS transition duration for opacity
+    }, preloaderDuration);
+  } else {
+    if (!preloaderElement) {
+      console.error("Preloader element with ID 'preloader' not found.");
+    }
+    if (!appContentElement) {
+      console.error("App content element with ID 'app-content' not found.");
+    }
+    // Fallback to show app content if preloader elements are missing
+    if (appContentElement) {
+      appContentElement.classList.add("visible");
+      console.warn(
+        "Attempted to show app content due to missing preloader elements."
+      );
+    }
+    if (preloaderElement) {
+      preloaderElement.style.display = "none";
+    }
+  }
+});
