@@ -1810,10 +1810,3 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
 }
-
-@media (max-width: 640px) {
-  .mobile-scroll-fade {
-    -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
-    mask-image: linear-gradient(to right, black 85%, transparent 100%);
-  }
-}

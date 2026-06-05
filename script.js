@@ -7121,6 +7121,39 @@ function setupSettingsTabs() {
       }
     }
   });
+
+  // Dynamic Scroll Fade Logic
+  const updateTabScrollFade = () => {
+    // Only apply on mobile/small screens if desired, but scrollWidth check handles desktop naturally
+    if (tabsContainer.scrollWidth <= tabsContainer.clientWidth) {
+      tabsContainer.style.maskImage = 'none';
+      tabsContainer.style.webkitMaskImage = 'none';
+      return;
+    }
+    
+    const isAtStart = tabsContainer.scrollLeft <= 0;
+    const isAtEnd = Math.ceil(tabsContainer.scrollLeft) >= (tabsContainer.scrollWidth - tabsContainer.clientWidth) - 1;
+    
+    if (isAtStart && !isAtEnd) {
+      tabsContainer.style.maskImage = 'linear-gradient(to right, black 85%, transparent 100%)';
+      tabsContainer.style.webkitMaskImage = 'linear-gradient(to right, black 85%, transparent 100%)';
+    } else if (!isAtStart && isAtEnd) {
+      tabsContainer.style.maskImage = 'linear-gradient(to right, transparent 0%, black 15%, black 100%)';
+      tabsContainer.style.webkitMaskImage = 'linear-gradient(to right, transparent 0%, black 15%, black 100%)';
+    } else if (!isAtStart && !isAtEnd) {
+      tabsContainer.style.maskImage = 'linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)';
+      tabsContainer.style.webkitMaskImage = 'linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)';
+    } else {
+      tabsContainer.style.maskImage = 'none';
+      tabsContainer.style.webkitMaskImage = 'none';
+    }
+  };
+
+  tabsContainer.addEventListener('scroll', updateTabScrollFade, { passive: true });
+  window.addEventListener('resize', updateTabScrollFade, { passive: true });
+  
+  // Need to run it once it's visible, so we hook into the modal open or a short timeout
+  setTimeout(updateTabScrollFade, 50);
 }
 
 function switchSettingsTab(clickedButton, targetPanelId) {
