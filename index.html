@@ -87,7 +87,8 @@
     <!-- START: PIN LOCK OVERLAY -->
     <div id="pinLockOverlay" class="fixed inset-0 z-[99999] flex flex-col items-center justify-center transition-opacity duration-500 hidden" style="background-color: var(--bg-primary)">
       <div class="max-w-xs w-full px-6 flex flex-col items-center">
-        <i class="fas fa-lock text-4xl text-accent-primary mb-6"></i>
+        <img src="img/FullLogo.svg" alt="Kaasi" class="h-10 mb-8 theme-logo" />
+        <i class="fas fa-lock text-3xl text-accent-primary mb-4"></i>
         <h2 class="text-2xl font-bold text-white mb-2">App Locked</h2>
         <p class="text-sm text-gray-400 mb-8 text-center" id="pinLockMessage">Enter your 4-digit PIN</p>
         
@@ -598,7 +599,7 @@
           <h2 class="text-2xl font-semibold mb-1 text-center">Settings</h2>
           <div id="settingsTabNav" class="border-b border-gray-600 mb-0">
             <ul
-              class="flex flex-wrap -mb-px text-sm font-medium text-center justify-center"
+              class="flex flex-nowrap overflow-x-auto hide-scrollbar -mb-px text-sm font-medium text-center"
               id="settingsTabsContainer"
             ></ul>
           </div>

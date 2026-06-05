@@ -1799,3 +1799,14 @@ footer a[href^="https://kaasi.com.lk"]:hover
   25% { transform: translateX(-8px); }
   75% { transform: translateX(8px); }
 }
+
+/* ------------------------- */
+/* --- UTILITIES --- */
+/* ------------------------- */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}

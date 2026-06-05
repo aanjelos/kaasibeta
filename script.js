@@ -7097,10 +7097,11 @@ function setupSettingsTabs() {
 
   settingsTabsConfig.forEach((tabConfig, index) => {
     const li = document.createElement("li");
+    li.className = "flex-shrink-0";
 
     const button = document.createElement("button");
     button.className =
-      "settings-tab-button inline-block p-3 border-b-2 rounded-t-lg";
+      "settings-tab-button inline-block p-3 border-b-2 rounded-t-lg whitespace-nowrap";
     button.textContent = tabConfig.label;
     button.dataset.tabTarget = `#${tabConfig.targetPanelId}`;
 
