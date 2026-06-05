@@ -5440,6 +5440,38 @@ function renderSettingsForm() {
     }
   }
 
+  const toggleMathToolbarElement = $("#toggleMathToolbar");
+  if (toggleMathToolbarElement) {
+    if (!state.settings) {
+      state.settings = {
+        initialSetupDone: false,
+        showCcDashboardSection: true,
+        showMathToolbar: true,
+        theme: "dark",
+      };
+    }
+    toggleMathToolbarElement.checked =
+      state.settings.showMathToolbar !== undefined
+        ? state.settings.showMathToolbar
+        : true;
+
+    if (!toggleMathToolbarElement.dataset.listenerAttached) {
+      toggleMathToolbarElement.onchange = () => {
+        if (!state.settings) {
+          state.settings = {
+            initialSetupDone: false,
+            showCcDashboardSection: true,
+            showMathToolbar: true,
+            theme: "dark",
+          };
+        }
+        state.settings.showMathToolbar = toggleMathToolbarElement.checked;
+        saveData();
+      };
+      toggleMathToolbarElement.dataset.listenerAttached = "true";
+    }
+  }
+
   const addCategoryForm = $("#addCategoryForm");
   if (addCategoryForm) {
     addCategoryForm.onsubmit = addCategory;
@@ -7826,11 +7858,12 @@ function processCalculation(inputEl) {
 
 function positionMathToolbar(inputEl) {
   const rect = inputEl.getBoundingClientRect();
-  mathToolbar.style.left = `${rect.left + window.scrollX}px`;
+  mathToolbar.style.left = `${rect.right + window.scrollX - mathToolbar.offsetWidth}px`;
   mathToolbar.style.top = `${rect.top + window.scrollY - 45}px`; 
 }
 
 function showMathToolbar(inputEl) {
+  if (state.settings && state.settings.showMathToolbar === false) return;
   activeCalcInput = inputEl;
   positionMathToolbar(inputEl);
   mathToolbar.classList.add("visible");
