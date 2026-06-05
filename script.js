@@ -5472,6 +5472,128 @@ function renderSettingsForm() {
     }
   }
 
+  // --- SECURITY PANEL UI INIT ---
+  const toggleAppPin = $("#toggleAppPin");
+  const securityManagementOptions = $("#securityManagementOptions");
+  const btnChangePin = $("#btnChangePin");
+  const btnRemovePin = $("#btnRemovePin");
+
+  if (toggleAppPin) {
+    if (state.settings && state.settings.appPin && state.settings.appPin.enabled) {
+      toggleAppPin.checked = true;
+      securityManagementOptions.classList.remove("hidden");
+    } else {
+      toggleAppPin.checked = false;
+      securityManagementOptions.classList.add("hidden");
+    }
+
+    if (!toggleAppPin.dataset.listenerAttached) {
+      toggleAppPin.onchange = () => {
+        if (toggleAppPin.checked) {
+          // Wants to enable PIN
+          const pin = prompt("Enter a 4-digit PIN to secure Kaasi:");
+          if (pin && /^\d{4}$/.test(pin)) {
+            const confirmPin = prompt("Confirm your 4-digit PIN:");
+            if (pin === confirmPin) {
+              // Need to set a security question
+              const modal = document.getElementById("securityQuestionModal");
+              const setupGroup = document.getElementById("securityQuestionSetupGroup");
+              const displayGroup = document.getElementById("securityQuestionDisplayGroup");
+              const emergencyGroup = document.getElementById("emergencyResetGroup");
+              const form = document.getElementById("securityQuestionForm");
+              
+              setupGroup.classList.remove("hidden");
+              displayGroup.classList.add("hidden");
+              emergencyGroup.classList.add("hidden");
+              
+              document.getElementById("securityModalTitle").innerText = "Security Question Setup";
+              document.getElementById("securityModalDesc").innerText = "Select a question and answer. This is your ONLY way to recover data if you forget your PIN.";
+              document.getElementById("securityAnswerInput").value = "";
+              
+              form.onsubmit = (e) => {
+                e.preventDefault();
+                const q = document.getElementById("securityQuestionSelect").value;
+                const a = document.getElementById("securityAnswerInput").value.trim().toLowerCase();
+                
+                if (!state.settings.appPin) state.settings.appPin = {};
+                state.settings.appPin.enabled = true;
+                state.settings.appPin.pin = btoa(pin);
+                state.settings.appPin.question = q;
+                state.settings.appPin.answer = btoa(a);
+                saveData();
+                
+                securityManagementOptions.classList.remove("hidden");
+                showNotification("PIN Lock enabled successfully.", "success");
+                closeModal("securityQuestionModal");
+              };
+              
+              modal.style.display = "flex";
+            } else {
+              showNotification("PINs do not match. Activation cancelled.", "error");
+              toggleAppPin.checked = false;
+            }
+          } else {
+            showNotification("Invalid PIN format. Must be 4 digits.", "error");
+            toggleAppPin.checked = false;
+          }
+        } else {
+          // Wants to disable PIN
+          const currentPin = prompt("Enter your current PIN to disable security:");
+          if (currentPin && btoa(currentPin) === state.settings.appPin.pin) {
+            state.settings.appPin.enabled = false;
+            saveData();
+            securityManagementOptions.classList.add("hidden");
+            showNotification("PIN Lock disabled.", "info");
+          } else {
+            showNotification("Incorrect PIN.", "error");
+            toggleAppPin.checked = true; // Revert
+          }
+        }
+      };
+      
+      if (btnChangePin) {
+        btnChangePin.onclick = () => {
+          const currentPin = prompt("Enter your current PIN:");
+          if (currentPin && btoa(currentPin) === state.settings.appPin.pin) {
+            const newPin = prompt("Enter a NEW 4-digit PIN:");
+            if (newPin && /^\d{4}$/.test(newPin)) {
+               const confirmPin = prompt("Confirm your NEW 4-digit PIN:");
+               if (newPin === confirmPin) {
+                 state.settings.appPin.pin = btoa(newPin);
+                 saveData();
+                 showNotification("PIN changed successfully.", "success");
+               } else {
+                 showNotification("PINs do not match.", "error");
+               }
+            } else {
+              showNotification("Invalid PIN format.", "error");
+            }
+          } else {
+            showNotification("Incorrect current PIN.", "error");
+          }
+        };
+      }
+      
+      if (btnRemovePin) {
+        btnRemovePin.onclick = () => {
+          const currentPin = prompt("Enter your current PIN to completely remove security settings:");
+          if (currentPin && btoa(currentPin) === state.settings.appPin.pin) {
+            state.settings.appPin = { enabled: false };
+            saveData();
+            toggleAppPin.checked = false;
+            securityManagementOptions.classList.add("hidden");
+            showNotification("PIN and Security Question removed.", "info");
+          } else {
+            showNotification("Incorrect PIN.", "error");
+          }
+        };
+      }
+
+      toggleAppPin.dataset.listenerAttached = "true";
+    }
+  }
+  // --- END SECURITY PANEL UI INIT ---
+
   const addCategoryForm = $("#addCategoryForm");
   if (addCategoryForm) {
     addCategoryForm.onsubmit = addCategory;
@@ -6905,6 +7027,7 @@ const settingsTabsConfig = [
   { label: "Categories", targetPanelId: "settingsCategoriesPanel" },
   { label: "Data", targetPanelId: "settingsDataManagementPanel" },
   { label: "Appearance", targetPanelId: "settingsAppearancePanel" },
+  { label: "Security", targetPanelId: "settingsSecurityPanel" }
 ];
 
 function setupSettingsTabs() {
@@ -7741,11 +7864,152 @@ async function restoreFromSupabase() {
 
 // --- END NEW SUPABASE FUNCTIONS ---
 
+// --- PIN LOCK & SECURITY LOGIC ---
+
+let currentPinInput = "";
+let expectedPin = "";
+
+function showPinLockScreen() {
+  const pinLockOverlay = document.getElementById("pinLockOverlay");
+  if (!pinLockOverlay) return;
+  expectedPin = atob(state.settings.appPin.pin);
+  currentPinInput = "";
+  updatePinDots();
+  pinLockOverlay.classList.remove("hidden");
+  // Small delay to allow display block to apply before opacity transition
+  setTimeout(() => {
+    pinLockOverlay.style.opacity = "1";
+  }, 10);
+  
+  // Update header color logic to avoid flash if needed, but solid cover is fine.
+}
+
+function onAppUnlocked() {
+  const pinLockOverlay = document.getElementById("pinLockOverlay");
+  if (pinLockOverlay) {
+    pinLockOverlay.style.opacity = "0";
+    setTimeout(() => {
+      pinLockOverlay.classList.add("hidden");
+    }, 500); // Wait for fade out
+  }
+  
+  // Trigger backup reminder only AFTER app is unlocked
+  checkAndTriggerBackupReminder();
+}
+
+function addPinDigit(digit) {
+  if (currentPinInput.length < 4) {
+    currentPinInput += digit.toString();
+    updatePinDots();
+    
+    if (currentPinInput.length === 4) {
+      setTimeout(verifyPin, 150); // slight delay to show the 4th dot
+    }
+  }
+}
+
+function removePinDigit() {
+  if (currentPinInput.length > 0) {
+    currentPinInput = currentPinInput.slice(0, -1);
+    updatePinDots();
+  }
+}
+
+function updatePinDots() {
+  const dots = document.querySelectorAll("#pinLockDots > div");
+  dots.forEach((dot, index) => {
+    if (index < currentPinInput.length) {
+      dot.classList.add("pin-dot-filled");
+    } else {
+      dot.classList.remove("pin-dot-filled");
+    }
+  });
+}
+
+function verifyPin() {
+  if (currentPinInput === expectedPin) {
+    onAppUnlocked();
+  } else {
+    // Error animation
+    const dotsContainer = document.getElementById("pinLockDots");
+    dotsContainer.classList.add("pin-error");
+    setTimeout(() => {
+      dotsContainer.classList.remove("pin-error");
+      currentPinInput = "";
+      updatePinDots();
+    }, 400);
+  }
+}
+
+function showForgotPinModal() {
+  const modal = document.getElementById("securityQuestionModal");
+  if (!modal) return;
+  
+  const setupGroup = document.getElementById("securityQuestionSetupGroup");
+  const displayGroup = document.getElementById("securityQuestionDisplayGroup");
+  const displayEl = document.getElementById("securityQuestionDisplay");
+  const emergencyGroup = document.getElementById("emergencyResetGroup");
+  const form = document.getElementById("securityQuestionForm");
+  
+  setupGroup.classList.add("hidden");
+  displayGroup.classList.remove("hidden");
+  emergencyGroup.classList.remove("hidden");
+  
+  document.getElementById("securityModalTitle").innerText = "Security Recovery";
+  document.getElementById("securityModalDesc").innerText = "Answer your security question to unlock the app.";
+  
+  displayEl.innerText = state.settings.appPin.question;
+  document.getElementById("securityAnswerInput").value = "";
+  
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    const answer = document.getElementById("securityAnswerInput").value.trim().toLowerCase();
+    const expectedAnswer = atob(state.settings.appPin.answer).toLowerCase();
+    
+    if (answer === expectedAnswer) {
+      // Correct! Unlock app and remove PIN
+      state.settings.appPin = { enabled: false };
+      saveData();
+      closeModal("securityQuestionModal");
+      onAppUnlocked();
+      showNotification("App unlocked. PIN has been disabled.", "success");
+      
+      // Update settings UI if it's already rendered
+      const toggle = document.getElementById("toggleAppPin");
+      if (toggle) toggle.checked = false;
+      const opts = document.getElementById("securityManagementOptions");
+      if (opts) opts.classList.add("hidden");
+    } else {
+      showNotification("Incorrect answer.", "error");
+    }
+  };
+  
+  modal.style.display = "flex";
+}
+
+function emergencyExportAndWipe() {
+  if (confirm("WARNING: This will download a backup of your data and then completely wipe Kaasi from your device. Are you absolutely sure?")) {
+    exportData(); // Downloads JSON
+    setTimeout(() => {
+      localStorage.removeItem("kaasi_state");
+      localStorage.removeItem("kaasi_cloud_sync");
+      window.location.reload();
+    }, 1500);
+  }
+}
+
+// --- END PIN LOCK LOGIC ---
+
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM Loaded. Initializing...");
   loadData(); // Load existing data or set up default state
   initializeUI(); // Set up all initial UI elements, event listeners, and render initial views
-  checkAndTriggerBackupReminder(); // <-- THIS LINE WAS MISSING
+  
+  if (state.settings && state.settings.appPin && state.settings.appPin.enabled) {
+    showPinLockScreen();
+  } else {
+    onAppUnlocked();
+  }
 
   // Event listener to update date fields and attempt to focus window when tab becomes visible
   document.addEventListener("visibilitychange", () => {

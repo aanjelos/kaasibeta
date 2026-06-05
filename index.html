@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.90k" />
+    <meta name="application-version" content="v5.91k" />
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
     <meta
       name="title"
@@ -84,7 +84,93 @@
       </div>
     </div>
 
-    <div id="app-content" class="p-4 md:p-8">
+    <!-- START: PIN LOCK OVERLAY -->
+    <div id="pinLockOverlay" class="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-gray-900 transition-opacity duration-500 hidden">
+      <div class="max-w-xs w-full px-6 flex flex-col items-center">
+        <i class="fas fa-lock text-4xl text-accent-primary mb-6"></i>
+        <h2 class="text-2xl font-bold text-white mb-2">App Locked</h2>
+        <p class="text-sm text-gray-400 mb-8 text-center" id="pinLockMessage">Enter your 4-digit PIN</p>
+        
+        <!-- Pin Dots -->
+        <div class="flex gap-4 mb-10" id="pinLockDots">
+          <div class="w-4 h-4 rounded-full border-2 border-gray-600 transition-all"></div>
+          <div class="w-4 h-4 rounded-full border-2 border-gray-600 transition-all"></div>
+          <div class="w-4 h-4 rounded-full border-2 border-gray-600 transition-all"></div>
+          <div class="w-4 h-4 rounded-full border-2 border-gray-600 transition-all"></div>
+        </div>
+
+        <!-- Numpad -->
+        <div class="grid grid-cols-3 gap-4 w-full mb-8">
+          <button class="pin-btn" onclick="addPinDigit(1)">1</button>
+          <button class="pin-btn" onclick="addPinDigit(2)">2</button>
+          <button class="pin-btn" onclick="addPinDigit(3)">3</button>
+          <button class="pin-btn" onclick="addPinDigit(4)">4</button>
+          <button class="pin-btn" onclick="addPinDigit(5)">5</button>
+          <button class="pin-btn" onclick="addPinDigit(6)">6</button>
+          <button class="pin-btn" onclick="addPinDigit(7)">7</button>
+          <button class="pin-btn" onclick="addPinDigit(8)">8</button>
+          <button class="pin-btn" onclick="addPinDigit(9)">9</button>
+          <div></div>
+          <button class="pin-btn" onclick="addPinDigit(0)">0</button>
+          <button class="pin-btn !bg-transparent !border-transparent hover:!bg-gray-800" onclick="removePinDigit()">
+            <i class="fas fa-backspace"></i>
+          </button>
+        </div>
+
+        <button onclick="showForgotPinModal()" class="text-sm text-accent-primary hover:underline">Forgot PIN?</button>
+      </div>
+    </div>
+    <!-- END: PIN LOCK OVERLAY -->
+
+    <!-- START: FORGOT PIN / SECURITY QUESTION MODAL -->
+    <div id="securityQuestionModal" class="modal z-[100000]">
+      <div class="modal-content max-w-sm">
+        <span class="modal-close" onclick="closeModal('securityQuestionModal')">&times;</span>
+        <h2 class="text-xl font-semibold mb-2" id="securityModalTitle">Security Recovery</h2>
+        <p class="text-sm text-gray-400 mb-4" id="securityModalDesc">Answer your security question to unlock the app.</p>
+        
+        <form id="securityQuestionForm" class="space-y-4">
+          <!-- Shown during setup -->
+          <div id="securityQuestionSetupGroup" class="hidden">
+            <label class="block text-sm font-medium mb-1">Select a Security Question</label>
+            <select id="securityQuestionSelect" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm" required>
+              <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+              <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+              <option value="What city were you born in?">What city were you born in?</option>
+              <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+              <option value="What is the name of your favorite teacher?">What is the name of your favorite teacher?</option>
+            </select>
+          </div>
+
+          <!-- Shown during recovery -->
+          <div id="securityQuestionDisplayGroup" class="hidden">
+            <label class="block text-sm font-medium mb-1">Security Question</label>
+            <div id="securityQuestionDisplay" class="p-3 bg-gray-800 rounded border border-gray-600 text-sm font-medium text-white mb-2">
+              Question goes here
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Your Answer</label>
+            <input type="text" id="securityAnswerInput" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm" placeholder="Type your answer" required autocomplete="off">
+            <p class="text-xs text-gray-500 mt-1">Answers are case-insensitive.</p>
+          </div>
+
+          <div class="flex gap-2 justify-end mt-4">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('securityQuestionModal')">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="securityModalSubmitBtn">Confirm</button>
+          </div>
+        </form>
+
+        <div id="emergencyResetGroup" class="hidden mt-6 pt-4 border-t border-gray-700 text-center">
+          <p class="text-xs text-gray-400 mb-2">Can't remember your answer?</p>
+          <button onclick="emergencyExportAndWipe()" class="text-xs text-danger hover:underline">Export Data & Factory Reset</button>
+        </div>
+      </div>
+    </div>
+    <!-- END: FORGOT PIN MODAL -->
+
+    <div id="app-content" class="p-4 md:p-8 transition-all duration-300">
       <div class="container mx-auto max-w-7xl">
         <!-- START: UPDATED HEADER -->
         <header class="flex justify-between items-center mb-6 md:mb-10">
@@ -923,6 +1009,40 @@
               </div>
             </div>
             <!-- END: APPEARANCE PANEL -->
+
+            <!-- START: SECURITY PANEL -->
+            <div
+              id="settingsSecurityPanel"
+              class="settings-tab-panel space-y-6 hidden"
+            >
+              <div
+                class="card !p-4"
+                style="background-color: var(--bg-tertiary)"
+              >
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 class="text-lg font-semibold">App PIN Lock</h3>
+                    <p class="text-xs text-gray-400">Require a 4-digit PIN when opening the app</p>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="toggleAppPin" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                  </label>
+                </div>
+                
+                <div id="securityManagementOptions" class="hidden space-y-3 pt-3 border-t border-gray-600">
+                  <button id="btnChangePin" class="btn btn-secondary w-full text-left flex justify-between items-center">
+                    <span>Change PIN</span>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                  </button>
+                  <button id="btnRemovePin" class="btn btn-danger w-full text-left flex justify-between items-center">
+                    <span>Remove PIN & Security Settings</span>
+                    <i class="fas fa-trash text-xs"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- END: SECURITY PANEL -->
 
           </div>
           <div

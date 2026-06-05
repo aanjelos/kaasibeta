@@ -33,11 +33,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Concept**: Make partial payments more rewarding by displaying visual progress bars on Debt and Receivable cards.
 - **Details**: Show the percentage of the debt paid off visually (e.g., a green bar filling up as the remaining balance drops).
 
-### 2. PIN / Privacy Lock
-- **Concept**: Protect financial privacy by requiring a simple authentication step when the app is opened.
-- **Details**: Implement a simple 4-digit PIN screen or utilize the Web Authentication API for biometric unlock (FaceID/Fingerprint) before decrypting/showing the dashboard.
-
-### 3. Mobile Specific UI/UX Improvements
+### 2. Mobile Specific UI/UX Improvements
 - **Concept**: A dedicated pass to audit and refine tap targets, scrolling behaviors, and layouts specifically for mobile users.
 
 ---

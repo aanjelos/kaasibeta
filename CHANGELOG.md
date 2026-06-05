@@ -79,3 +79,11 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
   - **Mobile Toggle**: Added a user setting in the "Appearance" tab (visible only on mobile/touch devices) to globally enable or disable the Math Toolbar, for users who find the popup intrusive.
   - **Styling**: Fixed an issue where the `=` button text was completely invisible in Light Mode by properly referencing the active `--accent-primary` color variable instead of an undefined variable.
 - **Scope**: Modified `index.html`, `script.js`, and `style.css`.
+
+### 16. [Major] App PIN Lock Security (v5.91k)
+- **Description**: Implemented a 4-digit PIN lock screen that secures the app on load.
+  - **Fallback Recovery**: If a user forgets their PIN, they can recover access by answering a preset Security Question they configured during setup.
+  - **Emergency Reset**: If the security question is also forgotten, an emergency "Export Data & Factory Reset" option is available to safely backup data to a JSON file before wiping the app to regain access.
+  - **Settings Management**: Added a new "Security" tab in Settings to enable, change, or remove the PIN lock and security questions.
+  - **Deferred Dialogs**: Ensured background dialogs like the Cloud Backup Reminder are deferred until the PIN is successfully entered.
+- **Scope**: Modified `index.html`, `script.js`, and `style.css`.
