@@ -40,4 +40,6 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## 🛠️ Technical Refinements
 
-
+### 1. Migrate to Tailwind v3 Standalone CLI
+- **Concept**: Replace the Tailwind v3 CDN with the compiled local static CSS via the Tailwind v3 Standalone CLI.
+- **Benefit**: Removes browser console warnings, improves page load performance, and avoids the "death by a thousand cuts" layout breakages caused by upgrading to Tailwind v4, ensuring 100% compatibility with all existing CSS classes in the codebase.
