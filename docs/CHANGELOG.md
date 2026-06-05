@@ -108,3 +108,7 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
   - Reorganized the project directory by creating a `docs/` folder for changelogs/roadmaps and a `tailwind/` folder for the standalone Tailwind CLI executable and config files.
   - Added a convenient `build-tailwind.bat` script inside the `tailwind/` folder to make future local CSS generation a simple one-click task.
 - **Scope**: Modified `index.html`, created `tailwind.css`, added `tailwind/` and `docs/` directories.
+
+### 20. [Major] Chart.js Rendering Optimization (v5.94k)
+- **Description**: Optimized the rendering logic for the main dashboard chart. Instead of aggressively destroying and completely re-rendering the HTML canvas element every time a transaction is added or deleted, the chart now simply updates its `chart.data` and config references, and calls `chart.update()`. This enables smooth, native Chart.js animations when transitioning between data states and entirely eliminates the browser layout thrashing that was previously causing the UI to jitter during quick edits.
+- **Scope**: Modified `renderMonthlyOverviewChart` in `js/features.js` and updated version in `index.html`.

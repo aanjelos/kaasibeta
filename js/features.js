@@ -468,9 +468,6 @@ function renderMonthlyOverviewChart() {
   const toggleBtn = $("#toggleChartBtn");
   const toggleBtnIcon = toggleBtn ? toggleBtn.querySelector("i") : null;
 
-  if (monthlyOverviewChartInstance) {
-    monthlyOverviewChartInstance.destroy();
-  }
 
   const ctx = canvas.getContext("2d");
 
@@ -622,56 +619,75 @@ function renderMonthlyOverviewChart() {
     ];
   }
 
-  // --- Create the Chart ---
-  monthlyOverviewChartInstance = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: chartLabels,
-      datasets: chartDatasets,
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            color: chartTickColor,
-            callback: (v) =>
-              v >= 1000000
-                ? `LKR ${(v / 1000000).toFixed(1)}M`
-                : v >= 1000
-                ? `LKR ${(v / 1000).toFixed(0)}k`
-                : formatCurrency(v),
-          },
-          grid: { color: chartGridColor, drawBorder: false },
-        },
-        x: {
-          ticks: { color: chartTickColor },
-          grid: { display: false },
-        },
+  // --- Create or Update the Chart ---
+  if (monthlyOverviewChartInstance) {
+    // Optimization: Update data and options instead of destroying the canvas
+    monthlyOverviewChartInstance.data.labels = chartLabels;
+    monthlyOverviewChartInstance.data.datasets = chartDatasets;
+    
+    // Update theme-dependent options in case the user toggled light/dark mode
+    if (monthlyOverviewChartInstance.options && monthlyOverviewChartInstance.options.scales) {
+      monthlyOverviewChartInstance.options.scales.y.ticks.color = chartTickColor;
+      monthlyOverviewChartInstance.options.scales.y.grid.color = chartGridColor;
+      monthlyOverviewChartInstance.options.scales.x.ticks.color = chartTickColor;
+      monthlyOverviewChartInstance.options.plugins.legend.labels.color = chartLegendColor;
+      monthlyOverviewChartInstance.options.plugins.tooltip.backgroundColor = chartTooltipBg;
+      monthlyOverviewChartInstance.options.plugins.tooltip.titleColor = chartTooltipText;
+      monthlyOverviewChartInstance.options.plugins.tooltip.bodyColor = chartTooltipText;
+    }
+    
+    monthlyOverviewChartInstance.update();
+  } else {
+    monthlyOverviewChartInstance = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: chartLabels,
+        datasets: chartDatasets,
       },
-      plugins: {
-        legend: {
-          position: "top",
-          labels: { color: chartLegendColor, usePointStyle: true, boxWidth: 8 },
-        },
-        tooltip: {
-          backgroundColor: chartTooltipBg,
-          titleColor: chartTooltipText,
-          bodyColor: chartTooltipText,
-          padding: 10,
-          cornerRadius: 4,
-          usePointStyle: true,
-          callbacks: {
-            label: (c) =>
-              `${c.dataset.label || ""}: ${formatCurrency(c.parsed.y)}`,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              color: chartTickColor,
+              callback: (v) =>
+                v >= 1000000
+                  ? `LKR ${(v / 1000000).toFixed(1)}M`
+                  : v >= 1000
+                  ? `LKR ${(v / 1000).toFixed(0)}k`
+                  : formatCurrency(v),
+            },
+            grid: { color: chartGridColor, drawBorder: false },
+          },
+          x: {
+            ticks: { color: chartTickColor },
+            grid: { display: false },
           },
         },
+        plugins: {
+          legend: {
+            position: "top",
+            labels: { color: chartLegendColor, usePointStyle: true, boxWidth: 8 },
+          },
+          tooltip: {
+            backgroundColor: chartTooltipBg,
+            titleColor: chartTooltipText,
+            bodyColor: chartTooltipText,
+            padding: 10,
+            cornerRadius: 4,
+            usePointStyle: true,
+            callbacks: {
+              label: (c) =>
+                `${c.dataset.label || ""}: ${formatCurrency(c.parsed.y)}`,
+            },
+          },
+        },
+        interaction: { mode: "index", intersect: false },
       },
-      interaction: { mode: "index", intersect: false },
-    },
-  });
+    });
+  }
 }
 
 function handleTransactionSubmit(event) {
