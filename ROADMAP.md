@@ -44,10 +44,6 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Concept**: Instead of destroying and completely re-rendering the canvas every time the data changes, optimize the chart logic to simply update `chart.data` and call `chart.update()`.
 - **Benefit**: This allows Chart.js to smoothly animate the transitions between data states (e.g., bars growing or shrinking) and reduces browser layout thrashing.
 
-### 2. Modularize `script.js`
-- **Concept**: Break the massive ~8,000 line `script.js` into logical modules (e.g., `transactions.js`, `charts.js`, `settings.js`).
-- **Benefit**: Even when coding exclusively with AI, smaller files are crucial. AI context windows and diff-matching algorithms (as we saw with the CSS duplicates) perform *significantly* better, faster, and more safely on smaller, focused files.
-
-### 3. PWA Offline Support
+### 2. PWA Offline Support
 - **Concept**: Ensure Kaasi is fully installable and works offline.
 - **Details**: Register a Service Worker to cache static assets (HTML, CSS, JS, images) so the app loads instantly from the home screen, even without an internet connection.

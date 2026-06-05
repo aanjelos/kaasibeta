@@ -90,6 +90,12 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
   - **UI Polish**: Fixed lock screen height stretching, matched the dark theme background color precisely, hid visual numpad on large screens (with global keyboard event listeners for seamless desktop entry), and corrected password input field styling.
 - **Scope**: Modified `index.html`, `script.js`, and `style.css`.
 
+### 18. [Major] Codebase Modularization (v5.93k)
+- **Description**: 
+  - Completed a massive structural refactor to split the monolithic `script.js` (8,000+ lines) into exactly 6 logical, focused modules (`globals.js`, `ui.js`, `features.js`, `charts-export.js`, `security.js`, `app.js`).
+  - Implemented this modularization using a safe, sequential loading strategy in `index.html` to guarantee 1000% compatibility with existing top-level global variables and inline HTML event listeners, without requiring a complex Webpack/ES6 bundler setup.
+- **Scope**: Deleted `script.js`. Modified `index.html` and added `js/globals.js`, `js/ui.js`, `js/features.js`, `js/charts-export.js`, `js/security.js`, `js/app.js`.
+
 ### 17. [Minor] Settings Tabs & Branding Refinements (v5.92k)
 - **Description**: 
   - Added horizontal scrollability (`overflow-x-auto`) to the Settings tabs to prevent multi-line wrapping on mobile screens, implementing a clean `hide-scrollbar` utility and edge fade effects.
