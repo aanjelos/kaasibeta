@@ -85,7 +85,7 @@
     </div>
 
     <!-- START: PIN LOCK OVERLAY -->
-    <div id="pinLockOverlay" class="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-gray-900 transition-opacity duration-500 hidden">
+    <div id="pinLockOverlay" class="fixed inset-0 z-[99999] flex flex-col items-center justify-center transition-opacity duration-500 hidden" style="background-color: var(--bg-primary)">
       <div class="max-w-xs w-full px-6 flex flex-col items-center">
         <i class="fas fa-lock text-4xl text-accent-primary mb-6"></i>
         <h2 class="text-2xl font-bold text-white mb-2">App Locked</h2>
@@ -99,8 +99,8 @@
           <div class="w-4 h-4 rounded-full border-2 border-gray-600 transition-all"></div>
         </div>
 
-        <!-- Numpad -->
-        <div class="grid grid-cols-3 gap-4 w-full mb-8">
+        <!-- Numpad (Hidden on Desktop) -->
+        <div class="grid grid-cols-3 gap-4 w-full mb-8 sm:hidden">
           <button class="pin-btn" onclick="addPinDigit(1)">1</button>
           <button class="pin-btn" onclick="addPinDigit(2)">2</button>
           <button class="pin-btn" onclick="addPinDigit(3)">3</button>
@@ -130,20 +130,8 @@
         <p class="text-sm text-gray-400 mb-4" id="securityModalDesc">Answer your security question to unlock the app.</p>
         
         <form id="securityQuestionForm" class="space-y-4">
-          <!-- Shown during setup -->
-          <div id="securityQuestionSetupGroup" class="hidden">
-            <label class="block text-sm font-medium mb-1">Select a Security Question</label>
-            <select id="securityQuestionSelect" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm" required>
-              <option value="What was the name of your first pet?">What was the name of your first pet?</option>
-              <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
-              <option value="What city were you born in?">What city were you born in?</option>
-              <option value="What was your childhood nickname?">What was your childhood nickname?</option>
-              <option value="What is the name of your favorite teacher?">What is the name of your favorite teacher?</option>
-            </select>
-          </div>
-
           <!-- Shown during recovery -->
-          <div id="securityQuestionDisplayGroup" class="hidden">
+          <div id="securityQuestionDisplayGroup">
             <label class="block text-sm font-medium mb-1">Security Question</label>
             <div id="securityQuestionDisplay" class="p-3 bg-gray-800 rounded border border-gray-600 text-sm font-medium text-white mb-2">
               Question goes here
@@ -152,8 +140,7 @@
 
           <div>
             <label class="block text-sm font-medium mb-1">Your Answer</label>
-            <input type="text" id="securityAnswerInput" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm" placeholder="Type your answer" required autocomplete="off">
-            <p class="text-xs text-gray-500 mt-1">Answers are case-insensitive.</p>
+            <input type="text" id="securityAnswerInput" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white" placeholder="Type your answer" required autocomplete="off">
           </div>
 
           <div class="flex gap-2 justify-end mt-4">
@@ -1030,6 +1017,38 @@
                   </label>
                 </div>
                 
+                <div id="securityInlineSetup" class="hidden space-y-4 pt-4 border-t border-gray-600">
+                  <div class="space-y-3">
+                    <div>
+                      <label class="block text-sm font-medium mb-1">New 4-Digit PIN</label>
+                      <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="setupPinInput" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white" placeholder="e.g. 1234">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium mb-1">Confirm PIN</label>
+                      <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="setupPinConfirm" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white" placeholder="Confirm 4 digits">
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium mb-1">Security Question</label>
+                      <p class="text-xs text-gray-400 mb-2">Used if you forget your PIN.</p>
+                      <select id="setupSecuritySelect" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white">
+                        <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                        <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                        <option value="What city were you born in?">What city were you born in?</option>
+                        <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+                        <option value="What is the name of your favorite teacher?">What is the name of your favorite teacher?</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium mb-1">Answer</label>
+                      <input type="text" id="setupSecurityAnswer" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white" placeholder="Type your answer" autocomplete="off">
+                    </div>
+                  </div>
+                  <div class="flex gap-2 justify-end">
+                    <button type="button" class="btn btn-secondary text-sm" id="btnCancelPinSetup">Cancel</button>
+                    <button type="button" class="btn btn-primary text-sm" id="btnSavePinSetup">Save PIN</button>
+                  </div>
+                </div>
+
                 <div id="securityManagementOptions" class="hidden space-y-3 pt-3 border-t border-gray-600">
                   <button id="btnChangePin" class="btn btn-secondary w-full text-left flex justify-between items-center">
                     <span>Change PIN</span>
@@ -1039,6 +1058,37 @@
                     <span>Remove PIN & Security Settings</span>
                     <i class="fas fa-trash text-xs"></i>
                   </button>
+                </div>
+                
+                <div id="securityInlineChange" class="hidden space-y-4 pt-4 border-t border-gray-600">
+                  <div>
+                    <label class="block text-sm font-medium mb-1">Current PIN</label>
+                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changePinCurrent" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-1">New 4-Digit PIN</label>
+                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changePinNew" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-1">Confirm New PIN</label>
+                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changePinConfirm" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white">
+                  </div>
+                  <div class="flex gap-2 justify-end">
+                    <button type="button" class="btn btn-secondary text-sm" id="btnCancelPinChange">Cancel</button>
+                    <button type="button" class="btn btn-primary text-sm" id="btnSavePinChange">Update PIN</button>
+                  </div>
+                </div>
+                
+                <div id="securityInlineRemove" class="hidden space-y-4 pt-4 border-t border-gray-600">
+                  <p class="text-sm text-gray-300">Enter your current PIN to completely remove security settings.</p>
+                  <div>
+                    <label class="block text-sm font-medium mb-1">Current PIN</label>
+                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="removePinCurrent" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white">
+                  </div>
+                  <div class="flex gap-2 justify-end">
+                    <button type="button" class="btn btn-secondary text-sm" id="btnCancelPinRemove">Cancel</button>
+                    <button type="button" class="btn btn-danger text-sm" id="btnConfirmPinRemove">Remove PIN</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1531,7 +1581,7 @@
 
       <div
         id="notificationArea"
-        class="fixed bottom-5 right-5 z-[60] space-y-2 max-w-xs"
+        class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
       ></div>
     </div>
 

@@ -5477,6 +5477,16 @@ function renderSettingsForm() {
   const securityManagementOptions = $("#securityManagementOptions");
   const btnChangePin = $("#btnChangePin");
   const btnRemovePin = $("#btnRemovePin");
+  
+  const inlineSetup = $("#securityInlineSetup");
+  const inlineChange = $("#securityInlineChange");
+  const inlineRemove = $("#securityInlineRemove");
+
+  function hideAllInlineForms() {
+    if (inlineSetup) inlineSetup.classList.add("hidden");
+    if (inlineChange) inlineChange.classList.add("hidden");
+    if (inlineRemove) inlineRemove.classList.add("hidden");
+  }
 
   if (toggleAppPin) {
     if (state.settings && state.settings.appPin && state.settings.appPin.enabled) {
@@ -5489,105 +5499,111 @@ function renderSettingsForm() {
 
     if (!toggleAppPin.dataset.listenerAttached) {
       toggleAppPin.onchange = () => {
+        hideAllInlineForms();
         if (toggleAppPin.checked) {
-          // Wants to enable PIN
-          const pin = prompt("Enter a 4-digit PIN to secure Kaasi:");
-          if (pin && /^\d{4}$/.test(pin)) {
-            const confirmPin = prompt("Confirm your 4-digit PIN:");
-            if (pin === confirmPin) {
-              // Need to set a security question
-              const modal = document.getElementById("securityQuestionModal");
-              const setupGroup = document.getElementById("securityQuestionSetupGroup");
-              const displayGroup = document.getElementById("securityQuestionDisplayGroup");
-              const emergencyGroup = document.getElementById("emergencyResetGroup");
-              const form = document.getElementById("securityQuestionForm");
-              
-              setupGroup.classList.remove("hidden");
-              displayGroup.classList.add("hidden");
-              emergencyGroup.classList.add("hidden");
-              
-              document.getElementById("securityModalTitle").innerText = "Security Question Setup";
-              document.getElementById("securityModalDesc").innerText = "Select a question and answer. This is your ONLY way to recover data if you forget your PIN.";
-              document.getElementById("securityAnswerInput").value = "";
-              
-              form.onsubmit = (e) => {
-                e.preventDefault();
-                const q = document.getElementById("securityQuestionSelect").value;
-                const a = document.getElementById("securityAnswerInput").value.trim().toLowerCase();
-                
-                if (!state.settings.appPin) state.settings.appPin = {};
-                state.settings.appPin.enabled = true;
-                state.settings.appPin.pin = btoa(pin);
-                state.settings.appPin.question = q;
-                state.settings.appPin.answer = btoa(a);
-                saveData();
-                
-                securityManagementOptions.classList.remove("hidden");
-                showNotification("PIN Lock enabled successfully.", "success");
-                closeModal("securityQuestionModal");
-              };
-              
-              modal.style.display = "flex";
-            } else {
-              showNotification("PINs do not match. Activation cancelled.", "error");
-              toggleAppPin.checked = false;
-            }
-          } else {
-            showNotification("Invalid PIN format. Must be 4 digits.", "error");
-            toggleAppPin.checked = false;
-          }
+          // Uncheck it visually until they complete setup
+          toggleAppPin.checked = false;
+          inlineSetup.classList.remove("hidden");
+          
+          $("#setupPinInput").value = "";
+          $("#setupPinConfirm").value = "";
+          $("#setupSecurityAnswer").value = "";
+          $("#setupPinInput").focus();
         } else {
-          // Wants to disable PIN
-          const currentPin = prompt("Enter your current PIN to disable security:");
-          if (currentPin && btoa(currentPin) === state.settings.appPin.pin) {
-            state.settings.appPin.enabled = false;
-            saveData();
-            securityManagementOptions.classList.add("hidden");
-            showNotification("PIN Lock disabled.", "info");
-          } else {
-            showNotification("Incorrect PIN.", "error");
-            toggleAppPin.checked = true; // Revert
-          }
+          // Wants to disable PIN. Recheck visually until they authenticate
+          toggleAppPin.checked = true;
+          inlineRemove.classList.remove("hidden");
+          $("#removePinCurrent").value = "";
+          $("#removePinCurrent").focus();
         }
       };
       
+      // Inline Setup Logic
+      $("#btnCancelPinSetup").onclick = () => {
+        hideAllInlineForms();
+        toggleAppPin.checked = false;
+      };
+      
+      $("#btnSavePinSetup").onclick = () => {
+        const pin = $("#setupPinInput").value;
+        const confirmPin = $("#setupPinConfirm").value;
+        const q = $("#setupSecuritySelect").value;
+        const a = $("#setupSecurityAnswer").value.trim().toLowerCase();
+        
+        if (!/^\d{4}$/.test(pin)) return showNotification("PIN must be exactly 4 digits.", "error");
+        if (pin !== confirmPin) return showNotification("PINs do not match.", "error");
+        if (!a) return showNotification("You must provide an answer to the security question.", "error");
+        
+        if (!state.settings.appPin) state.settings.appPin = {};
+        state.settings.appPin.enabled = true;
+        state.settings.appPin.pin = btoa(pin);
+        state.settings.appPin.question = q;
+        state.settings.appPin.answer = btoa(a);
+        saveData();
+        
+        hideAllInlineForms();
+        toggleAppPin.checked = true;
+        securityManagementOptions.classList.remove("hidden");
+        showNotification("PIN Lock enabled successfully.", "success");
+      };
+      
+      // Inline Change Logic
       if (btnChangePin) {
         btnChangePin.onclick = () => {
-          const currentPin = prompt("Enter your current PIN:");
-          if (currentPin && btoa(currentPin) === state.settings.appPin.pin) {
-            const newPin = prompt("Enter a NEW 4-digit PIN:");
-            if (newPin && /^\d{4}$/.test(newPin)) {
-               const confirmPin = prompt("Confirm your NEW 4-digit PIN:");
-               if (newPin === confirmPin) {
-                 state.settings.appPin.pin = btoa(newPin);
-                 saveData();
-                 showNotification("PIN changed successfully.", "success");
-               } else {
-                 showNotification("PINs do not match.", "error");
-               }
-            } else {
-              showNotification("Invalid PIN format.", "error");
-            }
-          } else {
-            showNotification("Incorrect current PIN.", "error");
-          }
+          hideAllInlineForms();
+          inlineChange.classList.remove("hidden");
+          $("#changePinCurrent").value = "";
+          $("#changePinNew").value = "";
+          $("#changePinConfirm").value = "";
+          $("#changePinCurrent").focus();
         };
       }
       
+      $("#btnCancelPinChange").onclick = () => {
+        hideAllInlineForms();
+      };
+      
+      $("#btnSavePinChange").onclick = () => {
+        const current = $("#changePinCurrent").value;
+        const newPin = $("#changePinNew").value;
+        const confirmPin = $("#changePinConfirm").value;
+        
+        if (btoa(current) !== state.settings.appPin.pin) return showNotification("Incorrect current PIN.", "error");
+        if (!/^\d{4}$/.test(newPin)) return showNotification("New PIN must be exactly 4 digits.", "error");
+        if (newPin !== confirmPin) return showNotification("New PINs do not match.", "error");
+        
+        state.settings.appPin.pin = btoa(newPin);
+        saveData();
+        hideAllInlineForms();
+        showNotification("PIN changed successfully.", "success");
+      };
+      
+      // Inline Remove Logic
       if (btnRemovePin) {
         btnRemovePin.onclick = () => {
-          const currentPin = prompt("Enter your current PIN to completely remove security settings:");
-          if (currentPin && btoa(currentPin) === state.settings.appPin.pin) {
-            state.settings.appPin = { enabled: false };
-            saveData();
-            toggleAppPin.checked = false;
-            securityManagementOptions.classList.add("hidden");
-            showNotification("PIN and Security Question removed.", "info");
-          } else {
-            showNotification("Incorrect PIN.", "error");
-          }
+          hideAllInlineForms();
+          inlineRemove.classList.remove("hidden");
+          $("#removePinCurrent").value = "";
+          $("#removePinCurrent").focus();
         };
       }
+      
+      $("#btnCancelPinRemove").onclick = () => {
+        hideAllInlineForms();
+      };
+      
+      $("#btnConfirmPinRemove").onclick = () => {
+        const current = $("#removePinCurrent").value;
+        
+        if (btoa(current) !== state.settings.appPin.pin) return showNotification("Incorrect current PIN.", "error");
+        
+        state.settings.appPin = { enabled: false };
+        saveData();
+        hideAllInlineForms();
+        toggleAppPin.checked = false;
+        securityManagementOptions.classList.add("hidden");
+        showNotification("PIN and Security Question removed.", "info");
+      };
 
       toggleAppPin.dataset.listenerAttached = "true";
     }
@@ -7868,12 +7884,15 @@ async function restoreFromSupabase() {
 
 let currentPinInput = "";
 let expectedPin = "";
+let failedSecurityAttempts = 0;
+let lockScreenKeydownListener = null;
 
 function showPinLockScreen() {
   const pinLockOverlay = document.getElementById("pinLockOverlay");
   if (!pinLockOverlay) return;
   expectedPin = atob(state.settings.appPin.pin);
   currentPinInput = "";
+  failedSecurityAttempts = 0;
   updatePinDots();
   pinLockOverlay.classList.remove("hidden");
   // Small delay to allow display block to apply before opacity transition
@@ -7881,7 +7900,19 @@ function showPinLockScreen() {
     pinLockOverlay.style.opacity = "1";
   }, 10);
   
-  // Update header color logic to avoid flash if needed, but solid cover is fine.
+  // Add keyboard listener for desktop users
+  lockScreenKeydownListener = (e) => {
+    const modal = document.getElementById("securityQuestionModal");
+    // Only listen if overlay is visible and modal is NOT open
+    if (!pinLockOverlay.classList.contains("hidden") && modal.style.display !== "flex") {
+      if (e.key >= "0" && e.key <= "9") {
+        addPinDigit(parseInt(e.key));
+      } else if (e.key === "Backspace") {
+        removePinDigit();
+      }
+    }
+  };
+  document.addEventListener("keydown", lockScreenKeydownListener);
 }
 
 function onAppUnlocked() {
@@ -7891,6 +7922,11 @@ function onAppUnlocked() {
     setTimeout(() => {
       pinLockOverlay.classList.add("hidden");
     }, 500); // Wait for fade out
+  }
+  
+  if (lockScreenKeydownListener) {
+    document.removeEventListener("keydown", lockScreenKeydownListener);
+    lockScreenKeydownListener = null;
   }
   
   // Trigger backup reminder only AFTER app is unlocked
@@ -7945,15 +7981,11 @@ function showForgotPinModal() {
   const modal = document.getElementById("securityQuestionModal");
   if (!modal) return;
   
-  const setupGroup = document.getElementById("securityQuestionSetupGroup");
-  const displayGroup = document.getElementById("securityQuestionDisplayGroup");
   const displayEl = document.getElementById("securityQuestionDisplay");
   const emergencyGroup = document.getElementById("emergencyResetGroup");
   const form = document.getElementById("securityQuestionForm");
   
-  setupGroup.classList.add("hidden");
-  displayGroup.classList.remove("hidden");
-  emergencyGroup.classList.remove("hidden");
+  emergencyGroup.classList.add("hidden"); // Hide initially
   
   document.getElementById("securityModalTitle").innerText = "Security Recovery";
   document.getElementById("securityModalDesc").innerText = "Answer your security question to unlock the app.";
@@ -7980,7 +8012,11 @@ function showForgotPinModal() {
       const opts = document.getElementById("securityManagementOptions");
       if (opts) opts.classList.add("hidden");
     } else {
+      failedSecurityAttempts++;
       showNotification("Incorrect answer.", "error");
+      if (failedSecurityAttempts >= 2) {
+        emergencyGroup.classList.remove("hidden");
+      }
     }
   };
   
