@@ -1813,5 +1813,5 @@ footer a[href^="https://kaasi.com.lk"]:hover
 
 /* Settings Modal Logo */
 [data-theme="light"] .theme-logo-type {
-  filter: brightness(0) invert(14%) sepia(1%) saturate(0%) hue-rotate(345deg) brightness(97%) contrast(85%);
+  filter: brightness(0) invert(17%);
 }
