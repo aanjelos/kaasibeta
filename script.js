@@ -184,6 +184,7 @@ function getDefaultState() {
         initialSetupDone: false,
         showCcDashboardSection: true,
         theme: "dark",
+        accent: "orange",
         hiddenCategoryRules: {
           excludeFromDashboardCharts: true,
           excludeFromReports: false,
@@ -2087,9 +2088,9 @@ function renderMonthlyOverviewChart() {
   const chartTooltipText =
     computedStyle.getPropertyValue("--chart-tooltip-text").trim() || "#fff";
 
-  // --- Using the exact hex codes from your reference code ---
-  const incomeColor = "#2a9d8f";
-  const expenseColor = "#e74c3c";
+  // Use CSS variables for income/expense instead of hardcoded hexes
+  const incomeColor = computedStyle.getPropertyValue("--income-color").trim() || "#27ae60";
+  const expenseColor = computedStyle.getPropertyValue("--expense-color").trim() || "#c0392b";
 
   const hexToRgba = (hex, alpha = 0.3) => {
     let r = 0,
@@ -3296,6 +3297,10 @@ function renderMonthlyPieChart(data) {
   }
   const ctx = canvas.getContext("2d");
 
+  const computedStyle = getComputedStyle(document.documentElement);
+  const chartTooltipBg = computedStyle.getPropertyValue("--chart-tooltip-bg").trim() || "rgba(0,0,0,0.85)";
+  const chartTooltipText = computedStyle.getPropertyValue("--chart-tooltip-text").trim() || "#fff";
+
   const brandPiePalette = [
     "#e67e26",
     "#2a9d8f",
@@ -3345,9 +3350,9 @@ function renderMonthlyPieChart(data) {
             display: false,
           },
           tooltip: {
-            backgroundColor: "rgba(0,0,0,0.85)",
-            titleColor: "#fff",
-            bodyColor: "#fff",
+            backgroundColor: chartTooltipBg,
+            titleColor: chartTooltipText,
+            bodyColor: chartTooltipText,
             padding: 12,
             cornerRadius: 4,
             usePointStyle: true,
@@ -5200,10 +5205,90 @@ function handlePayCcItemSubmit(event) {
   showNotification(notificationMessage, "success");
 }
 
+function applyAppearance() {
+  if (!state.settings) return;
+  const theme = state.settings.theme || "dark";
+  const accent = state.settings.accent || "orange";
+
+  document.documentElement.setAttribute("data-theme", theme);
+  document.documentElement.setAttribute("data-accent", accent);
+
+  if (typeof renderDashboard === 'function') {
+    // A lightweight timeout ensures CSS variables are parsed before canvas re-reads them
+    setTimeout(renderDashboard, 10);
+  }
+}
+
+function setupAppearanceListeners() {
+  const themeDarkBtn = $("#themeDarkBtn");
+  const themeLightBtn = $("#themeLightBtn");
+  
+  if (themeDarkBtn && themeLightBtn) {
+    const updateThemeUI = () => {
+      const theme = state.settings.theme || "dark";
+      if (theme === "dark") {
+        themeDarkBtn.classList.add("border-accent-primary");
+        themeDarkBtn.classList.remove("border-transparent");
+        themeLightBtn.classList.remove("border-accent-primary");
+        themeLightBtn.classList.add("border-transparent");
+      } else {
+        themeLightBtn.classList.add("border-accent-primary");
+        themeLightBtn.classList.remove("border-transparent");
+        themeDarkBtn.classList.remove("border-accent-primary");
+        themeDarkBtn.classList.add("border-transparent");
+      }
+    };
+    
+    themeDarkBtn.onclick = () => {
+      state.settings.theme = "dark";
+      saveData();
+      applyAppearance();
+      updateThemeUI();
+    };
+    
+    themeLightBtn.onclick = () => {
+      state.settings.theme = "light";
+      saveData();
+      applyAppearance();
+      updateThemeUI();
+    };
+    
+    updateThemeUI();
+  }
+
+  const accentBtns = $$("#accentColorContainer button");
+  if (accentBtns) {
+    const updateAccentUI = () => {
+      const accent = state.settings.accent || "orange";
+      accentBtns.forEach(btn => {
+        if (btn.dataset.accent === accent) {
+          btn.classList.add("ring-offset-2", "ring-accent-primary");
+          btn.classList.remove("ring-transparent");
+        } else {
+          btn.classList.remove("ring-offset-2", "ring-accent-primary");
+          btn.classList.add("ring-transparent");
+        }
+      });
+    };
+
+    accentBtns.forEach(btn => {
+      btn.onclick = () => {
+        state.settings.accent = btn.dataset.accent;
+        saveData();
+        applyAppearance();
+        updateAccentUI();
+      };
+    });
+    
+    updateAccentUI();
+  }
+}
+
 function openSettingsModal() {
   renderSettingsForm();
-
+  setupManageCategories();
   setupSettingsTabs();
+  setupAppearanceListeners();
 
   const storageInfoElement = $("#storageSizeInfo");
   if (storageInfoElement) {
@@ -6788,6 +6873,7 @@ const settingsTabsConfig = [
   { label: "Accounts", targetPanelId: "settingsAccountsPanel" },
   { label: "Categories", targetPanelId: "settingsCategoriesPanel" },
   { label: "Data", targetPanelId: "settingsDataManagementPanel" },
+  { label: "Appearance", targetPanelId: "settingsAppearancePanel" },
 ];
 
 function setupSettingsTabs() {
@@ -6887,6 +6973,7 @@ function initializeUI(isRefresh = false) {
 
   if (!isRefresh) {
     loadData();
+    applyAppearance();
   }
 
   if (

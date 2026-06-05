@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.87k" />
+    <meta name="application-version" content="v5.88k" />
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
     <meta
       name="title"
@@ -868,6 +868,47 @@
               </div>
             </div>
             <!-- END: UPDATED DATA MANAGEMENT PANEL -->
+
+            <!-- START: APPEARANCE PANEL -->
+            <div
+              id="settingsAppearancePanel"
+              class="settings-tab-panel space-y-6 hidden"
+            >
+              <div
+                class="card !p-4"
+                style="background-color: var(--bg-tertiary)"
+              >
+                <h3 class="text-lg font-semibold mb-3">Theme</h3>
+                <div class="flex gap-4">
+                  <button id="themeDarkBtn" class="flex-1 btn btn-secondary flex flex-col items-center justify-center p-4 rounded-lg border-2 border-transparent transition-colors">
+                    <i class="fas fa-moon text-2xl mb-2"></i>
+                    <span class="font-medium">Dark Mode</span>
+                  </button>
+                  <button id="themeLightBtn" class="flex-1 btn btn-secondary flex flex-col items-center justify-center p-4 rounded-lg border-2 border-transparent transition-colors">
+                    <i class="fas fa-sun text-2xl mb-2 text-yellow-500"></i>
+                    <span class="font-medium">Light Mode</span>
+                  </button>
+                </div>
+              </div>
+
+              <div
+                class="card !p-4"
+                style="background-color: var(--bg-tertiary)"
+              >
+                <h3 class="text-lg font-semibold mb-3">Accent Color</h3>
+                <div class="flex flex-wrap gap-4" id="accentColorContainer">
+                  <!-- The ring styles will be applied via JS when selected -->
+                  <button data-accent="orange" class="w-10 h-10 rounded-full cursor-pointer transition-all" style="background-color: #e67e26" title="Orange"></button>
+                  <button data-accent="blue" class="w-10 h-10 rounded-full cursor-pointer transition-all" style="background-color: #339af0" title="Blue"></button>
+                  <button data-accent="teal" class="w-10 h-10 rounded-full cursor-pointer transition-all" style="background-color: #20c997" title="Teal"></button>
+                  <button data-accent="red" class="w-10 h-10 rounded-full cursor-pointer transition-all" style="background-color: #ff6b6b" title="Red"></button>
+                  <button data-accent="purple" class="w-10 h-10 rounded-full cursor-pointer transition-all" style="background-color: #cc5de8" title="Purple"></button>
+                  <button data-accent="green" class="w-10 h-10 rounded-full cursor-pointer transition-all" style="background-color: #51cf66" title="Green"></button>
+                </div>
+              </div>
+            </div>
+            <!-- END: APPEARANCE PANEL -->
+
           </div>
           <div
             id="settingsAboutSection"

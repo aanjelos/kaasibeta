@@ -60,3 +60,6 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 - **Description**: Reordered the input fields in the "Add/Edit Debt" and "Add/Edit Receivable" modals to place the "Amount" field first, and positioned the "Type" and "Account" selectors immediately after the amount in the Receivables form. This aligns them with other transaction forms and prevents accidental entry of amounts into description/name fields.
 - **Scope**: Modified `script.js`.
 
+### 12. [Major] Light Mode & Appearance Settings (v5.88k)
+- **Description**: Introduced a comprehensive "Appearance" tab in the Settings modal, allowing users to toggle between the classic Dark Mode and a new, high-contrast Light Mode. Added customizable Accent Color presets (Orange, Blue, Teal, Red, Purple, Green) with dynamic shade adjustments to ensure optimal readability across both themes. The main logo retains its signature orange glow regardless of the chosen accent color, and charts dynamically update their axes and tooltips to match the active theme.
+- **Scope**: Modified `index.html`, `style.css`, and `script.js`.
