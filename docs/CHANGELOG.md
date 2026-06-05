@@ -101,3 +101,10 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
   - Added horizontal scrollability (`overflow-x-auto`) to the Settings tabs to prevent multi-line wrapping on mobile screens, implementing a clean `hide-scrollbar` utility and edge fade effects.
   - Added the full Kaasi logo to the App PIN Lock screen for better branding.
 - **Scope**: Modified `index.html` and `style.css`.
+
+### 19. [Minor] Tailwind CSS Optimization & Folder Cleanup
+- **Description**: 
+  - Migrated Tailwind CSS from a CDN-loaded runtime script (`cdn.tailwindcss.com`) to a locally compiled static stylesheet (`tailwind.css`). This removes the console warning, drastically speeds up initial page load (as the browser no longer needs to download the compiler or generate CSS on the fly), and properly prepares the project for production while remaining entirely vanilla.
+  - Reorganized the project directory by creating a `docs/` folder for changelogs/roadmaps and a `tailwind/` folder for the standalone Tailwind CLI executable and config files.
+  - Added a convenient `build-tailwind.bat` script inside the `tailwind/` folder to make future local CSS generation a simple one-click task.
+- **Scope**: Modified `index.html`, created `tailwind.css`, added `tailwind/` and `docs/` directories.
