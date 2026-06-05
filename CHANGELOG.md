@@ -71,3 +71,11 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 ### 14. [Minor] Light Mode Refinements & Logo Contrast (v5.89k)
 - **Description**: Perfected the Light Mode contrast based on UX feedback. Replaced pure white backgrounds with a tiered Slate palette to create a premium "inset" effect for inputs and nested cards (e.g., Balance Overview cards, Credit Card modal cards). Consolidated dark text mappings to perfectly match the dark mode background (`#121212`) for high visual consistency. Resolved multiple legibility issues, including invisible modal headers, poorly contrasting dropdown buttons, and unstyled SVG logos (AanjeloNoText) by applying precise hex filter mappings. Additionally updated the settings disclaimer to reflect cloud backup availability.
 - **Scope**: Modified `index.html` and `style.css`.
+
+### 15. [Minor] Math Toolbar Refinements (v5.90k)
+- **Description**: 
+  - **Alignment**: Repositioned the floating Math Toolbar so its right edge dynamically aligns with the right edge of the active input field. This prevents it from awkwardly covering up field labels like "Amount".
+  - **Z-Index Fix**: Fixed a critical z-index issue (`z-index: 9999`) that was causing the Math Toolbar to be hidden behind modals, such as when adding Debts, Receivables, or Editing a Transaction.
+  - **Mobile Toggle**: Added a user setting in the "Appearance" tab (visible only on mobile/touch devices) to globally enable or disable the Math Toolbar, for users who find the popup intrusive.
+  - **Styling**: Fixed an issue where the `=` button text was completely invisible in Light Mode by properly referencing the active `--accent-primary` color variable instead of an undefined variable.
+- **Scope**: Modified `index.html`, `script.js`, and `style.css`.
