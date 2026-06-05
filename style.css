@@ -1534,9 +1534,9 @@ footer a[href^="https://kaasi.com.lk"]:hover
 }
 
 .math-btn.math-btn-equal {
-  background: var(--accent-color);
+  background: var(--accent-primary);
   color: #fff;
-  border-color: var(--accent-color);
+  border-color: var(--accent-primary);
 }
 
 .math-btn.math-btn-equal:active {
@@ -1729,9 +1729,9 @@ footer a[href^="https://kaasi.com.lk"]:hover
 }
 
 .math-btn.math-btn-equal {
-  background: var(--accent-color);
+  background: var(--accent-primary);
   color: #fff;
-  border-color: var(--accent-color);
+  border-color: var(--accent-primary);
 }
 
 .math-btn.math-btn-equal:active {
