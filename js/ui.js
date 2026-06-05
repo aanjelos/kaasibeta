@@ -487,8 +487,7 @@ function renderSettingsForm() {
     accountManagementList.innerHTML = "";
     state.accounts.forEach((acc) => {
       const accRow = document.createElement("div");
-      accRow.className =
-        "grid grid-cols-[auto,1fr,1fr] gap-x-3 items-center py-1 account-row";
+      accRow.className = "grid grid-cols-[auto_1fr_1fr] gap-x-3 items-center py-1 account-row";
       if (acc.hidden) {
         accRow.classList.add("account-row-hidden");
       }
