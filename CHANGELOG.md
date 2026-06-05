@@ -87,3 +87,12 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
   - **Settings Management**: Added a new "Security" tab in Settings to enable, change, or remove the PIN lock and security questions.
   - **Deferred Dialogs**: Ensured background dialogs like the Cloud Backup Reminder are deferred until the PIN is successfully entered.
 - **Scope**: Modified `index.html`, `script.js`, and `style.css`.
+
+### 17. [Minor] Security Lock UI Refinements (v5.92k)
+- **Description**: 
+  - Overhauled the Security Settings tab to use clean inline forms rather than browser default prompts.
+  - Added the ability to change the security question after setup.
+  - Fixed lock screen height stretching and matched the dark theme background color precisely.
+  - Hid visual numpad on large screens and added global keyboard event listeners for seamless desktop entry.
+  - Corrected input field styling by properly registering password inputs to Kaasi's global theme.
+- **Scope**: Modified `index.html`, `script.js`, and `style.css`.
