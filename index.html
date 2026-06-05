@@ -140,7 +140,7 @@
 
           <div>
             <label class="block text-sm font-medium mb-1">Your Answer</label>
-            <input type="text" id="securityAnswerInput" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white" placeholder="Type your answer" required autocomplete="off">
+            <input type="text" id="securityAnswerInput" class="w-full" placeholder="Type your answer" required autocomplete="off">
           </div>
 
           <div class="flex gap-2 justify-end mt-4">
@@ -1021,16 +1021,16 @@
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium mb-1">New 4-Digit PIN</label>
-                      <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="setupPinInput" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white" placeholder="e.g. 1234">
+                      <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="setupPinInput" class="w-full" placeholder="e.g. 1234">
                     </div>
                     <div>
                       <label class="block text-sm font-medium mb-1">Confirm PIN</label>
-                      <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="setupPinConfirm" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white" placeholder="Confirm 4 digits">
+                      <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="setupPinConfirm" class="w-full" placeholder="Confirm 4 digits">
                     </div>
                     <div>
                       <label class="block text-sm font-medium mb-1">Security Question</label>
                       <p class="text-xs text-gray-400 mb-2">Used if you forget your PIN.</p>
-                      <select id="setupSecuritySelect" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white">
+                      <select id="setupSecuritySelect" class="w-full">
                         <option value="What was the name of your first pet?">What was the name of your first pet?</option>
                         <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
                         <option value="What city were you born in?">What city were you born in?</option>
@@ -1040,7 +1040,7 @@
                     </div>
                     <div>
                       <label class="block text-sm font-medium mb-1">Answer</label>
-                      <input type="text" id="setupSecurityAnswer" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white" placeholder="Type your answer" autocomplete="off">
+                      <input type="text" id="setupSecurityAnswer" class="w-full" placeholder="Type your answer" autocomplete="off">
                     </div>
                   </div>
                   <div class="flex gap-2 justify-end">
@@ -1054,6 +1054,10 @@
                     <span>Change PIN</span>
                     <i class="fas fa-chevron-right text-xs"></i>
                   </button>
+                  <button id="btnChangeQuestion" class="btn btn-secondary w-full text-left flex justify-between items-center">
+                    <span>Change Security Question</span>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                  </button>
                   <button id="btnRemovePin" class="btn btn-danger w-full text-left flex justify-between items-center">
                     <span>Remove PIN & Security Settings</span>
                     <i class="fas fa-trash text-xs"></i>
@@ -1063,19 +1067,44 @@
                 <div id="securityInlineChange" class="hidden space-y-4 pt-4 border-t border-gray-600">
                   <div>
                     <label class="block text-sm font-medium mb-1">Current PIN</label>
-                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changePinCurrent" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white">
+                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changePinCurrent" class="w-full">
                   </div>
                   <div>
                     <label class="block text-sm font-medium mb-1">New 4-Digit PIN</label>
-                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changePinNew" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white">
+                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changePinNew" class="w-full">
                   </div>
                   <div>
                     <label class="block text-sm font-medium mb-1">Confirm New PIN</label>
-                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changePinConfirm" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white">
+                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changePinConfirm" class="w-full">
                   </div>
                   <div class="flex gap-2 justify-end">
                     <button type="button" class="btn btn-secondary text-sm" id="btnCancelPinChange">Cancel</button>
                     <button type="button" class="btn btn-primary text-sm" id="btnSavePinChange">Update PIN</button>
+                  </div>
+                </div>
+
+                <div id="securityInlineChangeQuestion" class="hidden space-y-4 pt-4 border-t border-gray-600">
+                  <div>
+                    <label class="block text-sm font-medium mb-1">Current PIN</label>
+                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changeQuestionPinCurrent" class="w-full">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-1">New Security Question</label>
+                    <select id="changeQuestionSelect" class="w-full">
+                      <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                      <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                      <option value="What city were you born in?">What city were you born in?</option>
+                      <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+                      <option value="What is the name of your favorite teacher?">What is the name of your favorite teacher?</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-1">New Answer</label>
+                    <input type="text" id="changeQuestionAnswer" class="w-full" placeholder="Type your answer" autocomplete="off">
+                  </div>
+                  <div class="flex gap-2 justify-end">
+                    <button type="button" class="btn btn-secondary text-sm" id="btnCancelQuestionChange">Cancel</button>
+                    <button type="button" class="btn btn-primary text-sm" id="btnSaveQuestionChange">Update Question</button>
                   </div>
                 </div>
                 
@@ -1083,7 +1112,7 @@
                   <p class="text-sm text-gray-300">Enter your current PIN to completely remove security settings.</p>
                   <div>
                     <label class="block text-sm font-medium mb-1">Current PIN</label>
-                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="removePinCurrent" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white">
+                    <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="removePinCurrent" class="w-full">
                   </div>
                   <div class="flex gap-2 justify-end">
                     <button type="button" class="btn btn-secondary text-sm" id="btnCancelPinRemove">Cancel</button>

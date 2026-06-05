@@ -354,7 +354,8 @@ body {
 input[type="text"],
 input[type="number"],
 input[type="date"],
-input[type="search"], /* Ensure type="search" is included here */
+input[type="search"],
+input[type="password"], /* Added for PIN inputs */
 textarea,
 select {
   background-color: var(--bg-tertiary);
@@ -1212,6 +1213,7 @@ input[type="checkbox"].peer:focus-visible + div {
   input[type="text"],
   input[type="number"],
   input[type="date"],
+  input[type="password"],
   textarea,
   select {
     padding-top: 0.7rem;

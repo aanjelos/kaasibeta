@@ -5481,11 +5481,13 @@ function renderSettingsForm() {
   const inlineSetup = $("#securityInlineSetup");
   const inlineChange = $("#securityInlineChange");
   const inlineRemove = $("#securityInlineRemove");
+  const inlineChangeQuestion = $("#securityInlineChangeQuestion");
 
   function hideAllInlineForms() {
     if (inlineSetup) inlineSetup.classList.add("hidden");
     if (inlineChange) inlineChange.classList.add("hidden");
     if (inlineRemove) inlineRemove.classList.add("hidden");
+    if (inlineChangeQuestion) inlineChangeQuestion.classList.add("hidden");
   }
 
   if (toggleAppPin) {
@@ -5576,6 +5578,41 @@ function renderSettingsForm() {
         saveData();
         hideAllInlineForms();
         showNotification("PIN changed successfully.", "success");
+      };
+
+      // Inline Change Question Logic
+      const btnChangeQuestion = $("#btnChangeQuestion");
+      const inlineChangeQuestion = $("#securityInlineChangeQuestion");
+      
+      if (btnChangeQuestion) {
+        btnChangeQuestion.onclick = () => {
+          hideAllInlineForms();
+          if (inlineChangeQuestion) inlineChangeQuestion.classList.remove("hidden");
+          $("#changeQuestionPinCurrent").value = "";
+          $("#changeQuestionAnswer").value = "";
+          $("#changeQuestionPinCurrent").focus();
+        };
+      }
+      
+      $("#btnCancelQuestionChange").onclick = () => {
+        if (inlineChangeQuestion) inlineChangeQuestion.classList.add("hidden");
+        hideAllInlineForms();
+      };
+      
+      $("#btnSaveQuestionChange").onclick = () => {
+        const current = $("#changeQuestionPinCurrent").value;
+        const newQ = $("#changeQuestionSelect").value;
+        const newA = $("#changeQuestionAnswer").value.trim().toLowerCase();
+        
+        if (btoa(current) !== state.settings.appPin.pin) return showNotification("Incorrect current PIN.", "error");
+        if (!newA) return showNotification("You must provide an answer to the new security question.", "error");
+        
+        state.settings.appPin.question = newQ;
+        state.settings.appPin.answer = btoa(newA);
+        saveData();
+        if (inlineChangeQuestion) inlineChangeQuestion.classList.add("hidden");
+        hideAllInlineForms();
+        showNotification("Security Question updated.", "success");
       };
       
       // Inline Remove Logic
@@ -8020,7 +8057,7 @@ function showForgotPinModal() {
     }
   };
   
-  modal.style.display = "flex";
+  modal.style.display = "block";
 }
 
 function emergencyExportAndWipe() {
