@@ -5286,7 +5286,6 @@ function setupAppearanceListeners() {
 
 function openSettingsModal() {
   renderSettingsForm();
-  setupManageCategories();
   setupSettingsTabs();
   setupAppearanceListeners();
 
