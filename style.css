@@ -1896,9 +1896,9 @@ footer a[href^="https://kaasi.com.lk"]:hover
 }
 
 @keyframes marquee-scroll {
-  0%, 15% { transform: translateX(0); }
-  45%, 55% { transform: translateX(calc(-100% + 120px)); }
-  85%, 100% { transform: translateX(0); }
+  0%, 20% { transform: translateX(0); }
+  80%, 95% { transform: translateX(calc(-100% + 120px)); }
+  96%, 100% { transform: translateX(0); }
 }
 
 /* FAB Enhancements */
