@@ -25,10 +25,6 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
   - Add a "Customize Dashboard" toggle in Settings.
   - Store an array in `state.settings.dashboardLayout` defining the rendering order and visibility of widgets (e.g., `['balanceOverview', 'quickStats', 'monthlyChart']`).
 
-### 4. Toggle Cash Counter Visibility
-- **Concept**: Add an option in the Appearance tab to hide the Cash Counter.
-- **Implementation Idea**: 
-  - When hidden, the "Total Available" and "Total Potential" cards should expand to fill the available space in that row.
 
 ---
 
@@ -61,6 +57,3 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Issue**: Credit card totals do not show the proper total available/limit when a card balance is only partially paid.
 - **Fix**: Update the credit card balance calculation logic to accurately reflect partial payments.
 
-### 3. Modal State Resets (Year Search & Monthly Breakdown)
-- **Issue**: There are state synchronization issues with the year search when switching between years. Additionally, the search/monthly breakdown does not reset back to the current month when closing the monthly view modal.
-- **Fix**: Implement proper state reset logic triggered by the modal close events, and fix the year toggle persistence.

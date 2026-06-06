@@ -130,3 +130,10 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
   - Handled automated tracking of core application events (`add_transaction`, `edit_transaction`, `delete_transaction`) and feature usage (e.g., inline math calculator, PDF generation, PIN lock setup).
   - Employed a global, delegated `click` listener targeting UI elements with specific `data-analytics` tags, drastically reducing JavaScript boilerplate and isolating HTML attributes from core DOM logic.
 - **Scope**: Bumped version to `v5.96k`. Modified `js/globals.js`, `js/app.js`, `js/features.js`, `js/ui.js`, `js/charts-export.js`, `js/security.js`, and `index.html`.
+
+### 24. [Minor] Dashboard UI & Monthly View Fixes
+- **Description**: 
+  - Added a "Hide Cash Counter" toggle inside the Settings > Appearance panel. Toggling this automatically hides the Cash Counter and dynamically re-flows the dashboard CSS grid so the remaining "Total Available" and "Total Potential" cards elegantly fill the screen.
+  - Fixed a bug where opening the Monthly Breakdown view would persist a previously searched year instead of resetting to the current real-world year.
+  - Fixed a logic omission where the "Less/More than last month" tooltip indicator on the Monthly Breakdown ignored custom category exclusion rules. The tooltip now properly excludes any hidden categories for an accurate month-over-month comparison.
+- **Scope**: Modified `index.html`, `js/app.js`, `js/ui.js`, `js/globals.js`, and `js/features.js`.
