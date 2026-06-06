@@ -1056,9 +1056,11 @@ function renderDashboard() {
       if (hideDebts) {
         if (debtsReceivablesContainer) debtsReceivablesContainer.style.display = "none";
         if (installmentsContainer) installmentsContainer.classList.remove("mt-6", "pt-4", "border-t", "border-gray-600");
+        if (debtsInstallmentsTitle) debtsInstallmentsTitle.style.display = "none";
       } else {
         if (debtsReceivablesContainer) debtsReceivablesContainer.style.display = "grid";
         if (installmentsContainer) installmentsContainer.classList.add("mt-6", "pt-4", "border-t", "border-gray-600");
+        if (debtsInstallmentsTitle) debtsInstallmentsTitle.style.display = "block";
       }
 
       if (hideInstallments) {
@@ -1068,8 +1070,6 @@ function renderDashboard() {
         if (installmentsContainer) installmentsContainer.style.display = "block";
         if (!hideDebts) {
           if (debtsInstallmentsTitle) debtsInstallmentsTitle.innerHTML = "Debts, Receivables & Installments";
-        } else {
-          if (debtsInstallmentsTitle) debtsInstallmentsTitle.innerHTML = "Installment Payments";
         }
       }
     }
