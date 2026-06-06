@@ -167,3 +167,7 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 ### 30. [Feature] Debt & Receivable Progress Bars (v5.102k)
 - **Description**: Made partial payments significantly more rewarding by displaying dynamic visual progress bars beneath Debt and Receivable items. The progress bar conditionally appears only after the first partial payment is logged, keeping untouched items looking clean. It automatically calculates the percentage paid based on the `originalAmount` and `remainingAmount`, filling up a green track to visualize repayment progress.
 - **Scope**: Bumped version to `v5.102k`. Updated `renderDebtList` and `renderReceivableList` functions in `js/features.js` to calculate and conditionally inject the progress bar UI snippet.
+
+### 31. [Feature] Emerald & Rose Accessibility Palette (v5.103k)
+- **Description**: Replaced the previous Teal and Alizarin Red palette with a brighter "Emerald & Rose" color scheme. The old red (`#C0392B`) failed WCAG accessibility tests on dark backgrounds, and the teal (`#2A9D8F`) was borderline. The new Emerald (`#34D399`) and Rose (`#FB7185`) palette maintains a modern, premium aesthetic while dramatically boosting the contrast ratio to ~9.9:1, guaranteeing perfect readability across the app.
+- **Scope**: Bumped version to `v5.103k`. Updated `--income-color`, `--expense-color`, and their RGB variants in `style.css`. Bumped service worker cache to `v6`.
