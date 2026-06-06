@@ -1348,8 +1348,10 @@ function renderMonthlyDetails(
   state.transactions
     .filter((t) => {
       const tDate = new Date(t.date + "T00:00:00");
+      const isExcluded = isCategoryExcluded(t.category || "Other", 'excludeFromMonthlyTotals');
       return (
         t.type === "expense" &&
+        !isExcluded &&
         !isNaN(tDate.getTime()) &&
         tDate.getFullYear() === lastMonthDate.getFullYear() &&
         tDate.getMonth() === lastMonthDate.getMonth()
