@@ -766,6 +766,7 @@ function handleTransactionSubmit(event) {
     `${type.charAt(0).toUpperCase() + type.slice(1)} added.`,
     "success"
   );
+  if (typeof trackEvent === "function") trackEvent("add_transaction", "Engagement", type);
 
   saveData();
   renderDashboard();
@@ -981,6 +982,7 @@ function handleEditTransactionModalSubmit(event) {
   populateDropdowns();
   closeModal("formModal");
   showNotification("Transaction updated successfully.", "success");
+  if (typeof trackEvent === "function") trackEvent("edit_transaction", "Engagement");
 
   refreshMonthlyViewIfRelevant(newDate);
   if (originalDate !== newDate) {
@@ -1022,6 +1024,7 @@ function deleteTransaction(id, event) {
       renderDashboard();
       populateDropdowns();
       showNotification("Transaction deleted.", "success");
+      if (typeof trackEvent === "function") trackEvent("delete_transaction", "Engagement");
       refreshMonthlyViewIfRelevant(deletedDate);
     }
   );
@@ -2107,6 +2110,7 @@ function handleCcTransactionSubmit(event) {
   };
   state.creditCard.transactions.push(newCcTransaction);
   showNotification("CC transaction added.", "success");
+  if (typeof trackEvent === "function") trackEvent("add_cc_transaction", "Engagement");
 
   saveData();
   renderCreditCardSection(); // This will use the rounded amount

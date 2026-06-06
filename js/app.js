@@ -875,4 +875,17 @@ window.addEventListener('appinstalled', () => {
   // Clear the deferredPrompt so it can be garbage collected
   deferredPrompt = null;
   console.log('PWA was installed');
+  if (typeof trackEvent === "function") trackEvent("pwa_installed", "App Support", "Success");
+});
+
+// --- Global Analytics Listener ---
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-analytics]");
+  if (btn) {
+    const action = btn.getAttribute("data-analytics");
+    const label = btn.getAttribute("data-analytics-label") || "";
+    if (typeof trackEvent === "function") {
+      trackEvent(action, "Feature Usage", label);
+    }
+  }
 });

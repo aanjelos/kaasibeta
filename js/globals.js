@@ -13,6 +13,16 @@ const getDaysLeft = (dueDate) => {
   return Math.ceil((due - today) / (1000 * 60 * 60 * 24));
 };
 
+// Analytics Helper
+function trackEvent(action, category = "Engagement", label = "") {
+  if (typeof gtag !== "undefined") {
+    gtag("event", action, {
+      event_category: category,
+      event_label: label,
+    });
+  }
+}
+
 // --- NEW: SUPABASE CLIENT INITIALIZATION ---
 const SUPABASE_URL = "https://xcnirqsctkyyrvildqtm.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cLW_C5L7xmIinyzSaKSmBQ_EFnjbntg"; // Your publishable key

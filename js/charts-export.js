@@ -558,6 +558,7 @@ function generateMonthlyPdfReport() {
   try {
     drawTable();
     doc.save(`Kaasi-Report-${monthName}-${year}.pdf`);
+    if (typeof trackEvent === "function") trackEvent("export_pdf", "Feature Usage");
   } catch (error) {
     console.error("Failed to generate PDF:", error);
     showNotification("An error occurred while generating the PDF.", "error");

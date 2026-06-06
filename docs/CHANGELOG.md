@@ -123,3 +123,10 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 ### 22. [Minor] Aesthetic Color Palette Revert
 - **Description**: Reverted the core `--income-color` (Green) and `--expense-color` (Red) hex variables back to their specific custom shades from the original public build (`#2a9d8f` and `#e74c3c`). This change automatically cascaded across all UI elements (text, buttons, progress rings, charts) due to the unified CSS variable architecture, resulting in a slightly muted, highly readable dark mode contrast that reduces eye strain compared to generic UI reds/greens.
 - **Scope**: Modified `style.css`, chart defaults in `js/features.js`, and hardcoded export references in `js/charts-export.js`.
+
+### 23. [Major] Privacy-First Analytics Integration (v5.96k)
+- **Description**: Integrated Google Analytics 4 (GA4) event tracking to capture anonymized usage metrics, allowing for feature discovery tracking without compromising user privacy.
+  - Implemented a centralized, robust `trackEvent` helper function to safely dispatch custom events to the GA4 tracking pixel without collecting personally identifiable information, transaction amounts, or descriptions.
+  - Handled automated tracking of core application events (`add_transaction`, `edit_transaction`, `delete_transaction`) and feature usage (e.g., inline math calculator, PDF generation, PIN lock setup).
+  - Employed a global, delegated `click` listener targeting UI elements with specific `data-analytics` tags, drastically reducing JavaScript boilerplate and isolating HTML attributes from core DOM logic.
+- **Scope**: Bumped version to `v5.96k`. Modified `js/globals.js`, `js/app.js`, `js/features.js`, `js/ui.js`, `js/charts-export.js`, `js/security.js`, and `index.html`.

@@ -722,6 +722,7 @@ function renderSettingsForm() {
         toggleAppPin.checked = true;
         securityManagementOptions.classList.remove("hidden");
         showNotification("PIN Lock enabled successfully.", "success");
+        if (typeof trackEvent === "function") trackEvent("pin_enabled", "Security");
       };
       
       // Inline Change Logic
@@ -1714,6 +1715,7 @@ function processCalculation(inputEl) {
   const result = evaluateMathExpression(inputEl.value);
   if (result !== null) {
     inputEl.value = result;
+    if (typeof trackEvent === "function") trackEvent("used_inline_calculator", "Feature Usage");
     return true; 
   }
   return false; 

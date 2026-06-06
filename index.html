@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.95k" />
+    <meta name="application-version" content="v5.96k" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -181,6 +181,7 @@
           <div class="flex items-stretch">
             <button
               id="monthlyViewBtn"
+              data-analytics="open_monthly_view"
               class="btn btn-secondary mr-2"
               data-tooltip="Monthly Breakdown (M)"
             >
@@ -191,6 +192,7 @@
             <!-- UPDATED HEADER SHORTCUT BUTTONS -->
             <button
               id="headerBackupBtn"
+              data-analytics="export_backup"
               class="btn btn-secondary mr-2"
               data-tooltip="Export Local File (Ctrl+E)"
             >
@@ -198,6 +200,7 @@
             </button>
             <button
               id="headerRestoreBtn"
+              data-analytics="import_backup"
               class="btn btn-secondary mr-2"
               data-tooltip="Import Local File (Ctrl+I)"
             >
@@ -214,6 +217,7 @@
             </button>
             <button
               id="settingsBtn"
+              data-analytics="open_settings"
               class="btn btn-icon"
               data-tooltip="Settings (S)"
             >
@@ -457,6 +461,7 @@
                       id="viewDebtsBtn"
                       class="btn btn-outline-expense btn-sm w-full"
                       data-tooltip="View All Debts (D)"
+                      data-analytics="open_debts"
                     >
                       <i class="fas fa-list-ul"></i> View All Debts
                     </button>
@@ -482,6 +487,7 @@
                       id="viewReceivablesBtn"
                       class="btn btn-outline-income btn-sm w-full"
                       data-tooltip="View All Receivables (R)"
+                      data-analytics="open_receivables"
                     >
                       <i class="fas fa-list-ul"></i> View All Receivables
                     </button>
@@ -1637,7 +1643,7 @@
         </div>
         <div class="flex items-center gap-6 text-gray-400 text-sm">
           <!-- Removed Tailwind hover and transition classes -->
-          <button id="pwaInstallBtn" class="accent-text font-medium hidden" style="display: none;"><i class="fas fa-download mr-1"></i> Install App</button>
+          <button id="pwaInstallBtn" class="accent-text font-medium hidden" style="display: none;" data-analytics="pwa_install_click"><i class="fas fa-download mr-1"></i> Install App</button>
           <button id="footerDonateBtn">Donate</button>
           <a href="https://kaasi.com.lk" target="_blank">Main Website</a>
         </div>

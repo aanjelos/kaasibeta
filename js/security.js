@@ -83,6 +83,7 @@ function updatePinDots() {
 function verifyPin() {
   if (currentPinInput === expectedPin) {
     onAppUnlocked();
+    if (typeof trackEvent === "function") trackEvent("pin_login_success", "Security");
   } else {
     // Error animation
     const dotsContainer = document.getElementById("pinLockDots");
