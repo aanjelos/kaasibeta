@@ -181,10 +181,10 @@
               id="monthlyViewBtn"
               data-analytics="open_monthly_view"
               class="btn btn-secondary mr-2"
-              data-tooltip="Monthly Breakdown (M)"
+              data-tooltip="All Transactions (M)"
             >
               <i class="fas fa-calendar-alt"></i>
-              <span class="hidden md:inline">Monthly View</span>
+              <span class="hidden md:inline">All Transactions</span>
             </button>
 
             <!-- UPDATED HEADER SHORTCUT BUTTONS -->
@@ -434,11 +434,7 @@
               >
                 <p class="text-gray-400 text-sm">No transactions yet.</p>
               </div>
-              <div class="mt-4 flex justify-end">
-                <button onclick="$('#monthlyViewBtn')?.click()" class="text-sm font-semibold text-accent-primary hover:text-accent-secondary hover:underline transition-colors flex items-center gap-2">
-                  View All Transactions <i class="fas fa-arrow-right"></i>
-                </button>
-              </div>
+
             </div>
             <div class="card order-5 lg:order-none" id="debtsInstallmentsCard">
               <h2 class="text-xl font-semibold mb-4" id="debtsInstallmentsTitle">
@@ -549,7 +545,7 @@
           <span class="modal-close" onclick="closeModal('monthlyViewModal')"
             >&times;</span
           >
-          <h2 class="text-2xl font-semibold mb-4">Monthly Breakdown</h2>
+          <h2 class="text-2xl font-semibold mb-4">All Transactions</h2>
           <div
             class="flex flex-col sm:flex-row justify-between items-center mb-4 border-b border-gray-600 pb-2 gap-2"
           >
@@ -1805,7 +1801,7 @@
         </div>
         <!-- Monthly Breakdown -->
         <div class="flex items-center gap-3 pointer-events-auto">
-          <span class="bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-md">Monthly View</span>
+          <span class="bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-md">All Transactions</span>
           <button id="fabMonthlyBtn" class="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-lg flex items-center justify-center hover:brightness-110 transition-all">
             <i class="fas fa-calendar-alt"></i>
           </button>
