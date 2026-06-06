@@ -511,8 +511,8 @@ function renderMonthlyOverviewChart() {
     computedStyle.getPropertyValue("--chart-tooltip-text").trim() || "#fff";
 
   // Use CSS variables for income/expense instead of hardcoded hexes
-  const incomeColor = computedStyle.getPropertyValue("--income-color").trim() || "#2a9d8f";
-  const expenseColor = computedStyle.getPropertyValue("--expense-color").trim() || "#e74c3c";
+  const incomeColor = computedStyle.getPropertyValue("--chart-income-color").trim() || computedStyle.getPropertyValue("--income-color").trim() || "#2a9d8f";
+  const expenseColor = computedStyle.getPropertyValue("--chart-expense-color").trim() || computedStyle.getPropertyValue("--expense-color").trim() || "#e74c3c";
 
   const hexToRgba = (hex, alpha = 0.3) => {
     let r = 0,

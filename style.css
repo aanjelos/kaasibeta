@@ -58,6 +58,10 @@
   --expense-color: #e74c3c;
   --income-color-rgb: 39, 174, 96;
   --expense-color-rgb: 231, 76, 60;
+  
+  /* Chart Specific Colors */
+  --chart-income-color: #2a9d8f;
+  --chart-expense-color: var(--expense-color);
 
   --success-indicator-color: var(--income-color);
   --danger-indicator-color: var(--expense-color);

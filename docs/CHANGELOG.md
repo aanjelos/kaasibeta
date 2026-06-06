@@ -179,3 +179,7 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 ### 33. [Feature] Nephritis & Alizarin Palette Hybrid (v5.105k)
 - **Description**: Mixed the favorite colors from previous tests based on visual feedback on the live site. Settled on Nephritis Green (`#27AE60`) for income (excellent contrast and saturation) and Alizarin Red (`#E74C3C`) for expenses.
 - **Scope**: Bumped version to `v5.105k`. Updated `--expense-color`, and RGB variants in `style.css`. Bumped service worker cache to `v8`.
+
+### 34. [Patch] Dashboard Chart Aesthetic Preservation (v5.106k)
+- **Description**: Overrode the global Nephritis green color specifically for the dashboard chart to keep the softer, premium Teal (`#2A9D8F`) aesthetic while rendering the line graph.
+- **Scope**: Bumped version to `v5.106k`. Added `--chart-income-color` to `style.css` and updated `renderMonthlyOverviewChart` in `js/features.js` to dynamically fetch the override. Bumped service worker cache to `v9`.
