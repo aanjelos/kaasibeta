@@ -62,10 +62,10 @@ function initializeUI(isRefresh = false) {
   $("#monthlyViewBtn").onclick = () => {
     const yearSelector = $("#yearSelector");
     const currentYear = new Date().getFullYear();
-    const selectedYear =
-      yearSelector && yearSelector.value
-        ? parseInt(yearSelector.value)
-        : currentYear;
+    const selectedYear = currentYear;
+    if (yearSelector) {
+      yearSelector.value = currentYear;
+    }
 
     renderMonthTabs(selectedYear);
 
