@@ -459,10 +459,14 @@ function renderInstallmentList() {
     div.innerHTML = `
       ${ringHtml}
       <div class="flex-grow flex justify-between items-start ml-2">
-          <div class="flex flex-col min-w-0 pr-2">
-              <p class="text-sm md:text-base font-medium truncate mb-0.5">${i.description}</p>
+          <div class="flex flex-col min-w-0 pr-2 overflow-hidden">
+              <div class="marquee-wrapper mb-0.5">
+                  <p class="text-sm md:text-base font-medium marquee-text">${i.description}</p>
+              </div>
               <p class="text-[11px] md:text-xs text-gray-400 mb-1.5">${formatCurrency(i.monthlyAmount)} / month</p>
-              <p class="text-[11px] md:text-xs text-gray-500 truncate">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
+              <div class="marquee-wrapper">
+                  <p class="text-[11px] md:text-xs text-gray-500 marquee-text">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
+              </div>
           </div>
           <div class="flex flex-col items-end flex-shrink-0">
               <span class="text-xs md:text-sm font-semibold text-gray-200 mb-2.5 whitespace-nowrap">${formatCurrency(totalLeftToPay)} Left</span>

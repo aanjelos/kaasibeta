@@ -12,16 +12,16 @@ function openShortcutsHelpModal() {
   const shortcuts = [
     { key: "-", action: "Start an Expense Transaction." },
     { key: "+", action: "Start an Income Transaction." },
-    { key: "M", action: "Open Monthly Breakdown." },
+    { key: "A", action: "Open All Transactions." },
     { key: "S", action: "Open Settings (In Dashboard)." },
-    { key: "S", action: "Start Search (In Monthly Breakdown)." },
+    { key: "S", action: "Start Search (In All Transactions)." },
     { key: "C", action: "Start a CC Transaction." },
     { key: "D", action: "View All Debts." },
     { key: "R", action: "View All Receivables." },
     { key: "T", action: "Transfer Money." },
     { key: "Ctrl + E", action: "Export Data." },
     { key: "Ctrl + I", action: "Import Data." },
-    { key: "← / →", action: "Navigate Month Tabs in Breakdown." },
+    { key: "← / →", action: "Navigate Month Tabs in All Transactions." },
   ];
 
   contentList.innerHTML = ""; // Clear previous list
