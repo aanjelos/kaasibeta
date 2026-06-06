@@ -91,3 +91,7 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 
 ### 20. [Feature] Modernized Accessibility Palette
 - **Description**: Replaced the previous generic UI red and green colors with a modernized semantic palette utilizing Nephritis Green (`#27AE60`) and Alizarin Red (`#E74C3C`). This highly readable hybrid palette provides exceptional contrast on the dark theme background while retaining a premium, desaturated look that drastically reduces eye strain and satisfies WCAG accessibility requirements.
+
+### 21. [Patch] PWA Maskable Icon Rendering Fix (v5.108k)
+- **Description**: Fixed an issue where Android devices were heavily cropping the Kaasi logo when installed as a PWA. A dedicated `maskable` variant of the SVG logo was created with an expanded internal `viewBox` (adding a 20% safe-zone padding) and a solid dark background. The Web Manifest now seamlessly serves the perfect padded icon to Android, while keeping the edge-to-edge logo for desktop shortcuts and the internal app navigation.
+- **Scope**: Created `img/LogoIcon_Maskable.svg`, updated `manifest.json` and `sw.js`, and bumped version to `v5.108k`.

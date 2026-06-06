@@ -38,9 +38,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## 🐛 Bug Fixes & Known Issues
 
-### 1. PWA Icon Rendering
-- **Issue**: The current PWA icon does not render properly on devices when installed.
-- **Fix**: Need to create and link a dedicated, properly formatted PWA icon suite.
+*(No active bugs currently tracked)*
 
 
 

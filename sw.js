@@ -1,4 +1,4 @@
-const CACHE_NAME = "kaasi-cache-v10";
+const CACHE_NAME = "kaasi-cache-v12";
 const STATIC_ASSETS = [
   "./",
   "./index.html",
@@ -11,6 +11,7 @@ const STATIC_ASSETS = [
   "./js/security.js",
   "./js/app.js",
   "./img/LogoIcon.svg",
+  "./img/LogoIcon_Maskable.svg",
   "./img/FullLogo.svg",
   "./img/AanjeloNoText.svg",
   "./img/LogoType.svg"
