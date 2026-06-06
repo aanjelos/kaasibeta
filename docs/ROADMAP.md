@@ -20,10 +20,10 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
   - Update the `searchTransactions()` rendering loop to respect these new filter parameters alongside the existing text query.
 
 ### 3. Cloud Backup Refinement
-- **Concept**: Look into the existing cloud backup architecture and refine the syncing/recovery flow to be more robust and intuitive.
+- **Concept**: Look into the existing Supabase cloud backup architecture and refine the syncing/recovery flow to be more robust and intuitive.
 - **Implementation Idea**: 
-  - Investigate the current GitHub Gist-based sync mechanism.
-  - Implement clearer conflict resolution or auto-sync rules to prevent accidental data overwrites.
+  - Investigate the current `backupToSupabase` and `restoreFromSupabase` mechanisms.
+  - Explore implementing clearer conflict resolution or a background auto-sync feature so users don't have to manually press 'Export to Cloud'.
 
 ---
 
