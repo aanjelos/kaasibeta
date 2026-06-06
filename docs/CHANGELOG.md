@@ -151,3 +151,7 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
   - Fixed an issue where the monthly grouping totals within the credit card transaction history modal incorrectly summed the full original amounts of partially paid items. The totals will now sum the exact amounts based on the filter logic (e.g. the remaining unpaid amount for unpaid items, or the total original amount for paid items), accurately reflecting the visual data in the accordion.
   - Partially paid items are now rendered in the "Paid" tab as well, explicitly displaying as "X Paid of Y" to properly account for the money allocated toward that debt within the view.
 - **Scope**: Bumped version to `v5.98k`. Modified `js/features.js` and `index.html`.
+
+### 27. [Minor] Tailwind CSS v3 Standalone CLI Migration (v5.99k)
+- **Description**: Successfully migrated Tailwind CSS from the `cdn.tailwindcss.com` runtime script to a locally compiled static stylesheet (`tailwind.css`) using the Tailwind v3.4.17 Standalone CLI. This removes console warnings, drastically speeds up initial page load, and ensures 100% backward compatibility with all existing custom color variables and overridden classes without causing the site-breaking regressions introduced by the Tailwind v4 compiler.
+- **Scope**: Bumped version to `v5.99k`. Re-downloaded `tailwindcss.exe` to v3.4.17, regenerated `tailwind.css`, and linked it in `index.html`.
