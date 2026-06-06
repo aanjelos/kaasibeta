@@ -1876,11 +1876,13 @@ footer a[href^="https://kaasi.com.lk"]:hover
   -webkit-mask-image: linear-gradient(to right, transparent, black 10px, black calc(100% - 10px), transparent);
   position: relative;
   width: 100%;
+  container-type: inline-size;
 }
 
 
 .marquee-text {
   display: inline-block;
+  min-width: 100%;
 }
 
 /* Activate scroll continuously for items marked as overflowing or always if used */
@@ -1897,7 +1899,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
 
 @keyframes marquee-scroll {
   0%, 20% { transform: translateX(0); }
-  80%, 95% { transform: translateX(calc(-100% + 120px)); }
+  80%, 95% { transform: translateX(min(0px, calc(100cqi - 100% - 10px))); }
   96%, 100% { transform: translateX(0); }
 }
 

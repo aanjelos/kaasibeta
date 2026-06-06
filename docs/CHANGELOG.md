@@ -111,9 +111,9 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
     - Resolved color visibility for 'App Locked' text in light-mode PIN Setup.
 - **Scope**: Modals logic updated across `app.js` and `ui.js`, HTML grid changes in `index.html`, and CSS adjustments in `style.css`. Bumped service worker cache to `v15`.
 
-### 23. [Feature] UI Polish & Transaction Marquee (v5.110k)
+### 23. [Patch] UI Polish & Transaction Marquee Bugfix (v5.111k)
 - **Description**: 
-  - **Transaction Marquee**: Implemented a pure CSS continuous scroll `<marquee>` effect for long transaction descriptions across Recent Transactions, All Transactions, Credit Card entries, Debts, and Receivables. The animation pauses at the edges to ensure full readability before repeating.
+  - **Transaction Marquee**: Fixed a severe bug where the CSS marquee animation was unconditionally applying to short text and scrolling backward. Converted the marquee wrapper to use native CSS container queries (`container-type: inline-size` with `cqi` units) so it perfectly calculates text length on the fly. The animation now ONLY activates if the transaction description genuinely overflows the screen, and smoothly scrolls to the exact end.
   - **FAB Enhancements**: Enhanced the mobile Speed Dial FAB with a stronger, custom drop shadow (`0 10px 25px rgba(0,0,0,0.8)`) and a darker background dimming overlay (`75%` opacity) when opened.
   - **Keyboard Shortcuts**: Fully updated all helper texts and tooltips to reflect the renaming of "Monthly Breakdown" to "All Transactions", utilizing the new `A` hotkey.
-- **Scope**: Applied `.marquee-wrapper` in `features.js`, custom CSS in `style.css`, hotkeys in `ui.js`, and bumped version to `v5.110k` with SW cache `v18`.
+- **Scope**: Implemented advanced CSS container queries in `style.css`, applied `.marquee-wrapper` in `features.js`, hotkeys in `ui.js`, and bumped version to `v5.111k` with SW cache `v19`.
