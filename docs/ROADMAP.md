@@ -29,10 +29,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## ✨ UI / UX Polish
 
-### 1. Mobile Specific UI/UX Improvements
-- **Concept**: A dedicated pass to audit and refine tap targets, scrolling behaviors, and layouts specifically for mobile users.
 
----
 
 
 
