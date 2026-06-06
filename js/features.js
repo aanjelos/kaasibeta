@@ -487,8 +487,8 @@ function renderMonthlyOverviewChart() {
     computedStyle.getPropertyValue("--chart-tooltip-text").trim() || "#fff";
 
   // Use CSS variables for income/expense instead of hardcoded hexes
-  const incomeColor = computedStyle.getPropertyValue("--income-color").trim() || "#27ae60";
-  const expenseColor = computedStyle.getPropertyValue("--expense-color").trim() || "#c0392b";
+  const incomeColor = computedStyle.getPropertyValue("--income-color").trim() || "#2a9d8f";
+  const expenseColor = computedStyle.getPropertyValue("--expense-color").trim() || "#e74c3c";
 
   const hexToRgba = (hex, alpha = 0.3) => {
     let r = 0,
@@ -1730,8 +1730,8 @@ function renderMonthlyPieChart(data) {
     "#7f8c8d",
     "#2ecc71",
     "#d35400",
-    "#27ae60",
-    "#c0392b",
+    "#2a9d8f",
+    "#e74c3c",
   ];
   const backgroundColors = data.labels.map(
     (_, index) => brandPiePalette[index % brandPiePalette.length]

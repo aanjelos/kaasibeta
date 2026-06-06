@@ -310,7 +310,7 @@ function generateMonthlyPdfReport() {
     });
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.setTextColor("#27ae60");
+    doc.setTextColor("#2a9d8f");
     doc.text(
       formatCurrency(totalIncome),
       margin + boxWidth / 2,
@@ -328,7 +328,7 @@ function generateMonthlyPdfReport() {
     );
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.setTextColor("#c0392b");
+    doc.setTextColor("#e74c3c");
     doc.text(
       formatCurrency(totalExpense),
       margin + boxWidth + 10 + boxWidth / 2,
@@ -346,7 +346,7 @@ function generateMonthlyPdfReport() {
     );
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.setTextColor(netFlow >= 0 ? "#27ae60" : "#c0392b");
+    doc.setTextColor(netFlow >= 0 ? "#2a9d8f" : "#e74c3c");
     doc.text(
       formatCurrency(netFlow),
       margin + (boxWidth + 10) * 2 + boxWidth / 2,
@@ -459,14 +459,14 @@ function generateMonthlyPdfReport() {
       { align: "right" }
     );
 
-    doc.setTextColor("#c0392b");
+    doc.setTextColor("#e74c3c");
     doc.text(
       formatNumberForPdf(totalExpense),
       pageWidth - margin - colWidths[4],
       cursorY,
       { align: "right" }
     );
-    doc.setTextColor("#27ae60");
+    doc.setTextColor("#2a9d8f");
     doc.text(formatNumberForPdf(totalIncome), pageWidth - margin, cursorY, {
       align: "right",
     });

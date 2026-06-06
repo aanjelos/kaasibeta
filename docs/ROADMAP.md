@@ -64,7 +64,3 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 3. Modal State Resets (Year Search & Monthly Breakdown)
 - **Issue**: There are state synchronization issues with the year search when switching between years. Additionally, the search/monthly breakdown does not reset back to the current month when closing the monthly view modal.
 - **Fix**: Implement proper state reset logic triggered by the modal close events, and fix the year toggle persistence.
-
-### 4. Dashboard Chart Colors
-- **Issue**: The dashboard chart colors are currently off or mismatched.
-- **Fix**: Revert the chart colors back to match the exact colors of the current public build.

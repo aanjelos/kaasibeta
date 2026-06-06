@@ -21,10 +21,10 @@
   --accent-hover: #d35400;
 
   /* Semantic Colors (Dark Theme) */
-  --income-color: #27ae60;
-  --expense-color: #c0392b;
-  --income-color-rgb: 39, 174, 96;
-  --expense-color-rgb: 192, 57, 43;
+  --income-color: #2a9d8f;
+  --expense-color: #e74c3c;
+  --income-color-rgb: 42, 157, 143;
+  --expense-color-rgb: 231, 76, 60;
 
   --success-indicator-color: var(--income-color);
   --danger-indicator-color: var(--expense-color);
