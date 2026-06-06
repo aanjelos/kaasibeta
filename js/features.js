@@ -1727,6 +1727,9 @@ function renderMonthlyDetails(
 
   contentGrid.appendChild(categorySection);
   container.appendChild(contentGrid);
+  
+  // Apply Marquees after DOM updates
+  setTimeout(applyMarquees, 50);
 }
 function renderMonthlyPieChart(data) {
   const canvas = document.getElementById("monthlyDetailPieChartCanvas");

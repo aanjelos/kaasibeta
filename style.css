@@ -1872,22 +1872,23 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .marquee-wrapper {
   overflow: hidden;
   white-space: nowrap;
-  mask-image: linear-gradient(to right, transparent, black 10px, black calc(100% - 10px), transparent);
-  -webkit-mask-image: linear-gradient(to right, transparent, black 10px, black calc(100% - 10px), transparent);
   position: relative;
   width: 100%;
-  container-type: inline-size;
 }
 
+.marquee-wrapper.is-overflowing {
+  mask-image: linear-gradient(to right, black 0%, black calc(100% - 16px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 0%, black calc(100% - 16px), transparent 100%);
+}
 
 .marquee-text {
   display: inline-block;
   min-width: 100%;
 }
 
-/* Activate scroll continuously for items marked as overflowing or always if used */
-.marquee-wrapper .marquee-text {
-  animation: marquee-scroll 10s linear infinite;
+/* Activate scroll only for items dynamically marked as overflowing by JS */
+.marquee-wrapper.is-overflowing .marquee-text {
+  animation: marquee-scroll 6s linear infinite;
 }
 
 /* On desktop, pause on hover */
@@ -1899,7 +1900,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
 
 @keyframes marquee-scroll {
   0%, 20% { transform: translateX(0); }
-  80%, 95% { transform: translateX(min(0px, calc(100cqi - 100% - 10px))); }
+  80%, 95% { transform: translateX(calc(var(--scroll-amount, 0px) - 10px)); }
   96%, 100% { transform: translateX(0); }
 }
 

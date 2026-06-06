@@ -1163,6 +1163,9 @@ function renderDashboard() {
   renderCreditCardSection();
   renderMonthlyOverviewChart();
   renderYearlyAndQuickStats();
+  
+  // Apply Marquees after DOM updates
+  setTimeout(applyMarquees, 50);
 }
 
 function renderYearlyAndQuickStats() {
@@ -1293,6 +1296,24 @@ function renderYearlyAndQuickStats() {
   } else {
     sevenDayIndicator.innerHTML = "";
   }
+}
+
+function applyMarquees() {
+  document.querySelectorAll('.marquee-wrapper').forEach(wrapper => {
+    const text = wrapper.querySelector('.marquee-text');
+    if (!text) return;
+    
+    // Check if the text actually overflows the wrapper
+    // We add a tiny 2px buffer to avoid subpixel rounding triggers
+    if (text.scrollWidth > wrapper.clientWidth + 2) {
+      wrapper.classList.add('is-overflowing');
+      const distance = text.scrollWidth - wrapper.clientWidth;
+      text.style.setProperty('--scroll-amount', `-${distance}px`);
+    } else {
+      wrapper.classList.remove('is-overflowing');
+      text.style.removeProperty('--scroll-amount');
+    }
+  });
 }
 
 // -------------

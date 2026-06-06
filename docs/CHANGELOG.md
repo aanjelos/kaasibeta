@@ -111,9 +111,10 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
     - Resolved color visibility for 'App Locked' text in light-mode PIN Setup.
 - **Scope**: Modals logic updated across `app.js` and `ui.js`, HTML grid changes in `index.html`, and CSS adjustments in `style.css`. Bumped service worker cache to `v15`.
 
-### 23. [Patch] UI Polish & Transaction Marquee Bugfix (v5.111k)
+### 23. [Patch] Javascript-Driven Marquee Overflow (v5.112k)
 - **Description**: 
-  - **Transaction Marquee**: Fixed a severe bug where the CSS marquee animation was unconditionally applying to short text and scrolling backward. Converted the marquee wrapper to use native CSS container queries (`container-type: inline-size` with `cqi` units) so it perfectly calculates text length on the fly. The animation now ONLY activates if the transaction description genuinely overflows the screen, and smoothly scrolls to the exact end.
+  - **Flawless Marquee Detection**: Replaced the pure CSS container query approach (which failed on older mobile Safari engines, causing unwanted `-10px` movement on all items) with a highly robust Javascript-driven approach. A global `applyMarquees()` function now physically checks `scrollWidth` against `clientWidth` after rendering. 
+  - **No False Positives**: Items that don't overflow are guaranteed not to move, not even by a single pixel.
+  - **Clean Fade Mask**: Removed the transparent fade effect from the left edge (start of the text) because it made short texts harder to read. The mask now ONLY fades out the right edge if the text is overflowing.
   - **FAB Enhancements**: Enhanced the mobile Speed Dial FAB with a stronger, custom drop shadow (`0 10px 25px rgba(0,0,0,0.8)`) and a darker background dimming overlay (`75%` opacity) when opened.
-  - **Keyboard Shortcuts**: Fully updated all helper texts and tooltips to reflect the renaming of "Monthly Breakdown" to "All Transactions", utilizing the new `A` hotkey.
-- **Scope**: Implemented advanced CSS container queries in `style.css`, applied `.marquee-wrapper` in `features.js`, hotkeys in `ui.js`, and bumped version to `v5.111k` with SW cache `v19`.
+- **Scope**: Rewrote `.marquee-wrapper` in `style.css` to conditionally apply `is-overflowing`, injected `applyMarquees()` hooks in `globals.js` and `features.js`, and bumped version to `v5.112k` with SW cache `v20`.
