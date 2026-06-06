@@ -838,6 +838,10 @@ select:focus {
 /* ------------------------- */
 /* --- SCROLLBARS --- */
 /* ------------------------- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-quaternary) var(--bg-tertiary);
+}
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
