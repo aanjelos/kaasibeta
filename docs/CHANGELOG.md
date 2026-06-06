@@ -171,3 +171,7 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 ### 31. [Feature] Emerald & Rose Accessibility Palette (v5.103k)
 - **Description**: Replaced the previous Teal and Alizarin Red palette with a brighter "Emerald & Rose" color scheme. The old red (`#C0392B`) failed WCAG accessibility tests on dark backgrounds, and the teal (`#2A9D8F`) was borderline. The new Emerald (`#34D399`) and Rose (`#FB7185`) palette maintains a modern, premium aesthetic while dramatically boosting the contrast ratio to ~9.9:1, guaranteeing perfect readability across the app.
 - **Scope**: Bumped version to `v5.103k`. Updated `--income-color`, `--expense-color`, and their RGB variants in `style.css`. Bumped service worker cache to `v6`.
+
+### 32. [Feature] Nephritis & Coral Palette Refinement (v5.104k)
+- **Description**: The Emerald palette appeared too desaturated and dull on the live site. Pivoted to a more vibrant, "poppy" flat UI palette using Nephritis (`#27AE60`) for income and Coral (`#FF595E`) for expenses. This guarantees excellent contrast while maintaining a punchy, energetic look.
+- **Scope**: Bumped version to `v5.104k`. Updated `--income-color`, `--expense-color`, and their RGB variants in `style.css`. Bumped service worker cache to `v7`.
