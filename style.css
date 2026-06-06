@@ -409,7 +409,7 @@ select {
   line-height: 1.25rem; /* 20px */
   padding-top: 0.7rem; /* 11.2px */
   padding-bottom: 0.7rem; /* 11.2px */
-  padding-left: 0.95rem; /* 15.2px */
+  padding-left: 1rem; /* 16px */
   padding-right: 0.95rem; /* Default padding for all sides */
   width: 100%;
   box-sizing: border-box;
@@ -429,7 +429,7 @@ select {
   background-repeat: no-repeat;
   background-size: 1.25em 1.25em;
   padding-right: 3rem;
-  padding-left: 1.25rem;
+  padding-left: 1.25rem !important;
 }
 
 #monthlyViewModal #yearSelector {
@@ -1274,6 +1274,7 @@ input[type="checkbox"].peer:focus-visible + div {
   select {
     background-position: right 0.75rem center;
     padding-right: 3rem;
+    padding-left: 1.25rem !important;
   }
   textarea {
     height: auto;

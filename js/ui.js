@@ -1915,13 +1915,15 @@ function setupSpeedDialFAB() {
       fabMenu.classList.add("opacity-100", "visible", "translate-y-0");
       fabOverlay.classList.remove("opacity-0", "invisible");
       fabOverlay.classList.add("opacity-100", "visible", "pointer-events-auto");
-      fabIcon.classList.add("rotate-45"); // Turns '+' into 'x'
+      fabIcon.classList.remove("fa-bars");
+      fabIcon.classList.add("fa-times");
     } else {
       fabMenu.classList.add("opacity-0", "invisible", "translate-y-4");
       fabMenu.classList.remove("opacity-100", "visible", "translate-y-0");
       fabOverlay.classList.add("opacity-0", "invisible");
       fabOverlay.classList.remove("opacity-100", "visible", "pointer-events-auto");
-      fabIcon.classList.remove("rotate-45");
+      fabIcon.classList.remove("fa-times");
+      fabIcon.classList.add("fa-bars");
     }
   };
 
@@ -1962,15 +1964,24 @@ function setupSpeedDialFAB() {
 
   $("#fabExpenseBtn")?.addEventListener("click", () => {
     toggleFAB();
+    
+    // Close any open modal before scrolling to the dashboard form
+    const openModals = document.querySelectorAll('.modal');
+    openModals.forEach(modal => {
+      if (modal.style.display === "block") {
+        closeModal(modal.id);
+      }
+    });
+
     const typeSelect = $("#transactionType");
     const amountInput = $("#amount");
     if (typeSelect && amountInput) {
       typeSelect.value = "expense";
       typeSelect.dispatchEvent(new Event("change"));
       setTimeout(() => {
-        amountInput.focus();
         window.scrollTo({ top: 0, behavior: "smooth" });
-      }, 50);
+        amountInput.focus();
+      }, 300); // give time for modals to fade out
     }
   });
 }

@@ -461,19 +461,19 @@ function renderInstallmentList() {
       <div class="flex-grow min-w-0">
           <div class="flex justify-between items-start mb-1 gap-x-2">
             <div class="flex-grow min-w-0">
-                <p class="text-sm font-medium truncate">${i.description}</p>
-                <p class="text-[11px] text-gray-400 tabular-nums leading-tight">${formatCurrency(
+                <p class="text-sm md:text-base font-medium truncate">${i.description}</p>
+                <p class="text-[11px] md:text-xs text-gray-400 tabular-nums leading-tight">${formatCurrency(
                   i.monthlyAmount
                 )} / mo</p>
             </div>
             <div class="flex flex-col items-end flex-shrink-0">
-              <span class="text-xs font-semibold text-gray-200 whitespace-nowrap tabular-nums">${formatCurrency(
+              <span class="text-xs md:text-sm font-semibold text-gray-200 whitespace-nowrap tabular-nums">${formatCurrency(
                 totalLeftToPay
               )}</span>
-              <span class="text-[10px] text-gray-400">Left</span>
+              <span class="text-[10px] md:text-xs text-gray-400">Left</span>
             </div>
           </div>
-          <div class="flex justify-between items-center text-[11px] text-gray-400 mt-1">
+          <div class="flex justify-between items-center text-[11px] md:text-xs text-gray-400 mt-1">
               <span class="truncate mr-2">${i.monthsLeft}/${
       i.totalMonths
     } mos (${daysLeftText})</span>
