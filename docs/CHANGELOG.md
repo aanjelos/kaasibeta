@@ -175,3 +175,7 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 ### 32. [Feature] Nephritis & Coral Palette Refinement (v5.104k)
 - **Description**: The Emerald palette appeared too desaturated and dull on the live site. Pivoted to a more vibrant, "poppy" flat UI palette using Nephritis (`#27AE60`) for income and Coral (`#FF595E`) for expenses. This guarantees excellent contrast while maintaining a punchy, energetic look.
 - **Scope**: Bumped version to `v5.104k`. Updated `--income-color`, `--expense-color`, and their RGB variants in `style.css`. Bumped service worker cache to `v7`.
+
+### 33. [Feature] Nephritis & Alizarin Palette Hybrid (v5.105k)
+- **Description**: Mixed the favorite colors from previous tests based on visual feedback on the live site. Settled on Nephritis Green (`#27AE60`) for income (excellent contrast and saturation) and Alizarin Red (`#E74C3C`) for expenses.
+- **Scope**: Bumped version to `v5.105k`. Updated `--expense-color`, and RGB variants in `style.css`. Bumped service worker cache to `v8`.

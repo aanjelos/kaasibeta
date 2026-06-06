@@ -55,9 +55,9 @@
 
   /* Semantic Colors (Dark Theme) */
   --income-color: #27ae60;
-  --expense-color: #ff595e;
+  --expense-color: #e74c3c;
   --income-color-rgb: 39, 174, 96;
-  --expense-color-rgb: 255, 89, 94;
+  --expense-color-rgb: 231, 76, 60;
 
   --success-indicator-color: var(--income-color);
   --danger-indicator-color: var(--expense-color);
