@@ -1940,13 +1940,25 @@ function openCcHistoryModal() {
         const monthHeader = document.createElement("div");
         monthHeader.className = "cc-history-month-header";
 
-        const totalSpentInMonth = monthTransactions.reduce(
-          (sum, t) => {
-            const visibleAmount = t.paidOff ? t.amount : (t.amount - (t.paidAmount || 0));
-            return sum + visibleAmount;
-          },
-          0
-        );
+        const allMonthTransactions = (state.creditCard.transactions || []).filter(t => {
+          const tDate = new Date(t.date);
+          if (tDate.getFullYear() !== selectedYear || tDate.getMonth() !== Number(monthKey)) return false;
+          if (searchTerm) {
+            const descriptionMatch = t.description.toLowerCase().includes(searchTerm);
+            const amountMatch = t.amount.toFixed(2).includes(searchTerm);
+            if (!descriptionMatch && !amountMatch) return false;
+          }
+          return true;
+        });
+
+        let totalSpentInMonth = 0;
+        if (ccHistoryFilter === "unpaid") {
+          totalSpentInMonth = allMonthTransactions.reduce((sum, t) => sum + (t.paidOff ? 0 : (t.amount - (t.paidAmount || 0))), 0);
+        } else if (ccHistoryFilter === "paid") {
+          totalSpentInMonth = allMonthTransactions.reduce((sum, t) => sum + (t.paidOff ? t.amount : (t.paidAmount || 0)), 0);
+        } else {
+          totalSpentInMonth = allMonthTransactions.reduce((sum, t) => sum + t.amount, 0);
+        }
 
         monthHeader.innerHTML = `
             <span>${monthName} ${selectedYear}</span>
