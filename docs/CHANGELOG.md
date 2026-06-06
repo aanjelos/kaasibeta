@@ -137,3 +137,11 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
   - Fixed a bug where opening the Monthly Breakdown view would persist a previously searched year instead of resetting to the current real-world year.
   - Fixed a logic omission where the "Less/More than last month" tooltip indicator on the Monthly Breakdown ignored custom category exclusion rules. The tooltip now properly excludes any hidden categories for an accurate month-over-month comparison.
 - **Scope**: Modified `index.html`, `js/app.js`, `js/ui.js`, `js/globals.js`, and `js/features.js`.
+
+### 25. [Minor] Extensive Dashboard Customization (v5.97k)
+- **Description**: Added several new toggles to the Settings > Appearance panel allowing users to completely declutter the dashboard to suit their personal tracking habits. The underlying data is safely preserved when hidden.
+  - Added a "Hide Total Potential" toggle. Additionally, this card now dynamically auto-hides itself if the user has exactly 0 receivables (making it redundant to the Total Available card).
+  - Added a "Hide Debts & Receivables" toggle, completely removing the "I Owe" and "Owes Me" tracking cards.
+  - Added a "Hide Installments" toggle to remove the Installment Payments section.
+  - The dashboard grid layout now automatically recalculates and expands cards based on which visibility toggles are active.
+- **Scope**: Bumped version to `v5.97k`. Modified `index.html`, `js/ui.js`, and `js/globals.js`.

@@ -663,6 +663,49 @@ function renderSettingsForm() {
     }
   }
 
+  // --- ADDITIONAL DASHBOARD TOGGLES INIT ---
+  const toggleHideTotalPotential = $("#toggleHideTotalPotential");
+  if (toggleHideTotalPotential) {
+    toggleHideTotalPotential.checked = state.settings.hideTotalPotential === true;
+    if (!toggleHideTotalPotential.dataset.listenerAttached) {
+      toggleHideTotalPotential.onchange = () => {
+        if (!state.settings) state.settings = {};
+        state.settings.hideTotalPotential = toggleHideTotalPotential.checked;
+        saveData();
+        if (typeof renderDashboard === "function") renderDashboard();
+      };
+      toggleHideTotalPotential.dataset.listenerAttached = "true";
+    }
+  }
+
+  const toggleHideDebts = $("#toggleHideDebts");
+  if (toggleHideDebts) {
+    toggleHideDebts.checked = state.settings.hideDebts === true;
+    if (!toggleHideDebts.dataset.listenerAttached) {
+      toggleHideDebts.onchange = () => {
+        if (!state.settings) state.settings = {};
+        state.settings.hideDebts = toggleHideDebts.checked;
+        saveData();
+        if (typeof renderDashboard === "function") renderDashboard();
+      };
+      toggleHideDebts.dataset.listenerAttached = "true";
+    }
+  }
+
+  const toggleHideInstallments = $("#toggleHideInstallments");
+  if (toggleHideInstallments) {
+    toggleHideInstallments.checked = state.settings.hideInstallments === true;
+    if (!toggleHideInstallments.dataset.listenerAttached) {
+      toggleHideInstallments.onchange = () => {
+        if (!state.settings) state.settings = {};
+        state.settings.hideInstallments = toggleHideInstallments.checked;
+        saveData();
+        if (typeof renderDashboard === "function") renderDashboard();
+      };
+      toggleHideInstallments.dataset.listenerAttached = "true";
+    }
+  }
+
   // --- SECURITY PANEL UI INIT ---
   const toggleAppPin = $("#toggleAppPin");
   const securityManagementOptions = $("#securityManagementOptions");

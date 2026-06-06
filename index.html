@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.96k" />
+    <meta name="application-version" content="v5.97k" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -387,7 +387,7 @@
                     LKR 0.00
                   </p>
                 </div>
-                <div class="bg-gray-700 p-4 rounded-lg text-center shadow-md">
+                <div id="totalPotentialCard" class="bg-gray-700 p-4 rounded-lg text-center shadow-md">
                   <h3 class="text-sm font-medium text-gray-400 mb-1">
                     Total Potential
                   </h3>
@@ -437,11 +437,11 @@
                 <p class="text-gray-400 text-sm">No transactions yet.</p>
               </div>
             </div>
-            <div class="card">
-              <h2 class="text-xl font-semibold mb-4">
+            <div class="card" id="debtsInstallmentsCard">
+              <h2 class="text-xl font-semibold mb-4" id="debtsInstallmentsTitle">
                 Debts, Receivables & Installments
               </h2>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="debtsReceivablesContainer">
                 <div>
                   <h3
                     class="text-lg font-semibold mb-3 text-expense flex justify-between items-center"
@@ -495,7 +495,7 @@
                   </div>
                 </div>
               </div>
-              <div class="mt-6 pt-4 border-t border-gray-600">
+              <div class="mt-6 pt-4 border-t border-gray-600" id="installmentsContainer">
                 <h3
                   class="text-lg font-semibold mb-3 text-gray-200 flex justify-between items-center"
                 >
@@ -1015,6 +1015,50 @@
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleHideCashCounter" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                  </label>
+                </div>
+              <div
+                class="card !p-4"
+                style="background-color: var(--bg-tertiary)"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-base font-semibold">Hide Total Potential</h3>
+                    <p class="text-xs text-gray-400">Remove the Total Potential card from the dashboard</p>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="toggleHideTotalPotential" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                  </label>
+                </div>
+              </div>
+              <div
+                class="card !p-4"
+                style="background-color: var(--bg-tertiary)"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-base font-semibold">Hide Debts & Receivables</h3>
+                    <p class="text-xs text-gray-400">Remove the I Owe / Owes Me sections from the dashboard</p>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="toggleHideDebts" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                  </label>
+                </div>
+              </div>
+              <div
+                class="card !p-4"
+                style="background-color: var(--bg-tertiary)"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-base font-semibold">Hide Installments</h3>
+                    <p class="text-xs text-gray-400">Remove the Installment Payments section from the dashboard</p>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="toggleHideInstallments" class="sr-only peer">
                     <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                   </label>
                 </div>

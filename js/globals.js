@@ -1002,14 +1002,76 @@ function isCategoryExcluded(categoryName, ruleKey) {
 function renderDashboard() {
   const cashCounterBtn = $("#cashCounterBtn");
   const topCardsContainer = $("#dashboardTopCardsContainer");
-  
-  if (cashCounterBtn && topCardsContainer) {
-    if (state.settings && state.settings.hideCashCounter) {
-      cashCounterBtn.style.display = "none";
+  const totalPotentialCard = $("#totalPotentialCard");
+
+  if (topCardsContainer) {
+    let visibleCards = 1; // Total Available is always visible
+    
+    // Total Potential visibility
+    const hidePotential = (state.settings && state.settings.hideTotalPotential) || state.receivables.length === 0;
+    if (totalPotentialCard) {
+      if (hidePotential) {
+        totalPotentialCard.style.display = "none";
+      } else {
+        totalPotentialCard.style.display = "block";
+        visibleCards++;
+      }
+    }
+
+    // Cash Counter visibility
+    const hideCashCounter = state.settings && state.settings.hideCashCounter;
+    if (cashCounterBtn) {
+      if (hideCashCounter) {
+        cashCounterBtn.style.display = "none";
+      } else {
+        cashCounterBtn.style.display = "flex";
+        visibleCards++;
+      }
+    }
+
+    // Adjust grid columns
+    if (visibleCards === 1) {
+      topCardsContainer.className = "grid grid-cols-1 gap-4 mb-4";
+    } else if (visibleCards === 2) {
       topCardsContainer.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4";
     } else {
-      cashCounterBtn.style.display = "flex";
       topCardsContainer.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4";
+    }
+  }
+
+  const debtsInstallmentsCard = $("#debtsInstallmentsCard");
+  const debtsReceivablesContainer = $("#debtsReceivablesContainer");
+  const debtsInstallmentsTitle = $("#debtsInstallmentsTitle");
+  const installmentsContainer = $("#installmentsContainer");
+
+  const hideDebts = state.settings && state.settings.hideDebts;
+  const hideInstallments = state.settings && state.settings.hideInstallments;
+
+  if (debtsInstallmentsCard) {
+    if (hideDebts && hideInstallments) {
+      debtsInstallmentsCard.style.display = "none";
+    } else {
+      debtsInstallmentsCard.style.display = "block";
+      
+      if (hideDebts) {
+        if (debtsReceivablesContainer) debtsReceivablesContainer.style.display = "none";
+        if (installmentsContainer) installmentsContainer.classList.remove("mt-6", "pt-4", "border-t", "border-gray-600");
+      } else {
+        if (debtsReceivablesContainer) debtsReceivablesContainer.style.display = "grid";
+        if (installmentsContainer) installmentsContainer.classList.add("mt-6", "pt-4", "border-t", "border-gray-600");
+      }
+
+      if (hideInstallments) {
+        if (installmentsContainer) installmentsContainer.style.display = "none";
+        if (debtsInstallmentsTitle) debtsInstallmentsTitle.innerHTML = "Debts & Receivables";
+      } else {
+        if (installmentsContainer) installmentsContainer.style.display = "block";
+        if (!hideDebts) {
+          if (debtsInstallmentsTitle) debtsInstallmentsTitle.innerHTML = "Debts, Receivables & Installments";
+        } else {
+          if (debtsInstallmentsTitle) debtsInstallmentsTitle.innerHTML = "Installment Payments";
+        }
+      }
     }
   }
 
