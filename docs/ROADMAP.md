@@ -25,6 +25,11 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
   - Add a "Customize Dashboard" toggle in Settings.
   - Store an array in `state.settings.dashboardLayout` defining the rendering order and visibility of widgets (e.g., `['balanceOverview', 'quickStats', 'monthlyChart']`).
 
+### 4. Toggle Cash Counter Visibility
+- **Concept**: Add an option in the Appearance tab to hide the Cash Counter.
+- **Implementation Idea**: 
+  - When hidden, the "Total Available" and "Total Potential" cards should expand to fill the available space in that row.
+
 ---
 
 ## ✨ UI / UX Polish
@@ -43,3 +48,23 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 1. Migrate to Tailwind v3 Standalone CLI
 - **Concept**: Replace the Tailwind v3 CDN with the compiled local static CSS via the Tailwind v3 Standalone CLI.
 - **Benefit**: Removes browser console warnings, improves page load performance, and avoids the "death by a thousand cuts" layout breakages caused by upgrading to Tailwind v4, ensuring 100% compatibility with all existing CSS classes in the codebase.
+
+---
+
+## 🐛 Bug Fixes & Known Issues
+
+### 1. PWA Icon Rendering
+- **Issue**: The current PWA icon does not render properly on devices when installed.
+- **Fix**: Need to create and link a dedicated, properly formatted PWA icon suite.
+
+### 2. Credit Card Partial Payment Totals
+- **Issue**: Credit card totals do not show the proper total available/limit when a card balance is only partially paid.
+- **Fix**: Update the credit card balance calculation logic to accurately reflect partial payments.
+
+### 3. Modal State Resets (Year Search & Monthly Breakdown)
+- **Issue**: There are state synchronization issues with the year search when switching between years. Additionally, the search/monthly breakdown does not reset back to the current month when closing the monthly view modal.
+- **Fix**: Implement proper state reset logic triggered by the modal close events, and fix the year toggle persistence.
+
+### 4. Dashboard Chart Colors
+- **Issue**: The dashboard chart colors are currently off or mismatched.
+- **Fix**: Revert the chart colors back to match the exact colors of the current public build.
