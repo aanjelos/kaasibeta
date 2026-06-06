@@ -19,6 +19,11 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
   - Provide inputs for "Start Date", "End Date", "Category Dropdown", and "Amount Range (Min/Max)".
   - Update the `searchTransactions()` rendering loop to respect these new filter parameters alongside the existing text query.
 
+### 3. Cloud Backup Refinement
+- **Concept**: Look into the existing cloud backup architecture and refine the syncing/recovery flow to be more robust and intuitive.
+- **Implementation Idea**: 
+  - Investigate the current GitHub Gist-based sync mechanism.
+  - Implement clearer conflict resolution or auto-sync rules to prevent accidental data overwrites.
 
 ---
 
