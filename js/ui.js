@@ -180,18 +180,18 @@ function handleKeyboardShortcuts(event) {
       }
       break;
 
-    case "m":
-    case "M":
+    case "a":
+    case "A":
       if (!inInputField) {
         event.preventDefault();
         const monthlyViewBtn = $("#monthlyViewBtn");
         if (monthlyViewBtn) {
           if ($("#monthlyViewModal")?.style.display !== "block") {
             monthlyViewBtn.click();
-            console.log("Shortcut: 'm' pressed, opening Monthly View");
+            console.log("Shortcut: 'a' pressed, opening All Transactions");
           } else {
             closeModal("monthlyViewModal");
-            console.log("Shortcut: 'm' pressed, closing Monthly View");
+            console.log("Shortcut: 'a' pressed, closing All Transactions");
           }
         }
       }
