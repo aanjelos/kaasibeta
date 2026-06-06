@@ -156,6 +156,6 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 - **Description**: Successfully migrated Tailwind CSS from the `cdn.tailwindcss.com` runtime script to a locally compiled static stylesheet (`tailwind.css`) using the Tailwind v3.4.17 Standalone CLI. This removes console warnings, drastically speeds up initial page load, and ensures 100% backward compatibility with all existing custom color variables and overridden classes without causing the site-breaking regressions introduced by the Tailwind v4 compiler.
 - **Scope**: Bumped version to `v5.99k`. Re-downloaded `tailwindcss.exe` to v3.4.17, regenerated `tailwind.css`, and linked it in `index.html`.
 
-### 28. [Minor] Fully Offline Satoshi Web Fonts (v6.00k)
+### 28. [Minor] Fully Offline Satoshi Web Fonts (v5.100k)
 - **Description**: Migrated the Satoshi font family from the external Fontshare CDN to locally hosted `.woff2` font files. This eliminates browser console warnings related to third-party cookies (`_fontshare_key`) and Fontshare's specific variable font glyph bounding box metadata. Additionally, it guarantees 100% offline support for the PWA, enhances initial page load speeds (no DNS lookup), and improves user privacy.
-- **Scope**: Bumped version to `v6.00k`. Downloaded 4 font weights (300, 400, 500, 700) to a new `fonts/` directory. Added `@font-face` declarations to `style.css` and removed the external stylesheet link from `index.html`.
+- **Scope**: Bumped version to `v5.100k`. Downloaded 4 font weights (300, 400, 500, 700) to a new `fonts/` directory. Added `@font-face` declarations to `style.css` and removed the external stylesheet link from `index.html`.
