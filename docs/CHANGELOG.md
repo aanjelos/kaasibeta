@@ -163,3 +163,7 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 ### 29. [Patch] CSS Cascade Discrepancy Fix (v5.101k)
 - **Description**: Fixed UI regressions (cramped dropdowns, misaligned Cash Counter button, visible native select arrows) introduced during the Tailwind CLI migration. The issue was caused by placing the compiled `tailwind.css` before `style.css`, which inverted the original CSS cascade precedence where the Tailwind CDN injected Preflight resets at the end of the page. Swapping the stylesheet load order fully restored the intended layout.
 - **Scope**: Bumped version to `v5.101k`. Modified CSS load order in `index.html`.
+
+### 30. [Feature] Debt & Receivable Progress Bars (v5.102k)
+- **Description**: Made partial payments significantly more rewarding by displaying dynamic visual progress bars beneath Debt and Receivable items. The progress bar conditionally appears only after the first partial payment is logged, keeping untouched items looking clean. It automatically calculates the percentage paid based on the `originalAmount` and `remainingAmount`, filling up a green track to visualize repayment progress.
+- **Scope**: Bumped version to `v5.102k`. Updated `renderDebtList` and `renderReceivableList` functions in `js/features.js` to calculate and conditionally inject the progress bar UI snippet.

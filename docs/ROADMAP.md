@@ -24,11 +24,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## ✨ UI / UX Polish
 
-### 1. Debt & Receivable Progress Bars
-- **Concept**: Make partial payments more rewarding by displaying visual progress bars on Debt and Receivable cards.
-- **Details**: Show the percentage of the debt paid off visually (e.g., a green bar filling up as the remaining balance drops).
-
-### 2. Mobile Specific UI/UX Improvements
+### 1. Mobile Specific UI/UX Improvements
 - **Concept**: A dedicated pass to audit and refine tap targets, scrolling behaviors, and layouts specifically for mobile users.
 
 ---

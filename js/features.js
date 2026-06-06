@@ -171,6 +171,17 @@ function renderDebtList() {
           daysColor = "text-gray-300";
         }
 
+        const origAmt = d.originalAmount || d.amount || d.remainingAmount;
+        const percentagePaid = origAmt > 0 ? ((origAmt - d.remainingAmount) / origAmt) * 100 : 0;
+        let progressBarHtml = "";
+        if (percentagePaid > 0) {
+          progressBarHtml = `
+            <div class="w-full bg-gray-700 rounded-full h-1.5 mt-2 mb-1" title="${percentagePaid.toFixed(1)}% Paid">
+              <div class="bg-income h-1.5 rounded-full transition-all duration-500" style="width: ${percentagePaid}%"></div>
+            </div>
+          `;
+        }
+
         const itemDiv = document.createElement("div");
         itemDiv.className =
           "text-sm py-2 px-3 border-b border-gray-700 last:border-b-0";
@@ -184,6 +195,7 @@ function renderDebtList() {
               d.remainingAmount
             )}</span>
           </div>
+          ${progressBarHtml}
           <div class="flex justify-between items-center text-xs text-gray-500 mt-1">
             <span>Due: ${new Date(d.dueDate).toLocaleDateString()}</span>
             <div class="edit-btn-container">
@@ -315,6 +327,17 @@ function renderReceivableList() {
             r.type === "cash"
               ? `(From: ${srcAcc?.name || "Unknown"})`
               : "(Via CC)";
+          const origAmt = r.originalAmount || r.amount || r.remainingAmount;
+          const percentagePaid = origAmt > 0 ? ((origAmt - r.remainingAmount) / origAmt) * 100 : 0;
+          let progressBarHtml = "";
+          if (percentagePaid > 0) {
+            progressBarHtml = `
+              <div class="w-full bg-gray-700 rounded-full h-1.5 mt-2 mb-1" title="${percentagePaid.toFixed(1)}% Received">
+                <div class="bg-income h-1.5 rounded-full transition-all duration-500" style="width: ${percentagePaid}%"></div>
+              </div>
+            `;
+          }
+
           const itemDiv = document.createElement("div");
           itemDiv.className =
             "text-sm py-2 px-3 border-b border-gray-700 last:border-b-0";
@@ -328,6 +351,7 @@ function renderReceivableList() {
               r.remainingAmount
             )}</span>
           </div>
+          ${progressBarHtml}
           <div class="flex justify-between items-center text-xs text-gray-500 mt-1">
             <span>Given: ${new Date(r.dateGiven).toLocaleDateString()}</span>
             <div class="edit-btn-container">
