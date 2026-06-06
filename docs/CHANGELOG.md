@@ -159,3 +159,7 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 ### 28. [Minor] Fully Offline Satoshi Web Fonts (v5.100k)
 - **Description**: Migrated the Satoshi font family from the external Fontshare CDN to locally hosted `.woff2` font files. This eliminates browser console warnings related to third-party cookies (`_fontshare_key`) and Fontshare's specific variable font glyph bounding box metadata. Additionally, it guarantees 100% offline support for the PWA, enhances initial page load speeds (no DNS lookup), and improves user privacy.
 - **Scope**: Bumped version to `v5.100k`. Downloaded 4 font weights (300, 400, 500, 700) to a new `fonts/` directory. Added `@font-face` declarations to `style.css` and removed the external stylesheet link from `index.html`.
+
+### 29. [Patch] CSS Cascade Discrepancy Fix (v5.101k)
+- **Description**: Fixed UI regressions (cramped dropdowns, misaligned Cash Counter button, visible native select arrows) introduced during the Tailwind CLI migration. The issue was caused by placing the compiled `tailwind.css` before `style.css`, which inverted the original CSS cascade precedence where the Tailwind CDN injected Preflight resets at the end of the page. Swapping the stylesheet load order fully restored the intended layout.
+- **Scope**: Bumped version to `v5.101k`. Modified CSS load order in `index.html`.
