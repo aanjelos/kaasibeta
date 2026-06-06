@@ -647,6 +647,22 @@ function renderSettingsForm() {
     }
   }
 
+  // --- CASH COUNTER TOGGLE INIT ---
+  const toggleHideCashCounter = $("#toggleHideCashCounter");
+  if (toggleHideCashCounter) {
+    toggleHideCashCounter.checked = state.settings.hideCashCounter === true;
+
+    if (!toggleHideCashCounter.dataset.listenerAttached) {
+      toggleHideCashCounter.onchange = () => {
+        if (!state.settings) state.settings = {};
+        state.settings.hideCashCounter = toggleHideCashCounter.checked;
+        saveData();
+        if (typeof renderDashboard === "function") renderDashboard();
+      };
+      toggleHideCashCounter.dataset.listenerAttached = "true";
+    }
+  }
+
   // --- SECURITY PANEL UI INIT ---
   const toggleAppPin = $("#toggleAppPin");
   const securityManagementOptions = $("#securityManagementOptions");

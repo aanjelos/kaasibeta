@@ -1000,6 +1000,19 @@ function isCategoryExcluded(categoryName, ruleKey) {
 }
 
 function renderDashboard() {
+  const cashCounterBtn = $("#cashCounterBtn");
+  const topCardsContainer = $("#dashboardTopCardsContainer");
+  
+  if (cashCounterBtn && topCardsContainer) {
+    if (state.settings && state.settings.hideCashCounter) {
+      cashCounterBtn.style.display = "none";
+      topCardsContainer.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4";
+    } else {
+      cashCounterBtn.style.display = "flex";
+      topCardsContainer.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4";
+    }
+  }
+
   const visibleAccounts = state.accounts.filter((acc) => !acc.hidden);
   const accountCardsContainer = $("#accountCardsContainer");
   accountCardsContainer.innerHTML = ""; // Clear previous cards
