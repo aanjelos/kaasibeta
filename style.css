@@ -1888,7 +1888,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
 
 /* Activate scroll only for items dynamically marked as overflowing by JS */
 .marquee-wrapper.is-overflowing .marquee-text {
-  animation: marquee-scroll 6s linear infinite;
+  animation: marquee-scroll 7s linear infinite;
 }
 
 /* On desktop, pause on hover */
@@ -1899,9 +1899,9 @@ footer a[href^="https://kaasi.com.lk"]:hover
 }
 
 @keyframes marquee-scroll {
-  0%, 20% { transform: translateX(0); }
-  80%, 95% { transform: translateX(calc(var(--scroll-amount, 0px) - 10px)); }
-  96%, 100% { transform: translateX(0); }
+  0%, 15% { transform: translateX(0); }
+  60%, 92% { transform: translateX(var(--scroll-amount, 0px)); }
+  93%, 100% { transform: translateX(0); }
 }
 
 /* FAB Enhancements */

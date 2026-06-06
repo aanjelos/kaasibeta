@@ -1307,7 +1307,8 @@ function applyMarquees() {
     // We add a tiny 2px buffer to avoid subpixel rounding triggers
     if (text.scrollWidth > wrapper.clientWidth + 2) {
       wrapper.classList.add('is-overflowing');
-      const distance = text.scrollWidth - wrapper.clientWidth;
+      // Add 24px buffer so the end of the text fully clears the right-side fade mask
+      const distance = text.scrollWidth - wrapper.clientWidth + 24;
       text.style.setProperty('--scroll-amount', `-${distance}px`);
     } else {
       wrapper.classList.remove('is-overflowing');

@@ -111,10 +111,10 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
     - Resolved color visibility for 'App Locked' text in light-mode PIN Setup.
 - **Scope**: Modals logic updated across `app.js` and `ui.js`, HTML grid changes in `index.html`, and CSS adjustments in `style.css`. Bumped service worker cache to `v15`.
 
-### 23. [Patch] Javascript-Driven Marquee Overflow (v5.112k)
+### 23. [Patch] Marquee Refinements (v5.113k)
 - **Description**: 
-  - **Flawless Marquee Detection**: Replaced the pure CSS container query approach (which failed on older mobile Safari engines, causing unwanted `-10px` movement on all items) with a highly robust Javascript-driven approach. A global `applyMarquees()` function now physically checks `scrollWidth` against `clientWidth` after rendering. 
-  - **No False Positives**: Items that don't overflow are guaranteed not to move, not even by a single pixel.
-  - **Clean Fade Mask**: Removed the transparent fade effect from the left edge (start of the text) because it made short texts harder to read. The mask now ONLY fades out the right edge if the text is overflowing.
-  - **FAB Enhancements**: Enhanced the mobile Speed Dial FAB with a stronger, custom drop shadow (`0 10px 25px rgba(0,0,0,0.8)`) and a darker background dimming overlay (`75%` opacity) when opened.
-- **Scope**: Rewrote `.marquee-wrapper` in `style.css` to conditionally apply `is-overflowing`, injected `applyMarquees()` hooks in `globals.js` and `features.js`, and bumped version to `v5.112k` with SW cache `v20`.
+  - **Full Text Reveal on Mobile**: Added a dynamic `24px` math buffer to the javascript scroll calculations. This guarantees the scrolling text fully clears the `16px` right-edge fade mask on mobile devices, ensuring every last letter is legible before the animation pauses.
+  - **Animation Timings**: Tweaked the CSS keyframes to slightly increase the scrolling speed, while simultaneously doubling the pause duration at the end of the text before it snaps back, providing a much more comfortable reading experience.
+  - **Flawless Marquee Detection**: Built a highly robust Javascript-driven approach (`applyMarquees()`) to check text lengths natively after render, ensuring short texts never falsely trigger the animation.
+  - **Clean Fade Mask**: Removed the transparent fade effect from the left edge entirely so the start of the text remains solid and crisp.
+- **Scope**: Rewrote `.marquee-wrapper` animation keyframes in `style.css`, injected dynamic distance padding in `globals.js`, and bumped version to `v5.113k` with SW cache `v21`.
