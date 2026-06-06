@@ -429,7 +429,7 @@ select {
   background-repeat: no-repeat;
   background-size: 1.25em 1.25em;
   padding-right: 3rem;
-  text-indent: 0.25rem;
+  padding-left: 1.25rem;
 }
 
 #monthlyViewModal #yearSelector {
@@ -947,10 +947,12 @@ select:focus {
   z-index: 1000;
   box-shadow: 0 2px 5px var(--shadow-color);
 }
-[data-tooltip]:hover::after {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(2px);
+@media (hover: hover) {
+  [data-tooltip]:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(2px);
+  }
 }
 
 /* ------------------------- */
@@ -1850,10 +1852,50 @@ footer a[href^="https://kaasi.com.lk"]:hover
 /* ------------------------- */
 /* --- UTILITIES --- */
 /* ------------------------- */
+.edge-fade {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+  mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+}
+
 .hide-scrollbar {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
+}
+
+/* ------------------------- */
+/* --- MARQUEE ANIMATION --- */
+/* ------------------------- */
+.marquee-wrapper {
+  overflow: hidden;
+  white-space: nowrap;
+  mask-image: linear-gradient(to right, transparent, black 10px, black calc(100% - 10px), transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10px, black calc(100% - 10px), transparent);
+  position: relative;
+  width: 100%;
+}
+
+.marquee-text {
+  display: inline-block;
+}
+
+/* Activate scroll continuously for items marked as overflowing */
+.marquee-wrapper .marquee-text.force-scroll {
+  animation: marquee-scroll 8s linear infinite;
+  animation-play-state: running;
+}
+
+/* On desktop, pause on hover */
+@media (hover: hover) {
+  .marquee-wrapper:hover .marquee-text.force-scroll {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes marquee-scroll {
+  0%, 15% { transform: translateX(0); }
+  40%, 60% { transform: translateX(calc(-100% + var(--container-width, 100px))); }
+  85%, 100% { transform: translateX(0); }
 }

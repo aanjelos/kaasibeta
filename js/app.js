@@ -38,6 +38,7 @@ function initializeUI(isRefresh = false) {
   // The onclick logic is now dynamic, so we set it in updateHeaderShortcutButtons()
   // This function will set their initial state (icons, tooltips, onclick)
   updateHeaderShortcutButtons();
+  setupSpeedDialFAB(); // NEW: Initialize Speed Dial FAB for mobile
   // --- END NEW ---
 
   if (!window.deleteSliderInitialized) {
@@ -86,7 +87,7 @@ function initializeUI(isRefresh = false) {
       monthlyViewSearchScope = "month";
     }
 
-    $("#monthlyViewModal").style.display = "block";
+    openModalHelper("monthlyViewModal");
 
     const currentMonth = new Date().getMonth();
     const currentMonthTab = $(
@@ -115,7 +116,7 @@ function initializeUI(isRefresh = false) {
 
   if (donateModal && footerDonateBtn && closeDonateModalBtn) {
     footerDonateBtn.addEventListener("click", () => {
-      donateModal.style.display = "block";
+      openModalHelper("donateModal");
     });
     closeDonateModalBtn.addEventListener("click", () => {
       donateModal.style.display = "none";
@@ -224,7 +225,7 @@ function initializeUI(isRefresh = false) {
         if (errorEl) {
           errorEl.classList.add("hidden");
         }
-        modal.style.display = "block";
+        openModalHelper("transferMoneyModal");
         const firstInput = modal.querySelector('input[type="text" inputmode="decimal" class="calc-amount"], select');
         if (firstInput) {
           firstInput.focus();
@@ -317,7 +318,7 @@ function initializeUI(isRefresh = false) {
   if (viewDebtsBtn) {
     viewDebtsBtn.onclick = () => {
       renderDebtList();
-      $("#debtsViewModal").style.display = "block";
+      openModalHelper("debtsViewModal");
     };
   }
 
@@ -325,7 +326,7 @@ function initializeUI(isRefresh = false) {
   if (viewReceivablesBtn) {
     viewReceivablesBtn.onclick = () => {
       renderReceivableList();
-      $("#receivablesViewModal").style.display = "block";
+      openModalHelper("receivablesViewModal");
     };
   }
 

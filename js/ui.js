@@ -53,7 +53,7 @@ function openShortcutsHelpModal() {
     contentList.appendChild(li);
   });
 
-  modal.style.display = "block";
+  openModalHelper("shortcutsHelpModal");
 }
 
 function handleKeyboardShortcuts(event) {
@@ -472,7 +472,7 @@ function openSettingsModal() {
     )}`;
   }
 
-  $("#settingsModal").style.display = "block";
+  openModalHelper("settingsModal");
   cancelDeleteAllData();
   displayAppVersion();
 }
@@ -1327,7 +1327,7 @@ function openCashCounter() {
     gridContainer.appendChild(totalEl);
   });
   calculateCashTotal();
-  $("#cashCounterModal").style.display = "block";
+  openModalHelper("cashCounterModal");
   $("#cashCounterComparison").innerHTML = "";
 }
 
@@ -1372,6 +1372,35 @@ function calculateCashTotal() {
   }
 }
 
+// --- MODAL & BACK GESTURE LOGIC ---
+function openModalHelper(modalId) {
+  const modal = $(`#${modalId}`);
+  if (modal && modal.style.display !== "block") {
+    modal.style.display = "block";
+    history.pushState({ modalOpen: true, modalId }, null, "");
+  }
+}
+
+window.addEventListener("popstate", (event) => {
+  const modalsToClose = [
+    "confirmationModal", "formModal", "ccHistoryModal", "cashCounterModal",
+    "debtsViewModal", "receivablesViewModal", "transferMoneyModal",
+    "monthlyViewModal", "settingsModal", "donateModal", "shortcutsHelpModal", "securityQuestionModal", "initialSetupModal"
+  ];
+  modalsToClose.forEach(id => {
+    const m = $(`#${id}`);
+    if (m && m.style.display === "block") {
+      m.style.display = "none"; // Hide silently
+      if (id === "formModal") {
+        $("#dynamicForm").innerHTML = "";
+        $("#dynamicForm").onsubmit = null;
+      }
+      if (id === "settingsModal") cancelDeleteAllData();
+      if (id === "ccHistoryModal") document.body.renderCcHistoryList = null;
+    }
+  });
+});
+
 function closeModal(modalId) {
   const modal = $(`#${modalId}`);
   if (modal) modal.style.display = "none";
@@ -1382,6 +1411,11 @@ function closeModal(modalId) {
   if (modalId === "settingsModal") cancelDeleteAllData();
   if (modalId === "ccHistoryModal") {
     document.body.renderCcHistoryList = null; // Cleanup
+  }
+  
+  // Clean up history state if closed manually
+  if (history.state && history.state.modalOpen) {
+    history.back();
   }
 }
 
@@ -1396,7 +1430,7 @@ function openFormModal(title, formHtml, submitHandler) {
   const form = $("#dynamicForm");
   form.innerHTML = formHtml;
   form.onsubmit = submitHandler;
-  $("#formModal").style.display = "block";
+  openModalHelper("formModal");
   const firstInput = form.querySelector(
     'input:not([type="hidden"]), select, textarea'
   );
@@ -1475,7 +1509,7 @@ function showConfirmationModal(
     closeModal("confirmationModal");
   };
 
-  modal.style.display = "block";
+  openModalHelper("confirmationModal");
 }
 
 function openEditCcTransactionForm(ccTransactionId) {
@@ -1716,7 +1750,7 @@ let monthlySearchDebounceTimer; // Timer for debouncing search input
 document
   .getElementById("footerDonateBtn")
   .addEventListener("click", function () {
-    document.getElementById("donateModal").style.display = "block";
+    openModalHelper("donateModal");
   });
 document
   .getElementById("closeDonateModal")
@@ -1782,7 +1816,7 @@ function processCalculation(inputEl) {
 
 function positionMathToolbar(inputEl) {
   const rect = inputEl.getBoundingClientRect();
-  mathToolbar.style.left = `${rect.right + window.scrollX - mathToolbar.offsetWidth}px`;
+  mathToolbar.style.left = `${rect.left + window.scrollX}px`;
   mathToolbar.style.top = `${rect.top + window.scrollY - 45}px`; 
 }
 
@@ -1863,3 +1897,80 @@ mathToolbar.addEventListener("click", (e) => {
   }
 });
 
+// --- SPEED DIAL FAB LOGIC ---
+function setupSpeedDialFAB() {
+  const fabMainBtn = $("#fabMainBtn");
+  const fabMenu = $("#fabMenu");
+  const fabOverlay = $("#fabOverlay");
+  const fabIcon = $("#fabIcon");
+  
+  if (!fabMainBtn || !fabMenu) return;
+
+  let isOpen = false;
+
+  const toggleFAB = () => {
+    isOpen = !isOpen;
+    if (isOpen) {
+      fabMenu.classList.remove("opacity-0", "invisible", "translate-y-4");
+      fabMenu.classList.add("opacity-100", "visible", "translate-y-0");
+      fabOverlay.classList.remove("opacity-0", "invisible");
+      fabOverlay.classList.add("opacity-100", "visible", "pointer-events-auto");
+      fabIcon.classList.add("rotate-45"); // Turns '+' into 'x'
+    } else {
+      fabMenu.classList.add("opacity-0", "invisible", "translate-y-4");
+      fabMenu.classList.remove("opacity-100", "visible", "translate-y-0");
+      fabOverlay.classList.add("opacity-0", "invisible");
+      fabOverlay.classList.remove("opacity-100", "visible", "pointer-events-auto");
+      fabIcon.classList.remove("rotate-45");
+    }
+  };
+
+  fabMainBtn.onclick = toggleFAB;
+  fabOverlay.onclick = toggleFAB;
+
+  // Wire up FAB buttons
+  $("#fabSettingsBtn")?.addEventListener("click", () => {
+    toggleFAB();
+    $("#settingsBtn")?.click();
+  });
+
+  $("#fabMonthlyBtn")?.addEventListener("click", () => {
+    toggleFAB();
+    $("#monthlyViewBtn")?.click();
+  });
+
+  $("#fabBackupBtn")?.addEventListener("click", () => {
+    toggleFAB();
+    const target = $("#shortcutCloud")?.checked && !$("#shortcutCloud")?.disabled ? "cloud" : "local";
+    if (target === "cloud") {
+      if (typeof backupToSupabase === "function") backupToSupabase();
+    } else {
+      if (typeof exportData === "function") exportData();
+    }
+  });
+
+  $("#fabRestoreBtn")?.addEventListener("click", () => {
+    toggleFAB();
+    const target = $("#shortcutCloud")?.checked && !$("#shortcutCloud")?.disabled ? "cloud" : "local";
+    if (target === "cloud") {
+      if (typeof restoreFromSupabase === "function") restoreFromSupabase();
+    } else {
+      const importInput = $("#importDataInput");
+      if (importInput) importInput.click();
+    }
+  });
+
+  $("#fabExpenseBtn")?.addEventListener("click", () => {
+    toggleFAB();
+    const typeSelect = $("#transactionType");
+    const amountInput = $("#amount");
+    if (typeSelect && amountInput) {
+      typeSelect.value = "expense";
+      typeSelect.dispatchEvent(new Event("change"));
+      setTimeout(() => {
+        amountInput.focus();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, 50);
+    }
+  });
+}
