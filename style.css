@@ -429,7 +429,7 @@ select {
   background-repeat: no-repeat;
   background-size: 1.25em 1.25em;
   padding-right: 3rem;
-  padding-left: 1.25rem !important;
+  padding-left: 1rem !important;
 }
 
 #monthlyViewModal #yearSelector {
@@ -1274,7 +1274,7 @@ input[type="checkbox"].peer:focus-visible + div {
   select {
     background-position: right 0.75rem center;
     padding-right: 3rem;
-    padding-left: 1.25rem !important;
+    padding-left: 1rem !important;
   }
   textarea {
     height: auto;

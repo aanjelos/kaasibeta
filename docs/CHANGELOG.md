@@ -98,15 +98,15 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 
 ### 22. [Feature] Mobile App Experience Overhaul (v5.109k)
 - **Description**: 
-  - **Speed Dial FAB**: Added a mobile-only floating action button with text labels for quick access to core features (Settings, Cloud Sync, Monthly View, Add Expense).
-  - **View All Transactions**: Added a dedicated navigational button beneath the Recent Transactions list for faster access to full history.
+  - **Speed Dial FAB**: Added a mobile-only floating action button with text labels for quick access to core features (Settings, Cloud Sync, All Transactions, Add Expense).
+  - **All Transactions**: Renamed 'Monthly View' to 'All Transactions' everywhere for clarity.
   - **Horizontal Scroll & Edge Fade**: Implemented horizontal scrolling with a custom edge-fade mask for cramped Month selector buttons and settings tabs on mobile screens.
   - **Grid Reordering**: Pushed the 'Balance Overview' card above the 'Credit Card' section on mobile viewpoints using CSS Display Contents for improved logical hierarchy.
   - **Back Gestures**: Integrated HTML5 History API (`pushState`/`popstate`) to ensure native mobile swiping back closes overlay modals safely instead of abruptly terminating the PWA.
   - **UI/UX Tightening**: 
     - Resolved an issue where tooltips remained stuck on screen after tapping buttons on mobile by utilizing `@media (hover: hover)`.
-    - Reduced text size and utilized truncation (`truncate`) in the Installments view to prevent awkward wrapping of long textual descriptions.
-    - Adjusted native dropdown padding for improved touch targets on iOS Safari.
+    - Maintained original 2-column tabular layout for Installments, adjusting text to stay readable on mobile without truncation.
+    - Adjusted native dropdown padding for improved touch targets on iOS Safari without excessive desktop indentation.
     - Adjusted the Inline Math Toolbar dynamically to left-align preventing it from overlapping form close buttons.
     - Resolved color visibility for 'App Locked' text in light-mode PIN Setup.
-- **Scope**: Modals logic updated across `app.js` and `ui.js`, HTML grid changes in `index.html`, and CSS adjustments in `style.css`. Bumped version to `v5.109k`.
+- **Scope**: Modals logic updated across `app.js` and `ui.js`, HTML grid changes in `index.html`, and CSS adjustments in `style.css`. Bumped service worker cache to `v15`.
