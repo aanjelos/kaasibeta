@@ -1941,7 +1941,10 @@ function openCcHistoryModal() {
         monthHeader.className = "cc-history-month-header";
 
         const totalSpentInMonth = monthTransactions.reduce(
-          (sum, t) => sum + t.amount,
+          (sum, t) => {
+            const visibleAmount = t.paidOff ? t.amount : (t.amount - (t.paidAmount || 0));
+            return sum + visibleAmount;
+          },
           0
         );
 

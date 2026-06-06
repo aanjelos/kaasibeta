@@ -53,7 +53,5 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Issue**: The current PWA icon does not render properly on devices when installed.
 - **Fix**: Need to create and link a dedicated, properly formatted PWA icon suite.
 
-### 2. Credit Card Partial Payment Totals
-- **Issue**: Credit card totals do not show the proper total available/limit when a card balance is only partially paid.
-- **Fix**: Update the credit card balance calculation logic to accurately reflect partial payments.
+
 
