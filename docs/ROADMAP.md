@@ -19,12 +19,6 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
   - Provide inputs for "Start Date", "End Date", "Category Dropdown", and "Amount Range (Min/Max)".
   - Update the `searchTransactions()` rendering loop to respect these new filter parameters alongside the existing text query.
 
-### 3. Customizable Dashboard Layout
-- **Concept**: Give users the ability to rearrange or hide specific sections/cards on the main dashboard to prioritize the data they care about most.
-- **Implementation Idea**: 
-  - Add a "Customize Dashboard" toggle in Settings.
-  - Store an array in `state.settings.dashboardLayout` defining the rendering order and visibility of widgets (e.g., `['balanceOverview', 'quickStats', 'monthlyChart']`).
-
 
 ---
 
