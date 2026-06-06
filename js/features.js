@@ -766,7 +766,7 @@ function handleTransactionSubmit(event) {
     `${type.charAt(0).toUpperCase() + type.slice(1)} added.`,
     "success"
   );
-  if (typeof trackEvent === "function") trackEvent("add_transaction", "Engagement", type);
+  if (typeof trackEvent === "function") trackEvent(`add_${type}`, "Engagement");
 
   saveData();
   renderDashboard();
