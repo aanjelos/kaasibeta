@@ -1871,7 +1871,7 @@ function openCcHistoryModal() {
         if (tDate.getFullYear() !== selectedYear) return false;
 
         if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
-        if (ccHistoryFilter === "paid" && !t.paidOff) return false;
+        if (ccHistoryFilter === "paid" && !t.paidOff && (!t.paidAmount || t.paidAmount <= 0)) return false;
 
         if (searchTerm) {
           const descriptionMatch = t.description
@@ -2016,15 +2016,17 @@ function openCcHistoryModal() {
                       ? "text-gray-500"
                       : remainingOnItem <= 0.005
                       ? "text-income"
-                      : "text-expense"
+                      : (ccHistoryFilter === "paid" ? "text-gray-400" : "text-expense")
                   }">
                       ${
                         t.paidOff
                           ? formatCurrency(t.amount)
-                          : formatCurrency(remainingOnItem)
-                      } ${
-            t.paidOff ? "" : remainingOnItem <= 0.005 ? " (Settled)" : " Left"
-          }
+                          : remainingOnItem <= 0.005
+                          ? formatCurrency(remainingOnItem) + " (Settled)"
+                          : ccHistoryFilter === "paid"
+                          ? formatCurrency(t.paidAmount) + " Paid of " + formatCurrency(t.amount)
+                          : formatCurrency(remainingOnItem) + " Left"
+                      }
                   </span>
                   ${buttonsHtml}
               </div>`;

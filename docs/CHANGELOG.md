@@ -147,5 +147,7 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 - **Scope**: Bumped version to `v5.97k`. Modified `index.html`, `js/ui.js`, and `js/globals.js`.
 
 ### 26. [Patch] Credit Card Partial Payment UI Totals (v5.98k)
-- **Description**: Fixed an issue where the monthly grouping totals within the credit card transaction history modal incorrectly summed the full original amounts of partially paid items. The totals will now sum the exact visible amounts (e.g. the remaining unpaid amount for unpaid items, or the total original amount for paid items), accurately reflecting the visual data in the accordion.
+- **Description**: 
+  - Fixed an issue where the monthly grouping totals within the credit card transaction history modal incorrectly summed the full original amounts of partially paid items. The totals will now sum the exact amounts based on the filter logic (e.g. the remaining unpaid amount for unpaid items, or the total original amount for paid items), accurately reflecting the visual data in the accordion.
+  - Partially paid items are now rendered in the "Paid" tab as well, explicitly displaying as "X Paid of Y" to properly account for the money allocated toward that debt within the view.
 - **Scope**: Bumped version to `v5.98k`. Modified `js/features.js` and `index.html`.
