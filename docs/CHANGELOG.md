@@ -119,3 +119,7 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
   - Built a Service Worker (`sw.js`) utilizing a Stale-While-Revalidate caching strategy. This instantly serves cached core files (HTML, CSS, JS, Images) for lightning-fast offline loading, while silently fetching updates in the background to ensure seamless version updates without manual refreshes.
   - Engineered a custom, non-intrusive "Install App" button in the footer that safely intercepts and replaces the default browser installation prompts. This button dynamically hides itself if the app is already installed or if the user is running the app in standalone mode, guaranteeing zero UX spam.
 - **Scope**: Created `manifest.json`, created `sw.js`, modified `index.html` (linked manifest, added footer button), modified `js/app.js` (registered SW, handled `beforeinstallprompt`), and updated version to `v5.95k`.
+
+### 22. [Minor] Aesthetic Color Palette Revert
+- **Description**: Reverted the core `--income-color` (Green) and `--expense-color` (Red) hex variables back to their specific custom shades from the original public build (`#2a9d8f` and `#e74c3c`). This change automatically cascaded across all UI elements (text, buttons, progress rings, charts) due to the unified CSS variable architecture, resulting in a slightly muted, highly readable dark mode contrast that reduces eye strain compared to generic UI reds/greens.
+- **Scope**: Modified `style.css`, chart defaults in `js/features.js`, and hardcoded export references in `js/charts-export.js`.
