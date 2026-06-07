@@ -110,3 +110,10 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
     - Adjusted the Inline Math Toolbar dynamically to left-align preventing it from overlapping form close buttons.
     - Resolved color visibility for 'App Locked' text in light-mode PIN Setup.
 - **Scope**: Modals logic updated across `app.js` and `ui.js`, HTML grid changes in `index.html`, and CSS adjustments in `style.css`. Bumped version to `v5.115k` with service worker cache `v23`.
+
+### 23. [Patch] Mobile Dropdown Menu Polish (v5.123k)
+- **Description**: 
+  - **Z-Index Layering**: Restructured the z-index hierarchy of the mobile dropdown menu and header to correctly sit below app modals (like Settings and All Transactions) while retaining prominence over the dashboard.
+  - **Scroll Locking**: Implemented robust scroll locking utilizing both `overflow-hidden` on the body and `touch-action: none` on the background dim overlay. This completely blocks background touch-scrolling while the menu is open on iOS and Android.
+  - **Alignment & Spacing**: Enforced strict right-alignment of the dropdown icons to match the hamburger toggle button. Replaced hardcoded inline paddings with dynamically compiled Tailwind utility classes for perfect spacing, and developed a resilient pure CSS fallback for the `env(safe-area-inset-top)` variable to bypass a mathematical parsing bug in Chromium mobile browsers.
+- **Scope**: Recompiled `tailwind.css`, adjusted mobile styles in `style.css` and `index.html`. Bumped version to `v5.123k` with service worker cache `v31`.
