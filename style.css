@@ -1879,3 +1879,11 @@ footer a[href^="https://kaasi.com.lk"]:hover
 #mobileMenuOverlay {
   background-color: rgba(0, 0, 0, 0.75) !important;
 }
+
+/* Chrome-safe Mobile Area Padding */
+@media (max-width: 767px) {
+  #app-content {
+    /* calc() forces unit evaluation, bypassing Chrome's max() parsing bug with env() */
+    padding-top: max(1.5rem, calc(env(safe-area-inset-top, 0px) + 0px)) !important;
+  }
+}
