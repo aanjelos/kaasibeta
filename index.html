@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.115k" />
+    <meta name="application-version" content="v5.116k" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -159,9 +159,9 @@
     <!-- END: FORGOT PIN MODAL -->
 
     <div id="app-content" class="p-4 md:p-8 transition-all duration-300">
-      <div class="container mx-auto max-w-7xl">
+      <div class="container mx-auto max-w-7xl relative">
         <!-- START: UPDATED HEADER -->
-        <header class="flex justify-between items-center mb-6 md:mb-10 relative">
+        <header class="flex justify-between items-center mb-6 md:mb-10 relative" style="z-index: 60;">
           <div id="header-logo-container">
             <a
               href="https://kaasi.com.lk"
@@ -224,45 +224,45 @@
           </div>
 
           <!-- Mobile Dropdown Toggle Button -->
-          <div class="md:hidden flex items-center relative z-[60]">
+          <div class="md:hidden flex items-center ml-auto relative" style="z-index: 60;">
              <button id="mobileMenuBtn" class="text-gray-300 hover:text-white transition-colors focus:outline-none p-1">
                <i class="fas fa-bars text-2xl" id="mobileMenuIcon" style="transition: transform 0.3s ease;"></i>
              </button>
           </div>
-
-          <!-- Mobile Dropdown Menu -->
-          <div id="mobileDropdown" class="absolute top-[80px] right-0 flex flex-col items-end gap-3 transition-all duration-300 transform -translate-y-4 opacity-0 invisible md:hidden pointer-events-none z-[60]">
-             <!-- Settings -->
-             <div class="flex items-center gap-3 pointer-events-auto">
-               <span class="bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg">Settings</span>
-               <button id="dropSettingsBtn" class="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-lg flex items-center justify-center hover:brightness-110 transition-all">
-                 <i class="fas fa-cog"></i>
-               </button>
-             </div>
-             <!-- Import Backup -->
-             <div class="flex items-center gap-3 pointer-events-auto">
-               <span class="bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg">Import Backup</span>
-               <button id="dropRestoreBtn" class="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-lg flex items-center justify-center hover:brightness-110 transition-all">
-                 <i class="fas fa-download"></i>
-               </button>
-             </div>
-             <!-- Export Backup -->
-             <div class="flex items-center gap-3 pointer-events-auto">
-               <span class="bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg">Export Backup</span>
-               <button id="dropBackupBtn" class="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-lg flex items-center justify-center hover:brightness-110 transition-all">
-                 <i class="fas fa-floppy-disk"></i>
-               </button>
-             </div>
-             <!-- All Transactions -->
-             <div class="flex items-center gap-3 pointer-events-auto">
-               <span class="bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg">All Transactions</span>
-               <button id="dropMonthlyBtn" class="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-lg flex items-center justify-center hover:brightness-110 transition-all">
-                 <i class="fas fa-calendar-alt"></i>
-               </button>
-             </div>
-          </div>
         </header>
         <!-- END: UPDATED HEADER -->
+
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobileDropdown" class="absolute right-0 flex flex-col items-end gap-3 transition-all duration-300 opacity-0 invisible md:hidden pointer-events-none" style="top: 60px; z-index: 60;">
+           <!-- All Transactions -->
+           <div class="flex items-center gap-3 pointer-events-auto">
+             <span class="bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg">All Transactions</span>
+             <button id="dropMonthlyBtn" class="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-lg flex items-center justify-center hover:brightness-110 transition-all">
+               <i class="fas fa-calendar-alt"></i>
+             </button>
+           </div>
+           <!-- Export Backup -->
+           <div class="flex items-center gap-3 pointer-events-auto">
+             <span class="bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg">Export Backup</span>
+             <button id="dropBackupBtn" class="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-lg flex items-center justify-center hover:brightness-110 transition-all">
+               <i class="fas fa-floppy-disk"></i>
+             </button>
+           </div>
+           <!-- Import Backup -->
+           <div class="flex items-center gap-3 pointer-events-auto">
+             <span class="bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg">Import Backup</span>
+             <button id="dropRestoreBtn" class="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-lg flex items-center justify-center hover:brightness-110 transition-all">
+               <i class="fas fa-download"></i>
+             </button>
+           </div>
+           <!-- Settings -->
+           <div class="flex items-center gap-3 pointer-events-auto">
+             <span class="bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg">Settings</span>
+             <button id="dropSettingsBtn" class="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-lg flex items-center justify-center hover:brightness-110 transition-all">
+               <i class="fas fa-cog"></i>
+             </button>
+           </div>
+        </div>
 
         <div
           class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 main-content-grid"

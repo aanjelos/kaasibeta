@@ -1911,17 +1911,17 @@ function setupMobileDropdown() {
   const toggleDropdown = () => {
     isOpen = !isOpen;
     if (isOpen) {
-      mobileDropdown.classList.remove("opacity-0", "invisible", "-translate-y-4");
-      mobileDropdown.classList.add("opacity-100", "visible", "translate-y-0");
+      mobileDropdown.classList.remove("opacity-0", "invisible");
+      mobileDropdown.classList.add("opacity-100", "visible", "dropdown-open");
       mobileMenuOverlay.classList.remove("opacity-0", "invisible");
       mobileMenuOverlay.classList.add("opacity-100", "visible", "pointer-events-auto");
       mobileMenuIcon.classList.remove("fa-bars");
       mobileMenuIcon.classList.add("fa-times");
     } else {
-      mobileDropdown.classList.add("opacity-0", "invisible", "-translate-y-4");
-      mobileDropdown.classList.remove("opacity-100", "visible", "translate-y-0");
-      mobileMenuOverlay.classList.add("opacity-0", "invisible");
+      mobileDropdown.classList.remove("opacity-100", "visible", "dropdown-open");
+      mobileDropdown.classList.add("opacity-0", "invisible");
       mobileMenuOverlay.classList.remove("opacity-100", "visible", "pointer-events-auto");
+      mobileMenuOverlay.classList.add("opacity-0", "invisible");
       mobileMenuIcon.classList.remove("fa-times");
       mobileMenuIcon.classList.add("fa-bars");
     }

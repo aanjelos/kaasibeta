@@ -1869,6 +1869,13 @@ footer a[href^="https://kaasi.com.lk"]:hover
 
 
 /* Mobile Dropdown Enhancements */
+#mobileDropdown {
+  transform: translateY(-1rem);
+}
+#mobileDropdown.dropdown-open {
+  transform: translateY(0);
+}
+
 #mobileMenuOverlay {
   background-color: rgba(0, 0, 0, 0.75) !important;
 }
