@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.117k" />
+    <meta name="application-version" content="v5.118k" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -228,7 +228,7 @@
           </div>
 
           <!-- Mobile Dropdown Toggle Button -->
-          <div class="md:hidden flex items-center ml-auto relative" style="z-index: 60;">
+          <div class="md:hidden flex items-center ml-auto relative mr-1" style="z-index: 60;">
              <button id="mobileMenuBtn" class="text-gray-300 hover:text-white transition-colors focus:outline-none w-12 h-12 flex items-center justify-center">
                <i class="fas fa-bars text-2xl" id="mobileMenuIcon" style="transition: transform 0.3s ease;"></i>
              </button>
@@ -237,7 +237,7 @@
         <!-- END: UPDATED HEADER -->
 
         <!-- Mobile Dropdown Menu -->
-        <div id="mobileDropdown" class="absolute right-0 flex flex-col items-end gap-3 transition-all duration-300 opacity-0 invisible md:hidden pointer-events-none" style="top: 60px; z-index: 60;">
+        <div id="mobileDropdown" class="right-0 flex flex-col items-end gap-3 transition-all duration-300 opacity-0 invisible md:hidden pointer-events-none" style="position: absolute; top: 60px; z-index: 60;">
            <!-- All Transactions -->
            <div class="flex items-center gap-3 pointer-events-auto">
              <span class="bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg">All Transactions</span>
