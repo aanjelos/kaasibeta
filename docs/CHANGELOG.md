@@ -96,10 +96,10 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 - **Description**: Fixed an issue where Android devices were heavily cropping the Kaasi logo when installed as a PWA. A dedicated `maskable` variant of the SVG logo was created with an expanded internal `viewBox` (adding a 20% safe-zone padding) and a solid dark background. The Web Manifest now seamlessly serves the perfect padded icon to Android, while keeping the edge-to-edge logo for desktop shortcuts and the internal app navigation.
 - **Scope**: Created `img/LogoIcon_Maskable.svg`, updated `manifest.json` and `sw.js`, and bumped version to `v5.108k`.
 
-### 22. [Feature] Mobile App Experience Overhaul (v5.109k)
+### 22. [Feature] Mobile App Experience Overhaul (v5.114k)
 - **Description**: 
-  - **Speed Dial FAB**: Added a mobile-only floating action button with text labels for quick access to core features (Settings, Cloud Sync, All Transactions, Add Expense).
-  - **All Transactions**: Renamed 'Monthly View' to 'All Transactions' everywhere for clarity.
+  - **Speed Dial FAB**: Added a mobile-only floating action button with text labels for quick access to core features (Settings, Cloud Sync, All Transactions, Add Expense). It features a custom drop shadow (`rgba(0,0,0,0.8)`) and a deep background dimming overlay (`75%` opacity) to focus the user's attention.
+  - **All Transactions**: Renamed 'Monthly View' to 'All Transactions' across the UI and keyboard shortcuts (now mapped to hotkey `A`) for clarity.
   - **Horizontal Scroll & Edge Fade**: Implemented horizontal scrolling with a custom edge-fade mask for cramped Month selector buttons and settings tabs on mobile screens.
   - **Grid Reordering**: Pushed the 'Balance Overview' card above the 'Credit Card' section on mobile viewpoints using CSS Display Contents for improved logical hierarchy.
   - **Back Gestures**: Integrated HTML5 History API (`pushState`/`popstate`) to ensure native mobile swiping back closes overlay modals safely instead of abruptly terminating the PWA.
@@ -109,10 +109,4 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
     - Adjusted native dropdown padding for improved touch targets on iOS Safari without excessive desktop indentation.
     - Adjusted the Inline Math Toolbar dynamically to left-align preventing it from overlapping form close buttons.
     - Resolved color visibility for 'App Locked' text in light-mode PIN Setup.
-- **Scope**: Modals logic updated across `app.js` and `ui.js`, HTML grid changes in `index.html`, and CSS adjustments in `style.css`. Bumped service worker cache to `v15`.
-
-### 23. [Patch] Transaction Marquee Rollback (v5.114k)
-- **Description**: 
-  - **Marquee Revert**: Completely rolled back all marquee animations across transaction lists. Reverted to standard static text truncation.
-  - **FAB Enhancements**: Enhanced the mobile Speed Dial FAB with a stronger, custom drop shadow (`0 10px 25px rgba(0,0,0,0.8)`) and a darker background dimming overlay (`75%` opacity) when opened.
-- **Scope**: Removed `.marquee-wrapper` animation keyframes in `style.css`, removed JS padding in `globals.js`, restored `truncate` in `features.js`, and bumped version to `v5.114k` with SW cache `v22`.
+- **Scope**: Modals logic updated across `app.js` and `ui.js`, HTML grid changes in `index.html`, and CSS adjustments in `style.css`. Bumped version to `v5.114k` with service worker cache `v22`.
