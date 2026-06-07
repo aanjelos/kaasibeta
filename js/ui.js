@@ -1911,6 +1911,7 @@ function setupMobileDropdown() {
   const toggleDropdown = () => {
     isOpen = !isOpen;
     if (isOpen) {
+      document.body.classList.add("overflow-hidden");
       mobileDropdown.classList.remove("opacity-0", "invisible");
       mobileDropdown.classList.add("opacity-100", "visible", "dropdown-open");
       mobileMenuOverlay.classList.remove("opacity-0", "invisible");
@@ -1918,6 +1919,7 @@ function setupMobileDropdown() {
       mobileMenuIcon.classList.remove("fa-bars");
       mobileMenuIcon.classList.add("fa-times");
     } else {
+      document.body.classList.remove("overflow-hidden");
       mobileDropdown.classList.remove("opacity-100", "visible", "dropdown-open");
       mobileDropdown.classList.add("opacity-0", "invisible");
       mobileMenuOverlay.classList.remove("opacity-100", "visible", "pointer-events-auto");
