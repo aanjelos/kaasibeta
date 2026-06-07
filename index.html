@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.116k" />
+    <meta name="application-version" content="v5.117k" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -158,8 +158,12 @@
     </div>
     <!-- END: FORGOT PIN MODAL -->
 
-    <div id="app-content" class="p-4 md:p-8 transition-all duration-300">
+    <div id="app-content" class="px-4 pb-4 pt-10 md:p-8 transition-all duration-300">
       <div class="container mx-auto max-w-7xl relative">
+        <!-- START: MOBILE MENU OVERLAY -->
+        <div id="mobileMenuOverlay" class="fixed inset-0 bg-black opacity-0 invisible transition-all duration-300 pointer-events-none" style="backdrop-filter: blur(2px); z-index: 55;"></div>
+        <!-- END: MOBILE MENU OVERLAY -->
+
         <!-- START: UPDATED HEADER -->
         <header class="flex justify-between items-center mb-6 md:mb-10 relative" style="z-index: 60;">
           <div id="header-logo-container">
@@ -225,7 +229,7 @@
 
           <!-- Mobile Dropdown Toggle Button -->
           <div class="md:hidden flex items-center ml-auto relative" style="z-index: 60;">
-             <button id="mobileMenuBtn" class="text-gray-300 hover:text-white transition-colors focus:outline-none p-1">
+             <button id="mobileMenuBtn" class="text-gray-300 hover:text-white transition-colors focus:outline-none w-12 h-12 flex items-center justify-center">
                <i class="fas fa-bars text-2xl" id="mobileMenuIcon" style="transition: transform 0.3s ease;"></i>
              </button>
           </div>
@@ -1809,9 +1813,7 @@
       </div>
     </div>
 
-    <!-- START: MOBILE MENU OVERLAY -->
-    <div id="mobileMenuOverlay" class="fixed inset-0 bg-black opacity-0 invisible transition-all duration-300 z-[55] pointer-events-none" style="backdrop-filter: blur(2px);"></div>
-    <!-- END: MOBILE MENU OVERLAY -->
+
     <script src="js/globals.js" defer></script>
     <script src="js/ui.js" defer></script>
     <script src="js/features.js" defer></script>
