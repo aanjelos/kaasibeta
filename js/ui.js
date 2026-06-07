@@ -1897,52 +1897,52 @@ mathToolbar.addEventListener("click", (e) => {
   }
 });
 
-// --- SPEED DIAL FAB LOGIC ---
-function setupSpeedDialFAB() {
-  const fabMainBtn = $("#fabMainBtn");
-  const fabMenu = $("#fabMenu");
-  const fabOverlay = $("#fabOverlay");
-  const fabIcon = $("#fabIcon");
+// --- MOBILE DROPDOWN MENU LOGIC ---
+function setupMobileDropdown() {
+  const mobileMenuBtn = $("#mobileMenuBtn");
+  const mobileDropdown = $("#mobileDropdown");
+  const mobileMenuOverlay = $("#mobileMenuOverlay");
+  const mobileMenuIcon = $("#mobileMenuIcon");
   
-  if (!fabMainBtn || !fabMenu) return;
+  if (!mobileMenuBtn || !mobileDropdown) return;
 
   let isOpen = false;
 
-  const toggleFAB = () => {
+  const toggleDropdown = () => {
     isOpen = !isOpen;
     if (isOpen) {
-      fabMenu.classList.remove("opacity-0", "invisible", "translate-y-4");
-      fabMenu.classList.add("opacity-100", "visible", "translate-y-0");
-      fabOverlay.classList.remove("opacity-0", "invisible");
-      fabOverlay.classList.add("opacity-100", "visible", "pointer-events-auto");
-      fabIcon.classList.remove("fa-bars");
-      fabIcon.classList.add("fa-times");
+      mobileDropdown.classList.remove("opacity-0", "invisible", "-translate-y-4");
+      mobileDropdown.classList.add("opacity-100", "visible", "translate-y-0");
+      mobileMenuOverlay.classList.remove("opacity-0", "invisible");
+      mobileMenuOverlay.classList.add("opacity-100", "visible", "pointer-events-auto");
+      mobileMenuIcon.classList.remove("fa-bars");
+      mobileMenuIcon.classList.add("fa-times");
     } else {
-      fabMenu.classList.add("opacity-0", "invisible", "translate-y-4");
-      fabMenu.classList.remove("opacity-100", "visible", "translate-y-0");
-      fabOverlay.classList.add("opacity-0", "invisible");
-      fabOverlay.classList.remove("opacity-100", "visible", "pointer-events-auto");
-      fabIcon.classList.remove("fa-times");
-      fabIcon.classList.add("fa-bars");
+      mobileDropdown.classList.add("opacity-0", "invisible", "-translate-y-4");
+      mobileDropdown.classList.remove("opacity-100", "visible", "translate-y-0");
+      mobileMenuOverlay.classList.add("opacity-0", "invisible");
+      mobileMenuOverlay.classList.remove("opacity-100", "visible", "pointer-events-auto");
+      mobileMenuIcon.classList.remove("fa-times");
+      mobileMenuIcon.classList.add("fa-bars");
     }
   };
 
-  fabMainBtn.onclick = toggleFAB;
-  fabOverlay.onclick = toggleFAB;
+  mobileMenuBtn.onclick = toggleDropdown;
+  mobileMenuOverlay.onclick = toggleDropdown;
 
-  // Wire up FAB buttons
-  $("#fabSettingsBtn")?.addEventListener("click", () => {
-    toggleFAB();
+  // Wire up Dropdown buttons
+  $("#dropSettingsBtn")?.addEventListener("click", () => {
+    toggleDropdown();
     $("#settingsBtn")?.click();
   });
 
-  $("#fabMonthlyBtn")?.addEventListener("click", () => {
-    toggleFAB();
+  $("#dropMonthlyBtn")?.addEventListener("click", () => {
+    toggleDropdown();
     $("#monthlyViewBtn")?.click();
   });
 
-  $("#fabBackupBtn")?.addEventListener("click", () => {
-    toggleFAB();
+  $("#dropBackupBtn")?.addEventListener("click", () => {
+    toggleDropdown();
     const target = $("#shortcutCloud")?.checked && !$("#shortcutCloud")?.disabled ? "cloud" : "local";
     if (target === "cloud") {
       if (typeof backupToSupabase === "function") backupToSupabase();
@@ -1951,37 +1951,14 @@ function setupSpeedDialFAB() {
     }
   });
 
-  $("#fabRestoreBtn")?.addEventListener("click", () => {
-    toggleFAB();
+  $("#dropRestoreBtn")?.addEventListener("click", () => {
+    toggleDropdown();
     const target = $("#shortcutCloud")?.checked && !$("#shortcutCloud")?.disabled ? "cloud" : "local";
     if (target === "cloud") {
       if (typeof restoreFromSupabase === "function") restoreFromSupabase();
     } else {
       const importInput = $("#importDataInput");
       if (importInput) importInput.click();
-    }
-  });
-
-  $("#fabExpenseBtn")?.addEventListener("click", () => {
-    toggleFAB();
-    
-    // Close any open modal before scrolling to the dashboard form
-    const openModals = document.querySelectorAll('.modal');
-    openModals.forEach(modal => {
-      if (modal.style.display === "block") {
-        closeModal(modal.id);
-      }
-    });
-
-    const typeSelect = $("#transactionType");
-    const amountInput = $("#amount");
-    if (typeSelect && amountInput) {
-      typeSelect.value = "expense";
-      typeSelect.dispatchEvent(new Event("change"));
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        amountInput.focus();
-      }, 300); // give time for modals to fade out
     }
   });
 }

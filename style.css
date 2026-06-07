@@ -1868,11 +1868,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
 
 
 
-/* FAB Enhancements */
-#fabOverlay {
+/* Mobile Dropdown Enhancements */
+#mobileMenuOverlay {
   background-color: rgba(0, 0, 0, 0.75) !important;
-}
-
-#fabMainBtn {
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8) !important;
 }

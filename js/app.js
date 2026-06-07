@@ -38,7 +38,7 @@ function initializeUI(isRefresh = false) {
   // The onclick logic is now dynamic, so we set it in updateHeaderShortcutButtons()
   // This function will set their initial state (icons, tooltips, onclick)
   updateHeaderShortcutButtons();
-  setupSpeedDialFAB(); // NEW: Initialize Speed Dial FAB for mobile
+  setupMobileDropdown(); // NEW: Initialize top-right Mobile Dropdown
   // --- END NEW ---
 
   if (!window.deleteSliderInitialized) {

@@ -96,9 +96,9 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 - **Description**: Fixed an issue where Android devices were heavily cropping the Kaasi logo when installed as a PWA. A dedicated `maskable` variant of the SVG logo was created with an expanded internal `viewBox` (adding a 20% safe-zone padding) and a solid dark background. The Web Manifest now seamlessly serves the perfect padded icon to Android, while keeping the edge-to-edge logo for desktop shortcuts and the internal app navigation.
 - **Scope**: Created `img/LogoIcon_Maskable.svg`, updated `manifest.json` and `sw.js`, and bumped version to `v5.108k`.
 
-### 22. [Feature] Mobile App Experience Overhaul (v5.114k)
+### 22. [Feature] Mobile App Experience Overhaul (v5.115k)
 - **Description**: 
-  - **Speed Dial FAB**: Added a mobile-only floating action button with text labels for quick access to core features (Settings, Cloud Sync, All Transactions, Add Expense). It features a custom drop shadow (`rgba(0,0,0,0.8)`) and a deep background dimming overlay (`75%` opacity) to focus the user's attention.
+  - **Header Navigation Dropdown**: Replaced the bottom-right Speed Dial FAB with a native top-right mobile hamburger dropdown menu that cascades out of the main header, aligning perfectly with standard mobile UX patterns. It retains the custom deep-dark background dimming overlay (`75%` opacity) to focus the user's attention.
   - **All Transactions**: Renamed 'Monthly View' to 'All Transactions' across the UI and keyboard shortcuts (now mapped to hotkey `A`) for clarity.
   - **Horizontal Scroll & Edge Fade**: Implemented horizontal scrolling with a custom edge-fade mask for cramped Month selector buttons and settings tabs on mobile screens.
   - **Grid Reordering**: Pushed the 'Balance Overview' card above the 'Credit Card' section on mobile viewpoints using CSS Display Contents for improved logical hierarchy.
@@ -109,4 +109,4 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
     - Adjusted native dropdown padding for improved touch targets on iOS Safari without excessive desktop indentation.
     - Adjusted the Inline Math Toolbar dynamically to left-align preventing it from overlapping form close buttons.
     - Resolved color visibility for 'App Locked' text in light-mode PIN Setup.
-- **Scope**: Modals logic updated across `app.js` and `ui.js`, HTML grid changes in `index.html`, and CSS adjustments in `style.css`. Bumped version to `v5.114k` with service worker cache `v22`.
+- **Scope**: Modals logic updated across `app.js` and `ui.js`, HTML grid changes in `index.html`, and CSS adjustments in `style.css`. Bumped version to `v5.115k` with service worker cache `v23`.
