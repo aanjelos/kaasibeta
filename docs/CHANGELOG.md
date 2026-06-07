@@ -111,10 +111,8 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
     - Resolved color visibility for 'App Locked' text in light-mode PIN Setup.
 - **Scope**: Modals logic updated across `app.js` and `ui.js`, HTML grid changes in `index.html`, and CSS adjustments in `style.css`. Bumped service worker cache to `v15`.
 
-### 23. [Patch] Marquee Refinements (v5.113k)
+### 23. [Patch] Transaction Marquee Rollback (v5.114k)
 - **Description**: 
-  - **Full Text Reveal on Mobile**: Added a dynamic `24px` math buffer to the javascript scroll calculations. This guarantees the scrolling text fully clears the `16px` right-edge fade mask on mobile devices, ensuring every last letter is legible before the animation pauses.
-  - **Animation Timings**: Tweaked the CSS keyframes to slightly increase the scrolling speed, while simultaneously doubling the pause duration at the end of the text before it snaps back, providing a much more comfortable reading experience.
-  - **Flawless Marquee Detection**: Built a highly robust Javascript-driven approach (`applyMarquees()`) to check text lengths natively after render, ensuring short texts never falsely trigger the animation.
-  - **Clean Fade Mask**: Removed the transparent fade effect from the left edge entirely so the start of the text remains solid and crisp.
-- **Scope**: Rewrote `.marquee-wrapper` animation keyframes in `style.css`, injected dynamic distance padding in `globals.js`, and bumped version to `v5.113k` with SW cache `v21`.
+  - **Marquee Revert**: Completely rolled back all marquee animations across transaction lists. Reverted to standard static text truncation.
+  - **FAB Enhancements**: Enhanced the mobile Speed Dial FAB with a stronger, custom drop shadow (`0 10px 25px rgba(0,0,0,0.8)`) and a darker background dimming overlay (`75%` opacity) when opened.
+- **Scope**: Removed `.marquee-wrapper` animation keyframes in `style.css`, removed JS padding in `globals.js`, restored `truncate` in `features.js`, and bumped version to `v5.114k` with SW cache `v22`.

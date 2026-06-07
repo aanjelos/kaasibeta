@@ -72,11 +72,9 @@ function renderRecentTransactions() {
 
     div.innerHTML = `
       <div class="flex-grow mr-2 overflow-hidden">
-        <div class="marquee-wrapper">
-          <p class="font-medium marquee-text ${textColorClass}" title="${
+        <p class="font-medium truncate ${textColorClass}" title="${
       t.description
     }">${t.description}</p>
-        </div>
         <p class="text-xs text-gray-400">${subDetailText}</p>
       </div>
       <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums">${
@@ -189,10 +187,8 @@ function renderDebtList() {
           "text-sm py-2 px-3 border-b border-gray-700 last:border-b-0";
         itemDiv.innerHTML = `
           <div class="flex justify-between items-start mb-1 gap-x-2">
-            <div class="flex-grow overflow-hidden mr-2">
-              <div class="marquee-wrapper">
-                <p class="font-medium text-gray-200 marquee-text">${d.why}</p>
-              </div>
+            <div class="flex-grow">
+              <p class="font-medium text-gray-200 force-word-wrap">${d.why}</p>
               <p class="text-xs ${daysColor}">${daysText}</p>
             </div>
             <span class="font-semibold text-expense whitespace-nowrap tabular-nums">${formatCurrency(
@@ -347,10 +343,8 @@ function renderReceivableList() {
             "text-sm py-2 px-3 border-b border-gray-700 last:border-b-0";
           itemDiv.innerHTML = `
           <div class="flex justify-between items-start mb-1 gap-x-2">
-            <div class="flex-grow overflow-hidden mr-2">
-              <div class="marquee-wrapper">
-                <p class="font-medium text-gray-200 marquee-text">${r.why}</p>
-              </div>
+            <div class="flex-grow">
+              <p class="font-medium text-gray-200 force-word-wrap">${r.why}</p>
               <p class="text-xs text-gray-400">${srcTxt}</p>
             </div>
             <span class="font-semibold text-income whitespace-nowrap tabular-nums">${formatCurrency(
@@ -1599,11 +1593,9 @@ function renderMonthlyDetails(
 
           itemDiv.innerHTML = `
               <div class="flex-grow mr-2 overflow-hidden ${opacityClass}">
-                <div class="marquee-wrapper">
-                  <p class="font-medium marquee-text ${textColorClass}" title="${
+                <p class="font-medium truncate ${textColorClass}" title="${
             t.description
           }${tooltipSuffix}">${t.description}</p>
-                </div>
                 <p class="text-xs text-gray-400 mt-0.5">${subDetailText}</p>
               </div>
               <span class="font-semibold whitespace-nowrap ${textColorClass} ml-2 tabular-nums ${opacityClass}" title="${isExcluded ? 'Excluded from totals' : ''}">${
@@ -1727,9 +1719,6 @@ function renderMonthlyDetails(
 
   contentGrid.appendChild(categorySection);
   container.appendChild(contentGrid);
-  
-  // Apply Marquees after DOM updates
-  setTimeout(applyMarquees, 50);
 }
 function renderMonthlyPieChart(data) {
   const canvas = document.getElementById("monthlyDetailPieChartCanvas");
@@ -2024,11 +2013,9 @@ function openCcHistoryModal() {
 
           itemDiv.innerHTML = `
               <div class="flex-grow mr-3 overflow-hidden">
-                  <div class="marquee-wrapper">
-                    <p class="font-medium marquee-text ${
-                      t.paidOff ? "text-gray-500" : ""
-                    }" title="${t.description}">${t.description}</p>
-                  </div>
+                  <p class="font-medium truncate ${
+                    t.paidOff ? "text-gray-500" : ""
+                  }" title="${t.description}">${t.description}</p>
                   <p class="text-xs text-gray-400 mt-0.5">${new Date(
                     t.date
                   ).toLocaleDateString()} ${

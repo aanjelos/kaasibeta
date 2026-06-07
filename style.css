@@ -1866,43 +1866,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
   display: none; /* Chrome, Safari and Opera */
 }
 
-/* ------------------------- */
-/* --- MARQUEE ANIMATION --- */
-/* ------------------------- */
-.marquee-wrapper {
-  overflow: hidden;
-  white-space: nowrap;
-  position: relative;
-  width: 100%;
-}
 
-.marquee-wrapper.is-overflowing {
-  mask-image: linear-gradient(to right, black 0%, black calc(100% - 16px), transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, black 0%, black calc(100% - 16px), transparent 100%);
-}
-
-.marquee-text {
-  display: inline-block;
-  min-width: 100%;
-}
-
-/* Activate scroll only for items dynamically marked as overflowing by JS */
-.marquee-wrapper.is-overflowing .marquee-text {
-  animation: marquee-scroll 7s linear infinite;
-}
-
-/* On desktop, pause on hover */
-@media (hover: hover) {
-  .marquee-wrapper:hover .marquee-text {
-    animation-play-state: paused;
-  }
-}
-
-@keyframes marquee-scroll {
-  0%, 15% { transform: translateX(0); }
-  60%, 92% { transform: translateX(var(--scroll-amount, 0px)); }
-  93%, 100% { transform: translateX(0); }
-}
 
 /* FAB Enhancements */
 #fabOverlay {
