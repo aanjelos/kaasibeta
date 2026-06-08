@@ -1280,24 +1280,22 @@ function renderMonthTabs(year) {
     return;
   }
   monthTabsContainer.innerHTML = "";
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
+  const shortMonths = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
   ];
-  months.forEach((monthName, index) => {
+  const fullMonths = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  
+  shortMonths.forEach((monthName, index) => {
     const button = document.createElement("button");
-    button.className = "tab-button !px-3 !py-1.5 !text-sm";
-    button.textContent = monthName;
+    button.className = "tab-button !px-3 !py-1.5 !text-sm whitespace-nowrap";
+    button.innerHTML = `
+      <span class="inline md:hidden">${fullMonths[index]}</span>
+      <span class="hidden md:inline">${monthName}</span>
+    `;
     button.dataset.month = index;
     button.dataset.year = year;
     button.onclick = () => {
