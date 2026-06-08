@@ -132,3 +132,9 @@ Added intelligent auto-scrolling to the scrollable tabs in the All Transactions 
 
 ### 28. [Feature] Privacy-Preserving DAU Analytics (v5.153k)
 Enhanced the Google Analytics 4 (GA4) implementation by adding explicit `app_opened` and `app_returned` (via the Page Visibility API) custom events. This allows for highly accurate Daily Active User (DAU) tracking for the offline PWA without relying exclusively on automatic engagement metrics, perfectly preserving user privacy.
+
+### 29. [Feature] Smart Contextual Cloud Sync UI (v5.154k)
+Introduced a sophisticated "Out of Sync" detection system for Cloud Backups without modifying the offline-first architecture. The app now tracks hidden timestamps for lastLocalDataModification and lastLocalCloudSync. When connecting to Supabase, it performs a 3-way comparison against the Cloud's updated_at timestamp.
+- **New Cloud Data Detection**: If the cloud contains newer data (e.g., synced from a phone), the "Import from Cloud" buttons turn green and pulse, with tooltips warning the user to pull the latest changes.
+- **Unsaved Local Changes**: If the user adds expenses locally but forgets to back them up, the "Export to Cloud" buttons glow Kaasi orange, reminding them to push their changes.
+- **Timestamp Display**: The exact human-readable timestamp of the last cloud sync is now cleanly displayed within the Settings panel and injected directly into the header button tooltips to provide instant peace of mind.

@@ -609,6 +609,7 @@ const STORAGE_KEY = "KaasiData";
 function saveData() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem("lastLocalDataModification", Date.now().toString());
     console.log("Data saved successfully.");
   } catch (e) {
     console.error("Error saving data to localStorage:", e);
