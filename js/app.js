@@ -606,9 +606,8 @@ function updateHeaderShortcutButtons() {
 
   if (isCloud) {
     // Set to CLOUD mode
-    backupBtn.style.color = "";
-    restoreBtn.style.color = "";
-    restoreBtn.classList.remove("pulse-animation");
+    backupBtn.classList.remove("pulse-orange");
+    restoreBtn.classList.remove("pulse-green");
     
     const modalBackupBtn = $("#backupToSupabaseBtn");
     const modalRestoreBtn = $("#restoreFromSupabaseBtn");
@@ -616,14 +615,13 @@ function updateHeaderShortcutButtons() {
     if (modalRestoreBtn) modalRestoreBtn.style.boxShadow = "";
 
     if (window.currentCloudSyncStatus === "cloud_newer") {
-      restoreBtn.style.color = "var(--success-indicator-color)";
-      restoreBtn.classList.add("pulse-animation");
+      restoreBtn.classList.add("pulse-green");
       if (modalRestoreBtn) modalRestoreBtn.style.boxShadow = "0 0 0 2px var(--success-indicator-color)";
       
       restoreBtn.dataset.tooltip = `New cloud data! (Synced ${lastCloudSyncTimeString} elsewhere)`;
       backupBtn.dataset.tooltip = "Export to Cloud (Ctrl+E)";
     } else if (window.currentCloudSyncStatus === "local_newer") {
-      backupBtn.style.color = "var(--accent-primary)";
+      backupBtn.classList.add("pulse-orange");
       if (modalBackupBtn) modalBackupBtn.style.boxShadow = "0 0 0 2px var(--accent-primary)";
       
       backupBtn.dataset.tooltip = "Unsaved local changes! Export to save.";
