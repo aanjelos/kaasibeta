@@ -118,7 +118,7 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
   - **Alignment & Spacing**: Enforced strict right-alignment of the dropdown icons to match the hamburger toggle button. Replaced hardcoded inline paddings with dynamically compiled Tailwind utility classes for perfect spacing, and developed a resilient pure CSS fallback for the `env(safe-area-inset-top)` variable to bypass a mathematical parsing bug in Chromium mobile browsers.
 - **Scope**: Recompiled `tailwind.css`, adjusted mobile styles in `style.css` and `index.html`. Bumped version to `v5.123k` with service worker cache `v31`.
 
-### 24. [Feature] Installments Overhaul & UX Polish (v5.138k)
+### 24. [Feature] Installments Refinement & UX Polish (v5.138k)
 - **Description**: 
   - **Installments Layout**: Engineered a completely decoupled layout strategy to natively support both Desktop and Mobile views. Desktop perfectly mimics the native Debts 2-row tabular layout, while Mobile intelligently wraps the action buttons into a full-width footer row separated by a subtle divider line to entirely prevent text truncation and cutoff. 
   - **Credit Card Polish**: Adjusted the visual presentation of Credit Cards to align with the rest of the application by integrating dynamic circular progress rings.
