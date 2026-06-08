@@ -419,10 +419,11 @@ function renderInstallmentList() {
         : 0;
 
     const div = document.createElement("div");
-    div.className = "p-3 rounded bg-gray-700/50 mb-2";
+    div.className =
+      "p-3 rounded bg-gray-700/50 text-sm mb-2 flex items-center gap-x-3";
 
     const ringHtml = `
-      <div class="installment-progress-ring-container w-10 h-10 flex-shrink-0 mt-0.5" title="${progressPercent.toFixed(
+      <div class="installment-progress-ring-container w-10 h-10 flex-shrink-0" title="${progressPercent.toFixed(
         0
       )}% Paid (${i.monthsLeft} months left)">
           <svg class="w-full h-full" viewBox="0 0 36 36">
@@ -438,40 +439,34 @@ function renderInstallmentList() {
     `;
 
     const buttonsHtml = `
-        <div class="edit-btn-container flex items-center justify-end gap-x-4">
+        <div class="edit-btn-container">
             ${
               i.monthsLeft > 0
                 ? `
-                <button class="text-sm text-income hover:opacity-80 focus:outline-none transition-opacity" onclick="payInstallmentMonth('${i.id}')" title="Pay Month"><i class="fas fa-credit-card"></i></button>
-                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="payInstallmentMonth('${i.id}')" title="Pay Month"><i class="fas fa-credit-card"></i></button>
               `
                 : `
-                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
               `
             }
-            <button class="text-sm text-gray-500 hover:text-expense focus:outline-none transition-colors" onclick="deleteInstallment('${
+            <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteInstallment('${
               i.id
-            }')" title="Delete"><i class="fas fa-trash"></i></button>
+            }')" title="Delete"><i class="fas fa-times"></i></button>
         </div>
     `;
 
     div.innerHTML = `
-      <div class="flex items-start">
-          ${ringHtml}
-          <div class="flex-grow ml-3 min-w-0">
-              <div class="flex justify-between items-start mb-2.5 gap-x-2">
-                  <div class="flex flex-col min-w-0">
-                      <p class="text-sm md:text-base font-medium truncate mb-0.5">${i.description}</p>
-                      <p class="text-[11px] md:text-xs text-gray-400 tabular-nums">${formatCurrency(i.monthlyAmount)} / month</p>
-                  </div>
-                  <div class="flex-shrink-0 text-right mt-0.5">
-                      <span class="text-xs md:text-sm font-semibold text-gray-200 whitespace-nowrap tabular-nums">${formatCurrency(totalLeftToPay)} Left</span>
-                  </div>
-              </div>
-              <div class="flex justify-between items-center border-t border-gray-600/50 pt-2.5">
-                  <p class="text-[11px] md:text-xs text-gray-500 truncate pr-2 tabular-nums">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
-                  ${buttonsHtml}
-              </div>
+      ${ringHtml}
+      <div class="flex-grow flex justify-between items-start ml-2">
+          <div class="flex flex-col min-w-0 pr-2">
+              <p class="text-sm md:text-base font-medium truncate mb-0.5">${i.description}</p>
+              <p class="text-[11px] md:text-xs text-gray-400 mb-1.5">${formatCurrency(i.monthlyAmount)} / month</p>
+              <p class="text-[11px] md:text-xs text-gray-500 truncate">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
+          </div>
+          <div class="flex flex-col items-end flex-shrink-0">
+              <span class="text-xs md:text-sm font-semibold text-gray-200 mb-2.5 whitespace-nowrap">${formatCurrency(totalLeftToPay)} Left</span>
+              ${buttonsHtml}
           </div>
       </div>
     `;
