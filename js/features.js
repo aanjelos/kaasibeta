@@ -458,13 +458,13 @@ function renderInstallmentList() {
 
     div.innerHTML = `
       ${ringHtml}
-      <div class="flex-grow flex flex-col sm:flex-row justify-between items-start sm:items-start ml-2 gap-y-3 sm:gap-y-0 min-w-0">
+      <div class="flex-grow flex flex-col sm:flex-row justify-between items-start ml-2 gap-y-2 sm:gap-y-0 min-w-0">
           <div class="flex flex-col min-w-0 pr-2 w-full sm:w-auto">
               <p class="text-sm md:text-base font-medium truncate mb-0.5">${i.description}</p>
               <p class="text-[11px] md:text-xs text-gray-400 mb-1.5 tabular-nums">${formatCurrency(i.monthlyAmount)} / month</p>
               <p class="text-[11px] md:text-xs text-gray-500 truncate tabular-nums">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
           </div>
-          <div class="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start w-full sm:w-auto flex-shrink-0 pt-2 sm:pt-0 border-t border-gray-700/50 sm:border-transparent mt-1 sm:mt-0">
+          <div class="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start w-full sm:w-auto flex-shrink-0">
               <span class="text-xs md:text-sm font-semibold text-gray-200 sm:mb-2.5 whitespace-nowrap tabular-nums">${formatCurrency(totalLeftToPay)} Left</span>
               ${buttonsHtml}
           </div>
