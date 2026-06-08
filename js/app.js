@@ -600,9 +600,23 @@ function updateHeaderShortcutButtons() {
   }
 
   const importInput = $("#importDataInput"); // Get the file input element
+  
+  // Mobile elements
+  const dropBackupText = $("#dropBackupText");
+  const dropRestoreText = $("#dropRestoreText");
+  const dropBackupBtn = $("#dropBackupBtn");
+  const dropRestoreBtn = $("#dropRestoreBtn");
+  const mobileMenuIcon = $("#mobileMenuIcon");
 
   // Check if cloud is selected AND enabled
   const isCloud = cloudRadio.checked && !cloudRadio.disabled;
+  
+  // Reset mobile classes and text first
+  if (dropBackupBtn) dropBackupBtn.classList.remove("pulse-orange");
+  if (dropRestoreBtn) dropRestoreBtn.classList.remove("pulse-green");
+  if (mobileMenuIcon) mobileMenuIcon.classList.remove("pulse-orange", "pulse-green");
+  if (dropBackupText) dropBackupText.textContent = "Export Backup";
+  if (dropRestoreText) dropRestoreText.textContent = "Import Backup";
 
   if (isCloud) {
     // Set to CLOUD mode
@@ -620,12 +634,22 @@ function updateHeaderShortcutButtons() {
       
       restoreBtn.dataset.tooltip = `New cloud data! (Synced ${lastCloudSyncTimeString} elsewhere)`;
       backupBtn.dataset.tooltip = "Export to Cloud (Ctrl+E)";
+      
+      // Mobile UI
+      if (dropRestoreText) dropRestoreText.textContent = "Import Backup (New cloud data!)";
+      if (dropRestoreBtn) dropRestoreBtn.classList.add("pulse-green");
+      if (mobileMenuIcon) mobileMenuIcon.classList.add("pulse-green");
     } else if (window.currentCloudSyncStatus === "local_newer") {
       backupBtn.classList.add("pulse-orange");
       if (modalBackupBtn) modalBackupBtn.style.boxShadow = "0 0 0 2px var(--accent-primary)";
       
       backupBtn.dataset.tooltip = "Unsaved local changes! Export to save.";
       restoreBtn.dataset.tooltip = "Import from Cloud (Ctrl+I)";
+      
+      // Mobile UI
+      if (dropBackupText) dropBackupText.textContent = "Export Backup (Unsaved changes!)";
+      if (dropBackupBtn) dropBackupBtn.classList.add("pulse-orange");
+      if (mobileMenuIcon) mobileMenuIcon.classList.add("pulse-orange");
     } else {
       if (lastCloudSyncTimeString) {
         backupBtn.dataset.tooltip = `Export to Cloud (Fully synced: ${lastCloudSyncTimeString})`;
