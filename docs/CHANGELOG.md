@@ -151,6 +151,6 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 - **Pulsing Animation Tweaks**: Tweaked the CSS animation for out-of-sync cloud icons so that only the inner icon changes color, rather than scaling the entire button.
 - **Inline Calculator Adjustment**: Adjusted the positioning of the floating Math Toolbar to anchor tightly to the bottom-right of active input fields, accompanied by a clean drop-down animation.
 
-### 32. [Bugfix] Setup & Deletion Polishing (v5.156l)
+### 32. [Bugfix] Setup & Deletion Polishing (v5.157k)
 - **Data Deletion Logout**: Ensures that sliding to "Delete All Data" from the Settings menu now also seamlessly severs the cloud connection by logging the user out of their Google session.
 - **OAuth Race Condition Fix**: Refactored the core UI booting sequence to gracefully handle edge cases where the Supabase OAuth redirect would fire before the app UI had fully mounted, resulting in a blank dashboard screen during auto-restores. Using a localized intent flag ensures a completely seamless transition under a loading screen.
