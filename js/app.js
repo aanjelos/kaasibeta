@@ -18,6 +18,10 @@ function initializeUI(isRefresh = false) {
     state.settings.initialSetupDone === false
   ) {
     if (!isRefresh) {
+      if (localStorage.getItem("pendingCloudRestore") === "true") {
+        console.log("Pending cloud restore detected. Skipping initial render and waiting for restore...");
+        return;
+      }
       console.log("Initial setup not done. Opening wizard.");
       openInitialSetupWizard();
       return;
@@ -498,12 +502,37 @@ async function initializeSupabase() {
     if (user && (!state || !state.settings || !state.settings.initialSetupDone)) {
       if (typeof restoreFromSupabase === "function") {
         console.log("User signed in with incomplete setup, attempting auto-restore...");
-        await restoreFromSupabase(true);
+        try {
+          await restoreFromSupabase(true);
+        } finally {
+          localStorage.removeItem("pendingCloudRestore");
+        }
+        
         if (state && state.settings && state.settings.initialSetupDone) {
           if (typeof closeModal === "function") closeModal("initialSetupModal");
           if (typeof renderDashboard === "function") renderDashboard();
+        } else {
+          // If restore failed or user had no data, and setup is still incomplete
+          if (typeof openInitialSetupWizard === "function") {
+            console.log("Auto-restore did not complete setup. Opening wizard.");
+            openInitialSetupWizard();
+          }
         }
       }
+    } else {
+      localStorage.removeItem("pendingCloudRestore");
+      if (!state || !state.settings || !state.settings.initialSetupDone) {
+        if (typeof openInitialSetupWizard === "function") {
+          console.log("No user session found, opening setup wizard.");
+          openInitialSetupWizard();
+        }
+      }
+    }
+    
+    // Hide the preloader if it was kept visible for pending restore
+    if (typeof window.hidePreloader === "function") {
+      window.hidePreloader();
+      delete window.hidePreloader; // cleanup
     }
   };
 
@@ -805,22 +834,26 @@ async function signInWithGoogle() {
   if (!supabaseClient) return;
   console.log("Attempting Google Sign-In...");
   try {
+    // Set a flag to indicate we should automatically restore data upon returning
+    localStorage.setItem("pendingCloudRestore", "true");
+    
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
       options: {
         // You can add scopes here if needed, e.g., 'email profile'
-        // redirectTo: 'https://app.kaasi.com.lk' // Supabase uses the URL Config settings
+        // redirectTo: window.location.origin + window.location.pathname // usually automatic
       },
     });
     if (error) {
+      localStorage.removeItem("pendingCloudRestore");
       console.error("Error during Google sign-in:", error.message);
       showNotification(`Google Sign-In Error: ${error.message}`, "error");
     } else {
-      console.log("Sign-in data:", data);
-      // User will be redirected to Google, then back.
+      console.log("Google Sign-In initiated:", data);
     }
-  } catch (error) {
-    console.error("Exception during sign-in:", error);
+  } catch (err) {
+    localStorage.removeItem("pendingCloudRestore");
+    console.error("Exception during Google sign-in:", err);
     showNotification("An unexpected error occurred during sign-in.", "error");
   }
 }
@@ -1083,22 +1116,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const preloaderDuration = 1250; // Duration preloader is visible
 
   if (preloaderElement && appContentElement) {
-    console.log(
-      `Preloader will be shown for ${preloaderDuration / 1000} seconds.`
-    );
-
-    setTimeout(() => {
+    if (localStorage.getItem("pendingCloudRestore") === "true") {
+      console.log("Pending cloud restore detected. Keeping preloader visible until restore completes.");
+      // We attach a global helper to hide it later when restore finishes
+      window.hidePreloader = () => {
+        console.log("Manual trigger: Hiding preloader, showing app content.");
+        preloaderElement.classList.add("hidden");
+        appContentElement.classList.add("visible");
+        setTimeout(() => {
+          preloaderElement.style.display = "none";
+        }, 750);
+      };
+    } else {
       console.log(
-        "Preloader timer finished. Hiding preloader, showing app content."
+        `Preloader will be shown for ${preloaderDuration / 1000} seconds.`
       );
-      preloaderElement.classList.add("hidden");
-      appContentElement.classList.add("visible");
 
       setTimeout(() => {
-        preloaderElement.style.display = "none";
-        console.log("Preloader display set to 'none' after fade-out.");
-      }, 750); // Matches CSS transition duration for opacity
-    }, preloaderDuration);
+        console.log(
+          "Preloader timer finished. Hiding preloader, showing app content."
+        );
+        preloaderElement.classList.add("hidden");
+        appContentElement.classList.add("visible");
+
+        setTimeout(() => {
+          preloaderElement.style.display = "none";
+          console.log("Preloader display set to 'none' after fade-out.");
+        }, 750); // Matches CSS transition duration for opacity
+      }, preloaderDuration);
+    }
   } else {
     if (!preloaderElement) {
       console.error("Preloader element with ID 'preloader' not found.");
