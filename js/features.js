@@ -439,20 +439,20 @@ function renderInstallmentList() {
     `;
 
     const buttonsHtml = `
-        <div class="edit-btn-container flex items-center mt-1">
+        <div class="edit-btn-container flex items-center justify-end gap-x-4">
             ${
               i.monthsLeft > 0
                 ? `
-                <button class="link-style text-xs mr-3 accent-text hover:text-accent-hover" onclick="openEditInstallmentForm('${i.id}')">Edit</button>
-                <button class="link-style text-xs mr-3 text-income hover:opacity-80" onclick="payInstallmentMonth('${i.id}')">Pay</button>
+                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="text-sm text-income hover:opacity-80 focus:outline-none transition-opacity" onclick="payInstallmentMonth('${i.id}')" title="Pay Month"><i class="fas fa-credit-card"></i></button>
               `
                 : `
-                <button class="link-style text-xs mr-3 accent-text hover:text-accent-hover" onclick="openEditInstallmentForm('${i.id}')">Edit</button>
+                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
               `
             }
-            <button class="text-gray-500 hover:text-expense text-xs focus:outline-none" onclick="deleteInstallment('${
+            <button class="text-sm text-gray-500 hover:text-expense focus:outline-none transition-colors" onclick="deleteInstallment('${
               i.id
-            }')" title="Delete"><i class="fas fa-times"></i></button>
+            }')" title="Delete"><i class="fas fa-trash"></i></button>
         </div>
     `;
 
@@ -461,11 +461,11 @@ function renderInstallmentList() {
       <div class="flex-grow flex justify-between items-start ml-2">
           <div class="flex flex-col min-w-0 pr-2">
               <p class="text-sm md:text-base font-medium truncate mb-0.5">${i.description}</p>
-              <p class="text-[11px] md:text-xs text-gray-400 mb-1.5">${formatCurrency(i.monthlyAmount)} / month</p>
-              <p class="text-[11px] md:text-xs text-gray-500 truncate">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
+              <p class="text-[11px] md:text-xs text-gray-400 mb-1.5 tabular-nums">${formatCurrency(i.monthlyAmount)} / month</p>
+              <p class="text-[11px] md:text-xs text-gray-500 truncate tabular-nums">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
           </div>
           <div class="flex flex-col items-end flex-shrink-0">
-              <span class="text-xs md:text-sm font-semibold text-gray-200 mb-2.5 whitespace-nowrap">${formatCurrency(totalLeftToPay)} Left</span>
+              <span class="text-xs md:text-sm font-semibold text-gray-200 mb-2.5 whitespace-nowrap tabular-nums">${formatCurrency(totalLeftToPay)} Left</span>
               ${buttonsHtml}
           </div>
       </div>
