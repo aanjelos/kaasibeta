@@ -439,7 +439,7 @@ function renderInstallmentList() {
     `;
 
     const buttonsHtml = `
-        <div class="edit-btn-container flex items-center justify-end gap-x-4 flex-shrink-0">
+        <div class="edit-btn-container flex items-center justify-end gap-x-4">
             ${
               i.monthsLeft > 0
                 ? `
@@ -458,16 +458,14 @@ function renderInstallmentList() {
 
     div.innerHTML = `
       ${ringHtml}
-      <div class="flex-grow flex flex-col min-w-0">
-          <div class="flex justify-between items-start">
-              <div class="flex flex-col min-w-0 pr-2">
-                  <span class="text-sm md:text-base font-medium text-gray-200 truncate force-word-wrap block">${i.description}</span>
-                  <span class="text-[11px] md:text-xs text-gray-400 mt-0.5 tabular-nums block">${formatCurrency(i.monthlyAmount)} / month</span>
-              </div>
-              <span class="text-xs md:text-sm font-semibold text-gray-200 whitespace-nowrap tabular-nums pl-2">${formatCurrency(totalLeftToPay)} Left</span>
+      <div class="flex-grow flex justify-between items-start ml-2 min-w-0">
+          <div class="flex flex-col min-w-0 pr-2">
+              <p class="text-sm md:text-base font-medium truncate mb-0.5">${i.description}</p>
+              <p class="text-[11px] md:text-xs text-gray-400 mb-1.5 tabular-nums truncate">${formatCurrency(i.monthlyAmount)} / month</p>
+              <p class="text-[11px] md:text-xs text-gray-500 truncate tabular-nums">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
           </div>
-          <div class="flex justify-between items-end mt-2">
-              <span class="text-[11px] md:text-xs text-gray-500 truncate pr-2 tabular-nums block pb-0.5">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</span>
+          <div class="flex flex-col items-end flex-shrink-0">
+              <span class="text-xs md:text-sm font-semibold text-gray-200 mb-2.5 whitespace-nowrap tabular-nums">${formatCurrency(totalLeftToPay)} Left</span>
               ${buttonsHtml}
           </div>
       </div>
