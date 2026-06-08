@@ -636,7 +636,7 @@ function updateHeaderShortcutButtons() {
       backupBtn.dataset.tooltip = "Export to Cloud (Ctrl+E)";
       
       // Mobile UI
-      if (dropRestoreText) dropRestoreText.textContent = `Import Backup (New data! Synced ${lastCloudSyncTimeString} elsewhere)`;
+      if (dropRestoreText) dropRestoreText.textContent = `Import Backup (New: ${lastCloudSyncTimeString})`;
       if (dropRestoreBtn) dropRestoreBtn.classList.add("pulse-green");
       if (mobileMenuIcon) mobileMenuIcon.classList.add("pulse-green");
     } else if (window.currentCloudSyncStatus === "local_newer") {
@@ -647,13 +647,13 @@ function updateHeaderShortcutButtons() {
       restoreBtn.dataset.tooltip = "Import from Cloud (Ctrl+I)";
       
       // Mobile UI
-      if (dropBackupText) dropBackupText.textContent = "Export Backup (Unsaved changes!)";
+      if (dropBackupText) dropBackupText.textContent = "Export Backup (Unsaved changes)";
       if (dropBackupBtn) dropBackupBtn.classList.add("pulse-orange");
       if (mobileMenuIcon) mobileMenuIcon.classList.add("pulse-orange");
     } else {
       if (lastCloudSyncTimeString) {
         backupBtn.dataset.tooltip = `Export to Cloud (Fully synced: ${lastCloudSyncTimeString})`;
-        if (dropBackupText) dropBackupText.textContent = `Export Backup (Fully synced: ${lastCloudSyncTimeString})`;
+        if (dropBackupText) dropBackupText.textContent = `Export Backup (Synced: ${lastCloudSyncTimeString})`;
       } else {
         backupBtn.dataset.tooltip = "Export to Cloud (Ctrl+E)";
         if (dropBackupText) dropBackupText.textContent = "Export Backup";
