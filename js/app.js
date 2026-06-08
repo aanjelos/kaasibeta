@@ -696,28 +696,30 @@ async function fetchAndUpdateLastCloudSyncTime() {
       lastCloudSyncTimeString = "Never";
     } else {
       const date = new Date(data.updated_at);
-      
       const now = new Date();
       const diffMs = now - date;
-      const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
-      const diffDays = Math.floor(diffHrs / 24);
+      const diffMins = Math.floor(diffMs / (1000 * 60));
       
-      let relativeStr = "";
-      if (diffHrs < 1) {
-        const diffMins = Math.floor(diffMs / (1000 * 60));
-        relativeStr = diffMins <= 1 ? "Just now" : `${diffMins} mins ago`;
-      } else if (diffHrs < 24) {
-        relativeStr = `${diffHrs} ${diffHrs === 1 ? 'hr' : 'hrs'} ago`;
-      } else if (diffDays === 1) {
-        relativeStr = "Yesterday";
-      } else if (diffDays < 7) {
-        relativeStr = `${diffDays} days ago`;
+      const formattedTime = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }).toUpperCase();
+      let formatted = "";
+      
+      if (diffMins <= 1) {
+        formatted = "Just now";
       } else {
-        relativeStr = date.toLocaleDateString();
+        const isToday = date.toDateString() === now.toDateString();
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        const isYesterday = date.toDateString() === yesterday.toDateString();
+        
+        if (isToday) {
+          formatted = `Today at ${formattedTime}`;
+        } else if (isYesterday) {
+          formatted = `Yesterday at ${formattedTime}`;
+        } else {
+          formatted = `${date.toLocaleDateString()} at ${formattedTime}`;
+        }
       }
-
-      const formatted = `${relativeStr} at ${date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })}`;
-      if (timeEl) timeEl.textContent = `Last backed up: ${formatted}`;
+      
       lastCloudSyncTimeString = formatted;
       
       // --- NEW: Smart Contextual Sync Status ---
@@ -733,6 +735,14 @@ async function fetchAndUpdateLastCloudSyncTime() {
         window.currentCloudSyncStatus = "local_newer";
       }
       // --- END NEW ---
+      
+      if (timeEl) {
+        if (window.currentCloudSyncStatus === "cloud_newer") {
+          timeEl.textContent = `Last backed up: ${formatted} (elsewhere)`;
+        } else {
+          timeEl.textContent = `Last backed up: ${formatted}`;
+        }
+      }
     }
     
     updateHeaderShortcutButtons();
