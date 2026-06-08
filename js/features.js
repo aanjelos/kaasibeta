@@ -482,7 +482,7 @@ function renderInstallmentList() {
                   <p class="text-[11px] text-gray-500 truncate tabular-nums">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
               </div>
           </div>
-          <div class="flex flex-row justify-between items-center w-full border-t border-gray-500/30 pt-3 mt-3">
+          <div class="flex flex-row justify-between items-center w-full border-t border-gray-600 pt-3 mt-3">
               <span class="text-xs font-semibold text-gray-200 whitespace-nowrap tabular-nums">${formatCurrency(totalLeftToPay)} Left</span>
               ${buttonsHtml}
           </div>
