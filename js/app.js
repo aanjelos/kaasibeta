@@ -563,6 +563,8 @@ function updateSupabaseUI(user) {
     shortcutCloudInput.checked = true;
     shortcutLocalInput.checked = false;
     // --- END NEW ---
+    
+    fetchAndUpdateLastCloudSyncTime();
   } else {
     // User is logged OUT
     loggedOutView.classList.remove("hidden");
@@ -604,24 +606,20 @@ function updateHeaderShortcutButtons() {
 
   if (isCloud) {
     // Set to CLOUD mode
-    // backupBtn.innerHTML = 'Backup'; // No longer changing text
-    // backupBtn.className = "btn btn-primary mr-2"; // No longer changing class
-    backupBtn.dataset.tooltip = "Export to Cloud (Ctrl+E)";
+    if (lastCloudSyncTimeString) {
+      backupBtn.dataset.tooltip = `Export to Cloud (Last synced: ${lastCloudSyncTimeString})`;
+    } else {
+      backupBtn.dataset.tooltip = "Export to Cloud (Ctrl+E)";
+    }
     backupBtn.onclick = backupToSupabase; // Assign cloud backup function
 
-    // restoreBtn.innerHTML = 'Restore'; // No longer changing text
-    // restoreBtn.className = "btn btn-secondary mr-2"; // No longer changing class
     restoreBtn.dataset.tooltip = "Import from Cloud (Ctrl+I)";
     restoreBtn.onclick = restoreFromSupabase; // Assign cloud restore function
   } else {
     // Set to LOCAL mode (default)
-    // backupBtn.innerHTML = 'Exp.'; // No longer changing text
-    // backupBtn.className = "btn btn-secondary mr-2"; // No longer changing class
     backupBtn.dataset.tooltip = "Export Local File (Ctrl+E)";
     backupBtn.onclick = exportData; // Assign local export function
 
-    // restoreBtn.innerHTML = 'Imp.'; // No longer changing text
-    // restoreBtn.className = "btn btn-secondary mr-2"; // No longer changing class
     restoreBtn.dataset.tooltip = "Import Local File (Ctrl+I)";
     restoreBtn.onclick = () => {
       // For restore, we need to find the correct data tab and click the hidden input
@@ -650,6 +648,62 @@ function updateHeaderShortcutButtons() {
         }
       }
     };
+  }
+}
+
+let lastCloudSyncTimeString = "";
+
+/**
+ * Fetches the last updated timestamp from Supabase and updates the UI and tooltips.
+ */
+async function fetchAndUpdateLastCloudSyncTime() {
+  if (!supabaseUser || !supabaseClient) return;
+
+  const timeEl = $("#lastCloudBackupTime");
+  if (timeEl) timeEl.textContent = "Last backed up: Fetching...";
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("user_data")
+      .select("updated_at")
+      .eq("user_id", supabaseUser.id)
+      .single();
+
+    if (error || !data || !data.updated_at) {
+      if (timeEl) timeEl.textContent = "Last backed up: Never";
+      lastCloudSyncTimeString = "Never";
+    } else {
+      const date = new Date(data.updated_at);
+      
+      const now = new Date();
+      const diffMs = now - date;
+      const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffDays = Math.floor(diffHrs / 24);
+      
+      let relativeStr = "";
+      if (diffHrs < 1) {
+        const diffMins = Math.floor(diffMs / (1000 * 60));
+        relativeStr = diffMins <= 1 ? "Just now" : `${diffMins} mins ago`;
+      } else if (diffHrs < 24) {
+        relativeStr = `${diffHrs} ${diffHrs === 1 ? 'hr' : 'hrs'} ago`;
+      } else if (diffDays === 1) {
+        relativeStr = "Yesterday";
+      } else if (diffDays < 7) {
+        relativeStr = `${diffDays} days ago`;
+      } else {
+        relativeStr = date.toLocaleDateString();
+      }
+
+      const formatted = `${relativeStr} at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      if (timeEl) timeEl.textContent = `Last backed up: ${formatted}`;
+      lastCloudSyncTimeString = formatted;
+    }
+    
+    updateHeaderShortcutButtons();
+  } catch (err) {
+    console.error("Failed to fetch last backup time", err);
+    if (timeEl) timeEl.textContent = "Last backed up: Unknown";
+    lastCloudSyncTimeString = "";
   }
 }
 
@@ -752,6 +806,9 @@ async function backupToSupabase() {
       `Cloud backup successful! (Last sync: ${backupTime})`,
       "success"
     );
+    
+    // Refresh the UI timestamp and tooltips
+    fetchAndUpdateLastCloudSyncTime();
   } catch (error) {
     console.error("Exception during backup:", error);
     showNotification(`Cloud backup failed: ${error.message}`, "error", 7000);
