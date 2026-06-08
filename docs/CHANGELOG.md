@@ -124,12 +124,20 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
   - **Credit Card Polish**: Adjusted the visual presentation of Credit Cards to align with the rest of the application by integrating dynamic circular progress rings.
   - **UX Consistency**: Standardized interaction icons across the board. The 'Edit' button across the app (Installments, Credit Cards, Transactions) is now a muted grey (`fa-edit`), the 'Delete' button utilizes a soft X (`fa-times`), and the 'Pay' buttons use a standard green card icon (`fa-credit-card`).
   - **Natural Language**: Implemented dynamic string pluralization across Installments, Debts, and Receivables (e.g., smoothly alternating between "1 day left" and "5 days left" instead of the hardcoded "day(s)").
-- **Scope**: Layout structural rewrites in `features.js`, dynamic string functions updated, layout classes compiled. Bumped version to `v5.138k` with service worker cache `v46`. 
- 
+- **Scope**: Layout structural rewrites in `features.js`, dynamic string functions updated, layout classes compiled. Bumped version to `v5.138k` with service worker cache `v46`. 
+ 
 ### 25. [Feature] Advanced Search & Filters (v5.143k)
 - **Description**: Added a robust set of advanced filtering tools within the All Transactions modal. Users can now open an accordion panel to filter their transaction history by custom date ranges, type (Income/Expense), category, and min/max amount ranges. The filters dynamically update the list in real-time, and UI elements cleanly highlight when active. Layout elegantly collapses to single-column on mobile phones and expands to a 3-column structured layout on desktop/tablet to properly accommodate all inputs.
-- **Scope**: Layout structural additions in index.html, real-time filter engine heavily refactored in eatures.js, reset mechanics implemented in pp.js. Bumped version to 5.143k with service worker cache 47.
+- **Scope**: Layout structural additions in `index.html`, real-time filter engine heavily refactored in `features.js`, reset mechanics implemented in `app.js`. Bumped version to `v5.143k` with service worker cache `v47`.
 
 ### 26. [Feature] Advanced Category Multi-Select Filter (v5.150k)
 - **Description**: Replaced the native Category dropdown inside Advanced Filters with a custom multi-select UI. Users can now check/uncheck multiple categories simultaneously, allowing for far more flexible transaction filtering. The dropdown incorporates intelligent toggling (e.g., selecting specific items unchecks the 'All Categories' master switch, and checking 'All Categories' clears specific selections), while dynamically updating the button label to reflect the current selection count.
-- **Scope**: Replaced native select with custom HTML dropdown in index.html. Added dynamic rendering pipeline via populateFilterCategories in globals.js. Authored dropdown behavior logic in pp.js and modified real-time filtering engine in eatures.js to process arrays instead of strings. Bumped version to 5.150k with service worker cache 48.
+- **Scope**: Replaced native select with custom HTML dropdown in `index.html`. Added dynamic rendering pipeline via populateFilterCategories in `globals.js`. Authored dropdown behavior logic in `app.js` and modified real-time filtering engine in `features.js` to process arrays instead of strings. Bumped version to `v5.150k` with service worker cache `v48`.
+
+### 27. [UX] Responsive Tabs & Auto-Scroll (v5.152k)
+- **Description**: Added intelligent auto-scrolling to the scrollable tabs in the All Transactions modal and Settings panel. When a tab becomes active, it now automatically and smoothly scrolls into the center of the viewport. Additionally, updated the All Transactions month tabs to render the full month name (e.g., "January") on mobile screens and snap back to the abbreviated name ("Jan") on larger screens to better indicate horizontal scrollability.
+- **Scope**: Implemented `scrollIntoView` logic and Tailwind responsive classes (`md:hidden`, `md:inline`) in `features.js` and `ui.js`. 
+
+### 28. [Feature] Privacy-Preserving DAU Analytics (v5.153k)
+- **Description**: Enhanced the Google Analytics 4 (GA4) implementation by adding explicit `app_opened` and `app_returned` (via the Page Visibility API) custom events. This allows for highly accurate Daily Active User (DAU) tracking for the offline PWA without relying exclusively on automatic engagement metrics, perfectly preserving user privacy.
+- **Scope**: Added event tracking logic to `app.js`. Bumped version to `v5.153k` with service worker cache `v49`.
