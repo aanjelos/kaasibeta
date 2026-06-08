@@ -659,11 +659,11 @@
               <!-- Category (Multi-Select) -->
               <div class="flex flex-col gap-1 md:col-span-1 relative" id="filterCategoryContainer">
                 <label class="text-xs text-gray-400">Category</label>
-                <button type="button" id="filterCategoryBtn" class="w-full text-sm px-2 py-1 flex justify-between items-center text-left bg-transparent border-b border-gray-600 hover:border-gray-400 transition-colors min-h-[28px]">
-                  <span id="filterCategoryBtnText" class="truncate pr-2">All Categories</span>
+                <button type="button" id="filterCategoryBtn" class="w-full text-sm px-2 py-1 flex justify-between items-center text-left transition-colors focus:outline-none" style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 0.375rem; min-height: calc(1.25rem + (0.7rem * 2) + 2px);">
+                  <span id="filterCategoryBtnText" class="truncate pr-2 text-gray-200">All Categories</span>
                   <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
                 </button>
-                <div id="filterCategoryDropdown" class="absolute top-full left-0 mt-1 w-full z-50 hidden bg-gray-800 border border-gray-600 rounded shadow-lg max-h-48 overflow-y-auto custom-scrollbar flex flex-col p-1">
+                <div id="filterCategoryDropdown" class="absolute top-full left-0 mt-1 w-full z-50 hidden border border-gray-600 rounded shadow-lg max-h-48 overflow-y-auto custom-scrollbar flex flex-col p-1" style="background-color: var(--bg-secondary);">
                   <!-- Checkboxes populated dynamically via populateFilterCategories() -->
                 </div>
               </div>

@@ -1004,11 +1004,17 @@ function populateDropdowns() {
 
     // Add "All Categories" option at the top
     const allLabel = document.createElement("label");
-    allLabel.className = "flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 cursor-pointer rounded text-sm text-gray-200 border-b border-gray-700 pb-2 mb-1";
+    allLabel.className = "group flex items-center gap-3 px-2 py-2 hover:bg-white/5 cursor-pointer rounded text-sm text-gray-200 border-b border-gray-700/50 pb-2 mb-1 transition-colors";
     
     // Determine if "All" should be checked: if no specific categories were previously checked
     const isAllChecked = checkedCategories.size === 0;
-    allLabel.innerHTML = `<input type="checkbox" id="filterCategoryAll" value="all" class="rounded bg-gray-900 border-gray-600 text-blue-500 focus:ring-blue-500" ${isAllChecked ? "checked" : ""}> All Categories`;
+    allLabel.innerHTML = `
+      <input type="checkbox" id="filterCategoryAll" value="all" class="peer sr-only" ${isAllChecked ? "checked" : ""}>
+      <div class="w-4 h-4 rounded border border-gray-500 peer-checked:bg-gray-500 peer-checked:border-gray-500 flex items-center justify-center transition-colors">
+        <svg class="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+      </div>
+      <span>All Categories</span>
+    `;
     filterDropdownMenu.appendChild(allLabel);
 
     const generalCategories = state.categories.filter(
@@ -1019,9 +1025,15 @@ function populateDropdowns() {
 
     generalCategories.forEach((c) => {
       const label = document.createElement("label");
-      label.className = "flex items-center gap-2 px-2 py-1 hover:bg-gray-700 cursor-pointer rounded text-sm text-gray-300";
+      label.className = "group flex items-center gap-3 px-2 py-1.5 hover:bg-white/5 cursor-pointer rounded text-sm text-gray-300 transition-colors";
       const isChecked = checkedCategories.has(c);
-      label.innerHTML = `<input type="checkbox" value="${c}" class="filter-category-checkbox rounded bg-gray-900 border-gray-600 text-blue-500 focus:ring-blue-500" ${isChecked ? "checked" : ""}> ${c}`;
+      label.innerHTML = `
+        <input type="checkbox" value="${c}" class="peer sr-only filter-category-checkbox" ${isChecked ? "checked" : ""}>
+        <div class="w-4 h-4 rounded border border-gray-500 peer-checked:bg-gray-500 peer-checked:border-gray-500 flex items-center justify-center transition-colors">
+          <svg class="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <span>${c}</span>
+      `;
       filterDropdownMenu.appendChild(label);
     });
   }
