@@ -439,18 +439,18 @@ function renderInstallmentList() {
     `;
 
     const buttonsHtml = `
-        <div class="edit-btn-container">
+        <div class="edit-btn-container flex items-center mt-1">
             ${
               i.monthsLeft > 0
                 ? `
-                <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
-                <button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="payInstallmentMonth('${i.id}')" title="Pay Month"><i class="fas fa-credit-card"></i></button>
+                <button class="link-style text-xs mr-3 accent-text hover:text-accent-hover" onclick="openEditInstallmentForm('${i.id}')">Edit</button>
+                <button class="link-style text-xs mr-3 text-income hover:opacity-80" onclick="payInstallmentMonth('${i.id}')">Pay</button>
               `
                 : `
-                <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="link-style text-xs mr-3 accent-text hover:text-accent-hover" onclick="openEditInstallmentForm('${i.id}')">Edit</button>
               `
             }
-            <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteInstallment('${
+            <button class="text-gray-500 hover:text-expense text-xs focus:outline-none" onclick="deleteInstallment('${
               i.id
             }')" title="Delete"><i class="fas fa-times"></i></button>
         </div>
