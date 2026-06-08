@@ -138,3 +138,9 @@ Introduced a sophisticated "Out of Sync" detection system for Cloud Backups with
 - **New Cloud Data Detection**: If the cloud contains newer data (e.g., synced from a phone), the "Import from Cloud" buttons turn green and pulse, with tooltips warning the user to pull the latest changes.
 - **Unsaved Local Changes**: If the user adds expenses locally but forgets to back them up, the "Export to Cloud" buttons glow Kaasi orange, reminding them to push their changes.
 - **Timestamp Display**: The exact human-readable timestamp of the last cloud sync is now cleanly displayed within the Settings panel and injected directly into the header button tooltips to provide instant peace of mind.
+
+### 30. [Enhancement] Mobile Cloud Sync UI Polish (v5.155k)
+Refined the mobile experience for the new contextual Cloud Sync UI:
+- **Hamburger Menu Integration**: The core menu button now actively pulses (orange or green) to alert mobile users of their out-of-sync status before they even open the menu.
+- **Dynamic Dropdown Text**: Mobile dropdown labels now actively switch states and dynamically print simplified sync timestamps (e.g., \Import Backup (New: Today at 12:23 AM)\) to provide instant clarity without breaking UI bounds.
+- **Time Formatting**: Fully overhauled timestamp formatting app-wide to use intuitive \Today / Yesterday at X:XX AM\ outputs instead of bulky absolute dates, significantly improving human readability.
