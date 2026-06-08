@@ -1010,3 +1010,19 @@ document.addEventListener("click", (e) => {
     }
   }
 });
+
+
+// --- DAU Analytics Tracking ---
+// Track explicit app open (useful for PWA/Offline DAU metrics)
+if (typeof trackEvent === 'function') {
+  trackEvent('app_opened', 'Engagement');
+}
+
+// Track when a user returns to the app from the background
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    if (typeof trackEvent === 'function') {
+      trackEvent('app_returned', 'Engagement');
+    }
+  }
+});
