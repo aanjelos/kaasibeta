@@ -397,6 +397,15 @@ function openInitialSetupWizard() {
   };
   $("#setupImportInput").onchange = handleSetupImport;
 
+  const cloudLoginBtn = $("#setupCloudLoginBtn");
+  if (cloudLoginBtn) {
+    cloudLoginBtn.onclick = () => {
+      if (typeof signInWithGoogle === "function") {
+        signInWithGoogle();
+      }
+    };
+  }
+
   modal.style.display = "block";
   displayAppVersion();
 }

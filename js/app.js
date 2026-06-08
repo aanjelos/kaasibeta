@@ -495,11 +495,26 @@ async function initializeSupabase() {
   console.log("Checking Supabase auth state...");
 
   // Handle auth state changes (e.g., login, logout)
-  supabaseClient.auth.onAuthStateChange((event, session) => {
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
     console.log("Supabase auth state changed:", event, session);
     const user = session?.user || null;
     supabaseUser = user;
     updateSupabaseUI(user);
+    
+    // Auto-restore if user logs in during initial setup
+    if (event === "SIGNED_IN" && (!state || !state.isSetupComplete)) {
+      if (typeof restoreFromSupabase === "function") {
+        console.log("User signed in during setup, attempting auto-restore...");
+        const setupModal = $("#initialSetupModal");
+        if (setupModal && setupModal.style.display === "block") {
+          await restoreFromSupabase(true);
+          if (state && state.isSetupComplete) {
+            if (typeof closeModal === "function") closeModal("initialSetupModal");
+            if (typeof renderDashboard === "function") renderDashboard();
+          }
+        }
+      }
+    }
   });
 
   // Check for initial session
@@ -906,7 +921,7 @@ async function backupToSupabase() {
 /**
  * Restores the 'state' object from Supabase, overwriting local data.
  */
-async function restoreFromSupabase() {
+async function restoreFromSupabase(force = false) {
   if (!supabaseUser) {
     showNotification(
       "You must be logged in to restore from the cloud.",
@@ -915,20 +930,16 @@ async function restoreFromSupabase() {
     return;
   }
 
-  // Show a confirmation modal first
-  showConfirmationModal(
-    "Restore from Cloud",
-    "This will <strong class='text-warning'>OVERWRITE ALL</strong> your current local data with the data from your last cloud backup.<br><br>Are you sure you want to proceed?",
-    "Restore & Overwrite",
-    "Cancel",
-    async () => {
-      // onConfirm: Proceed with restore
-      console.log("Starting cloud restore...");
+  const doRestore = async () => {
+    // onConfirm: Proceed with restore
+    console.log("Starting cloud restore...");
 
-      const restoreBtn = $("#restoreFromSupabaseBtn");
-      const originalText = restoreBtn.innerHTML;
+    const restoreBtn = $("#restoreFromSupabaseBtn");
+    const originalText = restoreBtn ? restoreBtn.innerHTML : "Restore";
+    if (restoreBtn) {
       restoreBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Restoring...`;
       restoreBtn.disabled = true;
+    }
 
       try {
         // ** THE FIX IS HERE: .order(...).limit(1) **
@@ -1006,15 +1017,29 @@ async function restoreFromSupabase() {
           7000
         );
       } finally {
-        restoreBtn.innerHTML = originalText;
-        restoreBtn.disabled = false;
+        if (restoreBtn) {
+          restoreBtn.innerHTML = originalText;
+          restoreBtn.disabled = false;
+        }
       }
-    },
-    () => {
-      // onCancel: Do nothing
-      console.log("Cloud restore cancelled by user.");
-    }
-  );
+  };
+
+  if (force) {
+    await doRestore();
+  } else {
+    // Show a confirmation modal first
+    showConfirmationModal(
+      "Restore from Cloud",
+      "This will <strong class='text-warning'>OVERWRITE ALL</strong> your current local data with the data from your last cloud backup.<br><br>Are you sure you want to proceed?",
+      "Restore & Overwrite",
+      "Cancel",
+      doRestore,
+      () => {
+        // onCancel: Do nothing
+        console.log("Cloud restore cancelled by user.");
+      }
+    );
+  }
 }
 
 // --- END NEW SUPABASE FUNCTIONS ---
