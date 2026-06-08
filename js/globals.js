@@ -610,6 +610,21 @@ function saveData() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     localStorage.setItem("lastLocalDataModification", Date.now().toString());
+    
+    // --- NEW: Refresh cloud sync UI status when local data is modified ---
+    // Update window.currentCloudSyncStatus to local_newer immediately
+    const lastLocalCloudSync = parseInt(localStorage.getItem("lastLocalCloudSync") || "0", 10);
+    const lastLocalDataModification = Date.now();
+    if (lastLocalDataModification > lastLocalCloudSync + 2000) {
+      if (window.currentCloudSyncStatus === "synced") {
+         window.currentCloudSyncStatus = "local_newer";
+      }
+    }
+    if (typeof updateHeaderShortcutButtons === "function") {
+      updateHeaderShortcutButtons();
+    }
+    // --- END NEW ---
+    
     console.log("Data saved successfully.");
   } catch (e) {
     console.error("Error saving data to localStorage:", e);

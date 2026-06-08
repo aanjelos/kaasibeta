@@ -1887,3 +1887,18 @@ footer a[href^="https://kaasi.com.lk"]:hover
     padding-top: max(1.5rem, calc(env(safe-area-inset-top, 0px) + 0px)) !important;
   }
 }
+
+.pulse-animation {
+  animation: genericPulse 2s infinite ease-in-out;
+}
+
+@keyframes genericPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}

@@ -606,23 +606,25 @@ function updateHeaderShortcutButtons() {
 
   if (isCloud) {
     // Set to CLOUD mode
-    backupBtn.classList.remove("text-[var(--accent-primary)]", "animate-pulse");
-    restoreBtn.classList.remove("text-green-500", "animate-pulse");
+    backupBtn.style.color = "";
+    restoreBtn.style.color = "";
+    restoreBtn.classList.remove("pulse-animation");
     
     const modalBackupBtn = $("#backupToSupabaseBtn");
     const modalRestoreBtn = $("#restoreFromSupabaseBtn");
-    if (modalBackupBtn) modalBackupBtn.classList.remove("ring-2", "ring-[var(--accent-primary)]");
-    if (modalRestoreBtn) modalRestoreBtn.classList.remove("ring-2", "ring-green-500", "animate-pulse");
+    if (modalBackupBtn) modalBackupBtn.style.boxShadow = "";
+    if (modalRestoreBtn) modalRestoreBtn.style.boxShadow = "";
 
     if (window.currentCloudSyncStatus === "cloud_newer") {
-      restoreBtn.classList.add("text-green-500", "animate-pulse");
-      if (modalRestoreBtn) modalRestoreBtn.classList.add("ring-2", "ring-green-500", "animate-pulse");
+      restoreBtn.style.color = "var(--success-indicator-color)";
+      restoreBtn.classList.add("pulse-animation");
+      if (modalRestoreBtn) modalRestoreBtn.style.boxShadow = "0 0 0 2px var(--success-indicator-color)";
       
       restoreBtn.dataset.tooltip = `New cloud data! (Synced ${lastCloudSyncTimeString} elsewhere)`;
       backupBtn.dataset.tooltip = "Export to Cloud (Ctrl+E)";
     } else if (window.currentCloudSyncStatus === "local_newer") {
-      backupBtn.classList.add("text-[var(--accent-primary)]");
-      if (modalBackupBtn) modalBackupBtn.classList.add("ring-2", "ring-[var(--accent-primary)]");
+      backupBtn.style.color = "var(--accent-primary)";
+      if (modalBackupBtn) modalBackupBtn.style.boxShadow = "0 0 0 2px var(--accent-primary)";
       
       backupBtn.dataset.tooltip = "Unsaved local changes! Export to save.";
       restoreBtn.dataset.tooltip = "Import from Cloud (Ctrl+I)";
@@ -716,23 +718,20 @@ async function fetchAndUpdateLastCloudSyncTime() {
         relativeStr = date.toLocaleDateString();
       }
 
-      const formatted = `${relativeStr} at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      const formatted = `${relativeStr} at ${date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })}`;
       if (timeEl) timeEl.textContent = `Last backed up: ${formatted}`;
       lastCloudSyncTimeString = formatted;
       
       // --- NEW: Smart Contextual Sync Status ---
+      const lastSyncedCloudUpdatedAt = localStorage.getItem("lastSyncedCloudUpdatedAt");
       const lastLocalCloudSync = parseInt(localStorage.getItem("lastLocalCloudSync") || "0", 10);
       const lastLocalDataModification = parseInt(localStorage.getItem("lastLocalDataModification") || "0", 10);
-      const cloudTimeMs = date.getTime();
-      
-      // Allow a 5 second clock skew buffer
-      const bufferMs = 5000;
       
       window.currentCloudSyncStatus = "synced";
       
-      if (cloudTimeMs > lastLocalCloudSync + bufferMs) {
+      if (data.updated_at !== lastSyncedCloudUpdatedAt && lastSyncedCloudUpdatedAt) {
         window.currentCloudSyncStatus = "cloud_newer";
-      } else if (lastLocalDataModification > lastLocalCloudSync + bufferMs) {
+      } else if (lastLocalDataModification > lastLocalCloudSync + 2000) {
         window.currentCloudSyncStatus = "local_newer";
       }
       // --- END NEW ---
@@ -843,6 +842,7 @@ async function backupToSupabase() {
       : "just now";
       
     // --- NEW: Sync Timestamps ---
+    if (data.updated_at) localStorage.setItem("lastSyncedCloudUpdatedAt", data.updated_at);
     const now = Date.now().toString();
     localStorage.setItem("lastLocalCloudSync", now);
     localStorage.setItem("lastLocalDataModification", now);
@@ -944,6 +944,7 @@ async function restoreFromSupabase() {
         initializeUI(true);
 
         // --- NEW: Sync Timestamps ---
+        if (data.updated_at) localStorage.setItem("lastSyncedCloudUpdatedAt", data.updated_at);
         const now = Date.now().toString();
         localStorage.setItem("lastLocalCloudSync", now);
         localStorage.setItem("lastLocalDataModification", now);
