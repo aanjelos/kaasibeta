@@ -419,11 +419,10 @@ function renderInstallmentList() {
         : 0;
 
     const div = document.createElement("div");
-    div.className =
-      "p-3 rounded bg-gray-700/50 text-sm mb-2 flex items-center gap-x-3";
+    div.className = "p-3 rounded bg-gray-700/50 mb-2";
 
     const ringHtml = `
-      <div class="installment-progress-ring-container w-10 h-10 flex-shrink-0" title="${progressPercent.toFixed(
+      <div class="installment-progress-ring-container w-10 h-10 flex-shrink-0 mt-0.5" title="${progressPercent.toFixed(
         0
       )}% Paid (${i.monthsLeft} months left)">
           <svg class="w-full h-full" viewBox="0 0 36 36">
@@ -439,7 +438,7 @@ function renderInstallmentList() {
     `;
 
     const buttonsHtml = `
-        <div class="edit-btn-container flex items-center justify-end gap-x-4 mt-auto">
+        <div class="edit-btn-container flex items-center justify-end gap-x-4">
             ${
               i.monthsLeft > 0
                 ? `
@@ -457,16 +456,22 @@ function renderInstallmentList() {
     `;
 
     div.innerHTML = `
-      ${ringHtml}
-      <div class="flex-grow flex justify-between items-stretch ml-3">
-          <div class="flex flex-col min-w-0 pr-2">
-              <p class="text-sm md:text-base font-medium truncate mb-0.5">${i.description}</p>
-              <p class="text-[11px] md:text-xs text-gray-400 mb-1.5">${formatCurrency(i.monthlyAmount)} / month</p>
-              <p class="text-[11px] md:text-xs text-gray-500 truncate">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
-          </div>
-          <div class="flex flex-col justify-between items-end flex-shrink-0">
-              <span class="text-xs md:text-sm font-semibold text-gray-200 whitespace-nowrap mb-2">${formatCurrency(totalLeftToPay)} Left</span>
-              ${buttonsHtml}
+      <div class="flex items-start">
+          ${ringHtml}
+          <div class="flex-grow ml-3 min-w-0">
+              <div class="flex justify-between items-start mb-2.5 gap-x-2">
+                  <div class="flex flex-col min-w-0">
+                      <p class="text-sm md:text-base font-medium truncate mb-0.5">${i.description}</p>
+                      <p class="text-[11px] md:text-xs text-gray-400 tabular-nums">${formatCurrency(i.monthlyAmount)} / month</p>
+                  </div>
+                  <div class="flex-shrink-0 text-right mt-0.5">
+                      <span class="text-xs md:text-sm font-semibold text-gray-200 whitespace-nowrap tabular-nums">${formatCurrency(totalLeftToPay)} Left</span>
+                  </div>
+              </div>
+              <div class="flex justify-between items-center border-t border-gray-600/50 pt-2.5">
+                  <p class="text-[11px] md:text-xs text-gray-500 truncate pr-2 tabular-nums">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
+                  ${buttonsHtml}
+              </div>
           </div>
       </div>
     `;
