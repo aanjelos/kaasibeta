@@ -161,13 +161,14 @@ function renderDebtList() {
         const daysLeft = getDaysLeft(d.dueDate);
         let daysText, daysColor;
         if (daysLeft < 0) {
-          daysText = `Overdue by ${Math.abs(daysLeft)} day(s)`;
+          const absDays = Math.abs(daysLeft);
+          daysText = `Overdue by ${absDays} day${absDays === 1 ? '' : 's'}`;
           daysColor = "text-expense font-medium";
         } else if (daysLeft === 0) {
           daysText = `Due Today`;
           daysColor = "text-warning font-medium";
         } else {
-          daysText = `${daysLeft} day(s) left`;
+          daysText = `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`;
           daysColor = "text-gray-300";
         }
 
@@ -411,7 +412,7 @@ function renderInstallmentList() {
     let daysLeftText =
       daysLeft < 0
         ? `<span class="text-gray-500">Finished</span>`
-        : `${daysLeft} day(s) left`;
+        : `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`;
     const totalLeftToPay = i.monthlyAmount * i.monthsLeft;
     const progressPercent =
       i.totalMonths > 0
