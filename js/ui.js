@@ -1734,6 +1734,12 @@ function switchSettingsTab(clickedButton, targetPanelId) {
   }
 
   clickedButton.classList.add("active");
+  
+  // Scroll the active tab into view (centered)
+  setTimeout(() => {
+    clickedButton.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }, 10);
+
   const targetPanel = document.getElementById(targetPanelId);
   if (targetPanel) {
     targetPanel.classList.remove("hidden");

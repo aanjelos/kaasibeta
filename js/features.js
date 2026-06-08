@@ -1306,6 +1306,11 @@ function renderMonthTabs(year) {
       button.classList.add("active");
       button.setAttribute("data-logically-active", "true");
       
+      // Scroll the active tab into view (centered)
+      setTimeout(() => {
+        button.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }, 10);
+      
       // Reset search and advanced filters when a tab is clicked
       if (typeof window.resetAdvancedFiltersAndSearch === "function") {
         window.resetAdvancedFiltersAndSearch(false);
