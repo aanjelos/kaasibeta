@@ -1350,7 +1350,18 @@ function renderMonthlyDetails(
   const filterStartDate = $("#filterStartDate")?.value;
   const filterEndDate = $("#filterEndDate")?.value;
   const filterType = $("#filterType")?.value || "all";
-  const filterCategory = $("#filterCategory")?.value || "all";
+  // Multi-Select Category Extraction
+  const filterCategoryDropdown = $("#filterCategoryDropdown");
+  let selectedCategories = new Set();
+  let isAllCategories = true;
+  if (filterCategoryDropdown) {
+    const allCheckbox = filterCategoryDropdown.querySelector("#filterCategoryAll");
+    if (!allCheckbox || !allCheckbox.checked) {
+      isAllCategories = false;
+      const checkedBoxes = filterCategoryDropdown.querySelectorAll(".filter-category-checkbox:checked");
+      checkedBoxes.forEach(cb => selectedCategories.add(cb.value));
+    }
+  }
   const filterMinAmount = $("#filterMinAmount")?.value;
   const filterMaxAmount = $("#filterMaxAmount")?.value;
   
@@ -1362,7 +1373,7 @@ function renderMonthlyDetails(
   const isCustomDate = (filterStartDate && filterStartDate !== defaultStartDate) || 
                        (filterEndDate && filterEndDate !== defaultEndDate);
 
-  const hasAdvancedFilters = isCustomDate || filterType !== "all" || filterCategory !== "all" || filterMinAmount || filterMaxAmount;
+  const hasAdvancedFilters = isCustomDate || filterType !== "all" || !isAllCategories || filterMinAmount || filterMaxAmount;
   const toggleBtn = $("#toggleAdvancedFiltersBtn");
   if (toggleBtn) {
     if (hasAdvancedFilters) {
@@ -1419,7 +1430,7 @@ function renderMonthlyDetails(
     if (filterType !== "all" && t.type !== filterType) return false;
 
     // 3. Category Check
-    if (filterCategory !== "all" && t.category !== filterCategory) return false;
+    if (!isAllCategories && !selectedCategories.has(t.category)) return false;
 
     // 4. Amount Check
     if (filterMinAmount && t.amount < parseFloat(filterMinAmount)) return false;

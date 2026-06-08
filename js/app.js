@@ -170,6 +170,61 @@ function initializeUI(isRefresh = false) {
     });
   }
 
+  // --- Multi-Select Category Logic ---
+  const filterCategoryBtn = $("#filterCategoryBtn");
+  const filterCategoryDropdown = $("#filterCategoryDropdown");
+  const filterCategoryBtnText = $("#filterCategoryBtnText");
+
+  if (filterCategoryBtn && filterCategoryDropdown) {
+    filterCategoryBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      filterCategoryDropdown.classList.toggle("hidden");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!filterCategoryDropdown.contains(e.target) && e.target !== filterCategoryBtn && !filterCategoryBtn.contains(e.target)) {
+        filterCategoryDropdown.classList.add("hidden");
+      }
+    });
+
+    filterCategoryDropdown.addEventListener("change", (e) => {
+      if (e.target.tagName.toLowerCase() === "input" && e.target.type === "checkbox") {
+        const isAllCheckbox = e.target.id === "filterCategoryAll";
+        const allCheckboxes = Array.from(filterCategoryDropdown.querySelectorAll(".filter-category-checkbox"));
+        const masterCheckbox = document.getElementById("filterCategoryAll");
+        
+        if (isAllCheckbox) {
+          if (e.target.checked) {
+            allCheckboxes.forEach(cb => cb.checked = false);
+          } else {
+            // Can't uncheck 'All' directly without selecting something else
+            e.target.checked = true;
+          }
+        } else {
+          if (e.target.checked) {
+            if (masterCheckbox) masterCheckbox.checked = false;
+          } else {
+            const anyChecked = allCheckboxes.some(cb => cb.checked);
+            if (!anyChecked && masterCheckbox) masterCheckbox.checked = true;
+          }
+        }
+
+        // Update Button Text
+        const checkedCount = allCheckboxes.filter(cb => cb.checked).length;
+        if (masterCheckbox && masterCheckbox.checked || checkedCount === 0) {
+          if (filterCategoryBtnText) filterCategoryBtnText.textContent = "All Categories";
+        } else if (checkedCount === 1) {
+          const selectedLabel = allCheckboxes.find(cb => cb.checked).value;
+          if (filterCategoryBtnText) filterCategoryBtnText.textContent = selectedLabel;
+        } else {
+          if (filterCategoryBtnText) filterCategoryBtnText.textContent = `${checkedCount} Selected`;
+        }
+
+        if (typeof triggerSearch === "function") triggerSearch();
+      }
+    });
+  }
+
   window.resetAdvancedFiltersAndSearch = (triggerSearchAfter = true) => {
     const activeTab = $("#monthTabs .tab-button[data-logically-active='true']") || $("#monthTabs .tab-button.active");
     if (activeTab) {
@@ -186,7 +241,16 @@ function initializeUI(isRefresh = false) {
     }
 
     if ($("#filterType")) $("#filterType").value = "all";
-    if ($("#filterCategory")) $("#filterCategory").value = "all";
+    
+    // Reset Category Multi-Select
+    if (filterCategoryDropdown) {
+      const allCheckboxes = filterCategoryDropdown.querySelectorAll(".filter-category-checkbox");
+      allCheckboxes.forEach(cb => cb.checked = false);
+      const masterCheckbox = document.getElementById("filterCategoryAll");
+      if (masterCheckbox) masterCheckbox.checked = true;
+      if (filterCategoryBtnText) filterCategoryBtnText.textContent = "All Categories";
+    }
+
     if ($("#filterMinAmount")) $("#filterMinAmount").value = "";
     if ($("#filterMaxAmount")) $("#filterMaxAmount").value = "";
     

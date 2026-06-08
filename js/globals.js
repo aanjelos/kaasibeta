@@ -910,7 +910,7 @@ function populateDropdowns() {
     'select[name="account"], select[name="transferFrom"], select[name="transferTo"], select[name="receivableSourceAccount"], select[name="payDebtAccount"], select[name="recPaymentAccount"], select[name="instPayAccount"], select[name="ccPayFromAccount"], #modalAccount, #recSourceAccountAdd, #recSourceAccountEdit, #modalCcPayFromAccount, #modalInstPayAccount, #modalPayDebtAccount, #modalTransferFrom, #modalTransferTo'
   );
   const categorySelects = $$(
-    "#category, #modalCategory, #modalPayDebtCategory, #modalInstPayCategory, #modalCcPayCategory, #filterCategory"
+    "#category, #modalCategory, #modalPayDebtCategory, #modalInstPayCategory, #modalCcPayCategory"
   );
 
   const visibleAccounts = state.accounts.filter((acc) => !acc.hidden);
@@ -992,6 +992,39 @@ function populateDropdowns() {
   };
 
   categorySelects.forEach(populateCategorySelect);
+
+  // Populate custom multi-select for Advanced Filters
+  const filterDropdownMenu = $("#filterCategoryDropdown");
+  if (filterDropdownMenu) {
+    // Preserve previously checked categories
+    const existingCheckboxes = filterDropdownMenu.querySelectorAll('input[type="checkbox"]:not([value="all"])');
+    const checkedCategories = new Set(Array.from(existingCheckboxes).filter(cb => cb.checked).map(cb => cb.value));
+    
+    filterDropdownMenu.innerHTML = "";
+
+    // Add "All Categories" option at the top
+    const allLabel = document.createElement("label");
+    allLabel.className = "flex items-center gap-2 px-2 py-1.5 hover:bg-gray-700 cursor-pointer rounded text-sm text-gray-200 border-b border-gray-700 pb-2 mb-1";
+    
+    // Determine if "All" should be checked: if no specific categories were previously checked
+    const isAllChecked = checkedCategories.size === 0;
+    allLabel.innerHTML = `<input type="checkbox" id="filterCategoryAll" value="all" class="rounded bg-gray-900 border-gray-600 text-blue-500 focus:ring-blue-500" ${isAllChecked ? "checked" : ""}> All Categories`;
+    filterDropdownMenu.appendChild(allLabel);
+
+    const generalCategories = state.categories.filter(
+      (c) =>
+        c.toLowerCase() !== "income" &&
+        c.toLowerCase() !== "credit card payment"
+    ).sort((a, b) => a.localeCompare(b));
+
+    generalCategories.forEach((c) => {
+      const label = document.createElement("label");
+      label.className = "flex items-center gap-2 px-2 py-1 hover:bg-gray-700 cursor-pointer rounded text-sm text-gray-300";
+      const isChecked = checkedCategories.has(c);
+      label.innerHTML = `<input type="checkbox" value="${c}" class="filter-category-checkbox rounded bg-gray-900 border-gray-600 text-blue-500 focus:ring-blue-500" ${isChecked ? "checked" : ""}> ${c}`;
+      filterDropdownMenu.appendChild(label);
+    });
+  }
 }
 
 function isCategoryExcluded(categoryName, ruleKey) {
