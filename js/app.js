@@ -495,16 +495,13 @@ async function initializeSupabase() {
   console.log("Checking Supabase auth state...");
 
   const checkAutoRestore = async (user) => {
-    if (user && (!state || !state.isSetupComplete)) {
+    if (user && (!state || !state.settings || !state.settings.initialSetupDone)) {
       if (typeof restoreFromSupabase === "function") {
-        const setupModal = $("#initialSetupModal");
-        if (setupModal && setupModal.style.display === "block") {
-          console.log("User signed in during setup, attempting auto-restore...");
-          await restoreFromSupabase(true);
-          if (state && state.isSetupComplete) {
-            if (typeof closeModal === "function") closeModal("initialSetupModal");
-            if (typeof renderDashboard === "function") renderDashboard();
-          }
+        console.log("User signed in with incomplete setup, attempting auto-restore...");
+        await restoreFromSupabase(true);
+        if (state && state.settings && state.settings.initialSetupDone) {
+          if (typeof closeModal === "function") closeModal("initialSetupModal");
+          if (typeof renderDashboard === "function") renderDashboard();
         }
       }
     }
@@ -932,8 +929,11 @@ async function restoreFromSupabase(force = false) {
     );
     return;
   }
+  
+  if (window.isRestoringFromCloud) return;
 
   const doRestore = async () => {
+    window.isRestoringFromCloud = true;
     // onConfirm: Proceed with restore
     console.log("Starting cloud restore...");
 
@@ -1024,6 +1024,7 @@ async function restoreFromSupabase(force = false) {
           restoreBtn.innerHTML = originalText;
           restoreBtn.disabled = false;
         }
+        window.isRestoringFromCloud = false;
       }
   };
 
