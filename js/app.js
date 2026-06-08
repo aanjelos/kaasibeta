@@ -70,21 +70,19 @@ function initializeUI(isRefresh = false) {
 
     renderMonthTabs(selectedYear);
 
-    const monthlySearchInput = $("#monthlySearchInput");
-    const clearMonthlySearchBtn = $("#clearMonthlySearchBtn");
-    const searchScopeSelect = $("#searchScopeSelect"); // Get the dropdown
-
-    if (monthlySearchInput) {
-      monthlySearchInput.value = "";
-    }
-    if (clearMonthlySearchBtn) {
-      clearMonthlySearchBtn.style.display = "none";
-      clearMonthlySearchBtn.disabled = true;
-    }
-    // FIXED: Reset dropdown to 'month' and update the global scope variable
-    if (searchScopeSelect) {
-      searchScopeSelect.value = "month";
-      monthlyViewSearchScope = "month";
+    // Reset advanced filters and search when opening the modal
+    if (typeof window.resetAdvancedFiltersAndSearch === "function") {
+      window.resetAdvancedFiltersAndSearch(false);
+    } else {
+      const monthlySearchInput = $("#monthlySearchInput");
+      const clearMonthlySearchBtn = $("#clearMonthlySearchBtn");
+      if (monthlySearchInput) {
+        monthlySearchInput.value = "";
+      }
+      if (clearMonthlySearchBtn) {
+        clearMonthlySearchBtn.style.display = "none";
+        clearMonthlySearchBtn.disabled = true;
+      }
     }
 
     openModalHelper("monthlyViewModal");
@@ -161,12 +159,58 @@ function initializeUI(isRefresh = false) {
 
   const monthlySearchInput = $("#monthlySearchInput");
   const clearMonthlySearchBtn = $("#clearMonthlySearchBtn");
-  const searchScopeSelect = $("#searchScopeSelect"); // New dropdown
+  // --- Advanced Filters Logic ---
+  const toggleAdvancedFiltersBtn = $("#toggleAdvancedFiltersBtn");
+  const advancedFiltersAccordion = $("#advancedFiltersAccordion");
+  const resetAdvancedFiltersBtn = $("#resetAdvancedFiltersBtn");
+  
+  if (toggleAdvancedFiltersBtn && advancedFiltersAccordion) {
+    toggleAdvancedFiltersBtn.addEventListener("click", () => {
+      advancedFiltersAccordion.classList.toggle("hidden");
+    });
+  }
+
+  window.resetAdvancedFiltersAndSearch = (triggerSearchAfter = true) => {
+    const activeTab = $("#monthTabs .tab-button[data-logically-active='true']") || $("#monthTabs .tab-button.active");
+    if (activeTab) {
+      const month = parseInt(activeTab.dataset.month);
+      const year = parseInt(activeTab.dataset.year);
+      const firstDay = new Date(year, month, 1).toLocaleDateString("en-CA");
+      const lastDay = new Date(year, month + 1, 0).toLocaleDateString("en-CA");
+      
+      if ($("#filterStartDate")) $("#filterStartDate").value = firstDay;
+      if ($("#filterEndDate")) $("#filterEndDate").value = lastDay;
+    } else {
+      if ($("#filterStartDate")) $("#filterStartDate").value = "";
+      if ($("#filterEndDate")) $("#filterEndDate").value = "";
+    }
+
+    if ($("#filterType")) $("#filterType").value = "all";
+    if ($("#filterCategory")) $("#filterCategory").value = "all";
+    if ($("#filterMinAmount")) $("#filterMinAmount").value = "";
+    if ($("#filterMaxAmount")) $("#filterMaxAmount").value = "";
+    
+    if (advancedFiltersAccordion) {
+      advancedFiltersAccordion.classList.add("hidden");
+    }
+
+    const monthlySearchInput = $("#monthlySearchInput");
+    const clearMonthlySearchBtn = $("#clearMonthlySearchBtn");
+    if (monthlySearchInput) monthlySearchInput.value = "";
+    if (clearMonthlySearchBtn) {
+      clearMonthlySearchBtn.style.display = "none";
+      clearMonthlySearchBtn.disabled = true;
+    }
+
+    if (triggerSearchAfter && typeof triggerSearch === "function") {
+      triggerSearch();
+    }
+  };
 
   const triggerSearch = () => {
     clearTimeout(monthlySearchDebounceTimer);
     monthlySearchDebounceTimer = setTimeout(() => {
-      const activeTab = $("#monthTabs .tab-button.active");
+      const activeTab = $("#monthTabs .tab-button[data-logically-active='true']") || $("#monthTabs .tab-button.active");
       if (activeTab) {
         const month = parseInt(activeTab.dataset.month);
         const year = parseInt(activeTab.dataset.year);
@@ -176,7 +220,29 @@ function initializeUI(isRefresh = false) {
     }, 400);
   };
 
-  if (monthlySearchInput && clearMonthlySearchBtn && searchScopeSelect) {
+  const filterInputs = [
+    $("#filterStartDate"),
+    $("#filterEndDate"),
+    $("#filterType"),
+    $("#filterCategory"),
+    $("#filterMinAmount"),
+    $("#filterMaxAmount")
+  ];
+
+  filterInputs.forEach(input => {
+    if (input) {
+      input.addEventListener("input", triggerSearch);
+      input.addEventListener("change", triggerSearch); // for selects and dates
+    }
+  });
+
+  if (resetAdvancedFiltersBtn) {
+    resetAdvancedFiltersBtn.addEventListener("click", () => {
+      window.resetAdvancedFiltersAndSearch(true);
+    });
+  }
+
+  if (monthlySearchInput && clearMonthlySearchBtn) {
     if (!monthlySearchInput.value.trim()) {
       clearMonthlySearchBtn.style.display = "none";
       clearMonthlySearchBtn.disabled = true;
@@ -196,18 +262,8 @@ function initializeUI(isRefresh = false) {
 
     clearMonthlySearchBtn.addEventListener("click", () => {
       clearTimeout(monthlySearchDebounceTimer);
-      monthlySearchInput.value = "";
-      clearMonthlySearchBtn.style.display = "none";
-      clearMonthlySearchBtn.disabled = true;
-      triggerSearch();
+      window.resetAdvancedFiltersAndSearch(true);
       monthlySearchInput.focus();
-    });
-
-    // NEW: Event listener for the scope dropdown
-    searchScopeSelect.addEventListener("change", () => {
-      monthlyViewSearchScope = searchScopeSelect.value;
-      // Re-run the current search with the new scope
-      triggerSearch();
     });
   }
 

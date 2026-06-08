@@ -4,13 +4,16 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 
 ---
 
-### 1. [Major] Dead Code Removal
+### 1. [Major] Advanced Search & Filters
+- **Description**: Added a robust set of advanced filtering tools within the All Transactions modal. Users can now open an accordion panel to filter their transaction history by custom date ranges, type (Income/Expense), category, and min/max amount ranges. The filters dynamically update the list in real-time, and UI elements cleanly highlight when active.
+
+### 2. [Major] Dead Code Removal
 - **Description**: Cleaned up the codebase by identifying and removing unused variables, dead code paths, obsolete functions, and redundant comments. This helped reduce file size, improve maintainability, and ensure code clarity.
 
-### 2. [Major] Inline Math Calculator & Toolbar
+### 3. [Major] Inline Math Calculator & Toolbar
 - **Description**: Implemented an inline math calculator for amount input fields across the app (identified by the `calc-amount` class). Users can now directly type mathematical expressions (e.g., `1500 + 350`) into the amount fields. The expression is automatically evaluated on focus-out, when pressing Enter, or by clicking `=` on the new contextual Math Toolbar that pops up above the input. The floating Math Toolbar dynamically aligns with the input field, intelligently avoids z-index issues with modals, and can be globally enabled/disabled via settings on mobile devices.
 
-### 3. [Major] Global Hidden Category Rules
+### 4. [Major] Global Hidden Category Rules
 - **Description**: Introduced a comprehensive category exclusion feature via a centralized "Hidden Category Rules" panel in the Settings modal. Users can mark categories as hidden/visible via a single Eye icon and fine-tune general exclusion behaviors using global rules.
 - **Exclusion Options Introduced**:
   - **Primary Rules**:
@@ -23,7 +26,7 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
     - Hide from Monthly Pie Chart
     - Dim in Transaction Lists (Grey out excluded categories)
 
-### 4. [Minor] Cash Account Hideability & Tooltip Fixes
+### 5. [Minor] Cash Account Hideability & Tooltip Fixes
 - **Description**:
   - **Cash Visibility**: Allowed the default "Cash" account card to be toggled visible/hidden from the Settings panel and during Initial Setup, matching the behavior of other custom bank and credit card accounts.
   - **Tooltip UI Fix**: Fixed a CSS bug where tooltip elements (`[data-tooltip]`) rendered above their target components, blocking user clicks on buttons directly above them.

@@ -132,7 +132,7 @@ function toggleCategoryVisibilityInModal(
 
 let state = {};
 let dashboardChartState = "yearly";
-let monthlyViewSearchScope = "month";
+// Removed monthlyViewSearchScope as we use advanced filters now
 let supabaseUser = null;
 let ccHistoryFilter = "unpaid";
 let ccHistorySearchDebounceTimer;
@@ -910,7 +910,7 @@ function populateDropdowns() {
     'select[name="account"], select[name="transferFrom"], select[name="transferTo"], select[name="receivableSourceAccount"], select[name="payDebtAccount"], select[name="recPaymentAccount"], select[name="instPayAccount"], select[name="ccPayFromAccount"], #modalAccount, #recSourceAccountAdd, #recSourceAccountEdit, #modalCcPayFromAccount, #modalInstPayAccount, #modalPayDebtAccount, #modalTransferFrom, #modalTransferTo'
   );
   const categorySelects = $$(
-    "#category, #modalCategory, #modalPayDebtCategory, #modalInstPayCategory, #modalCcPayCategory"
+    "#category, #modalCategory, #modalPayDebtCategory, #modalInstPayCategory, #modalCcPayCategory, #filterCategory"
   );
 
   const visibleAccounts = state.accounts.filter((acc) => !acc.hidden);

@@ -606,16 +606,14 @@
               class="flex overflow-x-auto whitespace-nowrap gap-x-2 hide-scrollbar edge-fade py-1 px-4 max-w-full"
             ></div>
           </div>
-          <!-- MODIFIED: Replaced toggle with a dropdown -->
-          <div
-            class="my-4 flex flex-col sm:flex-row items-center gap-x-2 gap-y-3"
-          >
+          <!-- Search and Filter Toggle Row -->
+          <div class="my-4 flex flex-col sm:flex-row items-center gap-x-2 gap-y-3">
             <div class="flex-grow w-full flex items-center gap-x-2">
               <input
                 type="search"
                 id="monthlySearchInput"
                 name="monthlySearch"
-                placeholder="Search description, category, amount, 'income' or 'expense'..."
+                placeholder="Search description or amount..."
                 class="flex-grow"
               />
               <button
@@ -627,11 +625,60 @@
                 <i class="fas fa-times"></i>
               </button>
             </div>
-            <div class="flex-shrink-0">
-              <select id="searchScopeSelect" class="w-full sm:w-auto">
-                <option value="month" selected>Month &nbsp; &nbsp;</option>
-                <option value="year">Year &nbsp;</option>
-              </select>
+            <div class="flex-shrink-0 w-full sm:w-auto">
+              <button id="toggleAdvancedFiltersBtn" class="btn btn-secondary w-full sm:w-auto relative transition-colors duration-200" data-tooltip="Advanced Filters">
+                <i class="fas fa-sliders-h mr-1 filter-icon"></i> <span class="filter-text">Filters</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Advanced Filters Accordion -->
+          <div id="advancedFiltersAccordion" class="hidden mb-4 rounded-lg p-4 border border-gray-600/50" style="background-color: var(--bg-secondary);">
+            <h3 class="text-sm font-semibold text-gray-300 mb-3"><i class="fas fa-filter mr-1 text-gray-400"></i> Advanced Filters</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- Custom Date Range -->
+              <div class="flex flex-col gap-1 md:col-span-2">
+                <label class="text-xs text-gray-400">Date Override (Optional)</label>
+                <div class="flex flex-wrap items-center gap-2">
+                  <input type="date" id="filterStartDate" class="flex-1 min-w-[120px] text-sm px-2 py-1 bg-gray-800 border border-gray-600 rounded text-gray-200" title="Start Date" />
+                  <span class="text-gray-500 text-xs">to</span>
+                  <input type="date" id="filterEndDate" class="flex-1 min-w-[120px] text-sm px-2 py-1 bg-gray-800 border border-gray-600 rounded text-gray-200" title="End Date" />
+                </div>
+              </div>
+              
+              <!-- Transaction Type -->
+              <div class="flex flex-col gap-1 md:col-span-1">
+                <label class="text-xs text-gray-400" for="filterType">Type</label>
+                <select id="filterType" class="w-full text-sm px-2 py-1 bg-gray-800 border border-gray-600 rounded text-gray-200">
+                  <option value="all">All Types</option>
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+                </select>
+              </div>
+
+              <!-- Category -->
+              <div class="flex flex-col gap-1 md:col-span-1">
+                <label class="text-xs text-gray-400" for="filterCategory">Category</label>
+                <select id="filterCategory" class="w-full text-sm px-2 py-1 bg-gray-800 border border-gray-600 rounded text-gray-200">
+                  <option value="all">All Categories</option>
+                  <!-- Dynamically populated -->
+                </select>
+              </div>
+
+              <!-- Amount Range -->
+              <div class="flex flex-col gap-1 md:col-span-2">
+                <label class="text-xs text-gray-400">Amount Range</label>
+                <div class="flex flex-wrap items-center gap-2">
+                  <input type="number" id="filterMinAmount" placeholder="Min" class="flex-1 min-w-[80px] text-sm px-2 py-1 bg-gray-800 border border-gray-600 rounded text-gray-200" min="0" />
+                  <span class="text-gray-500 text-xs">-</span>
+                  <input type="number" id="filterMaxAmount" placeholder="Max" class="flex-1 min-w-[80px] text-sm px-2 py-1 bg-gray-800 border border-gray-600 rounded text-gray-200" min="0" />
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-end mt-4">
+              <button id="resetAdvancedFiltersBtn" class="text-sm text-gray-400 hover:text-white transition-colors focus:outline-none">
+                <i class="fas fa-undo-alt mr-1"></i> Reset Filters
+              </button>
             </div>
           </div>
           <div id="monthlyDetailsContainer" class="mt-4">

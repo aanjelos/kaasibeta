@@ -12,12 +12,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
   - Add a "Budgets" array to the `state`. Each budget object contains `{ id, name, limit, categories: [] }`. 
   - On the dashboard or in reports, sum the transactions for the current month that match the selected categories and display a progress bar (e.g., Green/Warning/Red) showing how close the user is to their limit.
 
-### 2. Advanced Filters & Date Ranges
-- **Concept**: Expand the current text search to allow granular filtering of transactions.
-- **Implementation Idea**: 
-  - Add a "Filters" button/accordion to the All Transactions modal.
-  - Provide inputs for "Start Date", "End Date", "Category Dropdown", and "Amount Range (Min/Max)".
-  - Update the `searchTransactions()` rendering loop to respect these new filter parameters alongside the existing text query.
+
 
 ### 3. Cloud Backup Refinement
 - **Concept**: Look into the existing Supabase cloud backup architecture and refine the syncing/recovery flow to be more robust and intuitive.

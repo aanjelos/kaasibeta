@@ -1301,18 +1301,24 @@ function renderMonthTabs(year) {
     button.dataset.month = index;
     button.dataset.year = year;
     button.onclick = () => {
-      $$("#monthTabs .tab-button").forEach((btn) =>
-        btn.classList.remove("active")
-      );
+      $$("#monthTabs .tab-button").forEach((btn) => {
+        btn.classList.remove("active");
+        btn.removeAttribute("data-logically-active");
+      });
       button.classList.add("active");
-      const monthlySearchInput = $("#monthlySearchInput");
-      const clearMonthlySearchBtn = $("#clearMonthlySearchBtn");
-      if (monthlySearchInput) {
-        monthlySearchInput.value = "";
-      }
-      if (clearMonthlySearchBtn) {
-        clearMonthlySearchBtn.style.display = "none"; // Use style.display
-        clearMonthlySearchBtn.disabled = true;
+      button.setAttribute("data-logically-active", "true");
+      
+      // Reset search and advanced filters when a tab is clicked
+      if (typeof window.resetAdvancedFiltersAndSearch === "function") {
+        window.resetAdvancedFiltersAndSearch(false);
+      } else {
+        const monthlySearchInput = $("#monthlySearchInput");
+        const clearMonthlySearchBtn = $("#clearMonthlySearchBtn");
+        if (monthlySearchInput) monthlySearchInput.value = "";
+        if (clearMonthlySearchBtn) {
+          clearMonthlySearchBtn.style.display = "none";
+          clearMonthlySearchBtn.disabled = true;
+        }
       }
       renderMonthlyDetails(index, year, new Set(), "", false);
     };
@@ -1340,37 +1346,113 @@ function renderMonthlyDetails(
   }
   container.innerHTML = "";
 
-  // --- NEW: Determine the transaction pool based on search scope ---
-  const searchScope = monthlyViewSearchScope;
-  let transactionPool = [];
+  // --- NEW: Advanced Filter & Search Logic ---
+  const filterStartDate = $("#filterStartDate")?.value;
+  const filterEndDate = $("#filterEndDate")?.value;
+  const filterType = $("#filterType")?.value || "all";
+  const filterCategory = $("#filterCategory")?.value || "all";
+  const filterMinAmount = $("#filterMinAmount")?.value;
+  const filterMaxAmount = $("#filterMaxAmount")?.value;
+  
+  const searchLower = searchTerm ? searchTerm.toLowerCase() : "";
 
-  if (searchScope === "year") {
-    transactionPool = state.transactions.filter((t) => {
-      const tDate = new Date(t.date + "T00:00:00");
-      return !isNaN(tDate.getTime()) && tDate.getFullYear() === year;
+  const defaultStartDate = new Date(year, month, 1).toLocaleDateString("en-CA");
+  const defaultEndDate = new Date(year, month + 1, 0).toLocaleDateString("en-CA");
+
+  const isCustomDate = (filterStartDate && filterStartDate !== defaultStartDate) || 
+                       (filterEndDate && filterEndDate !== defaultEndDate);
+
+  const hasAdvancedFilters = isCustomDate || filterType !== "all" || filterCategory !== "all" || filterMinAmount || filterMaxAmount;
+  const toggleBtn = $("#toggleAdvancedFiltersBtn");
+  if (toggleBtn) {
+    if (hasAdvancedFilters) {
+      toggleBtn.querySelector(".filter-text").textContent = "Filters (Active)";
+    } else {
+      toggleBtn.querySelector(".filter-text").textContent = "Filters";
+    }
+  }
+
+  // UX Tweak: Handle active month tab visual state for multi-month spans
+  const allTabs = $$("#monthTabs .tab-button");
+  if (isCustomDate) {
+    allTabs.forEach(btn => {
+      const btnMonth = parseInt(btn.dataset.month);
+      const btnYear = parseInt(btn.dataset.year);
+      const btnStart = new Date(btnYear, btnMonth, 1).toLocaleDateString("en-CA");
+      const btnEnd = new Date(btnYear, btnMonth + 1, 0).toLocaleDateString("en-CA");
+
+      let overlap = true;
+      if (filterStartDate && btnEnd < filterStartDate) overlap = false;
+      if (filterEndDate && btnStart > filterEndDate) overlap = false;
+
+      if (overlap) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
     });
   } else {
-    // Default to 'month'
-    transactionPool = state.transactions.filter((t) => {
-      const tDate = new Date(t.date + "T00:00:00");
-      return (
-        !isNaN(tDate.getTime()) &&
-        tDate.getFullYear() === year &&
-        tDate.getMonth() === month
-      );
+    // If no custom date override, only the logically active tab should be active
+    allTabs.forEach(btn => {
+      if (btn.getAttribute("data-logically-active") === "true" || parseInt(btn.dataset.month) === month) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
     });
   }
 
-  // --- Summary calculations are always based on the selected MONTH, not the search scope ---
-  const allTransactionsInMonth = state.transactions.filter((t) => {
+  const transactionsToDisplay = state.transactions.filter((t) => {
     const tDate = new Date(t.date + "T00:00:00");
-    return (
-      !isNaN(tDate.getTime()) &&
-      tDate.getFullYear() === year &&
-      tDate.getMonth() === month
-    );
+    if (isNaN(tDate.getTime())) return false;
+
+    // 1. Date Check
+    if (filterStartDate || filterEndDate) {
+      if (filterStartDate && t.date < filterStartDate) return false;
+      if (filterEndDate && t.date > filterEndDate) return false;
+    } else {
+      // Fallback to month/year tabs
+      if (tDate.getFullYear() !== year || tDate.getMonth() !== month) return false;
+    }
+
+    // 2. Type Check
+    if (filterType !== "all" && t.type !== filterType) return false;
+
+    // 3. Category Check
+    if (filterCategory !== "all" && t.category !== filterCategory) return false;
+
+    // 4. Amount Check
+    if (filterMinAmount && t.amount < parseFloat(filterMinAmount)) return false;
+    if (filterMaxAmount && t.amount > parseFloat(filterMaxAmount)) return false;
+
+    // 5. Text Search Check
+    if (searchLower) {
+      const account = state.accounts.find((a) => a.id === t.account);
+      const accountName = account ? account.name.toLowerCase() : "";
+      const descriptionLower = t.description ? t.description.toLowerCase() : "";
+      const categoryLower = t.category ? t.category.toLowerCase() : "";
+      const amountStr = t.amount.toFixed(2);
+      const typeLower = t.type.toLowerCase();
+
+      if (!(descriptionLower.includes(searchLower) ||
+            categoryLower.includes(searchLower) ||
+            accountName.includes(searchLower) ||
+            amountStr.includes(searchLower) ||
+            typeLower.includes(searchLower))) {
+        return false;
+      }
+    }
+
+    return true;
   });
 
+  transactionsToDisplay.sort(
+    (a, b) =>
+      new Date(b.date).setHours(0, 0, 0, 0) -
+        new Date(a.date).setHours(0, 0, 0, 0) || b.timestamp - a.timestamp
+  );
+
+  // --- Summary calculations are now based on the FILTERED transaction pool ---
   let totalIncome = 0;
   let totalExpense = 0;
   const categoryTotals = {};
@@ -1378,6 +1460,7 @@ function renderMonthlyDetails(
     state.categories.forEach((cat) => (categoryTotals[cat] = 0));
   }
 
+  // For the last month comparison, we'll keep it strictly to the previous month of the selected tab
   let lastMonthTotalExpense = 0;
   const lastMonthDate = new Date(year, month - 1, 1);
   state.transactions
@@ -1394,7 +1477,7 @@ function renderMonthlyDetails(
     })
     .forEach((t) => (lastMonthTotalExpense += t.amount));
 
-  allTransactionsInMonth.forEach((t) => {
+  transactionsToDisplay.forEach((t) => {
     if (t.type === "income") {
       totalIncome += t.amount;
     } else if (t.type === "expense") {
@@ -1405,7 +1488,6 @@ function renderMonthlyDetails(
         totalExpense += t.amount;
       }
       
-      // Still accumulate in categoryTotals for the breakdown list (will be greyed out)
       if (categoryTotals[category] !== undefined) {
         categoryTotals[category] += t.amount;
       } else {
@@ -1442,36 +1524,6 @@ function renderMonthlyDetails(
         totalIncome - totalExpense >= 0 ? "text-income" : "text-expense"
       } tabular-nums">${formatCurrency(totalIncome - totalExpense)}</p></div>`;
   container.appendChild(summaryGrid);
-
-  // --- NEW: Enhanced Search Logic ---
-  const transactionsToDisplay = searchTerm
-    ? transactionPool.filter((t) => {
-        const account = state.accounts.find((a) => a.id === t.account);
-        const accountName = account ? account.name.toLowerCase() : "";
-        const descriptionLower = t.description
-          ? t.description.toLowerCase()
-          : "";
-        const categoryLower = t.category ? t.category.toLowerCase() : "";
-        const amountStr = t.amount.toFixed(2);
-        const typeLower = t.type.toLowerCase();
-
-        const searchLower = searchTerm.toLowerCase();
-
-        return (
-          descriptionLower.includes(searchLower) ||
-          categoryLower.includes(searchLower) ||
-          accountName.includes(searchLower) ||
-          amountStr.includes(searchLower) || // Search by amount
-          typeLower.includes(searchLower) // Search by 'income' or 'expense'
-        );
-      })
-    : transactionPool;
-
-  transactionsToDisplay.sort(
-    (a, b) =>
-      new Date(b.date).setHours(0, 0, 0, 0) -
-        new Date(a.date).setHours(0, 0, 0, 0) || b.timestamp - a.timestamp
-  );
 
   const contentGrid = document.createElement("div");
   contentGrid.className =
