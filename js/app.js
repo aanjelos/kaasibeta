@@ -615,8 +615,13 @@ function updateHeaderShortcutButtons() {
   if (dropBackupBtn) dropBackupBtn.classList.remove("pulse-orange");
   if (dropRestoreBtn) dropRestoreBtn.classList.remove("pulse-green");
   if (mobileMenuIcon) mobileMenuIcon.classList.remove("pulse-orange", "pulse-green");
-  if (dropBackupText) dropBackupText.textContent = "Export Backup";
-  if (dropRestoreText) dropRestoreText.textContent = "Import Backup";
+  
+  // Default base texts depending on mode
+  const baseExportText = isCloud ? "Export to Cloud" : "Export Local File";
+  const baseImportText = isCloud ? "Import from Cloud" : "Import Local File";
+  
+  if (dropBackupText) dropBackupText.textContent = baseExportText;
+  if (dropRestoreText) dropRestoreText.textContent = baseImportText;
 
   if (isCloud) {
     // Set to CLOUD mode
@@ -636,7 +641,7 @@ function updateHeaderShortcutButtons() {
       backupBtn.dataset.tooltip = "Export to Cloud (Ctrl+E)";
       
       // Mobile UI
-      if (dropRestoreText) dropRestoreText.textContent = `Import Backup (New: ${lastCloudSyncTimeString})`;
+      if (dropRestoreText) dropRestoreText.textContent = `Import from Cloud (New: ${lastCloudSyncTimeString})`;
       if (dropRestoreBtn) dropRestoreBtn.classList.add("pulse-green");
       if (mobileMenuIcon) mobileMenuIcon.classList.add("pulse-green");
     } else if (window.currentCloudSyncStatus === "local_newer") {
@@ -647,19 +652,17 @@ function updateHeaderShortcutButtons() {
       restoreBtn.dataset.tooltip = "Import from Cloud (Ctrl+I)";
       
       // Mobile UI
-      if (dropBackupText) dropBackupText.textContent = "Export Backup (Unsaved changes)";
+      if (dropBackupText) dropBackupText.textContent = "Export to Cloud (Unsaved changes)";
       if (dropBackupBtn) dropBackupBtn.classList.add("pulse-orange");
       if (mobileMenuIcon) mobileMenuIcon.classList.add("pulse-orange");
     } else {
       if (lastCloudSyncTimeString) {
         backupBtn.dataset.tooltip = `Export to Cloud (Fully synced: ${lastCloudSyncTimeString})`;
-        if (dropBackupText) dropBackupText.textContent = `Export Backup (Synced: ${lastCloudSyncTimeString})`;
+        if (dropBackupText) dropBackupText.textContent = `Export to Cloud (Synced: ${lastCloudSyncTimeString})`;
       } else {
         backupBtn.dataset.tooltip = "Export to Cloud (Ctrl+E)";
-        if (dropBackupText) dropBackupText.textContent = "Export Backup";
       }
       restoreBtn.dataset.tooltip = "Import from Cloud (Ctrl+I)";
-      if (dropRestoreText) dropRestoreText.textContent = "Import Backup";
     }
 
     backupBtn.onclick = backupToSupabase; // Assign cloud backup function
