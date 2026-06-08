@@ -117,3 +117,12 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
   - **Scroll Locking**: Implemented robust scroll locking utilizing both `overflow-hidden` on the body and `touch-action: none` on the background dim overlay. This completely blocks background touch-scrolling while the menu is open on iOS and Android.
   - **Alignment & Spacing**: Enforced strict right-alignment of the dropdown icons to match the hamburger toggle button. Replaced hardcoded inline paddings with dynamically compiled Tailwind utility classes for perfect spacing, and developed a resilient pure CSS fallback for the `env(safe-area-inset-top)` variable to bypass a mathematical parsing bug in Chromium mobile browsers.
 - **Scope**: Recompiled `tailwind.css`, adjusted mobile styles in `style.css` and `index.html`. Bumped version to `v5.123k` with service worker cache `v31`.
+
+### 24. [Feature] Installments & Credit Cards Overhaul (v5.138k)
+- **Description**: 
+  - **Installments Layout**: Engineered a completely decoupled layout strategy to natively support both Desktop and Mobile views. Desktop perfectly mimics the native Debts 2-row tabular layout, while Mobile intelligently wraps the action buttons into a full-width footer row separated by a subtle divider line to entirely prevent text truncation and cutoff. 
+  - **Credit Card Polish**: Overhauled the visual presentation of Credit Cards to align with the rest of the application. Replaced the generic visual representation with dynamic circular progress rings that visualize paid percentages.
+  - **UX Consistency**: Standardized interaction icons across the board. The 'Edit' button across the app (Installments, Credit Cards, Transactions) is now a muted grey (`fa-edit`), the 'Delete' button utilizes a soft X (`fa-times`), and the 'Pay' buttons use a standard green card icon (`fa-credit-card`).
+  - **Natural Language**: Implemented dynamic string pluralization across Installments, Debts, and Receivables (e.g., smoothly alternating between "1 day left" and "5 days left" instead of the hardcoded "day(s)").
+- **Scope**: Layout structural rewrites in `features.js`, dynamic string functions updated, layout classes compiled. Bumped version to `v5.138k` with service worker cache `v46`. 
+ 

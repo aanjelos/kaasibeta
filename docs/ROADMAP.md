@@ -29,17 +29,9 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## ✨ UI / UX Polish
 
-### 1. Credit Card Section Revamp
-- **Concept**: Comprehensive overhaul of the Credit Card interface and functionality.
-- **Implementation Idea**: Redesign the visual layout for credit card cards, refine how partial payments/transactions are nested and displayed, and improve the overall flow.
-
-### 2. Mobile App Refinements
+### 1. Mobile App Refinements
 - **Concept**: Ongoing focus on enhancing the mobile application experience.
 - **Implementation Idea**: Continue polishing spacing, tap targets, safe-areas, and interactive components to ensure Kaasi feels like a premium, native mobile app.
-
-### 3. Installments Section Refinement
-- **Concept**: Improve the UI/UX presentation and interactions of the Installments section.
-- **Implementation Idea**: Update the layout, hierarchy, and visual design of installment cards to make them more intuitive and easier to read at a glance on all devices.
 
 
 
