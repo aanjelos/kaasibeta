@@ -452,7 +452,7 @@ function renderInstallmentList() {
             }
             <button class="text-sm text-gray-500 hover:text-expense focus:outline-none transition-colors" onclick="deleteInstallment('${
               i.id
-            }')" title="Delete"><i class="fas fa-trash"></i></button>
+            }')" title="Delete"><i class="fas fa-times"></i></button>
         </div>
     `;
 
@@ -2000,10 +2000,10 @@ function openCcHistoryModal() {
               <div class="edit-btn-container">
                   ${
                     !t.paidOff && remainingOnItem > 0.005
-                      ? `<button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="openPayCcItemForm('${t.id}')" title="Pay Item"><i class="fas fa-dollar-sign"></i></button>`
+                      ? `<button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="openPayCcItemForm('${t.id}')" title="Pay Item"><i class="fas fa-credit-card"></i></button>`
                       : ""
                   }
-                  <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditCcTransactionForm('${
+                  <button class="text-xs text-gray-400 hover:text-gray-200 transition-colors focus:outline-none mr-2" onclick="openEditCcTransactionForm('${
                     t.id
                   }')" title="Edit"><i class="fas fa-edit"></i></button>
                   <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteCcTransaction('${
