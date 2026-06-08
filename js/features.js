@@ -411,7 +411,7 @@ function renderInstallmentList() {
     let daysLeftText =
       daysLeft < 0
         ? `<span class="text-gray-500">Finished</span>`
-        : `<span class="text-gray-300">${daysLeft} day(s) left</span>`;
+        : `${daysLeft} day(s) left`;
     const totalLeftToPay = i.monthlyAmount * i.monthsLeft;
     const progressPercent =
       i.totalMonths > 0
@@ -443,8 +443,8 @@ function renderInstallmentList() {
             ${
               i.monthsLeft > 0
                 ? `
+                <button class="text-sm text-income hover:opacity-80 focus:outline-none transition-opacity" onclick="payInstallmentMonth('${i.id}')" title="Pay Installment"><i class="fas fa-credit-card"></i></button>
                 <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
-                <button class="text-sm text-income hover:opacity-80 focus:outline-none transition-opacity" onclick="payInstallmentMonth('${i.id}')" title="Pay Month"><i class="fas fa-credit-card"></i></button>
               `
                 : `
                 <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
