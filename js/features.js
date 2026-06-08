@@ -439,33 +439,33 @@ function renderInstallmentList() {
     `;
 
     const buttonsHtml = `
-        <div class="edit-btn-container">
+        <div class="edit-btn-container flex items-center justify-end gap-x-4 mt-auto">
             ${
               i.monthsLeft > 0
                 ? `
-                <button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="payInstallmentMonth('${i.id}')" title="Pay Month"><i class="fas fa-credit-card"></i></button>
-                <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="text-sm text-income hover:opacity-80 focus:outline-none transition-opacity" onclick="payInstallmentMonth('${i.id}')" title="Pay Month"><i class="fas fa-credit-card"></i></button>
+                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
               `
                 : `
-                <button class="text-xs accent-text hover:text-accent-hover focus:outline-none mr-2" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
               `
             }
-            <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteInstallment('${
+            <button class="text-sm text-gray-500 hover:text-expense focus:outline-none transition-colors" onclick="deleteInstallment('${
               i.id
-            }')" title="Delete"><i class="fas fa-times"></i></button>
+            }')" title="Delete"><i class="fas fa-trash"></i></button>
         </div>
     `;
 
     div.innerHTML = `
       ${ringHtml}
-      <div class="flex-grow flex justify-between items-center ml-2">
+      <div class="flex-grow flex justify-between items-stretch ml-3">
           <div class="flex flex-col min-w-0 pr-2">
               <p class="text-sm md:text-base font-medium truncate mb-0.5">${i.description}</p>
               <p class="text-[11px] md:text-xs text-gray-400 mb-1.5">${formatCurrency(i.monthlyAmount)} / month</p>
               <p class="text-[11px] md:text-xs text-gray-500 truncate">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
           </div>
-          <div class="flex items-center flex-shrink-0">
-              <span class="text-xs md:text-sm font-semibold text-gray-200 mr-3 whitespace-nowrap">${formatCurrency(totalLeftToPay)} Left</span>
+          <div class="flex flex-col justify-between items-end flex-shrink-0">
+              <span class="text-xs md:text-sm font-semibold text-gray-200 whitespace-nowrap mb-2">${formatCurrency(totalLeftToPay)} Left</span>
               ${buttonsHtml}
           </div>
       </div>
