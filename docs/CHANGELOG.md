@@ -143,4 +143,10 @@ Introduced a sophisticated "Out of Sync" detection system for Cloud Backups with
 Refined the mobile experience for the new contextual Cloud Sync UI:
 - **Hamburger Menu Integration**: The core menu button now actively pulses (orange or green) to alert mobile users of their out-of-sync status before they even open the menu.
 - **Dynamic Dropdown Text**: Mobile dropdown labels now actively switch states and dynamically print simplified sync timestamps (e.g., \Import Backup (New: Today at 12:23 AM)\) to provide instant clarity without breaking UI bounds.
-- **Time Formatting**: Fully overhauled timestamp formatting app-wide to use intuitive \Today / Yesterday at X:XX AM\ outputs instead of bulky absolute dates, significantly improving human readability.
+- **Time Formatting**: Fully overhauled timestamp formatting app-wide to use intuitive "Today / Yesterday at X:XX AM" outputs instead of bulky absolute dates, significantly improving human readability.
+
+### 31. [Feature] Seamless Cloud Onboarding (v5.156k)
+Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning users can now authenticate with a single tap, bypassing the entire setup flow and silently pulling their latest cloud data to instantly populate the dashboard.
+- **Mobile Dropdown Enhancements**: Refined the UI logic for the mobile hamburger menu to elegantly differentiate between "Local Mode" and "Cloud Mode", ensuring labels dynamically update (e.g. `Export to Cloud (Unsaved changes)`) without overflowing narrow phone screens.
+- **Pulsing Animation Tweaks**: Tweaked the CSS animation for out-of-sync cloud icons so that only the inner icon changes color, rather than scaling the entire button.
+- **Inline Calculator Adjustment**: Adjusted the positioning of the floating Math Toolbar to anchor tightly to the bottom-right of active input fields, accompanied by a clean drop-down animation.

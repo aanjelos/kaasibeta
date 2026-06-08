@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.155k" />
+    <meta name="application-version" content="v5.156k" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -1358,16 +1358,22 @@
             Let's get your expense tracker set up.
           </p>
 
-          <div class="mb-6 pb-6 border-b border-gray-600 text-center">
-            <p class="text-sm text-gray-300 font-medium mb-3">Already have data?</p>
-            <div class="flex flex-wrap justify-center gap-3">
-              <button type="button" id="setupCloudLoginBtn" class="btn btn-secondary btn-sm inline-flex items-center m-0">
-                <i class="fab fa-google mr-2 text-white"></i>Login & Restore
-              </button>
-              <label class="btn btn-secondary btn-sm cursor-pointer inline-flex items-center m-0">
-                <i class="fas fa-file-import mr-2"></i>Import Local Backup
-                <input type="file" id="setupImportInput" accept=".json" class="hidden" />
-              </label>
+          <div class="mb-6">
+            <div class="card !p-4 border-2 border-dashed border-gray-600 bg-[var(--bg-tertiary)] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div class="text-center sm:text-left flex-grow">
+                <h3 class="text-sm font-semibold text-[var(--text-primary)]">Already have data?</h3>
+                <p class="text-xs text-gray-400 mt-1">Sign in or import a backup file to instantly restore your data and skip this setup.</p>
+              </div>
+              <div class="flex flex-row gap-2 w-full sm:w-auto shrink-0 justify-center">
+                <button type="button" id="setupCloudLoginBtn" class="btn btn-secondary text-sm flex-1 sm:flex-none justify-center m-0 whitespace-nowrap">
+                  <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-4 h-4 mr-2 inline-block" />
+                  Cloud Restore
+                </button>
+                <label class="btn btn-secondary text-sm cursor-pointer flex-1 sm:flex-none justify-center m-0 whitespace-nowrap">
+                  <i class="fas fa-file-import mr-2"></i>Local File
+                  <input type="file" id="setupImportInput" accept=".json" class="hidden" />
+                </label>
+              </div>
             </div>
           </div>
 
