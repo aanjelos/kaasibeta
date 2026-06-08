@@ -494,19 +494,12 @@ async function initializeSupabase() {
   }
   console.log("Checking Supabase auth state...");
 
-  // Handle auth state changes (e.g., login, logout)
-  supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    console.log("Supabase auth state changed:", event, session);
-    const user = session?.user || null;
-    supabaseUser = user;
-    updateSupabaseUI(user);
-    
-    // Auto-restore if user logs in during initial setup
-    if (event === "SIGNED_IN" && (!state || !state.isSetupComplete)) {
+  const checkAutoRestore = async (user) => {
+    if (user && (!state || !state.isSetupComplete)) {
       if (typeof restoreFromSupabase === "function") {
-        console.log("User signed in during setup, attempting auto-restore...");
         const setupModal = $("#initialSetupModal");
         if (setupModal && setupModal.style.display === "block") {
+          console.log("User signed in during setup, attempting auto-restore...");
           await restoreFromSupabase(true);
           if (state && state.isSetupComplete) {
             if (typeof closeModal === "function") closeModal("initialSetupModal");
@@ -515,6 +508,15 @@ async function initializeSupabase() {
         }
       }
     }
+  };
+
+  // Handle auth state changes (e.g., login, logout)
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    console.log("Supabase auth state changed:", event, session);
+    const user = session?.user || null;
+    supabaseUser = user;
+    updateSupabaseUI(user);
+    await checkAutoRestore(user);
   });
 
   // Check for initial session
@@ -531,6 +533,7 @@ async function initializeSupabase() {
       "Initial session check complete. User:",
       user ? user.email : "none"
     );
+    await checkAutoRestore(user);
   } catch (error) {
     console.error("Failed to initialize session:", error);
     updateSupabaseUI(null);
