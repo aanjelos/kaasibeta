@@ -695,14 +695,19 @@ function completeDeletion() {
   handle.style.transform = `translateX(${maxTranslateX}px)`;
   isDragging = false;
   handle.style.pointerEvents = "none";
-  setTimeout(() => {
+  setTimeout(async () => {
+    // Log out if connected to cloud
+    if (typeof supabaseUser !== "undefined" && supabaseUser && typeof signOut === "function") {
+      await signOut();
+    }
+    
     localStorage.removeItem(STORAGE_KEY);
     state = getDefaultState();
     ensureDefaultAccounts();
     ensureDefaultCategories();
     initializeUI(true);
     closeModal("settingsModal");
-    showNotification("All data deleted.", "success");
+    showNotification("All data deleted and logged out.", "success");
     handle.style.pointerEvents = "auto";
   }, 500);
 }

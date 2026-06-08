@@ -28,6 +28,14 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Concept**: Ongoing focus on enhancing the mobile application experience.
 - **Implementation Idea**: Continue polishing spacing, tap targets, safe-areas, and interactive components to ensure Kaasi feels like a premium, native mobile app.
 
+---
+
+## 🛠️ Technical Debt & Code Organization
+
+### 1. Function Reorganization
+- **Concept**: Refactor and move misplaced functions into their logically appropriate files to improve code maintainability.
+- **Implementation Idea**: Relocate functions like `setupDeleteSlider()` and `completeDeletion()`, which are currently awkwardly housed in `charts-export.js`, into `ui.js` or `app.js` where they belong. Audit other files for similar misplacements.
+
 
 
 ## 🐛 Bug Fixes & Known Issues
