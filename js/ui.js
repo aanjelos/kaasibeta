@@ -1822,8 +1822,9 @@ function processCalculation(inputEl) {
 
 function positionMathToolbar(inputEl) {
   const rect = inputEl.getBoundingClientRect();
-  mathToolbar.style.left = `${rect.left + window.scrollX}px`;
-  mathToolbar.style.top = `${rect.top + window.scrollY - 45}px`; 
+  const tbWidth = mathToolbar.offsetWidth || 226; // Approx width if layout isn't painted yet
+  mathToolbar.style.left = `${rect.right + window.scrollX - tbWidth}px`;
+  mathToolbar.style.top = `${rect.bottom + window.scrollY + 6}px`; 
 }
 
 function showMathToolbar(inputEl) {

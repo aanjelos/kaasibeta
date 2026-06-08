@@ -1556,7 +1556,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
   transition: opacity 0.2s ease, transform 0.2s ease;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(10px);
+  transform: translateY(-10px);
 }
 
 .math-toolbar.visible {
