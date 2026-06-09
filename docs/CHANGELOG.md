@@ -160,3 +160,11 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 - **Mobile Dropdown Enhancements**: Added the "Transfer Money" shortcut directly into the mobile hamburger menu for easier one-handed access.
 - **Modal Text Spacing**: Injected extra right-padding to all modal titles (`<h2>`) so they no longer collide with or overlap the "X" close button on extremely narrow screens.
 - **Debts/Receivables Flex Wrapping**: Rewrote the flexbox styling for the Debts and Receivables modals. Instead of squeezing names and amounts into an unreadable mess, they now dynamically detect screen size and gracefully stack horizontally into two separate lines on mobile, while staying side-by-side on desktop.
+
+### 34. [Architecture] JavaScript Codebase Reorganization (v5.161k)
+- **Domain-Specific Modules**: Completely refactored and modularized the JavaScript codebase to drastically improve maintainability. Logic previously tangled inside `charts-export.js` and `ui.js` has been extracted and logically separated.
+- **New File Structure**:
+  - `data-sync.js`: Now exclusively handles all Supabase cloud sync, Google OAuth, and local data import/export/wipe operations.
+  - `charts.js`: Dedicated exclusively to rendering the Dashboard UI charts and generating the comprehensive PDF Monthly Reports.
+  - `settings.js`: Manages all Settings modal logic, advanced rules, and category customizations.
+  - `math-tool.js`: A dedicated module for the floating inline calculator.
