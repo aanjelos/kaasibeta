@@ -116,7 +116,7 @@ function initializeUI(isRefresh = false) {
   const footerDonateBtn = document.getElementById("footerDonateBtn");
   const closeDonateModalBtn = document.getElementById("closeDonateModal");
 
-  if (donateModal && footerDonateBtn && closeDonateModalBtn) {
+  if (!isRefresh && donateModal && footerDonateBtn && closeDonateModalBtn) {
     footerDonateBtn.addEventListener("click", () => {
       openModalHelper("donateModal");
     });
@@ -168,7 +168,7 @@ function initializeUI(isRefresh = false) {
   const advancedFiltersAccordion = $("#advancedFiltersAccordion");
   const resetAdvancedFiltersBtn = $("#resetAdvancedFiltersBtn");
   
-  if (toggleAdvancedFiltersBtn && advancedFiltersAccordion) {
+  if (!isRefresh && toggleAdvancedFiltersBtn && advancedFiltersAccordion) {
     toggleAdvancedFiltersBtn.addEventListener("click", () => {
       advancedFiltersAccordion.classList.toggle("hidden");
     });
@@ -179,7 +179,7 @@ function initializeUI(isRefresh = false) {
   const filterCategoryDropdown = $("#filterCategoryDropdown");
   const filterCategoryBtnText = $("#filterCategoryBtnText");
 
-  if (filterCategoryBtn && filterCategoryDropdown) {
+  if (!isRefresh && filterCategoryBtn && filterCategoryDropdown) {
     filterCategoryBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       filterCategoryDropdown.classList.toggle("hidden");
@@ -304,7 +304,7 @@ function initializeUI(isRefresh = false) {
     }
   });
 
-  if (resetAdvancedFiltersBtn) {
+  if (!isRefresh && resetAdvancedFiltersBtn) {
     resetAdvancedFiltersBtn.addEventListener("click", () => {
       window.resetAdvancedFiltersAndSearch(true);
     });
@@ -328,7 +328,19 @@ function initializeUI(isRefresh = false) {
       triggerSearch();
     });
 
+    monthlySearchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        clearTimeout(monthlySearchDebounceTimer);
+        triggerSearch();
+      }
+    });
+
     clearMonthlySearchBtn.addEventListener("click", () => {
+      monthlySearchInput.value = "";
+      clearMonthlySearchBtn.style.display = "none";
+      clearMonthlySearchBtn.disabled = true;
+      
       clearTimeout(monthlySearchDebounceTimer);
       window.resetAdvancedFiltersAndSearch(true);
       monthlySearchInput.focus();
@@ -367,7 +379,7 @@ function initializeUI(isRefresh = false) {
   const ccHistorySearchInput = $("#ccHistorySearchInput");
   const clearCcHistorySearchBtn = $("#clearCcHistorySearchBtn");
 
-  if (ccHistorySearchInput && clearCcHistorySearchBtn) {
+  if (!isRefresh && ccHistorySearchInput && clearCcHistorySearchBtn) {
     const triggerCcSearch = () => {
       const renderFunction = document.body.renderCcHistoryList;
       if (typeof renderFunction === "function") {
@@ -817,3 +829,6 @@ document.addEventListener('visibilitychange', () => {
     }
   }
 });
+
+
+
