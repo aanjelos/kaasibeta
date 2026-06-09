@@ -135,12 +135,12 @@ function renderDebtList() {
 
     const creditorHeader = document.createElement("div");
     creditorHeader.className =
-      "flex justify-between items-center p-3 cursor-pointer hover:bg-gray-600/50 transition-colors";
+      "flex flex-col sm:flex-row sm:justify-between sm:items-center items-start p-3 cursor-pointer hover:bg-gray-600/50 transition-colors gap-2 sm:gap-0";
     creditorHeader.style.backgroundColor = "var(--bg-tertiary)";
 
     creditorHeader.innerHTML = ` 
       <h4 class="text-md font-semibold text-gray-100 force-word-wrap">${creditorName}</h4>
-      <div class="flex items-center flex-shrink-0 ml-2">
+      <div class="flex items-center flex-shrink-0 w-full sm:w-auto justify-between sm:justify-end">
         <span class="text-md font-semibold text-expense mr-3 whitespace-nowrap tabular-nums">${formatCurrency(
           creditorData.totalOwedTo
         )}</span>
@@ -260,7 +260,7 @@ function renderReceivableList() {
     sectionWrapper.className = "mb-6";
     const sectionTitleHeader = document.createElement("div");
     sectionTitleHeader.className =
-      "flex justify-between items-center border-b border-gray-500 pb-2 mb-3";
+      "flex flex-col sm:flex-row sm:justify-between sm:items-end items-start border-b border-gray-500 pb-2 mb-3 gap-1";
     const sectionTitle = document.createElement("h3");
     sectionTitle.className = "text-xl font-semibold text-gray-100";
     sectionTitle.textContent = title;
@@ -303,11 +303,11 @@ function renderReceivableList() {
         "mb-3 border border-gray-700 rounded-md overflow-hidden shadow-sm";
       const personHeader = document.createElement("div");
       personHeader.className =
-        "flex justify-between items-center p-3 cursor-pointer hover:bg-gray-600/50 transition-colors";
+        "flex flex-col sm:flex-row sm:justify-between sm:items-center items-start p-3 cursor-pointer hover:bg-gray-600/50 transition-colors gap-2 sm:gap-0";
       personHeader.style.backgroundColor = "var(--bg-tertiary)";
       personHeader.innerHTML = `
           <h4 class="text-md font-semibold text-gray-100 force-word-wrap">${personName}</h4>
-          <div class="flex items-center flex-shrink-0 ml-2">
+          <div class="flex items-center flex-shrink-0 w-full sm:w-auto justify-between sm:justify-end">
             <span class="text-md font-semibold text-income mr-3 whitespace-nowrap tabular-nums">${formatCurrency(
               personData.totalOwed
             )}</span>
