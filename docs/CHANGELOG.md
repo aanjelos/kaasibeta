@@ -168,3 +168,8 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
   - `charts.js`: Dedicated exclusively to rendering the Dashboard UI charts and generating the comprehensive PDF Monthly Reports.
   - `settings.js`: Manages all Settings modal logic, advanced rules, and category customizations.
   - `math-tool.js`: A dedicated module for the floating inline calculator.
+
+### 35. [UI/UX] Cloud Restore Enhancements (v5.162k)
+- **Dashboard Restore Overwrite Warning**: Restoring from the dashboard now correctly summons the overwrite warning modal before proceeding.
+- **Opt-Out Checkbox**: Added a beautifully styled "Don't show this warning again" custom checkbox inside the dashboard's restore warning modal for power users.
+- **Modal Text Alignment**: Refined the UI of the confirmation modals to left-align larger paragraphs of text for significantly better readability.

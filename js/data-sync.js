@@ -660,9 +660,12 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
       let extraHtml = "";
       if (isFromDashboard) {
         extraHtml = `<div class="mt-4 pt-4 border-t border-gray-700">
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" id="dontShowRestoreWarning" class="form-checkbox text-accent-primary bg-[var(--bg-secondary)] border-gray-600 rounded cursor-pointer">
-            <span class="text-sm text-gray-300">Don't show this warning again when restoring from the dashboard</span>
+          <label class="flex items-start gap-3 cursor-pointer group text-left">
+            <input type="checkbox" id="dontShowRestoreWarning" class="peer sr-only">
+            <div class="mt-0.5 shrink-0 w-4 h-4 rounded border border-gray-500 peer-checked:bg-accent-primary peer-checked:border-accent-primary flex items-center justify-center transition-colors">
+              <svg class="w-3 h-3 text-[var(--bg-secondary)] opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <span class="text-sm text-gray-300 group-hover:text-white transition-colors">Don't show this warning again when restoring from the dashboard</span>
           </label>
         </div>`;
       }
@@ -670,7 +673,10 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
       // Show a confirmation modal first
       showConfirmationModal(
         "Restore from Cloud",
-        `This will <strong class='text-warning'>OVERWRITE ALL</strong> your current local data with the data from your last cloud backup.<br><br>Are you sure you want to proceed?${extraHtml}`,
+        `<div class="text-left">
+          <p class="mb-4">This will <strong class="text-warning">OVERWRITE ALL</strong> your current local data with the data from your last cloud backup.</p>
+          <p>Are you sure you want to proceed?</p>
+        </div>${extraHtml}`,
         "Restore & Overwrite",
         "Cancel",
         () => {
