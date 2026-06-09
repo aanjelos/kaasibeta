@@ -5,7 +5,11 @@ module.exports = {
     "../js/**/*.js"
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'accent-primary': 'var(--accent-primary)',
+      }
+    },
   },
   plugins: [],
 }

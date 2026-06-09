@@ -659,7 +659,7 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
     } else {
       let extraHtml = "";
       if (isFromDashboard) {
-        extraHtml = `<div class="mt-4 pt-4 border-t border-gray-700">
+        extraHtml = `<div class="mt-4 pt-3 border-t border-gray-700">
           <label class="flex items-start gap-3 cursor-pointer group text-left">
             <input type="checkbox" id="dontShowRestoreWarning" class="peer sr-only">
             <div class="mt-0.5 shrink-0 w-4 h-4 rounded border border-gray-500 peer-checked:border-accent-primary flex items-center justify-center transition-colors">
@@ -673,8 +673,8 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
       // Show a confirmation modal first
       showConfirmationModal(
         "Restore from Cloud",
-        `<div class="text-left">
-          <p class="mb-4">This will <strong class="text-warning">OVERWRITE ALL</strong> your current local data with the data from your last cloud backup.</p>
+        `<div class="text-left text-gray-300">
+          <p class="mb-3">This will <strong class="text-warning">OVERWRITE ALL</strong> your current local data with the data from your last cloud backup.</p>
           <p>Are you sure you want to proceed?</p>
         </div>${extraHtml}`,
         "Restore & Overwrite",

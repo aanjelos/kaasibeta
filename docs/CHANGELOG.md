@@ -181,3 +181,7 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 ### 37. [Bugfix] CSS Custom Form Interference (v5.164k)
 - **Tailwind Compilation**: Force-compiled the new utility classes into the production CSS payload.
 - **Checkbox Solid Color Bug**: Removed an old hardcoded rule from `style.css` that was forcibly painting custom checkboxes solid orange, allowing the new transparent tick mark design to finally render.
+
+### 38. [Bugfix] Tailwind Theme Configuration (v5.165k)
+- **CSS Variables in Tailwind**: Configured `tailwind.config.js` to natively recognize the `var(--accent-primary)` CSS variable. This allows the Tailwind compiler to correctly generate utility classes like `border-accent-primary` and `text-accent-primary`, fixing the invisible checkbox styling.
+- **Modal Margin Tightening**: Shrunk the internal vertical padding and margins inside the confirmation modal to perfectly eliminate the excessive visual gap.
