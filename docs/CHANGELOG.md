@@ -155,7 +155,7 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 - **Data Deletion Logout**: Ensures that sliding to "Delete All Data" from the Settings menu now also seamlessly severs the cloud connection by logging the user out of their Google session.
 - **OAuth Race Condition Fix**: Refactored the core UI booting sequence to gracefully handle edge cases where the Supabase OAuth redirect would fire before the app UI had fully mounted, resulting in a blank dashboard screen during auto-restores. Using a localized intent flag ensures a completely seamless transition under a loading screen.
 
-### 33. [UI/UX] Mobile Responsiveness & Centering Fixes (v5.157n)
+### 33. [UI/UX] Mobile Responsiveness & Centering Fixes (v5.160k)
 - **Progress Ring Centering**: Fixed an obscure CSS/SVG rotation bug to ensure that the installment progress percentage text sits perfectly anchored in the center of its circular progress bar.
 - **Mobile Dropdown Enhancements**: Added the "Transfer Money" shortcut directly into the mobile hamburger menu for easier one-handed access.
 - **Modal Text Spacing**: Injected extra right-padding to all modal titles (`<h2>`) so they no longer collide with or overlap the "X" close button on extremely narrow screens.
