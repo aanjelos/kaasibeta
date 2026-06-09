@@ -1,206 +1,3 @@
-function exportData() {
-  try {
-    const dataStr = JSON.stringify(state, null, 2);
-    const dataBlob = new Blob([dataStr], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement("a");
-    const timestamp = new Date()
-      .toISOString()
-      .slice(0, 19)
-      .replace(/[:T]/g, "-");
-    link.download = `kaasi-backup-${timestamp}.json`;
-    link.href = url;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    showNotification("Data exported.", "success");
-  } catch (error) {
-    console.error("Export failed:", error);
-    showNotification("Data export failed.", "error");
-  }
-}
-
-function importData(event) {
-  const file = event.target.files[0];
-  if (!file) {
-    if (event && event.target) event.target.value = null;
-    return;
-  }
-
-  showConfirmationModal(
-    "Import Data",
-    "Importing data will <strong class='text-warning'>OVERWRITE ALL</strong> current data. This action cannot be undone.<br><br>Are you sure you want to proceed?",
-    "Import & Overwrite",
-    "Cancel",
-    () => {
-      // onConfirm
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          let importedData = JSON.parse(e.target.result);
-          if (importedData && typeof importedData === "object") {
-            // Sanitization logic from your previous full script.js
-            if (Array.isArray(importedData.transactions)) {
-              importedData.transactions.forEach((t) => {
-                if (typeof t.amount === "number")
-                  t.amount = roundToTwoDecimals(t.amount);
-              });
-            }
-            if (Array.isArray(importedData.accounts)) {
-              importedData.accounts.forEach((acc) => {
-                if (typeof acc.balance === "number")
-                  acc.balance = roundToTwoDecimals(acc.balance);
-              });
-            }
-            if (Array.isArray(importedData.debts)) {
-              importedData.debts.forEach((d) => {
-                if (typeof d.amount === "number")
-                  d.amount = roundToTwoDecimals(d.amount);
-                if (typeof d.originalAmount === "number")
-                  d.originalAmount = roundToTwoDecimals(d.originalAmount);
-                if (typeof d.remainingAmount === "number")
-                  d.remainingAmount = roundToTwoDecimals(d.remainingAmount);
-              });
-            }
-            if (Array.isArray(importedData.receivables)) {
-              importedData.receivables.forEach((r) => {
-                if (typeof r.amount === "number")
-                  r.amount = roundToTwoDecimals(r.amount);
-                if (typeof r.originalAmount === "number")
-                  r.originalAmount = roundToTwoDecimals(r.originalAmount);
-                if (typeof r.remainingAmount === "number")
-                  r.remainingAmount = roundToTwoDecimals(r.remainingAmount);
-              });
-            }
-            if (Array.isArray(importedData.installments)) {
-              importedData.installments.forEach((i) => {
-                if (typeof i.monthlyAmount === "number")
-                  i.monthlyAmount = roundToTwoDecimals(i.monthlyAmount);
-                if (typeof i.originalFullAmount === "number")
-                  i.originalFullAmount = roundToTwoDecimals(
-                    i.originalFullAmount
-                  );
-              });
-            }
-            if (
-              importedData.creditCard &&
-              typeof importedData.creditCard === "object"
-            ) {
-              if (typeof importedData.creditCard.limit === "number") {
-                importedData.creditCard.limit = roundToTwoDecimals(
-                  importedData.creditCard.limit
-                );
-              }
-              if (Array.isArray(importedData.creditCard.transactions)) {
-                importedData.creditCard.transactions.forEach((ccTrans) => {
-                  if (typeof ccTrans.amount === "number")
-                    ccTrans.amount = roundToTwoDecimals(ccTrans.amount);
-                  if (typeof ccTrans.paidAmount === "number")
-                    ccTrans.paidAmount = roundToTwoDecimals(ccTrans.paidAmount);
-                  if (
-                    ccTrans.paidAmount >=
-                    roundToTwoDecimals(ccTrans.amount - 0.005)
-                  ) {
-                    ccTrans.paidOff = true;
-                    ccTrans.paidAmount = ccTrans.amount;
-                  } else {
-                    ccTrans.paidOff = false;
-                  }
-                });
-              }
-            }
-
-            state = deepMerge(getDefaultState(), importedData);
-            ensureDefaultAccounts();
-            ensureDefaultCategories();
-
-            state.accounts.forEach((acc) => {
-              if (isNaN(acc.balance) || typeof acc.balance !== "number")
-                acc.balance = 0;
-              else acc.balance = roundToTwoDecimals(acc.balance);
-            });
-
-            if (!state.creditCard)
-              state.creditCard = { limit: 0, transactions: [] };
-            if (
-              isNaN(state.creditCard.limit) ||
-              typeof state.creditCard.limit !== "number"
-            )
-              state.creditCard.limit = 0;
-            else
-              state.creditCard.limit = roundToTwoDecimals(
-                state.creditCard.limit
-              );
-
-            if (!Array.isArray(state.creditCard.transactions))
-              state.creditCard.transactions = [];
-            state.creditCard.transactions.forEach((t) => {
-              if (typeof t.amount !== "number" || isNaN(t.amount)) t.amount = 0;
-              else t.amount = roundToTwoDecimals(t.amount);
-              if (typeof t.paidAmount !== "number" || isNaN(t.paidAmount))
-                t.paidAmount = 0;
-              else t.paidAmount = roundToTwoDecimals(t.paidAmount);
-              if (t.paidAmount >= roundToTwoDecimals(t.amount - 0.005)) {
-                t.paidOff = true;
-                t.paidAmount = t.amount;
-              } else {
-                t.paidOff = false;
-              }
-              if (!t.timestamp) t.timestamp = new Date(t.date).getTime();
-            });
-            state.transactions.forEach((t) => {
-              if (!t.timestamp) t.timestamp = new Date(t.date).getTime();
-            });
-            state.debts.forEach((d) => {
-              if (!d.timestamp) d.timestamp = new Date(d.dueDate).getTime();
-            });
-            state.receivables.forEach((r) => {
-              if (!r.timestamp) r.timestamp = new Date(r.dateGiven).getTime();
-            });
-            state.installments.forEach((i) => {
-              if (!i.timestamp) i.timestamp = new Date(i.startDate).getTime();
-            });
-
-            if (!state.settings) state.settings = getDefaultState().settings;
-            state.settings.initialSetupDone = true;
-
-            saveData();
-            initializeUI(true);
-            showNotification(
-              "Data imported and sanitized successfully. Application refreshed.",
-              "success"
-            );
-            closeModal("settingsModal");
-          } else {
-            throw new Error(
-              "Invalid data structure in imported file. Ensure it's a Kaasi backup."
-            );
-          }
-        } catch (error) {
-          console.error("Import failed during processing:", error);
-          showNotification(`Import failed: ${error.message}`, "error", 7000);
-        } finally {
-          if (event && event.target) event.target.value = null;
-        }
-      };
-      reader.onerror = () => {
-        showNotification("Failed to read the import file.", "error");
-        if (event && event.target) event.target.value = null;
-      };
-      reader.readAsText(file);
-    },
-    () => {
-      // onCancel
-      if (event && event.target) event.target.value = null;
-      showNotification("Import cancelled.", "info");
-    },
-    "btn-primary"
-  );
-}
-
 function generateMonthlyPdfReport() {
   if (typeof window.jspdf === "undefined") {
     showNotification("PDF generation library is not loaded.", "error");
@@ -565,150 +362,338 @@ function generateMonthlyPdfReport() {
   }
 }
 
-function initiateDeleteAllData() {
-  $("#initiateDeleteBtn").classList.add("hidden");
-  $("#deleteConfirmationSection").classList.remove("hidden");
-  resetDeleteSlider();
-}
 
-function cancelDeleteAllData() {
-  $("#initiateDeleteBtn").classList.remove("hidden");
-  $("#deleteConfirmationSection").classList.add("hidden");
-  resetDeleteSlider();
-}
-let maxTranslateX = 0;
-let isDragging = false;
-function setupDeleteSlider() {
-  const sliderContainer = $("#deleteSliderContainer");
-  const handle = $("#deleteSliderHandle");
-  const track = sliderContainer.querySelector(".slide-to-confirm-track");
-  if (!sliderContainer || !handle || !track) return;
 
-  let startX = 0;
-  let currentTranslateX = 0;
+function renderMonthlyOverviewChart() {
+  const canvas = $("#monthlyOverviewChart");
+  if (!canvas) return;
 
-  const calculateMaxTranslate = () => {
-    maxTranslateX = sliderContainer.offsetWidth - handle.offsetWidth - 4;
-  };
+  const chartTitleEl = $("#dashboardChartTitle");
+  const toggleBtn = $("#toggleChartBtn");
+  const toggleBtnIcon = toggleBtn ? toggleBtn.querySelector("i") : null;
 
-  window.resetDeleteSlider = () => {
-    isDragging = false;
-    currentTranslateX = 0;
-    handle.style.transition =
-      "transform 0.2s ease-out, background-color 0.2s ease-out";
-    track.style.transition =
-      "width 0.2s ease-out, background-color 0.2s ease-out";
-    handle.style.transform = `translateX(0px)`;
-    track.style.width = `0px`;
-    track.style.backgroundColor = "var(--button-success-bg)";
-    handle.innerHTML = '<i class="fas fa-arrow-right"></i>';
-    handle.style.backgroundColor = "var(--accent-primary)";
-    handle.style.cursor = "grab";
-    sliderContainer.style.cursor = "pointer";
-  };
 
-  const startDrag = (clientX) => {
-    calculateMaxTranslate();
-    isDragging = true;
-    startX = clientX - handle.getBoundingClientRect().left;
-    handle.style.transition = "none";
-    track.style.transition = "none";
-    handle.style.cursor = "grabbing";
-    sliderContainer.style.cursor = "grabbing";
-  };
+  const ctx = canvas.getContext("2d");
 
-  const drag = (clientX) => {
-    if (!isDragging) return;
-    let newTranslateX =
-      clientX - sliderContainer.getBoundingClientRect().left - startX;
-    currentTranslateX = Math.max(0, Math.min(newTranslateX, maxTranslateX));
-    handle.style.transform = `translateX(${currentTranslateX}px)`;
-    track.style.width = `${currentTranslateX + handle.offsetWidth / 2}px`;
-  };
+  // Get theme-dependent colors for grid lines, ticks, etc.
+  const computedStyle = getComputedStyle(document.documentElement);
+  const chartGridColor =
+    computedStyle.getPropertyValue("--chart-grid-color").trim() ||
+    "rgba(255,255,255,0.1)";
+  const chartTickColor =
+    computedStyle.getPropertyValue("--chart-tick-color").trim() || "#aaa";
+  const chartLegendColor =
+    computedStyle.getPropertyValue("--chart-legend-color").trim() || "#e0e0e0";
+  const chartTooltipBg =
+    computedStyle.getPropertyValue("--chart-tooltip-bg").trim() ||
+    "rgba(0,0,0,0.8)";
+  const chartTooltipText =
+    computedStyle.getPropertyValue("--chart-tooltip-text").trim() || "#fff";
 
-  const endDrag = () => {
-    if (!isDragging) return;
-    isDragging = false;
-    handle.style.cursor = "grab";
-    sliderContainer.style.cursor = "pointer";
+  // Use CSS variables for income/expense instead of hardcoded hexes
+  const incomeColor = computedStyle.getPropertyValue("--chart-income-color").trim() || computedStyle.getPropertyValue("--income-color").trim() || "#2a9d8f";
+  const expenseColor = computedStyle.getPropertyValue("--chart-expense-color").trim() || computedStyle.getPropertyValue("--expense-color").trim() || "#e74c3c";
 
-    handle.style.transition =
-      "transform 0.2s ease-out, background-color 0.2s ease-out";
-    track.style.transition =
-      "width 0.2s ease-out, background-color 0.2s ease-out";
-
-    if (currentTranslateX >= maxTranslateX - 1) {
-      completeDeletion();
-    } else {
-      resetDeleteSlider();
+  const hexToRgba = (hex, alpha = 0.3) => {
+    let r = 0,
+      g = 0,
+      b = 0;
+    if (hex.length == 4) {
+      r = parseInt(hex[1] + hex[1], 16);
+      g = parseInt(hex[2] + hex[2], 16);
+      b = parseInt(hex[3] + hex[3], 16);
+    } else if (hex.length == 7) {
+      r = parseInt(hex.slice(1, 3), 16);
+      g = parseInt(hex.slice(3, 5), 16);
+      b = parseInt(hex.slice(5, 7), 16);
     }
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
 
-  handle.addEventListener("mousedown", (e) => startDrag(e.clientX));
-  document.addEventListener("mousemove", (e) => {
-    if (isDragging) drag(e.clientX);
-  });
-  document.addEventListener("mouseup", endDrag);
+  let chartLabels, chartDatasets;
 
-  handle.addEventListener(
-    "touchstart",
-    (e) => {
-      e.preventDefault();
-      startDrag(e.touches[0].clientX);
-    },
-    {
-      passive: false,
+  // --- LOGIC FOR MONTHLY (DAILY) EXPENSE VIEW ---
+  if (dashboardChartState === "monthly") {
+    if (chartTitleEl)
+      chartTitleEl.textContent = "Daily Expenses (Current Month)";
+    if (toggleBtnIcon) {
+      toggleBtnIcon.className = "fas fa-calendar-alt fa-lg";
+      toggleBtn.dataset.tooltip = "Switch to Yearly View";
     }
-  );
-  document.addEventListener(
-    "touchmove",
-    (e) => {
-      if (isDragging) {
-        e.preventDefault();
-        drag(e.touches[0].clientX);
+
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+    chartLabels = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    const dailyExpenseData = new Array(daysInMonth).fill(0);
+
+    state.transactions.forEach((t) => {
+      const tDate = new Date(t.date);
+      if (
+        t.type === "expense" &&
+        tDate.getMonth() === currentMonth &&
+        tDate.getFullYear() === currentYear &&
+        !isCategoryExcluded(t.category || "Other", 'excludeFromDashboardCharts')
+      ) {
+        const dayOfMonth = tDate.getDate();
+        dailyExpenseData[dayOfMonth - 1] += t.amount;
       }
-    },
-    {
-      passive: false,
-    }
-  );
-  document.addEventListener("touchend", endDrag);
+    });
 
-  window.addEventListener("resize", () => {
-    if (
-      $("#deleteConfirmationSection") &&
-      !$("#deleteConfirmationSection").classList.contains("hidden")
-    ) {
-      calculateMaxTranslate();
-      resetDeleteSlider();
-    }
-  });
-}
+    chartDatasets = [
+      {
+        label: "Daily Expense",
+        data: dailyExpenseData,
+        borderColor: expenseColor,
+        backgroundColor: hexToRgba(expenseColor, 0.3),
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: expenseColor,
+        pointBorderColor: "#fff",
+        pointHoverRadius: 6,
+        pointHoverBackgroundColor: "#fff",
+        pointHoverBorderColor: expenseColor,
+      },
+    ];
 
-function completeDeletion() {
-  const handle = $("#deleteSliderHandle");
-  const track = $(".slide-to-confirm-track");
-  handle.innerHTML = '<i class="fas fa-check"></i>';
-  handle.style.backgroundColor = "var(--button-success-bg)";
-  track.style.width = "100%";
-  track.style.backgroundColor = "var(--button-success-bg)";
-  handle.style.transform = `translateX(${maxTranslateX}px)`;
-  isDragging = false;
-  handle.style.pointerEvents = "none";
-  setTimeout(async () => {
-    // Log out if connected to cloud
-    if (typeof supabaseUser !== "undefined" && supabaseUser && typeof signOut === "function") {
-      await signOut();
+    // --- LOGIC FOR YEARLY (INCOME VS EXPENSE) VIEW ---
+  } else {
+    if (chartTitleEl)
+      chartTitleEl.textContent = "Monthly Income vs Expenses (Last 12 Months)";
+    if (toggleBtnIcon) {
+      toggleBtnIcon.className = "fas fa-chart-line fa-lg";
+      toggleBtn.dataset.tooltip = "Switch to Daily Expense View";
+    }
+
+    chartLabels = [];
+    const incomeData = [];
+    const expenseData = [];
+    const now = new Date();
+
+    for (let i = 11; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const year = date.getFullYear();
+      const month = date.getMonth();
+
+      chartLabels.push(date.toLocaleString("default", { month: "short" }));
+
+      let monthlyIncome = 0;
+      let monthlyExpense = 0;
+      state.transactions.forEach((t) => {
+        const tDate = new Date(t.date);
+        if (isNaN(tDate.getTime())) return;
+        if (tDate.getFullYear() === year && tDate.getMonth() === month) {
+          if (t.type === "income") monthlyIncome += t.amount;
+          else if (t.type === "expense" && !isCategoryExcluded(t.category || "Other", 'excludeFromDashboardCharts')) monthlyExpense += t.amount;
+        }
+      });
+      incomeData.push(monthlyIncome);
+      expenseData.push(monthlyExpense);
+    }
+
+    chartDatasets = [
+      {
+        label: "Income",
+        data: incomeData,
+        borderColor: incomeColor,
+        backgroundColor: hexToRgba(incomeColor, 0.3),
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: incomeColor,
+        pointBorderColor: "#fff",
+        pointHoverRadius: 6,
+        pointHoverBackgroundColor: "#fff",
+        pointHoverBorderColor: incomeColor,
+      },
+      {
+        label: "Expenses",
+        data: expenseData,
+        borderColor: expenseColor,
+        backgroundColor: hexToRgba(expenseColor, 0.3),
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: expenseColor,
+        pointBorderColor: "#fff",
+        pointHoverRadius: 6,
+        pointHoverBackgroundColor: "#fff",
+        pointHoverBorderColor: expenseColor,
+      },
+    ];
+  }
+
+  // --- Create or Update the Chart ---
+  if (monthlyOverviewChartInstance) {
+    // Optimization: Update data and options instead of destroying the canvas
+    monthlyOverviewChartInstance.data.labels = chartLabels;
+    monthlyOverviewChartInstance.data.datasets = chartDatasets;
+    
+    // Update theme-dependent options in case the user toggled light/dark mode
+    if (monthlyOverviewChartInstance.options && monthlyOverviewChartInstance.options.scales) {
+      monthlyOverviewChartInstance.options.scales.y.ticks.color = chartTickColor;
+      monthlyOverviewChartInstance.options.scales.y.grid.color = chartGridColor;
+      monthlyOverviewChartInstance.options.scales.x.ticks.color = chartTickColor;
+      monthlyOverviewChartInstance.options.plugins.legend.labels.color = chartLegendColor;
+      monthlyOverviewChartInstance.options.plugins.tooltip.backgroundColor = chartTooltipBg;
+      monthlyOverviewChartInstance.options.plugins.tooltip.titleColor = chartTooltipText;
+      monthlyOverviewChartInstance.options.plugins.tooltip.bodyColor = chartTooltipText;
     }
     
-    localStorage.removeItem(STORAGE_KEY);
-    state = getDefaultState();
-    ensureDefaultAccounts();
-    ensureDefaultCategories();
-    initializeUI(true);
-    closeModal("settingsModal");
-    showNotification("All data deleted and logged out.", "success");
-    handle.style.pointerEvents = "auto";
-  }, 500);
+    monthlyOverviewChartInstance.update();
+  } else {
+    monthlyOverviewChartInstance = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: chartLabels,
+        datasets: chartDatasets,
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              color: chartTickColor,
+              callback: (v) =>
+                v >= 1000000
+                  ? `LKR ${(v / 1000000).toFixed(1)}M`
+                  : v >= 1000
+                  ? `LKR ${(v / 1000).toFixed(0)}k`
+                  : formatCurrency(v),
+            },
+            grid: { color: chartGridColor, drawBorder: false },
+          },
+          x: {
+            ticks: { color: chartTickColor },
+            grid: { display: false },
+          },
+        },
+        plugins: {
+          legend: {
+            position: "top",
+            labels: { color: chartLegendColor, usePointStyle: true, boxWidth: 8 },
+          },
+          tooltip: {
+            backgroundColor: chartTooltipBg,
+            titleColor: chartTooltipText,
+            bodyColor: chartTooltipText,
+            padding: 10,
+            cornerRadius: 4,
+            usePointStyle: true,
+            callbacks: {
+              label: (c) =>
+                `${c.dataset.label || ""}: ${formatCurrency(c.parsed.y)}`,
+            },
+          },
+        },
+        interaction: { mode: "index", intersect: false },
+      },
+    });
+  }
+}
+
+function renderMonthlyPieChart(data) {
+  const canvas = document.getElementById("monthlyDetailPieChartCanvas");
+  if (!canvas || !canvas.getContext) {
+    console.error(
+      "Canvas for monthly pie chart (id: monthlyDetailPieChartCanvas) not found or invalid."
+    );
+
+    if (monthlyPieChartInstance) {
+      monthlyPieChartInstance.destroy();
+      monthlyPieChartInstance = null;
+    }
+    return;
+  }
+  const ctx = canvas.getContext("2d");
+
+  const computedStyle = getComputedStyle(document.documentElement);
+  const chartTooltipBg = computedStyle.getPropertyValue("--chart-tooltip-bg").trim() || "rgba(0,0,0,0.85)";
+  const chartTooltipText = computedStyle.getPropertyValue("--chart-tooltip-text").trim() || "#fff";
+
+  const brandPiePalette = [
+    "#e67e26",
+    "#2a9d8f",
+    "#e74c3c",
+    "#3498db",
+    "#f1c40f",
+    "#9b59b6",
+    "#34495e",
+    "#1abc9c",
+    "#7f8c8d",
+    "#2ecc71",
+    "#d35400",
+    "#2a9d8f",
+    "#e74c3c",
+  ];
+  const backgroundColors = data.labels.map(
+    (_, index) => brandPiePalette[index % brandPiePalette.length]
+  );
+
+  if (monthlyPieChartInstance) {
+    monthlyPieChartInstance.data.labels = data.labels;
+    monthlyPieChartInstance.data.datasets[0].data = data.values;
+    monthlyPieChartInstance.data.datasets[0].backgroundColor = backgroundColors;
+    monthlyPieChartInstance.update();
+  } else {
+    monthlyPieChartInstance = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: data.labels,
+        datasets: [
+          {
+            label: "Expenses by Category",
+            data: data.values,
+            backgroundColor: backgroundColors,
+            borderColor: "var(--bg-secondary)",
+            borderWidth: 1,
+            hoverOffset: 8,
+            hoverBorderColor: "var(--text-primary)",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            backgroundColor: chartTooltipBg,
+            titleColor: chartTooltipText,
+            bodyColor: chartTooltipText,
+            padding: 12,
+            cornerRadius: 4,
+            usePointStyle: true,
+            callbacks: {
+              label: function (context) {
+                let label = context.label || "";
+                if (label) {
+                  label += ": ";
+                }
+                if (context.parsed !== null) {
+                  label += formatCurrency(context.parsed);
+
+                  const datasetMeta = context.chart.getDatasetMeta(0);
+                  const total =
+                    datasetMeta.total ||
+                    datasetMeta.data.reduce((sum, el) => sum + el.raw, 0);
+                  const percentage =
+                    total > 0
+                      ? ((context.parsed / total) * 100).toFixed(1) + "%"
+                      : "0.0%";
+                  label += ` (${percentage})`;
+                }
+                return label;
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 }
 
