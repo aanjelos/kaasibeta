@@ -642,7 +642,7 @@ function openEditTransactionModal(transactionId, event) {
                 <label for="modalAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>
                 <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="modalAmount" name="amount" value="${transaction.amount.toFixed(
                   2
-                )}" step="0.01" min="0" placeholder="e.g., 1500.50" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
+                )}" step="0.01" min="0" placeholder="e.g., 1500.50" required><button type="button" class="calc-toggle-btn absolute right-3 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
             </div>
             <div>
                 <label for="modalAccount" class="block text-sm font-medium mb-1">Account</label>
@@ -1931,7 +1931,7 @@ function openEditCcTransactionModal(ccTransactionId) {
                 <label for="modalCcAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>
                 <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="modalCcAmount" name="ccAmount" value="${transaction.amount.toFixed(
                   2
-                )}" step="0.01" min="0" placeholder="Amount spent" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
+                )}" step="0.01" min="0" placeholder="Amount spent" required><button type="button" class="calc-toggle-btn absolute right-3 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
             </div>
             <div>
                 <label for="modalCcDescription" class="block text-sm font-medium mb-1">Description</label>

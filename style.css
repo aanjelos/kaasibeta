@@ -1590,11 +1590,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
   background: var(--accent-hover);
 }
 
-@media (pointer: fine) {
-  .math-toolbar {
-    display: none !important;
-  }
-}
+
   padding-left: 0.75rem;
   padding-right: 2.5rem; /* Keep space for the dropdown arrow */
 }
