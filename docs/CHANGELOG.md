@@ -185,3 +185,6 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 ### 38. [Bugfix] Tailwind Theme Configuration (v5.165k)
 - **CSS Variables in Tailwind**: Configured `tailwind.config.js` to natively recognize the `var(--accent-primary)` CSS variable. This allows the Tailwind compiler to correctly generate utility classes like `border-accent-primary` and `text-accent-primary`, fixing the invisible checkbox styling.
 - **Modal Margin Tightening**: Shrunk the internal vertical padding and margins inside the confirmation modal to perfectly eliminate the excessive visual gap.
+
+### 39. [Bugfix] Checkbox SVG Visibility (v5.166k)
+- **Tailwind Sibling Utilities**: Fixed a CSS hierarchy issue where the `peer-checked` state was incorrectly applied directly to the child `<svg>` element instead of the sibling `<div>`. The SVG checkmark now correctly inherits the dynamic `text-accent-primary` color when the hidden checkbox is toggled.
