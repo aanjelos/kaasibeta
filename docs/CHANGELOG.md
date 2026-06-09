@@ -173,3 +173,7 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 - **Dashboard Restore Overwrite Warning**: Restoring from the dashboard now correctly summons the overwrite warning modal before proceeding.
 - **Opt-Out Checkbox**: Added a beautifully styled "Don't show this warning again" custom checkbox inside the dashboard's restore warning modal for power users.
 - **Modal Text Alignment**: Refined the UI of the confirmation modals to left-align larger paragraphs of text for significantly better readability.
+
+### 36. [UI/UX] Modal & Checkbox UI Polish (v5.163k)
+- **Modal DOM Hierarchy Fix**: Fixed an underlying DOM issue where injecting confirmation messages created massive structural gaps, restoring a perfectly padded confirmation modal.
+- **Orange Tick Design**: All custom checkboxes (including the Cloud Restore opt-out and the Dashboard Category Filter dropdowns) have been upgraded. Instead of turning into a solid block of color, they now maintain their sleek dark background and reveal a gorgeous, animated orange SVG checkmark when ticked.
