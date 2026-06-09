@@ -1950,6 +1950,11 @@ function setupMobileDropdown() {
     $("#monthlyViewBtn")?.click();
   });
 
+  $("#dropTransferBtn")?.addEventListener("click", () => {
+    toggleDropdown();
+    $("#openTransferModalBtn")?.click();
+  });
+
   $("#dropBackupBtn")?.addEventListener("click", () => {
     toggleDropdown();
     const target = $("#shortcutCloud")?.checked && !$("#shortcutCloud")?.disabled ? "cloud" : "local";
