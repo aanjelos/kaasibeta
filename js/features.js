@@ -431,7 +431,7 @@ function renderInstallmentList() {
               <path class="progress-ring-circle" stroke-dasharray="${progressPercent.toFixed(
                 2
               )}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-linecap="round" stroke-width="3"></path>
-              <text x="18" y="17.5" class="progress-ring-text" text-anchor="middle" fill="var(--text-primary)">${
+              <text x="50%" y="50%" dominant-baseline="central" class="progress-ring-text" text-anchor="middle" fill="var(--text-primary)">${
                 i.monthsLeft
               }</text>
           </svg>

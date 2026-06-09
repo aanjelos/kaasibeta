@@ -1129,7 +1129,7 @@ button.link-style {
 /* --- INSTALLMENT PROGRESS RING --- */
 /* ------------------------- */
 .installment-progress-ring-container svg {
-  transform: rotate(-90deg);
+  /* Removed rotation because the path already starts at 12 o'clock */
 }
 .progress-ring-bg {
   stroke: var(--ring-bg-color);
@@ -1144,10 +1144,8 @@ button.link-style {
   font-weight: 700;
   font-size: 11px;
   fill: var(--ring-text-color);
-  dominant-baseline: middle;
+  dominant-baseline: central;
   text-anchor: middle;
-  transform: rotate(90deg) translate(0, -36px) translate(0, 36px);
-  transform-origin: center;
 }
 .installment-progress-ring-container:hover .progress-ring-bg {
   stroke: #5e5e5e;
