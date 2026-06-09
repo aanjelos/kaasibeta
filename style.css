@@ -1086,27 +1086,12 @@ button.link-style {
   dominant-baseline: central;
   text-anchor: middle;
 }
-/* ------------------------- */
-/* --- CARD HOVER STATES --- */
-/* ------------------------- */
-.recent-tx-card {
-  transition: background-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+.installment-progress-ring-container:hover .progress-ring-bg {
+  stroke: #5e5e5e;
 }
-.recent-tx-card:hover {
-  background-color: rgba(230, 126, 38, 0.07) !important;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(230, 126, 38, 0.12);
+.installment-progress-ring-container:hover .progress-ring-circle {
+  stroke: var(--accent-hover);
 }
-
-.installment-card {
-  transition: background-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
-}
-.installment-card:hover {
-  background-color: rgba(230, 126, 38, 0.07) !important;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(230, 126, 38, 0.12);
-}
-
 
 /* ------------------------- */
 /* --- LOGOS --- */
@@ -1497,25 +1482,23 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .math-toolbar {
   position: absolute;
   display: flex;
-  gap: 0.3rem;
-  /* Premium frosted look — visible even over dark solid backgrounds */
-  background: #1a1a1a;
-  border: 1px solid rgba(230, 126, 38, 0.45);
-  border-top: 2px solid rgba(230, 126, 38, 0.8);
-  border-radius: 0.625rem;
-  padding: 0.3rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 12px rgba(230, 126, 38, 0.12);
+  gap: 0.25rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   z-index: 9999;
-  transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: opacity 0.2s ease, transform 0.2s ease;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-8px) scale(0.96);
+  transform: translateY(-10px);
 }
 
 .math-toolbar.visible {
   opacity: 1;
   pointer-events: auto;
-  transform: translateY(0) scale(1);
+  transform: translateY(0);
 }
 
 .math-btn {
