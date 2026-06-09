@@ -541,7 +541,13 @@ async function backupToSupabase() {
   }
 }
 
-async function restoreFromSupabase(force = false) {
+async function restoreFromSupabase(force = false, isFromDashboard = false) {
+  // Prevent MouseEvent from being evaluated as true when called via onclick
+  if (typeof force !== "boolean") force = false;
+
+  if (isFromDashboard && localStorage.getItem("skipRestoreWarning") === "true") {
+    force = true;
+  }
   if (!supabaseUser) {
     showNotification(
       "You must be logged in to restore from the cloud.",
