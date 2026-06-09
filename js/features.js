@@ -52,7 +52,7 @@ function renderRecentTransactions() {
 
   recent.forEach((t) => {
     const div = document.createElement("div");
-    div.className = `flex justify-between items-center p-2 rounded bg-gray-700/50 text-sm transition-colors hover:bg-gray-700/80`;
+    div.className = `flex justify-between items-center p-2 rounded-lg bg-gray-700/50 text-sm transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group`;
 
     const account = state.accounts.find((a) => a.id === t.account);
     const accountName = account ? account.name : "Unknown Acct";
@@ -420,7 +420,7 @@ function renderInstallmentList() {
         : 0;
 
     const div = document.createElement("div");
-    div.className = "p-3 rounded bg-gray-700/50 text-sm mb-2";
+    div.className = "p-3 rounded-lg bg-gray-700/50 text-sm mb-2 transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer";
 
     const ringHtml = `
       <div class="installment-progress-ring-container w-10 h-10 flex-shrink-0" title="${progressPercent.toFixed(

@@ -52,6 +52,8 @@
   --accent-primary: #e67e26;
   --accent-primary-rgb: 230, 126, 38;
   --accent-hover: #d35400;
+  --accent-glow: rgba(230, 126, 38, 0.25);
+  --accent-glow-strong: rgba(230, 126, 38, 0.45);
 
   /* Semantic Colors (Dark Theme) */
   --income-color: #27ae60;
@@ -423,7 +425,7 @@ select:focus {
   padding: 0.6rem 1.2rem;
   border-radius: 0.375rem;
   font-weight: 500;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   text-align: center;
   display: inline-flex;
@@ -435,8 +437,9 @@ select:focus {
   user-select: none;
 }
 .btn:active {
-  transform: translateY(1px);
-  box-shadow: none;
+  transform: translateY(1px) !important;
+  box-shadow: none !important;
+  opacity: 0.9;
 }
 
 .btn-primary {
@@ -447,7 +450,12 @@ select:focus {
 .btn-primary:hover {
   background-color: var(--button-primary-hover-bg);
   border-color: var(--button-primary-hover-bg);
-  box-shadow: 0 2px 8px rgba(var(--accent-primary-rgb), 0.3);
+  box-shadow: 0 4px 18px rgba(230, 126, 38, 0.45), 0 1px 4px rgba(230, 126, 38, 0.2);
+  transform: translateY(-1px);
+}
+.btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(230, 126, 38, 0.4), 0 4px 18px rgba(230, 126, 38, 0.3);
 }
 
 .btn-secondary {
@@ -755,23 +763,34 @@ select:focus {
 /* ------------------------- */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--bg-quaternary) var(--bg-tertiary);
+  scrollbar-color: rgba(230, 126, 38, 0.4) var(--bg-tertiary);
 }
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: var(--bg-tertiary);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-quaternary);
+  background: rgba(230, 126, 38, 0.35);
   border-radius: 10px;
   border: 2px solid var(--bg-tertiary);
+  transition: background 0.2s;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #5e5e5e;
+  background: rgba(230, 126, 38, 0.7);
+}
+
+/* --- BRANDED TEXT SELECTION --- */
+::selection {
+  background-color: rgba(230, 126, 38, 0.3);
+  color: var(--text-primary);
+}
+::-moz-selection {
+  background-color: rgba(230, 126, 38, 0.3);
+  color: var(--text-primary);
 }
 
 /* ------------------------- */
@@ -925,13 +944,16 @@ button.link-style {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--border-color);
-  transition: background-color 0.2s;
+  transition: background-color 0.2s ease, transform 0.18s ease, box-shadow 0.18s ease;
+  cursor: pointer;
 }
 .monthly-view-transaction-item:last-child {
   border-bottom: none;
 }
 .monthly-view-transaction-item:hover {
-  background-color: rgba(var(--accent-primary-rgb), 0.05);
+  background-color: rgba(var(--accent-primary-rgb), 0.06);
+  transform: translateX(3px);
+  box-shadow: -3px 0 0 0 var(--accent-primary), inset 0 0 12px rgba(230, 126, 38, 0.04);
 }
 
 .monthly-view-category-list li {
@@ -1029,7 +1051,9 @@ button.link-style {
 }
 
 .cc-history-transaction-item:hover {
-  background-color: rgba(var(--accent-primary-rgb), 0.05);
+  background-color: rgba(var(--accent-primary-rgb), 0.06);
+  transform: translateX(3px);
+  box-shadow: -3px 0 0 0 var(--accent-primary), inset 0 0 12px rgba(230, 126, 38, 0.04);
 }
 
 /* NEW: Active state for CC history filter buttons */
@@ -1088,10 +1112,12 @@ button.link-style {
 /* ------------------------- */
 input[type="checkbox"].peer + div {
   background-color: var(--bg-quaternary);
-  transition-property: background-color, border-color, text-decoration-color,
-    fill, stroke;
+  transition-property: background-color, border-color, box-shadow;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 200ms;
+}
+input[type="checkbox"].peer:checked + div {
+  box-shadow: 0 0 0 2px rgba(230, 126, 38, 0.2), 0 0 8px rgba(230, 126, 38, 0.3);
 }
 input[type="checkbox"].peer:focus-visible + div {
   outline: 2px solid var(--accent-primary);
@@ -1457,22 +1483,25 @@ footer a[href^="https://kaasi.com.lk"]:hover
   position: absolute;
   display: flex;
   gap: 0.25rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  padding: 0.25rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  /* Glassmorphism */
+  background: rgba(30, 30, 30, 0.75);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(230, 126, 38, 0.2);
+  border-radius: 0.625rem;
+  padding: 0.3rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(230, 126, 38, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   z-index: 9999;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-10px);
+  transform: translateY(-8px) scale(0.97);
 }
 
 .math-toolbar.visible {
   opacity: 1;
   pointer-events: auto;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
 .math-btn {
