@@ -177,3 +177,7 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 ### 36. [UI/UX] Modal & Checkbox UI Polish (v5.163k)
 - **Modal DOM Hierarchy Fix**: Fixed an underlying DOM issue where injecting confirmation messages created massive structural gaps, restoring a perfectly padded confirmation modal.
 - **Orange Tick Design**: All custom checkboxes (including the Cloud Restore opt-out and the Dashboard Category Filter dropdowns) have been upgraded. Instead of turning into a solid block of color, they now maintain their sleek dark background and reveal a gorgeous, animated orange SVG checkmark when ticked.
+
+### 37. [Bugfix] CSS Custom Form Interference (v5.164k)
+- **Tailwind Compilation**: Force-compiled the new utility classes into the production CSS payload.
+- **Checkbox Solid Color Bug**: Removed an old hardcoded rule from `style.css` that was forcibly painting custom checkboxes solid orange, allowing the new transparent tick mark design to finally render.

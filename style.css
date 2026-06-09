@@ -1178,9 +1178,6 @@ input[type="checkbox"].peer + div {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 200ms;
 }
-input[type="checkbox"].peer:checked + div {
-  background-color: var(--accent-primary);
-}
 input[type="checkbox"].peer:focus-visible + div {
   outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
