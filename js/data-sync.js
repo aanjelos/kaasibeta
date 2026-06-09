@@ -751,3 +751,140 @@ function checkAndTriggerBackupReminder() {
   }
 }
 
+
+
+async function initializeSupabase() {
+  if (!supabaseClient) {
+    console.error("Supabase client not available.");
+    return;
+  }
+  console.log("Checking Supabase auth state...");
+
+  const checkAutoRestore = async (user) => {
+    if (user && (!state || !state.settings || !state.settings.initialSetupDone)) {
+      if (typeof restoreFromSupabase === "function") {
+        console.log("User signed in with incomplete setup, attempting auto-restore...");
+        try {
+          await restoreFromSupabase(true);
+        } finally {
+          localStorage.removeItem("pendingCloudRestore");
+        }
+        
+        if (state && state.settings && state.settings.initialSetupDone) {
+          if (typeof closeModal === "function") closeModal("initialSetupModal");
+          if (typeof renderDashboard === "function") renderDashboard();
+        } else {
+          // If restore failed or user had no data, and setup is still incomplete
+          if (typeof openInitialSetupWizard === "function") {
+            console.log("Auto-restore did not complete setup. Opening wizard.");
+            openInitialSetupWizard();
+          }
+        }
+      }
+    } else {
+      localStorage.removeItem("pendingCloudRestore");
+      if (!state || !state.settings || !state.settings.initialSetupDone) {
+        if (typeof openInitialSetupWizard === "function") {
+          console.log("No user session found, opening setup wizard.");
+          openInitialSetupWizard();
+        }
+      }
+    }
+    
+    // Hide the preloader if it was kept visible for pending restore
+    if (typeof window.hidePreloader === "function") {
+      window.hidePreloader();
+      delete window.hidePreloader; // cleanup
+    }
+  };
+
+  // Handle auth state changes (e.g., login, logout)
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    console.log("Supabase auth state changed:", event, session);
+    const user = session?.user || null;
+    supabaseUser = user;
+    updateSupabaseUI(user);
+    await checkAutoRestore(user);
+  });
+
+  // Check for initial session
+  try {
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (error) {
+      console.error("Error getting session:", error.message);
+      throw error;
+    }
+    const user = data.session?.user || null;
+    supabaseUser = user;
+    updateSupabaseUI(user);
+    console.log(
+      "Initial session check complete. User:",
+      user ? user.email : "none"
+    );
+    await checkAutoRestore(user);
+  } catch (error) {
+    console.error("Failed to initialize session:", error);
+    updateSupabaseUI(null);
+  }
+}
+
+function updateSupabaseUI(user) {
+  const loggedOutView = $("#cloudBackupLoggedOut");
+  const loggedInView = $("#cloudBackupLoggedIn");
+  const userEmailEl = $("#userEmail");
+  const shortcutCloudInput = $("#shortcutCloud");
+  const shortcutCloudLabel = $("#shortcutCloudLabel");
+  const shortcutLocalInput = $("#shortcutLocal");
+
+  if (
+    !loggedOutView ||
+    !loggedInView ||
+    !userEmailEl ||
+    !shortcutCloudInput ||
+    !shortcutCloudLabel
+  ) {
+    console.warn(
+      "Could not find all Supabase UI elements in Settings to update."
+    );
+    return;
+  }
+
+  if (user) {
+    // User is logged IN
+    loggedOutView.classList.add("hidden");
+    loggedInView.classList.remove("hidden");
+    userEmailEl.textContent = user.email;
+    shortcutCloudInput.disabled = false;
+    shortcutCloudLabel.classList.remove(
+      "text-gray-400",
+      "opacity-60",
+      "cursor-not-allowed"
+    );
+    shortcutCloudLabel.classList.add("text-gray-300");
+
+    // --- NEW: Default to Cloud Backup on login ---
+    shortcutCloudInput.checked = true;
+    shortcutLocalInput.checked = false;
+    // --- END NEW ---
+    
+    fetchAndUpdateLastCloudSyncTime();
+  } else {
+    // User is logged OUT
+    loggedOutView.classList.remove("hidden");
+    loggedInView.classList.add("hidden");
+    userEmailEl.textContent = "...";
+    shortcutCloudInput.disabled = true;
+    shortcutCloudInput.checked = false; // Uncheck it
+    if (shortcutLocalInput) shortcutLocalInput.checked = true; // Default to local
+    shortcutCloudLabel.classList.add(
+      "text-gray-400",
+      "opacity-60",
+      "cursor-not-allowed"
+    );
+    shortcutCloudLabel.classList.remove("text-gray-300");
+  }
+
+  // Update the header buttons to reflect the (new) shortcut state
+  updateHeaderShortcutButtons();
+}
+

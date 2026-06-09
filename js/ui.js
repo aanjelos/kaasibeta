@@ -772,45 +772,9 @@ function showConfirmationModal(
   openModalHelper("confirmationModal");
 }
 
-function openEditCcTransactionForm(ccTransactionId) {
-  const transaction = state.creditCard.transactions.find(
-    (tx) => tx.id === ccTransactionId
-  );
-  if (!transaction) {
-    showNotification("CC Transaction not found for editing.", "error");
-    return;
-  }
 
-  const formHtml = `
-            <input type="hidden" name="editCcTransactionId" value="${
-              transaction.id
-            }">
-            <div>
-                <label for="modalCcAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>
-                <input type="text" inputmode="decimal" class="calc-amount" id="modalCcAmount" name="ccAmount" value="${transaction.amount.toFixed(
-                  2
-                )}" step="0.01" min="0" placeholder="Amount spent" required>
-            </div>
-            <div>
-                <label for="modalCcDescription" class="block text-sm font-medium mb-1">Description</label>
-                <input type="text" id="modalCcDescription" name="ccDescription" value="${
-                  transaction.description
-                }" placeholder="e.g., Online purchase" required>
-            </div>
-            <div>
-                <label for="modalCcDate" class="block text-sm font-medium mb-1">Date</label>
-                <input type="date" id="modalCcDate" name="ccDate" value="${
-                  transaction.date
-                }" required>
-            </div>
-            <button type="submit" class="btn btn-primary w-full"><i class="fas fa-save"></i> Update CC Transaction</button>
-        `;
-  openFormModal(
-    "Edit CC Transaction",
-    formHtml,
-    handleEditCcTransactionModalSubmit
-  );
-}
+
+  
 
 
 
@@ -1014,3 +978,31 @@ function setupMobileDropdown() {
     }
   });
 }
+
+
+function toggleCategoryVisibilityInModal(
+  selectElement,
+  categoryGroupId,
+  categorySelectId
+) {
+  const categoryGroup = document.getElementById(categoryGroupId);
+  const categorySelect = document.getElementById(categorySelectId);
+
+  const descriptionInput =
+    selectElement.form.elements["description"] ||
+    selectElement.form.elements["modalDescription"] ||
+    selectElement.form.elements["ccDescription"] ||
+    selectElement.form.elements["modalCcDescription"];
+
+  if (selectElement.value === "income") {
+    if (categoryGroup) categoryGroup.style.display = "none";
+    if (categorySelect) categorySelect.required = false;
+    if (descriptionInput) descriptionInput.placeholder = "e.g., Monthly Salary";
+  } else {
+    if (categoryGroup) categoryGroup.style.display = "block";
+    if (categorySelect) categorySelect.required = true;
+    if (descriptionInput)
+      descriptionInput.placeholder = "e.g., Lunch, Groceries";
+  }
+}
+
