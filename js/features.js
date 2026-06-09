@@ -640,9 +640,9 @@ function openEditTransactionModal(transactionId, event) {
             </div>
             <div>
                 <label for="modalAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>
-                <input type="text" inputmode="decimal" class="calc-amount" id="modalAmount" name="amount" value="${transaction.amount.toFixed(
+                <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="modalAmount" name="amount" value="${transaction.amount.toFixed(
                   2
-                )}" step="0.01" min="0" placeholder="e.g., 1500.50" required>
+                )}" step="0.01" min="0" placeholder="e.g., 1500.50" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
             </div>
             <div>
                 <label for="modalAccount" class="block text-sm font-medium mb-1">Account</label>
@@ -1929,9 +1929,9 @@ function openEditCcTransactionModal(ccTransactionId) {
             }">
             <div>
                 <label for="modalCcAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>
-                <input type="text" inputmode="decimal" class="calc-amount" id="modalCcAmount" name="ccAmount" value="${transaction.amount.toFixed(
+                <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="modalCcAmount" name="ccAmount" value="${transaction.amount.toFixed(
                   2
-                )}" step="0.01" min="0" placeholder="Amount spent" required>
+                )}" step="0.01" min="0" placeholder="Amount spent" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
             </div>
             <div>
                 <label for="modalCcDescription" class="block text-sm font-medium mb-1">Description</label>
@@ -2060,7 +2060,7 @@ function deleteCcTransaction(transactionId) {
 function openAddDebtForm() {
   openFormModal(
     "Add New Debt",
-    `<div><label for="debtAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><input type="text" inputmode="decimal" class="calc-amount" id="debtAmount" name="debtAmount" step="0.01" min="0.01" required></div><div><label for="debtWho" class="block text-sm font-medium mb-1">Who do you owe?</label><input type="text" id="debtWho" name="debtWho" placeholder="e.g., John Doe" required></div><div><label for="debtWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="debtWhy" name="debtWhy" placeholder="e.g., Loan" required></div><div><label for="debtDueDate" class="block text-sm font-medium mb-1">Due Date</label><input type="date" id="debtDueDate" name="debtDueDate" required></div><button type="submit" class="btn btn-primary w-full">Add Debt</button>`,
+    `<div><label for="debtAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="debtAmount" name="debtAmount" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div><div><label for="debtWho" class="block text-sm font-medium mb-1">Who do you owe?</label><input type="text" id="debtWho" name="debtWho" placeholder="e.g., John Doe" required></div><div><label for="debtWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="debtWhy" name="debtWhy" placeholder="e.g., Loan" required></div><div><label for="debtDueDate" class="block text-sm font-medium mb-1">Due Date</label><input type="date" id="debtDueDate" name="debtDueDate" required></div><button type="submit" class="btn btn-primary w-full">Add Debt</button>`,
     handleAddDebtSubmit
   );
   const nextMonth = new Date();
@@ -2109,13 +2109,13 @@ function openEditDebtForm(id) {
     "Edit Debt",
     ` <input type="hidden" name="editDebtId" value="${
       d.id
-    }"> <div><label class="block text-sm font-medium mb-1">Original Amount</label><input type="text" inputmode="decimal" class="calc-amount" name="debtOriginalAmount" value="${(
+    }"> <div><label class="block text-sm font-medium mb-1">Original Amount</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" name="debtOriginalAmount" value="${(
       d.originalAmount || d.amount
     ).toFixed(
       2
-    )}" step="0.01" min="0.01" required></div> <div><label class="block text-sm font-medium mb-1">Remaining Amount</label><input type="text" inputmode="decimal" class="calc-amount" name="debtRemainingAmount" value="${d.remainingAmount.toFixed(
+    )}" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Remaining Amount</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" name="debtRemainingAmount" value="${d.remainingAmount.toFixed(
       2
-    )}" step="0.01" min="0" required></div> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="debtWho" value="${
+    )}" step="0.01" min="0" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="debtWho" value="${
       d.who
     }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="debtWhy" value="${
       d.why
@@ -2201,9 +2201,9 @@ function openPayDebtForm(debtId) {
       )}</span> to ${debt.who} for ${debt.why}</p>
       <div>
           <label for="payDebtAmount" class="block text-sm font-medium mb-1">Payment Amount (LKR)</label>
-          <input type="text" inputmode="decimal" class="calc-amount" id="payDebtAmount" name="payDebtAmount" step="0.01" min="0.01" max="${debt.remainingAmount.toFixed(
+          <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="payDebtAmount" name="payDebtAmount" step="0.01" min="0.01" max="${debt.remainingAmount.toFixed(
             2
-          )}" value="${debt.remainingAmount.toFixed(2)}" required>
+          )}" value="${debt.remainingAmount.toFixed(2)}" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
       </div>
       <div>
           <label for="modalPayDebtAccount" class="block text-sm font-medium mb-1">Pay From Account</label>
@@ -2356,7 +2356,7 @@ function deleteDebt(debtId) {
 
 function openAddReceivableForm() {
   const formHtml = `
-            <div><label for="recAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><input type="text" inputmode="decimal" class="calc-amount" id="recAmount" name="recAmount" step="0.01" min="0.01" required></div>
+            <div><label for="recAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="recAmount" name="recAmount" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div>
             <div>
                 <label for="recType" class="block text-sm font-medium mb-1">Type</label>
                 <select id="recType" name="recType" required onchange="toggleReceivableSourceAccount(this.value, 'recSourceAccountGroupAdd', 'recSourceAccountAdd')">
@@ -2521,13 +2521,13 @@ function openEditReceivableForm(id) {
     "Edit Receivable",
     ` <input type="hidden" name="editReceivableId" value="${
       r.id
-    }"> <div><label class="block text-sm font-medium mb-1">Original Amount</label><input type="text" inputmode="decimal" class="calc-amount" name="recOriginalAmount" value="${(
+    }"> <div><label class="block text-sm font-medium mb-1">Original Amount</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" name="recOriginalAmount" value="${(
       r.originalAmount || r.amount
     ).toFixed(
       2
-    )}" step="0.01" min="0.01" required></div> <div><label class="block text-sm font-medium mb-1">Remaining</label><input type="text" inputmode="decimal" class="calc-amount" name="recRemainingAmount" value="${r.remainingAmount.toFixed(
+    )}" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Remaining</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" name="recRemainingAmount" value="${r.remainingAmount.toFixed(
       2
-    )}" step="0.01" min="0" required></div> <div><label class="block text-sm font-medium mb-1">Type</label><select id="recTypeEdit" name="recType" onchange="toggleReceivableSourceAccount(this.value, 'recSourceAccountGroupEdit', 'recSourceAccountEdit')"><option value="cash" ${
+    )}" step="0.01" min="0" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Type</label><select id="recTypeEdit" name="recType" onchange="toggleReceivableSourceAccount(this.value, 'recSourceAccountGroupEdit', 'recSourceAccountEdit')"><option value="cash" ${
       r.type === "cash" ? "selected" : ""
     }>Cash/Bank</option><option value="cc" ${
       r.type === "cc" ? "selected" : ""
@@ -2710,8 +2710,8 @@ function openReceivePaymentForm(recId) {
     )}</span> by ${receivable.who} for ${receivable.why}</p>
     <div>
       <label for="recPaymentAmount" class="block text-sm font-medium mb-1">Amount Received (LKR)</label>
-      <input type="text" inputmode="decimal" class="calc-amount" id="recPaymentAmount" name="recPaymentAmount" step="0.01" min="0.01" 
-             value="${receivable.remainingAmount.toFixed(2)}" required> 
+      <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="recPaymentAmount" name="recPaymentAmount" step="0.01" min="0.01" 
+             value="${receivable.remainingAmount.toFixed(2)}" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div> 
     </div>
     ${overpaymentInfoHtml}
     <div>
@@ -2895,15 +2895,15 @@ function openAddInstallmentForm() {
     </div>
     <div>
       <label for="instFullAmount" class="block text-sm font-medium mb-1">Full Original Amount (LKR)</label>
-      <input type="text" inputmode="decimal" class="calc-amount" id="instFullAmount" name="instFullAmount" step="0.01" min="0.01" placeholder="Total original cost" required>
+      <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="instFullAmount" name="instFullAmount" step="0.01" min="0.01" placeholder="Total original cost" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
     </div>
     <div>
       <label for="instTotalMonths" class="block text-sm font-medium mb-1">Total Months for Plan</label>
-      <input type="text" inputmode="decimal" class="calc-amount" id="instTotalMonths" name="instTotalMonths" step="1" min="1" placeholder="e.g., 12" required>
+      <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="instTotalMonths" name="instTotalMonths" step="1" min="1" placeholder="e.g., 12" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
     </div>
     <div>
       <label for="instMonthsLeft" class="block text-sm font-medium mb-1">Months Left (if not full term)</label>
-      <input type="text" inputmode="decimal" class="calc-amount" id="instMonthsLeft" name="instMonthsLeft" step="1" min="0" placeholder="Defaults to Total Months">
+      <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="instMonthsLeft" name="instMonthsLeft" step="1" min="0" placeholder="Defaults to Total Months"><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
     </div>
     <div>
       <label for="instStartDate" class="block text-sm font-medium mb-1">Start Date</label>
@@ -3022,21 +3022,21 @@ function openEditInstallmentForm(id) {
     </div>
     <div>
       <label for="instFullAmount" class="block text-sm font-medium mb-1">Full Original Amount (LKR)</label>
-      <input type="text" inputmode="decimal" class="calc-amount" id="instFullAmount" name="instFullAmount" value="${currentFullAmount.toFixed(
+      <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="instFullAmount" name="instFullAmount" value="${currentFullAmount.toFixed(
         2
-      )}" step="0.01" min="0.01" required>
+      )}" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
     </div>
     <div>
       <label for="instTotalMonths" class="block text-sm font-medium mb-1">Total Months for Plan</label>
-      <input type="text" inputmode="decimal" class="calc-amount" id="instTotalMonths" name="instTotalMonths" value="${
+      <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="instTotalMonths" name="instTotalMonths" value="${
         i.totalMonths
-      }" step="1" min="1" required>
+      }" step="1" min="1" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
     </div>
     <div>
       <label for="instMonthsLeft" class="block text-sm font-medium mb-1">Months Left</label>
-      <input type="text" inputmode="decimal" class="calc-amount" id="instMonthsLeft" name="instMonthsLeft" value="${
+      <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="instMonthsLeft" name="instMonthsLeft" value="${
         i.monthsLeft
-      }" step="1" min="0" max="${i.totalMonths}" required>
+      }" step="1" min="0" max="${i.totalMonths}" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
     </div>
     <div>
       <label for="instStartDate" class="block text-sm font-medium mb-1">Start Date</label>
@@ -3274,9 +3274,9 @@ function openPayCcItemForm(ccTransactionId) {
       )}</strong></p>
       <div>
           <label for="ccItemPayAmount" class="block text-sm font-medium mb-1">Payment Amount</label>
-          <input type="text" inputmode="decimal" class="calc-amount" id="ccItemPayAmount" name="ccItemPayAmount" step="0.01" min="0.01" max="${remaining.toFixed(
+          <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="ccItemPayAmount" name="ccItemPayAmount" step="0.01" min="0.01" max="${remaining.toFixed(
             2
-          )}" value="${remaining.toFixed(2)}" required>
+          )}" value="${remaining.toFixed(2)}" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
       </div>
       <div>
           <label for="modalCcPayFromAccount" class="block text-sm font-medium mb-1">Pay From Account</label>
