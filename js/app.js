@@ -579,7 +579,7 @@ function updateHeaderShortcutButtons() {
     }
 
     backupBtn.onclick = backupToSupabase; // Assign cloud backup function
-    restoreBtn.onclick = restoreFromSupabase; // Assign cloud restore function
+    restoreBtn.onclick = () => restoreFromSupabase(false, true); // Assign cloud restore function
   } else {
     // Set to LOCAL mode (default)
     backupBtn.dataset.tooltip = "Export Local File (Ctrl+E)";

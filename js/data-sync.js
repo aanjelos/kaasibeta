@@ -648,22 +648,37 @@ async function restoreFromSupabase(force = false) {
       }
   };
 
-  if (force) {
-    await doRestore();
-  } else {
-    // Show a confirmation modal first
-    showConfirmationModal(
-      "Restore from Cloud",
-      "This will <strong class='text-warning'>OVERWRITE ALL</strong> your current local data with the data from your last cloud backup.<br><br>Are you sure you want to proceed?",
-      "Restore & Overwrite",
-      "Cancel",
-      doRestore,
-      () => {
-        // onCancel: Do nothing
-        console.log("Cloud restore cancelled by user.");
+    if (force) {
+      await doRestore();
+    } else {
+      let extraHtml = "";
+      if (isFromDashboard) {
+        extraHtml = `<div class="mt-4 pt-4 border-t border-gray-700">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="dontShowRestoreWarning" class="form-checkbox text-accent-primary bg-[var(--bg-secondary)] border-gray-600 rounded cursor-pointer">
+            <span class="text-sm text-gray-300">Don't show this warning again when restoring from the dashboard</span>
+          </label>
+        </div>`;
       }
-    );
-  }
+
+      // Show a confirmation modal first
+      showConfirmationModal(
+        "Restore from Cloud",
+        `This will <strong class='text-warning'>OVERWRITE ALL</strong> your current local data with the data from your last cloud backup.<br><br>Are you sure you want to proceed?${extraHtml}`,
+        "Restore & Overwrite",
+        "Cancel",
+        () => {
+          if (isFromDashboard && document.getElementById("dontShowRestoreWarning")?.checked) {
+            localStorage.setItem("skipRestoreWarning", "true");
+          }
+          doRestore();
+        },
+        () => {
+          // onCancel: Do nothing
+          console.log("Cloud restore cancelled by user.");
+        }
+      );
+    }
 }
 
 

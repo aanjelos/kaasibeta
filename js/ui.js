@@ -108,7 +108,7 @@ function handleKeyboardShortcuts(event) {
 
       if (target === "cloud") {
         console.log("Shortcut: Ctrl+I pressed for Cloud Restore");
-        restoreFromSupabase();
+        restoreFromSupabase(false, true);
       } else {
         console.log("Shortcut: Ctrl+I pressed for Local Import");
         const importInput = $("#importDataInput");
@@ -971,7 +971,7 @@ function setupMobileDropdown() {
     toggleDropdown();
     const target = $("#shortcutCloud")?.checked && !$("#shortcutCloud")?.disabled ? "cloud" : "local";
     if (target === "cloud") {
-      if (typeof restoreFromSupabase === "function") restoreFromSupabase();
+      if (typeof restoreFromSupabase === "function") restoreFromSupabase(false, true);
     } else {
       const importInput = $("#importDataInput");
       if (importInput) importInput.click();
