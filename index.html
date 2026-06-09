@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.171k" />
+    <meta name="application-version" content="v5.172k" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -88,7 +88,7 @@
     <div id="pinLockOverlay" class="fixed inset-0 z-[99999] flex flex-col items-center justify-center transition-opacity duration-500 hidden" style="background-color: var(--bg-primary)">
       <div class="max-w-xs w-full px-6 flex flex-col items-center">
         <img src="img/FullLogo.svg" alt="Kaasi" class="h-10 mb-8 theme-logo" />
-        <i class="fas fa-lock text-3xl text-accent-primary mb-4"></i>
+        <i class="fas fa-lock text-3xl text-accent-500 mb-4"></i>
         <h2 class="text-2xl font-bold text-[var(--text-primary)] mb-2">App Locked</h2>
         <p class="text-sm text-gray-400 mb-8 text-center" id="pinLockMessage">Enter your 4-digit PIN</p>
         
@@ -118,7 +118,7 @@
           </button>
         </div>
 
-        <button onclick="showForgotPinModal()" class="text-sm text-accent-primary hover:underline">Forgot PIN?</button>
+        <button onclick="showForgotPinModal()" class="text-sm text-accent-500 hover:underline">Forgot PIN?</button>
       </div>
     </div>
     <!-- END: PIN LOCK OVERLAY -->
@@ -310,7 +310,7 @@
                       placeholder="e.g., 1500.50"
                       required
                     />
-                    <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1">
+                    <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1">
                       <i class="fas fa-calculator"></i>
                     </button>
                   </div>
@@ -393,7 +393,7 @@
                       placeholder="Amount spent"
                       required
                     />
-                    <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1">
+                    <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1">
                       <i class="fas fa-calculator"></i>
                     </button>
                   </div>
@@ -772,7 +772,7 @@
                       required
                       class="calc-amount pr-8 !py-1 !px-2 text-sm"
                     />
-                    <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1">
+                    <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1">
                       <i class="fas fa-calculator"></i>
                     </button>
                   </div>
@@ -798,7 +798,7 @@
                       class="sr-only peer"
                     />
                     <div
-                      class="w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent-primary/50 rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
+                      class="w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent-500/50 rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
                     ></div>
                   </label>
                 </div>
@@ -824,7 +824,7 @@
                     <label class="text-sm font-medium text-gray-300">Hide from Dashboard Charts</label>
                     <label class="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" id="rule_excludeFromDashboardCharts" class="sr-only peer" onchange="toggleHiddenRule('excludeFromDashboardCharts')">
-                      <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                      <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                     </label>
                   </div>
                   <!-- Removed excludeFromMonthlyTotals from here -->
@@ -832,7 +832,7 @@
                     <label class="text-sm font-medium text-gray-300">Exclude from PDF Reports</label>
                     <label class="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" id="rule_excludeFromReports" class="sr-only peer" onchange="toggleHiddenRule('excludeFromReports')">
-                      <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                      <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                     </label>
                   </div>
                   
@@ -847,35 +847,35 @@
                         <label class="text-sm font-medium text-gray-300">Hide from Monthly Breakdown Totals</label>
                         <label class="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" id="rule_excludeFromMonthlyTotals" class="sr-only peer" onchange="toggleHiddenRule('excludeFromMonthlyTotals')">
-                          <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                          <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                         </label>
                       </div>
                       <div class="flex items-center justify-between">
                         <label class="text-sm font-medium text-gray-300">Hide from Monthly Pie Chart</label>
                         <label class="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" id="rule_excludeFromPieChart" class="sr-only peer" onchange="toggleHiddenRule('excludeFromPieChart')">
-                          <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                          <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                         </label>
                       </div>
                       <div class="flex items-center justify-between">
                         <label class="text-sm font-medium text-gray-300">Hide from Today/Past 7 Days Stats</label>
                         <label class="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" id="rule_excludeFromQuickStats" class="sr-only peer" onchange="toggleHiddenRule('excludeFromQuickStats')">
-                          <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                          <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                         </label>
                       </div>
                       <div class="flex items-center justify-between">
                         <label class="text-sm font-medium text-gray-300">Hide from Yearly Totals</label>
                         <label class="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" id="rule_excludeFromYearlyTotals" class="sr-only peer" onchange="toggleHiddenRule('excludeFromYearlyTotals')">
-                          <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                          <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                         </label>
                       </div>
                       <div class="flex items-center justify-between">
                         <label class="text-sm font-medium text-gray-300">Dim in Transaction Lists (Grey out)</label>
                         <label class="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" id="rule_dimInTransactionLists" class="sr-only peer" onchange="toggleHiddenRule('dimInTransactionLists')">
-                          <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                          <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                         </label>
                       </div>
                     </div>
@@ -931,7 +931,7 @@
                 <div id="cloudBackupLoggedIn" class="hidden space-y-4">
                   <p class="text-sm text-gray-300">
                     Logged in as:
-                    <strong id="userEmail" class="text-accent-primary"
+                    <strong id="userEmail" class="text-accent-500"
                       >...</strong
                     >
                   </p>
@@ -982,7 +982,7 @@
                         id="shortcutLocal"
                         name="shortcutTarget"
                         value="local"
-                        class="mr-2 text-accent-primary focus:ring-accent-primary"
+                        class="mr-2 text-accent-500 focus:ring-accent-500"
                         checked
                       />
                       Local File
@@ -996,7 +996,7 @@
                         id="shortcutCloud"
                         name="shortcutTarget"
                         value="cloud"
-                        class="mr-2 text-accent-primary focus:ring-accent-primary"
+                        class="mr-2 text-accent-500 focus:ring-accent-500"
                         disabled
                       />
                       Cloud Backup
@@ -1092,21 +1092,6 @@
               </div>
 
               <div
-                class="card !p-4"
-                style="background-color: var(--bg-tertiary)"
-              >
-                <h3 class="text-lg font-semibold mb-3">Accent Color</h3>
-                <div class="flex justify-center gap-2 sm:gap-4" id="accentColorContainer">
-                  <!-- The ring styles will be applied via JS when selected -->
-                  <button data-accent="orange" class="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full cursor-pointer transition-all" style="background-color: #e67e26" title="Orange"></button>
-                  <button data-accent="blue" class="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full cursor-pointer transition-all" style="background-color: #339af0" title="Blue"></button>
-                  <button data-accent="teal" class="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full cursor-pointer transition-all" style="background-color: #20c997" title="Teal"></button>
-                  <button data-accent="red" class="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full cursor-pointer transition-all" style="background-color: #ff6b6b" title="Red"></button>
-                  <button data-accent="purple" class="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full cursor-pointer transition-all" style="background-color: #cc5de8" title="Purple"></button>
-                  <button data-accent="green" class="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 rounded-full cursor-pointer transition-all" style="background-color: #51cf66" title="Green"></button>
-                </div>
-              </div>
-              <div
                 class="card !p-4 sm:hidden"
                 style="background-color: var(--bg-tertiary)"
               >
@@ -1117,7 +1102,7 @@
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleMathToolbar" class="sr-only peer" checked>
-                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                   </label>
                 </div>
               </div>
@@ -1134,7 +1119,7 @@
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleHideCashCounter" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                   </label>
                 </div>
 
@@ -1145,7 +1130,7 @@
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleHideTotalPotential" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                   </label>
                 </div>
 
@@ -1156,7 +1141,7 @@
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleHideDebts" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                   </label>
                 </div>
 
@@ -1167,7 +1152,7 @@
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleHideInstallments" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                   </label>
                 </div>
               </div>
@@ -1190,7 +1175,7 @@
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleAppPin" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                   </label>
                 </div>
                 
@@ -1428,7 +1413,7 @@
                     checked
                   />
                   <div
-                    class="w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-accent-primary/50 rounded-full peer peer-checked:bg-accent-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
+                    class="w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-accent-500/50 rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
                   ></div>
                 </label>
               </div>
@@ -1445,7 +1430,7 @@
                   min="0"
                   placeholder="e.g., 100000"
                 />
-                <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1">
+                <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1">
                   <i class="fas fa-calculator"></i>
                 </button>
               </div>
@@ -1564,7 +1549,7 @@
           <h2
             class="text-2xl font-semibold mb-6 text-center flex items-center justify-center"
           >
-            <i class="fas fa-exchange-alt mr-3 text-accent-primary"></i>Transfer
+            <i class="fas fa-exchange-alt mr-3 text-accent-500"></i>Transfer
             Money
           </h2>
           <form id="transferModalForm" class="space-y-4">
@@ -1584,7 +1569,7 @@
                   placeholder="Amount to transfer"
                   required
                 />
-                <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1">
+                <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1">
                   <i class="fas fa-calculator"></i>
                 </button>
               </div>
@@ -1767,7 +1752,7 @@
             >&times;</span
           >
           <h2 class="text-2xl font-semibold mb-4 text-center">
-            <i class="fas fa-keyboard mr-2 text-accent-primary"></i>Keyboard
+            <i class="fas fa-keyboard mr-2 text-accent-500"></i>Keyboard
             Shortcuts
           </h2>
           <div class="mb-4 text-xs text-gray-400 text-center">

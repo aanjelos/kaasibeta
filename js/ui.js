@@ -384,10 +384,8 @@ function handleKeyboardShortcuts(event) {
 function applyAppearance() {
   if (!state.settings) return;
   const theme = state.settings.theme || "dark";
-  const accent = state.settings.accent || "orange";
 
   document.documentElement.setAttribute("data-theme", theme);
-  document.documentElement.setAttribute("data-accent", accent);
 
   if (typeof renderDashboard === 'function') {
     // A lightweight timeout ensures CSS variables are parsed before canvas re-reads them
@@ -430,33 +428,6 @@ function setupAppearanceListeners() {
     };
     
     updateThemeUI();
-  }
-
-  const accentBtns = $$("#accentColorContainer button");
-  if (accentBtns) {
-    const updateAccentUI = () => {
-      const accent = state.settings.accent || "orange";
-      accentBtns.forEach(btn => {
-        if (btn.dataset.accent === accent) {
-          btn.classList.add("ring-2", "ring-offset-2", "ring-accent-primary");
-          btn.classList.remove("ring-transparent");
-        } else {
-          btn.classList.remove("ring-2", "ring-offset-2", "ring-accent-primary");
-          btn.classList.add("ring-transparent");
-        }
-      });
-    };
-
-    accentBtns.forEach(btn => {
-      btn.onclick = () => {
-        state.settings.accent = btn.dataset.accent;
-        saveData();
-        applyAppearance();
-        updateAccentUI();
-      };
-    });
-    
-    updateAccentUI();
   }
 }
 

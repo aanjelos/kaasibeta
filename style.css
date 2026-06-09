@@ -176,91 +176,6 @@
   border-color: var(--border-color) !important;
 }
 
-/* Accent Presets (Dark Mode) */
-[data-theme="dark"][data-accent="blue"] {
-  --accent-primary: #339af0;
-  --accent-primary-rgb: 51, 154, 240;
-  --accent-hover: #228be6;
-  --info-color: #339af0;
-}
-[data-theme="dark"][data-accent="teal"] {
-  --accent-primary: #14b8a6;
-  --accent-primary-rgb: 20, 184, 166;
-  --accent-hover: #0d9488;
-  --info-color: #14b8a6;
-}
-[data-theme="dark"][data-accent="red"] {
-  --accent-primary: #ff6b6b;
-  --accent-primary-rgb: 255, 107, 107;
-  --accent-hover: #fa5252;
-  --info-color: #ff6b6b;
-}
-[data-theme="dark"][data-accent="purple"] {
-  --accent-primary: #cc5de8;
-  --accent-primary-rgb: 204, 93, 232;
-  --accent-hover: #be4bdb;
-  --info-color: #cc5de8;
-}
-[data-theme="dark"][data-accent="green"] {
-  --accent-primary: #51cf66;
-  --accent-primary-rgb: 81, 207, 102;
-  --accent-hover: #40c057;
-  --info-color: #51cf66;
-}
-
-/* Accent Presets (Light Mode) - Adjusted for better contrast on white backgrounds */
-[data-theme="light"][data-accent="orange"] {
-  --accent-primary: #e8590c;
-  --accent-primary-rgb: 232, 89, 12;
-  --accent-hover: #d9480f;
-  --info-color: #e8590c;
-}
-[data-theme="light"][data-accent="blue"] {
-  --accent-primary: #1c7ed6;
-  --accent-primary-rgb: 28, 126, 214;
-  --accent-hover: #1971c2;
-  --info-color: #1c7ed6;
-}
-[data-theme="light"][data-accent="teal"] {
-  --accent-primary: #0f766e;
-  --accent-primary-rgb: 15, 118, 110;
-  --accent-hover: #115e59;
-  --info-color: #0f766e;
-}
-[data-theme="light"][data-accent="red"] {
-  --accent-primary: #e03131;
-  --accent-primary-rgb: 224, 49, 49;
-  --accent-hover: #c92a2a;
-  --info-color: #e03131;
-}
-[data-theme="light"][data-accent="purple"] {
-  --accent-primary: #9c36b5;
-  --accent-primary-rgb: 156, 54, 181;
-  --accent-hover: #862e9c;
-  --info-color: #9c36b5;
-}
-[data-theme="light"][data-accent="green"] {
-  --accent-primary: #2b8a3e;
-  --accent-primary-rgb: 43, 138, 62;
-  --accent-hover: #23b246;
-  --info-color: #2b8a3e;
-}
-
-/* Theme-Dependent Selector Button Swatches */
-[data-theme="dark"] button[data-accent="orange"] { background-color: #e67e26 !important; }
-[data-theme="dark"] button[data-accent="blue"] { background-color: #339af0 !important; }
-[data-theme="dark"] button[data-accent="teal"] { background-color: #14b8a6 !important; }
-[data-theme="dark"] button[data-accent="red"] { background-color: #ff6b6b !important; }
-[data-theme="dark"] button[data-accent="purple"] { background-color: #cc5de8 !important; }
-[data-theme="dark"] button[data-accent="green"] { background-color: #51cf66 !important; }
-
-[data-theme="light"] button[data-accent="orange"] { background-color: #e8590c !important; }
-[data-theme="light"] button[data-accent="blue"] { background-color: #1c7ed6 !important; }
-[data-theme="light"] button[data-accent="teal"] { background-color: #0f766e !important; }
-[data-theme="light"] button[data-accent="red"] { background-color: #e03131 !important; }
-[data-theme="light"] button[data-accent="purple"] { background-color: #9c36b5 !important; }
-[data-theme="light"] button[data-accent="green"] { background-color: #2b8a3e !important; }
-
 /* ------------------------- */
 /* --- GLOBAL STYLES --- */
 /* ------------------------- */
@@ -453,11 +368,11 @@ select {
 /* Ensure focus style is consistent */
 #monthlyViewModal #yearSelector:focus {
   outline: none;
-  border-color: var(--border-focus);
+  border-color: var(--accent-primary);
   background-color: var(
     --bg-secondary
   ); /* Slightly change bg on focus, consistent with other inputs */
-  box-shadow: 0 0 0 3px rgba(var(--accent-primary-rgb), 0.4);
+  box-shadow: 0 0 0 3px rgba(230, 126, 38, 0.25);
 }
 
 textarea {
@@ -472,9 +387,9 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: var(--border-focus);
+  border-color: var(--accent-primary);
   background-color: var(--bg-secondary);
-  box-shadow: 0 0 0 3px rgba(var(--accent-primary-rgb), 0.4);
+  box-shadow: 0 0 0 3px rgba(230, 126, 38, 0.25);
 }
 
 ::placeholder {
@@ -1066,9 +981,9 @@ button.link-style {
 
 #ccHistoryModal #ccYearSelector:focus {
   outline: none;
-  border-color: var(--border-focus);
+  border-color: var(--accent-primary);
   background-color: var(--bg-secondary);
-  box-shadow: 0 0 0 3px rgba(var(--accent-primary-rgb), 0.4);
+  box-shadow: 0 0 0 3px rgba(230, 126, 38, 0.25);
 }
 
 /* Styles for the month group accordion */
