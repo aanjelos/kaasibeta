@@ -844,9 +844,20 @@ let toolbarHideTimeout = null;
 
 
 
-document.addEventListener("focusin", (e) => {
-  if (e.target.classList && e.target.classList.contains("calc-amount")) {
-    showMathToolbar(e.target);
+document.addEventListener("click", (e) => {
+  const toggleBtn = e.target.closest(".calc-toggle-btn");
+  if (toggleBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    const inputEl = toggleBtn.parentElement.querySelector(".calc-amount");
+    if (inputEl) {
+      if (mathToolbar.classList.contains("visible") && activeCalcInput === inputEl) {
+        hideMathToolbar();
+      } else {
+        showMathToolbar(inputEl);
+        inputEl.focus();
+      }
+    }
   }
 });
 
@@ -1005,4 +1016,5 @@ function toggleCategoryVisibilityInModal(
       descriptionInput.placeholder = "e.g., Lunch, Groceries";
   }
 }
+
 

@@ -14,7 +14,18 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 
 
+### 2. Virtual Envelopes / Savings Wishlist
+- **Concept**: A dedicated area to track savings goals (e.g., "New Laptop", "Vacation").
+- **Implementation Idea**: Users can virtually allocate funds from their "Total Available" balance into specific goal envelopes. Visually represent progress with filling bars or circular rings to motivate saving.
 
+### 3. Split Bills / IOU Tracker
+- **Concept**: A built-in "Splitwise" style feature to track shared expenses and who owes who money.
+- **Implementation Idea**: Add an "Is Split" toggle when adding a transaction. If toggled, prompt the user to specify who owes them (or who they owe) and the split amount. Create a dedicated "Shared Expenses" tab to view running tallies of debts and settlements with specific friends/roommates.
+### 4. Gamification: Streaks & Badges
+- **Concept**: Encourage responsible spending and habit-building by rewarding users with milestones.
+- **Implementation Idea**: 
+  - **Under Budget Streaks**: Track how many consecutive months a user stays under their set Category Budgets. Display a visual "Streak" counter with fire emojis 🔥. If they break the budget, the streak resets.
+  - **Achievement Badges**: Unlockable SVG badges in the profile/settings for hitting app milestones (e.g., "Data Nerd" for 100 transactions, "Diversified" for using 5+ categories, "Debt Free" for paying off a debt).
 
 ---
 

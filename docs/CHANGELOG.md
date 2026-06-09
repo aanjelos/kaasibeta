@@ -188,3 +188,10 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 
 ### 39. [Bugfix] Checkbox SVG Visibility (v5.166k)
 - **Tailwind Sibling Utilities**: Fixed a CSS hierarchy issue where the `peer-checked` state was incorrectly applied directly to the child `<svg>` element instead of the sibling `<div>`. The SVG checkmark now correctly inherits the dynamic `text-accent-primary` color when the hidden checkbox is toggled.
+
+### 40. [Bugfix] Duplicate Event Listeners (v5.167k)
+- **Initialization Guard**: Wrapped all global event listeners in `app.js` with a strict `!isRefresh` guard to prevent duplicate click events from stacking on the Advanced Filters toggle and search inputs during application re-renders.
+
+### 41. [Enhancement] Inline Calculator UI (v5.168k)
+- **Non-Intrusive Math Toolbar**: Replaced the automatic focus-triggered math toolbar popup with a dedicated, non-intrusive calculator icon button `fa-calculator` placed directly inside the right edge of all amount input fields.
+- **Desktop Support**: Enabled the math toolbar for desktop users as well, providing a quick inline calculation tool without breaking the UX.

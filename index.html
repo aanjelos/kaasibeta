@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.167k" />
+    <meta name="application-version" content="v5.168k" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -299,15 +299,21 @@
                 <div>
                   <label for="amount" class="block text-sm font-medium mb-1"
                     >Amount (LKR)</label
-                  ><input
-                    type="text" inputmode="decimal" class="calc-amount"
-                    id="amount"
-                    name="amount"
-                    step="0.01"
-                    min="0"
-                    placeholder="e.g., 1500.50"
-                    required
-                  />
+                  >
+                  <div class="relative flex items-center w-full">
+                    <input
+                      type="text" inputmode="decimal" class="calc-amount pr-8"
+                      id="amount"
+                      name="amount"
+                      step="0.01"
+                      min="0"
+                      placeholder="e.g., 1500.50"
+                      required
+                    />
+                    <button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1">
+                      <i class="fas fa-calculator"></i>
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label for="account" class="block text-sm font-medium mb-1"
@@ -376,15 +382,21 @@
                 <div>
                   <label for="ccAmount" class="block text-sm font-medium mb-1"
                     >Amount (LKR)</label
-                  ><input
-                    type="text" inputmode="decimal" class="calc-amount"
-                    id="ccAmount"
-                    name="ccAmount"
-                    step="0.01"
-                    min="0"
-                    placeholder="Amount spent"
-                    required
-                  />
+                  >
+                  <div class="relative flex items-center w-full">
+                    <input
+                      type="text" inputmode="decimal" class="calc-amount pr-8"
+                      id="ccAmount"
+                      name="ccAmount"
+                      step="0.01"
+                      min="0"
+                      placeholder="Amount spent"
+                      required
+                    />
+                    <button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1">
+                      <i class="fas fa-calculator"></i>
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label
@@ -749,6 +761,7 @@
                       class="block text-sm font-medium mb-1"
                       >Current Limit (LKR)</label
                     >
+                    <div class="relative flex items-center w-full">
                     <input
                       type="text" inputmode="decimal"
                       id="settingsCcLimitAmount"
@@ -757,8 +770,12 @@
                       min="0"
                       placeholder="Enter total limit"
                       required
-                      class="calc-amount !py-1 !px-2 text-sm"
+                      class="calc-amount pr-8 !py-1 !px-2 text-sm"
                     />
+                    <button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1">
+                      <i class="fas fa-calculator"></i>
+                    </button>
+                  </div>
                   </div>
                   <button type="submit" class="btn btn-primary btn-sm">
                     Set/Update Limit
@@ -1419,15 +1436,19 @@
                 <label for="setupCcLimit" class="block text-sm font-medium mb-1"
                   >Credit Card Limit (LKR)</label
                 >
+                <div class="relative flex items-center w-full">
                 <input
-                  type="text" inputmode="decimal" class="calc-amount"
+                  type="text" inputmode="decimal" class="calc-amount pr-8 !py-1.5 !px-2 text-sm"
                   id="setupCcLimit"
                   name="setupCcLimit"
                   step="0.01"
                   min="0"
                   placeholder="e.g., 100000"
-                  class="!py-1.5 !px-2 text-sm"
                 />
+                <button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1">
+                  <i class="fas fa-calculator"></i>
+                </button>
+              </div>
               </div>
             </div>
             <div class="card !p-4" style="background-color: var(--bg-tertiary)">
@@ -1552,15 +1573,21 @@
                 for="modalTransferAmount"
                 class="block text-sm font-medium mb-1"
                 >Amount (LKR)</label
-              ><input
-                type="text" inputmode="decimal" class="calc-amount"
-                id="modalTransferAmount"
-                name="transferAmount"
-                step="0.01"
-                min="0"
-                placeholder="Amount to transfer"
-                required
-              />
+              >
+              <div class="relative flex items-center w-full">
+                <input
+                  type="text" inputmode="decimal" class="calc-amount pr-8"
+                  id="modalTransferAmount"
+                  name="transferAmount"
+                  step="0.01"
+                  min="0"
+                  placeholder="Amount to transfer"
+                  required
+                />
+                <button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-primary transition-colors focus:outline-none" tabindex="-1">
+                  <i class="fas fa-calculator"></i>
+                </button>
+              </div>
             </div>
             <div>
               <label
@@ -1889,3 +1916,5 @@
     <script src="js/app.js" defer></script>
   </body>
 </html>
+
+
