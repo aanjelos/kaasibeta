@@ -1,10 +1,11 @@
-const CACHE_NAME = "kaasi-cache-v73";
+const CACHE_NAME = "kaasi-cache-v74";
 const STATIC_ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./tailwind.css",
   "./js/globals.js",
+  "./js/animations.js",
   "./js/data-sync.js",
   "./js/math-tool.js",
   "./js/settings.js",
@@ -77,5 +78,6 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
 
 
