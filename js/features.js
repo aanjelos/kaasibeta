@@ -50,10 +50,9 @@ function renderRecentTransactions() {
     return;
   }
 
-  recent.forEach((t, idx) => {
+  recent.forEach((t) => {
     const div = document.createElement("div");
-    div.className = `stagger-item flex justify-between items-center p-2 rounded-lg bg-gray-700/50 text-sm transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group`;
-    div.style.animationDelay = `${idx * 45}ms`;
+    div.className = `flex justify-between items-center p-2 rounded-lg bg-gray-700/50 text-sm transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group`;
 
     const account = state.accounts.find((a) => a.id === t.account);
     const accountName = account ? account.name : "Unknown Acct";
@@ -1097,13 +1096,9 @@ function renderMonthTabs(year) {
         }
       }
       renderMonthlyDetails(index, year, new Set(), "", false);
-      // Slide indicator to this tab
-      if (typeof moveTabIndicator === 'function') moveTabIndicator(monthTabsContainer, button);
     };
     monthTabsContainer.appendChild(button);
   });
-  // Initialise the sliding indicator after all tabs are in the DOM
-  if (typeof initTabIndicator === 'function') initTabIndicator(monthTabsContainer);
 }
 
 function renderMonthlyDetails(
@@ -3425,9 +3420,6 @@ function handlePayCcItemSubmit(event) {
 
 
 function renderDashboard() {
-  // Snapshot balances before DOM mutates (for countup animation)
-  const _snap = (typeof snapshotDashboardBalances === 'function') ? snapshotDashboardBalances() : {};
-
   const cashCounterBtn = $("#cashCounterBtn");
   const topCardsContainer = $("#dashboardTopCardsContainer");
   const totalPotentialCard = $("#totalPotentialCard");
@@ -3589,8 +3581,6 @@ function renderDashboard() {
   renderReceivableList();
   renderInstallmentList();
   renderCreditCardSection();
-  // Animate balances from old → new values
-  if (typeof animateDashboardBalances === 'function') animateDashboardBalances(_snap);
   renderMonthlyOverviewChart();
   renderYearlyAndQuickStats();
 }
