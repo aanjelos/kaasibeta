@@ -43,13 +43,10 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## 🛠️ Technical Debt & Code Organization
 
-### 1. Function Reorganization
-- **Concept**: Refactor and move misplaced functions into their logically appropriate files to improve code maintainability.
-- **Implementation Idea**: Relocate functions like `setupDeleteSlider()` and `completeDeletion()`, which are currently awkwardly housed in `charts-export.js`, into `ui.js` or `app.js` where they belong. Audit other files for similar misplacements.
-
-
+*(No active technical debt items currently tracked)*
 
 ## 🐛 Bug Fixes & Known Issues
+
 
 *(No active bugs currently tracked)*
 

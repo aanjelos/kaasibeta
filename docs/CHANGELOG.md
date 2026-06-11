@@ -202,3 +202,25 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 - **Micro-Animations & Transitions**: Introduced a dedicated animation module featuring a smooth balance count-up effect on dashboard load, a sliding indicator background for tab switches, and a staggered fade-in entrance transition for transaction lists.
 - **Beginner-Friendly Date Filters**: Added quick date range selectors (This Year, Past 6 Months, Past Year, and Last Year) to the advanced filters section, replacing financial acronyms (YTD, 6M, 1Y) with plain English for ease of use.
 - **PWA Service Worker Cache Update**: Added the new `js/animations.js` module to the Service Worker static assets configuration and bumped the cache scheme to `kaasi-cache-v75` to force clients to update cleanly offline.
+
+### 43. [Bugfix] Preloader, Tabs & ID Persistence (v5.181k)
+- **Preloader Animation**: Resolved timing issues with the startup preloader by correcting animation delays.
+- **Sliding Tabs Indicator**: Fixed a visibility and placement bug with the sliding tab indicator.
+- **Countup ID Reset**: Ensured the countup animation targets stable DOM IDs to prevent errors when re-rendering dashboard elements.
+- **Tailwind Compilation**: Recompiled Tailwind checkboxes to address minor layout spacing regressions.
+
+### 44. [UI/UX] Stagger Animation & Checkbox Styling Polish (v5.182k - v5.183k)
+- **rAF-Based Stagger**: Rewrote list entrance animations utilizing `requestAnimationFrame` for stutter-free rendering.
+- **Sleek Checkboxes**: Addressed custom checkbox styling issues by compiling missing Tailwind utility classes.
+- **Pill Alignment**: Fine-tuned the vertical alignment of selection pills and fixed preloader timeouts.
+
+### 45. [Feature] Date Range Dropdown & Animation Cleanup (v5.184k - v5.185k)
+- **Unified Date Dropdown**: Replaced the cluttered date selection pills with a clean, searchable "Date Range" dropdown.
+- **Stagger Animation Removal**: Removed the initial load stagger animation on the recent transactions list, resolving layout jumps and simplifying loading times.
+- **Dropdown Item Renaming**: Rephrased range options to ensure maximum clarity on mobile screens.
+
+### 46. [Feature] Android Haptic Feedback Integration (v5.186k - v5.192k)
+- **Tactile Notifications**: Integrated native haptic feedback (`navigator.vibrate`) into toasts and transactions.
+- **Iteration & Tuning**: Tuned vibration length through user testing, starting at 100ms and dialing down to a highly responsive and subtle `55ms` duration.
+- **Service Worker Scheme Update**: Bumped Service Worker cache schemes to force update static assets.
+
