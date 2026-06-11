@@ -935,6 +935,18 @@ button.link-style {
   font-weight: 600;
   border-bottom: 1px solid var(--border-color);
 }
+
+.restore-warning-label {
+  max-width: 260px;
+  margin: 0 auto;
+}
+.restore-warning-label span {
+  line-height: 1.35;
+}
+.restore-warning-checkbox-wrapper {
+  margin-top: 3px;
+}
+
 .monthly-view-transaction-item {
   padding: 0.75rem 1.25rem;
   border-bottom: 1px solid var(--border-color);
