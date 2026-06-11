@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.192k" />
+    <meta name="application-version" content="v5.193k" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -1773,6 +1773,18 @@
           >
             <li class="text-center text-gray-500">Loading shortcuts...</li>
           </ul>
+        </div>
+      </div>
+
+      <div id="transactionDetailModal" class="modal" style="z-index: 65">
+        <div class="modal-content max-w-md">
+          <span class="modal-close" onclick="closeModal('transactionDetailModal')">&times;</span>
+          <h2 class="text-xl font-semibold mb-4 border-b border-gray-600 pb-2 flex items-center gap-2 force-word-wrap">
+            <i class="fas fa-receipt text-accent-500"></i> Transaction Details
+          </h2>
+          <div id="transactionDetailContent" class="space-y-4 text-sm text-gray-200">
+            <!-- Dynamically populated -->
+          </div>
         </div>
       </div>
 

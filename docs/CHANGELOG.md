@@ -224,3 +224,7 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 - **Iteration & Tuning**: Tuned vibration length through user testing, starting at 100ms and dialing down to a highly responsive and subtle `55ms` duration.
 - **Service Worker Scheme Update**: Bumped Service Worker cache schemes to force update static assets.
 
+### 47. [Feature] Transaction Detail Modal & Responsive Actions (v5.193k)
+- **Detail Modal**: Introduced a dedicated transaction detail modal. Tapping anywhere on a transaction row now opens a clean, focused view showing the full description, category, date, account, and amount, completely eliminating any text truncation issues on narrow screens.
+- **Responsive Action Buttons**: Hidden the small inline "Edit" and "Delete" buttons from transaction lists on mobile devices to maximize horizontal space for descriptions and prevent accidental misclicks. 
+- **Desktop Parity**: Retained the inline quick-action buttons on desktop views for power users, while seamlessly integrating full-sized, touch-friendly "Edit" and "Delete" buttons inside the new mobile detail modal.

@@ -54,6 +54,7 @@ function renderRecentTransactions() {
     const div = document.createElement("div");
     div.className = `flex justify-between items-center p-2 rounded-lg bg-gray-700/50 text-sm transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group stagger-item`;
     div.style.animationDelay = `${index * 0.05}s`;
+    div.onclick = () => openTransactionDetailModal(t.id);
 
     const account = state.accounts.find((a) => a.id === t.account);
     const accountName = account ? account.name : "Unknown Acct";
@@ -81,7 +82,7 @@ function renderRecentTransactions() {
       <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums">${
       isIncome ? "+" : "-"
     }${formatCurrency(t.amount)}</span>
-      <div class="edit-btn-container flex-shrink-0">
+      <div class="edit-btn-container flex-shrink-0 hidden md:flex">
         <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionModal('${
           t.id
         }', event)" title="Edit"><i class="fas fa-edit"></i></button>
@@ -599,6 +600,63 @@ function handleTransactionSubmit(event) {
   }
 
   refreshMonthlyViewIfRelevant(date);
+}
+
+function openTransactionDetailModal(transactionId) {
+  const transaction = state.transactions.find((tx) => tx.id === transactionId);
+  if (!transaction) return;
+
+  const account = state.accounts.find((a) => a.id === transaction.account);
+  const accountName = account ? account.name : "Unknown Acct";
+  const isIncome = transaction.type === "income";
+  const textColorClass = isIncome ? "text-income" : "text-expense";
+  
+  let categoryHtml = "";
+  if (transaction.type === "expense") {
+    categoryHtml = `
+      <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
+        <span class="text-gray-400">Category</span>
+        <span class="font-medium">${transaction.category || "Uncategorized"}</span>
+      </div>`;
+  }
+
+  const html = `
+    <div class="text-center mb-4">
+      <div class="text-3xl font-bold ${textColorClass} tabular-nums mb-1">${isIncome ? "+" : "-"}${formatCurrency(transaction.amount)}</div>
+      <div class="text-sm text-gray-400">${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</div>
+    </div>
+    
+    <div class="bg-gray-700/30 rounded-lg p-4 space-y-2 mb-6">
+      <div class="flex justify-between items-start py-2 border-b border-gray-700/50 gap-4">
+        <span class="text-gray-400 flex-shrink-0">Title</span>
+        <span class="font-medium text-right force-word-wrap">${transaction.description}</span>
+      </div>
+      <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
+        <span class="text-gray-400">Date</span>
+        <span class="font-medium">${new Date(transaction.date).toLocaleDateString([], { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>
+      </div>
+      <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
+        <span class="text-gray-400">Account</span>
+        <span class="font-medium">${accountName}</span>
+      </div>
+      ${categoryHtml}
+    </div>
+    
+    <div class="flex gap-3 mt-4">
+      <button class="btn btn-secondary flex-1" onclick="closeModal('transactionDetailModal'); openEditTransactionModal('${transaction.id}', null)">
+        <i class="fas fa-edit mr-2"></i> Edit
+      </button>
+      <button class="btn btn-danger flex-1" onclick="closeModal('transactionDetailModal'); deleteTransaction('${transaction.id}', null)">
+        <i class="fas fa-trash mr-2"></i> Delete
+      </button>
+    </div>
+  `;
+
+  const contentContainer = $("#transactionDetailContent");
+  if (contentContainer) {
+    contentContainer.innerHTML = html;
+    openModalHelper("transactionDetailModal");
+  }
 }
 
 function openEditTransactionModal(transactionId, event) {
@@ -1446,8 +1504,9 @@ function renderMonthlyDetails(
         .sort((a, b) => b.timestamp - a.timestamp)
         .forEach((t, index) => {
           const itemDiv = document.createElement("div");
-          itemDiv.className = "monthly-view-transaction-item stagger-item";
+          itemDiv.className = "monthly-view-transaction-item stagger-item cursor-pointer hover:bg-gray-700/50 transition-colors rounded-lg p-1 -mx-1";
           itemDiv.style.animationDelay = `${index * 0.03}s`;
+          itemDiv.onclick = () => openTransactionDetailModal(t.id);
           const account = state.accounts.find((acc) => acc.id === t.account);
           const accountName = account ? account.name : "Unknown Acct";
           const isIncome = t.type === "income";
@@ -1474,7 +1533,7 @@ function renderMonthlyDetails(
               <span class="font-semibold whitespace-nowrap ${textColorClass} ml-2 tabular-nums ${opacityClass}" title="${isExcluded ? 'Excluded from totals' : ''}">${
             isIncome ? "+" : "-"
           }${formatCurrency(t.amount)}</span>
-              <div class="edit-btn-container flex-shrink-0 ml-2">
+              <div class="edit-btn-container flex-shrink-0 ml-2 hidden md:flex">
                 <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionModal('${
                   t.id
                 }', event)" title="Edit"><i class="fas fa-edit"></i></button>
