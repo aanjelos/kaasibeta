@@ -611,16 +611,26 @@ function calculateCashTotal() {
 }
 
 // --- MODAL & BACK GESTURE LOGIC ---
+let bodyScrollPosition = 0;
 function updateBodyScrollState() {
   const modals = document.querySelectorAll('.modal');
   let anyOpen = false;
   modals.forEach(m => {
     if (m.style.display === "block") anyOpen = true;
   });
-  if (anyOpen) {
-    document.body.classList.add("overflow-hidden");
-  } else {
-    document.body.classList.remove("overflow-hidden");
+  
+  if (anyOpen && !document.body.classList.contains("modal-open")) {
+    bodyScrollPosition = window.pageYOffset;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${bodyScrollPosition}px`;
+    document.body.style.width = '100%';
+    document.body.classList.add("modal-open");
+  } else if (!anyOpen && document.body.classList.contains("modal-open")) {
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    document.body.classList.remove("modal-open");
+    window.scrollTo(0, bodyScrollPosition);
   }
 }
 
