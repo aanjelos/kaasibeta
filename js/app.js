@@ -762,11 +762,6 @@ document.addEventListener("DOMContentLoaded", () => {
         preloaderElement.classList.add("hidden");
         appContentElement.classList.add("visible");
         setTimeout(() => {
-          if (typeof triggerStaggerAnimation === 'function') {
-            triggerStaggerAnimation(document.getElementById('recentTransactionsList'));
-          }
-        }, 800);
-        setTimeout(() => {
           preloaderElement.style.display = "none";
         }, 750);
       };
@@ -781,12 +776,6 @@ document.addEventListener("DOMContentLoaded", () => {
         );
         preloaderElement.classList.add("hidden");
         appContentElement.classList.add("visible");
-        setTimeout(() => {
-          if (typeof triggerStaggerAnimation === 'function') {
-            triggerStaggerAnimation(document.getElementById('recentTransactionsList'));
-          }
-        }, 800);
-
         setTimeout(() => {
           preloaderElement.style.display = "none";
           console.log("Preloader display set to 'none' after fade-out.");
