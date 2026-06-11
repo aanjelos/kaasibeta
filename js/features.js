@@ -39,7 +39,7 @@ function navigateMonthTabs(direction) {
 function renderRecentTransactions() {
   const list = $("#recentTransactionsList");
   if (!list) return;
-  list.innerHTML = "";
+
   const recent = [...state.transactions]
     .sort(
       (a, b) =>
@@ -49,15 +49,38 @@ function renderRecentTransactions() {
     .slice(0, 10);
 
   if (recent.length === 0) {
-    list.innerHTML =
-      '<p class="text-gray-400 text-sm">No transactions yet.</p>';
+    list.innerHTML = '<p class="text-gray-400 text-sm">No transactions yet.</p>';
     return;
   }
 
+  const noTxMsg = list.querySelector("p.text-gray-400");
+  if (noTxMsg) noTxMsg.remove();
+
+  const existingMap = new Map();
+  Array.from(list.children).forEach(child => {
+    if (child.dataset && child.dataset.id) {
+      existingMap.set(child.dataset.id, child);
+    }
+  });
+
+  const fragment = document.createDocumentFragment();
+  let addedNew = false;
+
   recent.forEach((t, index) => {
-    const div = document.createElement("div");
-    div.className = `transaction-list-item-layout flex justify-between items-center rounded-lg bg-gray-700/50 text-sm transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group stagger-item`;
-    div.style.animationDelay = `${index * 0.05}s`;
+    let div = existingMap.get(t.id);
+    
+    if (div) {
+      existingMap.delete(t.id);
+      div.classList.remove("stagger-item");
+      div.style.animation = "none";
+      div.style.opacity = "1";
+    } else {
+      div = document.createElement("div");
+      div.dataset.id = t.id;
+      div.className = `transaction-list-item-layout flex justify-between items-center rounded-lg bg-gray-700/50 text-sm transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group stagger-item`;
+      addedNew = true;
+    }
+
     div.onclick = () => openTransactionDetailModal(t.id);
 
     const account = state.accounts.find((a) => a.id === t.account);
@@ -78,26 +101,22 @@ function renderRecentTransactions() {
 
     div.innerHTML = `
       <div class="flex-grow mr-2 overflow-hidden">
-        <p class="font-medium truncate ${textColorClass}" title="${
-      t.description
-    }">${t.description}</p>
+        <p class="font-medium truncate ${textColorClass}" title="${t.description}">${t.description}</p>
         <p class="text-xs text-gray-400">${subDetailText}</p>
       </div>
-      <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums">${
-      isIncome ? "+" : "-"
-    }${formatCurrency(t.amount)}</span>
+      <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums">${isIncome ? "+" : "-"}${formatCurrency(t.amount)}</span>
       <div class="edit-btn-container flex-shrink-0 hidden md:flex">
-        <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionModal('${
-          t.id
-        }', event)" title="Edit"><i class="fas fa-edit"></i></button>
-        <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteTransaction('${
-          t.id
-        }',event)" title="Delete"><i class="fas fa-times"></i></button>
+        <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionModal('${t.id}', event)" title="Edit"><i class="fas fa-edit"></i></button>
+        <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteTransaction('${t.id}',event)" title="Delete"><i class="fas fa-times"></i></button>
       </div>`;
-    list.appendChild(div);
+    
+    fragment.appendChild(div);
   });
-  
-  if (typeof triggerStaggerAnimation === 'function') {
+
+  existingMap.forEach(child => child.remove());
+  list.appendChild(fragment);
+
+  if (addedNew && typeof triggerStaggerAnimation === 'function') {
     triggerStaggerAnimation(list);
   }
 }

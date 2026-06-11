@@ -245,6 +245,14 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 ### 52. [UI/UX] Mobile Transaction Item Polish & Truncation (v5.198l)
 - **Item Sizing Alignment**: Adjusted padding and font sizes on mobile viewports for transaction list items and headers to align perfectly with the Debts and Receivables accordions.
 - **Title & Sub-detail Truncation**: Applied strict text truncation to transaction descriptions and metadata, preventing line wrapping and restoring visual hierarchy, relying on the transaction detail modal for full description details.
-- **Horizontal Flow Restore**: Replaced vertical stacking of transaction items with clean, side-by-side flex alignment to mirror native lists on mobile screens.
+
+### 53. [Refactor] UI/UX Consistency Standardization & Performance Polish (v5.204l)
+- **Standardized Corner Radii**: Replaced inconsistent, scattered border-radius values across the main stylesheet with centralized CSS custom variables (`--radius-sm`, `--radius-md`, `--radius-lg`), ensuring design token conformity.
+- **Padding Standardization**: Standardized padding across transaction list items and headers in JS DOM rendering.
+- **Inline Style Eradication**: Removed hardcoded `style` attributes in `index.html` (e.g. for z-indices, backgrounds, margins), replacing them with Tailwind classes or clean utility classes (`.bg-primary`, `.bg-tertiary`, `.border-theme`, `.modal-open`).
+- **Modal Scroll Locking**: Resolved the issue where the dashboard background remained scrollable underneath open modals by defining `.modal-open { overflow: hidden; }` to lock body scrolling.
+- **JS Codebase Header Documentation**: Added structured block comment headers to all 10 modular JavaScript files.
+- **Stagger Animation Optimization**: Refactored the recent transactions renderer to perform delta DOM updates on list items using unique transaction IDs. This prevents the stagger animation from completely re-triggering from scratch for unmodified elements, making additions and deletions smooth and non-intrusive.
+- **Auto-Setup Trigger After Deletion**: Improved the data deletion flow (slide to delete) so that upon wiping all local and cloud-associated data, it immediately triggers the initial Setup Wizard without forcing the user to manually refresh the page.
 
 

@@ -349,6 +349,9 @@ function completeDeletion() {
     initializeUI(true);
     closeModal("settingsModal");
     showNotification("All data deleted and logged out.", "success");
+    if (typeof openInitialSetupWizard === "function") {
+      openInitialSetupWizard();
+    }
     handle.style.pointerEvents = "auto";
   }, 500);
 }
