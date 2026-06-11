@@ -863,7 +863,7 @@ function ensureDefaultCategories() {
     state.categories.sort((a, b) => a.localeCompare(b));
   }
 }
-window.triggerHapticFeedback = function(duration = 100) {
+window.triggerHapticFeedback = function(duration = 75) {
   if (navigator.vibrate) {
     // Only vibrate if the user hasn't explicitly disabled haptics in their OS
     try {
@@ -878,7 +878,7 @@ window.triggerHapticFeedback = function(duration = 100) {
 };
 
 function showNotification(message, type = "success", duration = 4000) {
-  if (typeof triggerHapticFeedback === 'function') triggerHapticFeedback(100);
+  if (typeof triggerHapticFeedback === 'function') triggerHapticFeedback(75);
   const area = $("#notificationArea");
   if (!area) return;
   const n = document.createElement("div");
