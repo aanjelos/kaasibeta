@@ -1447,11 +1447,12 @@ function renderMonthlyDetails(
       dayGroup.style.overflow = "hidden";
 
       const dayHeader = document.createElement("div");
-      dayHeader.className = "monthly-view-day-header items-center";
+      dayHeader.className = "monthly-view-day-header flex flex-col sm:flex-row sm:justify-between sm:items-center items-start gap-2 sm:gap-0";
       dayHeader.style.cursor = "pointer";
       dayHeader.dataset.dayKey = dayData.dayKey;
 
       const dateSpan = document.createElement("span");
+      dateSpan.className = "font-semibold";
       dateSpan.textContent = dayData.date.toLocaleDateString("en-US", {
         weekday: "short",
         day: "numeric",
@@ -1460,7 +1461,7 @@ function renderMonthlyDetails(
 
       // --- FIX: Right-aligned container for amount and icon ---
       const rightSideContainer = document.createElement("div");
-      rightSideContainer.className = "flex items-center justify-end flex-grow";
+      rightSideContainer.className = "flex items-center flex-shrink-0 w-full sm:w-auto justify-between sm:justify-end mt-1 sm:mt-0";
 
       const dailyTotalExpenseForDisplay = dayData.transactions
         .filter((t) => t.type === "expense" && !isCategoryExcluded(t.category || "Other", 'excludeFromMonthlyTotals'))
@@ -1501,7 +1502,7 @@ function renderMonthlyDetails(
         .sort((a, b) => b.timestamp - a.timestamp)
         .forEach((t, index) => {
           const itemDiv = document.createElement("div");
-          itemDiv.className = "monthly-view-transaction-item stagger-item";
+          itemDiv.className = "monthly-view-transaction-item stagger-item flex flex-col sm:flex-row sm:justify-between sm:items-center items-start gap-1 sm:gap-0";
           itemDiv.style.animationDelay = `${index * 0.03}s`;
           itemDiv.onclick = () => openTransactionDetailModal(t.id);
           const account = state.accounts.find((acc) => acc.id === t.account);
@@ -1521,22 +1522,24 @@ function renderMonthlyDetails(
           const tooltipSuffix = isExcluded ? " (Hidden Category)" : "";
 
           itemDiv.innerHTML = `
-              <div class="flex-grow mr-2 overflow-hidden ${opacityClass}">
-                <p class="font-medium truncate ${textColorClass}" title="${
+              <div class="flex-grow w-full sm:w-auto overflow-hidden ${opacityClass} mr-0 sm:mr-2">
+                <p class="font-medium force-word-wrap ${textColorClass}" title="${
             t.description
           }${tooltipSuffix}">${t.description}</p>
-                <p class="text-xs text-gray-400 mt-0.5">${subDetailText}</p>
+                <p class="text-xs text-gray-400 mt-0.5 force-word-wrap">${subDetailText}</p>
               </div>
-              <span class="font-semibold whitespace-nowrap ${textColorClass} ml-2 tabular-nums ${opacityClass}" title="${isExcluded ? 'Excluded from totals' : ''}">${
-            isIncome ? "+" : "-"
-          }${formatCurrency(t.amount)}</span>
-              <div class="edit-btn-container flex-shrink-0 ml-2 hidden md:flex">
-                <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionModal('${
-                  t.id
-                }', event)" title="Edit"><i class="fas fa-edit"></i></button>
-                <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteTransaction('${
-                  t.id
-                }', event)" title="Delete"><i class="fas fa-times"></i></button>
+              <div class="flex items-center justify-end w-full sm:w-auto flex-shrink-0 mt-2 sm:mt-0">
+                <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums ${opacityClass}" title="${isExcluded ? 'Excluded from totals' : ''}">${
+              isIncome ? "+" : "-"
+            }${formatCurrency(t.amount)}</span>
+                <div class="edit-btn-container ml-3 hidden md:flex">
+                  <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionModal('${
+                    t.id
+                  }', event)" title="Edit"><i class="fas fa-edit"></i></button>
+                  <button class="text-xs text-gray-500 hover:text-expense focus:outline-none ml-2" onclick="deleteTransaction('${
+                    t.id
+                  }', event)" title="Delete"><i class="fas fa-times"></i></button>
+                </div>
               </div>`;
           dayTransactionsContainer.appendChild(itemDiv);
         });
