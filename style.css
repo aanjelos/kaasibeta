@@ -1156,6 +1156,7 @@ input[type="checkbox"].peer:focus-visible + div {
   .monthly-view-transaction-item {
     padding: 0.5rem 0.75rem !important;
     font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
   }
   .monthly-view-day-header {
     padding: 0.75rem !important;

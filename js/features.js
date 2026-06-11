@@ -1467,7 +1467,7 @@ function renderMonthlyDetails(
         .filter((t) => t.type === "expense" && !isCategoryExcluded(t.category || "Other", 'excludeFromMonthlyTotals'))
         .reduce((sum, t) => sum + t.amount, 0);
       const spentSpan = document.createElement("span");
-      spentSpan.className = "text-sm text-expense mr-2 tabular-nums";
+      spentSpan.className = "text-md font-semibold text-expense mr-3 whitespace-nowrap tabular-nums";
       spentSpan.textContent = `Spent: ${formatCurrency(
         dailyTotalExpenseForDisplay
       )}`;
