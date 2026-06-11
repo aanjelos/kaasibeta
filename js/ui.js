@@ -386,6 +386,12 @@ function applyAppearance() {
   const theme = state.settings.theme || "dark";
 
   document.documentElement.setAttribute("data-theme", theme);
+  
+  if (state.settings.showMathToolbar === false) {
+    document.body.classList.add("hide-calc-buttons");
+  } else {
+    document.body.classList.remove("hide-calc-buttons");
+  }
 
   if (typeof renderDashboard === 'function') {
     // A lightweight timeout ensures CSS variables are parsed before canvas re-reads them

@@ -1845,3 +1845,41 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .pulse-orange {
   animation: pulseOrangeText 2s infinite ease-in-out !important;
 }
+
+/* --- MATH TOOLBAR HIDE OVERRIDE --- */
+.hide-calc-buttons .calc-toggle-btn {
+  display: none !important;
+}
+.hide-calc-buttons .calc-amount {
+  padding-right: 1rem !important; /* Revert extra padding */
+}
+
+/* --- MASKED PIN --- */
+.masked-pin {
+  -webkit-text-security: disc !important;
+  text-security: disc !important;
+}
+
+/* --- ANIMATIONS --- */
+.tab-indicator {
+  position: absolute;
+  bottom: 0;
+  height: 3px;
+  background: var(--accent-primary);
+  border-radius: 3px 3px 0 0;
+  transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes staggerIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.stagger-item {
+  animation: staggerIn 0.28s ease both;
+}

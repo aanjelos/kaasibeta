@@ -50,9 +50,10 @@ function renderRecentTransactions() {
     return;
   }
 
-  recent.forEach((t) => {
+  recent.forEach((t, index) => {
     const div = document.createElement("div");
-    div.className = `flex justify-between items-center p-2 rounded-lg bg-gray-700/50 text-sm transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group`;
+    div.className = `flex justify-between items-center p-2 rounded-lg bg-gray-700/50 text-sm transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group stagger-item`;
+    div.style.animationDelay = `${index * 0.05}s`;
 
     const account = state.accounts.find((a) => a.id === t.account);
     const accountName = account ? account.name : "Unknown Acct";
@@ -1081,6 +1082,7 @@ function renderMonthTabs(year) {
       // Scroll the active tab into view (centered)
       setTimeout(() => {
         button.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        if (typeof updateTabIndicator === 'function') updateTabIndicator();
       }, 10);
       
       // Reset search and advanced filters when a tab is clicked
@@ -1099,6 +1101,10 @@ function renderMonthTabs(year) {
     };
     monthTabsContainer.appendChild(button);
   });
+  
+  setTimeout(() => {
+    if (typeof updateTabIndicator === 'function') updateTabIndicator();
+  }, 10);
 }
 
 function renderMonthlyDetails(
@@ -1187,6 +1193,11 @@ function renderMonthlyDetails(
       }
     });
   }
+
+  // Update tab indicator to reflect new active state
+  setTimeout(() => {
+    if (typeof updateTabIndicator === 'function') updateTabIndicator();
+  }, 10);
 
   const transactionsToDisplay = state.transactions.filter((t) => {
     const tDate = new Date(t.date + "T00:00:00");
@@ -1429,9 +1440,10 @@ function renderMonthlyDetails(
 
       dayData.transactions
         .sort((a, b) => b.timestamp - a.timestamp)
-        .forEach((t) => {
+        .forEach((t, index) => {
           const itemDiv = document.createElement("div");
-          itemDiv.className = "monthly-view-transaction-item";
+          itemDiv.className = "monthly-view-transaction-item stagger-item";
+          itemDiv.style.animationDelay = `${index * 0.03}s`;
           const account = state.accounts.find((acc) => acc.id === t.account);
           const accountName = account ? account.name : "Unknown Acct";
           const isIncome = t.type === "income";
@@ -3550,32 +3562,44 @@ function renderDashboard() {
     accountCardsContainer.style.display = "none";
   }
 
-  $("#totalBalance").innerHTML = `<span class="tabular-nums">${formatCurrency(
-    totalBalance
-  )}</span>`;
-  const cashRecTotal = state.receivables
-    .filter((r) => r.type === "cash" || (r.type === "cc" && r.sourceAccount))
-    .reduce((s, r) => s + r.remainingAmount, 0);
-  $(
-    "#totalPotentialBalance"
-  ).innerHTML = `<span class="tabular-nums">${formatCurrency(
-    totalBalance + cashRecTotal
-  )}</span>`;
-  $(
-    "#totalOwedToMe"
-  ).innerHTML = `Total: <span class="tabular-nums">${formatCurrency(
-    state.receivables.reduce((s, r) => s + r.remainingAmount, 0)
-  )}</span>`;
-  $(
-    "#totalOwed"
-  ).innerHTML = `Total: <span class="tabular-nums">${formatCurrency(
-    state.debts.reduce((s, d) => s + d.remainingAmount, 0)
-  )}</span>`;
-  $(
-    "#totalInstallmentsLeft"
-  ).innerHTML = `Total Left: <span class="tabular-nums">${formatCurrency(
-    state.installments.reduce((s, i) => s + i.monthlyAmount * i.monthsLeft, 0)
-  )}</span>`;
+  if (typeof animateValue === 'function') {
+    animateValue($("#totalBalance"), totalBalance);
+    const cashRecTotal = state.receivables
+      .filter((r) => r.type === "cash" || (r.type === "cc" && r.sourceAccount))
+      .reduce((s, r) => s + r.remainingAmount, 0);
+    animateValue($("#totalPotentialBalance"), totalBalance + cashRecTotal);
+    
+    animateValue($("#totalOwedToMe"), state.receivables.reduce((s, r) => s + r.remainingAmount, 0), true, "Total: ");
+    animateValue($("#totalOwed"), state.debts.reduce((s, d) => s + d.remainingAmount, 0), true, "Total: ");
+    animateValue($("#totalInstallmentsLeft"), state.installments.reduce((s, i) => s + i.monthlyAmount * i.monthsLeft, 0), true, "Total Left: ");
+  } else {
+    $("#totalBalance").innerHTML = `<span class="tabular-nums">${formatCurrency(
+      totalBalance
+    )}</span>`;
+    const cashRecTotal = state.receivables
+      .filter((r) => r.type === "cash" || (r.type === "cc" && r.sourceAccount))
+      .reduce((s, r) => s + r.remainingAmount, 0);
+    $(
+      "#totalPotentialBalance"
+    ).innerHTML = `<span class="tabular-nums">${formatCurrency(
+      totalBalance + cashRecTotal
+    )}</span>`;
+    $(
+      "#totalOwedToMe"
+    ).innerHTML = `Total: <span class="tabular-nums">${formatCurrency(
+      state.receivables.reduce((s, r) => s + r.remainingAmount, 0)
+    )}</span>`;
+    $(
+      "#totalOwed"
+    ).innerHTML = `Total: <span class="tabular-nums">${formatCurrency(
+      state.debts.reduce((s, d) => s + d.remainingAmount, 0)
+    )}</span>`;
+    $(
+      "#totalInstallmentsLeft"
+    ).innerHTML = `Total Left: <span class="tabular-nums">${formatCurrency(
+      state.installments.reduce((s, i) => s + i.monthlyAmount * i.monthsLeft, 0)
+    )}</span>`;
+  }
   renderRecentTransactions();
   renderDebtList();
   renderReceivableList();

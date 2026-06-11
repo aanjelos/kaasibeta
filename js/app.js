@@ -287,6 +287,40 @@ function initializeUI(isRefresh = false) {
       }
     }, 400);
   };
+  const filterQuickDates = $("#filterQuickDates");
+  if (filterQuickDates && !isRefresh) {
+    filterQuickDates.addEventListener("click", (e) => {
+      if (e.target.tagName === "BUTTON") {
+        const range = e.target.dataset.range;
+        const now = new Date();
+        let start = new Date();
+        let end = new Date();
+        
+        switch (range) {
+          case "ytd":
+            start = new Date(now.getFullYear(), 0, 1);
+            break;
+          case "6m":
+            start.setMonth(now.getMonth() - 6);
+            break;
+          case "1y":
+            start.setFullYear(now.getFullYear() - 1);
+            break;
+          case "lastYear":
+            start = new Date(now.getFullYear() - 1, 0, 1);
+            end = new Date(now.getFullYear() - 1, 11, 31);
+            break;
+        }
+        
+        const filterStartDate = $("#filterStartDate");
+        const filterEndDate = $("#filterEndDate");
+        if (filterStartDate) filterStartDate.value = start.toLocaleDateString("en-CA");
+        if (filterEndDate) filterEndDate.value = end.toLocaleDateString("en-CA");
+        
+        if (typeof triggerSearch === 'function') triggerSearch();
+      }
+    });
+  }
 
   const filterInputs = [
     $("#filterStartDate"),

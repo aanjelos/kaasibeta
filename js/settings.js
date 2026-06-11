@@ -180,6 +180,7 @@ function renderSettingsForm() {
         }
         state.settings.showMathToolbar = toggleMathToolbarElement.checked;
         saveData();
+        applyAppearance();
       };
       toggleMathToolbarElement.dataset.listenerAttached = "true";
     }

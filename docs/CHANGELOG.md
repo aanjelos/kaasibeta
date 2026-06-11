@@ -195,3 +195,10 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 ### 41. [Enhancement] Inline Calculator UI (v5.168k)
 - **Non-Intrusive Math Toolbar**: Replaced the automatic focus-triggered math toolbar popup with a dedicated, non-intrusive calculator icon button `fa-calculator` placed directly inside the right edge of all amount input fields.
 - **Desktop Support**: Enabled the math toolbar for desktop users as well, providing a quick inline calculation tool without breaking the UX.
+
+### 42. [Feature] UI Polish, PIN Autofill Bypass & Quick Date Range Enhancements (v5.180k)
+- **Desktop Calculator Toggle**: Enabled the setting to toggle the amount-input calculator button on desktop viewports. Re-labeled the toggle text to "Show Calculator Button" to clearly describe the action.
+- **PIN Lock Autofill Bypass**: Converted PIN input fields from `type="password"` to `type="text"` using CSS-level masking (`-webkit-text-security`). This successfully prevents modern browsers from issuing weak password alerts or triggering annoying credential-saving popups for basic 4-digit PINs.
+- **Micro-Animations & Transitions**: Introduced a dedicated animation module featuring a smooth balance count-up effect on dashboard load, a sliding indicator background for tab switches, and a staggered fade-in entrance transition for transaction lists.
+- **Beginner-Friendly Date Filters**: Added quick date range selectors (This Year, Past 6 Months, Past Year, and Last Year) to the advanced filters section, replacing financial acronyms (YTD, 6M, 1Y) with plain English for ease of use.
+- **PWA Service Worker Cache Update**: Added the new `js/animations.js` module to the Service Worker static assets configuration and bumped the cache scheme to `kaasi-cache-v75` to force clients to update cleanly offline.
