@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.183k" />
+    <meta name="application-version" content="v5.184k" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -657,16 +657,17 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <!-- Custom Date Range -->
               <div class="flex flex-col gap-1.5 md:col-span-2">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-1.5">
-                  <label class="text-xs text-gray-400">Date Range</label>
-                  <div class="flex flex-wrap gap-1.5" id="filterQuickDates">
-                    <button type="button" class="quick-date-pill" data-range="ytd">This Year</button>
-                    <button type="button" class="quick-date-pill" data-range="6m">Past 6 Months</button>
-                    <button type="button" class="quick-date-pill" data-range="1y">Past Year</button>
-                    <button type="button" class="quick-date-pill" data-range="lastYear">Last Year</button>
-                  </div>
-                </div>
-                <div class="flex flex-wrap items-center gap-2 mt-0.5">
+                <label for="filterDateRange" class="text-xs text-gray-400">Date Range</label>
+                <select id="filterDateRange" class="w-full text-sm px-2 py-1.5 transition-colors focus:outline-none" style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 0.375rem;">
+                  <option value="none">This Month (Default)</option>
+                  <option value="allTime">All Time</option>
+                  <option value="ytd">This Year</option>
+                  <option value="6m">Past 6 Months</option>
+                  <option value="1y">Past Year</option>
+                  <option value="lastYear">Last Year</option>
+                  <option value="custom">Custom Range</option>
+                </select>
+                <div id="customDateInputs" class="flex flex-wrap items-center gap-2 mt-0.5" style="display: none;">
                   <input type="date" id="filterStartDate" class="flex-1 min-w-[120px] text-sm px-2 py-1" title="Start Date" />
                   <span class="text-gray-500 text-xs">to</span>
                   <input type="date" id="filterEndDate" class="flex-1 min-w-[120px] text-sm px-2 py-1" title="End Date" />

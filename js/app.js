@@ -244,11 +244,10 @@ function initializeUI(isRefresh = false) {
       if ($("#filterEndDate")) $("#filterEndDate").value = "";
     }
 
-    // Reset quick date active classes
-    const filterQuickDates = $("#filterQuickDates");
-    if (filterQuickDates) {
-      filterQuickDates.querySelectorAll(".quick-date-pill").forEach(btn => btn.classList.remove("active"));
-    }
+    const filterDateRange = $("#filterDateRange");
+    const customDateInputs = $("#customDateInputs");
+    if (filterDateRange) filterDateRange.value = "none";
+    if (customDateInputs) customDateInputs.style.display = "none";
 
     if ($("#filterType")) $("#filterType").value = "all";
     
@@ -293,25 +292,35 @@ function initializeUI(isRefresh = false) {
       }
     }, 400);
   };
-  const clearQuickDatesActive = () => {
-    if (filterQuickDates) {
-      filterQuickDates.querySelectorAll(".quick-date-pill").forEach(btn => btn.classList.remove("active"));
-    }
-  };
+  const filterDateRange = $("#filterDateRange");
+  const customDateInputs = $("#customDateInputs");
+  
+  if (filterDateRange && !isRefresh) {
+    filterDateRange.addEventListener("change", (e) => {
+      const range = e.target.value;
+      const filterStartDate = $("#filterStartDate");
+      const filterEndDate = $("#filterEndDate");
+      
+      if (range === "custom") {
+        if (customDateInputs) customDateInputs.style.display = "flex";
+        return; // wait for user to select dates
+      } else {
+        if (customDateInputs) customDateInputs.style.display = "none";
+      }
 
-  const filterQuickDates = $("#filterQuickDates");
-  if (filterQuickDates && !isRefresh) {
-    filterQuickDates.addEventListener("click", (e) => {
-      if (e.target.classList.contains("quick-date-pill")) {
-        clearQuickDatesActive();
-        e.target.classList.add("active");
-
-        const range = e.target.dataset.range;
+      if (range === "none") {
+        if (filterStartDate) filterStartDate.value = "";
+        if (filterEndDate) filterEndDate.value = "";
+      } else {
         const now = new Date();
         let start = new Date();
         let end = new Date();
         
         switch (range) {
+          case "allTime":
+            start = new Date(2000, 0, 1);
+            end = new Date(2100, 11, 31);
+            break;
           case "ytd":
             start = new Date(now.getFullYear(), 0, 1);
             break;
@@ -327,13 +336,11 @@ function initializeUI(isRefresh = false) {
             break;
         }
         
-        const filterStartDate = $("#filterStartDate");
-        const filterEndDate = $("#filterEndDate");
         if (filterStartDate) filterStartDate.value = start.toLocaleDateString("en-CA");
         if (filterEndDate) filterEndDate.value = end.toLocaleDateString("en-CA");
-        
-        if (typeof triggerSearch === 'function') triggerSearch();
       }
+      
+      if (typeof triggerSearch === 'function') triggerSearch();
     });
   }
 
@@ -350,7 +357,7 @@ function initializeUI(isRefresh = false) {
     if (input) {
       const handler = (e) => {
         if ((input.id === "filterStartDate" || input.id === "filterEndDate") && e.isTrusted) {
-          clearQuickDatesActive();
+          if (filterDateRange) filterDateRange.value = "custom";
         }
         triggerSearch();
       };
@@ -756,7 +763,7 @@ document.addEventListener("DOMContentLoaded", () => {
         appContentElement.classList.add("visible");
         setTimeout(() => {
           if (typeof triggerStaggerAnimation === 'function') {
-            triggerStaggerAnimation(document.getElementById('recentTransactions'));
+            triggerStaggerAnimation(document.getElementById('recentTransactionsList'));
           }
         }, 800);
         setTimeout(() => {
@@ -776,7 +783,7 @@ document.addEventListener("DOMContentLoaded", () => {
         appContentElement.classList.add("visible");
         setTimeout(() => {
           if (typeof triggerStaggerAnimation === 'function') {
-            triggerStaggerAnimation(document.getElementById('recentTransactions'));
+            triggerStaggerAnimation(document.getElementById('recentTransactionsList'));
           }
         }, 800);
 
