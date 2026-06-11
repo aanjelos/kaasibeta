@@ -89,6 +89,11 @@ function updateTabIndicator(containerId = 'monthTabs') {
   setTimeout(performUpdate, 150);
 }
 
+window.addEventListener('resize', () => {
+  updateTabIndicator('monthTabs');
+  updateTabIndicator('settingsTabsContainer');
+});
+
 function triggerStaggerAnimation(container) {
   if (!container) return;
   const items = container.querySelectorAll('.stagger-item');
