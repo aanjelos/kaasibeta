@@ -1504,7 +1504,7 @@ function renderMonthlyDetails(
         .sort((a, b) => b.timestamp - a.timestamp)
         .forEach((t, index) => {
           const itemDiv = document.createElement("div");
-          itemDiv.className = "monthly-view-transaction-item stagger-item cursor-pointer hover:bg-gray-700/50 transition-colors rounded-lg p-1 -mx-1";
+          itemDiv.className = "monthly-view-transaction-item stagger-item";
           itemDiv.style.animationDelay = `${index * 0.03}s`;
           itemDiv.onclick = () => openTransactionDetailModal(t.id);
           const account = state.accounts.find((acc) => acc.id === t.account);
@@ -1628,7 +1628,7 @@ function renderMonthlyDetails(
     titleEl.textContent = "Category Distribution (Full Month)";
     chartCard.appendChild(titleEl);
     const canvasContainer = document.createElement("div");
-    canvasContainer.className = "flex-grow relative chart-container";
+    canvasContainer.className = "flex-grow relative chart-container min-h-0";
     const canvas = document.createElement("canvas");
     canvas.id = "monthlyDetailPieChartCanvas";
     canvasContainer.appendChild(canvas);
