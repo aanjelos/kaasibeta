@@ -37,6 +37,11 @@
 /* --- ROOT VARIABLES --- */
 /* ------------------------- */
 :root {
+  /* Radii Variables */
+  --radius-sm: 0.375rem; /* 6px - For inputs, badges, small buttons, inner items */
+  --radius-md: 0.5rem;   /* 8px - For standard buttons, tabs, inner cards */
+  --radius-lg: 0.75rem;  /* 12px - For main dashboard containers, cards, and modal contents */
+
   /* Base Dark Theme Palette - Black/Grey Focus (Default) */
   --bg-primary: #121212;
   --bg-secondary: #1e1e1e;
@@ -321,7 +326,7 @@ select {
   background-color: var(--bg-tertiary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: 0.375rem; /* 6px */
+  border-radius: var(--radius-sm);
   font-size: 0.875rem; /* 14px */
   line-height: 1.25rem; /* 20px */
   padding-top: 0.7rem; /* 11.2px */
@@ -353,7 +358,7 @@ select {
   background-color: var(--bg-tertiary); /* Match card background */
   color: var(--text-primary);
   border: 1px solid var(--border-color); /* Match card/input border */
-  border-radius: 0.375rem; /* Consistent rounding */
+  border-radius: var(--radius-sm); /* Consistent rounding */
   padding-top: 0.5rem; /* Adjusted padding for a select element */
   padding-bottom: 0.5rem;
   padding-left: 0.75rem;
@@ -404,7 +409,7 @@ select:focus {
   color: var(--text-secondary);
   background-color: rgba(var(--warning-color-rgb), 0.1);
   padding: 0.875rem 1rem;
-  border-radius: 0.375rem;
+  border-radius: var(--radius-sm);
   margin-top: 0.75rem;
   border: 1px solid rgba(var(--warning-color-rgb), 0.3);
   line-height: 1.5;
@@ -423,7 +428,7 @@ select:focus {
 /* ------------------------- */
 .btn {
   padding: 0.6rem 1.2rem;
-  border-radius: 0.375rem;
+  border-radius: var(--radius-sm);
   font-weight: 500;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
@@ -576,7 +581,7 @@ select:focus {
 /* ------------------------- */
 .card {
   background-color: var(--bg-secondary);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-lg);
   padding: 1.75rem;
   box-shadow: 0 8px 16px var(--shadow-color),
     0 3px 6px var(--shadow-color-light);
@@ -645,7 +650,7 @@ select:focus {
   border: 1px solid var(--border-color);
   width: 90%;
   max-width: 600px;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-lg);
   position: relative;
   animation: slideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 10px 25px var(--shadow-color),
@@ -707,6 +712,16 @@ select:focus {
 }
 
 /* ------------------------- */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.bg-primary { background-color: var(--bg-primary); }
+.bg-secondary { background-color: var(--bg-secondary); }
+.bg-tertiary { background-color: var(--bg-tertiary); }
+.border-theme { border-color: var(--border-color); }
+.modal-open { overflow: hidden; }
+
+/* --- Base --- */
+/* ------------------------- */
 /* --- TABS --- */
 /* ------------------------- */
 .tab-button {
@@ -716,7 +731,7 @@ select:focus {
   transition: all 0.2s ease-in-out;
   color: var(--text-secondary);
   font-weight: 500;
-  border-radius: 0.375rem 0.375rem 0 0;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 }
 .tab-button.active {
   color: var(--accent-primary);
@@ -739,7 +754,7 @@ select:focus {
   background-color: transparent;
   outline: none;
   font-weight: 500;
-  border-radius: 0.375rem 0.375rem 0 0;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 }
 .settings-tab-button:hover:not(.active) {
   color: var(--text-primary);
@@ -771,11 +786,11 @@ select:focus {
 }
 ::-webkit-scrollbar-track {
   background: var(--bg-tertiary);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(230, 126, 38, 0.35);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   border: 2px solid var(--bg-tertiary);
   transition: background 0.2s;
 }
@@ -871,7 +886,7 @@ select:focus {
   background-color: var(--bg-tertiary);
   color: var(--text-primary);
   padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 0.8rem;
   white-space: nowrap;
   opacity: 0;
@@ -918,14 +933,14 @@ button.link-style {
 .monthly-view-summary-card {
   background-color: var(--bg-tertiary);
   padding: 1rem 1.25rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
   text-align: center;
   box-shadow: 0 2px 4px var(--shadow-color-light);
 }
 .monthly-view-day-group {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
   margin-bottom: 0.75rem;
   overflow: hidden;
 }
@@ -986,7 +1001,7 @@ button.link-style {
   background-color: var(--bg-tertiary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: 0.375rem;
+  border-radius: var(--radius-sm);
   padding: 0.5rem 2.5rem 0.5rem 0.75rem; /* top/bottom, right, left */
   font-size: 0.875rem;
   line-height: 1.25rem;
@@ -1006,7 +1021,7 @@ button.link-style {
 .cc-history-month-group {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
   margin-bottom: 1rem;
   overflow: hidden;
 }
@@ -1287,7 +1302,7 @@ input[type="checkbox"].peer:focus-visible + div {
   border: 1px solid var(--border-light);
   /* Remove specific padding that might conflict with fixed height and icon centering */
   /* padding: 0.5rem; */
-  border-radius: 0.375rem;
+  border-radius: var(--radius-sm);
   line-height: 1; /* Important for icon vertical alignment */
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out,
     border-color 0.2s ease-in-out;
@@ -1372,7 +1387,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
 /* --- DONATE MODAL SPECIFICS --- */
 #donateModal .modal-content {
   background-color: #18181b; /* A slightly different dark shade from landing page */
-  border-radius: 1rem; /* 16px */
+  border-radius: var(--radius-lg);
   padding: 2rem;
   max-width: 600px;
   border: 1px solid var(--border-color);
@@ -1413,7 +1428,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   border: none;
-  border-radius: 0.375rem;
+  border-radius: var(--radius-sm);
   padding: 0.25rem 0.6rem;
   margin-left: auto; /* Pushes button to the right */
   cursor: pointer;
@@ -1487,7 +1502,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
   gap: 0.25rem;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
   padding: 0.25rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   z-index: 9999;
@@ -1507,7 +1522,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
   background: var(--bg-tertiary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: 0.25rem;
+  border-radius: var(--radius-sm);
   width: 2.5rem;
   height: 2.5rem;
   display: flex;
@@ -1534,10 +1549,6 @@ footer a[href^="https://kaasi.com.lk"]:hover
 }
 
 
-  padding-left: 0.75rem;
-  padding-right: 2.5rem; /* Keep space for the dropdown arrow */
-}
-
 /* --- FOOTER LINKS --- */
 /* This targets the 'Donate' button and 'Main Website' link */
 footer #footerDonateBtn,
@@ -1559,116 +1570,6 @@ footer a[href^="https://kaasi.com.lk"]:hover
   color: var(--accent-primary); /* orange on hover */
   text-decoration: none; /* ensure no underline on hover */
 }
-
-/* --- DONATE MODAL SPECIFICS --- */
-#donateModal .modal-content {
-  background-color: #18181b; /* A slightly different dark shade from landing page */
-  border-radius: 1rem; /* 16px */
-  padding: 2rem;
-  max-width: 600px;
-  border: 1px solid var(--border-color);
-}
-
-.donate-bank-details-vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 1.6rem;
-}
-.donate-bank-block {
-  margin-bottom: 0.3rem;
-}
-.bank-title {
-  font-weight: 600;
-  margin-bottom: 0.3rem;
-  font-size: 1.08rem;
-  letter-spacing: 0.01em;
-}
-.bank-pair {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  margin-bottom: 0.1rem;
-}
-.bank-label {
-  color: var(--text-secondary);
-  min-width: 56px;
-  font-size: 0.97rem;
-}
-.bank-value {
-  color: var(--text-primary);
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  font-size: 1rem;
-}
-.copy-button {
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  border: none;
-  border-radius: 0.375rem;
-  padding: 0.25rem 0.6rem;
-  margin-left: auto; /* Pushes button to the right */
-  cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
-}
-.copy-button:hover {
-  background-color: var(--bg-quaternary);
-  color: var(--text-primary);
-}
-
-/* --- NEW: SUPABASE & DATA MANAGEMENT STYLES --- */
-
-/* Style for the Google login button */
-#googleLoginBtn {
-  background-color: #4285F4; /* Google Blue */
-  border-color: #4285F4;
-  color: white;
-}
-#googleLoginBtn:hover {
-  background-color: #357ae8;
-  border-color: #357ae8;
-  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3);
-}
-
-/* Style for the shortcut radio buttons when disabled */
-/* This styles the label text (e.g., "Cloud Backup") */
-#shortcutTargetGroup label:has(input[type="radio"]:disabled) {
-  color: var(--text-placeholder);
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-/* This styles the radio button itself */
-#shortcutTargetGroup input[type="radio"]:disabled {
-  cursor: not-allowed;
-  background-color: var(--bg-tertiary);
-  border-color: var(--border-color);
-}
-
-/* --- NEW: Header Button Mobile Consistency --- */
-@media (max-width: 767px) { /* Tailwind 'md' breakpoint */
-  #monthlyViewBtn,
-  #headerBackupBtn,
-  #headerRestoreBtn {
-    padding-left: 0;
-    padding-right: 0;
-    width: 2.75rem; /* 44px */
-    height: 2.75rem; /* 44px */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  
-  /* Ensure icon-only buttons in the header have their icons sized appropriately */
-  #monthlyViewBtn i,
-  #headerBackupBtn i,
-  #headerRestoreBtn i {
-    font-size: 1rem; /* 16px */
-    line-height: 1;
-  }
-}
-
-
 
 
 /* Custom Utilities for Javascript Toggles */
@@ -1868,7 +1769,202 @@ footer a[href^="https://kaasi.com.lk"]:hover
   bottom: 0;
   height: 3px;
   background: var(--accent-primary);
-  border-radius: 3px 3px 0 0;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+@keyframes staggerIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+  color: #f87171 !important;
+}
+.danger-zone-subtext {
+  color: #fca5a5 !important;
+}
+
+[data-theme="light"] .danger-zone-card {
+  background-color: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+}
+[data-theme="light"] .danger-zone-text {
+  color: #dc2626 !important;
+}
+[data-theme="light"] .danger-zone-subtext {
+  color: #ef4444 !important;
+}
+
+/* Custom Utilities for Advanced Rules */
+.advanced-rules-btn {
+  background-color: rgba(55, 65, 81, 0.5);
+}
+.advanced-rules-btn:hover {
+  background-color: rgba(75, 85, 99, 0.5);
+}
+.advanced-rules-content {
+  background-color: rgba(31, 41, 55, 0.3);
+}
+
+[data-theme="light"] .advanced-rules-btn {
+  background-color: var(--bg-quaternary);
+}
+[data-theme="light"] .advanced-rules-btn:hover {
+  background-color: #cbd5e1; /* Slate 300 for hover */
+}
+[data-theme="light"] .advanced-rules-content {
+  background-color: var(--bg-tertiary);
+}
+
+/* Custom Utilities for Footer */
+.footer-border {
+  border-color: rgba(31, 41, 55, 0.5);
+}
+.footer-bg {
+  background-color: #121212;
+}
+
+[data-theme="light"] .footer-border {
+  border-color: var(--border-color);
+}
+[data-theme="light"] .footer-bg {
+  background-color: var(--bg-primary);
+}
+
+/* Settings Modal Logo */
+[data-theme="light"] .theme-logo-type {
+  filter: brightness(0) invert(17%);
+}
+
+/* ------------------------- */
+/* --- PIN LOCK SCREEN --- */
+/* ------------------------- */
+
+.pin-btn {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease;
+  margin: 0 auto;
+}
+
+.pin-btn:active {
+  background: var(--border-color);
+}
+
+.pin-dot-filled {
+  background-color: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+}
+
+.pin-error {
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+/* ------------------------- */
+/* --- UTILITIES --- */
+/* ------------------------- */
+.edge-fade {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+  mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+
+
+/* Mobile Dropdown Enhancements */
+#mobileDropdown {
+  transform: translateY(-1rem);
+}
+#mobileDropdown.dropdown-open {
+  transform: translateY(0);
+}
+
+#mobileMenuOverlay {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}
+
+/* Chrome-safe Mobile Area Padding */
+@media (max-width: 767px) {
+  #app-content {
+    /* calc() forces unit evaluation, bypassing Chrome's max() parsing bug with env() */
+    padding-top: max(1.5rem, calc(env(safe-area-inset-top, 0px) + 0px)) !important;
+  }
+}
+
+@keyframes pulseGreenText {
+  0%, 100% {
+    color: var(--success-indicator-color);
+  }
+  50% {
+    color: var(--text-secondary);
+  }
+}
+
+@keyframes pulseOrangeText {
+  0%, 100% {
+    color: var(--accent-primary);
+  }
+  50% {
+    color: var(--text-secondary);
+  }
+}
+
+.pulse-green {
+  animation: pulseGreenText 2s infinite ease-in-out !important;
+}
+
+.pulse-orange {
+  animation: pulseOrangeText 2s infinite ease-in-out !important;
+}
+
+/* --- MATH TOOLBAR HIDE OVERRIDE --- */
+.hide-calc-buttons .calc-toggle-btn {
+  display: none !important;
+}
+.hide-calc-buttons .calc-amount {
+  padding-right: 1rem !important; /* Revert extra padding */
+}
+
+/* --- MASKED PIN --- */
+.masked-pin {
+  -webkit-text-security: disc !important;
+  text-security: disc !important;
+}
+
+/* --- ANIMATIONS --- */
+.tab-indicator {
+  position: absolute;
+  bottom: 0;
+  height: 3px;
+  background: var(--accent-primary);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1),
               width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 10;
@@ -1889,6 +1985,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
   position: relative !important;
 }
 
-/* --- QUICK DATE PILLS --- */
-
-
+/* --- LIST ITEM LAYOUT --- */
+.transaction-list-item-layout {
+  padding: 0.6rem 0.8rem !important;
+}

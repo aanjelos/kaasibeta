@@ -1,3 +1,7 @@
+/**
+ * animations.js
+ * Handles UI animations and visual transitions within the application.
+ */
 // js/animations.js
 
 const previousBalances = new Map();

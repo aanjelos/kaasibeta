@@ -1,3 +1,8 @@
+/**
+ * app.js
+ * Main entry point and initialization logic for the application.
+ * Sets up UI, event listeners, and coordinates core components.
+ */
 function initializeUI(isRefresh = false) {
   console.log("Initializing UI...");
 

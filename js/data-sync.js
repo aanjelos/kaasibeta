@@ -1,3 +1,7 @@
+/**
+ * data-sync.js
+ * Handles data import/export, local storage persistence, and cloud synchronization (Supabase).
+ */
 function exportData() {
   try {
     const dataStr = JSON.stringify(state, null, 2);

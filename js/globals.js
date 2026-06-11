@@ -1,3 +1,7 @@
+/**
+ * globals.js
+ * Defines global variables, helper functions, utility methods, and default state structures.
+ */
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 const formatCurrency = (amount) => {

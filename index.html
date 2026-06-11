@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.202l" />
+    <meta name="application-version" content="v5.203l" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -85,7 +85,7 @@
     </div>
 
     <!-- START: PIN LOCK OVERLAY -->
-    <div id="pinLockOverlay" class="fixed inset-0 z-[99999] flex flex-col items-center justify-center transition-opacity duration-500 hidden" style="background-color: var(--bg-primary)">
+    <div id="pinLockOverlay" class="fixed inset-0 z-[99999] flex flex-col items-center justify-center transition-opacity duration-500 hidden bg-primary">
       <div class="max-w-xs w-full px-6 flex flex-col items-center">
         <img src="img/FullLogo.svg" alt="Kaasi" class="h-10 mb-8 theme-logo" />
         <i class="fas fa-lock text-3xl text-accent-500 mb-4"></i>
@@ -161,7 +161,7 @@
     <div id="app-content" class="px-4 pb-4 pt-6 md:p-8 transition-all duration-300">
       <div class="container mx-auto max-w-7xl relative">
         <!-- START: MOBILE MENU OVERLAY -->
-        <div id="mobileMenuOverlay" class="fixed inset-0 bg-black opacity-0 invisible transition-all duration-300 pointer-events-none z-[35]" style="backdrop-filter: blur(2px); touch-action: none;"></div>
+        <div id="mobileMenuOverlay" class="fixed inset-0 bg-black opacity-0 invisible transition-all duration-300 pointer-events-none z-[35] backdrop-blur-[2px] touch-none"></div>
         <!-- END: MOBILE MENU OVERLAY -->
 
         <!-- START: UPDATED HEADER -->
@@ -230,14 +230,14 @@
           <!-- Mobile Dropdown Toggle Button -->
           <div class="md:hidden flex items-center ml-auto relative z-40">
              <button id="mobileMenuBtn" class="text-gray-300 hover:text-white transition-colors focus:outline-none w-12 h-12 flex items-center justify-center">
-               <i class="fas fa-bars text-2xl" id="mobileMenuIcon" style="transition: transform 0.3s ease;"></i>
+               <i class="fas fa-bars text-2xl transition-transform duration-300 ease-in-out" id="mobileMenuIcon"></i>
              </button>
           </div>
         </header>
         <!-- END: UPDATED HEADER -->
 
         <!-- Mobile Dropdown Menu -->
-        <div id="mobileDropdown" class="absolute right-0 top-[60px] z-40 gap-6 flex flex-col items-end transition-all duration-300 opacity-0 invisible md:hidden pointer-events-none" style="right: 0;">
+        <div id="mobileDropdown" class="absolute right-0 top-[60px] z-40 gap-6 flex flex-col items-end transition-all duration-300 opacity-0 invisible md:hidden pointer-events-none">
            <!-- All Transactions -->
            <div class="flex items-center gap-3 pointer-events-auto">
              <span class="bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg truncate max-w-[calc(100vw-6rem)]">All Transactions</span>
@@ -652,13 +652,13 @@
           </div>
 
           <!-- Advanced Filters Accordion -->
-          <div id="advancedFiltersAccordion" class="hidden mb-4 rounded-lg p-4 border border-gray-600/50" style="background-color: var(--bg-secondary);">
+          <div id="advancedFiltersAccordion" class="hidden mb-4 rounded-lg p-4 border border-gray-600/50 bg-secondary">
             <h3 class="text-sm font-semibold text-gray-300 mb-3"><i class="fas fa-filter mr-1 text-gray-400"></i> Advanced Filters</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <!-- Custom Date Range -->
               <div class="flex flex-col gap-1.5 md:col-span-2">
                 <label for="filterDateRange" class="text-xs text-gray-400">Date Range</label>
-                <select id="filterDateRange" class="w-full text-sm px-2 py-1.5 transition-colors focus:outline-none" style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 0.375rem;">
+                <select id="filterDateRange" class="w-full text-sm px-2 py-1.5 transition-colors focus:outline-none bg-tertiary border border-theme rounded-md">
                   <option value="none">This Month (Default)</option>
                   <option value="allTime">All Time</option>
                   <option value="ytd">Year to Date</option>
@@ -667,7 +667,7 @@
                   <option value="lastYear">Last Year</option>
                   <option value="custom">Custom Range</option>
                 </select>
-                <div id="customDateInputs" class="flex flex-wrap items-center gap-2 mt-0.5" style="display: none;">
+                <div id="customDateInputs" class="hidden flex-wrap items-center gap-2 mt-0.5">
                   <input type="date" id="filterStartDate" class="flex-1 min-w-[120px] text-sm px-2 py-1" title="Start Date" />
                   <span class="text-gray-500 text-xs">to</span>
                   <input type="date" id="filterEndDate" class="flex-1 min-w-[120px] text-sm px-2 py-1" title="End Date" />
@@ -687,11 +687,11 @@
               <!-- Category (Multi-Select) -->
               <div class="flex flex-col gap-1 md:col-span-1 relative" id="filterCategoryContainer">
                 <label class="text-xs text-gray-400">Category</label>
-                <button type="button" id="filterCategoryBtn" class="w-full text-sm px-2 py-1 flex justify-between items-center text-left transition-colors focus:outline-none" style="background-color: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 0.375rem; min-height: calc(1.25rem + (0.7rem * 2) + 2px);">
+                <button type="button" id="filterCategoryBtn" class="w-full text-sm px-2 py-1 flex justify-between items-center text-left transition-colors focus:outline-none bg-tertiary border border-theme rounded-md min-h-[42px]">
                   <span id="filterCategoryBtnText" class="truncate pr-2 text-gray-200">All Categories</span>
                   <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
                 </button>
-                <div id="filterCategoryDropdown" class="absolute top-full left-0 mt-1 w-full z-50 hidden border border-gray-600 rounded shadow-lg max-h-48 overflow-y-auto custom-scrollbar flex flex-col p-1" style="background-color: var(--bg-secondary);">
+                <div id="filterCategoryDropdown" class="absolute top-full left-0 mt-1 w-full z-50 hidden border border-gray-600 rounded shadow-lg max-h-48 overflow-y-auto custom-scrollbar flex-col p-1 bg-secondary">
                   <!-- Checkboxes populated dynamically via populateFilterCategories() -->
                 </div>
               </div>
@@ -851,7 +851,7 @@
                       <span class="text-sm font-medium text-gray-200">Advanced Exclusion Rules</span>
                       <i id="advancedRulesIcon" class="fas fa-chevron-down text-gray-400 text-xs"></i>
                     </button>
-                    <div id="advancedRulesContainer" class="p-3 space-y-3 advanced-rules-content" style="display: none;">
+                    <div id="advancedRulesContainer" class="hidden p-3 space-y-3 advanced-rules-content">
                       <div class="flex items-center justify-between">
                         <label class="text-sm font-medium text-gray-300">Hide from Monthly Breakdown Totals</label>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -1116,8 +1116,7 @@
                 </div>
               </div>
               <div
-                class="card !p-4 space-y-4"
-                style="background-color: var(--bg-tertiary)"
+                class="card !p-4 space-y-4 bg-tertiary"
               >
                 <h3 class="text-base font-semibold border-b border-gray-600 pb-2 mb-2">Customize Dashboard</h3>
                 
@@ -1359,7 +1358,7 @@
         </div>
       </div>
 
-      <div id="initialSetupModal" class="modal" style="z-index: 60">
+      <div id="initialSetupModal" class="modal z-[60]">
         <div class="modal-content max-w-2xl">
           <h2
             class="text-2xl font-semibold mb-2 text-center accent-text flex justify-center items-center"
@@ -1396,7 +1395,7 @@
           </div>
 
           <form id="initialSetupForm" class="space-y-6">
-            <div class="card !p-4" style="background-color: var(--bg-tertiary)">
+            <div class="card !p-4 bg-tertiary">
               <h3 class="text-lg font-semibold mb-3">1. Account Setup</h3>
               <p class="text-xs text-gray-400 mb-3">
                 Set initial balances. You can rename bank accounts and toggle
@@ -1405,7 +1404,7 @@
               </p>
               <div id="setupAccountBalances" class="space-y-3"></div>
             </div>
-            <div class="card !p-4" style="background-color: var(--bg-tertiary)">
+            <div class="card !p-4 bg-tertiary">
               <h3 class="text-lg font-semibold mb-3">2. Credit Card Setup</h3>
               <div class="flex items-center justify-between mb-3">
                 <label
@@ -1445,7 +1444,7 @@
               </div>
               </div>
             </div>
-            <div class="card !p-4" style="background-color: var(--bg-tertiary)">
+            <div class="card !p-4 bg-tertiary">
               <h3 class="text-lg font-semibold mb-3">3. Expense Categories</h3>
               <p class="text-xs text-gray-400 mb-3">
                 Review and customize your starting categories. You can manage
@@ -1755,7 +1754,7 @@
         </div>
       </div>
 
-      <div id="shortcutsHelpModal" class="modal" style="z-index: 75">
+      <div id="shortcutsHelpModal" class="modal z-[75]">
         <div class="modal-content max-w-lg">
           <span class="modal-close" onclick="closeModal('shortcutsHelpModal')"
             >&times;</span
@@ -1776,7 +1775,7 @@
         </div>
       </div>
 
-      <div id="transactionDetailModal" class="modal" style="z-index: 65">
+      <div id="transactionDetailModal" class="modal z-[65]">
         <div class="modal-content max-w-md">
           <span class="modal-close" onclick="closeModal('transactionDetailModal')">&times;</span>
           <h2 class="text-xl font-semibold mb-4 border-b border-gray-600 pb-2 flex items-center gap-2 force-word-wrap">
@@ -1788,7 +1787,7 @@
         </div>
       </div>
 
-      <div id="confirmationModal" class="modal" style="z-index: 70">
+      <div id="confirmationModal" class="modal z-[70]">
         <div class="modal-content max-w-sm text-center">
           <h2 id="confirmationModalTitle" class="text-xl font-semibold mb-4">
             Confirmation
@@ -1833,7 +1832,7 @@
         </div>
         <div class="flex items-center gap-6 text-gray-400 text-sm">
           <!-- Removed Tailwind hover and transition classes -->
-          <button id="pwaInstallBtn" class="accent-text font-medium hidden" style="display: none;" data-analytics="pwa_install_click"><i class="fas fa-download mr-1"></i> Install App</button>
+          <button id="pwaInstallBtn" class="accent-text font-medium hidden" data-analytics="pwa_install_click"><i class="fas fa-download mr-1"></i> Install App</button>
           <button id="footerDonateBtn">Donate</button>
           <a href="https://kaasi.com.lk" target="_blank">Main Website</a>
         </div>
@@ -1860,13 +1859,13 @@
         <h2 class="text-xl font-semibold mb-3 accent-text">
           Thank You for Supporting Kaasi!
         </h2>
-        <p class="mb-2 text-secondary" style="font-size: 1.08rem">
+        <p class="mb-2 text-secondary text-[1.08rem]">
           Your donation helps keep Kaasi free and in active development. Since
           the AI subscriptions used for development are quite expensive, and I
           want to keep Kaasi free for everyone, your kind support is greatly
           appreciated!
         </p>
-        <div class="donate-bank-details-vertical" style="margin-top: 1.6rem">
+        <div class="donate-bank-details-vertical mt-[1.6rem]">
           <div class="donate-bank-block">
             <div class="bank-title accent-text">HNB (Negombo)</div>
             <div class="bank-pair">
@@ -1904,7 +1903,7 @@
             </div>
           </div>
         </div>
-        <p class="text-sm text-secondary" style="margin-top: 1.3rem">
+        <p class="text-sm text-secondary mt-[1.3rem]">
           Every contribution makes a difference. ❤️
         </p>
       </div>

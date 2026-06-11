@@ -1,3 +1,7 @@
+/**
+ * ui.js
+ * Handles user interface interactions, modals, keyboard shortcuts, and general DOM manipulation helpers.
+ */
 function openShortcutsHelpModal() {
   const modal = $("#shortcutsHelpModal");
   const contentList = $("#shortcutsList");

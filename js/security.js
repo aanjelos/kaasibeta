@@ -1,3 +1,7 @@
+/**
+ * security.js
+ * Implements PIN lock authentication and security-related logic.
+ */
 // --- PIN LOCK & SECURITY LOGIC ---
 
 let currentPinInput = "";

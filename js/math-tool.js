@@ -1,3 +1,7 @@
+/**
+ * math-tool.js
+ * Provides mathematical evaluation logic for the built-in calculator feature.
+ */
 function evaluateMathExpression(inputStr) {
   let expr = inputStr.trim();
   if (expr.endsWith("=")) {

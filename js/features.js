@@ -1,3 +1,7 @@
+/**
+ * features.js
+ * Implements core application features and DOM rendering logic for transactions, debts, receivables, etc.
+ */
 function navigateMonthTabs(direction) {
   const monthTabs = $$("#monthTabs .tab-button");
   if (monthTabs.length === 0) return;
@@ -52,7 +56,7 @@ function renderRecentTransactions() {
 
   recent.forEach((t, index) => {
     const div = document.createElement("div");
-    div.className = `flex justify-between items-center p-2 rounded-lg bg-gray-700/50 text-sm transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group stagger-item`;
+    div.className = `transaction-list-item-layout flex justify-between items-center rounded-lg bg-gray-700/50 text-sm transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group stagger-item`;
     div.style.animationDelay = `${index * 0.05}s`;
     div.onclick = () => openTransactionDetailModal(t.id);
 
@@ -191,7 +195,7 @@ function renderDebtList() {
 
         const itemDiv = document.createElement("div");
         itemDiv.className =
-          "text-sm py-2 px-3 border-b border-gray-700 last:border-b-0";
+          "transaction-list-item-layout text-sm border-b border-gray-700 last:border-b-0";
         itemDiv.innerHTML = `
           <div class="flex justify-between items-start mb-1 gap-x-2">
             <div class="flex-grow">
@@ -347,7 +351,7 @@ function renderReceivableList() {
 
           const itemDiv = document.createElement("div");
           itemDiv.className =
-            "text-sm py-2 px-3 border-b border-gray-700 last:border-b-0";
+            "transaction-list-item-layout text-sm border-b border-gray-700 last:border-b-0";
           itemDiv.innerHTML = `
           <div class="flex justify-between items-start mb-1 gap-x-2">
             <div class="flex-grow">
@@ -426,7 +430,7 @@ function renderInstallmentList() {
         : 0;
 
     const div = document.createElement("div");
-    div.className = "p-3 rounded-lg bg-gray-700/50 text-sm mb-2 transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer";
+    div.className = "transaction-list-item-layout rounded-lg bg-gray-700/50 text-sm mb-2 transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer";
 
     const ringHtml = `
       <div class="installment-progress-ring-container w-10 h-10 flex-shrink-0" title="${progressPercent.toFixed(
@@ -1502,7 +1506,7 @@ function renderMonthlyDetails(
         .sort((a, b) => b.timestamp - a.timestamp)
         .forEach((t, index) => {
           const itemDiv = document.createElement("div");
-          itemDiv.className = "monthly-view-transaction-item stagger-item flex justify-between items-center gap-x-2";
+          itemDiv.className = "transaction-list-item-layout monthly-view-transaction-item stagger-item flex justify-between items-center gap-x-2";
           itemDiv.style.animationDelay = `${index * 0.03}s`;
           itemDiv.onclick = () => openTransactionDetailModal(t.id);
           const account = state.accounts.find((acc) => acc.id === t.account);
@@ -1832,7 +1836,7 @@ function openCcHistoryModal() {
 
         monthTransactions.forEach((t) => {
           const itemDiv = document.createElement("div");
-          itemDiv.className = `cc-history-transaction-item ${
+          itemDiv.className = `transaction-list-item-layout cc-history-transaction-item ${
             t.paidOff ? "opacity-60" : ""
           }`;
           const remainingOnItem = t.amount - (t.paidAmount || 0);

@@ -1,3 +1,7 @@
+/**
+ * settings.js
+ * Manages the settings modal, user preferences, account management, and category rules.
+ */
 function openSettingsModal() {
   renderSettingsForm();
   setupSettingsTabs();

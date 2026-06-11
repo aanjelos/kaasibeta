@@ -1,3 +1,7 @@
+/**
+ * charts.js
+ * Manages data visualization including charts, graphs, and PDF report generation.
+ */
 function generateMonthlyPdfReport() {
   if (typeof window.jspdf === "undefined") {
     showNotification("PDF generation library is not loaded.", "error");
