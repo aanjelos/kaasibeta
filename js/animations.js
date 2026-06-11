@@ -84,10 +84,19 @@ function updateTabIndicator(containerId = 'monthTabs') {
 function triggerStaggerAnimation(container) {
   if (!container) return;
   const items = container.querySelectorAll('.stagger-item');
-  items.forEach((item, index) => {
+  
+  items.forEach((item) => {
     item.style.animation = 'none';
-    item.offsetHeight; // trigger reflow
-    item.style.animation = '';
-    item.style.animationDelay = `${index * 0.03}s`;
+    item.style.opacity = '0';
+  });
+  
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      items.forEach((item, index) => {
+        item.style.animation = '';
+        item.style.opacity = '';
+        item.style.animationDelay = `${index * 0.03}s`;
+      });
+    });
   });
 }
