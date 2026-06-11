@@ -623,14 +623,11 @@ function openTransactionDetailModal(transactionId) {
   const html = `
     <div class="text-center mb-4">
       <div class="text-3xl font-bold ${textColorClass} tabular-nums mb-1">${isIncome ? "+" : "-"}${formatCurrency(transaction.amount)}</div>
-      <div class="text-sm text-gray-400">${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</div>
+      <div class="text-sm text-gray-400 mb-3">${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</div>
+      <div class="text-base font-medium text-gray-100 force-word-wrap px-2">${transaction.description}</div>
     </div>
     
     <div class="bg-gray-700/30 rounded-lg p-4 space-y-2 mb-6">
-      <div class="flex justify-between items-start py-2 border-b border-gray-700/50 gap-4">
-        <span class="text-gray-400 flex-shrink-0">Title</span>
-        <span class="font-medium text-right force-word-wrap">${transaction.description}</span>
-      </div>
       <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
         <span class="text-gray-400">Date</span>
         <span class="font-medium">${new Date(transaction.date).toLocaleDateString([], { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>

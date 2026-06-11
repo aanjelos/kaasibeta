@@ -625,16 +625,23 @@ window.addEventListener("popstate", (event) => {
     "debtsViewModal", "receivablesViewModal", "transferMoneyModal",
     "monthlyViewModal", "settingsModal", "donateModal", "shortcutsHelpModal", "securityQuestionModal", "initialSetupModal"
   ];
+  
+  const targetModalId = (event.state && event.state.modalOpen) ? event.state.modalId : null;
+
   modalsToClose.forEach(id => {
     const m = $(`#${id}`);
-    if (m && m.style.display === "block") {
-      m.style.display = "none"; // Hide silently
-      if (id === "formModal") {
-        $("#dynamicForm").innerHTML = "";
-        $("#dynamicForm").onsubmit = null;
+    if (m) {
+      if (id === targetModalId) {
+        m.style.display = "block";
+      } else if (m.style.display === "block") {
+        m.style.display = "none";
+        if (id === "formModal") {
+          $("#dynamicForm").innerHTML = "";
+          $("#dynamicForm").onsubmit = null;
+        }
+        if (id === "settingsModal") cancelDeleteAllData();
+        if (id === "ccHistoryModal") document.body.renderCcHistoryList = null;
       }
-      if (id === "settingsModal") cancelDeleteAllData();
-      if (id === "ccHistoryModal") document.body.renderCcHistoryList = null;
     }
   });
 });

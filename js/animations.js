@@ -48,37 +48,39 @@ function animateValue(el, newValue, isCurrency = true, prefix = '', stableKey = 
 }
 
 function updateTabIndicator(containerId = 'monthTabs') {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  
-  // Ensure the container has relative position for absolute indicator placement
-  if (window.getComputedStyle(container).position === 'static') {
-    container.style.position = 'relative';
-  }
-  
-  let indicator = container.querySelector('.tab-indicator');
-  if (!indicator) {
-    indicator = document.createElement('div');
-    indicator.className = 'tab-indicator bg-accent-500';
-    container.appendChild(indicator);
-  }
-  
-  const activeTabBtn = container.querySelector('button.active');
-  if (activeTabBtn) {
-    indicator.style.display = 'block';
+  setTimeout(() => {
+    const container = document.getElementById(containerId);
+    if (!container) return;
     
-    // Calculate bounding rect of container and the active button
-    const containerRect = container.getBoundingClientRect();
-    const btnRect = activeTabBtn.getBoundingClientRect();
+    // Ensure the container has relative position for absolute indicator placement
+    if (window.getComputedStyle(container).position === 'static') {
+      container.style.position = 'relative';
+    }
     
-    // Left calculation offsets the button relative to container and factors horizontal scrolling
-    const left = btnRect.left - containerRect.left + container.scrollLeft;
+    let indicator = container.querySelector('.tab-indicator');
+    if (!indicator) {
+      indicator = document.createElement('div');
+      indicator.className = 'tab-indicator bg-accent-500';
+      container.appendChild(indicator);
+    }
     
-    indicator.style.width = `${btnRect.width}px`;
-    indicator.style.left = `${left}px`;
-  } else {
-    indicator.style.display = 'none';
-  }
+    const activeTabBtn = container.querySelector('button.active');
+    if (activeTabBtn) {
+      indicator.style.display = 'block';
+      
+      // Calculate bounding rect of container and the active button
+      const containerRect = container.getBoundingClientRect();
+      const btnRect = activeTabBtn.getBoundingClientRect();
+      
+      // Left calculation offsets the button relative to container and factors horizontal scrolling
+      const left = btnRect.left - containerRect.left + container.scrollLeft;
+      
+      indicator.style.width = `${btnRect.width}px`;
+      indicator.style.left = `${left}px`;
+    } else {
+      indicator.style.display = 'none';
+    }
+  }, 50);
 }
 
 function triggerStaggerAnimation(container) {

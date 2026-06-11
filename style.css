@@ -952,8 +952,7 @@ button.link-style {
 }
 .monthly-view-transaction-item:hover {
   background-color: rgba(var(--accent-primary-rgb), 0.06);
-  transform: translateX(3px);
-  box-shadow: -3px 0 0 0 var(--accent-primary), inset 0 0 12px rgba(230, 126, 38, 0.04);
+  box-shadow: inset 4px 0 0 0 var(--accent-primary), inset 0 0 12px rgba(230, 126, 38, 0.04);
 }
 
 .monthly-view-category-list li {
