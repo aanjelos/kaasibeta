@@ -1012,7 +1012,7 @@ function populateDropdowns() {
     const isAllChecked = checkedCategories.size === 0;
     allLabel.innerHTML = `
       <input type="checkbox" id="filterCategoryAll" value="all" class="peer sr-only" ${isAllChecked ? "checked" : ""}>
-      <div class="w-4 h-4 rounded border border-gray-500 peer-checked:border-accent-primary flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-primary">
+      <div class="w-4 h-4 rounded border border-gray-500 peer-checked:border-accent-500 flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500">
           <svg class="w-3 h-3 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
       </div>
       <span>All Categories</span>
@@ -1031,7 +1031,7 @@ function populateDropdowns() {
       const isChecked = checkedCategories.has(c);
       label.innerHTML = `
         <input type="checkbox" value="${c}" class="peer sr-only filter-category-checkbox" ${isChecked ? "checked" : ""}>
-        <div class="w-4 h-4 rounded border border-gray-500 peer-checked:border-accent-primary flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-primary">
+        <div class="w-4 h-4 rounded border border-gray-500 peer-checked:border-accent-500 flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500">
           <svg class="w-3 h-3 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
         </div>
         <span>${c}</span>

@@ -755,6 +755,11 @@ document.addEventListener("DOMContentLoaded", () => {
         preloaderElement.classList.add("hidden");
         appContentElement.classList.add("visible");
         setTimeout(() => {
+          if (typeof triggerStaggerAnimation === 'function') {
+            triggerStaggerAnimation(document.getElementById('recentTransactions'));
+          }
+        }, 100);
+        setTimeout(() => {
           preloaderElement.style.display = "none";
         }, 750);
       };
@@ -769,6 +774,11 @@ document.addEventListener("DOMContentLoaded", () => {
         );
         preloaderElement.classList.add("hidden");
         appContentElement.classList.add("visible");
+        setTimeout(() => {
+          if (typeof triggerStaggerAnimation === 'function') {
+            triggerStaggerAnimation(document.getElementById('recentTransactions'));
+          }
+        }, 100);
 
         setTimeout(() => {
           preloaderElement.style.display = "none";

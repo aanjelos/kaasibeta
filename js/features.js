@@ -3584,7 +3584,7 @@ function renderDashboard() {
         const valEl = card.querySelector('.balance-val');
         if (valEl) {
           if (typeof animateValue === 'function') {
-            animateValue(valEl, acc.balance);
+            animateValue(valEl, acc.balance, true, '', 'acc-' + acc.id);
           } else {
             valEl.innerHTML = `<span class="tabular-nums">${formatCurrency(acc.balance)}</span>`;
           }

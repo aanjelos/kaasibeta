@@ -662,7 +662,7 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
         extraHtml = `<div class="mt-4 pt-3 border-t border-gray-700">
           <label class="flex items-start gap-3 cursor-pointer group text-left">
             <input type="checkbox" id="dontShowRestoreWarning" class="peer sr-only">
-            <div class="mt-0.5 shrink-0 w-4 h-4 rounded border border-gray-500 peer-checked:border-accent-primary flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-primary">
+            <div class="shrink-0 w-4 h-4 rounded border border-gray-500 peer-checked:border-accent-500 flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500">
               <svg class="w-3 h-3 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
             </div>
             <span class="text-sm text-gray-300 group-hover:text-white transition-colors">Don't show this warning again when restoring from the dashboard</span>

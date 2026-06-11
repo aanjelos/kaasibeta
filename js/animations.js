@@ -2,13 +2,13 @@
 
 const previousBalances = new Map();
 
-function animateValue(el, newValue, isCurrency = true, prefix = '') {
+function animateValue(el, newValue, isCurrency = true, prefix = '', stableKey = null) {
   if (!el) return;
   
   if (!el.dataset.animId) {
     el.dataset.animId = Math.random().toString(36).substr(2, 9);
   }
-  const key = el.dataset.animId;
+  const key = stableKey || el.id || el.dataset.animId;
   
   let startValue = previousBalances.get(key);
   if (startValue === undefined) {
@@ -59,7 +59,7 @@ function updateTabIndicator(containerId = 'monthTabs') {
   let indicator = container.querySelector('.tab-indicator');
   if (!indicator) {
     indicator = document.createElement('div');
-    indicator.className = 'tab-indicator';
+    indicator.className = 'tab-indicator bg-accent-500';
     container.appendChild(indicator);
   }
   
