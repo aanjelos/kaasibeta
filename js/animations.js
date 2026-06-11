@@ -48,7 +48,7 @@ function animateValue(el, newValue, isCurrency = true, prefix = '', stableKey = 
 }
 
 function updateTabIndicator(containerId = 'monthTabs') {
-  setTimeout(() => {
+  const performUpdate = () => {
     const container = document.getElementById(containerId);
     if (!container) return;
     
@@ -80,7 +80,13 @@ function updateTabIndicator(containerId = 'monthTabs') {
     } else {
       indicator.style.display = 'none';
     }
-  }, 50);
+  };
+
+  performUpdate();
+  if (document.fonts) {
+    document.fonts.ready.then(performUpdate);
+  }
+  setTimeout(performUpdate, 150);
 }
 
 function triggerStaggerAnimation(container) {
