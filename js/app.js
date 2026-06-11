@@ -758,7 +758,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (typeof triggerStaggerAnimation === 'function') {
             triggerStaggerAnimation(document.getElementById('recentTransactions'));
           }
-        }, 100);
+        }, 800);
         setTimeout(() => {
           preloaderElement.style.display = "none";
         }, 750);
@@ -778,7 +778,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (typeof triggerStaggerAnimation === 'function') {
             triggerStaggerAnimation(document.getElementById('recentTransactions'));
           }
-        }, 100);
+        }, 800);
 
         setTimeout(() => {
           preloaderElement.style.display = "none";
