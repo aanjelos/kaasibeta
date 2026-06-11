@@ -1624,12 +1624,15 @@ function renderMonthlyDetails(
     titleEl.className = "text-lg font-semibold mb-3 text-center";
     titleEl.textContent = "Category Distribution (Full Month)";
     chartCard.appendChild(titleEl);
+    const wrapper = document.createElement("div");
+    wrapper.className = "flex-grow relative w-full min-h-0";
     const canvasContainer = document.createElement("div");
-    canvasContainer.className = "flex-grow relative chart-container min-h-0";
+    canvasContainer.className = "absolute inset-0";
     const canvas = document.createElement("canvas");
     canvas.id = "monthlyDetailPieChartCanvas";
     canvasContainer.appendChild(canvas);
-    chartCard.appendChild(canvasContainer);
+    wrapper.appendChild(canvasContainer);
+    chartCard.appendChild(wrapper);
     categorySection.appendChild(chartCard);
     const pieDataCategories = sortedCategories.filter(([c, _]) => !isCategoryExcluded(c, 'excludeFromPieChart'));
     const pieData = {
