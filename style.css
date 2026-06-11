@@ -1153,6 +1153,13 @@ input[type="checkbox"].peer:focus-visible + div {
   .monthly-view-content-grid {
     grid-template-columns: 1fr;
   }
+  .monthly-view-transaction-item {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem !important;
+  }
+  .monthly-view-day-header {
+    padding: 0.75rem !important;
+  }
 }
 
 @media (max-width: 480px) {

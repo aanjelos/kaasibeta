@@ -1502,7 +1502,7 @@ function renderMonthlyDetails(
         .sort((a, b) => b.timestamp - a.timestamp)
         .forEach((t, index) => {
           const itemDiv = document.createElement("div");
-          itemDiv.className = "monthly-view-transaction-item stagger-item flex flex-col sm:flex-row sm:justify-between sm:items-center items-start gap-1 sm:gap-0";
+          itemDiv.className = "monthly-view-transaction-item stagger-item flex justify-between items-center gap-x-2";
           itemDiv.style.animationDelay = `${index * 0.03}s`;
           itemDiv.onclick = () => openTransactionDetailModal(t.id);
           const account = state.accounts.find((acc) => acc.id === t.account);
@@ -1522,13 +1522,13 @@ function renderMonthlyDetails(
           const tooltipSuffix = isExcluded ? " (Hidden Category)" : "";
 
           itemDiv.innerHTML = `
-              <div class="flex-grow w-full sm:w-auto overflow-hidden ${opacityClass} mr-0 sm:mr-2">
-                <p class="font-medium force-word-wrap ${textColorClass}" title="${
+              <div class="flex-grow min-w-0 ${opacityClass} mr-2">
+                <p class="font-medium truncate ${textColorClass}" title="${
             t.description
           }${tooltipSuffix}">${t.description}</p>
-                <p class="text-xs text-gray-400 mt-0.5 force-word-wrap">${subDetailText}</p>
+                <p class="text-xs text-gray-400 mt-0.5 truncate">${subDetailText}</p>
               </div>
-              <div class="flex items-center justify-end w-full sm:w-auto flex-shrink-0 mt-2 sm:mt-0">
+              <div class="flex items-center justify-end flex-shrink-0">
                 <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums ${opacityClass}" title="${isExcluded ? 'Excluded from totals' : ''}">${
               isIncome ? "+" : "-"
             }${formatCurrency(t.amount)}</span>

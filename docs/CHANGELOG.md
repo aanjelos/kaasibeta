@@ -242,3 +242,9 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 ### 51. [Bugfix] Active Tab Alignment Precision (v5.197l)
 - **Active Tab Precision**: Wired the active tab indicator offset calculations directly into the `document.fonts.ready` event listener to ensure pinpoint pixel accuracy even if custom web fonts load slowly.
 
+### 52. [UI/UX] Mobile Transaction Item Polish & Truncation (v5.198l)
+- **Item Sizing Alignment**: Adjusted padding and font sizes on mobile viewports for transaction list items and headers to align perfectly with the Debts and Receivables accordions.
+- **Title & Sub-detail Truncation**: Applied strict text truncation to transaction descriptions and metadata, preventing line wrapping and restoring visual hierarchy, relying on the transaction detail modal for full description details.
+- **Horizontal Flow Restore**: Replaced vertical stacking of transaction items with clean, side-by-side flex alignment to mirror native lists on mobile screens.
+
+
