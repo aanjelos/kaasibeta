@@ -611,10 +611,24 @@ function calculateCashTotal() {
 }
 
 // --- MODAL & BACK GESTURE LOGIC ---
+function updateBodyScrollState() {
+  const modals = document.querySelectorAll('.modal');
+  let anyOpen = false;
+  modals.forEach(m => {
+    if (m.style.display === "block") anyOpen = true;
+  });
+  if (anyOpen) {
+    document.body.classList.add("overflow-hidden");
+  } else {
+    document.body.classList.remove("overflow-hidden");
+  }
+}
+
 function openModalHelper(modalId) {
   const modal = $(`#${modalId}`);
   if (modal && modal.style.display !== "block") {
     modal.style.display = "block";
+    updateBodyScrollState();
     history.pushState({ modalOpen: true, modalId }, null, "");
   }
 }
@@ -644,11 +658,15 @@ window.addEventListener("popstate", (event) => {
       }
     }
   });
+  updateBodyScrollState();
 });
 
 function closeModal(modalId) {
   const modal = $(`#${modalId}`);
-  if (modal) modal.style.display = "none";
+  if (modal) {
+    modal.style.display = "none";
+    updateBodyScrollState();
+  }
   if (modalId === "formModal") {
     $("#dynamicForm").innerHTML = "";
     $("#dynamicForm").onsubmit = null;

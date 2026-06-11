@@ -3794,17 +3794,17 @@ function renderYearlyAndQuickStats() {
     }
   });
 
-  $("#yearlyTotals").textContent = `Yearly: Earned ${formatCurrency(
+  $("#yearlyTotals").innerHTML = `<span class="whitespace-nowrap">Yearly: Earned ${formatCurrency(
     yearlyEarned
-  )} / Spent ${formatCurrency(yearlySpent)}`;
+  )}</span> / <span class="whitespace-nowrap">Spent ${formatCurrency(yearlySpent)}</span>`;
 
   const quickStatsEl = $("#quickStats");
   // Update text to "Past 7 Days"
-  quickStatsEl.innerHTML = `Today: ${formatCurrency(
+  quickStatsEl.innerHTML = `<span class="whitespace-nowrap">Today: ${formatCurrency(
     todaySpent
-  )} <span id="todaySpendingIndicator"></span> | Past 7 Days: ${formatCurrency(
+  )} <span id="todaySpendingIndicator"></span></span> | <span class="whitespace-nowrap">Past 7 Days: ${formatCurrency(
     current7DaysSpent
-  )} <span id="weekSpendingIndicator"></span>`; // ID "weekSpendingIndicator" is kept for now, but refers to 7-day period
+  )} <span id="weekSpendingIndicator"></span></span>`; // ID "weekSpendingIndicator" is kept for now, but refers to 7-day period
 
   const todayIndicator = $("#todaySpendingIndicator");
   if (todaySpent > yesterdaySpent && yesterdaySpent >= 0) {

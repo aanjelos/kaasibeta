@@ -2,7 +2,7 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 const formatCurrency = (amount) => {
   if (typeof amount !== "number" || isNaN(amount)) amount = 0;
-  return `LKR ${amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
+  return `LKR\u00A0${amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
 };
 const generateId = () => "_" + Math.random().toString(36).substr(2, 9);
 const getDaysLeft = (dueDate) => {
