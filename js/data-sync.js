@@ -659,13 +659,13 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
     } else {
       let extraHtml = "";
       if (isFromDashboard) {
-        extraHtml = `<div class="mt-4 pt-4 border-t border-gray-700 flex justify-center">
-          <label class="flex items-start gap-2.5 cursor-pointer group text-left max-w-[280px]">
+        extraHtml = `<div class="mt-4 pt-4 border-t border-gray-700">
+          <label class="flex items-start gap-3 cursor-pointer group text-left" style="max-width: 260px; margin: 0 auto;">
             <input type="checkbox" id="dontShowRestoreWarning" class="peer sr-only">
-            <div class="shrink-0 mt-0.5 w-4 h-4 rounded border border-gray-500 peer-checked:border-accent-500 flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500">
+            <div class="shrink-0 w-4 h-4 rounded border border-gray-500 peer-checked:border-accent-500 flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500" style="margin-top: 3px;">
               <svg class="w-3 h-3 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
             </div>
-            <span class="text-sm text-gray-300 group-hover:text-white transition-colors leading-snug">Don't show this warning again when restoring from the dashboard</span>
+            <span class="text-sm text-gray-300 group-hover:text-white transition-colors" style="line-height: 1.35;">Don't show this warning again when restoring from the dashboard</span>
           </label>
         </div>`;
       }
