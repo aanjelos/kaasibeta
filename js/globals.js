@@ -169,6 +169,7 @@ function getDefaultState() {
       settings: {
         initialSetupDone: false,
         showCcDashboardSection: true,
+        showMathToolbar: true,
         theme: "dark",
         accent: "orange",
         hiddenCategoryRules: {

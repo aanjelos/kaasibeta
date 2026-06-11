@@ -91,6 +91,10 @@ function renderRecentTransactions() {
       </div>`;
     list.appendChild(div);
   });
+  
+  if (typeof triggerStaggerAnimation === 'function') {
+    triggerStaggerAnimation(list);
+  }
 }
 
 function renderDebtList() {
@@ -1486,7 +1490,10 @@ function renderMonthlyDetails(
         setTimeout(() => {
           dayTransactionsContainer.style.maxHeight =
             dayTransactionsContainer.scrollHeight + "px";
-        }, 0);
+          if (typeof triggerStaggerAnimation === 'function') {
+            triggerStaggerAnimation(dayTransactionsContainer);
+          }
+        }, 50);
       }
 
       dayHeader.onclick = () => {
@@ -1498,6 +1505,10 @@ function renderMonthlyDetails(
           chevronIcon.classList.remove("fa-chevron-down");
           chevronIcon.classList.add("fa-chevron-up");
           if (!searchTerm) openDayKeys.add(dayData.dayKey);
+          
+          if (typeof triggerStaggerAnimation === 'function') {
+            triggerStaggerAnimation(dayTransactionsContainer);
+          }
         } else {
           dayTransactionsContainer.style.maxHeight = "0px";
           chevronIcon.classList.remove("fa-chevron-up");
@@ -3509,8 +3520,7 @@ function renderDashboard() {
 
   const visibleAccounts = state.accounts.filter((acc) => !acc.hidden);
   const accountCardsContainer = $("#accountCardsContainer");
-  accountCardsContainer.innerHTML = ""; // Clear previous cards
-
+  
   let totalBalance = 0;
   state.accounts.forEach((acc) => {
     totalBalance += acc.balance; // Calculate total balance from ALL accounts
@@ -3545,17 +3555,41 @@ function renderDashboard() {
         break;
     }
 
+    // Reuse existing cards to preserve animIds and allow animation
+    const existingCardIds = Array.from(accountCardsContainer.children).map(child => child.id.replace('accountBalance-', ''));
+    const visibleAccountIds = visibleAccounts.map(acc => acc.id);
+    const listsMatch = existingCardIds.length === visibleAccountIds.length && existingCardIds.every((val, index) => val === visibleAccountIds[index]);
+    
+    if (!listsMatch) {
+      accountCardsContainer.innerHTML = "";
+      visibleAccounts.forEach((acc) => {
+        const card = document.createElement("div");
+        card.id = `accountBalance-${acc.id}`;
+        card.className = "bg-gray-600 p-3 rounded";
+        card.innerHTML = `
+          <p class="text-xs font-medium text-gray-300 truncate">${acc.name}</p>
+          <p class="font-semibold text-sm tabular-nums balance-val"></p>
+        `;
+        accountCardsContainer.appendChild(card);
+      });
+    }
+
     visibleAccounts.forEach((acc) => {
-      const card = document.createElement("div");
-      card.id = `accountBalance-${acc.id}`;
-      card.className = "bg-gray-600 p-3 rounded";
-      card.innerHTML = `
-        <p class="text-xs font-medium text-gray-300 truncate">${acc.name}</p>
-        <p class="font-semibold text-sm tabular-nums">${formatCurrency(
-          acc.balance
-        )}</p>
-      `;
-      accountCardsContainer.appendChild(card);
+      const card = accountCardsContainer.querySelector(`#accountBalance-${acc.id}`);
+      if (card) {
+        const nameEl = card.querySelector('p:first-child');
+        if (nameEl && nameEl.textContent !== acc.name) {
+          nameEl.textContent = acc.name;
+        }
+        const valEl = card.querySelector('.balance-val');
+        if (valEl) {
+          if (typeof animateValue === 'function') {
+            animateValue(valEl, acc.balance);
+          } else {
+            valEl.innerHTML = `<span class="tabular-nums">${formatCurrency(acc.balance)}</span>`;
+          }
+        }
+      }
     });
   } else {
     // Hide the container if the special condition is met

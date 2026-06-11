@@ -39,6 +39,9 @@ function onAppUnlocked() {
     pinLockOverlay.style.opacity = "0";
     setTimeout(() => {
       pinLockOverlay.classList.add("hidden");
+      if (typeof renderDashboard === "function") {
+        renderDashboard();
+      }
     }, 500); // Wait for fade out
   }
   

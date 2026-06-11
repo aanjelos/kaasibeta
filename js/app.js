@@ -244,6 +244,12 @@ function initializeUI(isRefresh = false) {
       if ($("#filterEndDate")) $("#filterEndDate").value = "";
     }
 
+    // Reset quick date active classes
+    const filterQuickDates = $("#filterQuickDates");
+    if (filterQuickDates) {
+      filterQuickDates.querySelectorAll(".quick-date-pill").forEach(btn => btn.classList.remove("active"));
+    }
+
     if ($("#filterType")) $("#filterType").value = "all";
     
     // Reset Category Multi-Select
@@ -287,10 +293,19 @@ function initializeUI(isRefresh = false) {
       }
     }, 400);
   };
+  const clearQuickDatesActive = () => {
+    if (filterQuickDates) {
+      filterQuickDates.querySelectorAll(".quick-date-pill").forEach(btn => btn.classList.remove("active"));
+    }
+  };
+
   const filterQuickDates = $("#filterQuickDates");
   if (filterQuickDates && !isRefresh) {
     filterQuickDates.addEventListener("click", (e) => {
-      if (e.target.tagName === "BUTTON") {
+      if (e.target.classList.contains("quick-date-pill")) {
+        clearQuickDatesActive();
+        e.target.classList.add("active");
+
         const range = e.target.dataset.range;
         const now = new Date();
         let start = new Date();
@@ -333,8 +348,14 @@ function initializeUI(isRefresh = false) {
 
   filterInputs.forEach(input => {
     if (input) {
-      input.addEventListener("input", triggerSearch);
-      input.addEventListener("change", triggerSearch); // for selects and dates
+      const handler = (e) => {
+        if ((input.id === "filterStartDate" || input.id === "filterEndDate") && e.isTrusted) {
+          clearQuickDatesActive();
+        }
+        triggerSearch();
+      };
+      input.addEventListener("input", handler);
+      input.addEventListener("change", handler); // for selects and dates
     }
   });
 

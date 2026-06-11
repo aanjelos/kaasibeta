@@ -850,6 +850,10 @@ function switchSettingsTab(clickedButton, targetPanelId) {
 
   clickedButton.classList.add("active");
   
+  if (typeof updateTabIndicator === 'function') {
+    updateTabIndicator('settingsTabsContainer');
+  }
+  
   // Scroll the active tab into view (centered)
   setTimeout(() => {
     clickedButton.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });

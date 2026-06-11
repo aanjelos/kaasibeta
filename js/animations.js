@@ -47,9 +47,14 @@ function animateValue(el, newValue, isCurrency = true, prefix = '') {
   requestAnimationFrame(update);
 }
 
-function updateTabIndicator() {
-  const container = document.getElementById('monthTabs');
+function updateTabIndicator(containerId = 'monthTabs') {
+  const container = document.getElementById(containerId);
   if (!container) return;
+  
+  // Ensure the container has relative position for absolute indicator placement
+  if (window.getComputedStyle(container).position === 'static') {
+    container.style.position = 'relative';
+  }
   
   let indicator = container.querySelector('.tab-indicator');
   if (!indicator) {
@@ -58,13 +63,31 @@ function updateTabIndicator() {
     container.appendChild(indicator);
   }
   
-  const activeTabs = container.querySelectorAll('button.active');
-  if (activeTabs.length === 1) {
-    const activeTabBtn = activeTabs[0];
+  const activeTabBtn = container.querySelector('button.active');
+  if (activeTabBtn) {
     indicator.style.display = 'block';
-    indicator.style.width = `${activeTabBtn.offsetWidth}px`;
-    indicator.style.left = `${activeTabBtn.offsetLeft}px`;
+    
+    // Calculate bounding rect of container and the active button
+    const containerRect = container.getBoundingClientRect();
+    const btnRect = activeTabBtn.getBoundingClientRect();
+    
+    // Left calculation offsets the button relative to container and factors horizontal scrolling
+    const left = btnRect.left - containerRect.left + container.scrollLeft;
+    
+    indicator.style.width = `${btnRect.width}px`;
+    indicator.style.left = `${left}px`;
   } else {
     indicator.style.display = 'none';
   }
+}
+
+function triggerStaggerAnimation(container) {
+  if (!container) return;
+  const items = container.querySelectorAll('.stagger-item');
+  items.forEach((item, index) => {
+    item.style.animation = 'none';
+    item.offsetHeight; // trigger reflow
+    item.style.animation = '';
+    item.style.animationDelay = `${index * 0.03}s`;
+  });
 }

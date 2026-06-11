@@ -659,11 +659,11 @@
               <div class="flex flex-col gap-1 md:col-span-2">
                 <div class="flex items-center justify-between flex-wrap gap-1">
                   <label class="text-xs text-gray-400">Date Override (Optional)</label>
-                  <div class="flex gap-1 text-[10px]" id="filterQuickDates">
-                    <button type="button" class="px-2 py-0.5 rounded bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors" data-range="ytd">This Year</button>
-                    <button type="button" class="px-2 py-0.5 rounded bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors" data-range="6m">Past 6 Months</button>
-                    <button type="button" class="px-2 py-0.5 rounded bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors" data-range="1y">Past Year</button>
-                    <button type="button" class="px-2 py-0.5 rounded bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors" data-range="lastYear">Last Year</button>
+                  <div class="flex flex-wrap gap-1.5 mt-1" id="filterQuickDates">
+                    <button type="button" class="quick-date-pill" data-range="ytd">This Year</button>
+                    <button type="button" class="quick-date-pill" data-range="6m">Past 6 Months</button>
+                    <button type="button" class="quick-date-pill" data-range="1y">Past Year</button>
+                    <button type="button" class="quick-date-pill" data-range="lastYear">Last Year</button>
                   </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
@@ -1899,6 +1899,7 @@
 
 
     <script src="js/globals.js" defer></script>
+    <script src="js/animations.js" defer></script>
     <script src="js/data-sync.js" defer></script>
     <script src="js/math-tool.js" defer></script>
     <script src="js/settings.js" defer></script>
