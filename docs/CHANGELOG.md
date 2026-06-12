@@ -154,6 +154,9 @@ Fixed an issue where Android devices were heavily cropping the Kaasi logo when i
 ### 62. [Bugfix] Fixed Width Constraint for Expired Session Modal Buttons (v5.214l)
 - **Enforced Button Symmetrical Widths**: Added explicit `width: 140px !important` CSS rules inside a `(min-width: 640px)` media query block for the recovery modal buttons, permanently correcting rendering discrepancies caused by flex parent constraints and different text lengths in desktop views.
 
+### 63. [Bugfix] Strict min/max-width for Symmetrical Buttons (v5.215l)
+- **Strict Width Constraints**: Added explicit `min-width: 140px !important` and `max-width: 140px !important` styles inside the media query for both recovery buttons to override any browser flex layout compression or custom padding discrepancies.
+
 ### 25. [Feature] Advanced Search & Filters (v5.143k)
 Added a robust set of advanced filtering tools within the All Transactions modal. Users can now open an accordion panel to filter their transaction history by custom date ranges, type (Income/Expense), category, and min/max amount ranges. The filters dynamically update the list in real-time, and UI elements cleanly highlight when active. Layout elegantly collapses to single-column on mobile phones and expands to a 3-column structured layout on desktop/tablet to properly accommodate all inputs.
 

@@ -2015,6 +2015,8 @@ footer a[href^="https://kaasi.com.lk"]:hover
 @media (min-width: 640px) {
   #sessionExpiredGoogleLoginBtn, #sessionExpiredLocalBtn {
     width: 140px !important;
+    min-width: 140px !important;
+    max-width: 140px !important;
   }
 }
 
