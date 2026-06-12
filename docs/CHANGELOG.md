@@ -255,4 +255,9 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 - **Stagger Animation Optimization**: Refactored the recent transactions renderer to perform delta DOM updates on list items using unique transaction IDs. This prevents the stagger animation from completely re-triggering from scratch for unmodified elements, making additions and deletions smooth and non-intrusive.
 - **Auto-Setup Trigger After Deletion**: Improved the data deletion flow (slide to delete) so that upon wiping all local and cloud-associated data, it immediately triggers the initial Setup Wizard without forcing the user to manually refresh the page.
 
+### 54. [UI/UX] Smooth Stacked Modal Routing & Dynamic Transaction Animations (v5.206l)
+- **Eliminated Detail Modal Flash and Desyncs**: Modified the Transaction Detail Modal's action flows. Tapping "Edit" now launches the form modal right on top of the details view (boosting `#formModal` z-index to `68`), keeping it open underneath. Upon submitting the form, the details modal refreshes seamlessly with the updated details.
+- **Improved Details Modal Delete**: Deleting a transaction from within the details modal now prompts the confirmation overlay to render on top. Confirming the deletion instantly closes both modals and returns to the parent list via a single `history.go(-2)` jump, preventing visual desyncs.
+- **Dynamic Recent Transactions Animations**: Replaced static state transitions in the recent transactions view with smart DOM insertions. Newly added items slide down and fade in (`.new-transaction-animate`), pushing existing elements down, while deleted items smoothly shrink in height and fade out to 0 before getting removed. Initial loads retain the standard stagger.
+
 

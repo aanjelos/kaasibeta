@@ -56,6 +56,8 @@ function renderRecentTransactions() {
   const noTxMsg = list.querySelector("p.text-gray-400");
   if (noTxMsg) noTxMsg.remove();
 
+  const isUpdate = list.children.length > 0 && !list.querySelector("p.text-gray-400");
+
   const existingMap = new Map();
   Array.from(list.children).forEach(child => {
     if (child.dataset && child.dataset.id) {
@@ -72,12 +74,20 @@ function renderRecentTransactions() {
     if (div) {
       existingMap.delete(t.id);
       div.classList.remove("stagger-item");
+      div.classList.remove("new-transaction-animate");
       div.style.animation = "none";
       div.style.opacity = "1";
+      div.style.maxHeight = "";
+      div.style.overflow = "";
     } else {
       div = document.createElement("div");
       div.dataset.id = t.id;
-      div.className = `transaction-list-item-layout flex justify-between items-center rounded-lg bg-gray-700/50 text-sm transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group stagger-item`;
+      div.className = `transaction-list-item-layout flex justify-between items-center rounded-lg bg-gray-700/50 text-sm transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group`;
+      if (isUpdate) {
+        div.classList.add("new-transaction-animate");
+      } else {
+        div.classList.add("stagger-item");
+      }
       addedNew = true;
     }
 
@@ -113,10 +123,24 @@ function renderRecentTransactions() {
     fragment.appendChild(div);
   });
 
-  existingMap.forEach(child => child.remove());
+  existingMap.forEach(child => {
+    child.style.transition = "all 0.3s ease-out";
+    child.style.maxHeight = child.offsetHeight + "px";
+    child.style.overflow = "hidden";
+    requestAnimationFrame(() => {
+      child.style.maxHeight = "0px";
+      child.style.opacity = "0";
+      child.style.paddingTop = "0px";
+      child.style.paddingBottom = "0px";
+      child.style.marginTop = "0px";
+      child.style.marginBottom = "0px";
+    });
+    setTimeout(() => child.remove(), 300);
+  });
+
   list.appendChild(fragment);
 
-  if (addedNew && typeof triggerStaggerAnimation === 'function') {
+  if (!isUpdate && addedNew && typeof triggerStaggerAnimation === 'function') {
     triggerStaggerAnimation(list);
   }
 }
@@ -625,7 +649,7 @@ function handleTransactionSubmit(event) {
   refreshMonthlyViewIfRelevant(date);
 }
 
-function openTransactionDetailModal(transactionId) {
+function openTransactionDetailModal(transactionId, skipHistory = false) {
   const transaction = state.transactions.find((tx) => tx.id === transactionId);
   if (!transaction) return;
 
@@ -663,10 +687,10 @@ function openTransactionDetailModal(transactionId) {
     </div>
     
     <div class="flex gap-3 mt-4">
-      <button class="btn btn-secondary flex-1" onclick="closeModal('transactionDetailModal'); openEditTransactionModal('${transaction.id}', null)">
+      <button class="btn btn-secondary flex-1" onclick="openEditTransactionModal('${transaction.id}', null)">
         <i class="fas fa-edit mr-2"></i> Edit
       </button>
-      <button class="btn btn-danger flex-1" onclick="closeModal('transactionDetailModal'); deleteTransaction('${transaction.id}', null)">
+      <button class="btn btn-danger flex-1" onclick="deleteTransaction('${transaction.id}', null)">
         <i class="fas fa-trash mr-2"></i> Delete
       </button>
     </div>
@@ -675,7 +699,12 @@ function openTransactionDetailModal(transactionId) {
   const contentContainer = $("#transactionDetailContent");
   if (contentContainer) {
     contentContainer.innerHTML = html;
-    openModalHelper("transactionDetailModal");
+    if (skipHistory) {
+      const modal = $("#transactionDetailModal");
+      if (modal) modal.style.display = "block";
+    } else {
+      openModalHelper("transactionDetailModal");
+    }
   }
 }
 
@@ -878,6 +907,11 @@ function handleEditTransactionModalSubmit(event) {
   if (originalDate !== newDate) {
     refreshMonthlyViewIfRelevant(originalDate);
   }
+
+  const detailModal = $("#transactionDetailModal");
+  if (detailModal && detailModal.style.display === "block") {
+    openTransactionDetailModal(transactionId, true);
+  }
 }
 
 function deleteTransaction(id, event) {
@@ -916,6 +950,17 @@ function deleteTransaction(id, event) {
       showNotification("Transaction deleted.", "success");
       if (typeof trackEvent === "function") trackEvent("delete_transaction", "Engagement");
       refreshMonthlyViewIfRelevant(deletedDate);
+
+      const detailModal = $("#transactionDetailModal");
+      if (detailModal && detailModal.style.display === "block") {
+        detailModal.style.display = "none";
+        const confirmModal = $("#confirmationModal");
+        if (confirmModal) confirmModal.style.display = "none";
+        updateBodyScrollState();
+        history.go(-2);
+        return true; // handled
+      }
+      return false;
     }
   );
 }

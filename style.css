@@ -633,7 +633,7 @@ select:focus {
 }
 #formModal {
   /* Also for backup reminder if it uses formModal */
-  z-index: 55;
+  z-index: 68;
 }
 #confirmationModal {
   /* Higher z-index for confirmations */
@@ -1988,4 +1988,25 @@ footer a[href^="https://kaasi.com.lk"]:hover
 /* --- LIST ITEM LAYOUT --- */
 .transaction-list-item-layout {
   padding: 0.6rem 0.8rem !important;
+}
+
+@keyframes slideDownIn {
+  from {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  to {
+    opacity: 1;
+    max-height: 100px;
+    overflow: visible;
+  }
+}
+
+.new-transaction-animate {
+  animation: slideDownIn 0.35s ease-out forwards;
 }

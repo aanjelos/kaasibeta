@@ -773,10 +773,13 @@ function showConfirmationModal(
   cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
 
   newConfirmBtn.onclick = () => {
+    let handled = false;
     if (typeof currentConfirmCallback === "function") {
-      currentConfirmCallback();
+      handled = currentConfirmCallback();
     }
-    closeModal("confirmationModal");
+    if (handled !== true) {
+      closeModal("confirmationModal");
+    }
   };
 
   newCancelBtn.onclick = () => {
