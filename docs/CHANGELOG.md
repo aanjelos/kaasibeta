@@ -130,6 +130,9 @@ Fixed an issue where Android devices were heavily cropping the Kaasi logo when i
 - **Persistent Chart Morphing**: Re-engineered the way the "All Transactions" modal rebuilds itself during background data updates. Instead of fully destroying and recreating the HTML canvas, the existing chart node is preserved and dynamically reinjected. This allows Chart.js to natively morph the pie slices to their new values, rather than jarringly flashing out of existence and spinning up from zero.
 - **Accordion Slide-Snap Fix**: Disabled the CSS slide-down height transitions on the daily group accordions when they are redrawn during an update. Background list re-renders now snap instantly to their proper `scrollHeight` heights without triggering a full re-open slide animation.
 
+### 57. [Bugfix] Modal Scroll Collapse on Refresh (v5.209l)
+- **Scroll Freezing**: Fixed an annoying UX issue where the "All Transactions" list would snap back to the very top if a transaction was edited or deleted while scrolled down. The inner container height would momentarily collapse to 0 pixels while re-rendering the updated list, aggressively overwriting the browser's scroll height. The DOM now seamlessly freezes the `min-height` of the container prior to wiping it, keeping the scroll bar perfectly in place during the background refresh cycle.
+
 ### 25. [Feature] Advanced Search & Filters (v5.143k)
 Added a robust set of advanced filtering tools within the All Transactions modal. Users can now open an accordion panel to filter their transaction history by custom date ranges, type (Income/Expense), category, and min/max amount ranges. The filters dynamically update the list in real-time, and UI elements cleanly highlight when active. Layout elegantly collapses to single-column on mobile phones and expands to a 3-column structured layout on desktop/tablet to properly accommodate all inputs.
 

@@ -1023,6 +1023,10 @@ function refreshMonthlyViewIfRelevant(dateString) {
     ) {
       // --- NEW: Preserve scroll position ---
       const scrollPos = monthlyViewModal.scrollTop;
+      const container = $("#monthlyDetailsContainer");
+      if (container) {
+        container.style.minHeight = container.offsetHeight + "px";
+      }
 
       // --- NEW: Preserve accordion states ---
       const openDayKeys = new Set();
@@ -1039,11 +1043,7 @@ function refreshMonthlyViewIfRelevant(dateString) {
           const transactionsContainer = dayGroup.querySelector(
             ".day-transactions-container"
           );
-          // We need a reliable way to get the dayKey. Let's assume we can add it as a dataset attribute
-          // to the dayGroup or header when it's rendered in renderMonthlyDetails.
-          // For now, let's use the header's first child's text content (the date string) as a proxy,
-          // but this should be made more robust in renderMonthlyDetails.
-          const dayKey = header.dataset.dayKey; // We will add this dataset attribute in renderMonthlyDetails
+          const dayKey = header.dataset.dayKey;
 
           if (
             transactionsContainer &&
@@ -1059,9 +1059,12 @@ function refreshMonthlyViewIfRelevant(dateString) {
 
       renderMonthlyDetails(selectedMonth, selectedYear, openDayKeys, true); // Pass isUpdate = true
 
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         monthlyViewModal.scrollTop = scrollPos;
-      });
+        if (container) {
+          container.style.minHeight = "";
+        }
+      }, 10);
     }
   }
 }
