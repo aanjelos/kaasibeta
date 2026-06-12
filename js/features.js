@@ -83,9 +83,7 @@ function renderRecentTransactions() {
       div = document.createElement("div");
       div.dataset.id = t.id;
       div.className = `transaction-list-item-layout flex justify-between items-center rounded-lg bg-gray-700/50 text-sm transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group`;
-      if (isUpdate) {
-        div.classList.add("new-transaction-animate");
-      } else {
+      if (!isUpdate) {
         div.classList.add("stagger-item");
       }
       addedNew = true;
@@ -958,9 +956,8 @@ function deleteTransaction(id, event) {
         if (confirmModal) confirmModal.style.display = "none";
         updateBodyScrollState();
         history.go(-2);
-        return true; // handled
+        return true;
       }
-      return false;
     }
   );
 }
@@ -1571,7 +1568,12 @@ function renderMonthlyDetails(
         .forEach((t, index) => {
           const itemDiv = document.createElement("div");
           itemDiv.className = "transaction-list-item-layout monthly-view-transaction-item stagger-item flex justify-between items-center gap-x-2";
-          itemDiv.style.animationDelay = `${index * 0.03}s`;
+          if (shouldBeOpenInitially) {
+            itemDiv.style.animation = "none";
+            itemDiv.style.opacity = "1";
+          } else {
+            itemDiv.style.animationDelay = `${index * 0.03}s`;
+          }
           itemDiv.onclick = () => openTransactionDetailModal(t.id);
           const account = state.accounts.find((acc) => acc.id === t.account);
           const accountName = account ? account.name : "Unknown Acct";

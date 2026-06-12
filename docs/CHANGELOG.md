@@ -120,7 +120,12 @@ Fixed an issue where Android devices were heavily cropping the Kaasi logo when i
 - **Credit Card Polish**: Adjusted the visual presentation of Credit Cards to align with the rest of the application by integrating dynamic circular progress rings.
 - **UX Consistency**: Standardized interaction icons across the board. The 'Edit' button across the app (Installments, Credit Cards, Transactions) is now a muted grey (`fa-edit`), the 'Delete' button utilizes a soft X (`fa-times`), and the 'Pay' buttons use a standard green card icon (`fa-credit-card`).
 - **Natural Language**: Implemented dynamic string pluralization across Installments, Debts, and Receivables (e.g., smoothly alternating between "1 day left" and "5 days left" instead of the hardcoded "day(s)").
- 
+
+### 55. [Bugfix] Modal Stack Preservation & Accordion Refresh Optimizations (v5.207l)
+- **Modal Stack Architecture**: Resolved an issue where background modals (like "All Transactions") would aggressively close and disappear when closing a foreground modal (like "Transaction Details"). The browser `popstate` event listener now leverages a strict `history.state.openModals` array to perfectly maintain the Z-stack of all currently opened modals, keeping underlying elements cleanly visible without relying on expensive re-renders.
+- **Accordion Animation Prevention**: Patched an annoyance where accordion item elements inside the "All Transactions" list would needlessly re-animate (replaying the stagger fade-in) when switching back from the Details modal. Renderings now detect if an accordion item is already expanded and disables `stagger-item` animation inline.
+- **Recent List Bug Fix**: Disabled the `new-transaction-animate` animation on the recent transactions dashboard component during list deletions and refreshes, mitigating the jittery rebuild. The list now seamlessly shrinks without firing off initial stagger transitions.
+
 ### 25. [Feature] Advanced Search & Filters (v5.143k)
 Added a robust set of advanced filtering tools within the All Transactions modal. Users can now open an accordion panel to filter their transaction history by custom date ranges, type (Income/Expense), category, and min/max amount ranges. The filters dynamically update the list in real-time, and UI elements cleanly highlight when active. Layout elegantly collapses to single-column on mobile phones and expands to a 3-column structured layout on desktop/tablet to properly accommodate all inputs.
 

@@ -643,7 +643,14 @@ function openModalHelper(modalId) {
   if (modal && modal.style.display !== "block") {
     modal.style.display = "block";
     updateBodyScrollState();
-    history.pushState({ modalOpen: true, modalId }, null, "");
+    
+    let currentOpenModals = [];
+    if (history.state && history.state.openModals) {
+      currentOpenModals = [...history.state.openModals];
+    }
+    currentOpenModals.push(modalId);
+    
+    history.pushState({ modalOpen: true, modalId, openModals: currentOpenModals }, null, "");
   }
 }
 
@@ -654,12 +661,15 @@ window.addEventListener("popstate", (event) => {
     "monthlyViewModal", "settingsModal", "donateModal", "shortcutsHelpModal", "securityQuestionModal", "initialSetupModal"
   ];
   
-  const targetModalId = (event.state && event.state.modalOpen) ? event.state.modalId : null;
+  const targetOpenModals = (event.state && event.state.openModals) ? event.state.openModals : [];
+  if (event.state && event.state.modalOpen && (!event.state.openModals || event.state.openModals.length === 0)) {
+    targetOpenModals.push(event.state.modalId);
+  }
 
   modalsToClose.forEach(id => {
     const m = $(`#${id}`);
     if (m) {
-      if (id === targetModalId) {
+      if (targetOpenModals.includes(id)) {
         m.style.display = "block";
       } else if (m.style.display === "block") {
         m.style.display = "none";
