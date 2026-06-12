@@ -638,6 +638,10 @@ function updateBodyScrollState() {
   }
 }
 
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+
 function openModalHelper(modalId) {
   const modal = $(`#${modalId}`);
   if (modal && modal.style.display !== "block") {
