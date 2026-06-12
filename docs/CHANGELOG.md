@@ -133,6 +133,11 @@ Fixed an issue where Android devices were heavily cropping the Kaasi logo when i
 ### 57. [Bugfix] Modal Scroll Collapse on Refresh (v5.209l)
 - **Scroll Freezing**: Fixed an annoying UX issue where the "All Transactions" list would snap back to the very top if a transaction was edited or deleted while scrolled down. The inner container height would momentarily collapse to 0 pixels while re-rendering the updated list, aggressively overwriting the browser's scroll height. The DOM now seamlessly freezes the `min-height` of the container prior to wiping it, keeping the scroll bar perfectly in place during the background refresh cycle.
 
+### 58. [Bugfix] Inner List Scroll Restoration & History popstate jumps (v5.210m)
+- **Manual Scroll Restoration**: Disabled the browser's native history scroll restoration (`history.scrollRestoration = 'manual'`) globally, preventing sudden scrolling jumps to the top when navigating back or closing stacked modals via `popstate` events.
+- **Inner List Scroll Container Identification**: Identified the inner list container (`#monthlyTransactionsListContainer`) where the actual transactions list resides and scroll position was lost, and added tracking/restoration of its scroll state alongside the main modal container.
+- **Synchronous Layout & Accordion Height Calculation**: Removed asynchronous timeouts (`setTimeout`) in layout updates. By setting expanded accordions to `maxHeight: "none"` synchronously, the DOM maintains its full size instantly, enabling reliable synchronous restoration of scroll coordinates during background details edits or deletions.
+
 ### 25. [Feature] Advanced Search & Filters (v5.143k)
 Added a robust set of advanced filtering tools within the All Transactions modal. Users can now open an accordion panel to filter their transaction history by custom date ranges, type (Income/Expense), category, and min/max amount ranges. The filters dynamically update the list in real-time, and UI elements cleanly highlight when active. Layout elegantly collapses to single-column on mobile phones and expands to a 3-column structured layout on desktop/tablet to properly accommodate all inputs.
 
