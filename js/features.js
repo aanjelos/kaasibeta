@@ -1449,7 +1449,9 @@ function renderMonthlyDetails(
   exportButton.onclick = generateMonthlyPdfReport; // Attach event listener here
 
   transactionHeader.appendChild(title);
-  transactionHeader.appendChild(exportButton);
+  if (!hasAdvancedFilters && !searchTerm) {
+    transactionHeader.appendChild(exportButton);
+  }
   transactionListSection.appendChild(transactionHeader);
   // --- END FIX ---
 
