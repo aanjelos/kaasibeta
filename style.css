@@ -227,9 +227,13 @@ body {
 
 /* Preloader loading screen tips */
 #preloader-tip-container {
-  margin-top: 2rem;
+  margin-top: 3.5rem;
   max-width: 320px;
   animation: tipFadeIn 0.4s ease-out forwards;
+}
+
+#preloader-tip-text {
+  text-wrap: balance;
 }
 
 @keyframes tipFadeIn {
