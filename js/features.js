@@ -3982,13 +3982,208 @@ function renderCategoryBudgets() {
     // Hover details tooltip data
     const tooltipText = `Spent: ${formatCurrency(spent)} / Limit: ${formatCurrency(budget.limit)}`;
     
+  currentPeriodStart.setHours(0, 0, 0, 0);
+
+  // Previous 7-day period
+  const previousPeriodEnd = new Date(currentPeriodStart);
+  previousPeriodEnd.setDate(previousPeriodEnd.getDate() - 1); // Day before the current 7-day period starts
+  previousPeriodEnd.setHours(23, 59, 59, 999);
+  const previousPeriodStart = new Date(previousPeriodEnd);
+  previousPeriodStart.setDate(previousPeriodStart.getDate() - 6); // Go back 6 days from its end
+  previousPeriodStart.setHours(0, 0, 0, 0);
+
+  // --- Logic for "Today" vs "Yesterday" ---
+  const yesterdayStart = new Date(todayStart);
+  yesterdayStart.setDate(todayStart.getDate() - 1);
+  // yesterdayEnd is effectively the moment just before todayStart
+
+  let yearlyEarned = 0;
+  let yearlySpent = 0;
+  let current7DaysSpent = 0;
+  let previous7DaysSpent = 0;
+  let todaySpent = 0;
+  let yesterdaySpent = 0;
+
+  state.transactions.forEach((t) => {
+    const transactionDate = new Date(t.date); // Assuming t.date is "YYYY-MM-DD"
+    if (isNaN(transactionDate.getTime())) return;
+
+    // To ensure fair date comparison, set time to midday for date-only comparisons
+    // or use the start/end of day variables defined above for period checks.
+    const tDateForPeriodChecks = new Date(transactionDate);
+    tDateForPeriodChecks.setHours(12, 0, 0, 0); // Midday to avoid timezone issues with just date part
+
+    // Yearly totals
+    if (
+      tDateForPeriodChecks >= startOfYear &&
+      tDateForPeriodChecks.getFullYear() === currentYear
+    ) {
+      if (t.type === "income") yearlyEarned += t.amount;
+      if (t.type === "expense" && !isCategoryExcluded(t.category || "Other", 'excludeFromYearlyTotals')) yearlySpent += t.amount;
+    }
+
+    if (t.type === "expense" && !isCategoryExcluded(t.category || "Other", 'excludeFromQuickStats')) {
+      // Current 7-day period spending
+      if (
+        tDateForPeriodChecks >= currentPeriodStart &&
+        tDateForPeriodChecks <= currentPeriodEnd
+      ) {
+        current7DaysSpent += t.amount;
+      }
+      // Previous 7-day period spending
+      if (
+        tDateForPeriodChecks >= previousPeriodStart &&
+        tDateForPeriodChecks <= previousPeriodEnd
+      ) {
+        previous7DaysSpent += t.amount;
+      }
+      // Today's spending
+      if (
+        tDateForPeriodChecks >= todayStart &&
+        tDateForPeriodChecks <= todayEnd
+      ) {
+        todaySpent += t.amount;
+      }
+      // Yesterday's spending
+      if (
+        tDateForPeriodChecks >= yesterdayStart &&
+        tDateForPeriodChecks < todayStart
+      ) {
+        // up to, but not including, todayStart
+        yesterdaySpent += t.amount;
+      }
+    }
+  });
+
+  $("#yearlyTotals").innerHTML = `<span class="whitespace-nowrap">Yearly: Earned ${formatCurrency(
+    yearlyEarned
+  )}</span> / <span class="whitespace-nowrap">Spent ${formatCurrency(yearlySpent)}</span>`;
+
+  const quickStatsEl = $("#quickStats");
+  // Update text to "Past 7 Days"
+  quickStatsEl.innerHTML = `<span class="whitespace-nowrap">Today: ${formatCurrency(
+    todaySpent
+  )} <span id="todaySpendingIndicator"></span></span> | <span class="whitespace-nowrap">Past 7 Days: ${formatCurrency(
+    current7DaysSpent
+  )} <span id="weekSpendingIndicator"></span></span>`; // ID "weekSpendingIndicator" is kept for now, but refers to 7-day period
+
+  const todayIndicator = $("#todaySpendingIndicator");
+  if (todaySpent > yesterdaySpent && yesterdaySpent >= 0) {
+    // Check yesterdaySpent >= 0 to avoid showing arrow if no data for yesterday
+    todayIndicator.innerHTML = `<i class="fas fa-arrow-up text-indicator-bad spending-indicator" title="More than yesterday (${formatCurrency(
+      yesterdaySpent
+    )})"></i>`;
+  } else if (todaySpent < yesterdaySpent && yesterdaySpent > 0) {
+    // Check yesterdaySpent > 0
+    todayIndicator.innerHTML = `<i class="fas fa-arrow-down text-indicator-good spending-indicator" title="Less than yesterday (${formatCurrency(
+      yesterdaySpent
+    )})"></i>`;
+  } else {
+    todayIndicator.innerHTML = ""; // No indicator if same or no comparison data
+  }
+
+  const sevenDayIndicator = $("#weekSpendingIndicator"); // This now compares rolling 7-day periods
+  if (current7DaysSpent > previous7DaysSpent && previous7DaysSpent >= 0) {
+    sevenDayIndicator.innerHTML = `<i class="fas fa-arrow-up text-indicator-bad spending-indicator" title="More than previous 7 days (${formatCurrency(
+      previous7DaysSpent
+    )})"></i>`;
+  } else if (current7DaysSpent < previous7DaysSpent && previous7DaysSpent > 0) {
+    sevenDayIndicator.innerHTML = `<i class="fas fa-arrow-down text-indicator-good spending-indicator" title="Less than previous 7 days (${formatCurrency(
+      previous7DaysSpent
+    )})"></i>`;
+  } else {
+    sevenDayIndicator.innerHTML = "";
+  }
+}
+
+// --- CATEGORY BUDGETS DASHBOARD LOGIC ---
+
+function renderCategoryBudgets() {
+  const container = $("#categoryBudgetsProgressContainer");
+  const card = $("#categoryBudgetsDashboardCard");
+  if (!container || !card) return;
+
+  if (!state.budgets || state.budgets.length === 0) {
+    card.classList.add("hidden");
+    return;
+  }
+  
+  card.classList.remove("hidden");
+  
+  // Handle Collapsed State
+  const toggleBtn = $("#toggleBudgetsCardBtn");
+  const isCollapsed = state.settings && state.settings.collapseCategoryBudgets;
+  if (isCollapsed) {
+    container.classList.add("hidden");
+    if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
+  } else {
+    container.classList.remove("hidden");
+    if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
+  }
+
+  // Set up event listener if not already done
+  if (toggleBtn && !toggleBtn.dataset.listenerAttached) {
+    toggleBtn.addEventListener("click", () => {
+      const currentlyCollapsed = container.classList.contains("hidden");
+      if (currentlyCollapsed) {
+        container.classList.remove("hidden");
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
+        state.settings.collapseCategoryBudgets = false;
+      } else {
+        container.classList.add("hidden");
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
+        state.settings.collapseCategoryBudgets = true;
+      }
+      saveData();
+    });
+    toggleBtn.dataset.listenerAttached = "true";
+  }
+
+  container.innerHTML = "";
+
+  const now = new Date();
+  const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+  state.budgets.forEach(budget => {
+    let spent = 0;
+    
+    // Sum transactions for the current calendar month that fall under the budget's categories
+    state.transactions.forEach(t => {
+      if (t.type === "expense" && t.date.startsWith(currentMonthStr)) {
+        if (budget.categories.includes(t.category)) {
+          if (!isCategoryExcluded(t.category || "Other", 'excludeFromMonthlyTotals')) {
+            spent += t.amount;
+          }
+        }
+      }
+    });
+
+    const percent = budget.limit > 0 ? (spent / budget.limit) * 100 : 0;
+    const isOver = spent > budget.limit;
+    
+    let colorClass = "bg-[#27AE60]"; // Emerald Green (<=70%)
+    if (percent > 100) {
+      colorClass = "bg-[#E74C3C]"; // Crimson Red (>100%)
+    } else if (percent > 70) {
+      colorClass = "bg-orange-500"; // Amber/Orange (>70% and <=100%)
+    }
+
+    const remaining = budget.limit - spent;
+    let statusText = isOver ? `${formatCurrency(Math.abs(remaining))} over limit` : `${formatCurrency(remaining)} left`;
+
+    const budgetItem = document.createElement("div");
+    budgetItem.className = "group relative";
+    
+    // Hover details tooltip data
+    const tooltipText = `Spent: ${formatCurrency(spent)} / Limit: ${formatCurrency(budget.limit)}`;
+    
     budgetItem.innerHTML = `
       <div class="flex justify-between items-end mb-1">
         <span class="text-sm font-medium text-gray-200 truncate pr-2" title="${budget.categories.join(', ')}">${budget.name}</span>
         <span class="text-xs font-semibold ${isOver ? 'text-[#E74C3C]' : 'text-gray-400'} whitespace-nowrap" data-tooltip="${tooltipText}">${statusText} (${percent.toFixed(1)}%)</span>
       </div>
-      <div class="w-full bg-gray-700 rounded-full h-2.5 overflow-hidden">
-        <div class="${colorClass} h-2.5 rounded-full transition-all duration-500 ease-out" style="width: ${Math.min(percent, 100)}%"></div>
+      <div class="w-full bg-gray-700 rounded-full h-1.5 overflow-hidden">
+        <div class="${colorClass} h-1.5 rounded-full transition-all duration-500 ease-out" style="width: ${Math.min(percent, 100)}%"></div>
       </div>
     `;
     container.appendChild(budgetItem);

@@ -975,7 +975,7 @@ function renderBudgetsSettingsList() {
   container.innerHTML = "";
   state.budgets.forEach((budget) => {
     const div = document.createElement("div");
-    div.className = "flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-gray-800 rounded border border-gray-700 gap-3";
+    div.className = "flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-black/20 rounded-md border border-gray-600 gap-3";
     
     const catList = budget.categories.join(", ");
     
@@ -1002,11 +1002,11 @@ function renderBudgetsSettingsList() {
 
 function handleAddBudgetSubmit(event) {
   event.preventDefault();
-  const nameInput = $("#addBudgetName").value.trim();
+  let nameInput = $("#addBudgetName").value.trim();
   const limitInput = parseFloat($("#addBudgetLimit").value);
   
-  if (!nameInput || isNaN(limitInput) || limitInput <= 0) {
-    showNotification("Please provide a valid budget name and limit.", "error");
+  if (isNaN(limitInput) || limitInput <= 0) {
+    showNotification("Please provide a valid budget limit.", "error");
     return;
   }
 
@@ -1017,6 +1017,15 @@ function handleAddBudgetSubmit(event) {
   if (selectedCategories.length === 0) {
     showNotification("Please select at least one category for the budget.", "error");
     return;
+  }
+
+  if (!nameInput) {
+    if (selectedCategories.length === 1) {
+      nameInput = selectedCategories[0];
+    } else {
+      showNotification("Please provide a budget name when grouping multiple categories.", "error");
+      return;
+    }
   }
 
   const newBudget = {
@@ -1054,11 +1063,11 @@ function openEditBudgetModal(budgetId) {
 function handleEditBudgetSubmit(event) {
   event.preventDefault();
   const id = $("#editBudgetId").value;
-  const nameInput = $("#editBudgetName").value.trim();
+  let nameInput = $("#editBudgetName").value.trim();
   const limitInput = parseFloat($("#editBudgetLimit").value);
   
-  if (!nameInput || isNaN(limitInput) || limitInput <= 0) {
-    showNotification("Please provide a valid budget name and limit.", "error");
+  if (isNaN(limitInput) || limitInput <= 0) {
+    showNotification("Please provide a valid budget limit.", "error");
     return;
   }
 
@@ -1069,6 +1078,15 @@ function handleEditBudgetSubmit(event) {
   if (selectedCategories.length === 0) {
     showNotification("Please select at least one category for the budget.", "error");
     return;
+  }
+
+  if (!nameInput) {
+    if (selectedCategories.length === 1) {
+      nameInput = selectedCategories[0];
+    } else {
+      showNotification("Please provide a budget name when grouping multiple categories.", "error");
+      return;
+    }
   }
 
   const budgetIndex = state.budgets.findIndex(b => b.id === id);
