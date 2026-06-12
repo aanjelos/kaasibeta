@@ -293,7 +293,7 @@ function initializeUI(isRefresh = false) {
         const month = parseInt(activeTab.dataset.month);
         const year = parseInt(activeTab.dataset.year);
         const searchTerm = monthlySearchInput.value.trim();
-        renderMonthlyDetails(month, year, new Set(), searchTerm, true);
+        renderMonthlyDetails(month, year, new Set(), false, searchTerm, true);
       }
     }, 400);
   };

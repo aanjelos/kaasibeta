@@ -1189,7 +1189,7 @@ function renderMonthTabs(year) {
           clearMonthlySearchBtn.disabled = true;
         }
       }
-      renderMonthlyDetails(index, year, new Set(), "", false);
+      renderMonthlyDetails(index, year, new Set(), false, "", false);
     };
     monthTabsContainer.appendChild(button);
   });
