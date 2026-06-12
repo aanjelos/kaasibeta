@@ -121,41 +121,7 @@ Fixed an issue where Android devices were heavily cropping the Kaasi logo when i
 - **UX Consistency**: Standardized interaction icons across the board. The 'Edit' button across the app (Installments, Credit Cards, Transactions) is now a muted grey (`fa-edit`), the 'Delete' button utilizes a soft X (`fa-times`), and the 'Pay' buttons use a standard green card icon (`fa-credit-card`).
 - **Natural Language**: Implemented dynamic string pluralization across Installments, Debts, and Receivables (e.g., smoothly alternating between "1 day left" and "5 days left" instead of the hardcoded "day(s)").
 
-### 55. [Bugfix] Modal Stack Preservation & Accordion Refresh Optimizations (v5.207l)
-- **Modal Stack Architecture**: Resolved an issue where background modals (like "All Transactions") would aggressively close and disappear when closing a foreground modal (like "Transaction Details"). The browser `popstate` event listener now leverages a strict `history.state.openModals` array to perfectly maintain the Z-stack of all currently opened modals, keeping underlying elements cleanly visible without relying on expensive re-renders.
-- **Accordion Animation Prevention**: Patched an annoyance where accordion item elements inside the "All Transactions" list would needlessly re-animate (replaying the stagger fade-in) when switching back from the Details modal. Renderings now detect if an accordion item is already expanded and disables `stagger-item` animation inline.
-- **Recent List Bug Fix**: Disabled the `new-transaction-animate` animation on the recent transactions dashboard component during list deletions and refreshes, mitigating the jittery rebuild. The list now seamlessly shrinks without firing off initial stagger transitions.
 
-### 56. [UX] Seamless Modal Re-Rendering (v5.208l)
-- **Persistent Chart Morphing**: Re-engineered the way the "All Transactions" modal rebuilds itself during background data updates. Instead of fully destroying and recreating the HTML canvas, the existing chart node is preserved and dynamically reinjected. This allows Chart.js to natively morph the pie slices to their new values, rather than jarringly flashing out of existence and spinning up from zero.
-- **Accordion Slide-Snap Fix**: Disabled the CSS slide-down height transitions on the daily group accordions when they are redrawn during an update. Background list re-renders now snap instantly to their proper `scrollHeight` heights without triggering a full re-open slide animation.
-
-### 57. [Bugfix] Modal Scroll Collapse on Refresh (v5.209l)
-- **Scroll Freezing**: Fixed an annoying UX issue where the "All Transactions" list would snap back to the very top if a transaction was edited or deleted while scrolled down. The inner container height would momentarily collapse to 0 pixels while re-rendering the updated list, aggressively overwriting the browser's scroll height. The DOM now seamlessly freezes the `min-height` of the container prior to wiping it, keeping the scroll bar perfectly in place during the background refresh cycle.
-
-### 58. [Bugfix] Inner List Scroll Restoration & History popstate jumps (v5.210l)
-- **Manual Scroll Restoration**: Disabled the browser's native history scroll restoration (`history.scrollRestoration = 'manual'`) globally, preventing sudden scrolling jumps to the top when navigating back or closing stacked modals via `popstate` events.
-- **Inner List Scroll Container Identification**: Identified the inner list container (`#monthlyTransactionsListContainer`) where the actual transactions list resides and scroll position was lost, and added tracking/restoration of its scroll state alongside the main modal container.
-- **Synchronous Layout & Accordion Height Calculation**: Removed asynchronous timeouts (`setTimeout`) in layout updates. By setting expanded accordions to `maxHeight: "none"` synchronously, the DOM maintains its full size instantly, enabling reliable synchronous restoration of scroll coordinates during background details edits or deletions.
-
-### 59. [Feature] Cloud Sync Expiration Interceptor & Recovery (v5.211l)
-- **Session Expiration Detection**: Hooked session expiration detection checks into initial loading and Supabase `onAuthStateChange` state changes. If a user previously preferred cloud backups but their session expired in the background, a non-closable recover modal is displayed.
-- **Interactive Option Locks**: Designed an un-closable, high-priority `cloudSessionExpiredModal` using the native Initial Setup Card layouts, forcing the user to choose to either re-authenticate ("Resume Cloud Backups") or switch strictly to local storage ("Switch to Local Mode"), preventing silent back-up loss.
-- **Debug Verification Hook**: Exposed a global hook `window.triggerTestSessionExpiration()` to allow instant testing and verification of the session expiration dialog in the web inspector console.
-
-### 60. [UI/Security] Session Expiration Modal Polish & Console Log Sanitization (v5.212l)
-- **Button Sizing Alignment**: Standardized the dimensions of both choice buttons inside the session expired modal to `w-full sm:w-[140px]`, making them visually symmetrical and responsive.
-- **Google Icon Polish**: Substituted the colored Google SVG icon with FontAwesome's brand icon (`fa-google`), fixing contrast issues on themed primary backgrounds.
-- **Security Console Log Sanitization**: Modified session tracking logs in the Supabase module to output only `session.user.email` (or `"no session"`), completely preventing full JWT tokens (containing access tokens and refresh tokens) from being printed directly into the browser inspect console.
-
-### 61. [UI/UX] Consistent Google Blue Branding (v5.213l)
-- **Shared Google Blue Styles**: Updated the style sheet to apply the official Google Blue theme color (`#4285F4` background, `#357ae8` hover state) to both the settings page Google login button and the new session expired Google login button. This meets Google brand specifications and eliminates visual color desyncs in the user flow.
-
-### 62. [Bugfix] Fixed Width Constraint for Expired Session Modal Buttons (v5.214l)
-- **Enforced Button Symmetrical Widths**: Added explicit `width: 140px !important` CSS rules inside a `(min-width: 640px)` media query block for the recovery modal buttons, permanently correcting rendering discrepancies caused by flex parent constraints and different text lengths in desktop views.
-
-### 63. [Bugfix] Strict min/max-width for Symmetrical Buttons (v5.215l)
-- **Strict Width Constraints**: Added explicit `min-width: 140px !important` and `max-width: 140px !important` styles inside the media query for both recovery buttons to override any browser flex layout compression or custom padding discrepancies.
 
 ### 25. [Feature] Advanced Search & Filters (v5.143k)
 Added a robust set of advanced filtering tools within the All Transactions modal. Users can now open an accordion panel to filter their transaction history by custom date ranges, type (Income/Expense), category, and min/max amount ranges. The filters dynamically update the list in real-time, and UI elements cleanly highlight when active. Layout elegantly collapses to single-column on mobile phones and expands to a 3-column structured layout on desktop/tablet to properly accommodate all inputs.
@@ -295,5 +261,41 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 - **Eliminated Detail Modal Flash and Desyncs**: Modified the Transaction Detail Modal's action flows. Tapping "Edit" now launches the form modal right on top of the details view (boosting `#formModal` z-index to `68`), keeping it open underneath. Upon submitting the form, the details modal refreshes seamlessly with the updated details.
 - **Improved Details Modal Delete**: Deleting a transaction from within the details modal now prompts the confirmation overlay to render on top. Confirming the deletion instantly closes both modals and returns to the parent list via a single `history.go(-2)` jump, preventing visual desyncs.
 - **Dynamic Recent Transactions Animations**: Replaced static state transitions in the recent transactions view with smart DOM insertions. Newly added items slide down and fade in (`.new-transaction-animate`), pushing existing elements down, while deleted items smoothly shrink in height and fade out to 0 before getting removed. Initial loads retain the standard stagger.
+
+### 55. [Bugfix] Modal Stack Preservation & Accordion Refresh Optimizations (v5.207l)
+- **Modal Stack Architecture**: Resolved an issue where background modals (like "All Transactions") would aggressively close and disappear when closing a foreground modal (like "Transaction Details"). The browser `popstate` event listener now leverages a strict `history.state.openModals` array to perfectly maintain the Z-stack of all currently opened modals, keeping underlying elements cleanly visible without relying on expensive re-renders.
+- **Accordion Animation Prevention**: Patched an annoyance where accordion item elements inside the "All Transactions" list would needlessly re-animate (replaying the stagger fade-in) when switching back from the Details modal. Renderings now detect if an accordion item is already expanded and disables `stagger-item` animation inline.
+- **Recent List Bug Fix**: Disabled the `new-transaction-animate` animation on the recent transactions dashboard component during list deletions and refreshes, mitigating the jittery rebuild. The list now seamlessly shrinks without firing off initial stagger transitions.
+
+### 56. [UX] Seamless Modal Re-Rendering (v5.208l)
+- **Persistent Chart Morphing**: Re-engineered the way the "All Transactions" modal rebuilds itself during background data updates. Instead of fully destroying and recreating the HTML canvas, the existing chart node is preserved and dynamically reinjected. This allows Chart.js to natively morph the pie slices to their new values, rather than jarringly flashing out of existence and spinning up from zero.
+- **Accordion Slide-Snap Fix**: Disabled the CSS slide-down height transitions on the daily group accordions when they are redrawn during an update. Background list re-renders now snap instantly to their proper `scrollHeight` heights without triggering a full re-open slide animation.
+
+### 57. [Bugfix] Modal Scroll Collapse on Refresh (v5.209l)
+- **Scroll Freezing**: Fixed an annoying UX issue where the "All Transactions" list would snap back to the very top if a transaction was edited or deleted while scrolled down. The inner container height would momentarily collapse to 0 pixels while re-rendering the updated list, aggressively overwriting the browser's scroll height. The DOM now seamlessly freezes the `min-height` of the container prior to wiping it, keeping the scroll bar perfectly in place during the background refresh cycle.
+
+### 58. [Bugfix] Inner List Scroll Restoration & History popstate jumps (v5.210l)
+- **Manual Scroll Restoration**: Disabled the browser's native history scroll restoration (`history.scrollRestoration = 'manual'`) globally, preventing sudden scrolling jumps to the top when navigating back or closing stacked modals via `popstate` events.
+- **Inner List Scroll Container Identification**: Identified the inner list container (`#monthlyTransactionsListContainer`) where the actual transactions list resides and scroll position was lost, and added tracking/restoration of its scroll state alongside the main modal container.
+- **Synchronous Layout & Accordion Height Calculation**: Removed asynchronous timeouts (`setTimeout`) in layout updates. By setting expanded accordions to `maxHeight: "none"` synchronously, the DOM maintains its full size instantly, enabling reliable synchronous restoration of scroll coordinates during background details edits or deletions.
+
+### 59. [Feature] Cloud Sync Expiration Interceptor & Recovery (v5.211l)
+- **Session Expiration Detection**: Hooked session expiration detection checks into initial loading and Supabase `onAuthStateChange` state changes. If a user previously preferred cloud backups but their session expired in the background, a non-closable recover modal is displayed.
+- **Interactive Option Locks**: Designed an un-closable, high-priority `cloudSessionExpiredModal` using the native Initial Setup Card layouts, forcing the user to choose to either re-authenticate ("Resume Cloud Backups") or switch strictly to local storage ("Switch to Local Mode"), preventing silent back-up loss.
+- **Debug Verification Hook**: Exposed a global hook `window.triggerTestSessionExpiration()` to allow instant testing and verification of the session expiration dialog in the web inspector console.
+
+### 60. [UI/Security] Session Expiration Modal Polish & Console Log Sanitization (v5.212l)
+- **Button Sizing Alignment**: Standardized the dimensions of both choice buttons inside the session expired modal to `w-full sm:w-[140px]`, making them visually symmetrical and responsive.
+- **Google Icon Polish**: Substituted the colored Google SVG icon with FontAwesome's brand icon (`fa-google`), fixing contrast issues on themed primary backgrounds.
+- **Security Console Log Sanitization**: Modified session tracking logs in the Supabase module to output only `session.user.email` (or `"no session"`), completely preventing full JWT tokens (containing access tokens and refresh tokens) from being printed directly into the browser inspect console.
+
+### 61. [UI/UX] Consistent Google Blue Branding (v5.213l)
+- **Shared Google Blue Styles**: Updated the style sheet to apply the official Google Blue theme color (`#4285F4` background, `#357ae8` hover state) to both the settings page Google login button and the new session expired Google login button. This meets Google brand specifications and eliminates visual color desyncs in the user flow.
+
+### 62. [Bugfix] Fixed Width Constraint for Expired Session Modal Buttons (v5.214l)
+- **Enforced Button Symmetrical Widths**: Added explicit `width: 140px !important` CSS rules inside a `(min-width: 640px)` media query block for the recovery modal buttons, permanently correcting rendering discrepancies caused by flex parent constraints and different text lengths in desktop views.
+
+### 63. [Bugfix] Strict min/max-width for Symmetrical Buttons (v5.215l)
+- **Strict Width Constraints**: Added explicit `min-width: 140px !important` and `max-width: 140px !important` styles inside the media query for both recovery buttons to override any browser flex layout compression or custom padding discrepancies.
 
 
