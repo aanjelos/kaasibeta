@@ -1202,11 +1202,20 @@ function renderMonthlyDetails(
     (isSearchingOrJustCleared && !searchTerm) ||
     (!isSearchingOrJustCleared && !searchTerm)
   ) {
-    if (monthlyPieChartInstance) {
+    if (monthlyPieChartInstance && !isUpdate) {
       monthlyPieChartInstance.destroy();
       monthlyPieChartInstance = null;
     }
   }
+
+  let existingChartCard = null;
+  if (isUpdate && monthlyPieChartInstance) {
+    const canvas = document.getElementById("monthlyDetailPieChartCanvas");
+    if (canvas) {
+      existingChartCard = canvas.closest('.p-4.rounded-lg');
+    }
+  }
+
   container.innerHTML = "";
 
   // --- NEW: Advanced Filter & Search Logic ---
@@ -1574,13 +1583,25 @@ function renderMonthlyDetails(
       dayGroup.appendChild(dayTransactionsContainer);
 
       if (shouldBeOpenInitially) {
-        setTimeout(() => {
-          dayTransactionsContainer.style.maxHeight =
-            dayTransactionsContainer.scrollHeight + "px";
-          if (typeof triggerStaggerAnimation === 'function') {
-            triggerStaggerAnimation(dayTransactionsContainer);
-          }
-        }, 50);
+        if (isUpdate) {
+          dayTransactionsContainer.style.transition = "none";
+          setTimeout(() => {
+            dayTransactionsContainer.style.maxHeight =
+              dayTransactionsContainer.scrollHeight + "px";
+            // Restore transition
+            setTimeout(() => {
+              dayTransactionsContainer.style.transition = "";
+            }, 50);
+          }, 0);
+        } else {
+          setTimeout(() => {
+            dayTransactionsContainer.style.maxHeight =
+              dayTransactionsContainer.scrollHeight + "px";
+            if (typeof triggerStaggerAnimation === 'function') {
+              triggerStaggerAnimation(dayTransactionsContainer);
+            }
+          }, 50);
+        }
       }
 
       dayHeader.onclick = () => {
@@ -1640,31 +1661,33 @@ function renderMonthlyDetails(
   summaryCard.appendChild(categoryList);
   categorySection.appendChild(summaryCard);
 
-  if (
-    sortedCategories.length > 0 &&
-    (!monthlyPieChartInstance || (isSearchingOrJustCleared && !searchTerm))
-  ) {
-    if (monthlyPieChartInstance) {
-      monthlyPieChartInstance.destroy();
-      monthlyPieChartInstance = null;
+  if (sortedCategories.length > 0) {
+    if (existingChartCard) {
+      categorySection.appendChild(existingChartCard);
+    } else if (!monthlyPieChartInstance || (isSearchingOrJustCleared && !searchTerm)) {
+      if (monthlyPieChartInstance) {
+        monthlyPieChartInstance.destroy();
+        monthlyPieChartInstance = null;
+      }
+      const chartCard = document.createElement("div");
+      chartCard.className = "p-4 rounded-lg h-96 md:h-[450px] flex flex-col";
+      chartCard.style.backgroundColor = "var(--bg-tertiary)";
+      const titleEl = document.createElement("h3");
+      titleEl.className = "text-lg font-semibold mb-3 text-center";
+      titleEl.textContent = "Category Distribution (Full Month)";
+      chartCard.appendChild(titleEl);
+      const wrapper = document.createElement("div");
+      wrapper.className = "flex-grow relative w-full min-h-0";
+      const canvasContainer = document.createElement("div");
+      canvasContainer.className = "absolute inset-0";
+      const canvas = document.createElement("canvas");
+      canvas.id = "monthlyDetailPieChartCanvas";
+      canvasContainer.appendChild(canvas);
+      wrapper.appendChild(canvasContainer);
+      chartCard.appendChild(wrapper);
+      categorySection.appendChild(chartCard);
     }
-    const chartCard = document.createElement("div");
-    chartCard.className = "p-4 rounded-lg h-96 md:h-[450px] flex flex-col";
-    chartCard.style.backgroundColor = "var(--bg-tertiary)";
-    const titleEl = document.createElement("h3");
-    titleEl.className = "text-lg font-semibold mb-3 text-center";
-    titleEl.textContent = "Category Distribution (Full Month)";
-    chartCard.appendChild(titleEl);
-    const wrapper = document.createElement("div");
-    wrapper.className = "flex-grow relative w-full min-h-0";
-    const canvasContainer = document.createElement("div");
-    canvasContainer.className = "absolute inset-0";
-    const canvas = document.createElement("canvas");
-    canvas.id = "monthlyDetailPieChartCanvas";
-    canvasContainer.appendChild(canvas);
-    wrapper.appendChild(canvasContainer);
-    chartCard.appendChild(wrapper);
-    categorySection.appendChild(chartCard);
+    
     const pieDataCategories = sortedCategories.filter(([c, _]) => !isCategoryExcluded(c, 'excludeFromPieChart'));
     const pieData = {
       labels: pieDataCategories.map(([c, _]) => c),

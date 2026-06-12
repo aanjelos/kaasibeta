@@ -126,6 +126,10 @@ Fixed an issue where Android devices were heavily cropping the Kaasi logo when i
 - **Accordion Animation Prevention**: Patched an annoyance where accordion item elements inside the "All Transactions" list would needlessly re-animate (replaying the stagger fade-in) when switching back from the Details modal. Renderings now detect if an accordion item is already expanded and disables `stagger-item` animation inline.
 - **Recent List Bug Fix**: Disabled the `new-transaction-animate` animation on the recent transactions dashboard component during list deletions and refreshes, mitigating the jittery rebuild. The list now seamlessly shrinks without firing off initial stagger transitions.
 
+### 56. [UX] Seamless Modal Re-Rendering (v5.208l)
+- **Persistent Chart Morphing**: Re-engineered the way the "All Transactions" modal rebuilds itself during background data updates. Instead of fully destroying and recreating the HTML canvas, the existing chart node is preserved and dynamically reinjected. This allows Chart.js to natively morph the pie slices to their new values, rather than jarringly flashing out of existence and spinning up from zero.
+- **Accordion Slide-Snap Fix**: Disabled the CSS slide-down height transitions on the daily group accordions when they are redrawn during an update. Background list re-renders now snap instantly to their proper `scrollHeight` heights without triggering a full re-open slide animation.
+
 ### 25. [Feature] Advanced Search & Filters (v5.143k)
 Added a robust set of advanced filtering tools within the All Transactions modal. Users can now open an accordion panel to filter their transaction history by custom date ranges, type (Income/Expense), category, and min/max amount ranges. The filters dynamically update the list in real-time, and UI elements cleanly highlight when active. Layout elegantly collapses to single-column on mobile phones and expands to a 3-column structured layout on desktop/tablet to properly accommodate all inputs.
 
