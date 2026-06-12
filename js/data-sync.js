@@ -465,6 +465,9 @@ async function signOut() {
   if (!supabaseClient) return;
   console.log("Attempting Sign-Out...");
   try {
+    // Clear preferredSyncMethod so the session expired modal doesn't show
+    localStorage.removeItem("preferredSyncMethod");
+    
     const { error } = await supabaseClient.auth.signOut();
     if (error) {
       console.error("Error during sign-out:", error.message);
@@ -837,8 +840,16 @@ async function initializeSupabase() {
     console.log("Supabase auth state changed:", event, session);
     const user = session?.user || null;
     supabaseUser = user;
+    if (user) {
+      localStorage.setItem("preferredSyncMethod", "cloud");
+    }
     updateSupabaseUI(user);
-    await checkAutoRestore(user);
+    
+    if (!user && localStorage.getItem("preferredSyncMethod") === "cloud") {
+      openCloudSessionExpiredModal();
+    } else {
+      await checkAutoRestore(user);
+    }
   });
 
   // Check for initial session
@@ -850,12 +861,20 @@ async function initializeSupabase() {
     }
     const user = data.session?.user || null;
     supabaseUser = user;
+    if (user) {
+      localStorage.setItem("preferredSyncMethod", "cloud");
+    }
     updateSupabaseUI(user);
     console.log(
       "Initial session check complete. User:",
       user ? user.email : "none"
     );
-    await checkAutoRestore(user);
+    
+    if (!user && localStorage.getItem("preferredSyncMethod") === "cloud") {
+      openCloudSessionExpiredModal();
+    } else {
+      await checkAutoRestore(user);
+    }
   } catch (error) {
     console.error("Failed to initialize session:", error);
     updateSupabaseUI(null);
@@ -921,4 +940,56 @@ function updateSupabaseUI(user) {
   // Update the header buttons to reflect the (new) shortcut state
   updateHeaderShortcutButtons();
 }
+
+/**
+ * Opens the non-closable cloud session expired modal, forcing the user to either
+ * sign back in or choose local mode.
+ */
+function openCloudSessionExpiredModal() {
+  const modal = $("#cloudSessionExpiredModal");
+  if (!modal) return;
+  
+  modal.style.display = "block";
+  if (typeof updateBodyScrollState === "function") {
+    updateBodyScrollState();
+  }
+  
+  // Set up event handlers for the buttons inside this modal
+  const googleBtn = $("#sessionExpiredGoogleLoginBtn");
+  const localBtn = $("#sessionExpiredLocalBtn");
+  
+  if (googleBtn) {
+    googleBtn.onclick = () => {
+      // Keep preferredSyncMethod as "cloud" (will be confirmed on login)
+      signInWithGoogle();
+    };
+  }
+  
+  if (localBtn) {
+    localBtn.onclick = () => {
+      localStorage.setItem("preferredSyncMethod", "local");
+      
+      // Default UI switches back to Local
+      const localRadio = $("#shortcutLocal");
+      const cloudRadio = $("#shortcutCloud");
+      if (localRadio) localRadio.checked = true;
+      if (cloudRadio) cloudRadio.checked = false;
+      
+      updateSupabaseUI(null);
+      
+      modal.style.display = "none";
+      if (typeof updateBodyScrollState === "function") {
+        updateBodyScrollState();
+      }
+      
+      showNotification("Switched to Local Mode. Cloud sync is disabled.", "success");
+    };
+  }
+}
+
+// Global debug helper to test the session expiration modal
+window.triggerTestSessionExpiration = () => {
+  console.log("Triggering mock session expiration modal...");
+  openCloudSessionExpiredModal();
+};
 

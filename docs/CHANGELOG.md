@@ -138,6 +138,11 @@ Fixed an issue where Android devices were heavily cropping the Kaasi logo when i
 - **Inner List Scroll Container Identification**: Identified the inner list container (`#monthlyTransactionsListContainer`) where the actual transactions list resides and scroll position was lost, and added tracking/restoration of its scroll state alongside the main modal container.
 - **Synchronous Layout & Accordion Height Calculation**: Removed asynchronous timeouts (`setTimeout`) in layout updates. By setting expanded accordions to `maxHeight: "none"` synchronously, the DOM maintains its full size instantly, enabling reliable synchronous restoration of scroll coordinates during background details edits or deletions.
 
+### 59. [Feature] Cloud Sync Expiration Interceptor & Recovery (v5.211l)
+- **Session Expiration Detection**: Hooked session expiration detection checks into initial loading and Supabase `onAuthStateChange` state changes. If a user previously preferred cloud backups but their session expired in the background, a non-closable recover modal is displayed.
+- **Interactive Option Locks**: Designed an un-closable, high-priority `cloudSessionExpiredModal` using the native Initial Setup Card layouts, forcing the user to choose to either re-authenticate ("Resume Cloud Backups") or switch strictly to local storage ("Switch to Local Mode"), preventing silent back-up loss.
+- **Debug Verification Hook**: Exposed a global hook `window.triggerTestSessionExpiration()` to allow instant testing and verification of the session expiration dialog in the web inspector console.
+
 ### 25. [Feature] Advanced Search & Filters (v5.143k)
 Added a robust set of advanced filtering tools within the All Transactions modal. Users can now open an accordion panel to filter their transaction history by custom date ranges, type (Income/Expense), category, and min/max amount ranges. The filters dynamically update the list in real-time, and UI elements cleanly highlight when active. Layout elegantly collapses to single-column on mobile phones and expands to a 3-column structured layout on desktop/tablet to properly accommodate all inputs.
 

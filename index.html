@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.210l" />
+    <meta name="application-version" content="v5.211l" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -1906,6 +1906,49 @@
         <p class="text-sm text-secondary mt-[1.3rem]">
           Every contribution makes a difference. ❤️
         </p>
+      </div>
+    </div>
+
+    <!-- CLOUD SESSION EXPIRED MODAL -->
+    <div
+      id="cloudSessionExpiredModal"
+      class="modal z-[9999]"
+      tabindex="-1"
+      aria-modal="true"
+      role="dialog"
+    >
+      <div class="modal-content max-w-xl">
+        <h2 class="text-xl font-bold mb-2 accent-text text-center">
+          <i class="fas fa-cloud-slash mr-2"></i> Cloud Sync Disconnected
+        </h2>
+        <p class="text-sm text-gray-400 mb-6 text-center">
+          Your cloud backup session has expired. Please select an option below to ensure your financial data is safe.
+        </p>
+
+        <div class="space-y-4">
+          <!-- Option A: Google Login Card -->
+          <div class="card !p-4 border border-gray-700 bg-[var(--bg-tertiary)] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-center sm:text-left flex-grow">
+              <h3 class="text-sm font-semibold text-[var(--text-primary)]">Resume Cloud Backups</h3>
+              <p class="text-xs text-gray-400 mt-1">Sign in with Google to reconnect and continue backing up your transactions to the cloud.</p>
+            </div>
+            <button type="button" id="sessionExpiredGoogleLoginBtn" class="btn btn-primary text-sm flex-1 sm:flex-none justify-center m-0 whitespace-nowrap">
+              <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-4 h-4 mr-2 inline-block" />
+              Sign In
+            </button>
+          </div>
+
+          <!-- Option B: Local Mode Card -->
+          <div class="card !p-4 border border-gray-700 bg-[var(--bg-tertiary)] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-center sm:text-left flex-grow">
+              <h3 class="text-sm font-semibold text-[var(--text-primary)]">Switch to Local Mode</h3>
+              <p class="text-xs text-gray-400 mt-1">Stop syncing with the cloud. Your transactions will only be saved locally on this device.</p>
+            </div>
+            <button type="button" id="sessionExpiredLocalBtn" class="btn btn-secondary text-sm flex-1 sm:flex-none justify-center m-0 whitespace-nowrap">
+              <i class="fas fa-hdd mr-2"></i> Local Mode
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
