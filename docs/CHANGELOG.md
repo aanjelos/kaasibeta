@@ -148,6 +148,9 @@ Fixed an issue where Android devices were heavily cropping the Kaasi logo when i
 - **Google Icon Polish**: Substituted the colored Google SVG icon with FontAwesome's brand icon (`fa-google`), fixing contrast issues on themed primary backgrounds.
 - **Security Console Log Sanitization**: Modified session tracking logs in the Supabase module to output only `session.user.email` (or `"no session"`), completely preventing full JWT tokens (containing access tokens and refresh tokens) from being printed directly into the browser inspect console.
 
+### 61. [UI/UX] Consistent Google Blue Branding (v5.213l)
+- **Shared Google Blue Styles**: Updated the style sheet to apply the official Google Blue theme color (`#4285F4` background, `#357ae8` hover state) to both the settings page Google login button and the new session expired Google login button. This meets Google brand specifications and eliminates visual color desyncs in the user flow.
+
 ### 25. [Feature] Advanced Search & Filters (v5.143k)
 Added a robust set of advanced filtering tools within the All Transactions modal. Users can now open an accordion panel to filter their transaction history by custom date ranges, type (Income/Expense), category, and min/max amount ranges. The filters dynamically update the list in real-time, and UI elements cleanly highlight when active. Layout elegantly collapses to single-column on mobile phones and expands to a 3-column structured layout on desktop/tablet to properly accommodate all inputs.
 

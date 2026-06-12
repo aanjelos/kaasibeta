@@ -1442,12 +1442,12 @@ footer a[href^="https://kaasi.com.lk"]:hover
 /* --- NEW: SUPABASE & DATA MANAGEMENT STYLES --- */
 
 /* Style for the Google login button */
-#googleLoginBtn {
+#googleLoginBtn, #sessionExpiredGoogleLoginBtn {
   background-color: #4285F4; /* Google Blue */
   border-color: #4285F4;
   color: white;
 }
-#googleLoginBtn:hover {
+#googleLoginBtn:hover, #sessionExpiredGoogleLoginBtn:hover {
   background-color: #357ae8;
   border-color: #357ae8;
   box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3);
