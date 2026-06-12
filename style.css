@@ -2010,3 +2010,11 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .new-transaction-animate {
   animation: slideDownIn 0.35s ease-out forwards;
 }
+
+/* Enforce identical width on desktop for expired session modal buttons */
+@media (min-width: 640px) {
+  #sessionExpiredGoogleLoginBtn, #sessionExpiredLocalBtn {
+    width: 140px !important;
+  }
+}
+
