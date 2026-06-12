@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.218l" />
+    <meta name="application-version" content="v5.219l" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -969,6 +969,24 @@
                   <button id="googleLogoutBtn" class="btn btn-secondary w-full">
                     <i class="fas fa-sign-out-alt mr-1"></i> Sign Out
                   </button>
+                </div>
+              </div>
+
+              <!-- NEW: Backup Reminders Card -->
+              <div class="card !p-4" style="background-color: var(--bg-tertiary)">
+                <h3 class="text-lg font-semibold mb-3">Backup Reminders</h3>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <label for="settingsBackupReminderFreq" class="block text-sm font-medium text-gray-300">Local Export Reminder</label>
+                    <p class="text-xs text-gray-400 mt-1">Alerts you to save an offline backup file if you haven't exported one recently.</p>
+                  </div>
+                  <select id="settingsBackupReminderFreq" class="bg-[var(--bg-primary)] border border-gray-600 rounded px-3 py-1.5 text-sm text-[var(--text-primary)] focus:ring-accent-500 focus:border-accent-500">
+                    <option value="default">Auto (Smart Schedule)</option>
+                    <option value="3">Every 3 Days</option>
+                    <option value="7">Weekly (7 Days)</option>
+                    <option value="30">Monthly (30 Days)</option>
+                    <option value="off">Off</option>
+                  </select>
                 </div>
               </div>
 

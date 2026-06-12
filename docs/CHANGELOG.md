@@ -310,3 +310,9 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 
 ### 66. [Feature] Dynamic Tip Filtering for Mobile Devices (v5.218l)
 - **Filtered Keyboard Shortcuts**: Added dynamic detection for mobile/touch screen environments to filter out keyboard shortcut tips (like Ctrl+E, 'A', '?') on touch devices where physical keyboards are unavailable.
+
+### 67. [Feature] Dynamic Interval-Based Local Backup Reminders (v5.219l)
+- **Customizable Intervals**: Transitioned local backup reminders from a fixed day-of-week approach to a dynamic interval format. Users can now choose to be reminded to download offline backups every 3 days, weekly (7 days), monthly (30 days), or switch them off entirely via a new setting in the Local Data Management panel.
+- **Smart Cloud Auto-Default**: Introduced a "Smart Schedule" default setting which dynamically sets the local reminder interval to 7 days if the user is authenticated via Supabase (since data is already auto-saving to the cloud), or 3 days for offline/local-only users.
+- **True Date Tracking**: The system now correctly saves the timestamp of manual local exports (`lastSuccessfulBackupDate`) alongside the dismissed reminder timestamp. This ensures the prompt genuinely waits for the full duration of the specified interval from the user's *last actual backup*, preventing redundant spam alerts.
+- **Debug Trigger Support**: Added `window.triggerTestBackupReminder()` to the developer window object, allowing developers and testers to spawn the backup alert box on-demand without waiting for the timer to elapse.

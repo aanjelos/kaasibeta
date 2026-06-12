@@ -20,6 +20,10 @@ function exportData() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    
+    // NEW: Update local export backup reminder date
+    localStorage.setItem("lastSuccessfulBackupDate", getCurrentDateString());
+    
     showNotification("Data exported.", "success");
   } catch (error) {
     console.error("Export failed:", error);
@@ -717,19 +721,21 @@ function handleBackupReminderDismiss(reminderKey) {
   closeModal("confirmationModal"); // Close the correct modal
 }
 
-function showBackupReminderPopup(reminderKey) {
+function showBackupReminderPopup() {
   const title = "Backup Reminder";
   const message =
-    "It's a good day to back up your data. Regular backups protect you from data loss!";
+    "It's a good time to save an offline backup. Local backups protect you from data loss!";
+
+  const reminderKey = "lastBackupReminderDismissedDate";
 
   // Use the robust confirmation modal for this
   showConfirmationModal(
     title,
     message,
-    "Backup Now", // confirmText
+    "Export Local File", // confirmText
     "Dismiss", // cancelText
     () => {
-      // onConfirm: This runs when "Backup Now" is clicked
+      // onConfirm: This runs when "Export Local File" is clicked
       exportData();
       handleBackupReminderDismiss(reminderKey);
     },
@@ -743,50 +749,70 @@ function showBackupReminderPopup(reminderKey) {
 
 function checkAndTriggerBackupReminder() {
   if (!state.settings.initialSetupDone && state.transactions.length === 0) {
-    console.log(
-      "Skipping backup reminder: Initial setup not done or no transactions."
-    );
+    console.log("Skipping backup reminder: Initial setup not done or no transactions.");
     return;
   }
 
-  const today = new Date();
-  const dayOfWeek = today.getDay(); // 0 = Sunday, 3 = Wednesday
-  const currentDateStr = getCurrentDateString();
-
-  let reminderKey = null;
-
-  if (dayOfWeek === 0) {
-    // Sunday
-    reminderKey = "lastReminderShownForSunday";
-  } else if (dayOfWeek === 3) {
-    // Wednesday
-    reminderKey = "lastReminderShownForWednesday";
+  // Retrieve user preference
+  let freqSetting = state.settings.backupReminderFrequency || "default";
+  
+  if (freqSetting === "off") {
+    console.log("Backup reminders are disabled in settings.");
+    return;
   }
 
-  if (reminderKey) {
-    try {
-      const lastShownDate = localStorage.getItem(reminderKey);
-      if (lastShownDate !== currentDateStr) {
-        // Use a timeout to show the reminder after the app has loaded
-        setTimeout(() => {
-          console.log(
-            `Time to show backup reminder for: ${reminderKey}. Last shown: ${lastShownDate}, Current: ${currentDateStr}`
-          );
-          showBackupReminderPopup(reminderKey);
-        }, 500); // 5-second delay
-      } else {
-        console.log(
-          `Backup reminder already shown for ${reminderKey} on ${currentDateStr}`
-        );
-      }
-    } catch (e) {
-      console.error(
-        "Error checking backup reminder state from localStorage:",
-        e
-      );
+  // Resolve 'default' dynamically based on cloud sync status
+  if (freqSetting === "default") {
+    // If Supabase user is logged in, default is 7 days, otherwise 3 days.
+    freqSetting = supabaseUser ? "7" : "3";
+  }
+
+  const intervalDays = parseInt(freqSetting, 10);
+  if (isNaN(intervalDays)) return;
+
+  const currentDateStr = getCurrentDateString();
+  const reminderKey = "lastBackupReminderDismissedDate";
+  const lastDismissedStr = localStorage.getItem(reminderKey);
+  const lastBackupStr = localStorage.getItem("lastSuccessfulBackupDate");
+  
+  // Parse dates. If no previous date, treat it as epoch 0 to trigger immediately (or based on last sync)
+  const today = new Date(currentDateStr);
+  
+  // Use the most recent of either the last backup OR the last dismissed reminder
+  let referenceDate = new Date(0); 
+  
+  if (lastBackupStr) {
+    const d = new Date(lastBackupStr);
+    if (!isNaN(d.getTime())) referenceDate = d;
+  }
+  
+  if (lastDismissedStr) {
+    const d = new Date(lastDismissedStr);
+    if (!isNaN(d.getTime()) && d > referenceDate) {
+      referenceDate = d;
     }
   }
+
+  // Calculate elapsed days
+  const elapsedMs = today.getTime() - referenceDate.getTime();
+  const elapsedDays = Math.floor(elapsedMs / (1000 * 60 * 60 * 24));
+
+  if (elapsedDays >= intervalDays) {
+    // Use a timeout to show the reminder after the app has loaded
+    setTimeout(() => {
+      console.log(`Time to show backup reminder. Elapsed: ${elapsedDays} days. Interval: ${intervalDays} days.`);
+      showBackupReminderPopup();
+    }, 500); // 0.5-second delay
+  } else {
+    console.log(`Backup reminder not needed yet. Elapsed: ${elapsedDays} days. Interval: ${intervalDays} days.`);
+  }
 }
+
+// Attach a debug hook to the window object to test it instantly
+window.triggerTestBackupReminder = () => {
+  console.log("Triggering test backup reminder popup...");
+  showBackupReminderPopup();
+};
 
 
 

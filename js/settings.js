@@ -190,6 +190,32 @@ function renderSettingsForm() {
     }
   }
 
+  // --- BACKUP REMINDER INIT ---
+  const backupReminderSelect = $("#settingsBackupReminderFreq");
+  if (backupReminderSelect) {
+    if (!state.settings) {
+      state.settings = {
+        backupReminderFrequency: "default",
+      };
+    }
+    backupReminderSelect.value =
+      state.settings.backupReminderFrequency !== undefined
+        ? state.settings.backupReminderFrequency
+        : "default";
+
+    if (!backupReminderSelect.dataset.listenerAttached) {
+      backupReminderSelect.onchange = () => {
+        if (!state.settings) {
+          state.settings = { backupReminderFrequency: "default" };
+        }
+        state.settings.backupReminderFrequency = backupReminderSelect.value;
+        saveData();
+        showNotification("Local backup reminder frequency updated.", "success");
+      };
+      backupReminderSelect.dataset.listenerAttached = "true";
+    }
+  }
+
   // --- CASH COUNTER TOGGLE INIT ---
   const toggleHideCashCounter = $("#toggleHideCashCounter");
   if (toggleHideCashCounter) {

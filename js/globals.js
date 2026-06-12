@@ -176,6 +176,7 @@ function getDefaultState() {
         showMathToolbar: true,
         theme: "dark",
         accent: "orange",
+        backupReminderFrequency: "default",
         hiddenCategoryRules: {
           excludeFromDashboardCharts: true,
           excludeFromReports: false,
