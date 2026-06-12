@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.215l" />
+    <meta name="application-version" content="v5.216l" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -81,6 +81,11 @@
           class="pulsing-logo-element"
           onerror="this.onerror=null; this.src='https://placehold.co/60x60/1a1a1a/e67e26?text=K&font=satoshi';"
         />
+      </div>
+      <!-- Loading screen tips container -->
+      <div id="preloader-tip-container" class="mt-8 text-center px-6 max-w-sm">
+        <span class="text-xs text-gray-500 uppercase tracking-widest block mb-1 opacity-60 font-semibold">Tip</span>
+        <p id="preloader-tip-text" class="text-sm text-gray-400 font-medium leading-relaxed"></p>
       </div>
     </div>
 

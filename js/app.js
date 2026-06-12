@@ -758,6 +758,48 @@ document.addEventListener("DOMContentLoaded", () => {
   const appContentElement = document.getElementById("app-content");
   const preloaderDuration = 1250; // Duration preloader is visible
 
+  // Initialize random preloader loading screen tips
+  const PRELOADER_TIPS = [
+    // Supabase & Backups
+    "Access Cloud Backups in Settings > Data.",
+    "Quickly backup with Ctrl+E and restore with Ctrl+I.",
+    
+    // UI Customize & Theme
+    "Toggle Dark & Light Mode in Settings > Appearance.",
+    "Hide Cash Counter, Debts, or Installments in Settings > Appearance.",
+    "Hide unused bank accounts in Settings > Accounts.",
+    
+    // Tools & Shortcuts
+    "Type basic math (+, -, *, /) directly into amount fields.",
+    "Press the 'A' key to view All Transactions.",
+    "Press the '?' key to view Keyboard Shortcuts.",
+    "Click the calculator icon inside inputs to open the Math Toolbar.",
+    "Transfer money between accounts via the transfer button in Balance Overview.",
+    
+    // Details & Charts
+    "Tap a transaction to view its full details and description.",
+    "Click legends in the dashboard chart to toggle lines visibility.",
+    "Click the chart title icon to toggle between daily and monthly views.",
+    "Filter history by category, amount, or date in All Transactions.",
+    "Export print-friendly PDF reports inside All Transactions.",
+    "Exclude categories from charts or PDFs in Category Settings.",
+    "Enable a PIN lock screen in Settings > Security.",
+    
+    // Easter Eggs & Local-First
+    "Kaasi works 100% offline. No signal, no problem!",
+    "Adulting is expensive. Kaasi helps you keep track.",
+    "Fun Fact: Kaasi means coins in Sinhala.",
+    "Your financial secrets are safe. All data stays local by default.",
+    "Budgeting: because coffee isn't free.",
+    "Rumor has it that budgeting makes you rich. Let's find out!"
+  ];
+
+  const tipTextElement = document.getElementById("preloader-tip-text");
+  if (tipTextElement && PRELOADER_TIPS.length > 0) {
+    const randomTip = PRELOADER_TIPS[Math.floor(Math.random() * PRELOADER_TIPS.length)];
+    tipTextElement.textContent = randomTip;
+  }
+
   if (preloaderElement && appContentElement) {
     if (localStorage.getItem("pendingCloudRestore") === "true") {
       console.log("Pending cloud restore detected. Keeping preloader visible until restore completes.");

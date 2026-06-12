@@ -298,4 +298,10 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 ### 63. [Bugfix] Strict min/max-width for Symmetrical Buttons (v5.215l)
 - **Strict Width Constraints**: Added explicit `min-width: 140px !important` and `max-width: 140px !important` styles inside the media query for both recovery buttons to override any browser flex layout compression or custom padding discrepancies.
 
+### 64. [Feature] Preloader Feature Tips & Easter Eggs (v5.216l)
+- **Startup Tips Element**: Added a styled `#preloader-tip-container` and `#preloader-tip-text` block below the pulsing logo in the preloader overlay, mimicking classic gaming loading tips to help users discover hidden features.
+- **Short & Punchy Tips Selection**: Compiled an array of over 20 short, action-focused hints covering keyboard shortcuts, backup details, hidden dashboard settings, and print-friendly PDF generation. Added a random selection script that picks and displays a single tip on page mount.
+- **Easter Eggs Included**: Injected subtle, lighthearted budgeting jokes and localized Sinhalese coin trivia to keep the app startup experience delightful and fresh.
+
+
 
