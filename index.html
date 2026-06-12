@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.220l" />
+    <meta name="application-version" content="v5.221l" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -492,6 +492,22 @@
                 ></span>
               </div>
             </div>
+            
+            <div class="card order-[2.5] lg:order-none hidden" id="categoryBudgetsDashboardCard">
+              <div class="flex justify-between items-center mb-4 border-b border-gray-600 pb-2">
+                <h2 class="text-xl font-semibold">Category Budgets</h2>
+                <button
+                  id="toggleBudgetsCardBtn"
+                  class="btn btn-icon btn-sm text-gray-400 hover:text-white"
+                  data-tooltip="Toggle View"
+                >
+                  <i class="fas fa-chevron-up"></i>
+                </button>
+              </div>
+              <div id="categoryBudgetsProgressContainer" class="space-y-4">
+                <!-- Budgets injected here by JS -->
+              </div>
+            </div>
             <div class="card order-4 lg:order-none">
               <h2 class="text-xl font-semibold mb-4">Recent Transactions</h2>
               <div
@@ -917,6 +933,50 @@
                 <ul id="categorySettingsList" class="space-y-2"></ul>
               </div>
             </div>
+            
+            <div
+              id="settingsBudgetsPanel"
+              class="settings-tab-panel space-y-6 hidden"
+            >
+              <div
+                class="card !p-4"
+                style="background-color: var(--bg-tertiary)"
+              >
+                <h3 class="text-lg font-semibold mb-3">Add Budget</h3>
+                <form id="addBudgetForm" class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium mb-1">Budget Name</label>
+                    <input type="text" id="addBudgetName" placeholder="e.g. Daily Caffeine" required class="w-full text-sm !px-2 !py-1">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-1">Monthly Limit (LKR)</label>
+                    <div class="relative flex items-center w-full">
+                      <input type="text" inputmode="decimal" id="addBudgetLimit" class="calc-amount w-full pr-8 text-sm !px-2 !py-1" placeholder="e.g. 5000" required step="0.01" min="0">
+                      <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1">
+                        <i class="fas fa-calculator"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-1">Select Categories</label>
+                    <div id="addBudgetCategoriesContainer" class="max-h-40 overflow-y-auto space-y-1 bg-gray-800 p-2 rounded border border-gray-700">
+                      <!-- Checkboxes populated via JS -->
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-sm w-full">Add Budget</button>
+                </form>
+              </div>
+              <div
+                class="card !p-4"
+                style="background-color: var(--bg-tertiary)"
+              >
+                <h3 class="text-lg font-semibold mb-3">Active Budgets</h3>
+                <div id="activeBudgetsList" class="space-y-3">
+                  <p class="text-xs text-gray-400">No active budgets.</p>
+                </div>
+              </div>
+            </div>
+
             <!-- START: UPDATED DATA MANAGEMENT PANEL -->
             <div
               id="settingsDataManagementPanel"
@@ -1794,6 +1854,36 @@
           >
             <li class="text-center text-gray-500">Loading shortcuts...</li>
           </ul>
+        </div>
+      </div>
+
+      <div id="editBudgetModal" class="modal z-[60]">
+        <div class="modal-content max-w-md">
+          <span class="modal-close" onclick="closeModal('editBudgetModal')">&times;</span>
+          <h2 class="text-2xl font-semibold mb-4 text-center">Edit Budget</h2>
+          <form id="editBudgetForm" class="space-y-4">
+            <input type="hidden" id="editBudgetId" />
+            <div>
+              <label class="block text-sm font-medium mb-1">Budget Name</label>
+              <input type="text" id="editBudgetName" placeholder="e.g. Daily Caffeine" required class="w-full text-sm !px-2 !py-1">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Monthly Limit (LKR)</label>
+              <div class="relative flex items-center w-full">
+                <input type="text" inputmode="decimal" id="editBudgetLimit" class="calc-amount w-full pr-8 text-sm !px-2 !py-1" placeholder="e.g. 5000" required step="0.01" min="0">
+                <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1">
+                  <i class="fas fa-calculator"></i>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Select Categories</label>
+              <div id="editBudgetCategoriesContainer" class="max-h-40 overflow-y-auto space-y-1 bg-gray-800 p-2 rounded border border-gray-700">
+                <!-- Checkboxes populated via JS -->
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm w-full">Save Changes</button>
+          </form>
         </div>
       </div>
 

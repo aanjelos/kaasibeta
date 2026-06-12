@@ -121,6 +121,14 @@ function importData(event) {
               }
             }
 
+            if (Array.isArray(importedData.budgets)) {
+              importedData.budgets.forEach((b) => {
+                if (typeof b.limit === "number") {
+                  b.limit = roundToTwoDecimals(b.limit);
+                }
+              });
+            }
+
             state = deepMerge(getDefaultState(), importedData);
             ensureDefaultAccounts();
             ensureDefaultCategories();

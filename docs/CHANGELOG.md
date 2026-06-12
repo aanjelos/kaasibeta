@@ -316,3 +316,19 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 - **Smart Cloud Auto-Default**: Introduced a "Smart Schedule" default setting which dynamically sets the local reminder interval to 7 days if the user is authenticated via Supabase (since data is already auto-saving to the cloud), or 3 days for offline/local-only users.
 - **True Date Tracking**: The system now correctly saves the timestamp of manual local exports (`lastSuccessfulBackupDate`) alongside the dismissed reminder timestamp. This ensures the prompt genuinely waits for the full duration of the specified interval from the user's *last actual backup*, preventing redundant spam alerts.
 - **Debug Trigger Support**: Added `window.triggerTestBackupReminder()` to the developer window object, allowing developers and testers to spawn the backup alert box on-demand without waiting for the timer to elapse.
+
+### 68. [UI/Bugfix] Backup Reminder Polish & Search Crash Fix (v5.220l)
+- **Backup Dropdown Visual Polish**: Aligned the new interval-based backup reminder dropdown selector with the global select inputs styling. Added a responsive fixed width (`sm:w-[220px]`) to cleanly display the dropdown options on small screens without text clipping.
+- **Dynamic Fine Print Description**: Updated the explanatory text below the backup dropdown in settings to dynamically compute and show the reminder frequency (e.g., "You will get an automatic reminder every 3 days.") based on the user's chosen interval.
+- **All Transactions Search Crash Fix**: Fixed a critical crash in the Search and tab filtration flow. The search function (`triggerSearch`) and active tab handlers were invoking `renderMonthlyDetails` with misaligned parameters, causing the code to try to execute `.toLowerCase()` on a boolean value instead of the search term. Corrected the argument ordering to restore seamless transaction searching.
+- **Context-Aware PDF Export Action**: Automatically hide the "Export PDF" button while search queries or advanced category filters are active to prevent generating confused, partial reports.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v109` to force automatic, clean client-side updates, and updated the application metadata version in `index.html` to `v5.220l`.
+
+### 69. [Feature] Category Budgets & Grouping (v5.221l)
+Implemented a comprehensive category budget tracking feature with the following highlights:
+- **Dynamic Budgets**: Create customizable monthly limits and assign multiple categories to a single budget.
+- **Smart Cascade**: Changing or deleting a category seamlessly syncs up with your custom budgets without data loss or corruption.
+- **Visual Progress**: A sleek, collapsible Dashboard Card tracks the current calendar month's spending against targets using Semantic 3-State Progress bars (Green, Orange, Red).
+- **Settings Integration**: Dedicated settings tab offering Add/Edit/Delete actions with multi-select category checklists.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v110` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.221l`.
+

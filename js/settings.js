@@ -6,6 +6,11 @@ function openSettingsModal() {
   renderSettingsForm();
   setupSettingsTabs();
   setupAppearanceListeners();
+  
+  if (typeof renderBudgetsSettingsList === "function") {
+    renderBudgetsSettingsList();
+    buildBudgetCategoryCheckboxes("addBudgetCategoriesContainer");
+  }
 
   const storageInfoElement = $("#storageSizeInfo");
   if (storageInfoElement) {
@@ -595,11 +600,25 @@ function renameCategory(buttonElement) {
         updateCount++;
       }
     });
+
+    // Cascade to budgets
+    let budgetUpdateCount = 0;
+    if (state.budgets) {
+      state.budgets.forEach(b => {
+        if (b.categories.includes(originalName)) {
+          b.categories = b.categories.map(cat => cat === originalName ? newName : cat);
+          budgetUpdateCount++;
+        }
+      });
+    }
+
     saveData();
     populateDropdowns();
     renderCategorySettingsList();
+    if (typeof renderCategoryBudgets === "function") renderCategoryBudgets();
+    
     showNotification(
-      `Category "${originalName}" renamed to "${newName}". ${updateCount} transaction(s) updated.`,
+      `Category "${originalName}" renamed to "${newName}". ${updateCount} transaction(s) and ${budgetUpdateCount} budget(s) updated.`,
       "success"
     );
   } else {
@@ -660,9 +679,20 @@ function deleteCategory(categoryName) {
     )
   ) {
     state.categories = state.categories.filter((cat) => cat !== categoryName);
+    
+    // Cascade to budgets
+    if (state.budgets) {
+      state.budgets.forEach(b => {
+        b.categories = b.categories.filter(cat => cat !== categoryName);
+      });
+      // Clean up empty budgets
+      state.budgets = state.budgets.filter(b => b.categories.length > 0);
+    }
+
     saveData();
     populateDropdowns();
     renderCategorySettingsList();
+    if (typeof renderCategoryBudgets === "function") renderCategoryBudgets();
     showNotification(`Category "${categoryName}" deleted.`, "success");
   }
 }
@@ -899,3 +929,182 @@ function switchSettingsTab(clickedButton, targetPanelId) {
   activeSettingsTab = { button: clickedButton, panelId: targetPanelId };
 }
 
+
+// --- CATEGORY BUDGETS SETTINGS LOGIC ---
+
+function buildBudgetCategoryCheckboxes(containerId, selectedCategories = []) {
+  const container = $(`#${containerId}`);
+  if (!container) return;
+  container.innerHTML = "";
+
+  const generalCategories = state.categories.filter(
+    (c) =>
+      c.toLowerCase() !== "income" &&
+      c.toLowerCase() !== "credit card payment"
+  ).sort((a, b) => a.localeCompare(b));
+
+  if (generalCategories.length === 0) {
+    container.innerHTML = `<p class="text-xs text-gray-400 p-2">No categories available.</p>`;
+    return;
+  }
+
+  generalCategories.forEach((cat) => {
+    const label = document.createElement("label");
+    label.className = "flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 cursor-pointer rounded text-sm text-gray-300 transition-colors";
+    const isChecked = selectedCategories.includes(cat);
+    label.innerHTML = `
+      <input type="checkbox" value="${cat}" class="budget-category-checkbox peer sr-only" ${isChecked ? "checked" : ""}>
+      <div class="w-4 h-4 rounded border border-gray-500 peer-checked:border-accent-500 flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500">
+        <svg class="w-3 h-3 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+      </div>
+      <span class="truncate">${cat}</span>
+    `;
+    container.appendChild(label);
+  });
+}
+
+function renderBudgetsSettingsList() {
+  const container = $("#activeBudgetsList");
+  if (!container) return;
+
+  if (!state.budgets || state.budgets.length === 0) {
+    container.innerHTML = `<p class="text-xs text-gray-400">No active budgets.</p>`;
+    return;
+  }
+
+  container.innerHTML = "";
+  state.budgets.forEach((budget) => {
+    const div = document.createElement("div");
+    div.className = "flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-gray-800 rounded border border-gray-700 gap-3";
+    
+    const catList = budget.categories.join(", ");
+    
+    div.innerHTML = `
+      <div class="flex-grow min-w-0">
+        <div class="flex items-center justify-between sm:justify-start gap-2 mb-1">
+          <h4 class="font-medium text-gray-200 truncate">${budget.name}</h4>
+          <span class="text-sm font-semibold text-accent-500 whitespace-nowrap">${formatCurrency(budget.limit)}</span>
+        </div>
+        <p class="text-xs text-gray-400 line-clamp-2" title="${catList}">Categories: ${catList || 'None'}</p>
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
+        <button type="button" class="btn btn-icon btn-sm" onclick="openEditBudgetModal('${budget.id}')" data-tooltip="Edit Budget">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button type="button" class="btn btn-icon-danger btn-sm" onclick="deleteBudget('${budget.id}')" data-tooltip="Delete Budget">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function handleAddBudgetSubmit(event) {
+  event.preventDefault();
+  const nameInput = $("#addBudgetName").value.trim();
+  const limitInput = parseFloat($("#addBudgetLimit").value);
+  
+  if (!nameInput || isNaN(limitInput) || limitInput <= 0) {
+    showNotification("Please provide a valid budget name and limit.", "error");
+    return;
+  }
+
+  const container = $("#addBudgetCategoriesContainer");
+  const checkboxes = container.querySelectorAll(".budget-category-checkbox");
+  const selectedCategories = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+
+  if (selectedCategories.length === 0) {
+    showNotification("Please select at least one category for the budget.", "error");
+    return;
+  }
+
+  const newBudget = {
+    id: generateId(),
+    name: nameInput,
+    limit: roundToTwoDecimals(limitInput),
+    categories: selectedCategories
+  };
+
+  if (!state.budgets) state.budgets = [];
+  state.budgets.push(newBudget);
+  
+  saveData();
+  renderBudgetsSettingsList();
+  $("#addBudgetForm").reset();
+  buildBudgetCategoryCheckboxes("addBudgetCategoriesContainer");
+  if (typeof renderCategoryBudgets === "function") renderCategoryBudgets();
+  
+  showNotification(`Budget "${nameInput}" created successfully.`, "success");
+}
+
+function openEditBudgetModal(budgetId) {
+  const budget = state.budgets.find(b => b.id === budgetId);
+  if (!budget) return;
+
+  $("#editBudgetId").value = budget.id;
+  $("#editBudgetName").value = budget.name;
+  $("#editBudgetLimit").value = budget.limit;
+  
+  buildBudgetCategoryCheckboxes("editBudgetCategoriesContainer", budget.categories);
+  
+  openModalHelper("editBudgetModal");
+}
+
+function handleEditBudgetSubmit(event) {
+  event.preventDefault();
+  const id = $("#editBudgetId").value;
+  const nameInput = $("#editBudgetName").value.trim();
+  const limitInput = parseFloat($("#editBudgetLimit").value);
+  
+  if (!nameInput || isNaN(limitInput) || limitInput <= 0) {
+    showNotification("Please provide a valid budget name and limit.", "error");
+    return;
+  }
+
+  const container = $("#editBudgetCategoriesContainer");
+  const checkboxes = container.querySelectorAll(".budget-category-checkbox");
+  const selectedCategories = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+
+  if (selectedCategories.length === 0) {
+    showNotification("Please select at least one category for the budget.", "error");
+    return;
+  }
+
+  const budgetIndex = state.budgets.findIndex(b => b.id === id);
+  if (budgetIndex !== -1) {
+    state.budgets[budgetIndex] = {
+      ...state.budgets[budgetIndex],
+      name: nameInput,
+      limit: roundToTwoDecimals(limitInput),
+      categories: selectedCategories
+    };
+    saveData();
+    renderBudgetsSettingsList();
+    closeModal("editBudgetModal");
+    if (typeof renderCategoryBudgets === "function") renderCategoryBudgets();
+    showNotification(`Budget "${nameInput}" updated.`, "success");
+  }
+}
+
+function deleteBudget(budgetId) {
+  const budget = state.budgets.find(b => b.id === budgetId);
+  if (!budget) return;
+  
+  if (confirm(`Are you sure you want to delete the budget "${budget.name}"?`)) {
+    state.budgets = state.budgets.filter(b => b.id !== budgetId);
+    saveData();
+    renderBudgetsSettingsList();
+    if (typeof renderCategoryBudgets === "function") renderCategoryBudgets();
+    showNotification(`Budget deleted.`, "success");
+  }
+}
+
+// Hook into existing form submissions
+setTimeout(() => {
+  const addBudgetForm = $("#addBudgetForm");
+  if (addBudgetForm) addBudgetForm.addEventListener("submit", handleAddBudgetSubmit);
+  
+  const editBudgetForm = $("#editBudgetForm");
+  if (editBudgetForm) editBudgetForm.addEventListener("submit", handleEditBudgetSubmit);
+}, 100);

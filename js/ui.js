@@ -820,6 +820,7 @@ let activeSettingsTab = null;
 const settingsTabsConfig = [
   { label: "Accounts", targetPanelId: "settingsAccountsPanel" },
   { label: "Categories", targetPanelId: "settingsCategoriesPanel" },
+  { label: "Budgets", targetPanelId: "settingsBudgetsPanel" },
   { label: "Data", targetPanelId: "settingsDataManagementPanel" },
   { label: "Appearance", targetPanelId: "settingsAppearancePanel" },
   { label: "Security", targetPanelId: "settingsSecurityPanel" }

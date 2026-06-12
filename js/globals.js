@@ -169,6 +169,7 @@ function getDefaultState() {
         limit: 0,
         transactions: [],
       },
+      budgets: [],
       hiddenCategories: [], // List of categories marked as hidden
       settings: {
         initialSetupDone: false,
@@ -185,7 +186,8 @@ function getDefaultState() {
           excludeFromQuickStats: true,
           excludeFromYearlyTotals: true,
           dimInTransactionLists: true
-        }
+        },
+        collapseCategoryBudgets: false
       },
     })
   );
@@ -726,6 +728,7 @@ function loadData() {
   if (!Array.isArray(state.debts)) state.debts = [];
   if (!Array.isArray(state.receivables)) state.receivables = [];
   if (!Array.isArray(state.installments)) state.installments = [];
+  if (!Array.isArray(state.budgets)) state.budgets = [];
 
   ensureDefaultAccounts();
   ensureDefaultCategories();

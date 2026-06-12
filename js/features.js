@@ -3768,6 +3768,7 @@ function renderDashboard() {
   renderCreditCardSection();
   renderMonthlyOverviewChart();
   renderYearlyAndQuickStats();
+  renderCategoryBudgets();
 }
 
 function renderYearlyAndQuickStats() {
@@ -3900,3 +3901,96 @@ function renderYearlyAndQuickStats() {
   }
 }
 
+// --- CATEGORY BUDGETS DASHBOARD LOGIC ---
+
+function renderCategoryBudgets() {
+  const container = $("#categoryBudgetsProgressContainer");
+  const card = $("#categoryBudgetsDashboardCard");
+  if (!container || !card) return;
+
+  if (!state.budgets || state.budgets.length === 0) {
+    card.classList.add("hidden");
+    return;
+  }
+  
+  card.classList.remove("hidden");
+  
+  // Handle Collapsed State
+  const toggleBtn = $("#toggleBudgetsCardBtn");
+  const isCollapsed = state.settings && state.settings.collapseCategoryBudgets;
+  if (isCollapsed) {
+    container.classList.add("hidden");
+    if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
+  } else {
+    container.classList.remove("hidden");
+    if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
+  }
+
+  // Set up event listener if not already done
+  if (toggleBtn && !toggleBtn.dataset.listenerAttached) {
+    toggleBtn.addEventListener("click", () => {
+      const currentlyCollapsed = container.classList.contains("hidden");
+      if (currentlyCollapsed) {
+        container.classList.remove("hidden");
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
+        state.settings.collapseCategoryBudgets = false;
+      } else {
+        container.classList.add("hidden");
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
+        state.settings.collapseCategoryBudgets = true;
+      }
+      saveData();
+    });
+    toggleBtn.dataset.listenerAttached = "true";
+  }
+
+  container.innerHTML = "";
+
+  const now = new Date();
+  const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+  state.budgets.forEach(budget => {
+    let spent = 0;
+    
+    // Sum transactions for the current calendar month that fall under the budget's categories
+    state.transactions.forEach(t => {
+      if (t.type === "expense" && t.date.startsWith(currentMonthStr)) {
+        if (budget.categories.includes(t.category)) {
+          if (!isCategoryExcluded(t.category || "Other", 'excludeFromMonthlyTotals')) {
+            spent += t.amount;
+          }
+        }
+      }
+    });
+
+    const percent = budget.limit > 0 ? (spent / budget.limit) * 100 : 0;
+    const isOver = spent > budget.limit;
+    
+    let colorClass = "bg-[#27AE60]"; // Emerald Green (<=70%)
+    if (percent > 100) {
+      colorClass = "bg-[#E74C3C]"; // Crimson Red (>100%)
+    } else if (percent > 70) {
+      colorClass = "bg-orange-500"; // Amber/Orange (>70% and <=100%)
+    }
+
+    const remaining = budget.limit - spent;
+    let statusText = isOver ? `${formatCurrency(Math.abs(remaining))} over limit` : `${formatCurrency(remaining)} left`;
+
+    const budgetItem = document.createElement("div");
+    budgetItem.className = "group relative";
+    
+    // Hover details tooltip data
+    const tooltipText = `Spent: ${formatCurrency(spent)} / Limit: ${formatCurrency(budget.limit)}`;
+    
+    budgetItem.innerHTML = `
+      <div class="flex justify-between items-end mb-1">
+        <span class="text-sm font-medium text-gray-200 truncate pr-2" title="${budget.categories.join(', ')}">${budget.name}</span>
+        <span class="text-xs font-semibold ${isOver ? 'text-[#E74C3C]' : 'text-gray-400'} whitespace-nowrap" data-tooltip="${tooltipText}">${statusText} (${percent.toFixed(1)}%)</span>
+      </div>
+      <div class="w-full bg-gray-700 rounded-full h-2.5 overflow-hidden">
+        <div class="${colorClass} h-2.5 rounded-full transition-all duration-500 ease-out" style="width: ${Math.min(percent, 100)}%"></div>
+      </div>
+    `;
+    container.appendChild(budgetItem);
+  });
+}
