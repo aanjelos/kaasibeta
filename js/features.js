@@ -53,42 +53,13 @@ function renderRecentTransactions() {
     return;
   }
 
-  const noTxMsg = list.querySelector("p.text-gray-400");
-  if (noTxMsg) noTxMsg.remove();
+  list.innerHTML = "";
 
-  const isUpdate = list.children.length > 0 && !list.querySelector("p.text-gray-400");
-
-  const existingMap = new Map();
-  Array.from(list.children).forEach(child => {
-    if (child.dataset && child.dataset.id) {
-      existingMap.set(child.dataset.id, child);
-    }
-  });
-
-  const fragment = document.createDocumentFragment();
-  let addedNew = false;
-
-  recent.forEach((t, index) => {
-    let div = existingMap.get(t.id);
+  recent.forEach((t) => {
+    const div = document.createElement("div");
+    div.dataset.id = t.id;
+    div.className = `transaction-list-item-layout flex justify-between items-center rounded-lg bg-gray-700/50 text-sm transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group`;
     
-    if (div) {
-      existingMap.delete(t.id);
-      div.classList.remove("stagger-item");
-      div.classList.remove("new-transaction-animate");
-      div.style.animation = "none";
-      div.style.opacity = "1";
-      div.style.maxHeight = "";
-      div.style.overflow = "";
-    } else {
-      div = document.createElement("div");
-      div.dataset.id = t.id;
-      div.className = `transaction-list-item-layout flex justify-between items-center rounded-lg bg-gray-700/50 text-sm transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group`;
-      if (!isUpdate) {
-        div.classList.add("stagger-item");
-      }
-      addedNew = true;
-    }
-
     div.onclick = () => openTransactionDetailModal(t.id);
 
     const account = state.accounts.find((a) => a.id === t.account);
@@ -118,29 +89,8 @@ function renderRecentTransactions() {
         <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteTransaction('${t.id}',event)" title="Delete"><i class="fas fa-times"></i></button>
       </div>`;
     
-    fragment.appendChild(div);
+    list.appendChild(div);
   });
-
-  existingMap.forEach(child => {
-    child.style.transition = "all 0.3s ease-out";
-    child.style.maxHeight = child.offsetHeight + "px";
-    child.style.overflow = "hidden";
-    requestAnimationFrame(() => {
-      child.style.maxHeight = "0px";
-      child.style.opacity = "0";
-      child.style.paddingTop = "0px";
-      child.style.paddingBottom = "0px";
-      child.style.marginTop = "0px";
-      child.style.marginBottom = "0px";
-    });
-    setTimeout(() => child.remove(), 300);
-  });
-
-  list.appendChild(fragment);
-
-  if (!isUpdate && addedNew && typeof triggerStaggerAnimation === 'function') {
-    triggerStaggerAnimation(list);
-  }
 }
 
 function renderDebtList() {
@@ -1071,6 +1021,9 @@ function refreshMonthlyViewIfRelevant(dateString) {
       transactionDate.getFullYear() === selectedYear &&
       transactionDate.getMonth() === selectedMonth
     ) {
+      // --- NEW: Preserve scroll position ---
+      const scrollPos = monthlyViewModal.scrollTop;
+
       // --- NEW: Preserve accordion states ---
       const openDayKeys = new Set();
       // Query for all day group headers within the monthly details container
@@ -1104,7 +1057,11 @@ function refreshMonthlyViewIfRelevant(dateString) {
       });
       // --- END OF NEW ---
 
-      renderMonthlyDetails(selectedMonth, selectedYear, openDayKeys); // Pass the set of open keys
+      renderMonthlyDetails(selectedMonth, selectedYear, openDayKeys, true); // Pass isUpdate = true
+
+      requestAnimationFrame(() => {
+        monthlyViewModal.scrollTop = scrollPos;
+      });
     }
   }
 }
@@ -1235,6 +1192,7 @@ function renderMonthlyDetails(
   month,
   year,
   openDayKeys = new Set(),
+  isUpdate = false,
   searchTerm = "",
   isSearchingOrJustCleared = false
 ) {
@@ -1712,7 +1670,7 @@ function renderMonthlyDetails(
       labels: pieDataCategories.map(([c, _]) => c),
       values: pieDataCategories.map(([_, a]) => a),
     };
-    setTimeout(() => renderMonthlyPieChart(pieData), 100);
+    setTimeout(() => renderMonthlyPieChart(pieData, isUpdate), 100);
   } else if (sortedCategories.length === 0 && monthlyPieChartInstance) {
     monthlyPieChartInstance.destroy();
     monthlyPieChartInstance = null;

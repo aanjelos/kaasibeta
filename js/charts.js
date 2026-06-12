@@ -598,7 +598,7 @@ function renderMonthlyOverviewChart() {
   }
 }
 
-function renderMonthlyPieChart(data) {
+function renderMonthlyPieChart(data, isUpdate = false) {
   const canvas = document.getElementById("monthlyDetailPieChartCanvas");
   if (!canvas || !canvas.getContext) {
     console.error(
@@ -659,6 +659,7 @@ function renderMonthlyPieChart(data) {
         ],
       },
       options: {
+        animation: isUpdate ? false : { animateRotate: true, animateScale: true },
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
