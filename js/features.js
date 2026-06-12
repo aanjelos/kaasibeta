@@ -1023,6 +1023,9 @@ function refreshMonthlyViewIfRelevant(dateString) {
     ) {
       // --- NEW: Preserve scroll position ---
       const scrollPos = monthlyViewModal.scrollTop;
+      const innerListContainer = $("#monthlyTransactionsListContainer");
+      const listScrollPos = innerListContainer ? innerListContainer.scrollTop : 0;
+      
       const container = $("#monthlyDetailsContainer");
       if (container) {
         container.style.minHeight = container.offsetHeight + "px";
@@ -1059,12 +1062,17 @@ function refreshMonthlyViewIfRelevant(dateString) {
 
       renderMonthlyDetails(selectedMonth, selectedYear, openDayKeys, true); // Pass isUpdate = true
 
-      setTimeout(() => {
-        monthlyViewModal.scrollTop = scrollPos;
-        if (container) {
-          container.style.minHeight = "";
-        }
-      }, 10);
+      // Since accordion expansion is now fully synchronous via maxHeight: "none",
+      // the DOM has its full height immediately. We can restore scroll synchronously!
+      monthlyViewModal.scrollTop = scrollPos;
+      const newInnerListContainer = $("#monthlyTransactionsListContainer");
+      if (newInnerListContainer) {
+        newInnerListContainer.scrollTop = listScrollPos;
+      }
+      
+      if (container) {
+        container.style.minHeight = "";
+      }
     }
   }
 }
@@ -1470,6 +1478,7 @@ function renderMonthlyDetails(
       (a, b) => b.date - a.date
     );
     const listContainerElement = document.createElement("div");
+    listContainerElement.id = "monthlyTransactionsListContainer";
     listContainerElement.className = "max-h-[60vh] overflow-y-auto pr-2";
 
     sortedDays.forEach((dayData) => {
@@ -1588,14 +1597,10 @@ function renderMonthlyDetails(
       if (shouldBeOpenInitially) {
         if (isUpdate) {
           dayTransactionsContainer.style.transition = "none";
-          setTimeout(() => {
-            dayTransactionsContainer.style.maxHeight =
-              dayTransactionsContainer.scrollHeight + "px";
-            // Restore transition
-            setTimeout(() => {
-              dayTransactionsContainer.style.transition = "";
-            }, 50);
-          }, 0);
+          dayTransactionsContainer.style.maxHeight = "none";
+          requestAnimationFrame(() => {
+            dayTransactionsContainer.style.transition = "";
+          });
         } else {
           setTimeout(() => {
             dayTransactionsContainer.style.maxHeight =
@@ -1621,6 +1626,10 @@ function renderMonthlyDetails(
             triggerStaggerAnimation(dayTransactionsContainer);
           }
         } else {
+          if (dayTransactionsContainer.style.maxHeight === "none" || dayTransactionsContainer.style.maxHeight === "") {
+             dayTransactionsContainer.style.maxHeight = dayTransactionsContainer.scrollHeight + "px";
+             void dayTransactionsContainer.offsetHeight; // trigger reflow
+          }
           dayTransactionsContainer.style.maxHeight = "0px";
           chevronIcon.classList.remove("fa-chevron-up");
           chevronIcon.classList.add("fa-chevron-down");
