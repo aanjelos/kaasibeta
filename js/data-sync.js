@@ -452,7 +452,7 @@ async function signInWithGoogle() {
       console.error("Error during Google sign-in:", error.message);
       showNotification(`Google Sign-In Error: ${error.message}`, "error");
     } else {
-      console.log("Google Sign-In initiated:", data);
+      console.log("Google Sign-In initiated successfully");
     }
   } catch (err) {
     localStorage.removeItem("pendingCloudRestore");
@@ -837,7 +837,7 @@ async function initializeSupabase() {
 
   // Handle auth state changes (e.g., login, logout)
   supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    console.log("Supabase auth state changed:", event, session);
+    console.log("Supabase auth state changed:", event, session ? session.user?.email : "no session");
     const user = session?.user || null;
     supabaseUser = user;
     if (user) {

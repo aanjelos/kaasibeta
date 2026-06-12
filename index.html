@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.211l" />
+    <meta name="application-version" content="v5.212l" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -1932,9 +1932,8 @@
               <h3 class="text-sm font-semibold text-[var(--text-primary)]">Resume Cloud Backups</h3>
               <p class="text-xs text-gray-400 mt-1">Sign in with Google to reconnect and continue backing up your transactions to the cloud.</p>
             </div>
-            <button type="button" id="sessionExpiredGoogleLoginBtn" class="btn btn-primary text-sm flex-1 sm:flex-none justify-center m-0 whitespace-nowrap">
-              <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-4 h-4 mr-2 inline-block" />
-              Sign In
+            <button type="button" id="sessionExpiredGoogleLoginBtn" class="btn btn-primary text-sm w-full sm:w-[140px] justify-center m-0 whitespace-nowrap">
+              <i class="fab fa-google mr-2"></i> Sign In
             </button>
           </div>
 
@@ -1944,7 +1943,7 @@
               <h3 class="text-sm font-semibold text-[var(--text-primary)]">Switch to Local Mode</h3>
               <p class="text-xs text-gray-400 mt-1">Stop syncing with the cloud. Your transactions will only be saved locally on this device.</p>
             </div>
-            <button type="button" id="sessionExpiredLocalBtn" class="btn btn-secondary text-sm flex-1 sm:flex-none justify-center m-0 whitespace-nowrap">
+            <button type="button" id="sessionExpiredLocalBtn" class="btn btn-secondary text-sm w-full sm:w-[140px] justify-center m-0 whitespace-nowrap">
               <i class="fas fa-hdd mr-2"></i> Local Mode
             </button>
           </div>
