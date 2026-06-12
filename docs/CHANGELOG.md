@@ -307,3 +307,6 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 - **Removed Header Label**: Removed the static uppercase `"TIP"` label above the loader hint text to simplify the loading layout and keep the presentation minimal.
 - **Increased Logo Spacing**: Enlarged the top margin of the tip container from `2rem` to `3.5rem` to increase the visual breathing room below the central pulsing logo.
 - **Balanced Multi-line Wrap**: Applied `text-wrap: balance` to the tip text container to prevent awkward line breaks and keep sentences evenly wrapped when rendered across multiple lines.
+
+### 66. [Feature] Dynamic Tip Filtering for Mobile Devices (v5.218l)
+- **Filtered Keyboard Shortcuts**: Added dynamic detection for mobile/touch screen environments to filter out keyboard shortcut tips (like Ctrl+E, 'A', '?') on touch devices where physical keyboards are unavailable.

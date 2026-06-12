@@ -762,7 +762,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const PRELOADER_TIPS = [
     // Supabase & Backups
     "Access Cloud Backups in Settings > Data.",
-    "Quickly backup with Ctrl+E and restore with Ctrl+I.",
     
     // UI Customize & Theme
     "Toggle Dark & Light Mode in Settings > Appearance.",
@@ -771,8 +770,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Tools & Shortcuts
     "Type basic math (+, -, *, /) directly into amount fields.",
-    "Press the 'A' key to view All Transactions.",
-    "Press the '?' key to view Keyboard Shortcuts.",
     "Click the calculator icon inside inputs to open the Math Toolbar.",
     "Transfer money between accounts via the transfer button in Balance Overview.",
     
@@ -793,6 +790,16 @@ document.addEventListener("DOMContentLoaded", () => {
     "Budgeting: because coffee isn't free.",
     "Rumor has it that budgeting makes you rich. Let's find out!"
   ];
+
+  // Dynamically add keyboard shortcuts for non-mobile/desktop users
+  const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth < 768);
+  if (!isMobile) {
+    PRELOADER_TIPS.push(
+      "Quickly backup with Ctrl+E and restore with Ctrl+I.",
+      "Press the 'A' key to view All Transactions.",
+      "Press the '?' key to view Keyboard Shortcuts."
+    );
+  }
 
   const tipTextElement = document.getElementById("preloader-tip-text");
   if (tipTextElement && PRELOADER_TIPS.length > 0) {
