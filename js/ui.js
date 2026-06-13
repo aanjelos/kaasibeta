@@ -988,36 +988,51 @@ function setupMobileDropdown() {
   mobileMenuOverlay.onclick = toggleDropdown;
 
   // Wire up Dropdown buttons
-  $("#dropSettingsBtn")?.addEventListener("click", () => {
-    toggleDropdown();
-    $("#settingsBtn")?.click();
-  });
+  const dropSettingsBtn = $("#dropSettingsBtn");
+  if (dropSettingsBtn) {
+    dropSettingsBtn.onclick = () => {
+      toggleDropdown();
+      $("#settingsBtn")?.click();
+    };
+  }
 
-  $("#dropMonthlyBtn")?.addEventListener("click", () => {
-    toggleDropdown();
-    $("#monthlyViewBtn")?.click();
-  });
+  const dropMonthlyBtn = $("#dropMonthlyBtn");
+  if (dropMonthlyBtn) {
+    dropMonthlyBtn.onclick = () => {
+      toggleDropdown();
+      $("#monthlyViewBtn")?.click();
+    };
+  }
 
-  $("#dropTransferBtn")?.addEventListener("click", () => {
-    toggleDropdown();
-    $("#openTransferModalBtn")?.click();
-  });
+  const dropTransferBtn = $("#dropTransferBtn");
+  if (dropTransferBtn) {
+    dropTransferBtn.onclick = () => {
+      toggleDropdown();
+      $("#openTransferModalBtn")?.click();
+    };
+  }
 
-  $("#dropBackupBtn")?.addEventListener("click", () => {
-    toggleDropdown();
-    const target = $("#shortcutCloud")?.checked && !$("#shortcutCloud")?.disabled ? "cloud" : "local";
-    if (target === "cloud") {
-      if (typeof backupToSupabase === "function") backupToSupabase();
-    } else {
-      if (typeof exportData === "function") exportData();
-    }
-  });
+  const dropBackupBtn = $("#dropBackupBtn");
+  if (dropBackupBtn) {
+    dropBackupBtn.onclick = () => {
+      toggleDropdown();
+      const target = $("#shortcutCloud")?.checked && !$("#shortcutCloud")?.disabled ? "cloud" : "local";
+      if (target === "cloud") {
+        if (typeof backupToSupabase === "function") backupToSupabase();
+      } else {
+        if (typeof exportData === "function") exportData();
+      }
+    };
+  }
 
-  $("#dropRestoreBtn")?.addEventListener("click", () => {
-    toggleDropdown();
-    const target = $("#shortcutCloud")?.checked && !$("#shortcutCloud")?.disabled ? "cloud" : "local";
-    if (target === "cloud") {
-      if (typeof restoreFromSupabase === "function") restoreFromSupabase(false, true);
+  const dropRestoreBtn = $("#dropRestoreBtn");
+  if (dropRestoreBtn) {
+    dropRestoreBtn.onclick = () => {
+      toggleDropdown();
+      const target = $("#shortcutCloud")?.checked && !$("#shortcutCloud")?.disabled ? "cloud" : "local";
+      if (target === "cloud") {
+        if (typeof restoreFromSupabase === "function") restoreFromSupabase(false, true);
+        
     } else {
       const importInput = $("#importDataInput");
       if (importInput) importInput.click();

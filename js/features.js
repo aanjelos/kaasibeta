@@ -3923,7 +3923,7 @@ function renderCategoryBudgets() {
   const now = new Date();
   const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const isFirst5Days = now.getDate() <= 5;
-  const lastDismissed = state.settings.lastDismissedBudgetTipMonth;
+  const lastDismissed = localStorage.getItem("kaasi_lastDismissedBudgetTipMonth");
   const isDismissedForThisMonth = lastDismissed === currentMonthStr;
   const showTip = isFirst5Days && !isDismissedForThisMonth;
 
@@ -3970,8 +3970,7 @@ function renderCategoryBudgets() {
       const dismissBtn = $("#dismissBudgetTipBtn");
       if (dismissBtn) {
         dismissBtn.addEventListener("click", () => {
-          state.settings.lastDismissedBudgetTipMonth = currentMonthStr;
-          saveData();
+          localStorage.setItem("kaasi_lastDismissedBudgetTipMonth", currentMonthStr);
           tipContainer.classList.add("hidden");
           if (localStorage.getItem("kaasi_collapseCategoryBudgets") === "true" && headerEl) {
             headerEl.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
