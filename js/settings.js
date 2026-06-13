@@ -961,6 +961,43 @@ function buildBudgetCategoryCheckboxes(containerId, selectedCategories = []) {
     `;
     container.appendChild(label);
   });
+
+  // Auto-fill logic
+  const nameInputId = containerId === "addBudgetCategoriesContainer" ? "addBudgetName" : "editBudgetName";
+  const nameInput = $(`#${nameInputId}`);
+  
+  if (nameInput) {
+    // Reset manual edit state when rebuilding
+    const currentSelectedStr = selectedCategories.join(', ');
+    if (nameInput.value.trim() !== "" && nameInput.value.trim() !== currentSelectedStr) {
+      nameInput.dataset.manuallyEdited = "true";
+    } else {
+      nameInput.dataset.manuallyEdited = "false";
+    }
+
+    // Flag to track manual edits
+    nameInput.addEventListener("input", (e) => {
+      if (e.target.value.trim() !== "") {
+        nameInput.dataset.manuallyEdited = "true";
+      } else {
+        nameInput.dataset.manuallyEdited = "false"; // resume auto-fill if they clear it
+      }
+    });
+
+    const checkboxes = container.querySelectorAll(".budget-category-checkbox");
+    checkboxes.forEach(cb => {
+      cb.addEventListener("change", () => {
+        if (nameInput.dataset.manuallyEdited === "true") return; // don't override manual edits
+        
+        const selected = Array.from(checkboxes).filter(c => c.checked).map(c => c.value);
+        if (selected.length > 0) {
+          nameInput.value = selected.join(', ');
+        } else {
+          nameInput.value = "";
+        }
+      });
+    });
+  }
 }
 
 function renderBudgetsSettingsList() {
