@@ -359,3 +359,8 @@ Implemented a comprehensive category budget tracking feature with the following 
 - **Mobile Safe**: Added pointer-device verification (`(hover: hover)`) before triggering tooltips to prevent tooltips from getting stuck on mobile/touch screen interfaces.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v124` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.235l`.
 
+### 73. [UI/UX] Tooltip Unification & Migration (v5.236l)
+- **Migrated Default Tooltips**: Converted remaining native browser tooltips (`title`) to the unified custom tooltip system (`data-tooltip`) on budget titles and MoM comparison indicators (e.g. today and 7-day spending change alerts).
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v125` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.236l`.
+
+

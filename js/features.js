@@ -3875,12 +3875,12 @@ function renderYearlyAndQuickStats() {
   const todayIndicator = $("#todaySpendingIndicator");
   if (todaySpent > yesterdaySpent && yesterdaySpent >= 0) {
     // Check yesterdaySpent >= 0 to avoid showing arrow if no data for yesterday
-    todayIndicator.innerHTML = `<i class="fas fa-arrow-up text-indicator-bad spending-indicator" title="More than yesterday (${formatCurrency(
+    todayIndicator.innerHTML = `<i class="fas fa-arrow-up text-indicator-bad spending-indicator" data-tooltip="More than yesterday (${formatCurrency(
       yesterdaySpent
     )})"></i>`;
   } else if (todaySpent < yesterdaySpent && yesterdaySpent > 0) {
     // Check yesterdaySpent > 0
-    todayIndicator.innerHTML = `<i class="fas fa-arrow-down text-indicator-good spending-indicator" title="Less than yesterday (${formatCurrency(
+    todayIndicator.innerHTML = `<i class="fas fa-arrow-down text-indicator-good spending-indicator" data-tooltip="Less than yesterday (${formatCurrency(
       yesterdaySpent
     )})"></i>`;
   } else {
@@ -3889,11 +3889,11 @@ function renderYearlyAndQuickStats() {
 
   const sevenDayIndicator = $("#weekSpendingIndicator"); // This now compares rolling 7-day periods
   if (current7DaysSpent > previous7DaysSpent && previous7DaysSpent >= 0) {
-    sevenDayIndicator.innerHTML = `<i class="fas fa-arrow-up text-indicator-bad spending-indicator" title="More than previous 7 days (${formatCurrency(
+    sevenDayIndicator.innerHTML = `<i class="fas fa-arrow-up text-indicator-bad spending-indicator" data-tooltip="More than previous 7 days (${formatCurrency(
       previous7DaysSpent
     )})"></i>`;
   } else if (current7DaysSpent < previous7DaysSpent && previous7DaysSpent > 0) {
-    sevenDayIndicator.innerHTML = `<i class="fas fa-arrow-down text-indicator-good spending-indicator" title="Less than previous 7 days (${formatCurrency(
+    sevenDayIndicator.innerHTML = `<i class="fas fa-arrow-down text-indicator-good spending-indicator" data-tooltip="Less than previous 7 days (${formatCurrency(
       previous7DaysSpent
     )})"></i>`;
   } else {
@@ -4100,7 +4100,7 @@ function renderCategoryBudgets() {
 
     if (titleEl) {
       titleEl.textContent = budget.name;
-      titleEl.title = budget.categories.join(', ');
+      titleEl.dataset.tooltip = budget.categories.join(', ');
     }
 
     if (progressEl) {
