@@ -332,3 +332,8 @@ Implemented a comprehensive category budget tracking feature with the following 
 - **Settings Integration**: Dedicated settings tab offering Add/Edit/Delete actions with multi-select category checklists.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v110` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.221l`.
 
+### 70. [UI/UX] Category Budgets Polish & Layout Fixes (v5.222l)
+- **Settings UX**: Rearranged the Budget form layout to place category selections at the top. Added intelligent JavaScript auto-fill so the Budget Name dynamically populates based on your category selections (and smoothly steps back if you type a custom name).
+- **Dashboard Layout**: Reorganized the core DOM structure to slot the Category Budgets card optimally between the "Add Transaction" and "Credit Card" cards on desktop.
+- **Mobile Ordering**: Stripped out invalid CSS fractional orders and applied strict integer sorting to ensure the Category Budgets card correctly renders immediately after the Balance Overview on mobile, preventing it from incorrectly jumping to the top of the feed.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v111` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.222l`.
