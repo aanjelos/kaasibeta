@@ -1060,7 +1060,9 @@ function refreshMonthlyViewIfRelevant(dateString) {
       });
       // --- END OF NEW ---
 
-      renderMonthlyDetails(selectedMonth, selectedYear, openDayKeys, true); // Pass isUpdate = true
+      const monthlySearchInput = $("#monthlySearchInput");
+      const currentSearchTerm = monthlySearchInput ? monthlySearchInput.value.trim() : "";
+      renderMonthlyDetails(selectedMonth, selectedYear, openDayKeys, true, currentSearchTerm, false); // Pass isUpdate = true and currentSearchTerm
 
       // Since accordion expansion is now fully synchronous via maxHeight: "none",
       // the DOM has its full height immediately. We can restore scroll synchronously!
