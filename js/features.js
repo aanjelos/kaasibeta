@@ -4018,9 +4018,7 @@ function renderCategoryBudgets() {
     state.transactions.forEach(t => {
       if (t.type === "expense" && t.date.startsWith(currentMonthStr)) {
         if (budget.categories.includes(t.category)) {
-          if (!isCategoryExcluded(t.category || "Other", 'excludeFromMonthlyTotals')) {
-            spent += t.amount;
-          }
+          spent += t.amount;
         }
       }
     });
