@@ -4007,7 +4007,9 @@ function renderCategoryBudgets() {
         localStorage.setItem("kaasi_collapseCategoryBudgets", "false");
 
         const onTransitionEnd = () => {
-          container.style.maxHeight = "";
+          if (localStorage.getItem("kaasi_collapseCategoryBudgets") === "false") {
+            container.style.maxHeight = "";
+          }
           container.classList.remove("collapsible-transition");
           container.removeEventListener("transitionend", onTransitionEnd);
         };
@@ -4021,9 +4023,11 @@ function renderCategoryBudgets() {
         localStorage.setItem("kaasi_collapseCategoryBudgets", "true");
 
         const onTransitionEnd = () => {
-          if (header && !isTipVisible) {
-            header.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
-            header.classList.add("mb-0");
+          if (localStorage.getItem("kaasi_collapseCategoryBudgets") === "true") {
+            if (header && !isTipVisible) {
+              header.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
+              header.classList.add("mb-0");
+            }
           }
           container.classList.remove("collapsible-transition");
           container.removeEventListener("transitionend", onTransitionEnd);
