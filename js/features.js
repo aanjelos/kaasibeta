@@ -3918,13 +3918,26 @@ function renderCategoryBudgets() {
   // Handle Collapsed State
   const toggleBtn = $("#toggleBudgetsCardBtn");
   const headerEl = card.querySelector(".flex.justify-between.items-center");
-  const isCollapsed = state.settings && state.settings.collapseCategoryBudgets;
+  const isCollapsed = localStorage.getItem("kaasi_collapseCategoryBudgets") === "true";
+  
+  const now = new Date();
+  const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const isFirst5Days = now.getDate() <= 5;
+  const lastDismissed = state.settings.lastDismissedBudgetTipMonth;
+  const isDismissedForThisMonth = lastDismissed === currentMonthStr;
+  const showTip = isFirst5Days && !isDismissedForThisMonth;
+
   if (isCollapsed) {
     container.style.maxHeight = "0px";
     if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
     if (headerEl) {
-      headerEl.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
-      headerEl.classList.add("mb-0");
+      if (showTip) {
+        headerEl.classList.remove("mb-0");
+        headerEl.classList.add("border-b", "border-gray-600", "pb-2", "mb-4");
+      } else {
+        headerEl.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
+        headerEl.classList.add("mb-0");
+      }
     }
   } else {
     container.style.maxHeight = "";
@@ -3935,17 +3948,10 @@ function renderCategoryBudgets() {
     }
   }
 
-  const now = new Date();
-  const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-
   // Monthly tip banner logic
   const tipContainer = $("#categoryBudgetsTipContainer");
   if (tipContainer) {
-    const isFirst3Days = now.getDate() <= 3;
-    const lastDismissed = state.settings.lastDismissedBudgetTipMonth;
-    const isDismissedForThisMonth = lastDismissed === currentMonthStr;
-
-    if (isFirst3Days && !isCollapsed && !isDismissedForThisMonth) {
+    if (showTip) {
       tipContainer.classList.remove("hidden");
       tipContainer.innerHTML = `
         <div class="flex items-start justify-between bg-accent-500/10 border border-accent-500/30 rounded-lg p-3 text-xs text-gray-300 relative">
@@ -3967,6 +3973,10 @@ function renderCategoryBudgets() {
           state.settings.lastDismissedBudgetTipMonth = currentMonthStr;
           saveData();
           tipContainer.classList.add("hidden");
+          if (localStorage.getItem("kaasi_collapseCategoryBudgets") === "true" && headerEl) {
+            headerEl.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
+            headerEl.classList.add("mb-0");
+          }
         });
       }
     } else {
@@ -3977,9 +3987,10 @@ function renderCategoryBudgets() {
   // Set up event listener if not already done
   if (toggleBtn && !toggleBtn.dataset.listenerAttached) {
     toggleBtn.addEventListener("click", () => {
-      const currentlyCollapsed = state.settings.collapseCategoryBudgets;
+      const currentlyCollapsed = localStorage.getItem("kaasi_collapseCategoryBudgets") === "true";
       const header = card.querySelector(".flex.justify-between.items-center");
       const tip = $("#categoryBudgetsTipContainer");
+      const isTipVisible = tip && !tip.classList.contains("hidden");
       
       container.classList.add("collapsible-transition");
 
@@ -3994,14 +4005,7 @@ function renderCategoryBudgets() {
         container.offsetHeight; // force reflow
         container.style.maxHeight = container.scrollHeight + "px";
         toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
-        state.settings.collapseCategoryBudgets = false;
-        
-        // Show tip if applicable
-        const isFirst3Days = now.getDate() <= 3;
-        const lastDismissed = state.settings.lastDismissedBudgetTipMonth;
-        if (isFirst3Days && lastDismissed !== currentMonthStr) {
-          if (tip) tip.classList.remove("hidden");
-        }
+        localStorage.setItem("kaasi_collapseCategoryBudgets", "false");
 
         const onTransitionEnd = () => {
           container.style.maxHeight = "";
@@ -4015,20 +4019,18 @@ function renderCategoryBudgets() {
         container.offsetHeight; // force reflow
         container.style.maxHeight = "0px";
         toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
-        state.settings.collapseCategoryBudgets = true;
+        localStorage.setItem("kaasi_collapseCategoryBudgets", "true");
 
         const onTransitionEnd = () => {
-          if (header) {
+          if (header && !isTipVisible) {
             header.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
             header.classList.add("mb-0");
           }
-          if (tip) tip.classList.add("hidden");
           container.classList.remove("collapsible-transition");
           container.removeEventListener("transitionend", onTransitionEnd);
         };
         container.addEventListener("transitionend", onTransitionEnd);
       }
-      saveData();
     });
     toggleBtn.dataset.listenerAttached = "true";
   }
