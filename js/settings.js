@@ -511,10 +511,10 @@ function renderCategorySettingsList() {
     const eyeIconClass = isHidden ? "fa-eye-slash text-gray-500" : "fa-eye text-accent-primary";
     const eyeTooltip = isHidden ? "Hidden Category (Click to make visible)" : "Visible Category (Click to hide)";
     
-    const toggleBtn = `<button class="focus:outline-none hover:scale-110 transition-transform flex items-center justify-center w-6 h-6" onclick="toggleHiddenCategory('${cat}')" title="${eyeTooltip}"><i class="fas ${eyeIconClass}"></i></button>`;
+    const toggleBtn = `<button class="focus:outline-none hover:scale-110 transition-transform flex items-center justify-center w-6 h-6" onclick="toggleHiddenCategory('${cat}')" data-tooltip="${eyeTooltip}"><i class="fas ${eyeIconClass}"></i></button>`;
 
     const saveButtonHTML = `<button class="btn btn-primary btn-sm !py-1 !px-3 text-xs font-medium" onclick="renameCategory(this)">Save</button>`;
-    const deleteButtonHTML = `<button class="text-gray-400 hover:text-expense focus:outline-none w-6 h-6 flex items-center justify-center" onclick="deleteCategory('${cat}')" title="Delete Category"><i class="fas fa-times"></i></button>`;
+    const deleteButtonHTML = `<button class="text-gray-400 hover:text-expense focus:outline-none w-6 h-6 flex items-center justify-center" onclick="deleteCategory('${cat}')" data-tooltip="Delete Category"><i class="fas fa-times"></i></button>`;
 
     li.innerHTML = inputElementHTML;
     buttonsDiv.innerHTML = toggleBtn + saveButtonHTML + deleteButtonHTML;
@@ -1042,7 +1042,7 @@ function renderBudgetsSettingsList() {
           <h4 class="font-medium text-gray-200 truncate">${budget.name}</h4>
           <span class="text-sm font-semibold text-accent-500 whitespace-nowrap">${formatCurrency(budget.limit)}</span>
         </div>
-        <p class="text-xs text-gray-400 line-clamp-2" title="${catList}">Categories: ${catList || 'None'}</p>
+        <p class="text-xs text-gray-400 line-clamp-2" data-tooltip="${catList}">Categories: ${catList || 'None'}</p>
       </div>
       <div class="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
         <button type="button" class="btn btn-icon btn-sm" onclick="openEditBudgetModal('${budget.id}')" data-tooltip="Edit Budget">

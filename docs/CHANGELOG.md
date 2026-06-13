@@ -363,4 +363,8 @@ Implemented a comprehensive category budget tracking feature with the following 
 - **Migrated Default Tooltips**: Converted remaining native browser tooltips (`title`) to the unified custom tooltip system (`data-tooltip`) on budget titles and MoM comparison indicators (e.g. today and 7-day spending change alerts).
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v125` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.236l`.
 
+### 74. [UI/UX] Comprehensive Tooltip Sweep (v5.237l)
+- **Global Tooltip Unification**: Performed a full codebase sweep to eliminate all remaining native browser `title` tooltips. Converted over 20+ hardcoded `title` attributes (across transactions, settings toggles, custom date range inputs, and dashboard components) to the new `data-tooltip` unified system for a 100% consistent, premium UI experience.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v126` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.237l`.
+
 

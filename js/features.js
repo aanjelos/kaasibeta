@@ -80,13 +80,13 @@ function renderRecentTransactions() {
 
     div.innerHTML = `
       <div class="flex-grow mr-2 overflow-hidden">
-        <p class="font-medium truncate ${textColorClass}" title="${t.description}">${t.description}</p>
+        <p class="font-medium truncate ${textColorClass}" data-tooltip="${t.description}">${t.description}</p>
         <p class="text-xs text-gray-400">${subDetailText}</p>
       </div>
       <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums">${isIncome ? "+" : "-"}${formatCurrency(t.amount)}</span>
       <div class="edit-btn-container flex-shrink-0 hidden md:flex">
-        <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionModal('${t.id}', event)" title="Edit"><i class="fas fa-edit"></i></button>
-        <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteTransaction('${t.id}',event)" title="Delete"><i class="fas fa-times"></i></button>
+        <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionModal('${t.id}', event)" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
+        <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteTransaction('${t.id}',event)" data-tooltip="Delete"><i class="fas fa-times"></i></button>
       </div>`;
     
     list.appendChild(div);
@@ -178,7 +178,7 @@ function renderDebtList() {
         let progressBarHtml = "";
         if (percentagePaid > 0) {
           progressBarHtml = `
-            <div class="w-full bg-gray-700 rounded-full h-1.5 mt-2 mb-1" title="${percentagePaid.toFixed(1)}% Paid">
+            <div class="w-full bg-gray-700 rounded-full h-1.5 mt-2 mb-1" data-tooltip="${percentagePaid.toFixed(1)}% Paid">
               <div class="bg-income h-1.5 rounded-full transition-all duration-500" style="width: ${percentagePaid}%"></div>
             </div>
           `;
@@ -209,7 +209,7 @@ function renderDebtList() {
               }')">Pay</button>
               <button class="text-gray-500 hover:text-expense text-xs focus:outline-none" onclick="deleteDebt('${
                 d.id
-              }')" title="Delete"><i class="fas fa-times"></i></button>
+              }')" data-tooltip="Delete"><i class="fas fa-times"></i></button>
             </div>
           </div>
         `;
@@ -334,7 +334,7 @@ function renderReceivableList() {
           let progressBarHtml = "";
           if (percentagePaid > 0) {
             progressBarHtml = `
-              <div class="w-full bg-gray-700 rounded-full h-1.5 mt-2 mb-1" title="${percentagePaid.toFixed(1)}% Received">
+              <div class="w-full bg-gray-700 rounded-full h-1.5 mt-2 mb-1" data-tooltip="${percentagePaid.toFixed(1)}% Received">
                 <div class="bg-income h-1.5 rounded-full transition-all duration-500" style="width: ${percentagePaid}%"></div>
               </div>
             `;
@@ -365,7 +365,7 @@ function renderReceivableList() {
               }')">Receive</button>
               <button class="text-gray-500 hover:text-expense text-xs focus:outline-none" onclick="deleteReceivable('${
                 r.id
-              }')" title="Delete"><i class="fas fa-times"></i></button>
+              }')" data-tooltip="Delete"><i class="fas fa-times"></i></button>
             </div>
           </div>
         `;
@@ -424,7 +424,7 @@ function renderInstallmentList() {
     div.className = "transaction-list-item-layout rounded-lg bg-gray-700/50 text-sm mb-2 transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer";
 
     const ringHtml = `
-      <div class="installment-progress-ring-container w-10 h-10 flex-shrink-0" title="${progressPercent.toFixed(
+      <div class="installment-progress-ring-container w-10 h-10 flex-shrink-0" data-tooltip="${progressPercent.toFixed(
         0
       )}% Paid (${i.monthsLeft} months left)">
           <svg class="w-full h-full" viewBox="0 0 36 36">
@@ -444,16 +444,16 @@ function renderInstallmentList() {
             ${
               i.monthsLeft > 0
                 ? `
-                <button class="text-sm text-income hover:opacity-80 focus:outline-none transition-opacity" onclick="payInstallmentMonth('${i.id}')" title="Pay Installment"><i class="fas fa-credit-card"></i></button>
-                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="text-sm text-income hover:opacity-80 focus:outline-none transition-opacity" onclick="payInstallmentMonth('${i.id}')" data-tooltip="Pay Installment"><i class="fas fa-credit-card"></i></button>
+                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
               `
                 : `
-                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
               `
             }
             <button class="text-sm text-gray-500 hover:text-expense focus:outline-none transition-colors" onclick="deleteInstallment('${
               i.id
-            }')" title="Delete"><i class="fas fa-times"></i></button>
+            }')" data-tooltip="Delete"><i class="fas fa-times"></i></button>
         </div>
     `;
 
@@ -1401,14 +1401,14 @@ function renderMonthlyDetails(
     "monthly-view-summary-grid grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6";
   let monthSpendingIndicatorHtml = "";
   if (totalExpense > lastMonthTotalExpense && lastMonthTotalExpense >= 0) {
-    monthSpendingIndicatorHtml = `<i class="fas fa-arrow-up text-indicator-bad spending-indicator" title="More than last month (${formatCurrency(
+    monthSpendingIndicatorHtml = `<i class="fas fa-arrow-up text-indicator-bad spending-indicator" data-tooltip="More than last month (${formatCurrency(
       lastMonthTotalExpense
     )})"></i>`;
   } else if (
     totalExpense < lastMonthTotalExpense &&
     lastMonthTotalExpense > 0
   ) {
-    monthSpendingIndicatorHtml = `<i class="fas fa-arrow-down text-indicator-good spending-indicator" title="Less than last month (${formatCurrency(
+    monthSpendingIndicatorHtml = `<i class="fas fa-arrow-down text-indicator-good spending-indicator" data-tooltip="Less than last month (${formatCurrency(
       lastMonthTotalExpense
     )})"></i>`;
   }
@@ -1574,22 +1574,22 @@ function renderMonthlyDetails(
 
           itemDiv.innerHTML = `
               <div class="flex-grow min-w-0 ${opacityClass} mr-2">
-                <p class="font-medium truncate ${textColorClass}" title="${
+                <p class="font-medium truncate ${textColorClass}" data-tooltip="${
             t.description
           }${tooltipSuffix}">${t.description}</p>
                 <p class="text-xs text-gray-400 mt-0.5 truncate">${subDetailText}</p>
               </div>
               <div class="flex items-center justify-end flex-shrink-0">
-                <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums ${opacityClass}" title="${isExcluded ? 'Excluded from totals' : ''}">${
+                <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums ${opacityClass}" data-tooltip="${isExcluded ? 'Excluded from totals' : ''}">${
               isIncome ? "+" : "-"
             }${formatCurrency(t.amount)}</span>
                 <div class="edit-btn-container ml-3 hidden md:flex">
                   <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionModal('${
                     t.id
-                  }', event)" title="Edit"><i class="fas fa-edit"></i></button>
+                  }', event)" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
                   <button class="text-xs text-gray-500 hover:text-expense focus:outline-none ml-2" onclick="deleteTransaction('${
                     t.id
-                  }', event)" title="Delete"><i class="fas fa-times"></i></button>
+                  }', event)" data-tooltip="Delete"><i class="fas fa-times"></i></button>
                 </div>
               </div>`;
           dayTransactionsContainer.appendChild(itemDiv);
@@ -1662,7 +1662,7 @@ function renderMonthlyDetails(
       const isExcluded = isCategoryExcluded(category, 'excludeFromMonthlyTotals');
       const li = document.createElement("li");
       const opacityClass = isExcluded ? "opacity-50" : "";
-      const tooltip = isExcluded ? `title="${category} (Hidden Category)"` : `title="${category}"`;
+      const tooltip = isExcluded ? `data-tooltip="${category} (Hidden Category)"` : `data-tooltip="${category}"`;
       li.innerHTML = `<span class="truncate pr-2 ${opacityClass}" ${tooltip}>${category}</span><span class="font-medium whitespace-nowrap tabular-nums ${opacityClass}" ${tooltip}>${formatCurrency(
         amount
       )}</span>`;
@@ -1906,22 +1906,22 @@ function openCcHistoryModal() {
               <div class="edit-btn-container">
                   ${
                     !t.paidOff && remainingOnItem > 0.005
-                      ? `<button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="openPayCcItemForm('${t.id}')" title="Pay Item"><i class="fas fa-credit-card"></i></button>`
+                      ? `<button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="openPayCcItemForm('${t.id}')" data-tooltip="Pay Item"><i class="fas fa-credit-card"></i></button>`
                       : ""
                   }
                   <button class="text-xs text-gray-400 hover:text-gray-200 transition-colors focus:outline-none mr-2" onclick="openEditCcTransactionModal('${
                     t.id
-                  }')" title="Edit"><i class="fas fa-edit"></i></button>
+                  }')" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
                   <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteCcTransaction('${
                     t.id
-                  }')" title="Delete"><i class="fas fa-times"></i></button>
+                  }')" data-tooltip="Delete"><i class="fas fa-times"></i></button>
               </div>`;
 
           itemDiv.innerHTML = `
               <div class="flex-grow mr-3 overflow-hidden">
                   <p class="font-medium truncate ${
                     t.paidOff ? "text-gray-500" : ""
-                  }" title="${t.description}">${t.description}</p>
+                  }" data-tooltip="${t.description}">${t.description}</p>
                   <p class="text-xs text-gray-400 mt-0.5">${new Date(
                     t.date
                   ).toLocaleDateString()} ${

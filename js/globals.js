@@ -333,7 +333,7 @@ function openInitialSetupWizard() {
 
         div.innerHTML = `
               <span>${cat}</span>
-              <button type="button" class="text-red-400 hover:text-red-300 text-xs ml-2" data-category-name="${cat}" title="Remove">
+              <button type="button" class="text-red-400 hover:text-red-300 text-xs ml-2" data-category-name="${cat}" data-tooltip="Remove">
                   <i class="fas fa-times"></i>
               </button>
           `;
