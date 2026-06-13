@@ -3927,6 +3927,7 @@ function renderCategoryBudgets() {
       headerEl.classList.add("mb-0");
     }
   } else {
+    container.style.maxHeight = "";
     if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
     if (headerEl) {
       headerEl.classList.remove("mb-0");
@@ -3979,7 +3980,13 @@ function renderCategoryBudgets() {
       const currentlyCollapsed = state.settings.collapseCategoryBudgets;
       const header = card.querySelector(".flex.justify-between.items-center");
       const tip = $("#categoryBudgetsTipContainer");
+      
+      container.classList.add("collapsible-transition");
+
       if (currentlyCollapsed) {
+        // Expand
+        container.style.maxHeight = "0px";
+        container.offsetHeight; // force reflow
         container.style.maxHeight = container.scrollHeight + "px";
         toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
         state.settings.collapseCategoryBudgets = false;
@@ -3993,7 +4000,17 @@ function renderCategoryBudgets() {
         if (isFirst3Days && lastDismissed !== currentMonthStr) {
           if (tip) tip.classList.remove("hidden");
         }
+
+        const onTransitionEnd = () => {
+          container.style.maxHeight = "";
+          container.classList.remove("collapsible-transition");
+          container.removeEventListener("transitionend", onTransitionEnd);
+        };
+        container.addEventListener("transitionend", onTransitionEnd);
       } else {
+        // Collapse
+        container.style.maxHeight = container.scrollHeight + "px";
+        container.offsetHeight; // force reflow
         container.style.maxHeight = "0px";
         toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
         state.settings.collapseCategoryBudgets = true;
@@ -4002,6 +4019,12 @@ function renderCategoryBudgets() {
           header.classList.add("mb-0");
         }
         if (tip) tip.classList.add("hidden");
+
+        const onTransitionEnd = () => {
+          container.classList.remove("collapsible-transition");
+          container.removeEventListener("transitionend", onTransitionEnd);
+        };
+        container.addEventListener("transitionend", onTransitionEnd);
       }
       saveData();
     });
@@ -4052,8 +4075,4 @@ function renderCategoryBudgets() {
     `;
     container.appendChild(budgetItem);
   });
-
-  if (!isCollapsed) {
-    container.style.maxHeight = container.scrollHeight + "px";
-  }
 }
