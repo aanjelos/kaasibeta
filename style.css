@@ -901,15 +901,11 @@ select:focus {
 /* --- TOOLTIPS --- */
 /* ------------------------- */
 [data-tooltip] {
-  position: relative;
   cursor: pointer;
 }
-[data-tooltip]::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
+
+#global-tooltip {
+  position: fixed;
   background-color: var(--bg-tertiary);
   color: var(--text-primary);
   padding: 6px 12px;
@@ -917,18 +913,17 @@ select:focus {
   font-size: 0.8rem;
   white-space: nowrap;
   opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.2s ease-out, visibility 0.2s ease-out,
-    transform 0.2s ease-out;
-  z-index: 1000;
-  box-shadow: 0 2px 5px var(--shadow-color);
+  transform: translate(-50%, 4px);
+  transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+  z-index: 99999;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
-@media (hover: hover) {
-  [data-tooltip]:hover::after {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) translateY(2px);
-  }
+
+#global-tooltip.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
 /* ------------------------- */

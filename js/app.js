@@ -728,6 +728,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM Loaded. Initializing...");
   loadData(); // Load existing data or set up default state
   initializeUI(); // Set up all initial UI elements, event listeners, and render initial views
+  initializeGlobalTooltips(); // Initialize the global tooltip handler
   
   if (state.settings && state.settings.appPin && state.settings.appPin.enabled) {
     showPinLockScreen();
@@ -944,6 +945,111 @@ document.addEventListener('visibilitychange', () => {
     }
   }
 });
+
+
+/**
+ * Global Tooltip System
+ * Manages a single body-level tooltip to prevent overflow clipping in scrollable containers.
+ */
+function initializeGlobalTooltips() {
+  const tooltipEl = document.createElement("div");
+  tooltipEl.id = "global-tooltip";
+  tooltipEl.className = "hidden";
+  document.body.appendChild(tooltipEl);
+
+  let activeTarget = null;
+  let animationFrameId = null;
+
+  function updateTooltipPosition() {
+    if (!activeTarget) return;
+
+    const rect = activeTarget.getBoundingClientRect();
+    const tooltipText = activeTarget.getAttribute("data-tooltip");
+    if (!tooltipText) {
+      hideTooltip();
+      return;
+    }
+
+    tooltipEl.textContent = tooltipText;
+    tooltipEl.classList.remove("hidden");
+
+    // Center of target horizontally
+    let left = rect.left + rect.width / 2;
+    // Position below target by default
+    let top = rect.bottom + 8;
+
+    const tooltipRect = tooltipEl.getBoundingClientRect();
+
+    // If it overflows the bottom viewport edge, show it above the target
+    if (top + tooltipRect.height > window.innerHeight - 8) {
+      top = rect.top - tooltipRect.height - 8;
+    }
+
+    // Keep it horizontally within screen bounds
+    if (left - tooltipRect.width / 2 < 8) {
+      left = tooltipRect.width / 2 + 8;
+    } else if (left + tooltipRect.width / 2 > window.innerWidth - 8) {
+      left = window.innerWidth - tooltipRect.width / 2 - 8;
+    }
+
+    tooltipEl.style.top = `${top}px`;
+    tooltipEl.style.left = `${left}px`;
+    
+    // Add class on next tick to trigger transition
+    requestAnimationFrame(() => {
+      tooltipEl.classList.add("visible");
+    });
+  }
+
+  function hideTooltip() {
+    activeTarget = null;
+    tooltipEl.classList.remove("visible");
+    
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+    }
+
+    setTimeout(() => {
+      if (!activeTarget) {
+        tooltipEl.classList.add("hidden");
+      }
+    }, 150);
+  }
+
+  // Event delegation for hover states (only trigger tooltips on hover-capable pointer devices)
+  document.addEventListener("mouseover", (e) => {
+    if (window.matchMedia("(hover: hover)").matches) {
+      const target = e.target.closest("[data-tooltip]");
+      if (target) {
+        activeTarget = target;
+        updateTooltipPosition();
+      }
+    }
+  });
+
+  document.addEventListener("mouseout", (e) => {
+    if (activeTarget && (!e.relatedTarget || !activeTarget.contains(e.relatedTarget))) {
+      hideTooltip();
+    }
+  });
+
+  // Keep positioned during window scrolling or resizing
+  window.addEventListener("scroll", () => {
+    if (activeTarget) {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(updateTooltipPosition);
+    }
+  }, { passive: true });
+
+  window.addEventListener("resize", () => {
+    if (activeTarget) {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(updateTooltipPosition);
+    }
+  }, { passive: true });
+}
+
 
 
 
