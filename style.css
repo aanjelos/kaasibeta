@@ -2043,3 +2043,8 @@ footer a[href^="https://kaasi.com.lk"]:hover
   }
 }
 
+#categoryBudgetsProgressContainer {
+  overflow: hidden;
+  transition: max-height 0.35s ease-in-out;
+}
+

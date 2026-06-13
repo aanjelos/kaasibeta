@@ -3920,14 +3920,13 @@ function renderCategoryBudgets() {
   const headerEl = card.querySelector(".flex.justify-between.items-center");
   const isCollapsed = state.settings && state.settings.collapseCategoryBudgets;
   if (isCollapsed) {
-    container.classList.add("hidden");
+    container.style.maxHeight = "0px";
     if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
     if (headerEl) {
       headerEl.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
       headerEl.classList.add("mb-0");
     }
   } else {
-    container.classList.remove("hidden");
     if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
     if (headerEl) {
       headerEl.classList.remove("mb-0");
@@ -3977,11 +3976,11 @@ function renderCategoryBudgets() {
   // Set up event listener if not already done
   if (toggleBtn && !toggleBtn.dataset.listenerAttached) {
     toggleBtn.addEventListener("click", () => {
-      const currentlyCollapsed = container.classList.contains("hidden");
+      const currentlyCollapsed = state.settings.collapseCategoryBudgets;
       const header = card.querySelector(".flex.justify-between.items-center");
       const tip = $("#categoryBudgetsTipContainer");
       if (currentlyCollapsed) {
-        container.classList.remove("hidden");
+        container.style.maxHeight = container.scrollHeight + "px";
         toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
         state.settings.collapseCategoryBudgets = false;
         if (header) {
@@ -3995,7 +3994,7 @@ function renderCategoryBudgets() {
           if (tip) tip.classList.remove("hidden");
         }
       } else {
-        container.classList.add("hidden");
+        container.style.maxHeight = "0px";
         toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
         state.settings.collapseCategoryBudgets = true;
         if (header) {
@@ -4043,7 +4042,7 @@ function renderCategoryBudgets() {
     const tooltipText = `Spent: ${formatCurrency(spent)} / Limit: ${formatCurrency(budget.limit)}`;
     
     budgetItem.innerHTML = `
-      <div class="flex justify-between items-end mb-1">
+      <div class="flex justify-between items-end mb-2">
         <span class="text-sm font-medium text-gray-200 truncate pr-2" title="${budget.categories.join(', ')}">${budget.name}</span>
         <span class="text-xs font-semibold ${isOver ? 'text-[#E74C3C]' : 'text-gray-400'} whitespace-nowrap" data-tooltip="${tooltipText}">${statusText} (${percent.toFixed(1)}%)</span>
       </div>
@@ -4053,4 +4052,8 @@ function renderCategoryBudgets() {
     `;
     container.appendChild(budgetItem);
   });
+
+  if (!isCollapsed) {
+    container.style.maxHeight = container.scrollHeight + "px";
+  }
 }
