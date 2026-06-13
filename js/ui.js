@@ -1032,12 +1032,12 @@ function setupMobileDropdown() {
       const target = $("#shortcutCloud")?.checked && !$("#shortcutCloud")?.disabled ? "cloud" : "local";
       if (target === "cloud") {
         if (typeof restoreFromSupabase === "function") restoreFromSupabase(false, true);
-        
-    } else {
-      const importInput = $("#importDataInput");
-      if (importInput) importInput.click();
-    }
-  });
+      } else {
+        const importInput = $("#importDataInput");
+        if (importInput) importInput.click();
+      }
+    };
+  }
 }
 
 
