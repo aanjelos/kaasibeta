@@ -338,9 +338,10 @@ Implemented a comprehensive category budget tracking feature with the following 
 - **Mobile Ordering**: Stripped out invalid CSS fractional orders and applied strict integer sorting to ensure the Category Budgets card correctly renders immediately after the Balance Overview on mobile, preventing it from incorrectly jumping to the top of the feed.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v111` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.222l`.
 
-### 71. [UI/UX] Category Budgets Refinements & Spacing Polish (v5.223l)
+### 71. [UI/UX] Category Budgets Refinements, Spacing & Monthly Tip (v5.224l)
 - **Consistent Spacing**: Standardized dashboard grid gap and column spacing (24px) for perfect layout symmetry across desktop and mobile.
 - **Collapsible Budgets Divider**: Dynamically hide the header divider border and bottom padding/margins when the Category Budgets card is collapsed, preventing empty space artifacts.
 - **Taller Category Selector**: Increased the height of the category selection boxes to 240px (`max-h-60`) inside both the budget setup and editing forms to fit more items and reduce scrolling.
 - **Category Locking / Deduplication**: Dynamically lock and grey out categories already assigned to other budget groups (with a "Used" badge) to prevent double assignments.
-- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v112` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.223l`.
+- **Dismissible Monthly Tip**: Added a smart monthly budget banner reminder that automatically shows at the start of each month (during the first 3 days) inside the Category Budgets card. Clicking dismiss stores the month's identifier, preventing the prompt from reappearing until the next calendar month.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v113` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.224l`.

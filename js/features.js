@@ -3935,11 +3935,51 @@ function renderCategoryBudgets() {
     }
   }
 
+  const now = new Date();
+  const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+  // Monthly tip banner logic
+  const tipContainer = $("#categoryBudgetsTipContainer");
+  if (tipContainer) {
+    const isFirst3Days = now.getDate() <= 3;
+    const lastDismissed = state.settings.lastDismissedBudgetTipMonth;
+    const isDismissedForThisMonth = lastDismissed === currentMonthStr;
+
+    if (isFirst3Days && !isCollapsed && !isDismissedForThisMonth) {
+      tipContainer.classList.remove("hidden");
+      tipContainer.innerHTML = `
+        <div class="flex items-start justify-between bg-accent-500/10 border border-accent-500/30 rounded-lg p-3 text-xs text-gray-300 relative">
+          <div class="flex gap-2">
+            <i class="fas fa-lightbulb text-accent-500 mt-0.5"></i>
+            <div>
+              <span class="font-semibold text-accent-400 text-[11px] block mb-0.5">Monthly Budget Check</span>
+              It's the start of the month. Do you need to adjust or update your budget limits in Settings?
+            </div>
+          </div>
+          <button id="dismissBudgetTipBtn" class="text-gray-400 hover:text-white ml-2 focus:outline-none" data-tooltip="Dismiss">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      `;
+      const dismissBtn = $("#dismissBudgetTipBtn");
+      if (dismissBtn) {
+        dismissBtn.addEventListener("click", () => {
+          state.settings.lastDismissedBudgetTipMonth = currentMonthStr;
+          saveData();
+          tipContainer.classList.add("hidden");
+        });
+      }
+    } else {
+      tipContainer.classList.add("hidden");
+    }
+  }
+
   // Set up event listener if not already done
   if (toggleBtn && !toggleBtn.dataset.listenerAttached) {
     toggleBtn.addEventListener("click", () => {
       const currentlyCollapsed = container.classList.contains("hidden");
       const header = card.querySelector(".flex.justify-between.items-center");
+      const tip = $("#categoryBudgetsTipContainer");
       if (currentlyCollapsed) {
         container.classList.remove("hidden");
         toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
@@ -3947,6 +3987,12 @@ function renderCategoryBudgets() {
         if (header) {
           header.classList.remove("mb-0");
           header.classList.add("border-b", "border-gray-600", "pb-2", "mb-4");
+        }
+        // Show tip if applicable
+        const isFirst3Days = now.getDate() <= 3;
+        const lastDismissed = state.settings.lastDismissedBudgetTipMonth;
+        if (isFirst3Days && lastDismissed !== currentMonthStr) {
+          if (tip) tip.classList.remove("hidden");
         }
       } else {
         container.classList.add("hidden");
@@ -3956,6 +4002,7 @@ function renderCategoryBudgets() {
           header.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
           header.classList.add("mb-0");
         }
+        if (tip) tip.classList.add("hidden");
       }
       saveData();
     });
@@ -3963,9 +4010,6 @@ function renderCategoryBudgets() {
   }
 
   container.innerHTML = "";
-
-  const now = new Date();
-  const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
   state.budgets.forEach(budget => {
     let spent = 0;

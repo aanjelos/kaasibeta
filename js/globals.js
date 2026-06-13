@@ -187,7 +187,8 @@ function getDefaultState() {
           excludeFromYearlyTotals: true,
           dimInTransactionLists: true
         },
-        collapseCategoryBudgets: false
+        collapseCategoryBudgets: false,
+        lastDismissedBudgetTipMonth: ""
       },
     })
   );
