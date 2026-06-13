@@ -4043,7 +4043,7 @@ function renderCategoryBudgets() {
     }
   });
 
-  state.budgets.forEach(budget => {
+  state.budgets.forEach((budget, index) => {
     let spent = 0;
     
     // Sum transactions for the current calendar month that fall under the budget's categories
@@ -4070,7 +4070,7 @@ function renderCategoryBudgets() {
     const tooltipText = `Spent: ${formatCurrency(spent)} / Limit: ${formatCurrency(budget.limit)}`;
 
     // Check if there is already an element for this budget ID
-    let budgetItem = container.querySelector(`[data-budget-id="${budget.id}"]`);
+    let budgetItem = Array.from(container.children).find(child => child.dataset.budgetId === budget.id);
     const isNew = !budgetItem;
     
     if (isNew) {
@@ -4116,6 +4116,9 @@ function renderCategoryBudgets() {
       }
     }
 
-    container.appendChild(budgetItem);
+    // Only touch the DOM tree order if it's not already in the correct position
+    if (container.children[index] !== budgetItem) {
+      container.insertBefore(budgetItem, container.children[index] || null);
+    }
   });
 }
