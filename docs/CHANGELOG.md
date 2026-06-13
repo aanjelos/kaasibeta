@@ -367,4 +367,10 @@ Implemented a comprehensive category budget tracking feature with the following 
 - **Global Tooltip Unification**: Performed a full codebase sweep to eliminate all remaining native browser `title` tooltips. Converted over 20+ hardcoded `title` attributes (across transactions, settings toggles, custom date range inputs, and dashboard components) to the new `data-tooltip` unified system for a 100% consistent, premium UI experience.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v126` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.237l`.
 
-
+### 75. [Bugfixes] Stability & UX Edge-Case Polish (v5.238l)
+- **Persistent UI States**: Migrated the monthly budget tip dismissal state (`lastDismissedBudgetTipMonth`) to `localStorage`. This prevents the cloud sync icon from flashing when simply dismissing UI notifications.
+- **Duplicate Notifications**: Fixed an issue causing duplicate "Export to Cloud" toast notifications on mobile by replacing `.addEventListener` with direct `.onclick` assignment for mobile dropdown actions, avoiding stacked listeners on UI refreshes.
+- **Budget Divider Animation**: Improved the category budget collapse/expand logic to verify the intended state inside the `transitionend` listener. This prevents the budget divider from disappearing when spam-clicking the toggle button.
+- **False Missing Elements Warning**: Corrected a logical bug in the initialization script where a UI refresh skipped attaching donate modal event listeners, but erroneously triggered an "elements not found" console warning.
+- **Preserved Search State**: Ensured that editing or deleting a transaction while actively searching the "All Transactions" list preserves the current search term, rather than resetting to show all transactions.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v127` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.238l`.
