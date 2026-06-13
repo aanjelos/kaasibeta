@@ -3985,15 +3985,17 @@ function renderCategoryBudgets() {
 
       if (currentlyCollapsed) {
         // Expand
+        if (header) {
+          header.classList.remove("mb-0");
+          header.classList.add("border-b", "border-gray-600", "pb-2", "mb-4");
+        }
+
         container.style.maxHeight = "0px";
         container.offsetHeight; // force reflow
         container.style.maxHeight = container.scrollHeight + "px";
         toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
         state.settings.collapseCategoryBudgets = false;
-        if (header) {
-          header.classList.remove("mb-0");
-          header.classList.add("border-b", "border-gray-600", "pb-2", "mb-4");
-        }
+        
         // Show tip if applicable
         const isFirst3Days = now.getDate() <= 3;
         const lastDismissed = state.settings.lastDismissedBudgetTipMonth;
@@ -4014,13 +4016,13 @@ function renderCategoryBudgets() {
         container.style.maxHeight = "0px";
         toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
         state.settings.collapseCategoryBudgets = true;
-        if (header) {
-          header.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
-          header.classList.add("mb-0");
-        }
-        if (tip) tip.classList.add("hidden");
 
         const onTransitionEnd = () => {
+          if (header) {
+            header.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
+            header.classList.add("mb-0");
+          }
+          if (tip) tip.classList.add("hidden");
           container.classList.remove("collapsible-transition");
           container.removeEventListener("transitionend", onTransitionEnd);
         };
