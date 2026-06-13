@@ -3917,27 +3917,45 @@ function renderCategoryBudgets() {
   
   // Handle Collapsed State
   const toggleBtn = $("#toggleBudgetsCardBtn");
+  const headerEl = card.querySelector(".flex.justify-between.items-center");
   const isCollapsed = state.settings && state.settings.collapseCategoryBudgets;
   if (isCollapsed) {
     container.classList.add("hidden");
     if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
+    if (headerEl) {
+      headerEl.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
+      headerEl.classList.add("mb-0");
+    }
   } else {
     container.classList.remove("hidden");
     if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
+    if (headerEl) {
+      headerEl.classList.remove("mb-0");
+      headerEl.classList.add("border-b", "border-gray-600", "pb-2", "mb-4");
+    }
   }
 
   // Set up event listener if not already done
   if (toggleBtn && !toggleBtn.dataset.listenerAttached) {
     toggleBtn.addEventListener("click", () => {
       const currentlyCollapsed = container.classList.contains("hidden");
+      const header = card.querySelector(".flex.justify-between.items-center");
       if (currentlyCollapsed) {
         container.classList.remove("hidden");
         toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
         state.settings.collapseCategoryBudgets = false;
+        if (header) {
+          header.classList.remove("mb-0");
+          header.classList.add("border-b", "border-gray-600", "pb-2", "mb-4");
+        }
       } else {
         container.classList.add("hidden");
         toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
         state.settings.collapseCategoryBudgets = true;
+        if (header) {
+          header.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
+          header.classList.add("mb-0");
+        }
       }
       saveData();
     });

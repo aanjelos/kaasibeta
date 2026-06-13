@@ -932,7 +932,7 @@ function switchSettingsTab(clickedButton, targetPanelId) {
 
 // --- CATEGORY BUDGETS SETTINGS LOGIC ---
 
-function buildBudgetCategoryCheckboxes(containerId, selectedCategories = []) {
+function buildBudgetCategoryCheckboxes(containerId, selectedCategories = [], currentBudgetId = null) {
   const container = $(`#${containerId}`);
   if (!container) return;
   container.innerHTML = "";
@@ -948,16 +948,36 @@ function buildBudgetCategoryCheckboxes(containerId, selectedCategories = []) {
     return;
   }
 
+  // Find categories used by other budget groups
+  const usedCategories = new Set();
+  if (state.budgets) {
+    state.budgets.forEach(b => {
+      if (b.id !== currentBudgetId) {
+        if (Array.isArray(b.categories)) {
+          b.categories.forEach(cat => usedCategories.add(cat));
+        }
+      }
+    });
+  }
+
   generalCategories.forEach((cat) => {
-    const label = document.createElement("label");
-    label.className = "flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 cursor-pointer rounded text-sm text-gray-300 transition-colors";
+    const isUsed = usedCategories.has(cat);
     const isChecked = selectedCategories.includes(cat);
+    const label = document.createElement("label");
+    
+    if (isUsed) {
+      label.className = "flex items-center gap-2 px-2 py-1.5 opacity-40 cursor-not-allowed rounded text-sm text-gray-500 transition-colors select-none";
+    } else {
+      label.className = "flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 cursor-pointer rounded text-sm text-gray-300 transition-colors";
+    }
+    
     label.innerHTML = `
-      <input type="checkbox" value="${cat}" class="budget-category-checkbox peer sr-only" ${isChecked ? "checked" : ""}>
-      <div class="w-4 h-4 rounded border border-gray-500 peer-checked:border-accent-500 flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500">
+      <input type="checkbox" value="${cat}" class="budget-category-checkbox peer sr-only" ${isChecked ? "checked" : ""} ${isUsed ? "disabled" : ""}>
+      <div class="w-4 h-4 rounded border ${isUsed ? "border-gray-700 bg-gray-800" : "border-gray-500 peer-checked:border-accent-500"} flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500">
         <svg class="w-3 h-3 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
       </div>
-      <span class="truncate">${cat}</span>
+      <span class="truncate flex-grow">${cat}</span>
+      ${isUsed ? `<span class="text-[10px] bg-gray-850 text-gray-400 px-1.5 py-0.5 rounded uppercase font-semibold tracking-wider">Used</span>` : ""}
     `;
     container.appendChild(label);
   });
@@ -1092,7 +1112,7 @@ function openEditBudgetModal(budgetId) {
   $("#editBudgetName").value = budget.name;
   $("#editBudgetLimit").value = budget.limit;
   
-  buildBudgetCategoryCheckboxes("editBudgetCategoriesContainer", budget.categories);
+  buildBudgetCategoryCheckboxes("editBudgetCategoriesContainer", budget.categories, budget.id);
   
   openModalHelper("editBudgetModal");
 }
