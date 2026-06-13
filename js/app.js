@@ -121,45 +121,47 @@ function initializeUI(isRefresh = false) {
   const footerDonateBtn = document.getElementById("footerDonateBtn");
   const closeDonateModalBtn = document.getElementById("closeDonateModal");
 
-  if (!isRefresh && donateModal && footerDonateBtn && closeDonateModalBtn) {
-    footerDonateBtn.addEventListener("click", () => {
-      openModalHelper("donateModal");
-    });
-    closeDonateModalBtn.addEventListener("click", () => {
-      donateModal.style.display = "none";
-    });
-    // Close modal if user clicks on the background overlay
-    donateModal.addEventListener("click", (e) => {
-      if (e.target === donateModal) {
-        donateModal.style.display = "none";
-      }
-    });
-
-    // Handle copy to clipboard functionality for the new modal
-    const copyButtons = donateModal.querySelectorAll(".copy-button");
-    copyButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const textToCopy = button.dataset.copyText;
-        const textArea = document.createElement("textarea");
-        textArea.value = textToCopy;
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-          document.execCommand("copy");
-          button.textContent = "Copied!";
-          setTimeout(() => {
-            button.innerHTML = '<i class="far fa-copy"></i>'; // Revert back to icon
-          }, 2000);
-        } catch (err) {
-          console.error("Failed to copy text: ", err);
-          button.textContent = "Failed!";
-          setTimeout(() => {
-            button.innerHTML = '<i class="far fa-copy"></i>';
-          }, 2000);
-        }
-        document.body.removeChild(textArea);
+  if (donateModal && footerDonateBtn && closeDonateModalBtn) {
+    if (!isRefresh) {
+      footerDonateBtn.addEventListener("click", () => {
+        openModalHelper("donateModal");
       });
-    });
+      closeDonateModalBtn.addEventListener("click", () => {
+        donateModal.style.display = "none";
+      });
+      // Close modal if user clicks on the background overlay
+      donateModal.addEventListener("click", (e) => {
+        if (e.target === donateModal) {
+          donateModal.style.display = "none";
+        }
+      });
+
+      // Handle copy to clipboard functionality for the new modal
+      const copyButtons = donateModal.querySelectorAll(".copy-button");
+      copyButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const textToCopy = button.dataset.copyText;
+          const textArea = document.createElement("textarea");
+          textArea.value = textToCopy;
+          document.body.appendChild(textArea);
+          textArea.select();
+          try {
+            document.execCommand("copy");
+            button.textContent = "Copied!";
+            setTimeout(() => {
+              button.innerHTML = '<i class="far fa-copy"></i>'; // Revert back to icon
+            }, 2000);
+          } catch (err) {
+            console.error("Failed to copy text: ", err);
+            button.textContent = "Failed!";
+            setTimeout(() => {
+              button.innerHTML = '<i class="far fa-copy"></i>';
+            }, 2000);
+          }
+          document.body.removeChild(textArea);
+        });
+      });
+    }
   } else {
     console.warn(
       "One or more elements for the new donate modal were not found."
