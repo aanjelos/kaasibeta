@@ -4033,7 +4033,15 @@ function renderCategoryBudgets() {
     toggleBtn.dataset.listenerAttached = "true";
   }
 
-  container.innerHTML = "";
+  const activeBudgetIds = new Set(state.budgets.map(b => b.id));
+  
+  // Remove deleted budgets from DOM
+  Array.from(container.children).forEach(child => {
+    const budgetId = child.dataset.budgetId;
+    if (budgetId && !activeBudgetIds.has(budgetId)) {
+      child.remove();
+    }
+  });
 
   state.budgets.forEach(budget => {
     let spent = 0;
@@ -4050,31 +4058,64 @@ function renderCategoryBudgets() {
     const percent = budget.limit > 0 ? (spent / budget.limit) * 100 : 0;
     const isOver = spent > budget.limit;
     
-    let colorClass = "bg-[#27AE60]"; // Emerald Green (<=70%)
+    let colorClass = "bg-[#27AE60]"; // Emerald Green
     if (percent > 100) {
-      colorClass = "bg-[#E74C3C]"; // Crimson Red (>100%)
+      colorClass = "bg-[#E74C3C]"; // Crimson Red
     } else if (percent > 70) {
-      colorClass = "bg-orange-500"; // Amber/Orange (>70% and <=100%)
+      colorClass = "bg-orange-500"; // Amber/Orange
     }
 
     const remaining = budget.limit - spent;
     let statusText = isOver ? `${formatCurrency(Math.abs(remaining))} over limit` : `${formatCurrency(remaining)} left`;
-
-    const budgetItem = document.createElement("div");
-    budgetItem.className = "group relative";
-    
-    // Hover details tooltip data
     const tooltipText = `Spent: ${formatCurrency(spent)} / Limit: ${formatCurrency(budget.limit)}`;
+
+    // Check if there is already an element for this budget ID
+    let budgetItem = container.querySelector(`[data-budget-id="${budget.id}"]`);
+    const isNew = !budgetItem;
     
-    budgetItem.innerHTML = `
-      <div class="flex justify-between items-end mb-2">
-        <span class="text-sm font-medium text-gray-200 truncate pr-2" title="${budget.categories.join(', ')}">${budget.name}</span>
-        <span class="text-xs font-semibold ${isOver ? 'text-[#E74C3C]' : 'text-gray-400'} whitespace-nowrap" data-tooltip="${tooltipText}">${statusText} (${percent.toFixed(1)}%)</span>
-      </div>
-      <div class="w-full bg-gray-700 rounded-full h-1.5 overflow-hidden">
-        <div class="${colorClass} h-1.5 rounded-full transition-all duration-500 ease-out" style="width: ${Math.min(percent, 100)}%"></div>
-      </div>
-    `;
+    if (isNew) {
+      budgetItem = document.createElement("div");
+      budgetItem.className = "group relative";
+      budgetItem.dataset.budgetId = budget.id;
+      budgetItem.innerHTML = `
+        <div class="flex justify-between items-end mb-2">
+          <span class="text-sm font-medium text-gray-200 truncate pr-2 budget-title"></span>
+          <span class="text-xs font-semibold budget-status whitespace-nowrap"></span>
+        </div>
+        <div class="w-full bg-gray-700 rounded-full h-1.5 overflow-hidden">
+          <div class="budget-progress h-1.5 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+        </div>
+      `;
+    }
+
+    const progressEl = budgetItem.querySelector(".budget-progress");
+    const statusEl = budgetItem.querySelector(".budget-status");
+    const titleEl = budgetItem.querySelector(".budget-title");
+
+    if (statusEl) {
+      statusEl.className = `text-xs font-semibold budget-status whitespace-nowrap ${isOver ? 'text-[#E74C3C]' : 'text-gray-400'}`;
+      statusEl.dataset.tooltip = tooltipText;
+      statusEl.textContent = `${statusText} (${percent.toFixed(1)}%)`;
+    }
+
+    if (titleEl) {
+      titleEl.textContent = budget.name;
+      titleEl.title = budget.categories.join(', ');
+    }
+
+    if (progressEl) {
+      progressEl.classList.remove("bg-[#27AE60]", "bg-[#E74C3C]", "bg-orange-500");
+      progressEl.classList.add(colorClass);
+
+      if (isNew) {
+        setTimeout(() => {
+          progressEl.style.width = `${Math.min(percent, 100)}%`;
+        }, 50);
+      } else {
+        progressEl.style.width = `${Math.min(percent, 100)}%`;
+      }
+    }
+
     container.appendChild(budgetItem);
   });
 }
