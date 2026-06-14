@@ -599,6 +599,17 @@ function handleSetupImport(event) {
 
 const STORAGE_KEY = "KaasiData";
 
+function generateDataHash(str) {
+  if (!str) return null;
+  let hash = 0;
+  for (let i = 0, len = str.length; i < len; i++) {
+    let chr = str.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash.toString();
+}
+
 function saveData() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -609,8 +620,17 @@ function saveData() {
     const lastLocalCloudSync = parseInt(localStorage.getItem("lastLocalCloudSync") || "0", 10);
     const lastLocalDataModification = Date.now();
     if (lastLocalDataModification > lastLocalCloudSync + 2000) {
-      if (window.currentCloudSyncStatus === "synced") {
-         window.currentCloudSyncStatus = "local_newer";
+      const currentDataStr = localStorage.getItem(STORAGE_KEY);
+      const currentHash = generateDataHash(currentDataStr);
+      const syncedHash = localStorage.getItem("kaasi_synced_state_hash");
+
+      if (currentHash && syncedHash && currentHash === syncedHash) {
+        // Data is identical to what was last synced!
+        if (window.currentCloudSyncStatus === "local_newer") {
+          window.currentCloudSyncStatus = "synced";
+        }
+      } else {
+        window.currentCloudSyncStatus = "local_newer";
       }
     }
     if (typeof updateHeaderShortcutButtons === "function") {

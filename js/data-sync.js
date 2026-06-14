@@ -424,7 +424,15 @@ async function fetchAndUpdateLastCloudSyncTime() {
       if (data.updated_at !== lastSyncedCloudUpdatedAt && lastSyncedCloudUpdatedAt) {
         window.currentCloudSyncStatus = "cloud_newer";
       } else if (lastLocalDataModification > lastLocalCloudSync + 2000) {
-        window.currentCloudSyncStatus = "local_newer";
+        const currentDataStr = localStorage.getItem("KaasiData");
+        const currentHash = typeof generateDataHash === "function" ? generateDataHash(currentDataStr) : null;
+        const syncedHash = localStorage.getItem("kaasi_synced_state_hash");
+        
+        if (currentHash && syncedHash && currentHash === syncedHash) {
+          window.currentCloudSyncStatus = "synced";
+        } else {
+          window.currentCloudSyncStatus = "local_newer";
+        }
       }
       // --- END NEW ---
       
@@ -544,6 +552,10 @@ async function backupToSupabase() {
     const now = Date.now().toString();
     localStorage.setItem("lastLocalCloudSync", now);
     localStorage.setItem("lastLocalDataModification", now);
+    const currentDataStr = localStorage.getItem("KaasiData");
+    if (currentDataStr && typeof generateDataHash === "function") {
+      localStorage.setItem("kaasi_synced_state_hash", generateDataHash(currentDataStr));
+    }
     // --- END NEW ---
     
     showNotification(
@@ -648,6 +660,10 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
         const now = Date.now().toString();
         localStorage.setItem("lastLocalCloudSync", now);
         localStorage.setItem("lastLocalDataModification", now);
+        const currentDataStr = localStorage.getItem("KaasiData");
+        if (currentDataStr && typeof generateDataHash === "function") {
+          localStorage.setItem("kaasi_synced_state_hash", generateDataHash(currentDataStr));
+        }
         // --- END NEW ---
 
         const backupTime = new Date(data.updated_at).toLocaleString();

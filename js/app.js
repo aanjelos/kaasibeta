@@ -1036,6 +1036,27 @@ function initializeGlobalTooltips() {
     }
   });
 
+  // Mobile tap-to-tooltip support
+  document.addEventListener("click", (e) => {
+    if (!window.matchMedia("(hover: hover)").matches) {
+      const target = e.target.closest("[data-tooltip]");
+      if (target) {
+        if (activeTarget !== target) {
+          activeTarget = target;
+          updateTooltipPosition();
+          
+          // Auto-hide after 2.5 seconds
+          setTimeout(() => {
+            if (activeTarget === target) hideTooltip();
+          }, 2500);
+        }
+      } else if (activeTarget) {
+        // Tap outside dismisses immediately
+        hideTooltip();
+      }
+    }
+  });
+
   // Keep positioned during window scrolling or resizing
   window.addEventListener("scroll", () => {
     if (activeTarget) {
