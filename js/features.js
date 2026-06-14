@@ -1222,7 +1222,7 @@ function renderMonthlyDetails(
   }
 
   let existingChartCard = null;
-  if (isUpdate && monthlyPieChartInstance) {
+  if (monthlyPieChartInstance) {
     const canvas = document.getElementById("monthlyDetailPieChartCanvas");
     if (canvas) {
       existingChartCard = canvas.closest('.p-4.rounded-lg');
