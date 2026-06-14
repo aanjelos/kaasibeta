@@ -1877,41 +1877,43 @@ function openCcHistoryModal() {
 
     filteredTransactions.forEach((t, index) => {
       const itemDiv = document.createElement("div");
-      itemDiv.className = `cc-history-transaction-item stagger-item ${t.paidOff ? "opacity-60" : ""}`;
+      // Use All Transactions classes exactly to match styling
+      itemDiv.className = `transaction-list-item-layout monthly-view-transaction-item stagger-item flex-col items-stretch cursor-pointer border-b border-gray-600/50 hover:bg-[rgba(var(--accent-primary-rgb),0.06)] transition-colors relative cc-history-row`;
       itemDiv.style.animationDelay = `${index * 0.03}s`;
+      if (t.paidOff) itemDiv.style.opacity = "0.6";
       
       const remainingOnItem = t.amount - (t.paidAmount || 0);
-
-      // Header part
-      const headerDiv = document.createElement("div");
-      headerDiv.className = "cc-history-item-header";
       
       const dateObj = new Date(t.date);
       const formattedDate = dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
       
-      let badgeHtml = "";
+      let statusText = "";
       if (t.paidOff || remainingOnItem <= 0.005) {
-        badgeHtml = `<span class="status-badge badge-paid">Settled</span>`;
+        statusText = `<span class="text-income font-medium">Settled</span>`;
       } else if (t.paidAmount > 0) {
-        badgeHtml = `<span class="status-badge badge-partial">Paid ${formatCurrency(t.paidAmount)}</span>`;
+        statusText = `<span class="text-orange-400 font-medium">Paid ${formatCurrency(t.paidAmount)}</span>`;
       } else {
-        badgeHtml = `<span class="status-badge badge-unpaid">${formatCurrency(remainingOnItem)} Left</span>`;
+        statusText = `<span class="text-expense font-medium">${formatCurrency(remainingOnItem)} Left</span>`;
       }
 
-      headerDiv.innerHTML = `
-        <div class="cc-history-item-details">
+      // The main row
+      const mainRow = document.createElement("div");
+      mainRow.className = "flex justify-between items-center gap-x-2 w-full";
+      mainRow.innerHTML = `
+        <div class="flex-grow min-w-0 mr-2 text-left">
             <p class="font-medium truncate ${t.paidOff ? "text-gray-500" : "text-gray-200"}" data-tooltip="${t.description}">${t.description}</p>
-            <p class="text-xs text-gray-400 mt-0.5">${formattedDate}</p>
+            <p class="text-xs text-gray-400 mt-0.5 truncate">${formattedDate} <span class="mx-1">•</span> ${statusText}</p>
         </div>
-        <div class="flex flex-col items-end flex-shrink-0 gap-1">
+        <div class="flex items-center justify-end flex-shrink-0 text-right">
             <span class="font-semibold text-sm tabular-nums ${t.paidOff ? "text-gray-500" : (remainingOnItem <= 0.005 ? "text-income" : "text-expense")}">${formatCurrency(t.amount)}</span>
-            ${badgeHtml}
         </div>
       `;
 
-      // Expandable Drawer
+      // Expandable Drawer (inline styles)
       const drawerDiv = document.createElement("div");
-      drawerDiv.className = "cc-history-item-actions-drawer";
+      drawerDiv.className = "overflow-hidden transition-all duration-300 flex justify-end";
+      drawerDiv.style.maxHeight = "0px";
+      drawerDiv.style.opacity = "0";
       
       let payButtonHtml = "";
       if (!t.paidOff && remainingOnItem > 0.005) {
@@ -1919,20 +1921,34 @@ function openCcHistoryModal() {
       }
       
       drawerDiv.innerHTML = `
-        ${payButtonHtml}
-        <button class="btn btn-sm btn-secondary flex-1" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
-        <button class="btn btn-sm btn-secondary flex-1 hover:!text-expense hover:!border-expense" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
+        <div class="flex w-full sm:w-auto gap-2 mt-3 pt-3 border-t border-gray-600/30 flex-1">
+          ${payButtonHtml}
+          <button class="btn btn-sm btn-secondary flex-1" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
+          <button class="btn btn-sm btn-secondary flex-1 hover:!text-expense hover:!border-expense" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
+        </div>
       `;
 
-      itemDiv.appendChild(headerDiv);
+      itemDiv.appendChild(mainRow);
       itemDiv.appendChild(drawerDiv);
 
       // Toggle drawer on click
       itemDiv.onclick = () => {
-        $$(".cc-history-transaction-item.expanded").forEach(el => {
-          if (el !== itemDiv) el.classList.remove("expanded");
+        // Close others
+        $$(".cc-history-row .overflow-hidden").forEach(drawer => {
+          if (drawer !== drawerDiv) {
+            drawer.style.maxHeight = "0px";
+            drawer.style.opacity = "0";
+          }
         });
-        itemDiv.classList.toggle("expanded");
+        
+        // Toggle current
+        if (drawerDiv.style.maxHeight === "0px") {
+          drawerDiv.style.maxHeight = drawerDiv.scrollHeight + "px";
+          drawerDiv.style.opacity = "1";
+        } else {
+          drawerDiv.style.maxHeight = "0px";
+          drawerDiv.style.opacity = "0";
+        }
       };
 
       listContainer.appendChild(itemDiv);
