@@ -35,11 +35,6 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Concept**: Comprehensive overhaul of the Credit Card interface and functionality.
 - **Implementation Idea**: Redesign the visual layout for credit card cards, refine how partial payments/transactions are nested and displayed, and improve the overall flow.
 
-### 2. Mobile App Refinements
-- **Concept**: Ongoing focus on enhancing the mobile application experience.
-- **Implementation Idea**: Continue polishing spacing, tap targets, safe-areas, and interactive components to ensure Kaasi feels like a premium, native mobile app.
-
----
 
 ## 🛠️ Technical Debt & Code Organization
 

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.539m" />
+    <meta name="application-version" content="v5.540m" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -1702,77 +1702,50 @@
           <h2 class="text-2xl font-semibold mb-4 pr-8">
             Credit Card History & Payments
           </h2>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 text-sm">
-            <div class="bg-gray-700 p-3 rounded">
-              <p class="text-gray-400">Limit:</p>
-              <p id="ccHistoryLimit" class="font-semibold">LKR 0.00</p>
+          
+          <!-- Summary Cards -->
+          <div class="monthly-view-summary-grid grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div class="monthly-view-summary-card">
+              <p class="text-sm text-gray-400 mb-1">Limit</p>
+              <p id="ccHistoryLimit" class="text-xl font-semibold tabular-nums">LKR 0.00</p>
             </div>
-            <div class="bg-gray-700 p-3 rounded">
-              <p class="text-gray-400">Spent (Unpaid):</p>
-              <p id="ccHistorySpentUnpaid" class="font-semibold text-expense">
-                LKR 0.00
-              </p>
+            <div class="monthly-view-summary-card">
+              <p class="text-sm text-gray-400 mb-1">Spent (Unpaid)</p>
+              <p id="ccHistorySpentUnpaid" class="text-xl font-semibold text-expense tabular-nums">LKR 0.00</p>
             </div>
-            <div class="bg-gray-700 p-3 rounded">
-              <p class="text-gray-400">Available:</p>
-              <p id="ccHistoryAvailable" class="font-semibold accent-text">
-                LKR 0.00
-              </p>
+            <div class="monthly-view-summary-card">
+              <p class="text-sm text-gray-400 mb-1">Available</p>
+              <p id="ccHistoryAvailable" class="text-xl font-semibold accent-text tabular-nums">LKR 0.00</p>
             </div>
           </div>
-          <!-- NEW: Control Bar -->
-          <div
-            class="flex flex-col sm:flex-row justify-between items-center mb-4 border-b border-gray-600 pb-3 gap-3"
-          >
-            <div class="flex items-center gap-x-2">
-              <label
-                for="ccYearSelector"
-                class="text-sm font-medium flex-shrink-0"
-                >Year:</label
-              >
-              <select
-                id="ccYearSelector"
-                class="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm"
-              ></select>
+
+          <!-- Navigation (Year & Month Tabs) -->
+          <div class="flex flex-col sm:flex-row justify-between items-center mb-4 border-b border-gray-600 pb-2 gap-2">
+            <div class="flex items-center gap-x-2 w-full sm:w-auto">
+              <div class="flex-shrink-0">
+                <select id="ccYearSelector" class="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm"></select>
+              </div>
             </div>
-            <div id="ccHistoryFilterControls" class="grid grid-cols-3 gap-2">
-              <button data-filter="all" class="btn btn-sm btn-secondary">
-                All
-              </button>
-              <button
-                data-filter="unpaid"
-                class="btn btn-sm btn-secondary active"
-              >
-                Unpaid
-              </button>
-              <button data-filter="paid" class="btn btn-sm btn-secondary">
-                Paid
+            <div id="ccMonthTabs" class="flex overflow-x-auto whitespace-nowrap gap-x-2 hide-scrollbar edge-fade py-1 px-4 max-w-full"></div>
+          </div>
+
+          <!-- Search & Filters -->
+          <div class="my-4 flex flex-col sm:flex-row items-center gap-2">
+            <div class="flex-grow w-full flex items-center gap-x-2">
+              <input type="search" id="ccHistorySearchInput" name="ccHistorySearch" placeholder="Search description or amount..." class="flex-grow" />
+              <button id="clearCcHistorySearchBtn" class="btn-icon-clear-search hidden flex-shrink-0" aria-label="Clear search" data-tooltip="Clear Search">
+                <i class="fas fa-times"></i>
               </button>
             </div>
+            <div id="ccHistoryFilterControls" class="flex w-full sm:w-auto gap-2 flex-shrink-0">
+              <button data-filter="all" class="btn btn-sm btn-secondary flex-1 sm:flex-none">All</button>
+              <button data-filter="unpaid" class="btn btn-sm btn-secondary active flex-1 sm:flex-none">Unpaid</button>
+              <button data-filter="paid" class="btn btn-sm btn-secondary flex-1 sm:flex-none">Paid</button>
+            </div>
           </div>
-          <!-- NEW: Search Bar -->
-          <div class="my-4 flex items-center gap-x-2">
-            <input
-              type="search"
-              id="ccHistorySearchInput"
-              name="ccHistorySearch"
-              placeholder="Search by description or amount..."
-              class="flex-grow"
-            />
-            <button
-              id="clearCcHistorySearchBtn"
-              class="btn-icon-clear-search hidden flex-shrink-0"
-              aria-label="Clear search"
-              data-tooltip="Clear Search"
-            >
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-          <!-- NEW: Container for grouped list -->
-          <div
-            id="ccHistoryListContainer"
-            class="mt-4 max-h-[50vh] overflow-y-auto pr-2"
-          ></div>
+
+          <!-- Flat List Container -->
+          <div id="ccHistoryListContainer" class="mt-4 max-h-[60vh] overflow-y-auto pr-2 space-y-3"></div>
         </div>
       </div>
 

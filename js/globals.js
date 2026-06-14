@@ -115,6 +115,8 @@ let dashboardChartState = "yearly";
 // Removed monthlyViewSearchScope as we use advanced filters now
 let supabaseUser = null;
 let ccHistoryFilter = "unpaid";
+let ccSelectedMonth = new Date().getMonth();
+let ccSelectedYear = new Date().getFullYear();
 let ccHistorySearchDebounceTimer;
 let ccHistoryOpenMonthKeys = new Set();
 

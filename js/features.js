@@ -1751,6 +1751,7 @@ function openCcHistoryModal() {
 
   const currentYear = new Date().getFullYear();
   const yearSelector = $("#ccYearSelector");
+  const monthTabsContainer = $("#ccMonthTabs");
   const listContainer = $("#ccHistoryListContainer");
   const searchInput = $("#ccHistorySearchInput");
   const clearSearchBtn = $("#clearCcHistorySearchBtn");
@@ -1759,13 +1760,17 @@ function openCcHistoryModal() {
   ccHistoryFilter = "unpaid"; // Default filter
   if (searchInput) searchInput.value = "";
   if (clearSearchBtn) clearSearchBtn.classList.add("hidden");
-  ccHistoryOpenMonthKeys.clear();
+
+  // Determine active year and month based on state or current time
+  ccSelectedYear = ccSelectedYear || currentYear;
+  ccSelectedMonth = ccSelectedMonth !== undefined ? ccSelectedMonth : new Date().getMonth();
 
   // --- Populate Year Selector ---
   const years = new Set(
-    (state.creditCard.transactions || []).map((t) =>
-      new Date(t.date).getFullYear()
-    )
+    (state.creditCard.transactions || []).map((t) => {
+      const d = new Date(t.date);
+      return isNaN(d.getFullYear()) ? currentYear : d.getFullYear();
+    })
   );
   years.add(currentYear);
   yearSelector.innerHTML = "";
@@ -1775,24 +1780,62 @@ function openCcHistoryModal() {
       const option = document.createElement("option");
       option.value = year;
       option.textContent = year;
-      if (year === currentYear) option.selected = true;
+      if (year === ccSelectedYear) option.selected = true;
       yearSelector.appendChild(option);
     });
 
+  // --- Populate Month Tabs ---
+  const renderMonthTabs = () => {
+    monthTabsContainer.innerHTML = "";
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    months.forEach((monthStr, index) => {
+      const btn = document.createElement("button");
+      btn.className = `tab-button ${index === ccSelectedMonth ? "active" : ""}`;
+      btn.textContent = monthStr;
+      btn.onclick = () => {
+        ccSelectedMonth = index;
+        renderFilteredCcList();
+      };
+      monthTabsContainer.appendChild(btn);
+    });
+    // Add sliding active indicator
+    const activeIndicator = document.createElement('div');
+    activeIndicator.className = 'tab-active-indicator bg-theme';
+    monthTabsContainer.appendChild(activeIndicator);
+
+    // Ensure the indicator is placed correctly
+    setTimeout(() => {
+      const activeBtn = monthTabsContainer.querySelector('.tab-button.active');
+      if (activeBtn) {
+        activeIndicator.style.width = `${activeBtn.offsetWidth}px`;
+        activeIndicator.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
+        // Scroll active tab into view
+        const scrollLeft = activeBtn.offsetLeft - (monthTabsContainer.offsetWidth / 2) + (activeBtn.offsetWidth / 2);
+        monthTabsContainer.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+      }
+    }, 10);
+  };
+
   // --- Main Rendering Function ---
   const renderFilteredCcList = () => {
-    const selectedYear = parseInt(yearSelector.value);
+    ccSelectedYear = parseInt(yearSelector.value);
+    renderMonthTabs();
+
     const searchTerm = searchInput.value.trim().toLowerCase();
 
-    // 1. Filter by Year, Status, and Search Term
+    // 1. Filter by Year, Month, Status, and Search Term
     let filteredTransactions = (state.creditCard.transactions || []).filter(
       (t) => {
         const tDate = new Date(t.date);
-        if (tDate.getFullYear() !== selectedYear) return false;
+        // Date checks
+        if (tDate.getFullYear() !== ccSelectedYear) return false;
+        if (tDate.getMonth() !== ccSelectedMonth) return false;
 
+        // Status checks
         if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
         if (ccHistoryFilter === "paid" && !t.paidOff && (!t.paidAmount || t.paidAmount <= 0)) return false;
 
+        // Search check
         if (searchTerm) {
           const descriptionMatch = t.description
             .toLowerCase()
@@ -1804,187 +1847,96 @@ function openCcHistoryModal() {
       }
     );
 
+    // Sort newest first
+    filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date) || b.timestamp - a.timestamp);
+
     // 2. Update Summary Stats (always based on full data, not filters)
     const limit = state.creditCard.limit || 0;
     const allUnpaid = (state.creditCard.transactions || [])
       .filter((t) => !t.paidOff)
       .reduce((sum, t) => sum + t.amount - (t.paidAmount || 0), 0);
     const available = limit - allUnpaid;
-    $(
-      "#ccHistoryLimit"
-    ).innerHTML = `<span class="tabular-nums">${formatCurrency(limit)}</span>`;
-    $(
-      "#ccHistorySpentUnpaid"
-    ).innerHTML = `<span class="tabular-nums">${formatCurrency(
-      allUnpaid
-    )}</span>`;
+    
+    $("#ccHistoryLimit").innerHTML = `<span class="tabular-nums">${formatCurrency(limit)}</span>`;
+    $("#ccHistorySpentUnpaid").innerHTML = `<span class="tabular-nums">${formatCurrency(allUnpaid)}</span>`;
     const availableEl = $("#ccHistoryAvailable");
-    availableEl.innerHTML = `<span class="tabular-nums">${formatCurrency(
-      available
-    )}</span>`;
+    availableEl.innerHTML = `<span class="tabular-nums">${formatCurrency(available)}</span>`;
     availableEl.classList.toggle("text-expense", available < 0);
     availableEl.classList.toggle("accent-text", available >= 0);
 
-    // 3. Group by Month and Render
+    // 3. Render Flat Chronological List
     listContainer.innerHTML = "";
     if (filteredTransactions.length === 0) {
-      listContainer.innerHTML = `<p class="text-gray-400 text-sm text-center py-4">No transactions match your criteria.</p>`;
+      listContainer.innerHTML = `<p class="text-gray-400 text-sm text-center py-8">No transactions found for this period.</p>`;
+      // Also update filter buttons
+      $$("#ccHistoryFilterControls button").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.filter === ccHistoryFilter);
+      });
       return;
     }
 
-    const transactionsByMonth = filteredTransactions.reduce((acc, t) => {
-      const monthKey = new Date(t.date).getMonth(); // 0-11
-      if (!acc[monthKey]) {
-        acc[monthKey] = [];
+    filteredTransactions.forEach((t, index) => {
+      const itemDiv = document.createElement("div");
+      itemDiv.className = `cc-history-transaction-item stagger-item ${t.paidOff ? "opacity-60" : ""}`;
+      itemDiv.style.animationDelay = `${index * 0.03}s`;
+      
+      const remainingOnItem = t.amount - (t.paidAmount || 0);
+
+      // Header part
+      const headerDiv = document.createElement("div");
+      headerDiv.className = "cc-history-item-header";
+      
+      const dateObj = new Date(t.date);
+      const formattedDate = dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      
+      let badgeHtml = "";
+      if (t.paidOff || remainingOnItem <= 0.005) {
+        badgeHtml = `<span class="status-badge badge-paid">Settled</span>`;
+      } else if (t.paidAmount > 0) {
+        badgeHtml = `<span class="status-badge badge-partial">Paid ${formatCurrency(t.paidAmount)}</span>`;
+      } else {
+        badgeHtml = `<span class="status-badge badge-unpaid">${formatCurrency(remainingOnItem)} Left</span>`;
       }
-      acc[monthKey].push(t);
-      return acc;
-    }, {});
 
-    Object.keys(transactionsByMonth)
-      .sort((a, b) => b - a)
-      .forEach((monthKey) => {
-        const monthTransactions = transactionsByMonth[monthKey];
-        monthTransactions.sort(
-          (a, b) =>
-            new Date(b.date) - new Date(a.date) || b.timestamp - a.timestamp
-        );
-        const monthName = new Date(selectedYear, monthKey).toLocaleString(
-          "default",
-          { month: "long" }
-        );
+      headerDiv.innerHTML = `
+        <div class="cc-history-item-details">
+            <p class="font-medium truncate ${t.paidOff ? "text-gray-500" : "text-gray-200"}" data-tooltip="${t.description}">${t.description}</p>
+            <p class="text-xs text-gray-400 mt-0.5">${formattedDate}</p>
+        </div>
+        <div class="flex flex-col items-end flex-shrink-0 gap-1">
+            <span class="font-semibold text-sm tabular-nums ${t.paidOff ? "text-gray-500" : (remainingOnItem <= 0.005 ? "text-income" : "text-expense")}">${formatCurrency(t.amount)}</span>
+            ${badgeHtml}
+        </div>
+      `;
 
-        const monthGroup = document.createElement("div");
-        monthGroup.className = "cc-history-month-group";
+      // Expandable Drawer
+      const drawerDiv = document.createElement("div");
+      drawerDiv.className = "cc-history-item-actions-drawer";
+      
+      let payButtonHtml = "";
+      if (!t.paidOff && remainingOnItem > 0.005) {
+        payButtonHtml = `<button class="btn btn-sm btn-primary flex-1" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
+      }
+      
+      drawerDiv.innerHTML = `
+        ${payButtonHtml}
+        <button class="btn btn-sm btn-secondary flex-1" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
+        <button class="btn btn-sm btn-secondary flex-1 hover:!text-expense hover:!border-expense" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
+      `;
 
-        const monthHeader = document.createElement("div");
-        monthHeader.className = "cc-history-month-header";
+      itemDiv.appendChild(headerDiv);
+      itemDiv.appendChild(drawerDiv);
 
-        const allMonthTransactions = (state.creditCard.transactions || []).filter(t => {
-          const tDate = new Date(t.date);
-          if (tDate.getFullYear() !== selectedYear || tDate.getMonth() !== Number(monthKey)) return false;
-          if (searchTerm) {
-            const descriptionMatch = t.description.toLowerCase().includes(searchTerm);
-            const amountMatch = t.amount.toFixed(2).includes(searchTerm);
-            if (!descriptionMatch && !amountMatch) return false;
-          }
-          return true;
+      // Toggle drawer on click
+      itemDiv.onclick = () => {
+        $$(".cc-history-transaction-item.expanded").forEach(el => {
+          if (el !== itemDiv) el.classList.remove("expanded");
         });
+        itemDiv.classList.toggle("expanded");
+      };
 
-        let totalSpentInMonth = 0;
-        if (ccHistoryFilter === "unpaid") {
-          totalSpentInMonth = allMonthTransactions.reduce((sum, t) => sum + (t.paidOff ? 0 : (t.amount - (t.paidAmount || 0))), 0);
-        } else if (ccHistoryFilter === "paid") {
-          totalSpentInMonth = allMonthTransactions.reduce((sum, t) => sum + (t.paidOff ? t.amount : (t.paidAmount || 0)), 0);
-        } else {
-          totalSpentInMonth = allMonthTransactions.reduce((sum, t) => sum + t.amount, 0);
-        }
-
-        monthHeader.innerHTML = `
-            <span>${monthName} ${selectedYear}</span>
-            <div class="flex items-center">
-                <span class="text-sm text-expense mr-3 tabular-nums">${formatCurrency(
-                  totalSpentInMonth
-                )}</span>
-                <i class="fas fa-chevron-down text-xs text-gray-400"></i>
-            </div>
-        `;
-
-        const transactionsContainer = document.createElement("div");
-        transactionsContainer.className = "cc-history-transactions-container";
-
-        monthTransactions.forEach((t) => {
-          const itemDiv = document.createElement("div");
-          itemDiv.className = `transaction-list-item-layout cc-history-transaction-item ${
-            t.paidOff ? "opacity-60" : ""
-          }`;
-          const remainingOnItem = t.amount - (t.paidAmount || 0);
-
-          const buttonsHtml = `
-              <div class="edit-btn-container">
-                  ${
-                    !t.paidOff && remainingOnItem > 0.005
-                      ? `<button class="text-xs text-income hover:opacity-80 focus:outline-none mr-2" onclick="openPayCcItemForm('${t.id}')" data-tooltip="Pay Item"><i class="fas fa-credit-card"></i></button>`
-                      : ""
-                  }
-                  <button class="text-xs text-gray-400 hover:text-gray-200 transition-colors focus:outline-none mr-2" onclick="openEditCcTransactionModal('${
-                    t.id
-                  }')" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
-                  <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteCcTransaction('${
-                    t.id
-                  }')" data-tooltip="Delete"><i class="fas fa-times"></i></button>
-              </div>`;
-
-          itemDiv.innerHTML = `
-              <div class="flex-grow mr-3 overflow-hidden">
-                  <p class="font-medium truncate ${
-                    t.paidOff ? "text-gray-500" : ""
-                  }" data-tooltip="${t.description}">${t.description}</p>
-                  <p class="text-xs text-gray-400 mt-0.5">${new Date(
-                    t.date
-                  ).toLocaleDateString()} ${
-            t.paidAmount > 0 && !t.paidOff
-              ? `(Paid: <span class="tabular-nums">${formatCurrency(
-                  t.paidAmount
-                )}</span>)`
-              : ""
-          }</p>
-              </div>
-              <div class="flex items-center flex-shrink-0">
-                  <span class="font-semibold mr-3 text-sm tabular-nums ${
-                    t.paidOff
-                      ? "text-gray-500"
-                      : remainingOnItem <= 0.005
-                      ? "text-income"
-                      : (ccHistoryFilter === "paid" ? "text-gray-400" : "text-expense")
-                  }">
-                      ${
-                        t.paidOff
-                          ? formatCurrency(t.amount)
-                          : remainingOnItem <= 0.005
-                          ? formatCurrency(remainingOnItem) + " (Settled)"
-                          : ccHistoryFilter === "paid"
-                          ? formatCurrency(t.paidAmount) + " Paid of " + formatCurrency(t.amount)
-                          : formatCurrency(remainingOnItem) + " Left"
-                      }
-                  </span>
-                  ${buttonsHtml}
-              </div>`;
-          transactionsContainer.appendChild(itemDiv);
-        });
-
-        monthGroup.appendChild(monthHeader);
-        monthGroup.appendChild(transactionsContainer);
-        listContainer.appendChild(monthGroup);
-
-        // Accordion Logic
-        const fullMonthKey = `${selectedYear}-${monthKey}`;
-        if (ccHistoryOpenMonthKeys.has(fullMonthKey) || searchTerm) {
-          // Expand if searching
-          transactionsContainer.style.maxHeight =
-            transactionsContainer.scrollHeight + "px";
-          monthHeader
-            .querySelector("i")
-            .classList.replace("fa-chevron-down", "fa-chevron-up");
-        }
-
-        monthHeader.onclick = () => {
-          const icon = monthHeader.querySelector("i");
-          const isCollapsed =
-            transactionsContainer.style.maxHeight === "0px" ||
-            !transactionsContainer.style.maxHeight;
-          if (isCollapsed) {
-            transactionsContainer.style.maxHeight =
-              transactionsContainer.scrollHeight + "px";
-            icon.classList.replace("fa-chevron-down", "fa-chevron-up");
-            ccHistoryOpenMonthKeys.add(fullMonthKey);
-          } else {
-            transactionsContainer.style.maxHeight = "0px";
-            icon.classList.replace("fa-chevron-up", "fa-chevron-down");
-            ccHistoryOpenMonthKeys.delete(fullMonthKey);
-          }
-        };
-      });
+      listContainer.appendChild(itemDiv);
+    });
 
     // 4. Update active filter button
     $$("#ccHistoryFilterControls button").forEach((btn) => {
@@ -1994,7 +1946,7 @@ function openCcHistoryModal() {
 
   // --- Setup Event Listeners ---
   yearSelector.onchange = () => {
-    ccHistoryOpenMonthKeys.clear(); // Reset open accordions when year changes
+    ccSelectedYear = parseInt(yearSelector.value);
     renderFilteredCcList();
   };
 
