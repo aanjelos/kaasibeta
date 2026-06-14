@@ -1051,10 +1051,10 @@ function initializeGlobalTooltips() {
           activeTarget = target;
           updateTooltipPosition();
           
-          // Auto-hide after 1.5 seconds
+          // Auto-hide after 2 seconds
           setTimeout(() => {
             if (activeTarget === target) hideTooltip();
-          }, 1500);
+          }, 2000);
         }
       } else if (activeTarget) {
         // Tap outside dismisses immediately
