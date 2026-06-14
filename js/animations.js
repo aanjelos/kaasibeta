@@ -72,14 +72,12 @@ function updateTabIndicator(containerId = 'monthTabs') {
     if (activeTabBtn) {
       indicator.style.display = 'block';
       
-      // Calculate bounding rect of container and the active button
-      const containerRect = container.getBoundingClientRect();
-      const btnRect = activeTabBtn.getBoundingClientRect();
+      // Use offsetLeft which directly provides the position relative to the relative offsetParent (the container itself).
+      // This completely avoids issues with padding, borders, and scroll calculations.
+      const left = activeTabBtn.offsetLeft;
+      const width = activeTabBtn.offsetWidth;
       
-      // Left calculation offsets the button relative to container and factors horizontal scrolling
-      const left = btnRect.left - containerRect.left + container.scrollLeft;
-      
-      indicator.style.width = `${btnRect.width}px`;
+      indicator.style.width = `${width}px`;
       indicator.style.left = `${left}px`;
     } else {
       indicator.style.display = 'none';
