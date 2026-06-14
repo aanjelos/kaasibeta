@@ -1762,8 +1762,8 @@ function openCcHistoryModal() {
   if (clearSearchBtn) clearSearchBtn.classList.add("hidden");
 
   // Determine active year and month based on state or current time
-  ccSelectedYear = ccSelectedYear || currentYear;
-  ccSelectedMonth = ccSelectedMonth !== undefined ? ccSelectedMonth : new Date().getMonth();
+  ccSelectedYear = currentYear;
+  ccSelectedMonth = new Date().getMonth();
 
   // --- Populate Year Selector ---
   const years = new Set(
@@ -1849,14 +1849,18 @@ function openCcHistoryModal() {
         if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
         if (ccHistoryFilter === "paid" && !t.paidOff && (!t.paidAmount || t.paidAmount <= 0)) return false;
 
-        // Search check
+        // Search check (If active, search the entire selected year, ignoring the month tab)
         if (searchTerm) {
           const descriptionMatch = t.description
             .toLowerCase()
             .includes(searchTerm);
           const amountMatch = t.amount.toFixed(2).includes(searchTerm);
           if (!descriptionMatch && !amountMatch) return false;
+        } else {
+          // Date checks (Only enforce month if not searching)
+          if (tDate.getMonth() !== ccSelectedMonth) return false;
         }
+        
         return true;
       }
     );
@@ -1889,39 +1893,61 @@ function openCcHistoryModal() {
       return;
     }
 
-    filteredTransactions.forEach((t, index) => {
-      const itemDiv = document.createElement("div");
-      // Use All Transactions classes exactly to match styling
-      itemDiv.className = `transaction-list-item-layout monthly-view-transaction-item stagger-item flex-col items-stretch cursor-pointer relative cc-history-row`;
-      itemDiv.style.animationDelay = `${index * 0.03}s`;
-      if (t.paidOff) itemDiv.style.opacity = "0.6";
+      // 3. Calculate Monthly Total based on current filter
+      let monthlyTotal = 0;
+      filteredTransactions.forEach(t => {
+        if (ccHistoryFilter === "unpaid") {
+          monthlyTotal += t.amount - (t.paidAmount || 0);
+        } else if (ccHistoryFilter === "paid") {
+          monthlyTotal += t.paidAmount || 0;
+        } else {
+          monthlyTotal += t.amount; // "all"
+        }
+      });
       
-      const remainingOnItem = t.amount - (t.paidAmount || 0);
-      
-      const dateObj = new Date(t.date);
-      const formattedDate = dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-      
-      let statusText = "";
-      if (t.paidOff || remainingOnItem <= 0.005) {
-        statusText = `<span class="text-income font-medium">Settled</span>`;
-      } else if (t.paidAmount > 0) {
-        statusText = `<span class="text-orange-400 font-medium">Paid ${formatCurrency(t.paidAmount)}</span>`;
-      } else {
-        statusText = `<span class="text-expense font-medium">${formatCurrency(remainingOnItem)} Left</span>`;
+      const totalTextEl = $("#ccMonthlyTotalText");
+      if (totalTextEl) {
+        if (searchTerm) {
+          totalTextEl.innerHTML = `Search Results (${filteredTransactions.length}) &nbsp;&bull;&nbsp; Total: <span class="tabular-nums font-semibold">${formatCurrency(monthlyTotal)}</span>`;
+        } else {
+          totalTextEl.innerHTML = `Total for this Month: <span class="tabular-nums font-semibold">${formatCurrency(monthlyTotal)}</span>`;
+        }
+        totalTextEl.classList.remove("hidden");
       }
 
-      // The main row
-      const mainRow = document.createElement("div");
-      mainRow.className = "flex justify-between items-center gap-x-2 w-full";
-      mainRow.innerHTML = `
-        <div class="flex-grow min-w-0 mr-2 text-left">
-            <p class="font-medium truncate ${t.paidOff ? "text-gray-500" : "text-gray-200"}" data-tooltip="${t.description}">${t.description}</p>
-            <p class="text-xs text-gray-400 mt-0.5 truncate">${formattedDate} <span class="mx-1">•</span> ${statusText}</p>
-        </div>
-        <div class="flex items-center justify-end flex-shrink-0 text-right">
-            <span class="font-semibold text-sm tabular-nums ${t.paidOff ? "text-gray-500" : (remainingOnItem <= 0.005 ? "text-income" : "text-expense")}">${formatCurrency(t.amount)}</span>
-        </div>
-      `;
+      filteredTransactions.forEach((t, index) => {
+        const itemDiv = document.createElement("div");
+        // Use All Transactions classes exactly to match styling
+        itemDiv.className = `transaction-list-item-layout monthly-view-transaction-item stagger-item block cursor-pointer relative cc-history-row`;
+        itemDiv.style.animationDelay = `${index * 0.03}s`;
+        if (t.paidOff) itemDiv.style.opacity = "0.6";
+        
+        const remainingOnItem = t.amount - (t.paidAmount || 0);
+        
+        const dateObj = new Date(t.date);
+        const formattedDate = dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        
+        let statusText = "";
+        if (t.paidOff || remainingOnItem <= 0.005) {
+          statusText = `<span class="text-income font-medium">Settled</span>`;
+        } else if (t.paidAmount > 0) {
+          statusText = `<span class="text-orange-400 font-medium">Paid ${formatCurrency(t.paidAmount)} of ${formatCurrency(t.amount)}</span>`;
+        } else {
+          statusText = `<span class="text-expense font-medium">Paid 0.00 of ${formatCurrency(t.amount)}</span>`;
+        }
+
+        // The main row
+        const mainRow = document.createElement("div");
+        mainRow.className = "flex justify-between items-center gap-x-2 w-full";
+        mainRow.innerHTML = `
+          <div class="flex-grow min-w-0 mr-2 text-left">
+              <p class="font-medium truncate ${t.paidOff ? "text-gray-500" : "text-gray-200"}" data-tooltip="${t.description}">${t.description}</p>
+              <p class="text-xs text-gray-400 mt-0.5 truncate">${formattedDate} <span class="mx-1">&bull;</span> ${statusText}</p>
+          </div>
+          <div class="flex items-center justify-end flex-shrink-0 text-right">
+              <span class="font-semibold text-sm tabular-nums ${t.paidOff ? "text-gray-500" : (remainingOnItem <= 0.005 ? "text-income" : "text-expense")}">${t.paidOff ? "LKR 0.00" : formatCurrency(remainingOnItem)}</span>
+          </div>
+        `;
 
       // Expandable Drawer (inline styles)
       const drawerDiv = document.createElement("div");
@@ -1931,14 +1957,14 @@ function openCcHistoryModal() {
       
       let payButtonHtml = "";
       if (!t.paidOff && remainingOnItem > 0.005) {
-        payButtonHtml = `<button class="btn btn-primary flex-1" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
+        payButtonHtml = `<button class="btn !py-2 btn-primary flex-1" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
       }
       
       drawerDiv.innerHTML = `
-        <div class="flex w-full sm:w-auto gap-2 mt-3 pt-3 border-t border-[color:var(--border-color)] flex-1">
+        <div class="flex w-full sm:w-auto gap-2 mt-3 pt-3 flex-1" style="border-top: 1px solid var(--border-color);">
           ${payButtonHtml}
-          <button class="btn btn-secondary flex-1" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
-          <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
+          <button class="btn !py-2 btn-secondary flex-1" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
+          <button class="btn !py-2 btn-secondary flex-1 hover:!text-expense hover:!border-expense" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
         </div>
       `;
 

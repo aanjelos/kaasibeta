@@ -1740,12 +1740,13 @@
             <div id="ccHistoryFilterControls" class="flex w-full sm:w-auto gap-2 flex-shrink-0">
               <button data-filter="all" class="btn btn-secondary flex-1 sm:flex-none">All</button>
               <button data-filter="unpaid" class="btn btn-secondary active flex-1 sm:flex-none">Unpaid</button>
-              <button data-filter="paid" class="btn btn-secondary flex-1 sm:flex-none">Paid</button>
+              <button data-filter="paid" class="btn btn-secondary flex-1 sm:flex-none">Settled</button>
             </div>
           </div>
 
           <!-- Flat List Container -->
-          <div id="ccHistoryListContainer" class="mt-4 max-h-[60vh] overflow-y-auto pr-2 space-y-3"></div>
+          <div id="ccMonthlyTotalText" class="text-sm text-gray-400 mb-2 mt-4 hidden"></div>
+          <div id="ccHistoryListContainer" class="mt-2 max-h-[60vh] overflow-y-auto pr-2 space-y-3"></div>
         </div>
       </div>
 
