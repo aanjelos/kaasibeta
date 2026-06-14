@@ -1532,12 +1532,8 @@ function renderMonthlyDetails(
       dayTransactionsContainer.className = "day-transactions-container";
 
       const shouldBeOpenInitially =
-        (isSearchingOrJustCleared &&
-          searchTerm &&
-          dayData.transactions.length > 0) ||
-        (!isSearchingOrJustCleared &&
-          !searchTerm &&
-          openDayKeys.has(dayData.dayKey));
+        (searchTerm && dayData.transactions.length > 0) ||
+        (!searchTerm && openDayKeys.has(dayData.dayKey));
 
       if (shouldBeOpenInitially) {
         chevronIcon.classList.add("fa-chevron-up");
