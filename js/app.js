@@ -470,6 +470,11 @@ function initializeUI(isRefresh = false) {
       triggerCcSearch();
       ccHistorySearchInput.focus();
     });
+
+    const ccSearchWholeYear = $("#ccSearchWholeYear");
+    if (ccSearchWholeYear) {
+      ccSearchWholeYear.addEventListener("change", triggerCcSearch);
+    }
   }
 
   // --- NEW: SUPABASE EVENT LISTENERS ---

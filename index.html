@@ -1721,21 +1721,27 @@
 
           <!-- Navigation (Year & Month Tabs) -->
           <div class="flex flex-col sm:flex-row justify-between items-center mb-4 border-b border-gray-600 pb-2 gap-2">
-            <div class="flex items-center gap-x-2 w-full sm:w-auto">
+            <div class="flex items-center gap-x-2 w-full sm:w-auto justify-between sm:justify-start">
               <div class="flex-shrink-0">
                 <select id="ccYearSelector" class="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm"></select>
               </div>
+              <div id="ccMonthlyTotalText" class="text-sm text-gray-400 hidden ml-2"></div>
             </div>
             <div id="ccMonthTabs" class="flex overflow-x-auto whitespace-nowrap gap-x-2 hide-scrollbar edge-fade py-1 px-4 max-w-full"></div>
           </div>
 
           <!-- Search & Filters -->
           <div class="my-4 flex flex-col sm:flex-row items-center gap-2">
-            <div class="flex-grow w-full flex items-center gap-x-2">
-              <input type="search" id="ccHistorySearchInput" name="ccHistorySearch" placeholder="Search description or amount..." class="flex-grow" />
-              <button id="clearCcHistorySearchBtn" class="btn-icon-clear-search hidden flex-shrink-0" aria-label="Clear search" data-tooltip="Clear Search">
-                <i class="fas fa-times"></i>
-              </button>
+            <div class="flex-grow w-full flex flex-col sm:flex-row items-start sm:items-center gap-2">
+              <div class="flex-grow w-full flex items-center gap-x-2">
+                <input type="search" id="ccHistorySearchInput" name="ccHistorySearch" placeholder="Search description or amount..." class="flex-grow" />
+                <button id="clearCcHistorySearchBtn" class="btn-icon-clear-search hidden flex-shrink-0" aria-label="Clear search" data-tooltip="Clear Search">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <label class="flex items-center text-xs text-gray-400 whitespace-nowrap cursor-pointer ml-1 sm:ml-0 mt-1 sm:mt-0 select-none">
+                <input type="checkbox" id="ccSearchWholeYear" class="mr-1.5 cursor-pointer accent-theme" /> Whole Year
+              </label>
             </div>
             <div id="ccHistoryFilterControls" class="flex w-full sm:w-auto gap-2 flex-shrink-0">
               <button data-filter="all" class="btn btn-secondary flex-1 sm:flex-none">All</button>
@@ -1745,7 +1751,6 @@
           </div>
 
           <!-- Flat List Container -->
-          <div id="ccMonthlyTotalText" class="text-sm text-gray-400 mb-2 mt-4 hidden"></div>
           <div id="ccHistoryListContainer" class="mt-2 max-h-[60vh] overflow-y-auto pr-2 space-y-3"></div>
         </div>
       </div>

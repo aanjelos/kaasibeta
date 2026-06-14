@@ -1843,21 +1843,23 @@ function openCcHistoryModal() {
         const tDate = new Date(t.date);
         // Date checks
         if (tDate.getFullYear() !== ccSelectedYear) return false;
-        if (tDate.getMonth() !== ccSelectedMonth) return false;
 
         // Status checks
         if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
         if (ccHistoryFilter === "paid" && !t.paidOff && (!t.paidAmount || t.paidAmount <= 0)) return false;
 
-        // Search check (If active, search the entire selected year, ignoring the month tab)
+        // Search check
+        const searchWholeYear = $("#ccSearchWholeYear")?.checked;
         if (searchTerm) {
           const descriptionMatch = t.description
             .toLowerCase()
             .includes(searchTerm);
           const amountMatch = t.amount.toFixed(2).includes(searchTerm);
           if (!descriptionMatch && !amountMatch) return false;
+          
+          if (!searchWholeYear && tDate.getMonth() !== ccSelectedMonth) return false;
         } else {
-          // Date checks (Only enforce month if not searching)
+          // If no search term, always enforce month
           if (tDate.getMonth() !== ccSelectedMonth) return false;
         }
         
@@ -1928,12 +1930,16 @@ function openCcHistoryModal() {
         const formattedDate = dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
         
         let statusText = "";
+        let bigAmountText = "";
         if (t.paidOff || remainingOnItem <= 0.005) {
           statusText = `<span class="text-income font-medium">Settled</span>`;
+          bigAmountText = `<span class="font-semibold text-sm tabular-nums text-gray-400">${formatCurrency(t.amount)}</span>`;
         } else if (t.paidAmount > 0) {
           statusText = `<span class="text-orange-400 font-medium">Paid ${formatCurrency(t.paidAmount)} of ${formatCurrency(t.amount)}</span>`;
+          bigAmountText = `<span class="font-semibold text-sm tabular-nums text-expense">${formatCurrency(remainingOnItem)} Left</span>`;
         } else {
-          statusText = `<span class="text-expense font-medium">Paid 0.00 of ${formatCurrency(t.amount)}</span>`;
+          statusText = `<span class="text-expense font-medium">Unpaid</span>`;
+          bigAmountText = `<span class="font-semibold text-sm tabular-nums text-expense">${formatCurrency(remainingOnItem)} Left</span>`;
         }
 
         // The main row
@@ -1945,7 +1951,7 @@ function openCcHistoryModal() {
               <p class="text-xs text-gray-400 mt-0.5 truncate">${formattedDate} <span class="mx-1">&bull;</span> ${statusText}</p>
           </div>
           <div class="flex items-center justify-end flex-shrink-0 text-right">
-              <span class="font-semibold text-sm tabular-nums ${t.paidOff ? "text-gray-500" : (remainingOnItem <= 0.005 ? "text-income" : "text-expense")}">${t.paidOff ? "LKR 0.00" : formatCurrency(remainingOnItem)}</span>
+              ${bigAmountText}
           </div>
         `;
 
@@ -1957,14 +1963,14 @@ function openCcHistoryModal() {
       
       let payButtonHtml = "";
       if (!t.paidOff && remainingOnItem > 0.005) {
-        payButtonHtml = `<button class="btn !py-2 btn-primary flex-1" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
+        payButtonHtml = `<button class="btn btn-primary flex-1" style="padding-top: 0.5rem; padding-bottom: 0.5rem;" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
       }
       
       drawerDiv.innerHTML = `
-        <div class="flex w-full sm:w-auto gap-2 mt-3 pt-3 flex-1" style="border-top: 1px solid var(--border-color);">
+        <div class="flex w-full sm:w-auto gap-2 mt-2 flex-1 pt-1 pb-1">
           ${payButtonHtml}
-          <button class="btn !py-2 btn-secondary flex-1" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
-          <button class="btn !py-2 btn-secondary flex-1 hover:!text-expense hover:!border-expense" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
+          <button class="btn btn-secondary flex-1" style="padding-top: 0.5rem; padding-bottom: 0.5rem;" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
+          <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense" style="padding-top: 0.5rem; padding-bottom: 0.5rem;" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
         </div>
       `;
 
