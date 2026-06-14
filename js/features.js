@@ -1787,31 +1787,45 @@ function openCcHistoryModal() {
   // --- Populate Month Tabs ---
   const renderMonthTabs = () => {
     monthTabsContainer.innerHTML = "";
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    months.forEach((monthStr, index) => {
+    const shortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const fullMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    
+    // determine selected year globally
+    ccSelectedYear = parseInt(yearSelector.value) || ccSelectedYear;
+    
+    shortMonths.forEach((monthStr, index) => {
+      // Calculate if this month has any transactions matching the current filter
+      let hasData = (state.creditCard.transactions || []).some(t => {
+        const d = new Date(t.date);
+        if (d.getFullYear() !== ccSelectedYear || d.getMonth() !== index) return false;
+        if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
+        if (ccHistoryFilter === "paid" && !t.paidOff && (!t.paidAmount || t.paidAmount <= 0)) return false;
+        return true;
+      });
+
       const btn = document.createElement("button");
-      btn.className = `tab-button ${index === ccSelectedMonth ? "active" : ""}`;
-      btn.textContent = monthStr;
+      btn.className = `tab-button !px-3 !py-1.5 !text-sm whitespace-nowrap ${index === ccSelectedMonth ? "active" : ""}`;
+      if (!hasData) {
+        btn.classList.add("opacity-40"); // Dim months with no data
+      }
+      btn.innerHTML = `
+        <span class="inline md:hidden">${fullMonths[index]}</span>
+        <span class="hidden md:inline">${monthStr}</span>
+      `;
       btn.onclick = () => {
         ccSelectedMonth = index;
         renderFilteredCcList();
       };
       monthTabsContainer.appendChild(btn);
     });
-    // Add sliding active indicator
-    const activeIndicator = document.createElement('div');
-    activeIndicator.className = 'tab-active-indicator bg-theme';
-    monthTabsContainer.appendChild(activeIndicator);
 
-    // Ensure the indicator is placed correctly
+    if (typeof updateTabIndicator === 'function') updateTabIndicator('ccMonthTabs');
+
+    // Ensure the active tab scrolls into view
     setTimeout(() => {
       const activeBtn = monthTabsContainer.querySelector('.tab-button.active');
       if (activeBtn) {
-        activeIndicator.style.width = `${activeBtn.offsetWidth}px`;
-        activeIndicator.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
-        // Scroll active tab into view
-        const scrollLeft = activeBtn.offsetLeft - (monthTabsContainer.offsetWidth / 2) + (activeBtn.offsetWidth / 2);
-        monthTabsContainer.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+        activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
       }
     }, 10);
   };
@@ -1878,7 +1892,7 @@ function openCcHistoryModal() {
     filteredTransactions.forEach((t, index) => {
       const itemDiv = document.createElement("div");
       // Use All Transactions classes exactly to match styling
-      itemDiv.className = `transaction-list-item-layout monthly-view-transaction-item stagger-item flex-col items-stretch cursor-pointer border-b border-gray-600/50 hover:bg-[rgba(var(--accent-primary-rgb),0.06)] transition-colors relative cc-history-row`;
+      itemDiv.className = `transaction-list-item-layout monthly-view-transaction-item stagger-item flex-col items-stretch cursor-pointer relative cc-history-row`;
       itemDiv.style.animationDelay = `${index * 0.03}s`;
       if (t.paidOff) itemDiv.style.opacity = "0.6";
       
@@ -1917,14 +1931,14 @@ function openCcHistoryModal() {
       
       let payButtonHtml = "";
       if (!t.paidOff && remainingOnItem > 0.005) {
-        payButtonHtml = `<button class="btn btn-sm btn-primary flex-1" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
+        payButtonHtml = `<button class="btn btn-primary flex-1" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
       }
       
       drawerDiv.innerHTML = `
-        <div class="flex w-full sm:w-auto gap-2 mt-3 pt-3 border-t border-gray-600/30 flex-1">
+        <div class="flex w-full sm:w-auto gap-2 mt-3 pt-3 border-t border-[color:var(--border-color)] flex-1">
           ${payButtonHtml}
-          <button class="btn btn-sm btn-secondary flex-1" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
-          <button class="btn btn-sm btn-secondary flex-1 hover:!text-expense hover:!border-expense" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
+          <button class="btn btn-secondary flex-1" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
+          <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
         </div>
       `;
 

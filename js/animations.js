@@ -95,6 +95,7 @@ function updateTabIndicator(containerId = 'monthTabs') {
 
 window.addEventListener('resize', () => {
   updateTabIndicator('monthTabs');
+  updateTabIndicator('ccMonthTabs');
   updateTabIndicator('settingsTabsContainer');
 });
 
