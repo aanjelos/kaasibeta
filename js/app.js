@@ -1041,14 +1041,20 @@ function initializeGlobalTooltips() {
     if (!window.matchMedia("(hover: hover)").matches) {
       const target = e.target.closest("[data-tooltip]");
       if (target) {
+        // Skip buttons so tooltips don't stick over opened modals
+        if (target.tagName.toLowerCase() === "button" || target.closest("button")) {
+          if (activeTarget) hideTooltip();
+          return;
+        }
+
         if (activeTarget !== target) {
           activeTarget = target;
           updateTooltipPosition();
           
-          // Auto-hide after 2.5 seconds
+          // Auto-hide after 1.5 seconds
           setTimeout(() => {
             if (activeTarget === target) hideTooltip();
-          }, 2500);
+          }, 1500);
         }
       } else if (activeTarget) {
         // Tap outside dismisses immediately
