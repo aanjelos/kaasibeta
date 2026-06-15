@@ -1,4 +1,4 @@
-const CACHE_NAME = "kaasi-cache-v146";
+const CACHE_NAME = "kaasi-cache-v147";
 const STATIC_ASSETS = [
   "./",
   "./index.html",
@@ -69,9 +69,16 @@ self.addEventListener("fetch", (event) => {
         }
         return networkResponse;
       }).catch((err) => {
-        // Network failed (offline). If we don't have a cached response, just throw.
-        console.warn("Network request failed and no cache available for:", event.request.url);
+        // Network failed (offline).
+        console.warn("Network request failed for:", event.request.url);
+        // If we don't have a cached response, we must throw so the browser knows it failed.
+        if (!cachedResponse) {
+          throw err;
+        }
       });
+
+      // Keep the service worker alive until the fetch completes
+      event.waitUntil(fetchPromise);
 
       // Return the cached response immediately if it exists, otherwise wait for the network
       return cachedResponse || fetchPromise;

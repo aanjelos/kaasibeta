@@ -4,6 +4,10 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 
 ---
 
+### [Major] Production Bug Fixes
+- **Service Worker Stale-While-Revalidate**: Fixed `sw.js` cache update dropping gracefully offline and keeping the Service Worker awake during background fetch.
+- **Security PIN Modal State**: Fixed an issue in `js/security.js` where the background PIN event listener remained active when the Forgot PIN modal was open, preventing erroneous locks.
+
 ### 1. [Major] Dead Code Removal
 Cleaned up the codebase by identifying and removing unused variables, dead code paths, obsolete functions, and redundant comments. This helped reduce file size, improve maintainability, and ensure code clarity.
 

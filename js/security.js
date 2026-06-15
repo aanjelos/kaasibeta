@@ -26,7 +26,7 @@ function showPinLockScreen() {
   lockScreenKeydownListener = (e) => {
     const modal = document.getElementById("securityQuestionModal");
     // Only listen if overlay is visible and modal is NOT open
-    if (!pinLockOverlay.classList.contains("hidden") && modal.style.display !== "flex") {
+    if (!pinLockOverlay.classList.contains("hidden") && modal.style.display !== "block") {
       if (e.key >= "0" && e.key <= "9") {
         addPinDigit(parseInt(e.key));
       } else if (e.key === "Backspace") {
