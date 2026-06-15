@@ -385,3 +385,13 @@ Implemented a comprehensive category budget tracking feature with the following 
 - **Month Tabs Navigation**: Removed the vertical scrolling month accordions in favor of a sleek horizontal Month Tabs slider and Year Selector at the top of the modal, allowing users to instantly jump to specific billing cycles without excessive scrolling.
 - **Expandable Action Drawer**: Transformed credit card transactions into clean, status-badged cards inside a flat chronological list. Tapping a transaction on mobile or desktop smoothly toggles an inline Action Drawer containing large, touch-friendly buttons for paying off, editing, or deleting the item, completely eliminating horizontal squishing.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v131` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.540m`.
+
+### 78. [UI/UX] Credit Card History Refinements & Version Skip Correction (v5.254m)
+- **Refined Action Drawer & Button Layout**: Optimized CTA buttons within the credit card action drawer to match the visual style of filter buttons. Forced min-height and added bottom padding to prevent button squashing and improve touch targets.
+- **Improved Monthly Total Presentation**: Repositioned the monthly total from an awkward badge layout under the selector tabs to a clean, dedicated footer row at the bottom of the credit card history list.
+- **Dynamic Mobile and Desktop Suffix Formatting**:
+  - **Desktop**: Styled partially paid items to display as "X of Y Left" with the remaining amount "X" in bold red and the "of Y Left" suffix in a subtle, muted grey.
+  - **Mobile**: Re-styled to display simply as "X Left" in red to conserve valuable horizontal screen space for the transaction name.
+- **Mobile Spacing & Responsive Elements**: Increased standard margins/paddings between transactions on mobile layouts to prevent visual crowding. Recompiled Tailwind CSS to include responsive visibility classes (`sm:inline`, `sm:hidden`).
+- **Version Sequence Correction**: Corrected a historical version numbering skip where the version jumped 300 iterations (from `v5.238l` to `v5.539m`). Reset the app metadata version to `v5.254m` to accurately align with the actual commit history.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v146` to force automatic, clean client-side updates.
