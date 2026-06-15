@@ -1906,17 +1906,17 @@ function openCcHistoryModal() {
       const totalTextEl = $("#ccMonthlyTotalText");
       if (totalTextEl) {
         if (searchTerm) {
-          totalTextEl.innerHTML = `Search Results (${filteredTransactions.length}) &nbsp;&bull;&nbsp; Total: <span class="tabular-nums font-semibold">${formatCurrency(monthlyTotal)}</span>`;
+          totalTextEl.innerHTML = `Found (${filteredTransactions.length}) &nbsp;&bull;&nbsp; <span class="tabular-nums font-bold text-white">${formatCurrency(monthlyTotal)}</span>`;
         } else {
-          totalTextEl.innerHTML = `Total for this Month: <span class="tabular-nums font-semibold">${formatCurrency(monthlyTotal)}</span>`;
+          totalTextEl.innerHTML = `Total: <span class="tabular-nums font-bold text-white">${formatCurrency(monthlyTotal)}</span>`;
         }
         totalTextEl.classList.remove("hidden");
       }
 
       filteredTransactions.forEach((t, index) => {
         const itemDiv = document.createElement("div");
-        // Use All Transactions classes exactly to match styling
-        itemDiv.className = `transaction-list-item-layout monthly-view-transaction-item stagger-item block cursor-pointer relative cc-history-row`;
+        // Use All Transactions classes exactly to match styling, and explicitly force higher padding on mobile
+        itemDiv.className = `transaction-list-item-layout monthly-view-transaction-item stagger-item block cursor-pointer relative cc-history-row !py-3.5 sm:!py-3 !px-4 sm:!px-5`;
         itemDiv.style.animationDelay = `${index * 0.03}s`;
         
         // Ensure paidOff styling
