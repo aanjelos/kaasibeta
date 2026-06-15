@@ -1,4 +1,4 @@
-const CACHE_NAME = "kaasi-cache-v145";
+const CACHE_NAME = "kaasi-cache-v146";
 const STATIC_ASSETS = [
   "./",
   "./index.html",
