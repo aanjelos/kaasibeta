@@ -1903,15 +1903,7 @@ function openCcHistoryModal() {
         }
       });
       
-      const totalTextEl = $("#ccMonthlyTotalText");
-      if (totalTextEl) {
-        if (searchTerm) {
-          totalTextEl.innerHTML = `Found (${filteredTransactions.length}) &nbsp;&bull;&nbsp; <span class="tabular-nums font-bold text-white">${formatCurrency(monthlyTotal)}</span>`;
-        } else {
-          totalTextEl.innerHTML = `Total: <span class="tabular-nums font-bold text-white">${formatCurrency(monthlyTotal)}</span>`;
-        }
-        totalTextEl.classList.remove("hidden");
-      }
+
 
       filteredTransactions.forEach((t, index) => {
         const itemDiv = document.createElement("div");
@@ -2000,6 +1992,18 @@ function openCcHistoryModal() {
 
       listContainer.appendChild(itemDiv);
     });
+
+      // Append Total Footer Row
+      if (filteredTransactions.length > 0) {
+        const footerDiv = document.createElement("div");
+        footerDiv.className = "flex justify-between items-center px-4 py-4 sm:px-5 mt-2 bg-gray-700/40 rounded-lg border border-gray-600/50";
+        if (searchTerm) {
+          footerDiv.innerHTML = `<span class="text-gray-400 font-medium">Search Results (${filteredTransactions.length})</span><span class="font-bold text-white text-base">Total: <span class="tabular-nums">${formatCurrency(monthlyTotal)}</span></span>`;
+        } else {
+          footerDiv.innerHTML = `<span class="text-gray-400 font-medium">Monthly Total</span><span class="font-bold text-white text-base tabular-nums">${formatCurrency(monthlyTotal)}</span>`;
+        }
+        listContainer.appendChild(footerDiv);
+      }
 
     // 4. Update active filter button
     $$("#ccHistoryFilterControls button").forEach((btn) => {
