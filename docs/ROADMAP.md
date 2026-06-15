@@ -6,22 +6,15 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## 🌟 Feature Additions
 
-### 1. Category Budgets & Grouping [COMPLETED - v6]
-- **Concept**: Allow users to set monthly limits for specific categories or grouped categories (e.g., combining "Groceries" and "Food & Dining" into a single 20,000 LKR budget).
-- **Implementation Idea**: 
-  - Add a "Budgets" array to the `state`. Each budget object contains `{ id, name, limit, categories: [] }`. 
-  - On the dashboard or in reports, sum the transactions for the current month that match the selected categories and display a progress bar (e.g., Green/Warning/Red) showing how close the user is to their limit.
-
-
-
-### 2. Virtual Envelopes / Savings Wishlist
+### 1. Virtual Envelopes / Savings Wishlist
 - **Concept**: A dedicated area to track savings goals (e.g., "New Laptop", "Vacation").
 - **Implementation Idea**: Users can virtually allocate funds from their "Total Available" balance into specific goal envelopes. Visually represent progress with filling bars or circular rings to motivate saving.
 
-### 3. Split Bills / IOU Tracker
+### 2. Split Bills / IOU Tracker
 - **Concept**: A built-in "Splitwise" style feature to track shared expenses and who owes who money.
 - **Implementation Idea**: Add an "Is Split" toggle when adding a transaction. If toggled, prompt the user to specify who owes them (or who they owe) and the split amount. Create a dedicated "Shared Expenses" tab to view running tallies of debts and settlements with specific friends/roommates.
-### 4. Gamification: Streaks & Badges
+
+### 3. Gamification: Streaks & Badges
 - **Concept**: Encourage responsible spending and habit-building by rewarding users with milestones.
 - **Implementation Idea**: 
   - **Under Budget Streaks**: Track how many consecutive months a user stays under their set Category Budgets. Display a visual "Streak" counter with fire emojis 🔥. If they break the budget, the streak resets.
@@ -31,26 +24,30 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## ✨ UI / UX Polish
 
-### 1. Credit Card Section Revamp [COMPLETED - v6]
-- **Concept**: Comprehensive overhaul of the Credit Card interface and functionality.
-- **Implementation Idea**: Redesign the visual layout for credit card cards, refine how partial payments/transactions are nested and displayed, and improve the overall flow.
+*(No active UI/UX polish items currently tracked)*
 
+---
 
 ## 🛠️ Technical Debt & Code Organization
 
 *(No active technical debt items currently tracked)*
 
+---
+
 ## 🐛 Bug Fixes & Known Issues
 
-- **Credit Card Modal Back Navigation**: Investigate state/history and routing issues when navigating back or closing modals within the credit card section.
+### 1. Credit Card Modal Navigation
+- **Issue**: Investigate modal history and back-button/closure routing bugs when going back on modals in the Credit Card history section.
 
 ---
 
-## 📋 v6 Pre-Release Checklist
+## 📋 Pre-Release v6 Checklist
 
-- [ ] **Offline Mode Validation (PWA)**: Toggle Network to Offline in DevTools and verify the application launches and runs correctly.
-- [ ] **Backup & Restore (PIN Integration)**: Export local data `.json`, perform a factory reset, and import the backup to verify transactions, budgets, settings, and security lock states restore flawlessly.
-- [ ] **Keyboard Shortcuts Alignment**: Verify that the shortcut help modal (`?`) lists `A` for "All Transactions" and aligns with the active codebase keybinds.
+### 1. Offline PWA Smoke Test
+- Verify the app launches and works perfectly in offline mode via browser DevTools (Application > Service Workers > Offline) to test stale-while-revalidate offline behavior.
 
+### 2. Backup & PIN Reset Verification
+- Export a manual `.json` backup file, execute a factory reset/clear site data, and verify the file restores all data and PIN settings successfully.
 
-
+### 3. Keyboard Shortcuts Modal Audit
+- Open the keyboard shortcuts help modal (`?`) and confirm all descriptions (especially `A` mapping to "All Transactions") match the final `v6` user interface.
