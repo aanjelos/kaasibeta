@@ -1933,13 +1933,13 @@ function openCcHistoryModal() {
         let bigAmountText = "";
         if (t.paidOff) {
           statusText = `<span class="text-gray-400">Settled</span>`;
-          bigAmountText = `<span class="font-semibold text-sm tabular-nums text-gray-500 line-through">${formatCurrency(t.amount)}</span>`;
+          bigAmountText = `<span class="font-semibold text-base tabular-nums text-gray-500 line-through">${formatCurrency(t.amount)}</span>`;
         } else if (t.paidAmount > 0) {
           statusText = `<span class="text-gray-400">Paid ${formatCurrency(t.paidAmount)}</span>`;
-          bigAmountText = `<span class="font-semibold text-sm tabular-nums text-expense">${formatCurrency(remainingOnItem)} of ${formatCurrency(t.amount)} Left</span>`;
+          bigAmountText = `<span class="font-semibold text-base tabular-nums text-expense">${formatCurrency(remainingOnItem)} of ${formatCurrency(t.amount)} Left</span>`;
         } else {
           statusText = `<span class="text-gray-400">Unpaid</span>`;
-          bigAmountText = `<span class="font-semibold text-sm tabular-nums text-expense">${formatCurrency(remainingOnItem)} Left</span>`;
+          bigAmountText = `<span class="font-semibold text-base tabular-nums text-expense">${formatCurrency(remainingOnItem)} Left</span>`;
         }
 
         // The main row
