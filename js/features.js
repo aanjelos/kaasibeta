@@ -1959,14 +1959,14 @@ function openCcHistoryModal() {
       
       let payButtonHtml = "";
       if (!t.paidOff && remainingOnItem > 0.005) {
-        payButtonHtml = `<button class="btn btn-primary flex-1" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
+        payButtonHtml = `<button class="btn btn-primary flex-1" style="padding-top: 12px !important; padding-bottom: 12px !important; display: flex; align-items: center; justify-content: center;" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
       }
       
       drawerDiv.innerHTML = `
-        <div class="flex w-full sm:w-auto gap-2 pt-3 flex-1">
+        <div class="flex w-full sm:w-auto gap-2 pt-3 flex-1" style="border: none !important;">
           ${payButtonHtml}
-          <button class="btn btn-secondary flex-1" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
-          <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
+          <button class="btn btn-secondary flex-1" style="padding-top: 12px !important; padding-bottom: 12px !important; display: flex; align-items: center; justify-content: center;" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
+          <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense" style="padding-top: 12px !important; padding-bottom: 12px !important; display: flex; align-items: center; justify-content: center;" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
         </div>
       `;
 
