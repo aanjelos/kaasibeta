@@ -6,7 +6,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## 🌟 Feature Additions
 
-### 1. Category Budgets & Grouping
+### 1. Category Budgets & Grouping [COMPLETED - v6]
 - **Concept**: Allow users to set monthly limits for specific categories or grouped categories (e.g., combining "Groceries" and "Food & Dining" into a single 20,000 LKR budget).
 - **Implementation Idea**: 
   - Add a "Budgets" array to the `state`. Each budget object contains `{ id, name, limit, categories: [] }`. 
@@ -31,7 +31,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## ✨ UI / UX Polish
 
-### 1. Credit Card Section Revamp
+### 1. Credit Card Section Revamp [COMPLETED - v6]
 - **Concept**: Comprehensive overhaul of the Credit Card interface and functionality.
 - **Implementation Idea**: Redesign the visual layout for credit card cards, refine how partial payments/transactions are nested and displayed, and improve the overall flow.
 
