@@ -42,8 +42,15 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## 🐛 Bug Fixes & Known Issues
 
+- **Credit Card Modal Back Navigation**: Investigate state/history and routing issues when navigating back or closing modals within the credit card section.
 
-*(No active bugs currently tracked)*
+---
+
+## 📋 v6 Pre-Release Checklist
+
+- [ ] **Offline Mode Validation (PWA)**: Toggle Network to Offline in DevTools and verify the application launches and runs correctly.
+- [ ] **Backup & Restore (PIN Integration)**: Export local data `.json`, perform a factory reset, and import the backup to verify transactions, budgets, settings, and security lock states restore flawlessly.
+- [ ] **Keyboard Shortcuts Alignment**: Verify that the shortcut help modal (`?`) lists `A` for "All Transactions" and aligns with the active codebase keybinds.
 
 
 
