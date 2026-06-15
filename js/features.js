@@ -1929,27 +1929,28 @@ function openCcHistoryModal() {
         const dateObj = new Date(t.date);
         const formattedDate = dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
         
-        // Status strings
-        let statusText = `<span class="text-xs text-gray-400">${formattedDate} &bull; Unpaid</span>`;
-        let bigAmountText = `<span class="text-sm font-bold text-expense">${formatCurrency(remainingOnItem)} Left</span>`;
-
+        let statusText = "";
+        let bigAmountText = "";
         if (t.paidOff) {
-          statusText = `<span class="text-xs text-gray-400">${formattedDate} &bull; Settled</span>`;
-          bigAmountText = `<span class="text-sm font-bold text-gray-500 line-through">${formatCurrency(t.amount)}</span>`;
+          statusText = `<span class="text-gray-400">Settled</span>`;
+          bigAmountText = `<span class="font-semibold text-sm tabular-nums text-gray-500 line-through">${formatCurrency(t.amount)}</span>`;
         } else if (t.paidAmount > 0) {
-          statusText = `<span class="text-xs text-gray-400">${formattedDate} &bull; Paid ${formatCurrency(t.paidAmount)}</span>`;
-          bigAmountText = `<span class="text-sm font-bold text-expense">${formatCurrency(remainingOnItem)} of ${formatCurrency(t.amount)} Left</span>`;
+          statusText = `<span class="text-gray-400">Paid ${formatCurrency(t.paidAmount)}</span>`;
+          bigAmountText = `<span class="font-semibold text-sm tabular-nums text-expense">${formatCurrency(remainingOnItem)} of ${formatCurrency(t.amount)} Left</span>`;
+        } else {
+          statusText = `<span class="text-gray-400">Unpaid</span>`;
+          bigAmountText = `<span class="font-semibold text-sm tabular-nums text-expense">${formatCurrency(remainingOnItem)} Left</span>`;
         }
 
         // The main row
         const mainRow = document.createElement("div");
         mainRow.className = "flex justify-between items-center gap-x-2 w-full";
         mainRow.innerHTML = `
-          <div class="flex-grow">
-              <div class="text-sm font-medium text-white">${t.description}</div>
-              ${statusText}
+          <div class="flex-grow min-w-0 mr-2 text-left">
+              <p class="font-medium truncate ${t.paidOff ? "text-gray-500" : "text-gray-200"}">${t.description}</p>
+              <p class="text-xs text-gray-400 mt-0.5 truncate">${formattedDate} &bull; ${statusText}</p>
           </div>
-          <div class="text-right flex-shrink-0">
+          <div class="flex items-center justify-end flex-shrink-0 text-right">
               ${bigAmountText}
           </div>
         `;
@@ -1963,14 +1964,14 @@ function openCcHistoryModal() {
       
       let payButtonHtml = "";
       if (!t.paidOff && remainingOnItem > 0.005) {
-        payButtonHtml = `<button class="btn btn-primary flex-1" style="min-height: 44px; display: flex; align-items: center; justify-content: center;" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
+        payButtonHtml = `<button class="btn btn-primary flex-1 py-1 sm:py-1.5 px-0 text-sm" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
       }
       
       drawerDiv.innerHTML = `
         <div class="flex w-full gap-2 pt-3 pb-1">
           ${payButtonHtml}
-          <button class="btn btn-secondary flex-1" style="min-height: 44px; display: flex; align-items: center; justify-content: center;" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
-          <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense" style="min-height: 44px; display: flex; align-items: center; justify-content: center;" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
+          <button class="btn btn-secondary flex-1 py-1 sm:py-1.5 px-0 text-sm" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
+          <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense py-1 sm:py-1.5 px-0 text-sm" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
         </div>
       `;
 
