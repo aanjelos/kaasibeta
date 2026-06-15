@@ -1928,7 +1928,7 @@ function openCcHistoryModal() {
           bigAmountText = `<span class="font-semibold text-base tabular-nums text-gray-500 line-through">${formatCurrency(t.amount)}</span>`;
         } else if (t.paidAmount > 0) {
           statusText = `<span class="text-gray-400">Paid ${formatCurrency(t.paidAmount)}</span>`;
-          bigAmountText = `<span class="font-semibold text-base tabular-nums text-expense">${formatCurrency(remainingOnItem)} of ${formatCurrency(t.amount)} Left</span>`;
+          bigAmountText = `<span class="font-semibold text-base tabular-nums"><span class="text-expense">${formatCurrency(remainingOnItem)}</span> <span class="text-gray-500 text-sm">of ${formatCurrency(t.amount)} Left</span></span>`;
         } else {
           statusText = `<span class="text-gray-400">Unpaid</span>`;
           bigAmountText = `<span class="font-semibold text-base tabular-nums text-expense">${formatCurrency(remainingOnItem)} Left</span>`;
