@@ -1725,7 +1725,7 @@
               <div class="flex-shrink-0">
                 <select id="ccYearSelector" class="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm"></select>
               </div>
-              <div id="ccMonthlyTotalText" class="text-sm text-gray-400 hidden ml-2"></div>
+              <div id="ccMonthlyTotalText" class="text-sm text-expense hidden ml-2"></div>
             </div>
             <div id="ccMonthTabs" class="flex overflow-x-auto whitespace-nowrap gap-x-2 hide-scrollbar edge-fade py-1 px-4 max-w-full"></div>
           </div>
@@ -1734,14 +1734,15 @@
           <div class="my-4 flex flex-col sm:flex-row items-center gap-2">
             <div class="flex-grow w-full flex flex-col sm:flex-row items-start sm:items-center gap-2">
               <div class="flex-grow w-full flex items-center gap-x-2">
+                <select id="ccSearchScope" class="bg-gray-700 border border-gray-600 rounded px-2 py-1.5 text-xs sm:text-sm text-gray-300 outline-none w-auto flex-shrink-0">
+                  <option value="month">Current Month</option>
+                  <option value="year">Whole Year</option>
+                </select>
                 <input type="search" id="ccHistorySearchInput" name="ccHistorySearch" placeholder="Search description or amount..." class="flex-grow" />
                 <button id="clearCcHistorySearchBtn" class="btn-icon-clear-search hidden flex-shrink-0" aria-label="Clear search" data-tooltip="Clear Search">
                   <i class="fas fa-times"></i>
                 </button>
               </div>
-              <label class="flex items-center text-xs text-gray-400 whitespace-nowrap cursor-pointer ml-1 sm:ml-0 mt-1 sm:mt-0 select-none">
-                <input type="checkbox" id="ccSearchWholeYear" class="mr-1.5 cursor-pointer accent-theme" /> Whole Year
-              </label>
             </div>
             <div id="ccHistoryFilterControls" class="flex w-full sm:w-auto gap-2 flex-shrink-0">
               <button data-filter="all" class="btn btn-secondary flex-1 sm:flex-none">All</button>

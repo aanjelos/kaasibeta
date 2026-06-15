@@ -471,9 +471,9 @@ function initializeUI(isRefresh = false) {
       ccHistorySearchInput.focus();
     });
 
-    const ccSearchWholeYear = $("#ccSearchWholeYear");
-    if (ccSearchWholeYear) {
-      ccSearchWholeYear.addEventListener("change", triggerCcSearch);
+    const ccSearchScope = $("#ccSearchScope");
+    if (ccSearchScope) {
+      ccSearchScope.addEventListener("change", triggerCcSearch);
     }
   }
 
