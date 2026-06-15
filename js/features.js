@@ -1917,36 +1917,40 @@ function openCcHistoryModal() {
         const itemDiv = document.createElement("div");
         // Use All Transactions classes exactly to match styling
         itemDiv.className = `transaction-list-item-layout monthly-view-transaction-item stagger-item block cursor-pointer relative cc-history-row`;
+        itemDiv.style.borderBottom = "none"; // FORCE REMOVE DIVIDER
         itemDiv.style.animationDelay = `${index * 0.03}s`;
-        if (t.paidOff) itemDiv.style.opacity = "0.6";
+        
+        // Ensure paidOff styling
+        if (t.paidOff) {
+          itemDiv.classList.add("opacity-50");
+        }
         
         const remainingOnItem = t.amount - (t.paidAmount || 0);
         
         const dateObj = new Date(t.date);
         const formattedDate = dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
         
-        let statusText = "";
-        let bigAmountText = "";
-        if (t.paidOff || remainingOnItem <= 0.005) {
-          statusText = `<span class="text-gray-400">Settled</span>`;
-          bigAmountText = `<span class="font-semibold text-sm tabular-nums text-gray-500 line-through">${formatCurrency(t.amount)}</span>`;
+        // Status strings
+        let statusText = `<span class="text-xs text-gray-400">${formattedDate} &bull; Unpaid</span>`;
+        let bigAmountText = `<span class="text-sm font-bold text-expense">${formatCurrency(remainingOnItem)} Left</span>`;
+
+        if (t.paidOff) {
+          statusText = `<span class="text-xs text-gray-400">${formattedDate} &bull; Settled</span>`;
+          bigAmountText = `<span class="text-sm font-bold text-gray-500 line-through">${formatCurrency(t.amount)}</span>`;
         } else if (t.paidAmount > 0) {
-          statusText = `<span class="text-gray-400">Paid ${formatCurrency(t.paidAmount)}</span>`;
-          bigAmountText = `<span class="font-semibold text-sm tabular-nums text-expense">${formatCurrency(remainingOnItem)} of ${formatCurrency(t.amount)} Left</span>`;
-        } else {
-          statusText = `<span class="text-gray-400">Unpaid</span>`;
-          bigAmountText = `<span class="font-semibold text-sm tabular-nums text-expense">${formatCurrency(remainingOnItem)} Left</span>`;
+          statusText = `<span class="text-xs text-gray-400">${formattedDate} &bull; Paid ${formatCurrency(t.paidAmount)}</span>`;
+          bigAmountText = `<span class="text-sm font-bold text-expense">${formatCurrency(remainingOnItem)} of ${formatCurrency(t.amount)} Left</span>`;
         }
 
         // The main row
         const mainRow = document.createElement("div");
         mainRow.className = "flex justify-between items-center gap-x-2 w-full";
         mainRow.innerHTML = `
-          <div class="flex-grow min-w-0 mr-2 text-left">
-              <p class="font-medium truncate ${t.paidOff ? "text-gray-500" : "text-gray-200"}" data-tooltip="${t.description}">${t.description}</p>
-              <p class="text-xs text-gray-400 mt-0.5 truncate">${formattedDate} &bull; ${statusText}</p>
+          <div class="flex-grow">
+              <div class="text-sm font-medium text-white">${t.description}</div>
+              ${statusText}
           </div>
-          <div class="flex items-center justify-end flex-shrink-0 text-right">
+          <div class="text-right flex-shrink-0">
               ${bigAmountText}
           </div>
         `;
@@ -1959,14 +1963,14 @@ function openCcHistoryModal() {
       
       let payButtonHtml = "";
       if (!t.paidOff && remainingOnItem > 0.005) {
-        payButtonHtml = `<button class="btn btn-primary flex-1 py-3" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
+        payButtonHtml = `<button class="btn btn-primary flex-1" style="padding-top: 14px !important; padding-bottom: 14px !important; margin-top: 12px; font-weight: bold; border-radius: 6px;" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
       }
       
       drawerDiv.innerHTML = `
-        <div class="flex w-full sm:w-auto gap-2 py-3 flex-1">
+        <div class="flex w-full sm:w-auto gap-2 py-3 flex-1" style="border: none !important;">
           ${payButtonHtml}
-          <button class="btn btn-secondary flex-1 py-3" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
-          <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense py-3" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
+          <button class="btn btn-secondary flex-1" style="padding-top: 14px !important; padding-bottom: 14px !important; margin-top: 12px; font-weight: bold; border-radius: 6px;" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
+          <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense" style="padding-top: 14px !important; padding-bottom: 14px !important; margin-top: 12px; font-weight: bold; border-radius: 6px;" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
         </div>
       `;
 
