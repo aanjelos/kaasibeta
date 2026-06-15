@@ -2003,7 +2003,7 @@ function openCcHistoryModal() {
       // Append Total Footer Row
       if (filteredTransactions.length > 0) {
         const footerDiv = document.createElement("div");
-        footerDiv.className = "flex justify-between items-center px-4 py-4 sm:px-5 mt-2 bg-gray-700/40 rounded-lg border border-gray-600/50";
+        footerDiv.className = "flex justify-between items-center mt-2 monthly-view-summary-card !text-left";
         if (searchTerm) {
           footerDiv.innerHTML = `<span class="text-gray-400 font-medium">Search Results (${filteredTransactions.length})</span><span class="font-bold text-white text-base">Total: <span class="tabular-nums">${formatCurrency(monthlyTotal)}</span></span>`;
         } else {
@@ -2094,7 +2094,7 @@ function openEditCcTransactionModal(ccTransactionId) {
     return;
   }
   if ($("#ccHistoryModal").style.display === "block") {
-    closeModal("ccHistoryModal");
+    // Keep CC History modal open in background
   }
 
   const formHtml = `
