@@ -5,6 +5,7 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 ---
 
 ### [Major] Production Bug Fixes
+- **CC History Modal Navigation**: Fixed an issue where closing sub-modals (like Edit or Pay) from within the Credit Card History modal would improperly close the entire modal chain back to the dashboard. The CC History modal is now correctly registered in the browser's history state stack.
 - **Service Worker Stale-While-Revalidate**: Fixed `sw.js` cache update dropping gracefully offline and keeping the Service Worker awake during background fetch.
 - **Security PIN Modal State**: Fixed an issue in `js/security.js` where the background PIN event listener remained active when the Forgot PIN modal was open, preventing erroneous locks.
 
@@ -328,21 +329,50 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 - **Context-Aware PDF Export Action**: Automatically hide the "Export PDF" button while search queries or advanced category filters are active to prevent generating confused, partial reports.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v109` to force automatic, clean client-side updates, and updated the application metadata version in `index.html` to `v5.220l`.
 
-### 69. [UI/UX] Global Tooltip System & Overflow Fixes (v5.235l)
+### 69. [Feature] Category Budgets & Grouping (v5.221l)
+Implemented a comprehensive category budget tracking feature with the following highlights:
+- **Dynamic Budgets**: Create customizable monthly limits and assign multiple categories to a single budget.
+- **Smart Cascade**: Changing or deleting a category seamlessly syncs up with your custom budgets without data loss or corruption.
+- **Visual Progress**: A sleek, collapsible Dashboard Card tracks the current calendar month's spending against targets using Semantic 3-State Progress bars (Green, Orange, Red).
+- **Settings Integration**: Dedicated settings tab offering Add/Edit/Delete actions with multi-select category checklists.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v110` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.221l`.
+
+### 70. [UI/UX] Category Budgets Polish & Layout Fixes (v5.222l)
+- **Settings UX**: Rearranged the Budget form layout to place category selections at the top. Added intelligent JavaScript auto-fill so the Budget Name dynamically populates based on your category selections (and smoothly steps back if you type a custom name).
+- **Dashboard Layout**: Reorganized the core DOM structure to slot the Category Budgets card optimally between the "Add Transaction" and "Credit Card" cards on desktop.
+- **Mobile Ordering**: Stripped out invalid CSS fractional orders and applied strict integer sorting to ensure the Category Budgets card correctly renders immediately after the Balance Overview on mobile, preventing it from incorrectly jumping to the top of the feed.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v111` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.222l`.
+
+### 71. [UI/UX] Category Budgets Refinements, Spacing & Alignment Polish (v5.234l)
+- **Consistent Spacing & Layout Alignment**: Standardized dashboard grid gap and column spacing (24px) for perfect layout symmetry across desktop and mobile. Increased the max-height of the Recent Transactions list container from `max-h-60` to `max-h-80` to display more items, pushing the bottom of the card down so that column layout gaps look visually balanced and separate instead of looking "nearly aligned".
+- **Collapsible Budgets Divider**: Dynamically hide the header divider border and bottom padding/margins when the Category Budgets card is collapsed, preventing empty space artifacts.
+- **Taller Category Selector**: Increased the height of the category selection boxes to 240px (`max-h-60`) inside both the budget setup and editing forms to fit more items and reduce scrolling.
+- **Category Locking / Deduplication**: Dynamically lock and grey out categories already assigned to other budget groups (with a "Used" badge) to prevent double assignments.
+- **Dismissible Monthly Tip**: Added a smart monthly budget banner reminder that automatically shows at the start of each month (during the first 3 days) inside the Category Budgets card. Clicking dismiss stores the month's identifier, preventing the prompt from reappearing until the next calendar month.
+- **Tailwind Rebuild**: Successfully rebuilt the `tailwind.css` asset so that the newly introduced utility classes (like `max-h-80`) compile correctly and activate the proper scrolling behavior.
+- **Bypassed Category Exclusions for Budgets**: Budget calculations now ignore general dashboard/report/totals exclusion settings for their assigned categories. If a user explicitly sets up a budget for a hidden category (e.g. "Savings"), it will still track and sum transactions for that budget normally.
+- **Animated Budget Collapse**: Integrated smooth CSS `max-height` transitions (350ms ease-in-out) for expanding and collapsing the Category Budgets card. Refactored the handler to use a temporary dynamic transition class (`collapsible-transition`) combined with browser layout reflow flushes and transition cleanup listeners. This solves the stuttering/jumping animation glitches that occurred during standard page updates and allows the expanded element to layout naturally (`max-height: auto`).
+- **Smooth Header Divider & Tip Transition**: Deferred removing the header border divider, bottom margins, and monthly tip banner during collapse until the `transitionend` event fires. This prevents layout content from instantly snapping up or clipping at the start of the collapse animation.
+- **Stationary Preloader Logo**: Changed the preloader screen elements from vertical flex alignment to absolute positioning. The pulsing logo container is now locked at a stationary `45%` screen height, while the loading screen tip fades in directly `72px` underneath it, preventing the logo from abruptly shifting up as the tip text renders.
+- **Animated Budget Progress Changes**: Refactored the Category Budgets progress bar updates to preserve the underlying DOM nodes across renders via budget ID matching. Prevented redundant `appendChild` calls when elements are already in their correct DOM ordering, as re-inserting elements resets the browser's active transition states. When transactions are added or deleted, the progress bars and their status texts now transition smoothly forwards or backwards, and their background colors change gradually (emerald green ↔ orange ↔ red) instead of snapping instantly.
+- **Budget Text & Bar Spacing**: Adjusted the gap between the budget name/status text and its corresponding progress bar by increasing the bottom margin (`mb-1` to `mb-2`), preventing them from looking compressed.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v123` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.234l`.
+
+### 72. [UI/UX] Global Tooltip System & Overflow Fixes (v5.235l)
 - **Global Tooltip Migration**: Replaced the CSS pseudo-element tooltips (`[data-tooltip]::after`) with a single dynamic, body-level custom tooltip system (`#global-tooltip`). This handles rendering at the root viewport level, fully solving the bug where tooltips were clipped inside parent cards with `overflow: hidden` or scroll containers (such as the collapsible "Category Budgets" card).
 - **Responsive & Smart Positioning**: Implemented viewport calculations inside the new global handler `initializeGlobalTooltips()`. The tooltip automatically centers relative to the target element and dynamically flips to the top if it risks overflowing the bottom of the screen.
 - **Mobile Safe**: Added pointer-device verification (`(hover: hover)`) before triggering tooltips to prevent tooltips from getting stuck on mobile/touch screen interfaces.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v124` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.235l`.
 
-### 70. [UI/UX] Tooltip Unification & Migration (v5.236l)
+### 73. [UI/UX] Tooltip Unification & Migration (v5.236l)
 - **Migrated Default Tooltips**: Converted remaining native browser tooltips (`title`) to the unified custom tooltip system (`data-tooltip`) on budget titles and MoM comparison indicators (e.g. today and 7-day spending change alerts).
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v125` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.236l`.
 
-### 71. [UI/UX] Comprehensive Tooltip Sweep (v5.237l)
+### 74. [UI/UX] Comprehensive Tooltip Sweep (v5.237l)
 - **Global Tooltip Unification**: Performed a full codebase sweep to eliminate all remaining native browser `title` tooltips. Converted over 20+ hardcoded `title` attributes (across transactions, settings toggles, custom date range inputs, and dashboard components) to the new `data-tooltip` unified system for a 100% consistent, premium UI experience.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v126` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.237l`.
 
-### 72. [Bugfixes] Stability & UX Edge-Case Polish (v5.238l)
+### 75. [Bugfixes] Stability & UX Edge-Case Polish (v5.238l)
 - **Persistent UI States**: Migrated the monthly budget tip dismissal state (`lastDismissedBudgetTipMonth`) to `localStorage`. This prevents the cloud sync icon from flashing when simply dismissing UI notifications.
 - **Duplicate Notifications**: Fixed an issue causing duplicate "Export to Cloud" toast notifications on mobile by replacing `.addEventListener` with direct `.onclick` assignment for mobile dropdown actions, avoiding stacked listeners on UI refreshes.
 - **Budget Divider Animation**: Improved the category budget collapse/expand logic to verify the intended state inside the `transitionend` listener. This prevents the budget divider from disappearing when spam-clicking the toggle button.
@@ -350,7 +380,23 @@ Added a "Login & Restore" flow directly into the Initial Setup wizard. Returning
 - **Preserved Search State**: Ensured that editing or deleting a transaction while actively searching the "All Transactions" list preserves the current search term, rather than resetting to show all transactions.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v127` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.238l`.
 
-### 73. [Features] Smart Sync & Mobile Tooltips (v5.539m)
+### 76. [Features] Smart Sync & Mobile Tooltips (v5.539m)
 - **Zero-Network Sync Hashing**: Implemented a highly efficient local data hashing mechanism (`generateDataHash`) that runs transparently during cloud syncs. When local changes are made and then reverted (e.g., adding and deleting a test transaction), the app now instantly recalculates the hash to detect that the local data perfectly matches the last cloud sync. This intelligently suppresses false-positive "Export to Cloud" warnings without requiring any bandwidth or background network payloads.
 - **Mobile Tap-to-Tooltip**: Expanded the global tooltip system to fully support touch interfaces. Tapping on informational UI elements (like budget titles or trend arrows) on mobile devices now smoothly renders the tooltip for 2 seconds before auto-dismissing. Tooltips are actively suppressed on buttons to prevent them from interfering with actual button clicks or blocking modal overlays.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v130` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.539m`.
+
+### 77. [UI/UX] Credit Card History Revamp (v5.540m)
+- **Responsive Layout**: Replaced the constrained layout of the Credit Card History modal with a modern, mobile-friendly design aligning completely with the "All Transactions" aesthetic.
+- **Month Tabs Navigation**: Removed the vertical scrolling month accordions in favor of a sleek horizontal Month Tabs slider and Year Selector at the top of the modal, allowing users to instantly jump to specific billing cycles without excessive scrolling.
+- **Expandable Action Drawer**: Transformed credit card transactions into clean, status-badged cards inside a flat chronological list. Tapping a transaction on mobile or desktop smoothly toggles an inline Action Drawer containing large, touch-friendly buttons for paying off, editing, or deleting the item, completely eliminating horizontal squishing.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v131` to force automatic client-side updates, and updated the application metadata version in `index.html` to `v5.540m`.
+
+### 78. [UI/UX] Credit Card History Refinements & Version Skip Correction (v5.254m)
+- **Refined Action Drawer & Button Layout**: Optimized CTA buttons within the credit card action drawer to match the visual style of filter buttons. Forced min-height and added bottom padding to prevent button squashing and improve touch targets.
+- **Improved Monthly Total Presentation**: Repositioned the monthly total from an awkward badge layout under the selector tabs to a clean, dedicated footer row at the bottom of the credit card history list.
+- **Dynamic Mobile and Desktop Suffix Formatting**:
+  - **Desktop**: Styled partially paid items to display as "X of Y Left" with the remaining amount "X" in bold red and the "of Y Left" suffix in a subtle, muted grey.
+  - **Mobile**: Re-styled to display simply as "X Left" in red to conserve valuable horizontal screen space for the transaction name.
+- **Mobile Spacing & Responsive Elements**: Increased standard margins/paddings between transactions on mobile layouts to prevent visual crowding. Recompiled Tailwind CSS to include responsive visibility classes (`sm:inline`, `sm:hidden`).
+- **Version Sequence Correction**: Corrected a historical version numbering skip where the version jumped 300 iterations (from `v5.238l` to `v5.539m`). Reset the app metadata version to `v5.254m` to accurately align with the actual commit history.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v146` to force automatic, clean client-side updates.

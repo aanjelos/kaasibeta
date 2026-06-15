@@ -2036,7 +2036,7 @@ function openCcHistoryModal() {
 
   // Initial render
   renderFilteredCcList();
-  modal.style.display = "block";
+  openModalHelper("ccHistoryModal");
 }
 
 function handleCcTransactionSubmit(event) {
