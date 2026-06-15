@@ -1930,12 +1930,16 @@ function openCcHistoryModal() {
         const dateObj = new Date(t.date);
         const formattedDate = dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
         
+        let statusText = "";
         let bigAmountText = "";
         if (t.paidOff || remainingOnItem <= 0.005) {
+          statusText = `<span class="text-gray-400">Settled</span>`;
           bigAmountText = `<span class="font-semibold text-sm tabular-nums text-gray-500 line-through">${formatCurrency(t.amount)}</span>`;
         } else if (t.paidAmount > 0) {
+          statusText = `<span class="text-gray-400">Paid ${formatCurrency(t.paidAmount)}</span>`;
           bigAmountText = `<span class="font-semibold text-sm tabular-nums text-expense">${formatCurrency(remainingOnItem)} of ${formatCurrency(t.amount)} Left</span>`;
         } else {
+          statusText = `<span class="text-gray-400">Unpaid</span>`;
           bigAmountText = `<span class="font-semibold text-sm tabular-nums text-expense">${formatCurrency(remainingOnItem)} Left</span>`;
         }
 
@@ -1945,7 +1949,7 @@ function openCcHistoryModal() {
         mainRow.innerHTML = `
           <div class="flex-grow min-w-0 mr-2 text-left">
               <p class="font-medium truncate ${t.paidOff ? "text-gray-500" : "text-gray-200"}" data-tooltip="${t.description}">${t.description}</p>
-              <p class="text-xs text-gray-400 mt-0.5 truncate">${formattedDate}</p>
+              <p class="text-xs text-gray-400 mt-0.5 truncate">${formattedDate} &bull; ${statusText}</p>
           </div>
           <div class="flex items-center justify-end flex-shrink-0 text-right">
               ${bigAmountText}
@@ -1960,14 +1964,14 @@ function openCcHistoryModal() {
       
       let payButtonHtml = "";
       if (!t.paidOff && remainingOnItem > 0.005) {
-        payButtonHtml = `<button class="btn !py-2 btn-primary flex-1" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
+        payButtonHtml = `<button class="btn btn-primary flex-1 py-2.5 sm:py-2" style="padding-top: 10px; padding-bottom: 10px;" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
       }
       
       drawerDiv.innerHTML = `
         <div class="flex w-full sm:w-auto gap-2 mt-2 flex-1 pt-1 pb-1">
           ${payButtonHtml}
-          <button class="btn !py-2 btn-secondary flex-1" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
-          <button class="btn !py-2 btn-secondary flex-1 hover:!text-expense hover:!border-expense" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
+          <button class="btn btn-secondary flex-1 py-2.5 sm:py-2" style="padding-top: 10px; padding-bottom: 10px;" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
+          <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense py-2.5 sm:py-2" style="padding-top: 10px; padding-bottom: 10px;" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
         </div>
       `;
 
