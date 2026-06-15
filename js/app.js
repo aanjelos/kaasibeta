@@ -470,11 +470,6 @@ function initializeUI(isRefresh = false) {
       triggerCcSearch();
       ccHistorySearchInput.focus();
     });
-
-    const ccSearchScope = $("#ccSearchScope");
-    if (ccSearchScope) {
-      ccSearchScope.addEventListener("change", triggerCcSearch);
-    }
   }
 
   // --- NEW: SUPABASE EVENT LISTENERS ---

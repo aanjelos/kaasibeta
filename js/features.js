@@ -1849,20 +1849,15 @@ function openCcHistoryModal() {
         if (ccHistoryFilter === "paid" && !t.paidOff && (!t.paidAmount || t.paidAmount <= 0)) return false;
 
         // Search check
-        const searchScope = $("#ccSearchScope")?.value;
-        const searchWholeYear = searchScope === "year";
         if (searchTerm) {
           const descriptionMatch = t.description
             .toLowerCase()
             .includes(searchTerm);
           const amountMatch = t.amount.toFixed(2).includes(searchTerm);
           if (!descriptionMatch && !amountMatch) return false;
-          
-          if (!searchWholeYear && tDate.getMonth() !== ccSelectedMonth) return false;
-        } else {
-          // If no search term, always enforce month
-          if (tDate.getMonth() !== ccSelectedMonth) return false;
         }
+        
+        if (tDate.getMonth() !== ccSelectedMonth) return false;
         
         return true;
       }
