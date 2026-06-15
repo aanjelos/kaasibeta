@@ -1722,8 +1722,12 @@
           <!-- Navigation (Year & Month Tabs) -->
           <div class="flex flex-col sm:flex-row justify-between items-center mb-4 border-b border-gray-600 pb-2 gap-2">
             <div class="flex items-center gap-x-2 w-full sm:w-auto justify-between sm:justify-start">
-              <div class="flex-shrink-0">
-                <select id="ccYearSelector" class="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm"></select>
+              <div class="flex-shrink-0 flex items-center gap-x-2">
+                <select id="ccYearSelector" class="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm outline-none hover:bg-gray-600 transition-colors cursor-pointer"></select>
+                <select id="ccSearchScope" class="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm outline-none hover:bg-gray-600 transition-colors cursor-pointer">
+                  <option value="month">Current Month</option>
+                  <option value="year">Whole Year</option>
+                </select>
               </div>
               <div id="ccMonthlyTotalText" class="text-sm text-white hidden ml-2"></div>
             </div>
@@ -1738,10 +1742,6 @@
                 <button id="clearCcHistorySearchBtn" class="btn-icon-clear-search hidden flex-shrink-0" aria-label="Clear search" data-tooltip="Clear Search">
                   <i class="fas fa-times text-gray-400 hover:text-white transition-colors"></i>
                 </button>
-                <select id="ccSearchScope" class="bg-gray-800 border border-gray-700 rounded px-2 py-1.5 text-xs sm:text-sm text-gray-300 outline-none w-auto flex-shrink-0 hover:bg-gray-700 transition-colors cursor-pointer">
-                  <option value="month">Current Month</option>
-                  <option value="year">Whole Year</option>
-                </select>
               </div>
             </div>
             <div id="ccHistoryFilterControls" class="flex w-full sm:w-auto gap-2 flex-shrink-0">

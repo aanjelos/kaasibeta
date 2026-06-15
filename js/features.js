@@ -1964,14 +1964,14 @@ function openCcHistoryModal() {
       
       let payButtonHtml = "";
       if (!t.paidOff && remainingOnItem > 0.005) {
-        payButtonHtml = `<button class="btn btn-primary flex-1 py-2.5 sm:py-2" style="padding-top: 10px; padding-bottom: 10px;" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
+        payButtonHtml = `<button class="btn btn-primary flex-1 py-2" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
       }
       
       drawerDiv.innerHTML = `
-        <div class="flex w-full sm:w-auto gap-2 mt-2 flex-1 pt-1 pb-1">
+        <div class="flex w-full sm:w-auto gap-2 mt-3 pt-3 flex-1 border-t border-gray-700">
           ${payButtonHtml}
-          <button class="btn btn-secondary flex-1 py-2.5 sm:py-2" style="padding-top: 10px; padding-bottom: 10px;" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
-          <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense py-2.5 sm:py-2" style="padding-top: 10px; padding-bottom: 10px;" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
+          <button class="btn btn-secondary flex-1 py-2" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
+          <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense py-2" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
         </div>
       `;
 
