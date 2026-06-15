@@ -1917,7 +1917,6 @@ function openCcHistoryModal() {
         const itemDiv = document.createElement("div");
         // Use All Transactions classes exactly to match styling
         itemDiv.className = `transaction-list-item-layout monthly-view-transaction-item stagger-item block cursor-pointer relative cc-history-row`;
-        itemDiv.style.borderBottom = "none"; // FORCE REMOVE DIVIDER
         itemDiv.style.animationDelay = `${index * 0.03}s`;
         
         // Ensure paidOff styling
@@ -1955,22 +1954,23 @@ function openCcHistoryModal() {
           </div>
         `;
 
-      // Expandable Drawer (inline styles)
+      // Expandable Drawer
       const drawerDiv = document.createElement("div");
-      drawerDiv.className = "overflow-hidden transition-all duration-300 flex justify-end";
+      // Use block instead of flex justify-end to prevent flex squashing, and inner div handles layout
+      drawerDiv.className = "overflow-hidden transition-all duration-300";
       drawerDiv.style.maxHeight = "0px";
       drawerDiv.style.opacity = "0";
       
       let payButtonHtml = "";
       if (!t.paidOff && remainingOnItem > 0.005) {
-        payButtonHtml = `<button class="btn btn-primary flex-1" style="padding-top: 14px !important; padding-bottom: 14px !important; margin-top: 12px; font-weight: bold; border-radius: 6px;" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
+        payButtonHtml = `<button class="btn btn-primary flex-1" style="min-height: 44px; display: flex; align-items: center; justify-content: center;" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
       }
       
       drawerDiv.innerHTML = `
-        <div class="flex w-full sm:w-auto gap-2 py-3 flex-1" style="border: none !important;">
+        <div class="flex w-full gap-2 pt-3 pb-1">
           ${payButtonHtml}
-          <button class="btn btn-secondary flex-1" style="padding-top: 14px !important; padding-bottom: 14px !important; margin-top: 12px; font-weight: bold; border-radius: 6px;" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
-          <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense" style="padding-top: 14px !important; padding-bottom: 14px !important; margin-top: 12px; font-weight: bold; border-radius: 6px;" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
+          <button class="btn btn-secondary flex-1" style="min-height: 44px; display: flex; align-items: center; justify-content: center;" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
+          <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense" style="min-height: 44px; display: flex; align-items: center; justify-content: center;" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
         </div>
       `;
 
