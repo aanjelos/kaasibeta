@@ -20,6 +20,13 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
   - **Under Budget Streaks**: Track how many consecutive months a user stays under their set Category Budgets. Display a visual "Streak" counter with fire emojis 🔥. If they break the budget, the streak resets.
   - **Achievement Badges**: Unlockable SVG badges in the profile/settings for hitting app milestones (e.g., "Data Nerd" for 100 transactions, "Diversified" for using 5+ categories, "Debt Free" for paying off a debt).
 
+### 4. Undo Transactions
+- **Concept**: A simple way to quickly revert the last added, edited, or deleted transaction in case of an accidental action or typo.
+
+### 5. Historical Budget Progress in PDF Export
+- **Concept**: Include the user's set monthly budget goals and their progress against them within the generated PDF reports.
+- **Implementation Idea**: This will require coming up with a reliable way to save historical snapshots of category budget limits at the end of each month, rather than just the current active budgets.
+
 ---
 
 ## ✨ UI / UX Polish
@@ -63,9 +70,10 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
   - Highlight the massive privacy and security risks of granting blanket access to an SMS inbox (e.g., exposing 2FA codes, password resets, and private conversations).
   - Contrast this with Kaasi's local-first, privacy-respecting philosophy. Frame the lack of SMS scraping as a deliberate, empowering security feature rather than a technical limitation.
 
-### 2. Emergency Funds 101
-- **Concept**: A beginner's guide to understanding and building an emergency fund.
-- **Key Points**: Define what an emergency fund is, why it's crucial for financial stability, how much you actually need to save, and actionable steps to start building one from scratch.
+### 2. Emergency Funds 101 & Calculator
+- **Concept**: A beginner's guide to understanding and building an emergency fund, featuring a built-in interactive calculator.
+- **Key Points**: Define what an emergency fund is, why it's crucial for financial stability, and actionable steps to start building one from scratch.
+- **Interactive Tool**: A working calculator where users can input their estimated monthly expenses to see their total minimum required target. They can also input their monthly savings contribution to see exactly how long it will take to build their emergency vault.
 
 ### 3. Bank Failures & Deposit Insurance in Sri Lanka
 - **Concept**: Educate users on what happens to their money if their bank goes bankrupt.
@@ -78,3 +86,8 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 5. Why Tracking Every Penny Matters
 - **Concept**: The psychological and practical benefits of manual expense tracking.
 - **Key Points**: Discuss the concept of mindfulness in spending. How seeing where the money goes inherently changes spending behavior. Why manual input (like Kaasi's approach) builds better financial discipline than fully automated systems that you ignore.
+
+### 6. Understanding PAYE in Sri Lanka
+- **Concept**: A breakdown of the Pay-As-You-Earn (PAYE) tax system, complete with a built-in tax calculator.
+- **Key Points**: Demystify the latest tax brackets, how it affects salaries, and what exemptions exist in plain, simple terms.
+- **Interactive Tool**: Include a working calculator (similar to taxadvisor.lk) where users can input their gross salary to see their estimated take-home pay and exact tax deductions.
