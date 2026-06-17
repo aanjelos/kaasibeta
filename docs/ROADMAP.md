@@ -51,3 +51,30 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ### 3. Keyboard Shortcuts Modal Audit
 - Open the keyboard shortcuts help modal (`?`) and confirm all descriptions (especially `A` mapping to "All Transactions") match the final `v6` user interface.
+
+---
+
+## 📝 Blog Ideas
+
+### 1. The Privacy Cost of Auto-Tracking Finance Apps
+- **Concept**: Explain why Kaasi deliberately avoids auto-reading SMS messages for transaction tracking.
+- **Key Points**: 
+  - Break down how other native apps use aggressive permissions (like `READ_SMS`) to scrape users' personal text messages.
+  - Highlight the massive privacy and security risks of granting blanket access to an SMS inbox (e.g., exposing 2FA codes, password resets, and private conversations).
+  - Contrast this with Kaasi's local-first, privacy-respecting philosophy. Frame the lack of SMS scraping as a deliberate, empowering security feature rather than a technical limitation.
+
+### 2. Emergency Funds 101
+- **Concept**: A beginner's guide to understanding and building an emergency fund.
+- **Key Points**: Define what an emergency fund is, why it's crucial for financial stability, how much you actually need to save, and actionable steps to start building one from scratch.
+
+### 3. Bank Failures & Deposit Insurance in Sri Lanka
+- **Concept**: Educate users on what happens to their money if their bank goes bankrupt.
+- **Key Points**: Explain the Sri Lanka Deposit Insurance Scheme (SLDIS). Clarify that the maximum compensation limit per depositor per bank is capped (currently around Rs. 1.1 million). Discuss how to distribute funds across multiple institutions to minimize risk.
+
+### 4. Trimming the Fat: Cutting Unnecessary Expenses
+- **Concept**: Practical strategies for reducing lifestyle creep and everyday waste.
+- **Key Points**: Provide a downloadable or actionable checklist for identifying and cutting recurring but unused subscriptions, impulse purchases, and optimizing daily habits without sacrificing quality of life.
+
+### 5. Why Tracking Every Penny Matters
+- **Concept**: The psychological and practical benefits of manual expense tracking.
+- **Key Points**: Discuss the concept of mindfulness in spending. How seeing where the money goes inherently changes spending behavior. Why manual input (like Kaasi's approach) builds better financial discipline than fully automated systems that you ignore.
