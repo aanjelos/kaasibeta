@@ -54,6 +54,9 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 1. Credit Card Modal Navigation
 - **Issue**: Investigate modal history and back-button/closure routing bugs when going back on modals in the Credit Card history section.
 
+### 2. Blog SEO / Google Indexing
+- **Issue**: Blogs are currently not showing up on Google search results. Need to investigate SEO issues, potentially missing `sitemap.xml`, `robots.txt`, or Single Page Application (SPA) rendering hurdles that prevent Googlebots from indexing the dynamic content properly. Setup Google Search Console to monitor.
+
 ---
 
 ## 📋 Pre-Release v6 Checklist
