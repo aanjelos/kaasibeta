@@ -795,7 +795,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   // Dynamically add keyboard shortcuts for non-mobile/desktop users
-  const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth < 768);
+  const isMobile = window.innerWidth < 768;
   if (!isMobile) {
     PRELOADER_TIPS.push(
       "Quickly backup with Ctrl+E and restore with Ctrl+I.",
@@ -803,6 +803,15 @@ document.addEventListener("DOMContentLoaded", () => {
       "Press the '?' key to view Keyboard Shortcuts."
     );
   }
+  
+  PRELOADER_TIPS.push(
+    "Tip: You can edit past transactions by tapping them.",
+    "A budget is telling your money where to go, instead of wondering where it went.",
+    "Pro Tip: You can customize your categories in the Categories view.",
+    "Use the date filter to see exactly how much you spent last month.",
+    "Did you know? Setting limits on categories helps control spending.",
+    "Every Rupee counts! Keep tracking."
+  );
 
   const tipTextElement = document.getElementById("preloader-tip-text");
   if (tipTextElement && PRELOADER_TIPS.length > 0) {

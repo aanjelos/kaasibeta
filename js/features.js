@@ -505,7 +505,7 @@ function handleTransactionSubmit(event) {
   const type = formData.get("transactionType");
   // Ensure amount from form is parsed and then immediately rounded if needed, though parseFloat is usually fine here.
   // The main rounding will happen during balance calculations.
-  const amount = parseFloat(formData.get("amount"));
+  const amount = parseFloat(String(formData.get("amount")).replace(/,/g, ''));
   const accountId = formData.get("account");
   const category = type === "expense" ? formData.get("category") : null,
     description = formData.get("description").trim(),
@@ -757,7 +757,7 @@ function handleEditTransactionModalSubmit(event) {
   const originalDate = transaction.date;
 
   const newType = formData.get("transactionType");
-  const newAmount = parseFloat(formData.get("amount")); // Parsed from form
+  const newAmount = parseFloat(String(formData.get("amount")).replace(/,/g, '')); // Parsed from form
   const newAccountId = formData.get("account");
   const newCategory = newType === "expense" ? formData.get("category") : null;
   const newDescription = formData.get("description").trim();
@@ -916,7 +916,7 @@ function handleTransferSubmit(event) {
   event.preventDefault();
   const form = event.target; // The form element itself
   const formData = new FormData(form);
-  const amount = parseFloat(formData.get("transferAmount"));
+  const amount = parseFloat(String(formData.get("transferAmount")).replace(/,/g, ''));
   const fromAccountId = formData.get("transferFrom");
   const toAccountId = formData.get("transferTo");
 
@@ -1323,8 +1323,8 @@ function renderMonthlyDetails(
     if (!isAllCategories && !selectedCategories.has(t.category)) return false;
 
     // 4. Amount Check
-    if (filterMinAmount && t.amount < parseFloat(filterMinAmount)) return false;
-    if (filterMaxAmount && t.amount > parseFloat(filterMaxAmount)) return false;
+    if (filterMinAmount && t.amount < parseFloat(String(filterMinAmount).replace(/,/g, ''))) return false;
+    if (filterMaxAmount && t.amount > parseFloat(String(filterMaxAmount).replace(/,/g, ''))) return false;
 
     // 5. Text Search Check
     if (searchLower) {
@@ -2043,7 +2043,7 @@ function handleCcTransactionSubmit(event) {
   event.preventDefault();
   const form = event.target,
     formData = new FormData(form);
-  const amount = parseFloat(formData.get("ccAmount"));
+  const amount = parseFloat(String(formData.get("ccAmount")).replace(/,/g, ''));
   const description = formData.get("ccDescription").trim();
   const date = formData.get("ccDate");
 
@@ -2143,7 +2143,7 @@ function handleEditCcTransactionModalSubmit(event) {
     return;
   }
 
-  const newAmount = parseFloat(formData.get("ccAmount"));
+  const newAmount = parseFloat(String(formData.get("ccAmount")).replace(/,/g, ''));
   const newDescription = formData.get("ccDescription").trim();
   const newDate = formData.get("ccDate");
 
@@ -2247,7 +2247,7 @@ function openAddDebtForm() {
 function handleAddDebtSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
-  const amount = parseFloat(form.get("debtAmount"));
+  const amount = parseFloat(String(form.get("debtAmount")).replace(/,/g, ''));
 
   if (isNaN(amount) || amount <= 0) {
     showNotification("Invalid amount for debt.", "error");
@@ -2310,8 +2310,8 @@ function handleEditDebtSubmit(event) {
     return;
   }
 
-  const originalAmount = parseFloat(form.get("debtOriginalAmount"));
-  const remainingAmount = parseFloat(form.get("debtRemainingAmount"));
+  const originalAmount = parseFloat(String(form.get("debtOriginalAmount")).replace(/,/g, ''));
+  const remainingAmount = parseFloat(String(form.get("debtRemainingAmount")).replace(/,/g, ''));
 
   if (
     isNaN(originalAmount) ||
@@ -2423,7 +2423,7 @@ function handlePayDebtSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
   const debtId = form.get("debtId");
-  const paymentAmount = parseFloat(form.get("payDebtAmount"));
+  const paymentAmount = parseFloat(String(form.get("payDebtAmount")).replace(/,/g, ''));
   const accountId = form.get("payDebtAccount");
   const logAsExpense = form.get("logDebtPaymentAsExpense") === "on";
   const category = logAsExpense ? form.get("payDebtCategory") : null;
@@ -2615,7 +2615,7 @@ function toggleReceivableSourceAccount(type, groupId, selectId) {
 function handleAddReceivableSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
-  const amount = parseFloat(form.get("recAmount"));
+  const amount = parseFloat(String(form.get("recAmount")).replace(/,/g, ''));
   const type = form.get("recType");
   const sourceAccountId =
     type === "cash" ? form.get("receivableSourceAccount") : null;
@@ -2749,8 +2749,8 @@ function handleEditReceivableSubmit(event) {
   const oldType = rec.type;
   const oldCcTxId = rec.ccTransactionId;
 
-  const newOriginalAmountForm = parseFloat(form.get("recOriginalAmount"));
-  const newRemainingAmountForm = parseFloat(form.get("recRemainingAmount"));
+  const newOriginalAmountForm = parseFloat(String(form.get("recOriginalAmount")).replace(/,/g, ''));
+  const newRemainingAmountForm = parseFloat(String(form.get("recRemainingAmount")).replace(/,/g, ''));
   const newType = form.get("recType");
   const newSourceAccountId =
     newType === "cash" ? form.get("receivableSourceAccount") : null;
@@ -2908,7 +2908,7 @@ function openReceivePaymentForm(recId) {
   const overpaymentInfoP = document.getElementById("overpaymentInfo");
   if (amountInput && overpaymentInfoP) {
     const checkOverpayment = () => {
-      const enteredAmount = parseFloat(amountInput.value);
+      const enteredAmount = parseFloat(String(amountInput.value).replace(/,/g, ''));
       if (
         !isNaN(enteredAmount) &&
         receivable.remainingAmount > 0 &&
@@ -2928,7 +2928,7 @@ function handleReceivePaymentSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
   const recId = form.get("recId");
-  const paymentAmountForm = parseFloat(form.get("recPaymentAmount"));
+  const paymentAmountForm = parseFloat(String(form.get("recPaymentAmount")).replace(/,/g, ''));
   const accountId = form.get("recPaymentAccount");
   const currentDate = new Date().toISOString().split("T")[0];
 
@@ -3118,7 +3118,7 @@ function openAddInstallmentForm() {
 function handleAddInstallmentSubmit(event) {
   event.preventDefault();
   const formData = new FormData(event.target);
-  const fullAmount = parseFloat(formData.get("instFullAmount"));
+  const fullAmount = parseFloat(String(formData.get("instFullAmount")).replace(/,/g, ''));
   const totalMonths = parseInt(formData.get("instTotalMonths"));
   let monthsLeft = parseInt(formData.get("instMonthsLeft"));
 
@@ -3256,7 +3256,7 @@ function handleEditInstallmentSubmit(event) {
     return;
   }
 
-  const fullAmount = parseFloat(form.get("instFullAmount"));
+  const fullAmount = parseFloat(String(form.get("instFullAmount")).replace(/,/g, ''));
   const totalMonths = parseInt(form.get("instTotalMonths"));
   const monthsLeft = parseInt(form.get("instMonthsLeft"));
 
@@ -3499,7 +3499,7 @@ function handlePayCcItemSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
   const ccItemId = form.get("ccItemId");
-  const paymentAmountForm = parseFloat(form.get("ccItemPayAmount"));
+  const paymentAmountForm = parseFloat(String(form.get("ccItemPayAmount")).replace(/,/g, ''));
   const accountId = form.get("ccPayFromAccount");
   const logAsExpense = form.get("logCcPaymentAsExpense") === "on";
   const category = logAsExpense ? form.get("ccPayCategory") : null;

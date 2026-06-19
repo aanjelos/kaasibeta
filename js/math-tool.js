@@ -4,6 +4,7 @@
  */
 function evaluateMathExpression(inputStr) {
   let expr = inputStr.trim();
+  expr = expr.replace(/,/g, '');
   if (expr.endsWith("=")) {
     expr = expr.slice(0, -1);
   }
@@ -34,10 +35,17 @@ function processCalculation(inputEl) {
 }
 
 function positionMathToolbar(inputEl) {
-  const rect = inputEl.getBoundingClientRect();
-  const tbWidth = mathToolbar.offsetWidth || 226; // Approx width if layout isn't painted yet
-  mathToolbar.style.left = `${rect.right + window.scrollX - tbWidth}px`;
-  mathToolbar.style.top = `${rect.bottom + window.scrollY + 6}px`; 
+  const parent = inputEl.parentElement;
+  if (!parent.classList.contains("relative")) {
+    parent.classList.add("relative");
+  }
+  if (!parent.contains(mathToolbar)) {
+    parent.appendChild(mathToolbar);
+  }
+  mathToolbar.style.left = 'auto';
+  mathToolbar.style.right = '1rem';
+  mathToolbar.style.top = '100%';
+  mathToolbar.style.marginTop = '4px';
 }
 
 function showMathToolbar(inputEl) {

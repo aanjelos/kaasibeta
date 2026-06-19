@@ -106,7 +106,7 @@ function renderSettingsForm() {
     settingsCcLimitForm.onsubmit = (event) => {
       event.preventDefault();
       const formData = new FormData(settingsCcLimitForm);
-      const limit = parseFloat(formData.get("ccLimitAmount"));
+      const limit = parseFloat(String(formData.get("ccLimitAmount")).replace(/,/g, ''));
       if (isNaN(limit) || limit < 0) {
         showNotification("Invalid credit limit amount.", "error");
         return;
@@ -713,7 +713,7 @@ function handleManageAccountsSubmit(event) {
     }
 
     const newName = newNameInput.trim();
-    const newBalance = parseFloat(newBalanceInput);
+    const newBalance = parseFloat(String(newBalanceInput).replace(/,/g, ''));
 
     if (acc.id !== "cash") {
       if (!newName) {
@@ -786,9 +786,7 @@ function handleManageAccountsSubmit(event) {
     // Check if any balance was just re-formatted to 2 decimals without changing its value significantly
     let formattingChangeOnly = false;
     state.accounts.forEach((acc) => {
-      const newBalanceFromForm = parseFloat(
-        formData.get(`accountBalance_${acc.id}`)
-      );
+      const newBalanceFromForm = parseFloat(String(formData.get(`accountBalance_${acc.id}`)).replace(/,/g, ''));
       if (
         !isNaN(newBalanceFromForm) &&
         acc.balance !== roundToTwoDecimals(newBalanceFromForm) &&
@@ -1060,7 +1058,7 @@ function renderBudgetsSettingsList() {
 function handleAddBudgetSubmit(event) {
   event.preventDefault();
   let nameInput = $("#addBudgetName").value.trim();
-  const limitInput = parseFloat($("#addBudgetLimit").value);
+  const limitInput = parseFloat(String($("#addBudgetLimit").value).replace(/,/g, ''));
   
   if (isNaN(limitInput) || limitInput <= 0) {
     showNotification("Please provide a valid budget limit.", "error");
@@ -1121,7 +1119,7 @@ function handleEditBudgetSubmit(event) {
   event.preventDefault();
   const id = $("#editBudgetId").value;
   let nameInput = $("#editBudgetName").value.trim();
-  const limitInput = parseFloat($("#editBudgetLimit").value);
+  const limitInput = parseFloat(String($("#editBudgetLimit").value).replace(/,/g, ''));
   
   if (isNaN(limitInput) || limitInput <= 0) {
     showNotification("Please provide a valid budget limit.", "error");

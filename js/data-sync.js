@@ -517,6 +517,7 @@ async function backupToSupabase() {
   backupBtn.disabled = true;
 
   console.log("Starting cloud backup...");
+  showNotification("Saving backup...", "info", 5000);
 
   try {
     // We use 'upsert' to either create a new record or update the existing one for this user.
@@ -552,6 +553,7 @@ async function backupToSupabase() {
     const now = Date.now().toString();
     localStorage.setItem("lastLocalCloudSync", now);
     localStorage.setItem("lastLocalDataModification", now);
+    localStorage.setItem("lastSuccessfulBackupDate", getCurrentDateString());
     const currentDataStr = localStorage.getItem("KaasiData");
     if (currentDataStr && typeof generateDataHash === "function") {
       localStorage.setItem("kaasi_synced_state_hash", generateDataHash(currentDataStr));
@@ -787,8 +789,9 @@ function checkAndTriggerBackupReminder() {
 
   // Resolve 'default' dynamically based on cloud sync status
   if (freqSetting === "default") {
-    // If Supabase user is logged in, default is 7 days, otherwise 3 days.
-    freqSetting = supabaseUser ? "7" : "3";
+    // If Supabase user is logged in (or token exists in storage), default is 7 days, otherwise 3 days.
+    const hasSupabaseSession = Object.keys(localStorage).some(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
+    freqSetting = (typeof supabaseUser !== 'undefined' && supabaseUser) || hasSupabaseSession ? "7" : "3";
   }
 
   const intervalDays = parseInt(freqSetting, 10);

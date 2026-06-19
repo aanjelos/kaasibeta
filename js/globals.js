@@ -220,7 +220,7 @@ function openInitialSetupWizard() {
         acc.name = nameInput.value.trim() || acc.name;
       }
       if (balanceInput) {
-        const balanceValue = parseFloat(balanceInput.value);
+        const balanceValue = parseFloat(String(balanceInput.value).replace(/,/g, ''));
         // Only update if it's a valid number, otherwise keep the old value
         if (!isNaN(balanceValue)) {
           // We don't round here, just store what the user typed. Rounding happens on final save.
@@ -417,7 +417,7 @@ function handleInitialSetupSubmit(event, tempSetupAccounts) {
     if (balanceInput) {
       const balanceStr = balanceInput.value.trim();
       if (balanceStr !== "" && balanceStr !== null) {
-        const parsedBalance = parseFloat(balanceStr);
+        const parsedBalance = parseFloat(String(balanceStr).replace(/,/g, ''));
         balance = isNaN(parsedBalance) ? 0 : parsedBalance;
       }
     }
@@ -437,7 +437,7 @@ function handleInitialSetupSubmit(event, tempSetupAccounts) {
     if (ccLimitStr === "" || ccLimitStr === null) {
       newState.creditCard.limit = 0;
     } else {
-      const limit = parseFloat(ccLimitStr);
+      const limit = parseFloat(String(ccLimitStr).replace(/,/g, ''));
       newState.creditCard.limit = roundToTwoDecimals(
         isNaN(limit) || limit < 0 ? 0 : limit
       );

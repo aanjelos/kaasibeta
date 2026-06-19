@@ -655,6 +655,15 @@ function openModalHelper(modalId) {
     currentOpenModals.push(modalId);
     
     history.pushState({ modalOpen: true, modalId, openModals: currentOpenModals }, null, "");
+
+    setTimeout(() => {
+      if (!["settingsModal", "initialSetupModal", "donateModal", "shortcutsHelpModal"].includes(modalId)) {
+        const firstInput = modal.querySelector('input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([readonly]), select, textarea');
+        if (firstInput) {
+          firstInput.focus();
+        }
+      }
+    }, 50);
   }
 }
 
