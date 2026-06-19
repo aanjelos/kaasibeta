@@ -141,24 +141,41 @@ function initializeUI(isRefresh = false) {
       copyButtons.forEach((button) => {
         button.addEventListener("click", () => {
           const textToCopy = button.dataset.copyText;
-          const textArea = document.createElement("textarea");
-          textArea.value = textToCopy;
-          document.body.appendChild(textArea);
-          textArea.select();
-          try {
-            document.execCommand("copy");
-            button.textContent = "Copied!";
-            setTimeout(() => {
-              button.innerHTML = '<i class="far fa-copy"></i>'; // Revert back to icon
-            }, 2000);
-          } catch (err) {
-            console.error("Failed to copy text: ", err);
-            button.textContent = "Failed!";
-            setTimeout(() => {
-              button.innerHTML = '<i class="far fa-copy"></i>';
-            }, 2000);
+          
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+              button.textContent = "Copied!";
+              setTimeout(() => {
+                button.innerHTML = '<i class="far fa-copy"></i>';
+              }, 2000);
+            }).catch(err => {
+              console.error("Failed to copy text: ", err);
+              button.textContent = "Failed!";
+              setTimeout(() => {
+                button.innerHTML = '<i class="far fa-copy"></i>';
+              }, 2000);
+            });
+          } else {
+            // Fallback for unsupported browsers
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+              document.execCommand("copy");
+              button.textContent = "Copied!";
+              setTimeout(() => {
+                button.innerHTML = '<i class="far fa-copy"></i>';
+              }, 2000);
+            } catch (err) {
+              console.error("Failed to copy text (fallback): ", err);
+              button.textContent = "Failed!";
+              setTimeout(() => {
+                button.innerHTML = '<i class="far fa-copy"></i>';
+              }, 2000);
+            }
+            document.body.removeChild(textArea);
           }
-          document.body.removeChild(textArea);
         });
       });
     }

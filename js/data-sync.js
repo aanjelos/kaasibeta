@@ -31,6 +31,17 @@ function exportData() {
   }
 }
 
+function sanitizeNumericFields(array, fields) {
+  if (!Array.isArray(array)) return;
+  array.forEach((item) => {
+    fields.forEach((field) => {
+      if (typeof item[field] === "number") {
+        item[field] = roundToTwoDecimals(item[field]);
+      }
+    });
+  });
+}
+
 function importData(event) {
   const file = event.target.files[0];
   if (!file) {
@@ -47,87 +58,43 @@ function importData(event) {
       // onConfirm
       const reader = new FileReader();
       reader.onload = (e) => {
-        try {
-          let importedData = JSON.parse(e.target.result);
-          if (importedData && typeof importedData === "object") {
-            // Sanitization logic from your previous full script.js
-            if (Array.isArray(importedData.transactions)) {
-              importedData.transactions.forEach((t) => {
-                if (typeof t.amount === "number")
-                  t.amount = roundToTwoDecimals(t.amount);
-              });
-            }
-            if (Array.isArray(importedData.accounts)) {
-              importedData.accounts.forEach((acc) => {
-                if (typeof acc.balance === "number")
-                  acc.balance = roundToTwoDecimals(acc.balance);
-              });
-            }
-            if (Array.isArray(importedData.debts)) {
-              importedData.debts.forEach((d) => {
-                if (typeof d.amount === "number")
-                  d.amount = roundToTwoDecimals(d.amount);
-                if (typeof d.originalAmount === "number")
-                  d.originalAmount = roundToTwoDecimals(d.originalAmount);
-                if (typeof d.remainingAmount === "number")
-                  d.remainingAmount = roundToTwoDecimals(d.remainingAmount);
-              });
-            }
-            if (Array.isArray(importedData.receivables)) {
-              importedData.receivables.forEach((r) => {
-                if (typeof r.amount === "number")
-                  r.amount = roundToTwoDecimals(r.amount);
-                if (typeof r.originalAmount === "number")
-                  r.originalAmount = roundToTwoDecimals(r.originalAmount);
-                if (typeof r.remainingAmount === "number")
-                  r.remainingAmount = roundToTwoDecimals(r.remainingAmount);
-              });
-            }
-            if (Array.isArray(importedData.installments)) {
-              importedData.installments.forEach((i) => {
-                if (typeof i.monthlyAmount === "number")
-                  i.monthlyAmount = roundToTwoDecimals(i.monthlyAmount);
-                if (typeof i.originalFullAmount === "number")
-                  i.originalFullAmount = roundToTwoDecimals(
-                    i.originalFullAmount
-                  );
-              });
-            }
-            if (
-              importedData.creditCard &&
-              typeof importedData.creditCard === "object"
-            ) {
-              if (typeof importedData.creditCard.limit === "number") {
-                importedData.creditCard.limit = roundToTwoDecimals(
-                  importedData.creditCard.limit
-                );
-              }
-              if (Array.isArray(importedData.creditCard.transactions)) {
-                importedData.creditCard.transactions.forEach((ccTrans) => {
-                  if (typeof ccTrans.amount === "number")
-                    ccTrans.amount = roundToTwoDecimals(ccTrans.amount);
-                  if (typeof ccTrans.paidAmount === "number")
-                    ccTrans.paidAmount = roundToTwoDecimals(ccTrans.paidAmount);
-                  if (
-                    ccTrans.paidAmount >=
-                    roundToTwoDecimals(ccTrans.amount - 0.005)
-                  ) {
-                    ccTrans.paidOff = true;
-                    ccTrans.paidAmount = ccTrans.amount;
-                  } else {
-                    ccTrans.paidOff = false;
-                  }
-                });
-              }
-            }
+        showNotification("Restoring data... Please wait.", "info");
+        setTimeout(() => {
+          try {
+            let importedData = JSON.parse(e.target.result);
+            if (importedData && typeof importedData === "object") {
+              // Sanitization logic using the generic utility
+              sanitizeNumericFields(importedData.transactions, ["amount"]);
+              sanitizeNumericFields(importedData.accounts, ["balance"]);
+              sanitizeNumericFields(importedData.debts, ["amount", "originalAmount", "remainingAmount"]);
+              sanitizeNumericFields(importedData.receivables, ["amount", "originalAmount", "remainingAmount"]);
+              sanitizeNumericFields(importedData.installments, ["monthlyAmount", "originalFullAmount"]);
+              sanitizeNumericFields(importedData.budgets, ["limit"]);
 
-            if (Array.isArray(importedData.budgets)) {
-              importedData.budgets.forEach((b) => {
-                if (typeof b.limit === "number") {
-                  b.limit = roundToTwoDecimals(b.limit);
+              if (
+                importedData.creditCard &&
+                typeof importedData.creditCard === "object"
+              ) {
+                if (typeof importedData.creditCard.limit === "number") {
+                  importedData.creditCard.limit = roundToTwoDecimals(
+                    importedData.creditCard.limit
+                  );
                 }
-              });
-            }
+                if (Array.isArray(importedData.creditCard.transactions)) {
+                  sanitizeNumericFields(importedData.creditCard.transactions, ["amount", "paidAmount"]);
+                  importedData.creditCard.transactions.forEach((ccTrans) => {
+                    if (
+                      ccTrans.paidAmount >=
+                      roundToTwoDecimals(ccTrans.amount - 0.005)
+                    ) {
+                      ccTrans.paidOff = true;
+                      ccTrans.paidAmount = ccTrans.amount;
+                    } else {
+                      ccTrans.paidOff = false;
+                    }
+                  });
+                }
+              }
 
             state = deepMerge(getDefaultState(), importedData);
             ensureDefaultAccounts();
@@ -201,6 +168,7 @@ function importData(event) {
         } finally {
           if (event && event.target) event.target.value = null;
         }
+        }, 10);
       };
       reader.onerror = () => {
         showNotification("Failed to read the import file.", "error");
@@ -642,14 +610,22 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
         // We deep merge into a default state to ensure all functions exist,
         // just like we do in loadData() and importData()
         let importedData = data.data;
-        state = deepMerge(getDefaultState(), importedData);
+        const previousState = JSON.parse(JSON.stringify(state)); // In-memory backup
+        
+        try {
+          state = deepMerge(getDefaultState(), importedData);
 
-        // Run the same integrity checks as local import
-        ensureDefaultAccounts();
-        ensureDefaultCategories();
+          // Run the same integrity checks as local import
+          ensureDefaultAccounts();
+          ensureDefaultCategories();
 
-        // Mark setup as done
-        if (state.settings) state.settings.initialSetupDone = true;
+          // Mark setup as done
+          if (state.settings) state.settings.initialSetupDone = true;
+        } catch (mergeError) {
+          state = previousState; // Revert to backup on failure
+          console.error("State merge failed:", mergeError);
+          throw new Error("Failed to merge cloud data. State reverted.");
+        }
 
         // Save the restored state to LocalStorage
         saveData();
