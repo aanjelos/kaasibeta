@@ -4,28 +4,6 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 
 ---
 
-### [Polish] Brand-Consistent Toast Notification Colors
-Replaced generic Tailwind color classes in `showNotification` with inline styles driven by Kaasi's own CSS variables, so toast colors automatically respect the active theme.
-- **Success** → `--income-color` (Kaasi green `#27ae60`)
-- **Error** → `--expense-color` (Kaasi red `#e74c3c`)
-- **Warning** → `--accent-hover` (darker brand orange `#d35400`)
-- **Info** → `--bg-tertiary` with a `--border-light` border (dark card tone `#2c2c2c`, subtle & unobtrusive)
-
-
-
-### [Feature Sweep] UX Improvements & Fixes
-- **Modal Autofocus**: Automatically focus the first input field when opening static modals (like Transfer Money) on both desktop and mobile.
-- **Math Toolbar Mobile Fix**: Repositioned the inline math toolbar to append correctly to the input's parent container to avoid floating bugs when the mobile virtual keyboard resizes the viewport.
-- **Desktop Preloader Tips**: Fixed device detection so touch-enabled laptops properly show keyboard shortcut tips, and added several new fun tips.
-- **Comma Support in Amounts**: Users can now freely type commas in number inputs (e.g., `10,000`). The commas are stripped automatically before calculations or saving.
-- **Independent Backup Reminders**: Reworked cloud backup reminders to utilize local storage timestamps instead of synced states, ensuring devices track their 7-day intervals independently. The 7-day default is also now smartly detected via local tokens.
-- **Cloud Backup Indicator**: Added a visual "Saving backup..." toast when clicking the cloud sync button.
-
-### [Major] Production Bug Fixes
-- **CC History Modal Navigation**: Fixed an issue where closing sub-modals (like Edit or Pay) from within the Credit Card History modal would improperly close the entire modal chain back to the dashboard. The CC History modal is now correctly registered in the browser's history state stack.
-- **Service Worker Stale-While-Revalidate**: Fixed `sw.js` cache update dropping gracefully offline and keeping the Service Worker awake during background fetch.
-- **Security PIN Modal State**: Fixed an issue in `js/security.js` where the background PIN event listener remained active when the Forgot PIN modal was open, preventing erroneous locks.
-
 ### 1. [Major] Dead Code Removal
 Cleaned up the codebase by identifying and removing unused variables, dead code paths, obsolete functions, and redundant comments. This helped reduce file size, improve maintainability, and ensure code clarity.
 
@@ -417,3 +395,25 @@ Implemented a comprehensive category budget tracking feature with the following 
 - **Mobile Spacing & Responsive Elements**: Increased standard margins/paddings between transactions on mobile layouts to prevent visual crowding. Recompiled Tailwind CSS to include responsive visibility classes (`sm:inline`, `sm:hidden`).
 - **Version Sequence Correction**: Corrected a historical version numbering skip where the version jumped 300 iterations (from `v5.238l` to `v5.539m`). Reset the app metadata version to `v5.254m` to accurately align with the actual commit history.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to version `v146` to force automatic, clean client-side updates.
+
+### 79. [Major] Production Bug Fixes
+- **CC History Modal Navigation**: Fixed an issue where closing sub-modals (like Edit or Pay) from within the Credit Card History modal would improperly close the entire modal chain back to the dashboard. The CC History modal is now correctly registered in the browser's history state stack.
+- **Service Worker Stale-While-Revalidate**: Fixed `sw.js` cache update dropping gracefully offline and keeping the Service Worker awake during background fetch.
+- **Security PIN Modal State**: Fixed an issue in `js/security.js` where the background PIN event listener remained active when the Forgot PIN modal was open, preventing erroneous locks.
+
+### 80. [Feature Sweep] UX Improvements & Fixes (v5.257m)
+- **Modal Autofocus**: Automatically focus the first input field when opening static modals (like Transfer Money) on both desktop and mobile.
+- **Math Toolbar Mobile Fix**: Repositioned the inline math toolbar to append correctly to the input's parent container to avoid floating bugs when the mobile virtual keyboard resizes the viewport.
+- **Desktop Preloader Tips**: Fixed device detection so touch-enabled laptops properly show keyboard shortcut tips, and added several new fun tips.
+- **Comma Support in Amounts**: Users can now freely type commas in number inputs (e.g., `10,000`). The commas are stripped automatically before calculations or saving.
+- **Independent Backup Reminders**: Reworked cloud backup reminders to utilize local storage timestamps instead of synced states, ensuring devices track their 7-day intervals independently. The 7-day default is also now smartly detected via local tokens.
+- **Cloud Backup Indicator**: Added a visual "Saving backup..." toast when clicking the cloud sync button.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v149` and version to `v5.257m`.
+
+### 81. [Polish] Brand-Consistent Toast Notification Colors (v5.258m)
+Replaced generic Tailwind color classes in `showNotification` with inline styles driven by Kaasi's own CSS variables, so toast colors automatically respect the active theme.
+- **Success** → `--income-color` (Kaasi green `#27ae60`)
+- **Error** → `--expense-color` (Kaasi red `#e74c3c`)
+- **Warning** → `--accent-hover` (darker brand orange `#d35400`)
+- **Info** → `--bg-tertiary` with a `--border-light` border (dark card tone `#2c2c2c`, subtle & unobtrusive)
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v150` and version to `v5.258m`.
