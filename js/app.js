@@ -139,43 +139,56 @@ function initializeUI(isRefresh = false) {
       // Handle copy to clipboard functionality for the new modal
       const copyButtons = donateModal.querySelectorAll(".copy-button");
       copyButtons.forEach((button) => {
-        button.addEventListener("click", () => {
+        button.addEventListener("click", async () => {
           const textToCopy = button.dataset.copyText;
+          let success = false;
           
           if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(textToCopy).then(() => {
-              button.textContent = "Copied!";
-              setTimeout(() => {
-                button.innerHTML = '<i class="far fa-copy"></i>';
-              }, 2000);
-            }).catch(err => {
-              console.error("Failed to copy text: ", err);
-              button.textContent = "Failed!";
-              setTimeout(() => {
-                button.innerHTML = '<i class="far fa-copy"></i>';
-              }, 2000);
-            });
-          } else {
-            // Fallback for unsupported browsers
+            try {
+              await navigator.clipboard.writeText(textToCopy);
+              success = true;
+            } catch (err) {
+              console.warn("Clipboard API failed, trying fallback:", err);
+            }
+          }
+          
+          if (!success) {
             const textArea = document.createElement("textarea");
             textArea.value = textToCopy;
+            // Prevent scrolling to bottom of page
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
             document.body.appendChild(textArea);
-            textArea.select();
+            
+            if (navigator.userAgent.match(/ipad|iphone/i)) {
+              let range = document.createRange();
+              range.selectNodeContents(textArea);
+              let selection = window.getSelection();
+              selection.removeAllRanges();
+              selection.addRange(range);
+              textArea.setSelectionRange(0, 999999);
+            } else {
+              textArea.select();
+            }
+
             try {
               document.execCommand("copy");
-              button.textContent = "Copied!";
-              setTimeout(() => {
-                button.innerHTML = '<i class="far fa-copy"></i>';
-              }, 2000);
+              success = true;
             } catch (err) {
-              console.error("Failed to copy text (fallback): ", err);
-              button.textContent = "Failed!";
-              setTimeout(() => {
-                button.innerHTML = '<i class="far fa-copy"></i>';
-              }, 2000);
+              console.error("Fallback clipboard failed:", err);
             }
             document.body.removeChild(textArea);
           }
+          
+          if (success) {
+            button.textContent = "Copied!";
+          } else {
+            button.textContent = "Failed!";
+          }
+          setTimeout(() => {
+            button.innerHTML = '<i class="far fa-copy"></i>';
+          }, 2000);
         });
       });
     }

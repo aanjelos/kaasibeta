@@ -168,7 +168,7 @@ function importData(event) {
         } finally {
           if (event && event.target) event.target.value = null;
         }
-        }, 10);
+        }, 350);
       };
       reader.onerror = () => {
         showNotification("Failed to read the import file.", "error");
