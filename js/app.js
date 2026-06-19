@@ -139,56 +139,57 @@ function initializeUI(isRefresh = false) {
       // Handle copy to clipboard functionality for the new modal
       const copyButtons = donateModal.querySelectorAll(".copy-button");
       copyButtons.forEach((button) => {
-        button.addEventListener("click", async () => {
+        button.addEventListener("click", () => {
           const textToCopy = button.dataset.copyText;
-          let success = false;
           
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            try {
-              await navigator.clipboard.writeText(textToCopy);
-              success = true;
-            } catch (err) {
-              console.warn("Clipboard API failed, trying fallback:", err);
-            }
-          }
-          
-          if (!success) {
+          if (navigator.clipboard && window.isSecureContext) {
+            // Modern Clipboard API
+            navigator.clipboard.writeText(textToCopy).then(() => {
+              button.textContent = "Copied!";
+              setTimeout(() => {
+                button.innerHTML = '<i class="far fa-copy"></i>';
+              }, 2000);
+            }).catch(err => {
+              console.error("Clipboard API failed:", err);
+              button.textContent = "Failed!";
+              setTimeout(() => {
+                button.innerHTML = '<i class="far fa-copy"></i>';
+              }, 2000);
+            });
+          } else {
+            // Fallback (must be executed synchronously to preserve user gesture)
             const textArea = document.createElement("textarea");
             textArea.value = textToCopy;
-            // Prevent scrolling to bottom of page
+            
+            // Minimal styling to prevent page jump but keep it selectable
             textArea.style.position = "fixed";
-            textArea.style.left = "-999999px";
-            textArea.style.top = "-999999px";
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.width = "2em";
+            textArea.style.height = "2em";
+            textArea.style.padding = "0";
+            textArea.style.border = "none";
+            textArea.style.outline = "none";
+            textArea.style.boxShadow = "none";
+            textArea.style.background = "transparent";
             document.body.appendChild(textArea);
             
-            if (navigator.userAgent.match(/ipad|iphone/i)) {
-              let range = document.createRange();
-              range.selectNodeContents(textArea);
-              let selection = window.getSelection();
-              selection.removeAllRanges();
-              selection.addRange(range);
-              textArea.setSelectionRange(0, 999999);
-            } else {
-              textArea.select();
-            }
+            textArea.focus();
+            textArea.select();
 
             try {
               document.execCommand("copy");
-              success = true;
+              button.textContent = "Copied!";
             } catch (err) {
               console.error("Fallback clipboard failed:", err);
+              button.textContent = "Failed!";
             }
+            
             document.body.removeChild(textArea);
+            setTimeout(() => {
+              button.innerHTML = '<i class="far fa-copy"></i>';
+            }, 2000);
           }
-          
-          if (success) {
-            button.textContent = "Copied!";
-          } else {
-            button.textContent = "Failed!";
-          }
-          setTimeout(() => {
-            button.innerHTML = '<i class="far fa-copy"></i>';
-          }, 2000);
         });
       });
     }
