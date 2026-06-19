@@ -4,6 +4,15 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 
 ---
 
+### [Polish] Brand-Consistent Toast Notification Colors
+Replaced generic Tailwind color classes in `showNotification` with inline styles driven by Kaasi's own CSS variables, so toast colors automatically respect the active theme.
+- **Success** → `--income-color` (Kaasi green `#27ae60`)
+- **Error** → `--expense-color` (Kaasi red `#e74c3c`)
+- **Warning** → `--accent-hover` (darker brand orange `#d35400`)
+- **Info** → `--bg-tertiary` with a `--border-light` border (dark card tone `#2c2c2c`, subtle & unobtrusive)
+
+
+
 ### [Feature Sweep] UX Improvements & Fixes
 - **Modal Autofocus**: Automatically focus the first input field when opening static modals (like Transfer Money) on both desktop and mobile.
 - **Math Toolbar Mobile Fix**: Repositioned the inline math toolbar to append correctly to the input's parent container to avoid floating bugs when the mobile virtual keyboard resizes the viewport.

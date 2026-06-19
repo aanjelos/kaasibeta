@@ -912,28 +912,35 @@ function showNotification(message, type = "success", duration = 4000) {
   const area = $("#notificationArea");
   if (!area) return;
   const n = document.createElement("div");
-  let bg, tc;
+
+  let bgColor, textColor, borderStyle;
   switch (type) {
     case "error":
-      bg = "bg-red-600";
-      tc = "text-white";
+      bgColor = "var(--expense-color)";
+      textColor = "#ffffff";
+      borderStyle = "none";
       break;
     case "warning":
-      bg = "bg-yellow-500";
-      tc = "text-black";
+      bgColor = "var(--accent-hover)";
+      textColor = "#ffffff";
+      borderStyle = "none";
       break;
     case "info":
-      bg = "bg-blue-500";
-      tc = "text-white";
+      bgColor = "var(--bg-tertiary)";
+      textColor = "var(--text-primary)";
+      borderStyle = "1px solid var(--border-light)";
       break;
-    default:
-      bg = "bg-green-600";
-      tc = "text-white";
+    default: // success
+      bgColor = "var(--income-color)";
+      textColor = "#ffffff";
+      borderStyle = "none";
       break;
   }
 
-  // Add the new class along with existing classes
-  n.className = `p-3 rounded-md shadow-lg text-sm font-medium transition-all duration-300 ease-in-out transform translate-x-full opacity-0 force-word-wrap ${bg} ${tc}`;
+  n.className = `p-3 rounded-md shadow-lg text-sm font-medium transition-all duration-300 ease-in-out transform translate-x-full opacity-0 force-word-wrap`;
+  n.style.backgroundColor = bgColor;
+  n.style.color = textColor;
+  n.style.border = borderStyle;
 
   n.textContent = message;
   area.appendChild(n);
