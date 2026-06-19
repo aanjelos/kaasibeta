@@ -4,6 +4,14 @@ This document tracks all new features, enhancements, bug fixes, and cleanup task
 
 ---
 
+### [Feature Sweep] UX Improvements & Fixes
+- **Modal Autofocus**: Automatically focus the first input field when opening static modals (like Transfer Money) on both desktop and mobile.
+- **Math Toolbar Mobile Fix**: Repositioned the inline math toolbar to append correctly to the input's parent container to avoid floating bugs when the mobile virtual keyboard resizes the viewport.
+- **Desktop Preloader Tips**: Fixed device detection so touch-enabled laptops properly show keyboard shortcut tips, and added several new fun tips.
+- **Comma Support in Amounts**: Users can now freely type commas in number inputs (e.g., `10,000`). The commas are stripped automatically before calculations or saving.
+- **Independent Backup Reminders**: Reworked cloud backup reminders to utilize local storage timestamps instead of synced states, ensuring devices track their 7-day intervals independently. The 7-day default is also now smartly detected via local tokens.
+- **Cloud Backup Indicator**: Added a visual "Saving backup..." toast when clicking the cloud sync button.
+
 ### [Major] Production Bug Fixes
 - **CC History Modal Navigation**: Fixed an issue where closing sub-modals (like Edit or Pay) from within the Credit Card History modal would improperly close the entire modal chain back to the dashboard. The CC History modal is now correctly registered in the browser's history state stack.
 - **Service Worker Stale-While-Revalidate**: Fixed `sw.js` cache update dropping gracefully offline and keeping the Service Worker awake during background fetch.
