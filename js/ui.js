@@ -657,7 +657,7 @@ function openModalHelper(modalId) {
     history.pushState({ modalOpen: true, modalId, openModals: currentOpenModals }, null, "");
 
     setTimeout(() => {
-      if (!["settingsModal", "initialSetupModal", "donateModal", "shortcutsHelpModal"].includes(modalId)) {
+      if (!["settingsModal", "initialSetupModal", "donateModal", "shortcutsHelpModal", "monthlyViewModal"].includes(modalId)) {
         const firstInput = modal.querySelector('input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([readonly]), select, textarea');
         if (firstInput) {
           firstInput.focus();
