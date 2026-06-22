@@ -56,12 +56,6 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 1. Offline PWA Smoke Test
 - Verify the app launches and works perfectly in offline mode via browser DevTools (Application > Service Workers > Offline) to test stale-while-revalidate offline behavior.
 
-### 2. Backup & PIN Reset Verification
-- Export a manual `.json` backup file, execute a factory reset/clear site data, and verify the file restores all data and PIN settings successfully. (Note: May need to test exporting *after* removing the PIN as well to see how it handles).
-
-### 3. Keyboard Shortcuts Modal Audit
-- Open the keyboard shortcuts help modal (`?`) and confirm all descriptions (especially `A` mapping to "All Transactions") match the final `v6` user interface.
-
 ---
 
 ## 📝 Blog Ideas
