@@ -440,3 +440,8 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Preloader Layering**: Adjusted the modal z-index to `9990` so it renders below the startup preloader overlay (`z-index: 9999`).
 - **Modal click-outside Exclusion**: Excluded the offline warning modal from background click-dismissals, requiring users to explicitly choose to continue offline or retry.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v156` and version to `v5.262m`.
+
+### 85. [Bug Fix] Offline Sync Warning Modal Fixes (v5.263m)
+- **Modal Button Bindings**: Fixed an issue where clicking 'Continue Offline' did nothing if the modal was triggered mid-use by moving the event listeners out of the conditional scope.
+- **Missing Icon**: Replaced the non-existent 'fa-wifi-slash' icon with a valid 'fa-triangle-exclamation' icon so it renders properly inside the pulsing circle.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v157` and version to `v5.263m`.
