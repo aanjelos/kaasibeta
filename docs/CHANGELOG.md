@@ -441,9 +441,9 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Modal click-outside Exclusion**: Excluded the offline warning modal from background click-dismissals, requiring users to explicitly choose to continue offline or retry.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v156` and version to `v5.262m`.
 
-### 85. [Bug Fix & Polish] Offline Sync Warning Modal Fixes & Desktop Active Polling (v5.265m)
+### 85. [Bug Fix & Polish] Offline Sync Warning Modal Fixes & Desktop Active Polling (v5.266m)
 - **Modal Button Bindings**: Fixed an issue where clicking 'Continue Offline' did nothing if the modal was triggered mid-use by moving the event listeners out of the conditional scope.
 - **Missing Icon**: Replaced the non-existent 'fa-wifi-slash' icon with a valid 'fa-triangle-exclamation' icon so it renders properly inside the pulsing circle.
 - **Robust Desktop Offline Detection**: Created a `checkRealOnlineStatus()` helper that pings the Supabase endpoint to bypass inaccurate `navigator.onLine` values on desktop PCs (which are caused by virtual adapters like WSL/Docker/VMs).
-- **Active Polling Check**: Added a background interval (runs every 15s when the tab is active/visible) to automatically catch network connectivity drops and restorations mid-use on desktop platforms.
-- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v159` and version to `v5.265m`.
+- **Active Polling Check**: Added a background interval (runs every 15s when the tab is active/visible) to automatically catch network connectivity drops and restorations mid-use on desktop platforms. Added console logger telemetry prefixed with `[OfflineCheck]` to monitor detection state.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v160` and version to `v5.266m`.
