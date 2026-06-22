@@ -739,12 +739,7 @@ function openFormModal(title, formHtml, submitHandler) {
 
 window.addEventListener("click", (event) => {
   $$(".modal").forEach((modal) => {
-    if (
-      event.target === modal &&
-      modal.id !== "initialSetupModal" &&
-      modal.id !== "cloudSessionExpiredModal" &&
-      modal.id !== "offlineSyncWarningModal"
-    ) {
+    if (event.target === modal && modal.id !== "initialSetupModal" && modal.id !== "cloudSessionExpiredModal") {
       closeModal(modal.id);
     }
   });

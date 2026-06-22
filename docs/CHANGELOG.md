@@ -432,18 +432,6 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Secure PIN Recovery System**: Replaced the dangerous "Export Data & Factory Reset" PIN recovery option with a secure, hash-based recovery code mechanism. Users must now request a recovery code from the developer, which when entered, safely removes the PIN without wiping data.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v152` and version to `v5.260m`.
 
-### 84. [Feature & Polish] Offline Sync Warning Modal & UI Polish (v5.262m)
-- **Offline Sync Warning Modal**: Implemented a warning modal for cloud sync users that displays when opening the app offline, explaining that changes made will remain local until they perform a manual backup.
-- **Mid-use Offline Detection**: Added an event listener that dynamically triggers the warning modal if a cloud-sync user loses internet connection mid-use.
-- **Auto-dismiss and Reconnection Notification**: Added transition handling so that reconnecting to the internet dynamically dismisses the modal, shows a success toast, and attempts to initialize Supabase in the background.
-- **Custom Pulse Animation**: Fixed a bug where Tailwind's pulse keyframe overrode the custom preloader logo animation. Created a dedicated `.offline-warning-pulse` class for the modal icon and updated the preloader logo animation to use `logo-pulse`.
-- **Preloader Layering**: Adjusted the modal z-index to `9990` so it renders below the startup preloader overlay (`z-index: 9999`).
-- **Modal click-outside Exclusion**: Excluded the offline warning modal from background click-dismissals, requiring users to explicitly choose to continue offline or retry.
-- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v156` and version to `v5.262m`.
-
-### 85. [Bug Fix & Polish] Offline Sync Warning Modal Fixes & Desktop Active Polling (v5.266m)
-- **Modal Button Bindings**: Fixed an issue where clicking 'Continue Offline' did nothing if the modal was triggered mid-use by moving the event listeners out of the conditional scope.
-- **Missing Icon**: Replaced the non-existent 'fa-wifi-slash' icon with a valid 'fa-triangle-exclamation' icon so it renders properly inside the pulsing circle.
-- **Robust Desktop Offline Detection**: Created a `checkRealOnlineStatus()` helper that pings the Supabase endpoint to bypass inaccurate `navigator.onLine` values on desktop PCs (which are caused by virtual adapters like WSL/Docker/VMs).
-- **Active Polling Check**: Added a background interval (runs every 15s when the tab is active/visible) to automatically catch network connectivity drops and restorations mid-use on desktop platforms. Added console logger telemetry prefixed with `[OfflineCheck]` to monitor detection state.
-- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v160` and version to `v5.266m`.
+### 84. [Polish] Obsolete Files Cleanup (v5.267m)
+- **Obsolete Files Cleanup**: Deleted the unused, UTF-16 encoded file `temp.html` (an old version of `index.html`) from the repository, reducing project bloat.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v161` and version to `v5.267m` to trigger clean client updates.

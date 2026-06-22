@@ -262,10 +262,10 @@ body {
   width: 72px;
   height: 72px;
   filter: drop-shadow(0 0 10px rgba(230, 126, 38, 0.4));
-  animation: logo-pulse 2s infinite ease-in-out;
+  animation: pulse 2s infinite ease-in-out;
 }
 
-@keyframes logo-pulse {
+@keyframes pulse {
   0%,
   100% {
     transform: scale(1);
@@ -275,22 +275,6 @@ body {
     transform: scale(1.1);
     filter: drop-shadow(0 0 18px rgba(230, 126, 38, 0.55))
       drop-shadow(0 0 5px rgba(230, 126, 38, 0.3));
-  }
-}
-
-.offline-warning-pulse {
-  animation: offline-warning-pulse 2s infinite ease-in-out;
-}
-
-@keyframes offline-warning-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.08);
-    opacity: 0.8;
   }
 }
 
