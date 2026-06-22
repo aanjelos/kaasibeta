@@ -1067,17 +1067,32 @@ window.checkOfflineSyncWarning = function() {
   }
 };
 
-// Listen for network reconnection to automatically dismiss the offline warning modal
+// Listen for network reconnection to notify and setup sync
 window.addEventListener("online", () => {
+  showNotification("Back online! Connection restored.", "success");
+  if (localStorage.getItem("preferredSyncMethod") === "cloud") {
+    if (typeof initializeSupabase === "function") {
+      initializeSupabase();
+    }
+  }
   const modal = $("#offlineSyncWarningModal");
   if (modal && modal.style.display === "block") {
     modal.style.display = "none";
     if (typeof updateBodyScrollState === "function") {
       updateBodyScrollState();
     }
-    showNotification("Back online! Connection restored.", "success");
-    if (typeof initializeSupabase === "function") {
-      initializeSupabase();
+  }
+});
+
+// Listen for network disconnection to automatically show warning modal mid-use
+window.addEventListener("offline", () => {
+  if (localStorage.getItem("preferredSyncMethod") === "cloud") {
+    const modal = $("#offlineSyncWarningModal");
+    if (modal) {
+      modal.style.display = "block";
+      if (typeof updateBodyScrollState === "function") {
+        updateBodyScrollState();
+      }
     }
   }
 });
