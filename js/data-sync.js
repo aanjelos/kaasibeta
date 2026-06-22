@@ -1022,3 +1022,62 @@ window.triggerTestSessionExpiration = () => {
   openCloudSessionExpiredModal();
 };
 
+/**
+ * Checks if the user is offline and uses cloud backup.
+ * If so, displays a warning modal about sync issues.
+ */
+window.checkOfflineSyncWarning = function() {
+  if (!navigator.onLine && localStorage.getItem("preferredSyncMethod") === "cloud") {
+    const modal = $("#offlineSyncWarningModal");
+    if (modal) {
+      modal.style.display = "block";
+      if (typeof updateBodyScrollState === "function") {
+        updateBodyScrollState();
+      }
+      
+      const continueBtn = $("#offlineContinueBtn");
+      const retryBtn = $("#offlineRetryBtn");
+      
+      if (continueBtn) {
+        continueBtn.onclick = () => {
+          modal.style.display = "none";
+          if (typeof updateBodyScrollState === "function") {
+            updateBodyScrollState();
+          }
+        };
+      }
+      
+      if (retryBtn) {
+        retryBtn.onclick = () => {
+          if (navigator.onLine) {
+            modal.style.display = "none";
+            if (typeof updateBodyScrollState === "function") {
+              updateBodyScrollState();
+            }
+            showNotification("Back online! Connection restored.", "success");
+            if (typeof initializeSupabase === "function") {
+              initializeSupabase();
+            }
+          } else {
+            showNotification("Still offline. Please check your internet connection.", "warning");
+          }
+        };
+      }
+    }
+  }
+};
+
+// Listen for network reconnection to automatically dismiss the offline warning modal
+window.addEventListener("online", () => {
+  const modal = $("#offlineSyncWarningModal");
+  if (modal && modal.style.display === "block") {
+    modal.style.display = "none";
+    if (typeof updateBodyScrollState === "function") {
+      updateBodyScrollState();
+    }
+    showNotification("Back online! Connection restored.", "success");
+    if (typeof initializeSupabase === "function") {
+      initializeSupabase();
+    }
+  }
+});

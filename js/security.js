@@ -56,6 +56,11 @@ function onAppUnlocked() {
   
   // Trigger backup reminder only AFTER app is unlocked
   checkAndTriggerBackupReminder();
+  
+  // Trigger offline sync warning if applicable
+  if (typeof window.checkOfflineSyncWarning === "function") {
+    window.checkOfflineSyncWarning();
+  }
 }
 
 function addPinDigit(digit) {
