@@ -431,3 +431,12 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Search Date Formatting**: When searching or applying advanced filters, the year is now explicitly appended to the transaction dates in the timeline (e.g. "Sun, Jun 21, 2026") to avoid confusion across multiple years of data.
 - **Secure PIN Recovery System**: Replaced the dangerous "Export Data & Factory Reset" PIN recovery option with a secure, hash-based recovery code mechanism. Users must now request a recovery code from the developer, which when entered, safely removes the PIN without wiping data.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v152` and version to `v5.260m`.
+
+### 84. [Feature & Polish] Offline Sync Warning Modal & UI Polish (v5.262m)
+- **Offline Sync Warning Modal**: Implemented a warning modal for cloud sync users that displays when opening the app offline, explaining that changes made will remain local until they perform a manual backup.
+- **Mid-use Offline Detection**: Added an event listener that dynamically triggers the warning modal if a cloud-sync user loses internet connection mid-use.
+- **Auto-dismiss and Reconnection Notification**: Added transition handling so that reconnecting to the internet dynamically dismisses the modal, shows a success toast, and attempts to initialize Supabase in the background.
+- **Custom Pulse Animation**: Fixed a bug where Tailwind's pulse keyframe overrode the custom preloader logo animation. Created a dedicated `.offline-warning-pulse` class for the modal icon and updated the preloader logo animation to use `logo-pulse`.
+- **Preloader Layering**: Adjusted the modal z-index to `9990` so it renders below the startup preloader overlay (`z-index: 9999`).
+- **Modal click-outside Exclusion**: Excluded the offline warning modal from background click-dismissals, requiring users to explicitly choose to continue offline or retry.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v156` and version to `v5.262m`.
