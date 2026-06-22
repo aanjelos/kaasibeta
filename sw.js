@@ -1,4 +1,4 @@
-const CACHE_NAME = "kaasi-cache-v153";
+const CACHE_NAME = "kaasi-cache-v154";
 const STATIC_ASSETS = [
   "./",
   "./index.html",
@@ -18,7 +18,11 @@ const STATIC_ASSETS = [
   "./img/LogoIcon_Maskable.svg",
   "./img/FullLogo.svg",
   "./img/AanjeloNoText.svg",
-  "./img/LogoType.svg"
+  "./img/LogoType.svg",
+  "./fonts/Satoshi-Light.woff2",
+  "./fonts/Satoshi-Regular.woff2",
+  "./fonts/Satoshi-Medium.woff2",
+  "./fonts/Satoshi-Bold.woff2"
 ];
 
 // Install Event: Cache initial static assets
