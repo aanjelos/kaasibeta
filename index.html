@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.259m" />
+    <meta name="application-version" content="v5.260m" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
-    <title>Kaasi - Expense Tracker | Manage Your Finances 🇱🇰</title>
+    <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
     <meta
       name="title"
       content="Kaasi - Expense Tracker | Manage Your Finances 🇱🇰"
@@ -156,7 +156,13 @@
 
         <div id="emergencyResetGroup" class="hidden mt-6 pt-4 border-t border-gray-700 text-center">
           <p class="text-xs text-gray-400 mb-2">Can't remember your answer?</p>
-          <button onclick="emergencyExportAndWipe()" class="text-xs text-danger hover:underline">Export Data & Factory Reset</button>
+          <p class="text-[11px] text-gray-400 mb-3 leading-tight">
+            Message <a href="https://instagram.com/kaasi.com.lk" target="_blank" class="text-theme hover:underline">@kaasi.com.lk</a> or email <a href="mailto:aanjelo99@gmail.com" class="text-theme hover:underline">aanjelo99@gmail.com</a> to request a recovery code.
+          </p>
+          <div class="flex gap-2">
+            <input type="text" id="recoveryCodeInput" class="w-full text-center text-sm uppercase" placeholder="Enter Recovery Code" autocomplete="off">
+            <button type="button" class="btn btn-secondary whitespace-nowrap" onclick="verifyRecoveryCode()">Unlock</button>
+          </div>
         </div>
       </div>
     </div>

@@ -425,3 +425,9 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Modernized Clipboard API**: Migrated the deprecated `document.execCommand('copy')` in `app.js` to the modern, promise-based `navigator.clipboard.writeText()` API.
 - **DRY Data Sanitization**: Created a generic `sanitizeNumericFields` utility in `data-sync.js`, replacing 6 repetitive `forEach` loops and significantly cleaning up the import logic.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v151` and version to `v5.259m`.
+
+### 83. [Feature & Security] Beta PWA & PIN Recovery (v5.260m)
+- **Beta PWA Rename**: Renamed the PWA short name and title to "Kaasi Beta" in the manifest to avoid naming conflicts on devices when installed alongside the final production version.
+- **Search Date Formatting**: When searching or applying advanced filters, the year is now explicitly appended to the transaction dates in the timeline (e.g. "Sun, Jun 21, 2026") to avoid confusion across multiple years of data.
+- **Secure PIN Recovery System**: Replaced the dangerous "Export Data & Factory Reset" PIN recovery option with a secure, hash-based recovery code mechanism. Users must now request a recovery code from the developer, which when entered, safely removes the PIN without wiping data.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v152` and version to `v5.260m`.

@@ -118,6 +118,8 @@ function showForgotPinModal() {
   
   displayEl.innerText = state.settings.appPin.question;
   document.getElementById("securityAnswerInput").value = "";
+  const recoveryInput = document.getElementById("recoveryCodeInput");
+  if(recoveryInput) recoveryInput.value = "";
   
   form.onsubmit = (e) => {
     e.preventDefault();
@@ -149,14 +151,46 @@ function showForgotPinModal() {
   modal.style.display = "block";
 }
 
-function emergencyExportAndWipe() {
-  if (confirm("WARNING: This will download a backup of your data and then completely wipe Kaasi from your device. Are you absolutely sure?")) {
-    exportData(); // Downloads JSON
-    setTimeout(() => {
-      localStorage.removeItem("kaasi_state");
-      localStorage.removeItem("kaasi_cloud_sync");
-      window.location.reload();
-    }, 1500);
+async function verifyRecoveryCode() {
+  const inputEl = document.getElementById("recoveryCodeInput");
+  const code = inputEl.value.trim().toUpperCase();
+  if (!code) return;
+
+  const validHashes = [
+    "57842d0fff3625ff3e2a510614641df14f026156f7c7f04db37e7d9c8b68d004",
+    "761dccd93d60c365b4906d988aa1dd2e8cc864d2abe9a20b95507b5f0db15e42",
+    "25e3412c394a4fc1c9f8b19ef6343427e6cf9d609a72b2f1acf311b689346751",
+    "866b9fb5878ea8f4defa43a7f596eec93a9fa44ac3c50f4ccb2c9f6aec4cd76d",
+    "c5f4694aa0f062008b3f4dd6f8815f7599323e8914bc30d870c047ea1199994f"
+  ];
+
+  try {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(code);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    if (validHashes.includes(hashHex)) {
+      // Valid recovery code!
+      state.settings.appPin = { enabled: false };
+      saveData();
+      closeModal("securityQuestionModal");
+      inputEl.value = "";
+      onAppUnlocked();
+      showNotification("App unlocked. PIN has been permanently disabled.", "success", 5000);
+      
+      const toggle = document.getElementById("toggleAppPin");
+      if (toggle) toggle.checked = false;
+      const opts = document.getElementById("securityManagementOptions");
+      if (opts) opts.classList.add("hidden");
+    } else {
+      showNotification("Invalid recovery code.", "error");
+      inputEl.value = "";
+    }
+  } catch (err) {
+    console.error("Crypto API failed:", err);
+    showNotification("An error occurred verifying the code.", "error");
   }
 }
 

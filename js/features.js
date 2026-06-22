@@ -1501,10 +1501,12 @@ function renderMonthlyDetails(
 
       const dateSpan = document.createElement("span");
       dateSpan.className = "font-semibold";
+      const isFiltering = hasAdvancedFilters || searchTerm;
       dateSpan.textContent = dayData.date.toLocaleDateString("en-US", {
         weekday: "short",
         day: "numeric",
         month: "short",
+        ...(isFiltering ? { year: "numeric" } : {})
       });
 
       // --- FIX: Right-aligned container for amount and icon ---
