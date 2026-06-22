@@ -1034,38 +1034,42 @@ window.checkOfflineSyncWarning = function() {
       if (typeof updateBodyScrollState === "function") {
         updateBodyScrollState();
       }
-      
-      const continueBtn = $("#offlineContinueBtn");
-      const retryBtn = $("#offlineRetryBtn");
-      
-      if (continueBtn) {
-        continueBtn.onclick = () => {
-          modal.style.display = "none";
-          if (typeof updateBodyScrollState === "function") {
-            updateBodyScrollState();
-          }
-        };
-      }
-      
-      if (retryBtn) {
-        retryBtn.onclick = () => {
-          if (navigator.onLine) {
-            modal.style.display = "none";
-            if (typeof updateBodyScrollState === "function") {
-              updateBodyScrollState();
-            }
-            showNotification("Back online! Connection restored.", "success");
-            if (typeof initializeSupabase === "function") {
-              initializeSupabase();
-            }
-          } else {
-            showNotification("Still offline. Please check your internet connection.", "warning");
-          }
-        };
-      }
     }
   }
 };
+
+// Setup offline warning modal buttons
+window.addEventListener("DOMContentLoaded", () => {
+  const modal = $("#offlineSyncWarningModal");
+  const continueBtn = $("#offlineContinueBtn");
+  const retryBtn = $("#offlineRetryBtn");
+  
+  if (continueBtn && modal) {
+    continueBtn.addEventListener("click", () => {
+      modal.style.display = "none";
+      if (typeof updateBodyScrollState === "function") {
+        updateBodyScrollState();
+      }
+    });
+  }
+  
+  if (retryBtn && modal) {
+    retryBtn.addEventListener("click", () => {
+      if (navigator.onLine) {
+        modal.style.display = "none";
+        if (typeof updateBodyScrollState === "function") {
+          updateBodyScrollState();
+        }
+        showNotification("Back online! Connection restored.", "success");
+        if (typeof initializeSupabase === "function") {
+          initializeSupabase();
+        }
+      } else {
+        showNotification("Still offline. Please check your internet connection.", "warning");
+      }
+    });
+  }
+});
 
 // Listen for network reconnection to notify and setup sync
 window.addEventListener("online", () => {
