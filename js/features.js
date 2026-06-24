@@ -80,7 +80,7 @@ function renderRecentTransactions() {
 
     div.innerHTML = `
       <div class="flex-grow mr-2 overflow-hidden">
-        <p class="font-medium truncate ${textColorClass}" data-tooltip="${t.description}">${t.description}</p>
+        <p class="font-medium truncate ${textColorClass}">${t.description}</p>
         <p class="text-xs text-gray-400">${subDetailText}</p>
       </div>
       <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums">${isIncome ? "+" : "-"}${formatCurrency(t.amount)}</span>
@@ -1574,9 +1574,7 @@ function renderMonthlyDetails(
 
           itemDiv.innerHTML = `
               <div class="flex-grow min-w-0 ${opacityClass} mr-2">
-                <p class="font-medium truncate ${textColorClass}" data-tooltip="${
-            t.description
-          }${tooltipSuffix}">${t.description}</p>
+                <p class="font-medium truncate ${textColorClass}">${t.description}</p>
                 <p class="text-xs text-gray-400 mt-0.5 truncate">${subDetailText}</p>
               </div>
               <div class="flex items-center justify-end flex-shrink-0">

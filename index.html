@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.269m" />
+    <meta name="application-version" content="v5.270m" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -312,7 +312,7 @@
                   >
                   <div class="relative flex items-center w-full">
                     <input
-                      type="text" inputmode="decimal" class="calc-amount pr-8"
+                      type="text" inputmode="decimal" autocomplete="off" class="calc-amount pr-8"
                       id="amount"
                       name="amount"
                       step="0.01"
@@ -412,7 +412,7 @@
                   >
                   <div class="relative flex items-center w-full">
                     <input
-                      type="text" inputmode="decimal" class="calc-amount pr-8"
+                      type="text" inputmode="decimal" autocomplete="off" class="calc-amount pr-8"
                       id="ccAmount"
                       name="ccAmount"
                       step="0.01"
@@ -800,7 +800,7 @@
                     >
                     <div class="relative flex items-center w-full">
                     <input
-                      type="text" inputmode="decimal"
+                      type="text" inputmode="decimal" autocomplete="off"
                       id="settingsCcLimitAmount"
                       name="ccLimitAmount"
                       step="0.01"
@@ -965,7 +965,7 @@
                   <div>
                     <label class="block text-sm font-medium mb-1">Monthly Limit (LKR)</label>
                     <div class="relative flex items-center w-full">
-                      <input type="text" inputmode="decimal" id="addBudgetLimit" class="calc-amount w-full pr-8 text-sm !px-2 !py-1" placeholder="e.g. 15000.00" required step="0.01" min="0">
+                      <input type="text" inputmode="decimal" autocomplete="off" id="addBudgetLimit" class="calc-amount w-full pr-8 text-sm !px-2 !py-1" placeholder="e.g. 15000.00" required step="0.01" min="0">
                       <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1">
                         <i class="fas fa-calculator"></i>
                       </button>
@@ -1521,7 +1521,7 @@
                 >
                 <div class="relative flex items-center w-full">
                 <input
-                  type="text" inputmode="decimal" class="calc-amount pr-8 !py-1.5 !px-2 text-sm"
+                  type="text" inputmode="decimal" autocomplete="off" class="calc-amount pr-8 !py-1.5 !px-2 text-sm"
                   id="setupCcLimit"
                   name="setupCcLimit"
                   step="0.01"
@@ -1659,7 +1659,7 @@
               >
               <div class="relative flex items-center w-full">
                 <input
-                  type="text" inputmode="decimal" class="calc-amount pr-8"
+                  type="text" inputmode="decimal" autocomplete="off" class="calc-amount pr-8"
                   id="modalTransferAmount"
                   name="transferAmount"
                   step="0.01"
@@ -1859,7 +1859,7 @@
             <div>
               <label class="block text-sm font-medium mb-1">Monthly Limit (LKR)</label>
               <div class="relative flex items-center w-full">
-                <input type="text" inputmode="decimal" id="editBudgetLimit" class="calc-amount w-full pr-8 text-sm !px-2 !py-1" placeholder="e.g. 15000.00" required step="0.01" min="0">
+                <input type="text" inputmode="decimal" autocomplete="off" id="editBudgetLimit" class="calc-amount w-full pr-8 text-sm !px-2 !py-1" placeholder="e.g. 15000.00" required step="0.01" min="0">
                 <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1">
                   <i class="fas fa-calculator"></i>
                 </button>

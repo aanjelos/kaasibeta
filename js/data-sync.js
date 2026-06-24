@@ -478,6 +478,22 @@ async function backupToSupabase() {
     return;
   }
 
+  if (window.currentCloudSyncStatus === "cloud_newer") {
+    showConfirmationModal(
+      "Overwrite Newer Cloud Data?",
+      "<p class='mb-3'>Your cloud backup contains <strong class='text-warning'>newer data</strong> than what is currently on this device.</p><p>If you proceed, you will permanently overwrite the newer cloud data with your older local data.</p>",
+      "Overwrite Cloud Data",
+      async () => {
+        await executeBackupToSupabase();
+      }
+    );
+  } else {
+    await executeBackupToSupabase();
+  }
+}
+
+async function executeBackupToSupabase() {
+
   // Show loading state on button
   const backupBtn = $("#backupToSupabaseBtn");
   const originalText = backupBtn.innerHTML;

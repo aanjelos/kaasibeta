@@ -446,3 +446,9 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 ### 86. [Hotfix] Mobile Math Toolbar Touch Fix (v5.269m)
 - **Touch Event Propagation Fix**: Resolved an issue where the math toolbar buttons were unresponsive on mobile touchscreens. The previous implementation prevented the default `touchstart` behavior (to avoid losing input focus), which inadvertently stopped the browser from firing the subsequent `click` event. The logic has been consolidated to trigger immediately on `touchstart` to ensure snappy and reliable mobile interactions.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v163` and version to `v5.269m` to force the client-side fix.
+
+### 87. [Polish] UX Improvements & Cloud Safety (v5.270m)
+- **Cloud Overwrite Protection**: Added a critical safety warning modal that blocks users from accidentally backing up to the cloud if the cloud contains newer data (indicated by a flashing restore button), preventing unintentional data loss.
+- **Disabled Amount Autocomplete**: Disabled browser-native autocomplete (`autocomplete="off"`) on all transaction and budget amount inputs to prevent annoying dropdown menus from obstructing the math calculator toolbar.
+- **Removed Transaction Tooltips**: Removed redundant hover tooltips from transaction descriptions in the dashboard and monthly views to clean up the UI.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v164` and version to `v5.270m` to deploy the latest UX updates.
