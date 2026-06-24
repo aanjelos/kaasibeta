@@ -685,8 +685,7 @@ function deleteCategory(categoryName) {
       state.budgets.forEach(b => {
         b.categories = b.categories.filter(cat => cat !== categoryName);
       });
-      // Clean up empty budgets
-      state.budgets = state.budgets.filter(b => b.categories.length > 0);
+      // Removed clean up empty budgets to avoid silent deletion
     }
 
     saveData();

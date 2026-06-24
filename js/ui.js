@@ -946,6 +946,10 @@ mathToolbar.addEventListener("mousedown", (e) => {
   e.preventDefault(); 
 });
 
+mathToolbar.addEventListener("touchstart", (e) => {
+  e.preventDefault(); 
+}, { passive: false });
+
 mathToolbar.addEventListener("click", (e) => {
   if (e.target.classList.contains("math-btn") && activeCalcInput) {
     const op = e.target.getAttribute("data-op");

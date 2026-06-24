@@ -14,7 +14,42 @@ function evaluateMathExpression(inputStr) {
   if (!/[\+\-\*\/]/.test(expr)) return null;
 
   try {
-    const result = Function('"use strict";return (' + expr + ')')();
+    const tokens = expr.match(/([0-9\.]+)|([\+\-\*\/\(\)])/g);
+    if (!tokens) return null;
+    
+    let pos = 0;
+    function parseExpression() {
+      let value = parseTerm();
+      while (pos < tokens.length && (tokens[pos] === '+' || tokens[pos] === '-')) {
+        let op = tokens[pos++];
+        let nextTerm = parseTerm();
+        value = op === '+' ? value + nextTerm : value - nextTerm;
+      }
+      return value;
+    }
+    function parseTerm() {
+      let value = parseFactor();
+      while (pos < tokens.length && (tokens[pos] === '*' || tokens[pos] === '/')) {
+        let op = tokens[pos++];
+        let nextFactor = parseFactor();
+        value = op === '*' ? value * nextFactor : value / nextFactor;
+      }
+      return value;
+    }
+    function parseFactor() {
+      if (pos >= tokens.length) throw new Error("Unexpected end");
+      let token = tokens[pos++];
+      if (token === '(') {
+        let value = parseExpression();
+        if (pos >= tokens.length || tokens[pos++] !== ')') throw new Error("Missing )");
+        return value;
+      }
+      if (token === '-') return -parseFactor();
+      if (token === '+') return parseFactor();
+      return parseFloat(token);
+    }
+    
+    const result = parseExpression();
     if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
       return parseFloat(result.toFixed(2));
     }

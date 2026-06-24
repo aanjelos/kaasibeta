@@ -4124,9 +4124,15 @@ function renderCategoryBudgets() {
     const titleEl = budgetItem.querySelector(".budget-title");
 
     if (statusEl) {
-      statusEl.className = `text-xs font-semibold budget-status whitespace-nowrap ${isOver ? 'text-[#E74C3C]' : 'text-gray-400'}`;
-      statusEl.dataset.tooltip = tooltipText;
-      statusEl.textContent = `${statusText} (${percent.toFixed(1)}%)`;
+      if (!budget.categories || budget.categories.length === 0) {
+        statusEl.className = 'text-xs font-semibold budget-status whitespace-nowrap text-orange-500';
+        statusEl.dataset.tooltip = "No categories assigned";
+        statusEl.textContent = "⚠️ 0 Categories";
+      } else {
+        statusEl.className = `text-xs font-semibold budget-status whitespace-nowrap ${isOver ? 'text-[#E74C3C]' : 'text-gray-400'}`;
+        statusEl.dataset.tooltip = tooltipText;
+        statusEl.textContent = `${statusText} (${percent.toFixed(1)}%)`;
+      }
     }
 
     if (titleEl) {

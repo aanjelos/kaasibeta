@@ -35,6 +35,15 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Concept**: Useful for users holding foreign currency in a Wise account, Payoneer, or an FCBU account. Allow specific accounts to have a base currency (like USD or EUR) but show the aggregated net worth in LKR based on a manually set or fetched exchange rate.
 - **Implementation Idea**: Will require significant backend restructuring for transactions and exchange rate handling. Requires deep discussion on feasibility vs complexity.
 
+### 8. Dedicated Account Transfers Audit Log
+- **Concept**: A "Transfers Log" sub-tab or filter toggle to group matching debit/credit pairs, making it simple to audit internal capital movements between cash and bank accounts.
+
+### 9. Reset Safety Net: Automatic Data Backup Prompt
+- **Concept**: Automatically trigger a JSON export download immediately before execution of the "Delete All Data" wipe, giving the user a recovery file in case they made a mistake.
+
+### 10. Custom Icon and Color Tags for Categories
+- **Concept**: Allow users to associate a custom FontAwesome icon and color code to each category in Settings to dramatically improve the scannability of transaction lists, budget cards, and visual charts.
+
 ---
 
 ## ✨ UI / UX Polish

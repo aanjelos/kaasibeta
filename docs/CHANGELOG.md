@@ -435,3 +435,10 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 ### 84. [Polish] Obsolete Files Cleanup (v5.267m)
 - **Obsolete Files Cleanup**: Deleted the unused, UTF-16 encoded file `temp.html` (an old version of `index.html`) from the repository, reducing project bloat.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v161` and version to `v5.267m` to trigger clean client updates.
+
+### 85. [Fixes & Polish] Safe Math Eval & UI Adjustments (v5.268m)
+- **Security Upgrade**: Replaced the unsafe `Function()` execution in the math calculator with a secure, custom recursive descent parser, preventing CSP errors and closing potential execution vulnerabilities.
+- **Budget Retention Fix**: Prevented budgets from being silently deleted when their assigned categories drop to zero.
+- **Dashboard UI Graceful Degradation**: Modified the dashboard budget progress bars to display a compact "⚠️ 0 Categories" warning when a budget has no categories, replacing the normal status text without breaking horizontal layouts on mobile.
+- **Mobile Toolbar Glitch Fix**: Bound the `touchstart` event to the floating math toolbar, preventing the input field from losing focus on mobile taps.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v162` and version to `v5.268m` to trigger clean client updates.
