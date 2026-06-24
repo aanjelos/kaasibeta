@@ -442,3 +442,7 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Dashboard UI Graceful Degradation**: Modified the dashboard budget progress bars to display a compact "⚠️ 0 Categories" warning when a budget has no categories, replacing the normal status text without breaking horizontal layouts on mobile.
 - **Mobile Toolbar Glitch Fix**: Bound the `touchstart` event to the floating math toolbar, preventing the input field from losing focus on mobile taps.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v162` and version to `v5.268m` to trigger clean client updates.
+
+### 86. [Hotfix] Mobile Math Toolbar Touch Fix (v5.269m)
+- **Touch Event Propagation Fix**: Resolved an issue where the math toolbar buttons were unresponsive on mobile touchscreens. The previous implementation prevented the default `touchstart` behavior (to avoid losing input focus), which inadvertently stopped the browser from firing the subsequent `click` event. The logic has been consolidated to trigger immediately on `touchstart` to ensure snappy and reliable mobile interactions.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v163` and version to `v5.269m` to force the client-side fix.

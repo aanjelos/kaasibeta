@@ -942,15 +942,8 @@ window.addEventListener("resize", () => {
   }
 });
 
-mathToolbar.addEventListener("mousedown", (e) => {
-  e.preventDefault(); 
-});
-
-mathToolbar.addEventListener("touchstart", (e) => {
-  e.preventDefault(); 
-}, { passive: false });
-
-mathToolbar.addEventListener("click", (e) => {
+function handleMathToolbarInteraction(e) {
+  e.preventDefault(); // Prevents input from losing focus
   if (e.target.classList.contains("math-btn") && activeCalcInput) {
     const op = e.target.getAttribute("data-op");
     if (op === "=") {
@@ -963,7 +956,10 @@ mathToolbar.addEventListener("click", (e) => {
     }
     activeCalcInput.focus();
   }
-});
+}
+
+mathToolbar.addEventListener("mousedown", handleMathToolbarInteraction);
+mathToolbar.addEventListener("touchstart", handleMathToolbarInteraction, { passive: false });
 
 // --- MOBILE DROPDOWN MENU LOGIC ---
 function setupMobileDropdown() {
