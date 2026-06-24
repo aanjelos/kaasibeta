@@ -73,14 +73,14 @@ function renderRecentTransactions() {
     })}`; // Date first
     subDetailText += ` - ${accountName}`;
     if (!isIncome && t.category) {
-      subDetailText += ` | ${t.category}`;
+      subDetailText += ` | ${escapeHTML(t.category)}`;
     } else if (!isIncome && !t.category) {
       subDetailText += ` | Uncategorized`;
     }
 
     div.innerHTML = `
       <div class="flex-grow mr-2 overflow-hidden">
-        <p class="font-medium truncate ${textColorClass}">${t.description}</p>
+        <p class="font-medium truncate ${textColorClass}">${escapeHTML(t.description)}</p>
         <p class="text-xs text-gray-400">${subDetailText}</p>
       </div>
       <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums">${isIncome ? "+" : "-"}${formatCurrency(t.amount)}</span>
@@ -1563,7 +1563,7 @@ function renderMonthlyDetails(
 
           let subDetailText = accountName;
           if (!isIncome && t.category) {
-            subDetailText += ` | ${t.category}`;
+            subDetailText += ` | ${escapeHTML(t.category)}`;
           } else if (!isIncome && !t.category) {
             subDetailText += ` | Uncategorized`;
           }
@@ -1574,7 +1574,7 @@ function renderMonthlyDetails(
 
           itemDiv.innerHTML = `
               <div class="flex-grow min-w-0 ${opacityClass} mr-2">
-                <p class="font-medium truncate ${textColorClass}">${t.description}</p>
+                <p class="font-medium truncate ${textColorClass}">${escapeHTML(t.description)}</p>
                 <p class="text-xs text-gray-400 mt-0.5 truncate">${subDetailText}</p>
               </div>
               <div class="flex items-center justify-end flex-shrink-0">
@@ -1946,7 +1946,7 @@ function openCcHistoryModal() {
         mainRow.className = "flex justify-between items-center gap-x-2 w-full";
         mainRow.innerHTML = `
           <div class="flex-grow min-w-0 mr-2 text-left">
-              <p class="font-medium truncate ${t.paidOff ? "text-gray-500" : "text-gray-200"}">${t.description}</p>
+              <p class="font-medium truncate ${t.paidOff ? "text-gray-500" : "text-gray-200"}">${escapeHTML(t.description)}</p>
               <p class="text-xs text-gray-400 mt-0.5 truncate">${formattedDate} &bull; ${statusText}</p>
           </div>
           <div class="flex items-center justify-end flex-shrink-0 text-right">
@@ -4084,7 +4084,7 @@ function renderCategoryBudgets() {
       }
     });
 
-    const percent = budget.limit > 0 ? (spent / budget.limit) * 100 : 0;
+    const percent = budget.limit > 0 ? (spent / budget.limit) * 100 : (spent > 0 ? 100 : 0);
     const isOver = spent > budget.limit;
     
     let colorClass = "bg-[#27AE60]"; // Emerald Green

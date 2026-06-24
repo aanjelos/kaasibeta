@@ -8,7 +8,26 @@ const formatCurrency = (amount) => {
   if (typeof amount !== "number" || isNaN(amount)) amount = 0;
   return `LKR\u00A0${amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
 };
-const generateId = () => "_" + Math.random().toString(36).substr(2, 9);
+
+const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
+
+const escapeHTML = (str) => {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+
+async function hashString(str) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 const getDaysLeft = (dueDate) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -51,10 +70,9 @@ try {
 
 const roundToTwoDecimals = (num) => {
   if (typeof num !== "number" || isNaN(num)) {
-    // console.warn(`Attempted to round non-number: ${num}. Returning 0.`);
     return 0; // Default to 0 if not a valid number
   }
-  return parseFloat(num.toFixed(2));
+  return Math.round((num + Number.EPSILON) * 100) / 100;
 };
 
 function getCurrentDateString() {

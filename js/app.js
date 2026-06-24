@@ -769,6 +769,24 @@ document.addEventListener("DOMContentLoaded", () => {
     onAppUnlocked();
   }
 
+  // --- AUTO-LOCK INACTIVITY TIMER ---
+  let inactivityTimer;
+  function resetInactivityTimer() {
+    clearTimeout(inactivityTimer);
+    const pinOverlay = document.getElementById("pinLockOverlay");
+    if (state.settings && state.settings.appPin && state.settings.appPin.enabled && pinOverlay && pinOverlay.classList.contains("hidden")) {
+      inactivityTimer = setTimeout(() => {
+        showPinLockScreen();
+      }, 5 * 60 * 1000); // 5 minutes
+    }
+  }
+
+  ["touchstart", "mousemove", "keydown", "scroll", "click"].forEach(evt => {
+    document.addEventListener(evt, resetInactivityTimer, { passive: true });
+  });
+  resetInactivityTimer();
+  // --- END AUTO-LOCK ---
+
   // Event listener to update date fields and attempt to focus window when tab becomes visible
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {

@@ -334,8 +334,8 @@ function renderSettingsForm() {
         toggleAppPin.checked = false;
       };
       
-      $("#btnSavePinSetup").onclick = () => {
-        const pin = $("#setupPinInput").value;
+      $("#btnSavePinSetup").onclick = async () => {
+        const pin = $("#setupPin").value;
         const confirmPin = $("#setupPinConfirm").value;
         const q = $("#setupSecuritySelect").value;
         const a = $("#setupSecurityAnswer").value.trim().toLowerCase();
@@ -346,9 +346,9 @@ function renderSettingsForm() {
         
         if (!state.settings.appPin) state.settings.appPin = {};
         state.settings.appPin.enabled = true;
-        state.settings.appPin.pin = btoa(pin);
+        state.settings.appPin.pin = await hashString(pin);
         state.settings.appPin.question = q;
-        state.settings.appPin.answer = btoa(a);
+        state.settings.appPin.answer = await hashString(a);
         saveData();
         
         hideAllInlineForms();
@@ -374,16 +374,17 @@ function renderSettingsForm() {
         hideAllInlineForms();
       };
       
-      $("#btnSavePinChange").onclick = () => {
+      $("#btnSavePinChange").onclick = async () => {
         const current = $("#changePinCurrent").value;
         const newPin = $("#changePinNew").value;
         const confirmPin = $("#changePinConfirm").value;
         
-        if (btoa(current) !== state.settings.appPin.pin) return showNotification("Incorrect current PIN.", "error");
+        const currentHash = await hashString(current);
+        if (currentHash !== state.settings.appPin.pin) return showNotification("Incorrect current PIN.", "error");
         if (!/^\d{4}$/.test(newPin)) return showNotification("New PIN must be exactly 4 digits.", "error");
         if (newPin !== confirmPin) return showNotification("New PINs do not match.", "error");
         
-        state.settings.appPin.pin = btoa(newPin);
+        state.settings.appPin.pin = await hashString(newPin);
         saveData();
         hideAllInlineForms();
         showNotification("PIN changed successfully.", "success");
@@ -408,16 +409,17 @@ function renderSettingsForm() {
         hideAllInlineForms();
       };
       
-      $("#btnSaveQuestionChange").onclick = () => {
+      $("#btnSaveQuestionChange").onclick = async () => {
         const current = $("#changeQuestionPinCurrent").value;
         const newQ = $("#changeQuestionSelect").value;
         const newA = $("#changeQuestionAnswer").value.trim().toLowerCase();
         
-        if (btoa(current) !== state.settings.appPin.pin) return showNotification("Incorrect current PIN.", "error");
+        const currentHash = await hashString(current);
+        if (currentHash !== state.settings.appPin.pin) return showNotification("Incorrect current PIN.", "error");
         if (!newA) return showNotification("You must provide an answer to the new security question.", "error");
         
         state.settings.appPin.question = newQ;
-        state.settings.appPin.answer = btoa(newA);
+        state.settings.appPin.answer = await hashString(newA);
         saveData();
         if (inlineChangeQuestion) inlineChangeQuestion.classList.add("hidden");
         hideAllInlineForms();
@@ -438,10 +440,11 @@ function renderSettingsForm() {
         hideAllInlineForms();
       };
       
-      $("#btnConfirmPinRemove").onclick = () => {
+      $("#btnConfirmPinRemove").onclick = async () => {
         const current = $("#removePinCurrent").value;
         
-        if (btoa(current) !== state.settings.appPin.pin) return showNotification("Incorrect current PIN.", "error");
+        const currentHash = await hashString(current);
+        if (currentHash !== state.settings.appPin.pin) return showNotification("Incorrect current PIN.", "error");
         
         state.settings.appPin = { enabled: false };
         saveData();

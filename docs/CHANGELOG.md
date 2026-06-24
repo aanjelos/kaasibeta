@@ -455,4 +455,12 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 
 ### 88. [Hotfix] Cloud Overwrite Modal Buttons Fix (v5.271m)
 - **Modal Argument Fix**: Corrected a parameter ordering bug in the new Cloud Overwrite Safety Modal where the confirmation callback function was accidentally passed as the `cancelText` parameter, causing the function's raw source code to display on the "Cancel" button instead of the word "Cancel".
-- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v165` and version to `v5.271m` to force the UI fix.
+### 89. [Security & Bug Fixes] Architecture & Hardening Update (v5.272m)
+- **Math Precision Fix**: Improved the core decimal rounding logic across the entire app to eliminate edge-case JavaScript floating-point errors (e.g., partial payments getting stuck at Rs0.000001).
+- **Collision-Proof IDs**: Upgraded the internal ID generation algorithm to use a high-entropy time-based string generator, preventing any risk of ID duplication during bulk imports.
+- **XSS Vulnerability Patch**: Implemented strict HTML entity escaping (`escapeHTML`) on all transaction descriptions, category names, and debt titles before rendering to the DOM, completely neutralizing Cross-Site Scripting (XSS) risks.
+- **Budget Progress Bar Math Fix**: Fixed a visual bug where spending against a budget with a Rs0 limit would fail to show the bar as 100% full (over limit).
+- **Auto-Lock Security Timer**: The app now automatically triggers the PIN Lock screen after 5 minutes of inactivity (no taps, clicks, or typing) to protect your data if left unattended.
+- **PIN Cryptographic Hashing**: Upgraded PIN and Security Answer storage from easily-reversible Base64 encoding to native browser SHA-256 cryptographic hashing.
+- **Subresource Integrity (SRI)**: Hardened all external CDN `<script>` tags (Chart.js, jsPDF, Supabase) with SHA-384 fingerprints to guarantee the app refuses to run compromised code if the external servers are ever hacked.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v166` and version to `v5.272m` to deploy the security patches.

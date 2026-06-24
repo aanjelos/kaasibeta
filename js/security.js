@@ -12,7 +12,7 @@ let lockScreenKeydownListener = null;
 function showPinLockScreen() {
   const pinLockOverlay = document.getElementById("pinLockOverlay");
   if (!pinLockOverlay) return;
-  expectedPin = atob(state.settings.appPin.pin);
+  expectedPin = state.settings.appPin.pin;
   currentPinInput = "";
   failedSecurityAttempts = 0;
   updatePinDots();
@@ -87,8 +87,9 @@ function updatePinDots() {
   });
 }
 
-function verifyPin() {
-  if (currentPinInput === expectedPin) {
+async function verifyPin() {
+  const currentHash = await hashString(currentPinInput);
+  if (currentHash === expectedPin) {
     onAppUnlocked();
     if (typeof trackEvent === "function") trackEvent("pin_login_success", "Security");
   } else {
@@ -121,12 +122,14 @@ function showForgotPinModal() {
   const recoveryInput = document.getElementById("recoveryCodeInput");
   if(recoveryInput) recoveryInput.value = "";
   
-  form.onsubmit = (e) => {
+  form.onsubmit = async (e) => {
     e.preventDefault();
     const answer = document.getElementById("securityAnswerInput").value.trim().toLowerCase();
-    const expectedAnswer = atob(state.settings.appPin.answer).toLowerCase();
+    const expectedAnswerHash = state.settings.appPin.answer;
     
-    if (answer === expectedAnswer) {
+    const answerHash = await hashString(answer);
+    
+    if (answerHash === expectedAnswerHash) {
       // Correct! Unlock app and remove PIN
       state.settings.appPin = { enabled: false };
       saveData();
@@ -141,7 +144,7 @@ function showForgotPinModal() {
       if (opts) opts.classList.add("hidden");
     } else {
       failedSecurityAttempts++;
-      showNotification("Incorrect answer.", "error");
+      showNotification("Incorrect answer. Please try again.", "error");
       if (failedSecurityAttempts >= 2) {
         emergencyGroup.classList.remove("hidden");
       }
