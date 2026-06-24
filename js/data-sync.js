@@ -483,6 +483,7 @@ async function backupToSupabase() {
       "Overwrite Newer Cloud Data?",
       "<p class='mb-3'>Your cloud backup contains <strong class='text-warning'>newer data</strong> than what is currently on this device.</p><p>If you proceed, you will permanently overwrite the newer cloud data with your older local data.</p>",
       "Overwrite Cloud Data",
+      "Cancel",
       async () => {
         await executeBackupToSupabase();
       }

@@ -452,3 +452,7 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Disabled Amount Autocomplete**: Disabled browser-native autocomplete (`autocomplete="off"`) on all transaction and budget amount inputs to prevent annoying dropdown menus from obstructing the math calculator toolbar.
 - **Removed Transaction Tooltips**: Removed redundant hover tooltips from transaction descriptions in the dashboard and monthly views to clean up the UI.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v164` and version to `v5.270m` to deploy the latest UX updates.
+
+### 88. [Hotfix] Cloud Overwrite Modal Buttons Fix (v5.271m)
+- **Modal Argument Fix**: Corrected a parameter ordering bug in the new Cloud Overwrite Safety Modal where the confirmation callback function was accidentally passed as the `cancelText` parameter, causing the function's raw source code to display on the "Cancel" button instead of the word "Cancel".
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v165` and version to `v5.271m` to force the UI fix.
