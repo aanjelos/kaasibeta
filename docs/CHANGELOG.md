@@ -483,3 +483,8 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Toast Notifications**: Assigned `role="alert"` and `aria-live="assertive"` to toast notifications so screen readers announce them dynamically.
 - **Keyboard Navigation**: Added `tabindex="0"` and `keydown` event listeners to custom multi-select dropdown menus in Settings and Advanced Filters to allow Space/Enter interactions.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v170` and version to `v5.276m` to deploy these fixes.
+
+### 93. [Hotfix] Accessibility Adjustments (v5.277m)
+- **Skip Link Removal**: Removed the "Skip to main content" link as it was deemed unnecessary for the current user flow.
+- **Close Button Aria Labels**: Fixed a bug where `aria-label="Close modal"` was not properly applied to all modal close buttons due to formatting issues.
+- **Cache Eviction**: Bumped the SW cache schema to `v171` to deploy these hotfixes and clear the previous cache.

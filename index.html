@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.276m" />
+    <meta name="application-version" content="v5.277m" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -72,7 +72,6 @@
   </head>
 
   <body class="min-h-screen transition-colors duration-300">
-    <a href="#dashboardTab" class="sr-only focus:not-sr-only focus:absolute focus:z-[999999] focus:p-4 focus:bg-primary focus:text-accent-500">Skip to main content</a>
     <div id="preloader">
       <div class="pulsing-icon-container">
         <img
@@ -131,7 +130,7 @@
     <!-- START: FORGOT PIN / SECURITY QUESTION MODAL -->
     <div id="securityQuestionModal" class="modal z-[100000]">
       <div class="modal-content max-w-sm">
-        <span class="modal-close" onclick="closeModal('securityQuestionModal')" aria-label="Close modal" role="button" tabindex="0">&times;</span>
+        <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('securityQuestionModal')">&times;</span>
         <h2 class="text-xl font-semibold mb-2" id="securityModalTitle">Security Recovery</h2>
         <p class="text-sm text-gray-300 mb-4" id="securityModalDesc">Answer your security question to unlock the app.</p>
         
@@ -633,7 +632,7 @@
 
       <div id="monthlyViewModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-4xl">
-          <span class="modal-close" onclick="closeModal('monthlyViewModal')"
+          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('monthlyViewModal')"
             >&times;</span
           >
           <h2 class="text-2xl font-semibold mb-4 pr-8">All Transactions</h2>
@@ -751,7 +750,7 @@
 
       <div id="settingsModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-xl">
-          <span class="modal-close" onclick="closeModal('settingsModal')"
+          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('settingsModal')"
             >&times;</span
           >
           <h2 class="text-2xl font-semibold mb-1 text-center">Settings</h2>
@@ -1630,7 +1629,7 @@
 
       <div id="formModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-lg">
-          <span class="modal-close" onclick="closeModal('formModal')"
+          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('formModal')"
             >&times;</span
           >
           <h2 id="formModalTitle" class="text-xl font-semibold mb-4">
@@ -1642,7 +1641,7 @@
 
       <div id="transferMoneyModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-lg">
-          <span class="modal-close" onclick="closeModal('transferMoneyModal')"
+          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('transferMoneyModal')"
             >&times;</span
           >
           <h2
@@ -1703,7 +1702,7 @@
 
       <div id="ccHistoryModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-4xl">
-          <span class="modal-close" onclick="closeModal('ccHistoryModal')"
+          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('ccHistoryModal')"
             >&times;</span
           >
           <h2 class="text-2xl font-semibold mb-4 pr-8">
@@ -1760,7 +1759,7 @@
 
       <div id="cashCounterModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-md">
-          <span class="modal-close" onclick="closeModal('cashCounterModal')"
+          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('cashCounterModal')"
             >&times;</span
           >
           <h2 class="text-2xl font-semibold mb-4 text-center">Cash Counter</h2>
@@ -1792,7 +1791,7 @@
 
       <div id="debtsViewModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-2xl">
-          <span class="modal-close" onclick="closeModal('debtsViewModal')"
+          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('debtsViewModal')"
             >&times;</span
           >
           <h2 class="text-2xl font-semibold mb-4 pr-8">All Debts (I Owe)</h2>
@@ -1807,7 +1806,7 @@
 
       <div id="receivablesViewModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-2xl">
-          <span class="modal-close" onclick="closeModal('receivablesViewModal')"
+          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('receivablesViewModal')"
             >&times;</span
           >
           <h2 class="text-2xl font-semibold mb-4 pr-8">All Receivables (Owes Me)</h2>
@@ -1822,7 +1821,7 @@
 
       <div id="shortcutsHelpModal" class="modal z-[75]">
         <div class="modal-content max-w-lg">
-          <span class="modal-close" onclick="closeModal('shortcutsHelpModal')"
+          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('shortcutsHelpModal')"
             >&times;</span
           >
           <h2 class="text-2xl font-semibold mb-4 text-center">
@@ -1843,7 +1842,7 @@
 
       <div id="editBudgetModal" class="modal z-[60]" role="dialog" aria-modal="true">
         <div class="modal-content max-w-md">
-          <span class="modal-close" id="closeSettingsModal" aria-label="Close modal" role="button" tabindex="0">&times;</span>
+          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" id="closeSettingsModal">&times;</span>
           <h2 class="text-2xl font-semibold mb-4 text-center">Edit Budget</h2>
           <form id="editBudgetForm" class="space-y-4">
             <input type="hidden" id="editBudgetId" />
@@ -1873,7 +1872,7 @@
 
       <div id="transactionDetailModal" class="modal z-[65]">
         <div class="modal-content max-w-md">
-          <span class="modal-close" onclick="closeModal('transactionDetailModal')">&times;</span>
+          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('transactionDetailModal')">&times;</span>
           <h2 class="text-xl font-semibold mb-4 border-b border-gray-600 pb-2 flex items-center gap-2 force-word-wrap">
             <i class="fas fa-receipt text-accent-500"></i> Transaction Details
           </h2>
@@ -1940,16 +1939,11 @@
       id="donateModal"
       class="modal" role="dialog" aria-modal="true"
       tabindex="-1"
-      aria-modal="true"
-      role="dialog"
     >
       <div class="modal-content max-w-xl">
         <span
-          class="modal-close"
+          class="modal-close" aria-label="Close modal" role="button" tabindex="0"
           id="closeDonateModal"
-          tabindex="0"
-          role="button"
-          aria-label="Close"
           >&times;</span
         >
         <h2 class="text-xl font-semibold mb-3 accent-text">
