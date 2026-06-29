@@ -369,6 +369,10 @@ function generateMonthlyPdfReport() {
 
 
 function renderMonthlyOverviewChart() {
+  if (typeof Chart === "undefined") {
+    console.warn("Chart.js is not loaded. Cannot render monthly overview chart.");
+    return;
+  }
   const canvas = $("#monthlyOverviewChart");
   if (!canvas) return;
 
@@ -599,6 +603,10 @@ function renderMonthlyOverviewChart() {
 }
 
 function renderMonthlyPieChart(data, isUpdate = false) {
+  if (typeof Chart === "undefined") {
+    console.warn("Chart.js is not loaded. Cannot render monthly pie chart.");
+    return;
+  }
   const canvas = document.getElementById("monthlyDetailPieChartCanvas");
   if (!canvas || !canvas.getContext) {
     console.error(

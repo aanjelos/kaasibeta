@@ -1,4 +1,4 @@
-const CACHE_NAME = "kaasi-cache-v166";
+const CACHE_NAME = "kaasi-cache-v167";
 const STATIC_ASSETS = [
   "./",
   "./index.html",
@@ -22,7 +22,14 @@ const STATIC_ASSETS = [
   "./fonts/Satoshi-Light.woff2",
   "./fonts/Satoshi-Regular.woff2",
   "./fonts/Satoshi-Medium.woff2",
-  "./fonts/Satoshi-Bold.woff2"
+  "./fonts/Satoshi-Bold.woff2",
+  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
+  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-solid-900.ttf",
+  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-solid-900.woff2",
+  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-regular-400.ttf",
+  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-regular-400.woff2",
+  "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js",
+  "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
 ];
 
 // Install Event: Cache initial static assets
