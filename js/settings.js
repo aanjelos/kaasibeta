@@ -966,9 +966,18 @@ function buildBudgetCategoryCheckboxes(containerId, selectedCategories = [], cur
     const label = document.createElement("label");
     
     if (isUsed) {
-      label.className = "flex items-center gap-2 px-2 py-1.5 opacity-40 cursor-not-allowed rounded text-sm text-gray-500 transition-colors select-none";
+      label.className = "flex items-center gap-2 px-2 py-1.5 opacity-40 cursor-not-allowed rounded text-sm text-gray-400 transition-colors select-none";
     } else {
-      label.className = "flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 cursor-pointer rounded text-sm text-gray-300 transition-colors";
+      label.className = "flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 focus:bg-white/10 focus:outline-none cursor-pointer rounded text-sm text-gray-300 transition-colors";
+      label.tabIndex = 0;
+      label.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const cb = label.querySelector('input[type="checkbox"]');
+          cb.checked = !cb.checked;
+          cb.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
     }
     
     label.innerHTML = `

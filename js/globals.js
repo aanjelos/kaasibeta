@@ -985,6 +985,9 @@ function showNotification(message, type = "success", duration = 4000) {
   n.style.backgroundColor = bgColor;
   n.style.color = textColor;
   n.style.border = borderStyle;
+  
+  n.setAttribute("role", "alert");
+  n.setAttribute("aria-live", "assertive");
 
   n.textContent = message;
   area.appendChild(n);
@@ -1101,7 +1104,16 @@ function populateDropdowns() {
 
     // Add "All Categories" option at the top
     const allLabel = document.createElement("label");
-    allLabel.className = "group flex items-center gap-3 px-2 py-2 hover:bg-white/5 cursor-pointer rounded text-sm text-gray-200 border-b border-gray-700/50 pb-2 mb-1 transition-colors";
+    allLabel.className = "group flex items-center gap-3 px-2 py-2 hover:bg-white/5 focus:bg-white/10 focus:outline-none cursor-pointer rounded text-sm text-gray-200 border-b border-gray-700/50 pb-2 mb-1 transition-colors";
+    allLabel.tabIndex = 0;
+    allLabel.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const cb = allLabel.querySelector('input[type="checkbox"]');
+        cb.checked = !cb.checked;
+        cb.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
     
     // Determine if "All" should be checked: if no specific categories were previously checked
     const isAllChecked = checkedCategories.size === 0;
@@ -1122,7 +1134,16 @@ function populateDropdowns() {
 
     generalCategories.forEach((c) => {
       const label = document.createElement("label");
-      label.className = "group flex items-center gap-3 px-2 py-1.5 hover:bg-white/5 cursor-pointer rounded text-sm text-gray-300 transition-colors";
+      label.className = "group flex items-center gap-3 px-2 py-1.5 hover:bg-white/5 focus:bg-white/10 focus:outline-none cursor-pointer rounded text-sm text-gray-300 transition-colors";
+      label.tabIndex = 0;
+      label.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const cb = label.querySelector('input[type="checkbox"]');
+          cb.checked = !cb.checked;
+          cb.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
       const isChecked = checkedCategories.has(c);
       label.innerHTML = `
         <input type="checkbox" value="${c}" class="peer sr-only filter-category-checkbox" ${isChecked ? "checked" : ""}>

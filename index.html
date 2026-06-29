@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.275m" />
+    <meta name="application-version" content="v5.276m" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -72,6 +72,7 @@
   </head>
 
   <body class="min-h-screen transition-colors duration-300">
+    <a href="#dashboardTab" class="sr-only focus:not-sr-only focus:absolute focus:z-[999999] focus:p-4 focus:bg-primary focus:text-accent-500">Skip to main content</a>
     <div id="preloader">
       <div class="pulsing-icon-container">
         <img
@@ -84,7 +85,7 @@
       </div>
       <!-- Loading screen tips container -->
       <div id="preloader-tip-container" class="text-center px-6">
-        <p id="preloader-tip-text" class="text-sm text-gray-400 font-medium leading-relaxed"></p>
+        <p id="preloader-tip-text" class="text-sm text-gray-300 font-medium leading-relaxed"></p>
       </div>
     </div>
 
@@ -94,7 +95,7 @@
         <img src="img/FullLogo.svg" alt="Kaasi" class="h-10 mb-8 theme-logo" />
         <i class="fas fa-lock text-3xl text-accent-500 mb-4"></i>
         <h2 class="text-2xl font-bold text-[var(--text-primary)] mb-2">App Locked</h2>
-        <p class="text-sm text-gray-400 mb-8 text-center" id="pinLockMessage">Enter your 4-digit PIN</p>
+        <p class="text-sm text-gray-300 mb-8 text-center" id="pinLockMessage">Enter your 4-digit PIN</p>
         
         <!-- Pin Dots -->
         <div class="flex gap-4 mb-8" id="pinLockDots">
@@ -130,9 +131,9 @@
     <!-- START: FORGOT PIN / SECURITY QUESTION MODAL -->
     <div id="securityQuestionModal" class="modal z-[100000]">
       <div class="modal-content max-w-sm">
-        <span class="modal-close" onclick="closeModal('securityQuestionModal')">&times;</span>
+        <span class="modal-close" onclick="closeModal('securityQuestionModal')" aria-label="Close modal" role="button" tabindex="0">&times;</span>
         <h2 class="text-xl font-semibold mb-2" id="securityModalTitle">Security Recovery</h2>
-        <p class="text-sm text-gray-400 mb-4" id="securityModalDesc">Answer your security question to unlock the app.</p>
+        <p class="text-sm text-gray-300 mb-4" id="securityModalDesc">Answer your security question to unlock the app.</p>
         
         <form id="securityQuestionForm" class="space-y-4">
           <!-- Shown during recovery -->
@@ -156,7 +157,7 @@
 
         <div id="emergencyResetGroup" class="hidden mt-6 pt-4 border-t border-gray-700 text-center">
           <p class="text-sm font-medium text-gray-300 mb-2">Can't remember your answer?</p>
-          <p class="text-sm text-gray-400 mb-4 leading-relaxed">
+          <p class="text-sm text-gray-300 mb-4 leading-relaxed">
             Message <a href="https://instagram.com/kaasi.com.lk" target="_blank" class="text-theme hover:underline">@kaasi.com.lk on Instagram</a> or email <a href="mailto:aanjelo99@gmail.com" class="text-theme hover:underline">aanjelo99@gmail.com</a> to request a recovery code.
           </p>
           <div class="flex gap-2">
@@ -320,7 +321,7 @@
                       placeholder="e.g., 1500.50"
                       required
                     />
-                    <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1">
+                    <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                       <i class="fas fa-calculator"></i>
                     </button>
                   </div>
@@ -365,7 +366,7 @@
                 <h2 class="text-xl font-semibold">Category Budgets</h2>
                 <button
                   id="toggleBudgetsCardBtn"
-                  class="btn btn-icon btn-sm text-gray-400 hover:text-white"
+                  class="btn btn-icon btn-sm text-gray-300 hover:text-white"
                   data-tooltip="Toggle View"
                 >
                   <i class="fas fa-chevron-up"></i>
@@ -420,7 +421,7 @@
                       placeholder="Amount spent"
                       required
                     />
-                    <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1">
+                    <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                       <i class="fas fa-calculator"></i>
                     </button>
                   </div>
@@ -468,7 +469,7 @@
                 class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4"
               >
                 <div class="bg-gray-700 p-4 rounded-lg text-center shadow-md">
-                  <h3 class="text-sm font-medium text-gray-400 mb-1">
+                  <h3 class="text-sm font-medium text-gray-300 mb-1">
                     Total Available
                   </h3>
                   <p id="totalBalance" class="text-2xl font-bold accent-text">
@@ -476,7 +477,7 @@
                   </p>
                 </div>
                 <div id="totalPotentialCard" class="bg-gray-700 p-4 rounded-lg text-center shadow-md">
-                  <h3 class="text-sm font-medium text-gray-400 mb-1">
+                  <h3 class="text-sm font-medium text-gray-300 mb-1">
                     Total Potential
                   </h3>
                   <p
@@ -485,7 +486,7 @@
                   >
                     LKR 0.00
                   </p>
-                  <p class="text-xs text-gray-500">(Available + Owed to Me)</p>
+                  <p class="text-xs text-gray-400">(Available + Owed to Me)</p>
                 </div>
                 <button
                   id="cashCounterBtn"
@@ -495,7 +496,7 @@
                   <i
                     class="fas fa-money-bill-wave text-2xl accent-text mb-1"
                   ></i>
-                  <span class="text-sm font-medium text-gray-400"
+                  <span class="text-sm font-medium text-gray-300"
                     >Cash Counter</span
                   >
                 </button>
@@ -505,7 +506,7 @@
                 <!-- Account cards like Cash, Bank 1, etc., will be injected here by JS -->
               </div>
               <div
-                class="mt-4 text-xs text-gray-400 flex flex-col sm:flex-row justify-between gap-2"
+                class="mt-4 text-xs text-gray-300 flex flex-col sm:flex-row justify-between gap-2"
               >
                 <span id="yearlyTotals"
                   >Yearly: Earned LKR 0.00 / Spent LKR 0.00</span
@@ -522,7 +523,7 @@
                 id="recentTransactionsList"
                 class="space-y-3 max-h-80 overflow-y-auto pr-2"
               >
-                <p class="text-gray-400 text-sm">No transactions yet.</p>
+                <p class="text-gray-300 text-sm">No transactions yet.</p>
               </div>
 
             </div>
@@ -603,7 +604,7 @@
                   <i class="fas fa-plus"></i> Add New Plan
                 </button>
                 <div id="installmentList" class="space-y-3">
-                  <p class="text-gray-400 text-sm">
+                  <p class="text-gray-300 text-sm">
                     No installment plans recorded.
                   </p>
                 </div>
@@ -630,7 +631,7 @@
         </div>
       </div>
 
-      <div id="monthlyViewModal" class="modal">
+      <div id="monthlyViewModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-4xl">
           <span class="modal-close" onclick="closeModal('monthlyViewModal')"
             >&times;</span
@@ -681,11 +682,11 @@
 
           <!-- Advanced Filters Accordion -->
           <div id="advancedFiltersAccordion" class="hidden mb-4 rounded-lg p-4 border border-gray-600/50 bg-secondary">
-            <h3 class="text-sm font-semibold text-gray-300 mb-3"><i class="fas fa-filter mr-1 text-gray-400"></i> Advanced Filters</h3>
+            <h3 class="text-sm font-semibold text-gray-300 mb-3"><i class="fas fa-filter mr-1 text-gray-300"></i> Advanced Filters</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <!-- Custom Date Range -->
               <div class="flex flex-col gap-1.5 md:col-span-2">
-                <label for="filterDateRange" class="text-xs text-gray-400">Date Range</label>
+                <label for="filterDateRange" class="text-xs text-gray-300">Date Range</label>
                 <select id="filterDateRange" class="w-full text-sm px-2 py-1.5 transition-colors focus:outline-none bg-tertiary border border-theme rounded-md">
                   <option value="none">This Month (Default)</option>
                   <option value="allTime">All Time</option>
@@ -697,14 +698,14 @@
                 </select>
                 <div id="customDateInputs" class="hidden flex-wrap items-center gap-2 mt-0.5">
                   <input type="date" id="filterStartDate" class="flex-1 min-w-[120px] text-sm px-2 py-1" data-tooltip="Start Date" />
-                  <span class="text-gray-500 text-xs">to</span>
+                  <span class="text-gray-400 text-xs">to</span>
                   <input type="date" id="filterEndDate" class="flex-1 min-w-[120px] text-sm px-2 py-1" data-tooltip="End Date" />
                 </div>
               </div>
               
               <!-- Transaction Type -->
               <div class="flex flex-col gap-1 md:col-span-1">
-                <label class="text-xs text-gray-400" for="filterType">Type</label>
+                <label class="text-xs text-gray-300" for="filterType">Type</label>
                 <select id="filterType" class="w-full text-sm px-2 py-1">
                   <option value="all">All Types</option>
                   <option value="income">Income</option>
@@ -714,10 +715,10 @@
 
               <!-- Category (Multi-Select) -->
               <div class="flex flex-col gap-1 md:col-span-1 relative" id="filterCategoryContainer">
-                <label class="text-xs text-gray-400">Category</label>
+                <label class="text-xs text-gray-300">Category</label>
                 <button type="button" id="filterCategoryBtn" class="w-full text-sm px-2 py-1 flex justify-between items-center text-left transition-colors focus:outline-none bg-tertiary border border-theme rounded-md min-h-[42px]">
                   <span id="filterCategoryBtnText" class="truncate pr-2 text-gray-200">All Categories</span>
-                  <i class="fas fa-chevron-down text-[10px] text-gray-400"></i>
+                  <i class="fas fa-chevron-down text-[10px] text-gray-300"></i>
                 </button>
                 <div id="filterCategoryDropdown" class="absolute top-full left-0 mt-1 w-full z-50 hidden border border-gray-600 rounded shadow-lg max-h-48 overflow-y-auto custom-scrollbar flex-col p-1 bg-secondary">
                   <!-- Checkboxes populated dynamically via populateFilterCategories() -->
@@ -726,29 +727,29 @@
 
               <!-- Amount Range -->
               <div class="flex flex-col gap-1 md:col-span-2">
-                <label class="text-xs text-gray-400">Amount Range</label>
+                <label class="text-xs text-gray-300">Amount Range</label>
                 <div class="flex flex-wrap items-center gap-2">
                   <input type="number" id="filterMinAmount" placeholder="Min" class="flex-1 min-w-[80px] text-sm px-2 py-1" min="0" />
-                  <span class="text-gray-500 text-xs">-</span>
+                  <span class="text-gray-400 text-xs">-</span>
                   <input type="number" id="filterMaxAmount" placeholder="Max" class="flex-1 min-w-[80px] text-sm px-2 py-1" min="0" />
                 </div>
               </div>
             </div>
             <div class="flex justify-end mt-4">
-              <button id="resetAdvancedFiltersBtn" class="text-sm text-gray-400 hover:text-white transition-colors focus:outline-none">
+              <button id="resetAdvancedFiltersBtn" class="text-sm text-gray-300 hover:text-white transition-colors focus:outline-none">
                 <i class="fas fa-undo-alt mr-1"></i> Reset Filters
               </button>
             </div>
           </div>
           <div id="monthlyDetailsContainer" class="mt-4">
-            <p class="text-center text-gray-400">
+            <p class="text-center text-gray-300">
               Select a month to view details.
             </p>
           </div>
         </div>
       </div>
 
-      <div id="settingsModal" class="modal">
+      <div id="settingsModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-xl">
           <span class="modal-close" onclick="closeModal('settingsModal')"
             >&times;</span
@@ -774,7 +775,7 @@
                 </h3>
                 <form id="manageAccountsForm" class="space-y-3">
                   <div id="accountManagementList" class="space-y-3"></div>
-                  <p class="text-xs text-gray-400 mt-2">
+                  <p class="text-xs text-gray-300 mt-2">
                     Note: 'Cash' account name cannot be changed. Balances and
                     other names can be updated.
                   </p>
@@ -809,7 +810,7 @@
                       required
                       class="calc-amount pr-8 !py-1 !px-2 text-sm"
                     />
-                    <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1">
+                    <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                       <i class="fas fa-calculator"></i>
                     </button>
                   </div>
@@ -852,7 +853,7 @@
                 <h3 class="text-lg font-semibold mb-3">
                   Hidden Category Rules
                 </h3>
-                <p class="text-xs text-gray-400 mb-4">
+                <p class="text-xs text-gray-300 mb-4">
                   Define what happens when a category is marked as "Hidden" (using the <i class="fas fa-eye-slash mx-1"></i> icon below).
                 </p>
                 <div class="space-y-3" id="hiddenCategoryRulesContainer">
@@ -877,7 +878,7 @@
                   <div class="mt-4">
                     <button type="button" class="w-full flex justify-between items-center p-3 advanced-rules-btn transition-colors focus:outline-none" onclick="toggleAdvancedRules()">
                       <span class="text-sm font-medium text-gray-200">Advanced Exclusion Rules</span>
-                      <i id="advancedRulesIcon" class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                      <i id="advancedRulesIcon" class="fas fa-chevron-down text-gray-300 text-xs"></i>
                     </button>
                     <div id="advancedRulesContainer" class="hidden p-3 space-y-3 advanced-rules-content">
                       <div class="flex items-center justify-between">
@@ -959,14 +960,14 @@
                     </div>
                   </div>
                   <div>
-                    <label class="block text-sm font-medium mb-1">Budget Name <span class="text-xs text-gray-400 font-normal">(Optional if selecting a single category)</span></label>
+                    <label class="block text-sm font-medium mb-1">Budget Name <span class="text-xs text-gray-300 font-normal">(Optional if selecting a single category)</span></label>
                     <input type="text" id="addBudgetName" placeholder="e.g. Groceries" class="w-full text-sm !px-2 !py-1">
                   </div>
                   <div>
                     <label class="block text-sm font-medium mb-1">Monthly Limit (LKR)</label>
                     <div class="relative flex items-center w-full">
                       <input type="text" inputmode="decimal" autocomplete="off" id="addBudgetLimit" class="calc-amount w-full pr-8 text-sm !px-2 !py-1" placeholder="e.g. 15000.00" required step="0.01" min="0">
-                      <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1">
+                      <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                         <i class="fas fa-calculator"></i>
                       </button>
                     </div>
@@ -980,7 +981,7 @@
               >
                 <h3 class="text-lg font-semibold mb-3">Active Budgets</h3>
                 <div id="activeBudgetsList" class="space-y-3">
-                  <p class="text-xs text-gray-400">No active budgets.</p>
+                  <p class="text-xs text-gray-300">No active budgets.</p>
                 </div>
               </div>
             </div>
@@ -999,7 +1000,7 @@
 
                 <!-- Logged Out State (Visible by default) -->
                 <div id="cloudBackupLoggedOut">
-                  <p class="text-sm text-gray-400 mb-3">
+                  <p class="text-sm text-gray-300 mb-3">
                     Sign in with Google to securely back up your data to the
                     cloud. This allows you to restore your data on any device.
                   </p>
@@ -1016,7 +1017,7 @@
                       >...</strong
                     >
                   </p>
-                  <p id="lastCloudBackupTime" class="text-xs text-gray-400 -mt-2">Last backed up: Fetching...</p>
+                  <p id="lastCloudBackupTime" class="text-xs text-gray-300 -mt-2">Last backed up: Fetching...</p>
                   <div class="flex flex-col sm:flex-row gap-3">
                     <button
                       id="backupToSupabaseBtn"
@@ -1046,7 +1047,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <label for="settingsBackupReminderFreq" class="block text-sm font-medium text-gray-300">Local Export Reminder</label>
-                    <p class="text-xs text-gray-400 mt-1">Alerts you to save an offline backup file if you haven't exported one recently.</p>
+                    <p class="text-xs text-gray-300 mt-1">Alerts you to save an offline backup file if you haven't exported one recently.</p>
                   </div>
                   <select id="settingsBackupReminderFreq" class="w-full sm:w-[220px] mt-2 sm:mt-0 flex-shrink-0">
                     <option value="default">Auto (Smart Schedule)</option>
@@ -1087,7 +1088,7 @@
                       Local File
                     </label>
                     <label
-                      class="flex items-center text-sm text-gray-400 cursor-pointer"
+                      class="flex items-center text-sm text-gray-300 cursor-pointer"
                       id="shortcutCloudLabel"
                     >
                       <input
@@ -1117,7 +1118,7 @@
                       class="hidden"
                   /></label>
                 </div>
-                <p class="text-xs text-gray-400 mt-2">
+                <p class="text-xs text-gray-300 mt-2">
                   Exports create a local backup file. Imports overwrite existing
                   data from a local file.
                 </p>
@@ -1197,7 +1198,7 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <h3 class="text-base font-semibold">Show Calculator Button</h3>
-                    <p class="text-xs text-gray-400">Show calculator icon inside amount input fields to enable the Math Toolbar</p>
+                    <p class="text-xs text-gray-300">Show calculator icon inside amount input fields to enable the Math Toolbar</p>
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleMathToolbar" class="sr-only peer" checked>
@@ -1213,7 +1214,7 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <h4 class="text-sm font-medium">Hide Cash Counter</h4>
-                    <p class="text-xs text-gray-400">Remove the Cash Counter from the dashboard</p>
+                    <p class="text-xs text-gray-300">Remove the Cash Counter from the dashboard</p>
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleHideCashCounter" class="sr-only peer">
@@ -1224,7 +1225,7 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <h4 class="text-sm font-medium">Hide Total Potential</h4>
-                    <p class="text-xs text-gray-400">Remove the Total Potential card (Auto-hides if 0 receivables)</p>
+                    <p class="text-xs text-gray-300">Remove the Total Potential card (Auto-hides if 0 receivables)</p>
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleHideTotalPotential" class="sr-only peer">
@@ -1235,7 +1236,7 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <h4 class="text-sm font-medium">Hide Debts & Receivables</h4>
-                    <p class="text-xs text-gray-400">Remove the I Owe / Owes Me sections from the dashboard</p>
+                    <p class="text-xs text-gray-300">Remove the I Owe / Owes Me sections from the dashboard</p>
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleHideDebts" class="sr-only peer">
@@ -1246,7 +1247,7 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <h4 class="text-sm font-medium">Hide Installments</h4>
-                    <p class="text-xs text-gray-400">Remove the Installment Payments section from the dashboard</p>
+                    <p class="text-xs text-gray-300">Remove the Installment Payments section from the dashboard</p>
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleHideInstallments" class="sr-only peer">
@@ -1269,7 +1270,7 @@
                 <div class="flex items-center justify-between mb-4">
                   <div>
                     <h3 class="text-lg font-semibold">App PIN Lock</h3>
-                    <p class="text-xs text-gray-400">Require a 4-digit PIN when opening the app</p>
+                    <p class="text-xs text-gray-300">Require a 4-digit PIN when opening the app</p>
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="toggleAppPin" class="sr-only peer">
@@ -1289,7 +1290,7 @@
                     </div>
                     <div>
                       <label class="block text-sm font-medium mb-1">Security Question</label>
-                      <p class="text-xs text-gray-400 mb-2">Used if you forget your PIN.</p>
+                      <p class="text-xs text-gray-300 mb-2">Used if you forget your PIN.</p>
                       <select id="setupSecuritySelect" class="w-full">
                         <option value="What was the name of your first pet?">What was the name of your first pet?</option>
                         <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
@@ -1386,7 +1387,7 @@
           </div>
           <div
             id="settingsAboutSection"
-            class="mt-8 pt-6 border-t border-gray-600 text-xs text-gray-400 space-y-2 text-center"
+            class="mt-8 pt-6 border-t border-gray-600 text-xs text-gray-300 space-y-2 text-center"
           >
             <p>Made by Aanjelo Salgado using Gemini AI.</p>
             <p>
@@ -1429,7 +1430,7 @@
                 onerror="this.onerror=null; this.src='https://placehold.co/100x40/e67e26/white?text=AS&font=satoshi';"
               />
               <hr class="w-1/4 my-2 border-gray-600" />
-              <p id="appVersionSettings" class="text-gray-500 text-xs"></p>
+              <p id="appVersionSettings" class="text-gray-400 text-xs"></p>
               <div class="max-w-2xl mx-auto">
                 <p class="font-semibold text-gray-300 mt-2">
                   For optimal performance and to prevent data loss due to
@@ -1440,7 +1441,7 @@
                   the new version.
                 </p>
               </div>
-              <p id="storageSizeInfo" class="text-gray-500 text-xs mt-1">
+              <p id="storageSizeInfo" class="text-gray-400 text-xs mt-1">
                 Approx. Storage Used: Calculating...
               </p>
             </div>
@@ -1461,7 +1462,7 @@
               onerror="this.onerror=null; this.src='https://placehold.co/120x30/e67e26/white?text=Kaasi&font=satoshi';"
             />
           </h2>
-          <p class="text-sm text-gray-400 mb-6 text-center">
+          <p class="text-sm text-gray-300 mb-6 text-center">
             Let's get your expense tracker set up.
           </p>
 
@@ -1469,7 +1470,7 @@
             <div class="card !p-4 border-2 border-dashed border-gray-600 bg-[var(--bg-tertiary)] flex flex-col sm:flex-row items-center justify-between gap-4">
               <div class="text-center sm:text-left flex-grow">
                 <h3 class="text-sm font-semibold text-[var(--text-primary)]">Already have data?</h3>
-                <p class="text-xs text-gray-400 mt-1">Sign in or import a backup file to instantly restore your data and skip this setup.</p>
+                <p class="text-xs text-gray-300 mt-1">Sign in or import a backup file to instantly restore your data and skip this setup.</p>
               </div>
               <div class="flex flex-row gap-2 w-full sm:w-auto shrink-0 justify-center">
                 <button type="button" id="setupCloudLoginBtn" class="btn btn-secondary text-sm flex-1 sm:flex-none justify-center m-0 whitespace-nowrap">
@@ -1487,7 +1488,7 @@
           <form id="initialSetupForm" class="space-y-6">
             <div class="card !p-4 bg-tertiary">
               <h3 class="text-lg font-semibold mb-3">1. Account Setup</h3>
-              <p class="text-xs text-gray-400 mb-3">
+              <p class="text-xs text-gray-300 mb-3">
                 Set initial balances. You can rename bank accounts and toggle
                 their visibility. "Cash" is fixed. Leave balance blank or 0 if
                 not applicable.
@@ -1528,7 +1529,7 @@
                   min="0"
                   placeholder="e.g., 100000"
                 />
-                <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1">
+                <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                   <i class="fas fa-calculator"></i>
                 </button>
               </div>
@@ -1536,7 +1537,7 @@
             </div>
             <div class="card !p-4 bg-tertiary">
               <h3 class="text-lg font-semibold mb-3">3. Expense Categories</h3>
-              <p class="text-xs text-gray-400 mb-3">
+              <p class="text-xs text-gray-300 mb-3">
                 Review and customize your starting categories. You can manage
                 these later in Settings.
               </p>
@@ -1569,7 +1570,7 @@
 
 
           <div
-            class="mt-8 pt-6 border-t border-gray-600 text-xs text-gray-400 space-y-2 text-center"
+            class="mt-8 pt-6 border-t border-gray-600 text-xs text-gray-300 space-y-2 text-center"
           >
             <p>Made by Aanjelo Salgado using Gemini AI.</p>
             <p>
@@ -1611,7 +1612,7 @@
                 onerror="this.onerror=null; this.src='https://placehold.co/80x32/e67e26/white?text=AS&font=satoshi';"
               />
               <hr class="w-1/4 my-2 border-gray-600" />
-              <p id="appVersionSetup" class="text-gray-500 text-xs"></p>
+              <p id="appVersionSetup" class="text-gray-400 text-xs"></p>
               <div class="max-w-2xl mx-auto">
                 <p class="font-semibold text-gray-300 mt-2">
                   For optimal performance and to prevent data loss due to
@@ -1627,7 +1628,7 @@
         </div>
       </div>
 
-      <div id="formModal" class="modal">
+      <div id="formModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-lg">
           <span class="modal-close" onclick="closeModal('formModal')"
             >&times;</span
@@ -1639,7 +1640,7 @@
         </div>
       </div>
 
-      <div id="transferMoneyModal" class="modal">
+      <div id="transferMoneyModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-lg">
           <span class="modal-close" onclick="closeModal('transferMoneyModal')"
             >&times;</span
@@ -1667,7 +1668,7 @@
                   placeholder="Amount to transfer"
                   required
                 />
-                <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1">
+                <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                   <i class="fas fa-calculator"></i>
                 </button>
               </div>
@@ -1700,7 +1701,7 @@
         </div>
       </div>
 
-      <div id="ccHistoryModal" class="modal">
+      <div id="ccHistoryModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-4xl">
           <span class="modal-close" onclick="closeModal('ccHistoryModal')"
             >&times;</span
@@ -1712,15 +1713,15 @@
           <!-- Summary Cards -->
           <div class="monthly-view-summary-grid grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div class="monthly-view-summary-card">
-              <p class="text-sm text-gray-400 mb-1">Limit</p>
+              <p class="text-sm text-gray-300 mb-1">Limit</p>
               <p id="ccHistoryLimit" class="text-xl font-semibold tabular-nums">LKR 0.00</p>
             </div>
             <div class="monthly-view-summary-card">
-              <p class="text-sm text-gray-400 mb-1">Spent (Unpaid)</p>
+              <p class="text-sm text-gray-300 mb-1">Spent (Unpaid)</p>
               <p id="ccHistorySpentUnpaid" class="text-xl font-semibold text-expense tabular-nums">LKR 0.00</p>
             </div>
             <div class="monthly-view-summary-card">
-              <p class="text-sm text-gray-400 mb-1">Available</p>
+              <p class="text-sm text-gray-300 mb-1">Available</p>
               <p id="ccHistoryAvailable" class="text-xl font-semibold accent-text tabular-nums">LKR 0.00</p>
             </div>
           </div>
@@ -1741,7 +1742,7 @@
               <div class="flex-grow w-full flex items-center gap-x-2">
                 <input type="search" id="ccHistorySearchInput" name="ccHistorySearch" placeholder="Search description or amount..." class="flex-grow bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm outline-none text-white focus:border-accent-500 transition-colors" />
                 <button id="clearCcHistorySearchBtn" class="btn-icon-clear-search hidden flex-shrink-0" aria-label="Clear search" data-tooltip="Clear Search">
-                  <i class="fas fa-times text-gray-400 hover:text-white transition-colors"></i>
+                  <i class="fas fa-times text-gray-300 hover:text-white transition-colors"></i>
                 </button>
               </div>
             </div>
@@ -1757,7 +1758,7 @@
         </div>
       </div>
 
-      <div id="cashCounterModal" class="modal">
+      <div id="cashCounterModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-md">
           <span class="modal-close" onclick="closeModal('cashCounterModal')"
             >&times;</span
@@ -1765,13 +1766,13 @@
           <h2 class="text-2xl font-semibold mb-4 text-center">Cash Counter</h2>
           <form id="cashCounterForm">
             <div class="grid grid-cols-3 gap-x-2 gap-y-3 items-center mb-4">
-              <span class="font-semibold text-sm text-gray-400"
+              <span class="font-semibold text-sm text-gray-300"
                 >Denomination</span
               >
-              <span class="font-semibold text-sm text-gray-400 text-center"
+              <span class="font-semibold text-sm text-gray-300 text-center"
                 >Count</span
               >
-              <span class="font-semibold text-sm text-gray-400 text-right"
+              <span class="font-semibold text-sm text-gray-300 text-right"
                 >Total</span
               >
             </div>
@@ -1789,7 +1790,7 @@
         </div>
       </div>
 
-      <div id="debtsViewModal" class="modal">
+      <div id="debtsViewModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-2xl">
           <span class="modal-close" onclick="closeModal('debtsViewModal')"
             >&times;</span
@@ -1799,12 +1800,12 @@
             id="debtModalListContainer"
             class="space-y-3 max-h-[70vh] overflow-y-auto pr-2"
           >
-            <p class="text-gray-400 text-sm">Loading debts...</p>
+            <p class="text-gray-300 text-sm">Loading debts...</p>
           </div>
         </div>
       </div>
 
-      <div id="receivablesViewModal" class="modal">
+      <div id="receivablesViewModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-2xl">
           <span class="modal-close" onclick="closeModal('receivablesViewModal')"
             >&times;</span
@@ -1814,7 +1815,7 @@
             id="receivableModalListContainer"
             class="space-y-3 max-h-[70vh] overflow-y-auto pr-2"
           >
-            <p class="text-gray-400 text-sm">Loading receivables...</p>
+            <p class="text-gray-300 text-sm">Loading receivables...</p>
           </div>
         </div>
       </div>
@@ -1828,21 +1829,21 @@
             <i class="fas fa-keyboard mr-2 text-accent-500"></i>Keyboard
             Shortcuts
           </h2>
-          <div class="mb-4 text-xs text-gray-400 text-center">
+          <div class="mb-4 text-xs text-gray-300 text-center">
             Note: Shortcuts generally do not work when typing in input fields.
           </div>
           <ul
             id="shortcutsList"
             class="space-y-1 text-sm max-h-[60vh] overflow-y-auto pr-2"
           >
-            <li class="text-center text-gray-500">Loading shortcuts...</li>
+            <li class="text-center text-gray-400">Loading shortcuts...</li>
           </ul>
         </div>
       </div>
 
-      <div id="editBudgetModal" class="modal z-[60]">
+      <div id="editBudgetModal" class="modal z-[60]" role="dialog" aria-modal="true">
         <div class="modal-content max-w-md">
-          <span class="modal-close" onclick="closeModal('editBudgetModal')">&times;</span>
+          <span class="modal-close" id="closeSettingsModal" aria-label="Close modal" role="button" tabindex="0">&times;</span>
           <h2 class="text-2xl font-semibold mb-4 text-center">Edit Budget</h2>
           <form id="editBudgetForm" class="space-y-4">
             <input type="hidden" id="editBudgetId" />
@@ -1853,14 +1854,14 @@
               </div>
             </div>
             <div>
-              <label class="block text-sm font-medium mb-1">Budget Name <span class="text-xs text-gray-400 font-normal">(Optional if selecting a single category)</span></label>
+              <label class="block text-sm font-medium mb-1">Budget Name <span class="text-xs text-gray-300 font-normal">(Optional if selecting a single category)</span></label>
               <input type="text" id="editBudgetName" placeholder="e.g. Groceries" class="w-full text-sm !px-2 !py-1">
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Monthly Limit (LKR)</label>
               <div class="relative flex items-center w-full">
                 <input type="text" inputmode="decimal" autocomplete="off" id="editBudgetLimit" class="calc-amount w-full pr-8 text-sm !px-2 !py-1" placeholder="e.g. 15000.00" required step="0.01" min="0">
-                <button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1">
+                <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                   <i class="fas fa-calculator"></i>
                 </button>
               </div>
@@ -1921,11 +1922,11 @@
             class="h-6"
             onerror="this.onerror=null; this.src='https://placehold.co/24x24/1a1a1a/e67e26?text=K&font=satoshi';"
           />
-          <span class="text-gray-500 text-sm"
+          <span class="text-gray-400 text-sm"
             >&copy; <script>document.write(new Date().getFullYear())</script> Kaasi by Aanjelo Salgado.</span
           >
         </div>
-        <div class="flex items-center gap-6 text-gray-400 text-sm">
+        <div class="flex items-center gap-6 text-gray-300 text-sm">
           <!-- Removed Tailwind hover and transition classes -->
           <button id="pwaInstallBtn" class="accent-text font-medium hidden" data-analytics="pwa_install_click"><i class="fas fa-download mr-1"></i> Install App</button>
           <button id="footerDonateBtn">Donate</button>
@@ -1937,7 +1938,7 @@
     <!-- NEW DONATE MODAL -->
     <div
       id="donateModal"
-      class="modal"
+      class="modal" role="dialog" aria-modal="true"
       tabindex="-1"
       aria-modal="true"
       role="dialog"
@@ -2016,7 +2017,7 @@
         <h2 class="text-xl font-bold mb-2 accent-text text-center">
           <i class="fas fa-cloud-slash mr-2"></i> Cloud Sync Disconnected
         </h2>
-        <p class="text-sm text-gray-400 mb-6 text-center">
+        <p class="text-sm text-gray-300 mb-6 text-center">
           Your cloud backup session has expired. Please select an option below to ensure your financial data is safe.
         </p>
 
@@ -2025,7 +2026,7 @@
           <div class="card !p-4 border border-gray-700 bg-[var(--bg-tertiary)] flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="text-center sm:text-left flex-grow">
               <h3 class="text-sm font-semibold text-[var(--text-primary)]">Resume Cloud Backups</h3>
-              <p class="text-xs text-gray-400 mt-1">Sign in with Google to reconnect and continue backing up your transactions to the cloud.</p>
+              <p class="text-xs text-gray-300 mt-1">Sign in with Google to reconnect and continue backing up your transactions to the cloud.</p>
             </div>
             <button type="button" id="sessionExpiredGoogleLoginBtn" class="btn btn-primary text-sm w-full sm:w-[140px] justify-center m-0 whitespace-nowrap">
               <i class="fab fa-google mr-2"></i> Sign In
@@ -2036,7 +2037,7 @@
           <div class="card !p-4 border border-gray-700 bg-[var(--bg-tertiary)] flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="text-center sm:text-left flex-grow">
               <h3 class="text-sm font-semibold text-[var(--text-primary)]">Switch to Local Mode</h3>
-              <p class="text-xs text-gray-400 mt-1">Stop syncing with the cloud. Your transactions will only be saved locally on this device.</p>
+              <p class="text-xs text-gray-300 mt-1">Stop syncing with the cloud. Your transactions will only be saved locally on this device.</p>
             </div>
             <button type="button" id="sessionExpiredLocalBtn" class="btn btn-secondary text-sm w-full sm:w-[140px] justify-center m-0 whitespace-nowrap">
               <i class="fas fa-hdd mr-2"></i> Local Mode

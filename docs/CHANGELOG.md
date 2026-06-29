@@ -475,3 +475,11 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 
 ### 91. [Hotfix] Service Worker Cache Clear (v5.275m)
 - **Cache Eviction**: Bumped the SW cache schema to `v169` to forcefully evict the broken `globals.js` script from users' local caches, which was causing the app to throw syntax errors on boot after reopening the browser.
+
+### 92. [Accessibility] Comprehensive A11y Audit Fixes (v5.276m)
+- **Skip Link**: Injected a "Skip to main content" link for keyboard and screen reader users to bypass navigation at the top of the app.
+- **Improved Contrast**: Replaced low-contrast `text-gray-400` and `text-gray-500` with `text-gray-300` for better readability across the app.
+- **Modal Semantics**: Added `role="dialog"` and `aria-modal="true"` to all modal dialogs.
+- **Toast Notifications**: Assigned `role="alert"` and `aria-live="assertive"` to toast notifications so screen readers announce them dynamically.
+- **Keyboard Navigation**: Added `tabindex="0"` and `keydown` event listeners to custom multi-select dropdown menus in Settings and Advanced Filters to allow Space/Enter interactions.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v170` and version to `v5.276m` to deploy these fixes.
