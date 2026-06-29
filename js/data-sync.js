@@ -63,6 +63,16 @@ function importData(event) {
           try {
             let importedData = JSON.parse(e.target.result);
             if (importedData && typeof importedData === "object") {
+              
+              // --- NEW: Strict Structural Validation ---
+              const requiredArrays = ["transactions", "accounts", "categories"];
+              for (const arr of requiredArrays) {
+                if (!Array.isArray(importedData[arr])) {
+                  throw new Error(`Corrupted backup file: Missing or invalid '${arr}' structure.`);
+                }
+              }
+              // --- END NEW ---
+
               // Sanitization logic using the generic utility
               sanitizeNumericFields(importedData.transactions, ["amount"]);
               sanitizeNumericFields(importedData.accounts, ["balance"]);

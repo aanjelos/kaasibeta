@@ -1,4 +1,4 @@
-const CACHE_NAME = "kaasi-cache-v167";
+const CACHE_NAME = "kaasi-cache-v168";
 const STATIC_ASSETS = [
   "./",
   "./index.html",
@@ -29,7 +29,8 @@ const STATIC_ASSETS = [
   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-regular-400.ttf",
   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-regular-400.woff2",
   "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js",
-  "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+  "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
 ];
 
 // Install Event: Cache initial static assets
@@ -65,6 +66,10 @@ self.addEventListener("fetch", (event) => {
 
   // Ignore API requests (like Supabase) so they always go to the network
   if (event.request.url.includes("supabase.co")) return;
+  
+  // Ignore analytics and tag managers
+  if (event.request.url.includes("googletagmanager.com") || event.request.url.includes("google-analytics.com")) return;
+  
   // Ignore chrome extensions and other schemes
   if (!event.request.url.startsWith("http")) return;
 

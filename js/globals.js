@@ -1,5 +1,23 @@
 /**
  * globals.js
+ * Contains global state, generic utilities, and shared constants.
+ */
+
+// --- GLOBAL ERROR SAFETY NET ---
+window.addEventListener('error', function(event) {
+  console.error("Global Error Caught:", event.error);
+  if (typeof showNotification === 'function') {
+    showNotification("An unexpected error occurred. Please refresh if the app stops responding.", "error");
+  }
+});
+
+window.addEventListener('unhandledrejection', function(event) {
+  console.error("Unhandled Promise Rejection:", event.reason);
+  if (typeof showNotification === 'function') {
+    showNotification("An unexpected error occurred. Please refresh if the app stops responding.", "error");
+  }
+});
+// --- END ERROR SAFETY NET ---
  * Defines global variables, helper functions, utility methods, and default state structures.
  */
 const $ = (selector) => document.querySelector(selector);
@@ -44,6 +62,15 @@ function trackEvent(action, category = "Engagement", label = "") {
       event_label: label,
     });
   }
+}
+
+// Device-Specific Settings
+function getDeviceTheme() {
+  return localStorage.getItem("kaasi_device_theme") || "dark";
+}
+
+function setDeviceTheme(theme) {
+  localStorage.setItem("kaasi_device_theme", theme);
 }
 
 // --- NEW: SUPABASE CLIENT INITIALIZATION ---
@@ -195,7 +222,7 @@ function getDefaultState() {
         initialSetupDone: false,
         showCcDashboardSection: true,
         showMathToolbar: true,
-        theme: "dark",
+        theme: "dark", // DEPRECATED: Moved to device_settings. Kept for legacy struct validation.
         accent: "orange",
         backupReminderFrequency: "default",
         hiddenCategoryRules: {

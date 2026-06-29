@@ -388,7 +388,7 @@ function handleKeyboardShortcuts(event) {
 // --- Helper function for month tab navigation ---
 function applyAppearance() {
   if (!state.settings) return;
-  const theme = state.settings.theme || "dark";
+  const theme = getDeviceTheme();
 
   document.documentElement.setAttribute("data-theme", theme);
   
@@ -410,7 +410,7 @@ function setupAppearanceListeners() {
   
   if (themeDarkBtn && themeLightBtn) {
     const updateThemeUI = () => {
-      const theme = state.settings.theme || "dark";
+      const theme = getDeviceTheme();
       if (theme === "dark") {
         themeDarkBtn.classList.add("border-accent-primary");
         themeDarkBtn.classList.remove("border-transparent");
@@ -425,15 +425,13 @@ function setupAppearanceListeners() {
     };
     
     themeDarkBtn.onclick = () => {
-      state.settings.theme = "dark";
-      saveData();
+      setDeviceTheme("dark");
       applyAppearance();
       updateThemeUI();
     };
     
     themeLightBtn.onclick = () => {
-      state.settings.theme = "light";
-      saveData();
+      setDeviceTheme("light");
       applyAppearance();
       updateThemeUI();
     };

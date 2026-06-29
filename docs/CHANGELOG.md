@@ -464,3 +464,11 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **PIN Cryptographic Hashing**: Upgraded PIN and Security Answer storage from easily-reversible Base64 encoding to native browser SHA-256 cryptographic hashing.
 - **Subresource Integrity (SRI)**: Hardened all external CDN `<script>` tags (Chart.js, jsPDF, Supabase) with SHA-384 fingerprints to guarantee the app refuses to run compromised code if the external servers are ever hacked.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v166` and version to `v5.272m` to deploy the security patches.
+
+### 90. [Refactor & Tech Debt] Structural and Sync Enhancements (v5.274m)
+- **Analytics Caching Fixed**: Excluded Google Tag Manager and Analytics URLs from the Service Worker cache to prevent stale tracking data.
+- **Offline Supabase CDN**: Added the Supabase JS library to the offline `STATIC_ASSETS` array, enabling the app to load fully even when offline.
+- **Global Error Safety Net**: Added `window.onerror` and `unhandledrejection` event listeners to display a fallback toast notification when unexpected JavaScript crashes occur, preventing silent freezes.
+- **Device-Specific Settings Split**: Separated `theme` and `accent` from the global `state.settings` into a local `kaasi_device_theme` localStorage cache. This prevents UI preferences like Dark Mode from accidentally syncing across devices via Supabase.
+- **Import Shape Validation**: Added strict validation during manual JSON import to verify the structural integrity of the uploaded data file *before* overwriting the `state`, preventing application corruption.
+- **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v168` and version to `v5.274m` to deploy these enhancements.
