@@ -472,3 +472,6 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Device-Specific Settings Split**: Separated `theme` and `accent` from the global `state.settings` into a local `kaasi_device_theme` localStorage cache. This prevents UI preferences like Dark Mode from accidentally syncing across devices via Supabase.
 - **Import Shape Validation**: Added strict validation during manual JSON import to verify the structural integrity of the uploaded data file *before* overwriting the `state`, preventing application corruption.
 - **PWA Assets & SW Cache Updates**: Bumped the Service Worker cache schema to `v168` and version to `v5.274m` to deploy these enhancements.
+
+### 91. [Hotfix] Service Worker Cache Clear (v5.275m)
+- **Cache Eviction**: Bumped the SW cache schema to `v169` to forcefully evict the broken `globals.js` script from users' local caches, which was causing the app to throw syntax errors on boot after reopening the browser.
