@@ -496,3 +496,12 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 ### 95. [Bug Fix] Offline Backup Reminder (v5.279m)
 - **Cloud Backup Overwriting Offline Reminder**: Fixed a bug where performing a cloud (Supabase) backup was silently resetting the offline backup reminder countdown. Cloud backups now write to a separate `lastSuccessfulCloudBackupDate` key, leaving `lastSuccessfulBackupDate` exclusively for local file exports, so the reminder fires correctly.
 - **Cache Eviction**: Bumped the SW cache schema to `v173` to deploy this fix.
+
+### 96. [Hotfix] Subresource Integrity Mismatches (v5.281m)
+- **Supabase SRI Update**: Temporarily fixed an issue where the browser blocked the Supabase JS client due to a CDN update changing the file hash (v5.280m).
+- **SRI Removal**: Stripped the `integrity` hash attributes from all CDN dependencies (Chart.js, jsPDF, Supabase) to prevent future silent breakages when libraries dynamically update on jsDelivr.
+
+### 97. [Major] Budget Sorting Options (v5.282m)
+- **Custom Ordering**: Users can now sort budgets in Settings by Order Added, Alphabetical, Highest/Lowest Limit, and Highest Percentage Used.
+- **Synced Views**: Changing the sort order instantly updates both the Settings list and the Dashboard progress bars.
+- **FLIP Animations**: Implemented a lightweight, custom FLIP (First, Last, Invert, Play) animation engine in Vanilla JS so budgets smoothly slide into their new positions when sorted or updated by a new transaction.
