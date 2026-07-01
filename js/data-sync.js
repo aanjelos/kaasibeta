@@ -548,7 +548,7 @@ async function executeBackupToSupabase() {
     const now = Date.now().toString();
     localStorage.setItem("lastLocalCloudSync", now);
     localStorage.setItem("lastLocalDataModification", now);
-    localStorage.setItem("lastSuccessfulBackupDate", getCurrentDateString());
+    localStorage.setItem("lastSuccessfulCloudBackupDate", getCurrentDateString());
     const currentDataStr = localStorage.getItem("KaasiData");
     if (currentDataStr && typeof generateDataHash === "function") {
       localStorage.setItem("kaasi_synced_state_hash", generateDataHash(currentDataStr));

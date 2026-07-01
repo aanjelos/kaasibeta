@@ -492,3 +492,7 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 ### 94. [Hotfix] Invalid Selector Bug (v5.278m)
 - **Invalid CSS Selector**: Fixed a bug in `app.js` where an invalid CSS selector (`input[type="text" inputmode="decimal" class="calc-amount"], select`) was causing a `DOMException` crash when attempting to auto-focus the first input element in the Transfer Money modal.
 - **Cache Eviction**: Bumped the SW cache schema to `v172` to deploy this hotfix.
+
+### 95. [Bug Fix] Offline Backup Reminder (v5.279m)
+- **Cloud Backup Overwriting Offline Reminder**: Fixed a bug where performing a cloud (Supabase) backup was silently resetting the offline backup reminder countdown. Cloud backups now write to a separate `lastSuccessfulCloudBackupDate` key, leaving `lastSuccessfulBackupDate` exclusively for local file exports, so the reminder fires correctly.
+- **Cache Eviction**: Bumped the SW cache schema to `v173` to deploy this fix.
