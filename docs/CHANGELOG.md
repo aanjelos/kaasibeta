@@ -488,3 +488,7 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Skip Link Removal**: Removed the "Skip to main content" link as it was deemed unnecessary for the current user flow.
 - **Close Button Aria Labels**: Fixed a bug where `aria-label="Close modal"` was not properly applied to all modal close buttons due to formatting issues.
 - **Cache Eviction**: Bumped the SW cache schema to `v171` to deploy these hotfixes and clear the previous cache.
+
+### 94. [Hotfix] Invalid Selector Bug (v5.278m)
+- **Invalid CSS Selector**: Fixed a bug in `app.js` where an invalid CSS selector (`input[type="text" inputmode="decimal" class="calc-amount"], select`) was causing a `DOMException` crash when attempting to auto-focus the first input element in the Transfer Money modal.
+- **Cache Eviction**: Bumped the SW cache schema to `v172` to deploy this hotfix.

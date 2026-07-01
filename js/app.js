@@ -462,7 +462,7 @@ function initializeUI(isRefresh = false) {
           errorEl.classList.add("hidden");
         }
         openModalHelper("transferMoneyModal");
-        const firstInput = modal.querySelector('input[type="text" inputmode="decimal" class="calc-amount"], select');
+        const firstInput = modal.querySelector('input.calc-amount[type="text"], select');
         if (firstInput) {
           firstInput.focus();
         }
