@@ -233,7 +233,8 @@ function getDefaultState() {
           excludeFromYearlyTotals: true,
           dimInTransactionLists: true
         },
-        lastDismissedBudgetTipMonth: ""
+        lastDismissedBudgetTipMonth: "",
+        budgetSortOrder: "added"
       },
     })
   );
@@ -1170,4 +1171,51 @@ function isCategoryExcluded(categoryName, ruleKey) {
 // --- KEYBOARD SHORTCUTS ---
 // -------------
 
-
+// --- BUDGET SORTING HELPERS ---
+function getSortedBudgets() {
+  if (!state.budgets || state.budgets.length === 0) return [];
+  
+  const sortOrder = state.settings?.budgetSortOrder || "added";
+  const budgetsCopy = [...state.budgets];
+  
+  if (sortOrder === "added") {
+    return budgetsCopy;
+  }
+  
+  if (sortOrder === "alpha_asc") {
+    return budgetsCopy.sort((a, b) => a.name.localeCompare(b.name));
+  }
+  
+  if (sortOrder === "limit_desc") {
+    return budgetsCopy.sort((a, b) => b.limit - a.limit);
+  }
+  
+  if (sortOrder === "limit_asc") {
+    return budgetsCopy.sort((a, b) => a.limit - b.limit);
+  }
+  
+  if (sortOrder === "percent_desc") {
+    const currentMonthStr = getCurrentDateString().substring(0, 7);
+    const spentMap = new Map();
+    
+    // Calculate spent amount for each budget in the current month
+    budgetsCopy.forEach(b => {
+      let spent = 0;
+      if (b.categories && b.categories.length > 0) {
+        state.transactions.forEach((t) => {
+          if (t.type === "expense" && t.date.substring(0, 7) === currentMonthStr) {
+            if (b.categories.includes(t.category)) {
+              spent += t.amount;
+            }
+          }
+        });
+      }
+      const percent = b.limit > 0 ? (spent / b.limit) * 100 : (spent > 0 ? 100 : 0);
+      spentMap.set(b.id, percent);
+    });
+    
+    return budgetsCopy.sort((a, b) => spentMap.get(b.id) - spentMap.get(a.id));
+  }
+  
+  return budgetsCopy;
+}

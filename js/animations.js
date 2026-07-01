@@ -116,3 +116,53 @@ function triggerStaggerAnimation(container) {
     });
   });
 }
+
+function animateListReorder(container, updateFn) {
+  if (!container) return;
+
+  // 1. FIRST: Get initial bounding rects for all children
+  const firstRects = new Map();
+  Array.from(container.children).forEach(child => {
+    // Only track elements with a budget ID or dataset ID
+    const id = child.id || child.dataset.budgetId || child.dataset.id;
+    if (id) {
+      firstRects.set(id, child.getBoundingClientRect());
+    }
+  });
+
+  // 2. RUN UPDATE: Call the function that actually updates the DOM
+  updateFn();
+
+  // 3. LAST & INVERT: Measure new positions and invert
+  Array.from(container.children).forEach(child => {
+    const id = child.id || child.dataset.budgetId || child.dataset.id;
+    if (id && firstRects.has(id)) {
+      const firstRect = firstRects.get(id);
+      const lastRect = child.getBoundingClientRect();
+
+      const deltaX = firstRect.left - lastRect.left;
+      const deltaY = firstRect.top - lastRect.top;
+
+      if (deltaX !== 0 || deltaY !== 0) {
+        // Invert: Apply transform to move it back to the first position
+        child.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+        child.style.transition = "none";
+        
+        // Ensure z-index is higher while animating so it doesn't clip underneath
+        child.style.zIndex = "10";
+
+        // 4. PLAY: Wait for next frame, then remove transform to animate
+        requestAnimationFrame(() => {
+          child.style.transform = "";
+          child.style.transition = "transform 400ms cubic-bezier(0.4, 0, 0.2, 1)";
+          
+          // Cleanup transition after animation ends
+          setTimeout(() => {
+            child.style.transition = "";
+            child.style.zIndex = "";
+          }, 400);
+        });
+      }
+    }
+  });
+}

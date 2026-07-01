@@ -1038,12 +1038,16 @@ function renderBudgetsSettingsList() {
     return;
   }
 
-  container.innerHTML = "";
-  state.budgets.forEach((budget) => {
-    const div = document.createElement("div");
-    div.className = "flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-black/20 rounded-md border border-gray-600 gap-3";
-    
-    const catList = budget.categories.join(", ");
+  const sortedBudgets = typeof getSortedBudgets === "function" ? getSortedBudgets() : state.budgets;
+  
+  const updateFn = () => {
+    container.innerHTML = "";
+    sortedBudgets.forEach((budget) => {
+      const div = document.createElement("div");
+      div.className = "flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-black/20 rounded-md border border-gray-600 gap-3";
+      div.dataset.budgetId = budget.id;
+      
+      const catList = budget.categories.join(", ");
     
     div.innerHTML = `
       <div class="flex-grow min-w-0">
@@ -1062,8 +1066,15 @@ function renderBudgetsSettingsList() {
         </button>
       </div>
     `;
-    container.appendChild(div);
-  });
+      container.appendChild(div);
+    });
+  };
+
+  if (typeof animateListReorder === "function") {
+    animateListReorder(container, updateFn);
+  } else {
+    updateFn();
+  }
 }
 
 function handleAddBudgetSubmit(event) {
@@ -1191,4 +1202,16 @@ setTimeout(() => {
   
   const editBudgetForm = $("#editBudgetForm");
   if (editBudgetForm) editBudgetForm.addEventListener("submit", handleEditBudgetSubmit);
+  
+  const sortSelect = $("#budgetSortOrderSelect");
+  if (sortSelect) {
+    sortSelect.value = state.settings?.budgetSortOrder || "added";
+    sortSelect.addEventListener("change", (e) => {
+      if (!state.settings) state.settings = {};
+      state.settings.budgetSortOrder = e.target.value;
+      saveData();
+      renderBudgetsSettingsList();
+      if (typeof renderCategoryBudgets === "function") renderCategoryBudgets();
+    });
+  }
 }, 100);

@@ -4072,8 +4072,11 @@ function renderCategoryBudgets() {
     }
   });
 
-  state.budgets.forEach((budget, index) => {
-    let spent = 0;
+  const sortedBudgets = typeof getSortedBudgets === "function" ? getSortedBudgets() : state.budgets;
+
+  const updateFn = () => {
+    sortedBudgets.forEach((budget, index) => {
+      let spent = 0;
     
     // Sum transactions for the current calendar month that fall under the budget's categories
     state.transactions.forEach(t => {
@@ -4151,9 +4154,16 @@ function renderCategoryBudgets() {
       }
     }
 
-    // Only touch the DOM tree order if it's not already in the correct position
-    if (container.children[index] !== budgetItem) {
-      container.insertBefore(budgetItem, container.children[index] || null);
-    }
-  });
+      // Only touch the DOM tree order if it's not already in the correct position
+      if (container.children[index] !== budgetItem) {
+        container.insertBefore(budgetItem, container.children[index] || null);
+      }
+    });
+  };
+
+  if (typeof animateListReorder === "function") {
+    animateListReorder(container, updateFn);
+  } else {
+    updateFn();
+  }
 }
