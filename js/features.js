@@ -2141,11 +2141,8 @@ function openCcHistoryModal() {
     if (!window.ccSelectedItems || window.ccSelectedItems.size === 0) return;
     
     let totalAmount = 0;
-    window.ccSelectedItems.forEach(id => {
-      const item = state.creditCard.transactions.find(t => t.id === id);
-      if (item) totalAmount += item.amount - (item.paidAmount || 0);
-    });
-
+    let itemsHtml = "";
+    
     const ccPaymentCategoryName = "Credit Card Payment";
     let categoryOptions = "";
     const otherCcCategories = state.categories
@@ -2169,11 +2166,30 @@ function openCcHistoryModal() {
       categoryOptions += `<option value="${cat}">${cat}</option>`;
     });
 
+    window.ccSelectedItems.forEach(id => {
+      const item = state.creditCard.transactions.find(t => t.id === id);
+      if (item) {
+        const remaining = item.amount - (item.paidAmount || 0);
+        totalAmount += remaining;
+        
+        itemsHtml += `
+          <div class="mb-3 p-3 bg-gray-800 rounded border border-gray-700">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-medium text-sm truncate pr-2">${escapeHTML(item.description)}</span>
+              <span class="text-expense font-semibold text-sm flex-shrink-0 tabular-nums">${formatCurrency(remaining)}</span>
+            </div>
+            <select name="payCategory_${id}" class="bg-gray-700 border border-gray-600 rounded px-2 py-1 w-full text-xs outline-none text-white focus:border-accent-500 transition-colors" required>
+              ${categoryOptions}
+            </select>
+          </div>
+        `;
+      }
+    });
+
     const formHtml = `
         <input type="hidden" name="isBulkCcPayment" value="true">
-        <p class="mb-2 text-sm text-gray-300">You are about to settle <span class="text-white font-semibold">${window.ccSelectedItems.size} items</span>.</p>
-        <p class="mb-4 tabular-nums">Total Amount: <span class="font-semibold text-expense text-lg">${formatCurrency(totalAmount)}</span></p>
-        <div class="mb-3">
+        <p class="mb-2 text-sm text-gray-300">You are settling <span class="text-white font-semibold">${window.ccSelectedItems.size} items</span> for a total of <span class="font-semibold text-expense text-base tabular-nums">${formatCurrency(totalAmount)}</span>.</p>
+        <div class="mb-4">
           <label class="block text-sm font-medium mb-1">Pay From Account</label>
           <select name="payFromAccount" class="bg-gray-700 border border-gray-600 rounded px-3 py-1.5 w-full text-sm outline-none text-white focus:border-accent-500 transition-colors" required>
             ${state.accounts
@@ -2187,13 +2203,13 @@ function openCcHistoryModal() {
               .join("")}
           </select>
         </div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium mb-1">Categorize as</label>
-          <select name="payCategory" class="bg-gray-700 border border-gray-600 rounded px-3 py-1.5 w-full text-sm outline-none text-white focus:border-accent-500 transition-colors" required>
-            ${categoryOptions}
-          </select>
+        
+        <div class="mb-4 max-h-[40vh] overflow-y-auto custom-scrollbar pr-2 space-y-1">
+          <label class="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">Categorize Individual Items</label>
+          ${itemsHtml}
         </div>
-        <p class="text-xs text-gray-400 mb-4"><i class="fas fa-info-circle mr-1"></i> A single transaction will be created in your bank account, and all selected CC items will be marked as settled.</p>
+        
+        <p class="text-xs text-gray-400 mb-4"><i class="fas fa-info-circle mr-1"></i> A separate transaction will be created in your bank account for each item to ensure your pie charts remain accurate.</p>
         <div class="flex justify-end gap-2">
             <button type="button" class="btn btn-secondary flex-1" onclick="closeModal('universalFormModal')">Cancel</button>
             <button type="submit" class="btn btn-primary flex-1"><i class="fas fa-check-circle mr-1"></i> Settle All</button>
@@ -2205,7 +2221,6 @@ function openCcHistoryModal() {
       const form = e.target;
       const formData = new FormData(form);
       const payFromAccountId = formData.get("payFromAccount");
-      const payCategory = formData.get("payCategory");
       
       const account = state.accounts.find((a) => a.id === payFromAccountId);
       if (!account) {
@@ -2214,12 +2229,6 @@ function openCcHistoryModal() {
       }
       
       let paidItemCount = 0;
-      const transactionTimestamp = Date.now();
-      
-      // We loop and pay them off. 
-      // We will record one aggregate transaction in the bank account to avoid log spam,
-      // but mark all individual cc items as paidOff.
-      
       let aggregateAmount = 0;
       
       window.ccSelectedItems.forEach(id => {
@@ -2231,24 +2240,26 @@ function openCcHistoryModal() {
             item.paidAmount = item.amount;
             item.paidOff = true;
             paidItemCount++;
+            
+            const payCategory = formData.get(`payCategory_${id}`);
+            
+            // Record individual bank transaction for perfect chart tracking
+            const bankTx = {
+              id: generateId(),
+              amount: remaining,
+              description: `CC Payment: ${item.description}`,
+              categoryId: payCategory,
+              type: "expense",
+              accountId: payFromAccountId,
+              date: new Date().toISOString().split("T")[0],
+              timestamp: Date.now(),
+            };
+            state.transactions.push(bankTx);
           }
         }
       });
       
       if (aggregateAmount > 0) {
-        // Record the bank transaction once
-        const bankTx = {
-          id: generateId(),
-          amount: aggregateAmount,
-          description: `Bulk CC Payment (${paidItemCount} items)`,
-          categoryId: payCategory,
-          type: "expense",
-          accountId: payFromAccountId,
-          date: new Date().toISOString().split("T")[0],
-          timestamp: transactionTimestamp,
-        };
-        state.transactions.push(bankTx);
-        
         // Deduct from bank balance
         account.balance -= aggregateAmount;
         
