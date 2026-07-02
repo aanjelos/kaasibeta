@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.292m" />
+    <meta name="application-version" content="v5.293m" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -390,16 +390,13 @@
                   <i class="fas fa-history"></i>
                 </button>
               </div>
-              <div class="mb-4 space-y-2">
-                <div class="flex justify-between items-center">
-                  <span class="font-medium">Credit Limit:</span
-                  ><span id="ccLimit" class="font-semibold">LKR 0.00</span>
+              <div class="mb-5 mt-2">
+                <div class="flex justify-between items-center mb-1.5 text-sm">
+                  <span class="text-gray-300">Available: <span id="ccAvailable" class="font-semibold text-white">LKR 0.00</span></span>
+                  <span class="text-gray-400">Limit: <span id="ccLimit">LKR 0.00</span></span>
                 </div>
-                <div class="flex justify-between items-center">
-                  <span class="font-medium">Available Balance:</span
-                  ><span id="ccAvailable" class="font-semibold accent-text"
-                    >LKR 0.00</span
-                  >
+                <div class="w-full bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                  <div id="ccProgressBar" class="bg-accent-500 h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
                 </div>
               </div>
               <h3 class="text-lg font-semibold mb-3 mt-4">
@@ -1735,7 +1732,7 @@
           </div>
 
           <!-- Navigation (Year & Month Tabs) -->
-          <div class="flex flex-col sm:flex-row justify-between items-center mb-4 border-b border-gray-600 pb-2 gap-2">
+          <div id="ccHistoryNavigationRow" class="flex flex-col sm:flex-row justify-between items-center mb-4 border-b border-gray-600 pb-2 gap-2">
             <div class="flex items-center gap-x-2 w-full sm:w-auto justify-between sm:justify-start">
               <div class="flex-shrink-0 flex items-center gap-x-2">
                 <select id="ccYearSelector" class="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm outline-none hover:bg-gray-600 transition-colors cursor-pointer"></select>
@@ -1762,7 +1759,17 @@
           </div>
 
           <!-- Flat List Container -->
-          <div id="ccHistoryListContainer" class="mt-2 max-h-[60vh] overflow-y-auto pr-2"></div>
+          <div id="ccHistoryListContainer" class="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar pb-16">
+            <!-- Transactions injected here via JS -->
+          </div>
+          
+          <!-- Floating Action Bar for Bulk Payments -->
+          <div id="ccBulkPaymentBar" class="absolute bottom-4 left-4 right-4 bg-gray-700 border border-gray-600 rounded-lg p-3 shadow-lg flex justify-between items-center transition-transform transform translate-y-24 opacity-0 pointer-events-none z-10">
+            <span id="ccBulkPaymentText" class="font-medium">0 Selected</span>
+            <button id="ccBulkPaymentBtn" class="btn btn-primary btn-sm" onclick="openBulkPayCcItemForm()">
+              <i class="fas fa-credit-card mr-1"></i> Pay Selected
+            </button>
+          </div>
         </div>
       </div>
 

@@ -1743,6 +1743,27 @@ function renderCreditCardSection() {
   )}</span>`;
   availableEl.classList.toggle("text-danger", available < 0);
   availableEl.classList.toggle("accent-text", available >= 0);
+  
+  const progressBar = $("#ccProgressBar");
+  if (progressBar) {
+    if (limit <= 0) {
+      progressBar.style.width = "0%";
+      progressBar.className = "bg-gray-500 h-2.5 rounded-full transition-all duration-500 ease-out";
+    } else {
+      let percentUsed = (spentUnpaid / limit) * 100;
+      percentUsed = Math.min(100, Math.max(0, percentUsed)); // clamp between 0 and 100
+      progressBar.style.width = `${percentUsed}%`;
+      
+      // Color logic: green -> yellow -> red
+      if (percentUsed >= 90) {
+        progressBar.className = "bg-danger h-2.5 rounded-full transition-all duration-500 ease-out";
+      } else if (percentUsed >= 75) {
+        progressBar.className = "bg-yellow-500 h-2.5 rounded-full transition-all duration-500 ease-out";
+      } else {
+        progressBar.className = "bg-accent-500 h-2.5 rounded-full transition-all duration-500 ease-out";
+      }
+    }
+  }
 }
 
 function openCcHistoryModal() {
@@ -1798,8 +1819,9 @@ function openCcHistoryModal() {
       let hasData = (state.creditCard.transactions || []).some(t => {
         const d = new Date(t.date);
         if (d.getFullYear() !== ccSelectedYear || d.getMonth() !== index) return false;
-        if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
         if (ccHistoryFilter === "paid" && !t.paidOff && (!t.paidAmount || t.paidAmount <= 0)) return false;
+        // if unpaid, it's bypassed entirely anyway, but just in case
+        if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
         return true;
       });
 
@@ -1833,7 +1855,14 @@ function openCcHistoryModal() {
   // --- Main Rendering Function ---
   const renderFilteredCcList = () => {
     ccSelectedYear = parseInt(yearSelector.value);
-    renderMonthTabs();
+    const navRow = $("#ccHistoryNavigationRow");
+    
+    if (ccHistoryFilter === "unpaid") {
+      if (navRow) navRow.style.display = "none";
+    } else {
+      if (navRow) navRow.style.display = "flex";
+      renderMonthTabs();
+    }
 
     const searchTerm = searchInput.value.trim().toLowerCase();
 
@@ -1841,12 +1870,16 @@ function openCcHistoryModal() {
     let filteredTransactions = (state.creditCard.transactions || []).filter(
       (t) => {
         const tDate = new Date(t.date);
-        // Date checks
-        if (tDate.getFullYear() !== ccSelectedYear) return false;
-
+        
         // Status checks
         if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
         if (ccHistoryFilter === "paid" && !t.paidOff && (!t.paidAmount || t.paidAmount <= 0)) return false;
+
+        // If not unpaid, strictly filter by year and month
+        if (ccHistoryFilter !== "unpaid") {
+          if (tDate.getFullYear() !== ccSelectedYear) return false;
+          if (tDate.getMonth() !== ccSelectedMonth) return false;
+        }
 
         // Search check
         if (searchTerm) {
@@ -1856,8 +1889,6 @@ function openCcHistoryModal() {
           const amountMatch = t.amount.toFixed(2).includes(searchTerm);
           if (!descriptionMatch && !amountMatch) return false;
         }
-        
-        if (tDate.getMonth() !== ccSelectedMonth) return false;
         
         return true;
       }
@@ -1880,8 +1911,17 @@ function openCcHistoryModal() {
     availableEl.classList.toggle("text-expense", available < 0);
     availableEl.classList.toggle("accent-text", available >= 0);
 
-    // 3. Render Flat Chronological List
+    // 3. Render Chronological List
     listContainer.innerHTML = "";
+    
+    // Clear selection state
+    if (window.ccSelectedItems) {
+      window.ccSelectedItems.clear();
+    } else {
+      window.ccSelectedItems = new Set();
+    }
+    updateCcBulkPaymentBar();
+    
     if (filteredTransactions.length === 0) {
       listContainer.innerHTML = `<p class="text-gray-400 text-sm text-center py-8">No transactions found for this period.</p>`;
       // Also update filter buttons
@@ -1892,33 +1932,43 @@ function openCcHistoryModal() {
     }
 
       // 3. Calculate Monthly Total based on current filter
-      let monthlyTotal = 0;
+      let currentTotal = 0;
       filteredTransactions.forEach(t => {
         if (ccHistoryFilter === "unpaid") {
-          monthlyTotal += t.amount - (t.paidAmount || 0);
+          currentTotal += t.amount - (t.paidAmount || 0);
         } else if (ccHistoryFilter === "paid") {
-          monthlyTotal += t.paidAmount || 0;
+          currentTotal += t.paidAmount || 0;
         } else {
-          monthlyTotal += t.amount; // "all"
+          currentTotal += t.amount; // "all"
         }
       });
       
-
+      let lastMonthYearStr = "";
 
       filteredTransactions.forEach((t, index) => {
-        const itemDiv = document.createElement("div");
-        // Use All Transactions classes exactly to match styling, and explicitly force higher padding on mobile
-        itemDiv.className = `transaction-list-item-layout monthly-view-transaction-item stagger-item block cursor-pointer relative cc-history-row !py-3.5 sm:!py-3 !px-4 sm:!px-5`;
-        itemDiv.style.animationDelay = `${index * 0.03}s`;
+        const dateObj = new Date(t.date);
         
-        // Ensure paidOff styling
+        // Render month header if doing continuous scroll (unpaid view)
+        if (ccHistoryFilter === "unpaid") {
+          const monthYearStr = dateObj.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+          if (monthYearStr !== lastMonthYearStr) {
+            const headerDiv = document.createElement("div");
+            headerDiv.className = "text-gray-300 font-semibold text-sm mt-4 mb-2 pb-1 border-b border-gray-700 px-1";
+            headerDiv.textContent = monthYearStr;
+            listContainer.appendChild(headerDiv);
+            lastMonthYearStr = monthYearStr;
+          }
+        }
+        
+        const itemDiv = document.createElement("div");
+        itemDiv.className = `transaction-list-item-layout monthly-view-transaction-item stagger-item block relative cc-history-row !py-3.5 sm:!py-3 !px-4 sm:!px-5`;
+        itemDiv.style.animationDelay = `${(index % 20) * 0.03}s`; // Limit stagger delay
+        
         if (t.paidOff) {
           itemDiv.classList.add("opacity-50");
         }
         
         const remainingOnItem = t.amount - (t.paidAmount || 0);
-        
-        const dateObj = new Date(t.date);
         const formattedDate = dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
         
         let statusText = "";
@@ -1941,10 +1991,41 @@ function openCcHistoryModal() {
           bigAmountText = `<span class="font-semibold text-base tabular-nums text-expense">${formatCurrency(remainingOnItem)} Left</span>`;
         }
 
+        const isSelectable = !t.paidOff && remainingOnItem > 0.005;
+        let checkboxHtml = "";
+        if (isSelectable) {
+          checkboxHtml = `
+            <div class="flex-shrink-0 mr-3 flex items-center h-full" onclick="event.stopPropagation(); toggleCcItemSelection('${t.id}')">
+              <div id="cc-checkbox-${t.id}" class="w-5 h-5 rounded-full border border-gray-500 flex items-center justify-center transition-colors cursor-pointer hover:border-accent-500">
+                <i class="fas fa-check text-xs text-white opacity-0 transition-opacity"></i>
+              </div>
+            </div>
+          `;
+        }
+
         // The main row
         const mainRow = document.createElement("div");
-        mainRow.className = "flex justify-between items-center gap-x-2 w-full";
+        mainRow.className = "flex justify-between items-center gap-x-2 w-full cursor-pointer";
+        mainRow.onclick = () => {
+          // Toggle drawer logic extracted
+          $$(".cc-history-row .overflow-hidden").forEach(drawer => {
+            if (drawer !== drawerDiv) {
+              drawer.style.maxHeight = "0px";
+              drawer.style.opacity = "0";
+            }
+          });
+          
+          if (drawerDiv.style.maxHeight === "0px") {
+            drawerDiv.style.maxHeight = drawerDiv.scrollHeight + "px";
+            drawerDiv.style.opacity = "1";
+          } else {
+            drawerDiv.style.maxHeight = "0px";
+            drawerDiv.style.opacity = "0";
+          }
+        };
+        
         mainRow.innerHTML = `
+          ${checkboxHtml}
           <div class="flex-grow min-w-0 mr-2 text-left">
               <p class="font-medium truncate ${t.paidOff ? "text-gray-500" : "text-gray-200"}">${escapeHTML(t.description)}</p>
               <p class="text-xs text-gray-400 mt-0.5 truncate">${formattedDate} &bull; ${statusText}</p>
@@ -1956,18 +2037,17 @@ function openCcHistoryModal() {
 
       // Expandable Drawer
       const drawerDiv = document.createElement("div");
-      // Use block instead of flex justify-end to prevent flex squashing, and inner div handles layout
       drawerDiv.className = "overflow-hidden transition-all duration-300";
       drawerDiv.style.maxHeight = "0px";
       drawerDiv.style.opacity = "0";
       
       let payButtonHtml = "";
-      if (!t.paidOff && remainingOnItem > 0.005) {
+      if (isSelectable) {
         payButtonHtml = `<button class="btn btn-primary flex-1 py-1 sm:py-1.5 px-0 text-sm" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
       }
       
       drawerDiv.innerHTML = `
-        <div class="flex w-full gap-2 pt-3 pb-1">
+        <div class="flex w-full gap-2 pt-3 pb-1 pl-${isSelectable ? '8' : '0'}">
           ${payButtonHtml}
           <button class="btn btn-secondary flex-1 py-1 sm:py-1.5 px-0 text-sm" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
           <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense py-1 sm:py-1.5 px-0 text-sm" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
@@ -1976,27 +2056,6 @@ function openCcHistoryModal() {
 
       itemDiv.appendChild(mainRow);
       itemDiv.appendChild(drawerDiv);
-
-      // Toggle drawer on click
-      itemDiv.onclick = () => {
-        // Close others
-        $$(".cc-history-row .overflow-hidden").forEach(drawer => {
-          if (drawer !== drawerDiv) {
-            drawer.style.maxHeight = "0px";
-            drawer.style.opacity = "0";
-          }
-        });
-        
-        // Toggle current
-        if (drawerDiv.style.maxHeight === "0px") {
-          drawerDiv.style.maxHeight = drawerDiv.scrollHeight + "px";
-          drawerDiv.style.opacity = "1";
-        } else {
-          drawerDiv.style.maxHeight = "0px";
-          drawerDiv.style.opacity = "0";
-        }
-      };
-
       listContainer.appendChild(itemDiv);
     });
 
@@ -2004,10 +2063,12 @@ function openCcHistoryModal() {
       if (filteredTransactions.length > 0) {
         const footerDiv = document.createElement("div");
         footerDiv.className = "flex justify-between items-center mt-2 monthly-view-summary-card !text-left";
-        if (searchTerm) {
-          footerDiv.innerHTML = `<span class="text-gray-400 font-medium">Search Results (${filteredTransactions.length})</span><span class="font-bold text-white text-base">Total: <span class="tabular-nums">${formatCurrency(monthlyTotal)}</span></span>`;
+        if (ccHistoryFilter === "unpaid") {
+          footerDiv.innerHTML = `<span class="text-gray-400 font-medium">Total Unpaid</span><span class="font-bold text-white text-base tabular-nums">${formatCurrency(currentTotal)}</span>`;
+        } else if (searchTerm) {
+          footerDiv.innerHTML = `<span class="text-gray-400 font-medium">Search Results (${filteredTransactions.length})</span><span class="font-bold text-white text-base">Total: <span class="tabular-nums">${formatCurrency(currentTotal)}</span></span>`;
         } else {
-          footerDiv.innerHTML = `<span class="text-gray-400 font-medium">Monthly Total</span><span class="font-bold text-white text-base tabular-nums">${formatCurrency(monthlyTotal)}</span>`;
+          footerDiv.innerHTML = `<span class="text-gray-400 font-medium">Monthly Total</span><span class="font-bold text-white text-base tabular-nums">${formatCurrency(currentTotal)}</span>`;
         }
         listContainer.appendChild(footerDiv);
       }
@@ -2032,7 +2093,176 @@ function openCcHistoryModal() {
   });
 
   // Expose the render function for the search listeners
+  // Ensure the body has the reference for updates
   document.body.renderCcHistoryList = renderFilteredCcList;
+
+  // --- Bulk Selection Logic ---
+  window.toggleCcItemSelection = (id) => {
+    if (!window.ccSelectedItems) window.ccSelectedItems = new Set();
+    const checkbox = document.getElementById(`cc-checkbox-${id}`);
+    if (!checkbox) return;
+    
+    if (window.ccSelectedItems.has(id)) {
+      window.ccSelectedItems.delete(id);
+      checkbox.classList.remove("bg-accent-500", "border-accent-500");
+      checkbox.querySelector("i").classList.remove("opacity-100");
+      checkbox.querySelector("i").classList.add("opacity-0");
+    } else {
+      window.ccSelectedItems.add(id);
+      checkbox.classList.add("bg-accent-500", "border-accent-500");
+      checkbox.querySelector("i").classList.remove("opacity-0");
+      checkbox.querySelector("i").classList.add("opacity-100");
+    }
+    updateCcBulkPaymentBar();
+  };
+
+  window.updateCcBulkPaymentBar = () => {
+    const bar = document.getElementById("ccBulkPaymentBar");
+    const text = document.getElementById("ccBulkPaymentText");
+    if (!bar || !text) return;
+    
+    if (window.ccSelectedItems && window.ccSelectedItems.size > 0) {
+      let totalAmount = 0;
+      window.ccSelectedItems.forEach(id => {
+        const item = state.creditCard.transactions.find(t => t.id === id);
+        if (item) totalAmount += item.amount - (item.paidAmount || 0);
+      });
+      text.innerHTML = `<span class="text-white">${window.ccSelectedItems.size} Selected</span> &bull; <span class="text-expense font-bold tabular-nums">${formatCurrency(totalAmount)}</span>`;
+      
+      bar.classList.remove("translate-y-24", "opacity-0", "pointer-events-none");
+      bar.classList.add("translate-y-0", "opacity-100", "pointer-events-auto");
+    } else {
+      bar.classList.add("translate-y-24", "opacity-0", "pointer-events-none");
+      bar.classList.remove("translate-y-0", "opacity-100", "pointer-events-auto");
+    }
+  };
+
+  window.openBulkPayCcItemForm = () => {
+    if (!window.ccSelectedItems || window.ccSelectedItems.size === 0) return;
+    
+    let totalAmount = 0;
+    window.ccSelectedItems.forEach(id => {
+      const item = state.creditCard.transactions.find(t => t.id === id);
+      if (item) totalAmount += item.amount - (item.paidAmount || 0);
+    });
+
+    const ccPaymentCategoryName = "Credit Card Payment";
+    let categoryOptions = "";
+    const otherCcCategories = state.categories
+      .filter(
+        (c) =>
+          c.toLowerCase() !== "income" &&
+          c.toLowerCase() !== ccPaymentCategoryName.toLowerCase()
+      )
+      .sort((a, b) => a.localeCompare(b));
+
+    if (
+      state.categories.some(
+        (c) => c.toLowerCase() === ccPaymentCategoryName.toLowerCase()
+      )
+    ) {
+      categoryOptions += `<option value="${ccPaymentCategoryName}" selected>${ccPaymentCategoryName}</option>`;
+    } else {
+      categoryOptions += `<option value="${ccPaymentCategoryName}" selected>${ccPaymentCategoryName} (Suggested)</option>`;
+    }
+    otherCcCategories.forEach((cat) => {
+      categoryOptions += `<option value="${cat}">${cat}</option>`;
+    });
+
+    const formHtml = `
+        <input type="hidden" name="isBulkCcPayment" value="true">
+        <p class="mb-2 text-sm text-gray-300">You are about to settle <span class="text-white font-semibold">${window.ccSelectedItems.size} items</span>.</p>
+        <p class="mb-4 tabular-nums">Total Amount: <span class="font-semibold text-expense text-lg">${formatCurrency(totalAmount)}</span></p>
+        <div class="mb-3">
+          <label class="block text-sm font-medium mb-1">Pay From Account</label>
+          <select name="payFromAccount" class="bg-gray-700 border border-gray-600 rounded px-3 py-1.5 w-full text-sm outline-none text-white focus:border-accent-500 transition-colors" required>
+            ${state.accounts
+              .filter((acc) => !acc.hidden)
+              .map(
+                (acc) =>
+                  `<option value="${acc.id}">${escapeHTML(acc.name)} (${formatCurrency(
+                    acc.balance
+                  )})</option>`
+              )
+              .join("")}
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-1">Categorize as</label>
+          <select name="payCategory" class="bg-gray-700 border border-gray-600 rounded px-3 py-1.5 w-full text-sm outline-none text-white focus:border-accent-500 transition-colors" required>
+            ${categoryOptions}
+          </select>
+        </div>
+        <p class="text-xs text-gray-400 mb-4"><i class="fas fa-info-circle mr-1"></i> A single transaction will be created in your bank account, and all selected CC items will be marked as settled.</p>
+        <div class="flex justify-end gap-2">
+            <button type="button" class="btn btn-secondary flex-1" onclick="closeModal('universalFormModal')">Cancel</button>
+            <button type="submit" class="btn btn-primary flex-1"><i class="fas fa-check-circle mr-1"></i> Settle All</button>
+        </div>
+    `;
+
+    openUniversalModal("Bulk CC Payment", formHtml, (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const payFromAccountId = formData.get("payFromAccount");
+      const payCategory = formData.get("payCategory");
+      
+      const account = state.accounts.find((a) => a.id === payFromAccountId);
+      if (!account) {
+        showNotification("Account not found.", "error");
+        return;
+      }
+      
+      let paidItemCount = 0;
+      const transactionTimestamp = Date.now();
+      
+      // We loop and pay them off. 
+      // We will record one aggregate transaction in the bank account to avoid log spam,
+      // but mark all individual cc items as paidOff.
+      
+      let aggregateAmount = 0;
+      
+      window.ccSelectedItems.forEach(id => {
+        const item = state.creditCard.transactions.find(t => t.id === id);
+        if (item) {
+          const remaining = item.amount - (item.paidAmount || 0);
+          if (remaining > 0) {
+            aggregateAmount += remaining;
+            item.paidAmount = item.amount;
+            item.paidOff = true;
+            paidItemCount++;
+          }
+        }
+      });
+      
+      if (aggregateAmount > 0) {
+        // Record the bank transaction once
+        const bankTx = {
+          id: generateId(),
+          amount: aggregateAmount,
+          description: `Bulk CC Payment (${paidItemCount} items)`,
+          categoryId: payCategory,
+          type: "expense",
+          accountId: payFromAccountId,
+          date: new Date().toISOString().split("T")[0],
+          timestamp: transactionTimestamp,
+        };
+        state.transactions.push(bankTx);
+        
+        // Deduct from bank balance
+        account.balance -= aggregateAmount;
+        
+        saveData();
+        renderFilteredCcList();
+        renderCreditCardSection();
+        updateDashboard();
+        showNotification(`Settled ${paidItemCount} items successfully.`, "success");
+        if (typeof trackEvent === "function") trackEvent("bulk_pay_cc", "Engagement", paidItemCount);
+      }
+      
+      closeModal("universalFormModal");
+    });
+  };
 
   // Initial render
   renderFilteredCcList();
