@@ -1748,19 +1748,19 @@ function renderCreditCardSection() {
   if (progressBar) {
     if (limit <= 0) {
       progressBar.style.width = "0%";
-      progressBar.className = "bg-gray-500 h-2.5 rounded-full transition-all duration-500 ease-out";
+      progressBar.className = "bg-gray-500 h-1.5 rounded-full transition-all duration-500 ease-out";
     } else {
       let percentUsed = (spentUnpaid / limit) * 100;
       percentUsed = Math.min(100, Math.max(0, percentUsed)); // clamp between 0 and 100
       progressBar.style.width = `${percentUsed}%`;
       
-      // Color logic: green -> yellow -> red
+      // Color logic: green -> orange -> red
       if (percentUsed >= 90) {
-        progressBar.className = "bg-danger h-2.5 rounded-full transition-all duration-500 ease-out";
-      } else if (percentUsed >= 75) {
-        progressBar.className = "bg-yellow-500 h-2.5 rounded-full transition-all duration-500 ease-out";
+        progressBar.className = "bg-[#E74C3C] h-1.5 rounded-full transition-all duration-500 ease-out";
+      } else if (percentUsed >= 70) {
+        progressBar.className = "bg-orange-500 h-1.5 rounded-full transition-all duration-500 ease-out";
       } else {
-        progressBar.className = "bg-accent-500 h-2.5 rounded-full transition-all duration-500 ease-out";
+        progressBar.className = "bg-[#27AE60] h-1.5 rounded-full transition-all duration-500 ease-out";
       }
     }
   }
@@ -1953,7 +1953,7 @@ function openCcHistoryModal() {
           const monthYearStr = dateObj.toLocaleDateString("en-US", { month: "long", year: "numeric" });
           if (monthYearStr !== lastMonthYearStr) {
             const headerDiv = document.createElement("div");
-            headerDiv.className = "text-gray-400 font-bold text-xs uppercase tracking-wider mt-6 mb-2 pb-1 border-b border-gray-700 px-1";
+            headerDiv.className = "text-gray-300 font-bold text-sm mt-4 mb-0 pb-2 border-b border-gray-700 px-2";
             headerDiv.textContent = monthYearStr;
             listContainer.appendChild(headerDiv);
             lastMonthYearStr = monthYearStr;
@@ -2167,7 +2167,7 @@ function openCcHistoryModal() {
               <span class="font-medium text-sm truncate pr-2 text-gray-100">${escapeHTML(item.description)}</span>
               <span class="text-expense font-semibold text-sm flex-shrink-0 tabular-nums">${formatCurrency(remaining)}</span>
             </div>
-            <select name="payCategory_${id}" class="bg-gray-700 border border-gray-600 rounded px-2 py-1.5 w-full text-xs outline-none text-white focus:border-accent-500 transition-colors" required>
+            <select name="payCategory_${id}" class="w-full text-xs" required>
               ${categoryOptions}
             </select>
           </div>
@@ -2180,7 +2180,7 @@ function openCcHistoryModal() {
         <p class="mb-4 text-sm text-gray-300">You are settling <span class="text-white font-semibold">${window.ccSelectedItems.size} items</span> for a total of <span class="font-semibold text-expense text-base tabular-nums">${formatCurrency(totalAmount)}</span>.</p>
         <div class="mb-4">
           <label class="block text-sm font-medium mb-1">Pay From Account</label>
-          <select name="payFromAccount" class="bg-gray-700 border border-gray-600 rounded px-3 py-1.5 w-full text-sm outline-none text-white focus:border-accent-500 transition-colors" required>
+          <select name="payFromAccount" class="w-full text-sm" required>
             ${state.accounts
               .filter((acc) => !acc.hidden)
               .map(
