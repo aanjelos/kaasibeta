@@ -656,6 +656,74 @@ function openTransactionDetailModal(transactionId, skipHistory = false) {
   }
 }
 
+function openCcTransactionDetailModal(transactionId, skipHistory = false) {
+  const transaction = state.creditCard.transactions.find((tx) => tx.id === transactionId);
+  if (!transaction) return;
+
+  const remainingOnItem = transaction.amount - (transaction.paidAmount || 0);
+  const isSelectable = !transaction.paidOff && remainingOnItem > 0.005;
+
+  let statusBadge = "";
+  if (transaction.paidOff || remainingOnItem <= 0.005) {
+    statusBadge = `<span class="bg-green-500/20 text-income text-xs font-semibold px-2 py-1 rounded">Settled</span>`;
+  } else if (transaction.paidAmount > 0) {
+    statusBadge = `<span class="bg-orange-500/20 text-orange-400 text-xs font-semibold px-2 py-1 rounded">Partially Paid (${formatCurrency(transaction.paidAmount)})</span>`;
+  } else {
+    statusBadge = `<span class="bg-red-500/20 text-expense text-xs font-semibold px-2 py-1 rounded">Unpaid</span>`;
+  }
+
+  let payButtonHtml = "";
+  if (isSelectable) {
+    payButtonHtml = `<button class="btn btn-primary flex-1 py-2.5" onclick="openPayCcItemForm('${transaction.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
+  }
+
+  const html = `
+    <div class="text-center mb-4">
+      <div class="text-3xl font-bold ${transaction.paidOff ? "text-gray-500" : "text-gray-200"} tabular-nums mb-1">${formatCurrency(transaction.amount)}</div>
+      <div class="mb-3">${statusBadge}</div>
+      <div class="text-lg font-semibold text-gray-50 px-2" style="text-wrap: balance;">${escapeHTML(transaction.description)}</div>
+    </div>
+    
+    <div class="bg-gray-700/30 rounded-lg p-4 space-y-2 mb-6">
+      <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
+        <span class="text-gray-400">Date</span>
+        <span class="font-medium">${new Date(transaction.date).toLocaleDateString([], { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>
+      </div>
+      <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
+        <span class="text-gray-400">Paid So Far</span>
+        <span class="font-medium text-gray-300">${formatCurrency(transaction.paidAmount || 0)}</span>
+      </div>
+      <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
+        <span class="text-gray-400">Remaining</span>
+        <span class="font-medium ${remainingOnItem > 0.005 ? "text-expense" : "text-gray-300"}">${formatCurrency(remainingOnItem)}</span>
+      </div>
+    </div>
+    
+    <div class="flex flex-col sm:flex-row gap-3 mt-4">
+      ${payButtonHtml}
+      <div class="flex gap-3 flex-1 w-full">
+        <button class="btn btn-secondary flex-1 py-2.5" onclick="openEditCcTransactionModal('${transaction.id}')">
+          <i class="fas fa-edit mr-2"></i> Edit
+        </button>
+        <button class="btn btn-secondary flex-1 py-2.5 hover:!text-expense hover:!border-expense" onclick="deleteCcTransaction('${transaction.id}')">
+          <i class="fas fa-trash mr-2"></i> Delete
+        </button>
+      </div>
+    </div>
+  `;
+
+  const contentContainer = $("#ccTransactionDetailContent");
+  if (contentContainer) {
+    contentContainer.innerHTML = html;
+    if (skipHistory) {
+      const modal = $("#ccTransactionDetailModal");
+      if (modal) modal.style.display = "block";
+    } else {
+      openModalHelper("ccTransactionDetailModal");
+    }
+  }
+}
+
 function openEditTransactionModal(transactionId, event) {
   if (event) event.stopPropagation();
   const transaction = state.transactions.find((tx) => tx.id === transactionId);
@@ -2012,20 +2080,25 @@ function openCcHistoryModal() {
         const mainRow = document.createElement("div");
         mainRow.className = "flex justify-between items-center gap-x-2 w-full cursor-pointer";
         mainRow.onclick = () => {
-          // Toggle drawer logic extracted
-          $$(".cc-history-row .overflow-hidden").forEach(drawer => {
-            if (drawer !== drawerDiv) {
-              drawer.style.maxHeight = "0px";
-              drawer.style.opacity = "0";
+          if (window.matchMedia("(min-width: 640px)").matches) {
+            // Desktop: Toggle drawer logic
+            $$(".cc-history-row .overflow-hidden").forEach(drawer => {
+              if (drawer !== drawerDiv) {
+                drawer.style.maxHeight = "0px";
+                drawer.style.opacity = "0";
+              }
+            });
+            
+            if (drawerDiv.style.maxHeight === "0px") {
+              drawerDiv.style.maxHeight = drawerDiv.scrollHeight + "px";
+              drawerDiv.style.opacity = "1";
+            } else {
+              drawerDiv.style.maxHeight = "0px";
+              drawerDiv.style.opacity = "0";
             }
-          });
-          
-          if (drawerDiv.style.maxHeight === "0px") {
-            drawerDiv.style.maxHeight = drawerDiv.scrollHeight + "px";
-            drawerDiv.style.opacity = "1";
           } else {
-            drawerDiv.style.maxHeight = "0px";
-            drawerDiv.style.opacity = "0";
+            // Mobile: Open Modal
+            openCcTransactionDetailModal(t.id);
           }
         };
         
@@ -2042,7 +2115,7 @@ function openCcHistoryModal() {
 
       // Expandable Drawer
       const drawerDiv = document.createElement("div");
-      drawerDiv.className = "overflow-hidden transition-all duration-300";
+      drawerDiv.className = "overflow-hidden transition-all duration-300 hidden sm:block";
       drawerDiv.style.maxHeight = "0px";
       drawerDiv.style.opacity = "0";
       
@@ -2436,6 +2509,11 @@ function handleEditCcTransactionModalSubmit(event) {
     renderFunction();
   }
 
+  const detailModal = $("#ccTransactionDetailModal");
+  if (detailModal && detailModal.style.display === "block") {
+    openCcTransactionDetailModal(ccTransactionId, true);
+  }
+
   closeModal("formModal");
   showNotification("CC Transaction updated successfully.", "success");
 }
@@ -2476,6 +2554,16 @@ function deleteCcTransaction(transactionId) {
         "CC transaction and related payments deleted.",
         "success"
       );
+
+      const detailModal = $("#ccTransactionDetailModal");
+      if (detailModal && detailModal.style.display === "block") {
+        detailModal.style.display = "none";
+        const confirmModal = $("#confirmationModal");
+        if (confirmModal) confirmModal.style.display = "none";
+        updateBodyScrollState();
+        history.go(-2);
+        return true;
+      }
     }
   );
 }
@@ -3836,6 +3924,12 @@ function handlePayCcItemSubmit(event) {
   renderCreditCardSection();
   populateDropdowns();
   if ($("#ccHistoryModal").style.display === "block") openCcHistoryModal();
+
+  const detailModal = $("#ccTransactionDetailModal");
+  if (detailModal && detailModal.style.display === "block") {
+    openCcTransactionDetailModal(ccItemId, true);
+  }
+
   closeModal("formModal");
   showNotification(notificationMessage, "success");
 }
