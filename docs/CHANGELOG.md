@@ -505,3 +505,9 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Custom Ordering**: Users can now sort budgets in Settings by Order Added, Alphabetical, Highest/Lowest Limit, and Highest Percentage Used.
 - **Synced Views**: Changing the sort order instantly updates both the Settings list and the Dashboard progress bars.
 - **FLIP Animations**: Implemented a lightweight, custom FLIP (First, Last, Invert, Play) animation engine in Vanilla JS so budgets smoothly slide into their new positions when sorted or updated by a new transaction.
+
+### 98. [Major] Credit Card UX Enhancements (v5.294m)
+- **Dashboard Progress Bar**: Upgraded the CC Dashboard Widget with a sleek Limit Utilization Progress Bar that visually changes colors (Green -> Yellow -> Red) as you approach your credit limit.
+- **Continuous Unpaid Scroll**: Removed the clunky month-pagination when viewing "Unpaid" CC History. It now defaults to a continuous, chronological scroll grouped by month headers, instantly revealing everything owed across all time.
+- **Multi-Select Bulk Payments**: Integrated custom checkboxes into the unpaid history list, tied to a smooth Floating Action Bar. Users can select multiple specific CC transactions and bulk-pay them simultaneously. 
+- **Individual Category Persistence**: During a bulk payment, a unified modal presents a scrolling list of all selected items, allowing the user to select an individual, specific category (e.g., Groceries, Fuel) for *each* item. This prevents bulk payments from ruining Monthly Pie Chart metrics by correctly logging separate, perfectly-categorized bank transactions under the hood.
