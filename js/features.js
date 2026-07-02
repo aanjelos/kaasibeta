@@ -1976,13 +1976,13 @@ function openCcHistoryModal() {
         if (t.paidOff || remainingOnItem <= 0.005) {
           statusText = `<span class="text-income font-medium">Settled</span>`;
           bigAmountText = `
-            <span class="font-semibold text-sm tabular-nums text-gray-500">${formatCurrency(t.amount)}</span>
+            <span class="font-semibold text-sm sm:text-base tabular-nums text-gray-500">${formatCurrency(t.amount)}</span>
           `;
         } else if (t.paidAmount > 0) {
           statusText = `<span class="text-gray-400">Paid ${formatCurrency(t.paidAmount)}</span>`;
           bigAmountText = `
-            <span class="font-semibold text-sm tabular-nums hidden sm:inline text-expense">
-              ${formatCurrency(remainingOnItem)} <span class="text-gray-500 font-normal">left</span>
+            <span class="font-semibold sm:text-base tabular-nums hidden sm:inline text-expense">
+              ${formatCurrency(remainingOnItem)} <span class="text-gray-500 text-sm font-normal">of ${formatCurrency(t.amount)} Left</span>
             </span>
             <span class="font-semibold text-sm tabular-nums sm:hidden text-expense">
               ${formatCurrency(remainingOnItem)}
@@ -1991,7 +1991,7 @@ function openCcHistoryModal() {
         } else {
           statusText = `<span class="text-gray-400">Unpaid</span>`;
           bigAmountText = `
-            <span class="font-semibold text-sm tabular-nums hidden sm:inline text-expense">${formatCurrency(remainingOnItem)} <span class="text-gray-500 font-normal">left</span></span>
+            <span class="font-semibold sm:text-base tabular-nums hidden sm:inline text-expense">${formatCurrency(remainingOnItem)} <span class="text-gray-500 text-sm font-normal">Left</span></span>
             <span class="font-semibold text-sm tabular-nums sm:hidden text-expense">${formatCurrency(remainingOnItem)}</span>
           `;
         }
