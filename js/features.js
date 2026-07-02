@@ -2211,12 +2211,12 @@ function openCcHistoryModal() {
         
         <p class="text-xs text-gray-400 mb-4"><i class="fas fa-info-circle mr-1"></i> A separate transaction will be created in your bank account for each item to ensure your pie charts remain accurate.</p>
         <div class="flex justify-end gap-2">
-            <button type="button" class="btn btn-secondary flex-1" onclick="closeModal('universalFormModal')">Cancel</button>
+            <button type="button" class="btn btn-secondary flex-1" onclick="closeModal('formModal')">Cancel</button>
             <button type="submit" class="btn btn-primary flex-1"><i class="fas fa-check-circle mr-1"></i> Settle All</button>
         </div>
     `;
 
-    openUniversalModal("Bulk CC Payment", formHtml, (e) => {
+    openFormModal("Bulk CC Payment", formHtml, (e) => {
       e.preventDefault();
       const form = e.target;
       const formData = new FormData(form);
@@ -2271,7 +2271,7 @@ function openCcHistoryModal() {
         if (typeof trackEvent === "function") trackEvent("bulk_pay_cc", "Engagement", paidItemCount);
       }
       
-      closeModal("universalFormModal");
+      closeModal("formModal");
     });
   };
 
