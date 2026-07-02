@@ -1953,7 +1953,7 @@ function openCcHistoryModal() {
           const monthYearStr = dateObj.toLocaleDateString("en-US", { month: "long", year: "numeric" });
           if (monthYearStr !== lastMonthYearStr) {
             const headerDiv = document.createElement("div");
-            headerDiv.className = "text-gray-300 font-semibold text-sm mt-4 mb-2 pb-1 border-b border-gray-700 px-1";
+            headerDiv.className = "text-gray-400 font-bold text-xs uppercase tracking-wider mt-6 mb-2 pb-1 border-b border-gray-700 px-1";
             headerDiv.textContent = monthYearStr;
             listContainer.appendChild(headerDiv);
             lastMonthYearStr = monthYearStr;
@@ -2119,6 +2119,7 @@ function openCcHistoryModal() {
   window.updateCcBulkPaymentBar = () => {
     const bar = document.getElementById("ccBulkPaymentBar");
     const text = document.getElementById("ccBulkPaymentText");
+    const container = document.getElementById("ccHistoryListContainer");
     if (!bar || !text) return;
     
     if (window.ccSelectedItems && window.ccSelectedItems.size > 0) {
@@ -2131,9 +2132,11 @@ function openCcHistoryModal() {
       
       bar.classList.remove("translate-y-24", "opacity-0", "pointer-events-none");
       bar.classList.add("translate-y-0", "opacity-100", "pointer-events-auto");
+      if (container) container.classList.add("pb-16");
     } else {
       bar.classList.add("translate-y-24", "opacity-0", "pointer-events-none");
       bar.classList.remove("translate-y-0", "opacity-100", "pointer-events-auto");
+      if (container) container.classList.remove("pb-16");
     }
   };
 
@@ -2214,7 +2217,7 @@ function openCcHistoryModal() {
         return;
       }
       
-      let paidItemCount = 0;
+      let paidItemCount = 0;      
       let aggregateAmount = 0;
       
       window.ccSelectedItems.forEach(id => {
@@ -2223,6 +2226,20 @@ function openCcHistoryModal() {
           const remaining = item.amount - (item.paidAmount || 0);
           if (remaining > 0) {
             aggregateAmount += remaining;
+          }
+        }
+      });
+      
+      if (account.balance < aggregateAmount) {
+        showNotification(`Insufficient funds in ${account.name}.`, "warning");
+        return;
+      }
+      
+      window.ccSelectedItems.forEach(id => {
+        const item = state.creditCard.transactions.find(t => t.id === id);
+        if (item) {
+          const remaining = item.amount - (item.paidAmount || 0);
+          if (remaining > 0) {
             item.paidAmount = item.amount;
             item.paidOff = true;
             paidItemCount++;
@@ -2233,7 +2250,7 @@ function openCcHistoryModal() {
             const bankTx = {
               id: generateId(),
               amount: remaining,
-              description: `CC Payment: ${item.description}`,
+              description: `Credit Card Payment: ${item.description}`,
               categoryId: payCategory,
               type: "expense",
               accountId: payFromAccountId,
