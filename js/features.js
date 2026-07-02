@@ -1973,22 +1973,27 @@ function openCcHistoryModal() {
         
         let statusText = "";
         let bigAmountText = "";
-        if (t.paidOff) {
-          statusText = `<span class="text-gray-400">Settled</span>`;
-          bigAmountText = `<span class="font-semibold text-base tabular-nums text-gray-500 line-through">${formatCurrency(t.amount)}</span>`;
+        if (t.paidOff || remainingOnItem <= 0.005) {
+          statusText = `<span class="text-income font-medium">Settled</span>`;
+          bigAmountText = `
+            <span class="font-semibold text-sm tabular-nums text-gray-500">${formatCurrency(t.amount)}</span>
+          `;
         } else if (t.paidAmount > 0) {
           statusText = `<span class="text-gray-400">Paid ${formatCurrency(t.paidAmount)}</span>`;
           bigAmountText = `
-            <span class="font-semibold text-base tabular-nums hidden sm:inline">
-              <span class="text-expense">${formatCurrency(remainingOnItem)}</span> <span class="text-gray-500 text-sm">of ${formatCurrency(t.amount)} Left</span>
+            <span class="font-semibold text-sm tabular-nums hidden sm:inline text-expense">
+              ${formatCurrency(remainingOnItem)} <span class="text-gray-500 font-normal">left</span>
             </span>
-            <span class="font-semibold text-base tabular-nums sm:hidden text-expense">
-              ${formatCurrency(remainingOnItem)} Left
+            <span class="font-semibold text-sm tabular-nums sm:hidden text-expense">
+              ${formatCurrency(remainingOnItem)}
             </span>
           `;
         } else {
           statusText = `<span class="text-gray-400">Unpaid</span>`;
-          bigAmountText = `<span class="font-semibold text-base tabular-nums text-expense">${formatCurrency(remainingOnItem)} Left</span>`;
+          bigAmountText = `
+            <span class="font-semibold text-sm tabular-nums hidden sm:inline text-expense">${formatCurrency(remainingOnItem)} <span class="text-gray-500 font-normal">left</span></span>
+            <span class="font-semibold text-sm tabular-nums sm:hidden text-expense">${formatCurrency(remainingOnItem)}</span>
+          `;
         }
 
         const isSelectable = !t.paidOff && remainingOnItem > 0.005;
