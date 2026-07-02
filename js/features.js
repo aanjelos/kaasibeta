@@ -2167,7 +2167,7 @@ function openCcHistoryModal() {
               <span class="font-medium text-sm truncate pr-2 text-gray-100">${escapeHTML(item.description)}</span>
               <span class="text-expense font-semibold text-sm flex-shrink-0 tabular-nums">${formatCurrency(remaining)}</span>
             </div>
-            <select name="payCategory_${id}" class="w-full text-xs" required>
+            <select name="payCategory_${id}" class="w-full text-sm" required>
               ${categoryOptions}
             </select>
           </div>
