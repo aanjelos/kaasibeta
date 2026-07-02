@@ -2143,26 +2143,12 @@ function openCcHistoryModal() {
     let totalAmount = 0;
     let itemsHtml = "";
     
-    const ccPaymentCategoryName = "Credit Card Payment";
-    let categoryOptions = "";
-    const otherCcCategories = state.categories
-      .filter(
-        (c) =>
-          c.toLowerCase() !== "income" &&
-          c.toLowerCase() !== ccPaymentCategoryName.toLowerCase()
-      )
+    let categoryOptions = `<option value="" disabled selected>Select Category</option>`;
+    const expenseCategories = state.categories
+      .filter((c) => c.toLowerCase() !== "income")
       .sort((a, b) => a.localeCompare(b));
 
-    if (
-      state.categories.some(
-        (c) => c.toLowerCase() === ccPaymentCategoryName.toLowerCase()
-      )
-    ) {
-      categoryOptions += `<option value="${ccPaymentCategoryName}" selected>${ccPaymentCategoryName}</option>`;
-    } else {
-      categoryOptions += `<option value="${ccPaymentCategoryName}" selected>${ccPaymentCategoryName} (Suggested)</option>`;
-    }
-    otherCcCategories.forEach((cat) => {
+    expenseCategories.forEach((cat) => {
       categoryOptions += `<option value="${cat}">${cat}</option>`;
     });
 
@@ -2173,12 +2159,12 @@ function openCcHistoryModal() {
         totalAmount += remaining;
         
         itemsHtml += `
-          <div class="mb-3 p-3 bg-gray-800 rounded border border-gray-700">
-            <div class="flex justify-between items-center mb-2">
-              <span class="font-medium text-sm truncate pr-2">${escapeHTML(item.description)}</span>
+          <div class="mb-3 pb-3 border-b border-gray-700 last:border-0 last:pb-0">
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="font-medium text-sm truncate pr-2 text-gray-100">${escapeHTML(item.description)}</span>
               <span class="text-expense font-semibold text-sm flex-shrink-0 tabular-nums">${formatCurrency(remaining)}</span>
             </div>
-            <select name="payCategory_${id}" class="bg-gray-700 border border-gray-600 rounded px-2 py-1 w-full text-xs outline-none text-white focus:border-accent-500 transition-colors" required>
+            <select name="payCategory_${id}" class="bg-gray-700 border border-gray-600 rounded px-2 py-1.5 w-full text-xs outline-none text-white focus:border-accent-500 transition-colors" required>
               ${categoryOptions}
             </select>
           </div>
@@ -2188,7 +2174,7 @@ function openCcHistoryModal() {
 
     const formHtml = `
         <input type="hidden" name="isBulkCcPayment" value="true">
-        <p class="mb-2 text-sm text-gray-300">You are settling <span class="text-white font-semibold">${window.ccSelectedItems.size} items</span> for a total of <span class="font-semibold text-expense text-base tabular-nums">${formatCurrency(totalAmount)}</span>.</p>
+        <p class="mb-4 text-sm text-gray-300">You are settling <span class="text-white font-semibold">${window.ccSelectedItems.size} items</span> for a total of <span class="font-semibold text-expense text-base tabular-nums">${formatCurrency(totalAmount)}</span>.</p>
         <div class="mb-4">
           <label class="block text-sm font-medium mb-1">Pay From Account</label>
           <select name="payFromAccount" class="bg-gray-700 border border-gray-600 rounded px-3 py-1.5 w-full text-sm outline-none text-white focus:border-accent-500 transition-colors" required>
@@ -2204,12 +2190,12 @@ function openCcHistoryModal() {
           </select>
         </div>
         
-        <div class="mb-4 max-h-[40vh] overflow-y-auto custom-scrollbar pr-2 space-y-1">
-          <label class="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">Categorize Individual Items</label>
+        <div class="mb-4 mt-5 max-h-[40vh] overflow-y-auto custom-scrollbar pr-2">
+          <label class="block text-sm font-medium mb-3 text-gray-300">Categorize Items</label>
           ${itemsHtml}
         </div>
         
-        <p class="text-xs text-gray-400 mb-4"><i class="fas fa-info-circle mr-1"></i> A separate transaction will be created in your bank account for each item to ensure your pie charts remain accurate.</p>
+        <p class="text-xs text-gray-400 mb-4 bg-gray-800/50 p-3 rounded"><i class="fas fa-info-circle mr-1"></i> A separate transaction will be created in your bank account for each item to ensure pie charts remain accurate.</p>
         <div class="flex justify-end gap-2">
             <button type="button" class="btn btn-secondary flex-1" onclick="closeModal('formModal')">Cancel</button>
             <button type="submit" class="btn btn-primary flex-1"><i class="fas fa-check-circle mr-1"></i> Settle All</button>
@@ -2266,7 +2252,7 @@ function openCcHistoryModal() {
         saveData();
         renderFilteredCcList();
         renderCreditCardSection();
-        updateDashboard();
+        renderDashboard();
         showNotification(`Settled ${paidItemCount} items successfully.`, "success");
         if (typeof trackEvent === "function") trackEvent("bulk_pay_cc", "Engagement", paidItemCount);
       }
