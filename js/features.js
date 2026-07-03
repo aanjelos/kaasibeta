@@ -4450,7 +4450,7 @@ function renderCategoryBudgets() {
     
     if (isNew) {
       budgetItem = document.createElement("div");
-      budgetItem.className = "group relative";
+      budgetItem.className = "group relative cursor-pointer";
       budgetItem.dataset.budgetId = budget.id;
       budgetItem.innerHTML = `
         <div class="flex justify-between items-end mb-2">
@@ -4461,6 +4461,11 @@ function renderCategoryBudgets() {
           <div class="budget-progress h-1.5 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
         </div>
       `;
+      budgetItem.onclick = () => {
+        if (typeof window.openMonthlyViewWithCategories === "function") {
+          window.openMonthlyViewWithCategories(budget.categories);
+        }
+      };
     }
 
     const progressEl = budgetItem.querySelector(".budget-progress");

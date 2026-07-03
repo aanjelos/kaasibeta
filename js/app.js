@@ -318,6 +318,85 @@ function initializeUI(isRefresh = false) {
     }
   };
 
+  window.openMonthlyViewWithCategories = (categories) => {
+    // 1. Setup month tabs
+    const yearSelector = $("#yearSelector");
+    const currentYear = new Date().getFullYear();
+    if (yearSelector) {
+      yearSelector.value = currentYear;
+    }
+    if (typeof renderMonthTabs === "function") {
+      renderMonthTabs(currentYear);
+    }
+
+    // 2. Reset filters (without triggering search yet)
+    if (typeof window.resetAdvancedFiltersAndSearch === "function") {
+      window.resetAdvancedFiltersAndSearch(false);
+    }
+
+    // 3. Apply category filters
+    const filterCategoryDropdown = $("#filterCategoryDropdown");
+    if (filterCategoryDropdown && categories && categories.length > 0) {
+      const allCheckboxes = filterCategoryDropdown.querySelectorAll(".filter-category-checkbox");
+      const masterCheckbox = document.getElementById("filterCategoryAll");
+      
+      if (masterCheckbox) masterCheckbox.checked = false;
+      
+      let checkedCount = 0;
+      let checkedLabel = "";
+      allCheckboxes.forEach(cb => {
+        if (categories.includes(cb.value)) {
+          cb.checked = true;
+          checkedCount++;
+          checkedLabel = cb.nextElementSibling ? cb.nextElementSibling.textContent : cb.value;
+        } else {
+          cb.checked = false;
+        }
+      });
+      
+      const filterCategoryBtnText = $("#filterCategoryBtnText");
+      if (filterCategoryBtnText) {
+        if (checkedCount === 1) {
+          filterCategoryBtnText.textContent = checkedLabel;
+        } else if (checkedCount > 1) {
+          filterCategoryBtnText.textContent = `${checkedCount} Categories`;
+        } else {
+          filterCategoryBtnText.textContent = "All Categories";
+        }
+      }
+    }
+
+    // 4. Set filter type to 'expense'
+    if ($("#filterType")) {
+      $("#filterType").value = "expense";
+    }
+
+    // 5. Expand advanced filters to show the active state
+    const advancedFiltersAccordion = $("#advancedFiltersAccordion");
+    if (advancedFiltersAccordion) {
+      advancedFiltersAccordion.classList.remove("hidden");
+    }
+
+    // 6. Trigger search
+    if (typeof triggerSearch === "function") {
+      triggerSearch();
+    }
+
+    // 7. Open the modal
+    if (typeof openModalHelper === "function") {
+      openModalHelper("monthlyViewModal");
+    }
+    
+    // 8. Scroll to current month tab
+    const currentMonth = new Date().getMonth();
+    const currentMonthTab = $(
+      `#monthTabs .tab-button[data-month='${currentMonth}'][data-year='${currentYear}']`
+    );
+    if (currentMonthTab) {
+      currentMonthTab.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }
+  };
+
   const triggerSearch = () => {
     clearTimeout(monthlySearchDebounceTimer);
     monthlySearchDebounceTimer = setTimeout(() => {
