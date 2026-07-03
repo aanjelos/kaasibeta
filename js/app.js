@@ -377,23 +377,38 @@ function initializeUI(isRefresh = false) {
       advancedFiltersAccordion.classList.remove("hidden");
     }
 
-    // 6. Trigger search
-    if (typeof triggerSearch === "function") {
-      triggerSearch();
-    }
-
-    // 7. Open the modal
-    if (typeof openModalHelper === "function") {
-      openModalHelper("monthlyViewModal");
-    }
-    
-    // 8. Scroll to current month tab
+    // 6. Set current month tab to active
     const currentMonth = new Date().getMonth();
     const currentMonthTab = $(
       `#monthTabs .tab-button[data-month='${currentMonth}'][data-year='${currentYear}']`
     );
     if (currentMonthTab) {
-      currentMonthTab.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      $$("#monthTabs .tab-button").forEach((btn) => {
+        btn.classList.remove("active");
+        btn.removeAttribute("data-logically-active");
+      });
+      currentMonthTab.classList.add("active");
+      currentMonthTab.setAttribute("data-logically-active", "true");
+      if (typeof updateTabIndicator === 'function') {
+        setTimeout(updateTabIndicator, 10);
+      }
+    }
+
+    // 7. Trigger search
+    if (typeof triggerSearch === "function") {
+      triggerSearch();
+    }
+
+    // 8. Open the modal
+    if (typeof openModalHelper === "function") {
+      openModalHelper("monthlyViewModal");
+    }
+    
+    // 9. Scroll to current month tab
+    if (currentMonthTab) {
+      setTimeout(() => {
+        currentMonthTab.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      }, 50);
     }
   };
 
