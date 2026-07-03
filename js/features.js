@@ -4450,22 +4450,29 @@ function renderCategoryBudgets() {
     
     if (isNew) {
       budgetItem = document.createElement("div");
-      budgetItem.className = "group relative cursor-pointer";
+      budgetItem.className = "group relative";
       budgetItem.dataset.budgetId = budget.id;
       budgetItem.innerHTML = `
         <div class="flex justify-between items-end mb-2">
           <span class="text-sm font-medium text-gray-200 truncate pr-2 budget-title"></span>
-          <span class="text-xs font-semibold budget-status whitespace-nowrap"></span>
+          <span class="text-xs font-semibold budget-status whitespace-nowrap cursor-pointer hover:opacity-80 transition-opacity"></span>
         </div>
-        <div class="w-full bg-gray-700 rounded-full h-1.5 overflow-hidden">
-          <div class="budget-progress h-1.5 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+        <div class="w-full bg-gray-700 rounded-full h-2 overflow-hidden cursor-pointer hover:opacity-80 transition-opacity budget-progress-container">
+          <div class="budget-progress h-2 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
         </div>
       `;
-      budgetItem.onclick = () => {
+      
+      const clickHandler = () => {
         if (typeof window.openMonthlyViewWithCategories === "function") {
           window.openMonthlyViewWithCategories(budget.categories);
         }
       };
+      
+      const statusEl = budgetItem.querySelector(".budget-status");
+      const progressContainer = budgetItem.querySelector(".budget-progress-container");
+      
+      if (statusEl) statusEl.onclick = clickHandler;
+      if (progressContainer) progressContainer.onclick = clickHandler;
     }
 
     const progressEl = budgetItem.querySelector(".budget-progress");
