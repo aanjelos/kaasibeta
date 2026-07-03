@@ -19,7 +19,8 @@ Agents **MUST** strictly adhere to the following workflow for all updates:
    - **DO NOT change the trailing letter** (e.g., `m`) unless the user explicitly requests you to do so.
 
 2. **Service Worker Cache Versioning**:
-   - Every time a JavaScript, CSS, or HTML asset is modified, you **must** increment the cache version name inside `sw.js` (e.g., `const CACHE_NAME = "kaasi-cache-v161"` to `kaasi-cache-v162`).
+   - Every time a JavaScript, CSS, or HTML asset is modified, you **must** increment the cache version name inside `sw.js`.
+   - The cache version format must exactly match the application version (e.g., `const CACHE_NAME = "kaasi-cache-v5.308m"`).
    - Failing to bump this will cause PWA clients to serve stale cached assets, rendering your changes invisible.
 
 3. **Changelog Updates (`docs/CHANGELOG.md`)**:
