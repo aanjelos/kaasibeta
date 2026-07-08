@@ -698,6 +698,11 @@ function initializeUI(isRefresh = false) {
         }
       }
     }
+
+    const dateInput = $("#date");
+    if (dateInput && !dateInput.value) {
+      dateInput.value = getCurrentDateString();
+    }
   };
 
   if (transactionTypeSelect) {
