@@ -1032,8 +1032,11 @@ function populateDropdowns() {
     if (Array.from(s.options).some((opt) => opt.value === currentValue)) {
       s.value = currentValue;
     } else if (s.options.length > 0) {
-      // If previous selection is now hidden, default to first visible account
-      s.value = s.options[0].value;
+      if (s.id === "transferFrom" && s.options.length > 1) {
+        s.value = s.options[1].value;
+      } else {
+        s.value = s.options[0].value;
+      }
     }
   });
 
@@ -1157,22 +1160,6 @@ function populateDropdowns() {
       `;
       filterDropdownMenu.appendChild(label);
     });
-  }
-
-  const tfFrom = $("#transferFrom");
-  const tfTo = $("#transferTo");
-  if (tfFrom && tfTo) {
-    const disableSame = () => {
-      const fv = tfFrom.value;
-      const tv = tfTo.value;
-      Array.from(tfTo.options).forEach(o => o.disabled = o.value === fv);
-      Array.from(tfFrom.options).forEach(o => o.disabled = o.value === tv);
-    };
-    tfFrom.removeEventListener("change", disableSame);
-    tfTo.removeEventListener("change", disableSame);
-    tfFrom.addEventListener("change", disableSame);
-    tfTo.addEventListener("change", disableSame);
-    disableSame();
   }
 }
 

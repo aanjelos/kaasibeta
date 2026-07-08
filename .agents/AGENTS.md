@@ -74,3 +74,4 @@ Agents **MUST** strictly adhere to the following workflow for all updates:
 ### Important Technical Details & Constraints
 - **Vanilla JS & Direct DOM Manipulation:** No front-end frameworks (like React or Vue). Views are rendered imperatively via template strings (`innerHTML`) and DOM APIs.
 - **No Event Bus:** Tight-coupled component communication. Files invoke functions declared in other files directly via the global window scope.
+- **No Scripts for File Editing:** Do NOT write or execute automated scripts (e.g., Python scripts) to bulk-modify project files. ALWAYS use native file editing tools (`replace_file_content` / `multi_replace_file_content`) to ensure changes remain atomic, easily traceable, and visually transparent in the chat interface.
