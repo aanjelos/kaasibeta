@@ -462,14 +462,32 @@ async function signInWithGoogle() {
 async function signOut() {
   if (!supabaseClient) return;
   console.log("Attempting Sign-Out...");
-  try {
-    // Clear preferredSyncMethod so the session expired modal doesn't show
+  
+  const localSignOutCleanup = () => {
     localStorage.removeItem("preferredSyncMethod");
-    
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith("sb-") || key.includes("supabase"))) {
+        localStorage.removeItem(key);
+      }
+    }
+    supabaseUser = null;
+    updateSupabaseUI(null);
+  };
+
+  if (!navigator.onLine) {
+    localSignOutCleanup();
+    showNotification("Signed out locally (Offline).", "info");
+    return;
+  }
+
+  try {
+    localStorage.removeItem("preferredSyncMethod");
     const { error } = await supabaseClient.auth.signOut();
     if (error) {
       console.error("Error during sign-out:", error.message);
-      showNotification(`Sign-Out Error: ${error.message}`, "error");
+      localSignOutCleanup();
+      showNotification("Signed out locally (Offline).", "info");
     } else {
       console.log("User signed out successfully.");
       supabaseUser = null;
@@ -478,7 +496,8 @@ async function signOut() {
     }
   } catch (error) {
     console.error("Exception during sign-out:", error);
-    showNotification("An unexpected error occurred during sign-out.", "error");
+    localSignOutCleanup();
+    showNotification("Signed out locally.", "info");
   }
 }
 
@@ -600,6 +619,7 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
       restoreBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Restoring...`;
       restoreBtn.disabled = true;
     }
+    showNotification("Restoring from cloud...", "info", 5000);
 
       try {
         // ** THE FIX IS HERE: .order(...).limit(1) **
