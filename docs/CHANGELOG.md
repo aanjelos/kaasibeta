@@ -512,8 +512,9 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Multi-Select Bulk Payments**: Integrated custom checkboxes into the unpaid history list, tied to a smooth Floating Action Bar. Users can select multiple specific CC transactions and bulk-pay them simultaneously. 
 - **Individual Category Persistence**: During a bulk payment, a unified modal presents a scrolling list of all selected items, allowing the user to select an individual, specific category (e.g., Groceries, Fuel) for *each* item. This prevents bulk payments from ruining Monthly Pie Chart metrics by correctly logging separate, perfectly-categorized bank transactions under the hood.
 
-### 99. [Enhancement] Unified Transfer Flow (v5.315m)
-- **Consolidated UI**: Moved the 'Transfer' functionality from a separate modal directly into the main 'Add Transaction' card, improving flow and visibility.
+### 99. [Enhancement] Unified Transfer Flow (v5.316m)
+- **Consolidated UI**: Moved the 'Transfer' functionality from a separate modal directly into the main 'Add Transaction' card, improving flow and visibility. Renamed the dropdown option to 'Bank Transfer / Withdrawal'.
+- **Dynamic Options**: Selecting an account in the 'From' dropdown dynamically greys it out in the 'To' dropdown (and vice versa) to prevent invalid selections.
 - **Accurate Expense Tracking**: Transfer fees are now logged as separate expense transactions under a customizable 'Bank Charges' category, allowing users to accurately track transaction costs without inflating standard income or expense figures. 
 - **Settings Integration**: Added a new default transfer fee configuration in Settings -> Accounts.
 

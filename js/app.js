@@ -649,21 +649,30 @@ function initializeUI(isRefresh = false) {
     const transferFeeGroup = $("#transferFeeGroup");
     const categoryLabel = $("#categoryLabel");
     const categorySelect = $("#category");
+    const descriptionLabel = document.querySelector('label[for="description"]');
 
     if (normalAccountGroup) normalAccountGroup.style.display = isTransfer ? "none" : "block";
-    if (transferAccountsGroup) transferAccountsGroup.style.display = isTransfer ? "grid" : "none";
+    if (transferAccountsGroup) transferAccountsGroup.style.display = isTransfer ? "block" : "none";
     if (transferFeeGroup) transferFeeGroup.style.display = isTransfer ? "block" : "none";
 
     if (categoryGroup) {
       if (isIncome) {
         categoryGroup.style.display = "none";
         if (categorySelect) categorySelect.required = false;
-        if (descriptionInput) descriptionInput.placeholder = "e.g., Monthly Salary";
+        if (descriptionLabel) descriptionLabel.textContent = "Description";
+        if (descriptionInput) {
+          descriptionInput.placeholder = "e.g., Monthly Salary";
+          if (descriptionInput.value === "Transfer Fee") descriptionInput.value = "";
+        }
       } else if (isTransfer) {
         categoryGroup.style.display = "block";
         if (categorySelect) categorySelect.required = true;
         if (categoryLabel) categoryLabel.textContent = "Fee Category";
-        if (descriptionInput) descriptionInput.placeholder = "e.g., Transfer to Savings";
+        if (descriptionLabel) descriptionLabel.textContent = "Fee Description";
+        if (descriptionInput) {
+          descriptionInput.placeholder = "e.g., Transfer to Savings";
+          if (!descriptionInput.value) descriptionInput.value = "Transfer Fee";
+        }
         
         // Auto-select default fee category if available
         if (categorySelect) {
@@ -682,7 +691,11 @@ function initializeUI(isRefresh = false) {
         categoryGroup.style.display = "block";
         if (categorySelect) categorySelect.required = true;
         if (categoryLabel) categoryLabel.textContent = "Category";
-        if (descriptionInput) descriptionInput.placeholder = "e.g., Lunch, Groceries";
+        if (descriptionLabel) descriptionLabel.textContent = "Description";
+        if (descriptionInput) {
+          descriptionInput.placeholder = "e.g., Lunch, Groceries";
+          if (descriptionInput.value === "Transfer Fee") descriptionInput.value = "";
+        }
       }
     }
   };

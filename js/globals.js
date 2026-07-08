@@ -1158,6 +1158,22 @@ function populateDropdowns() {
       filterDropdownMenu.appendChild(label);
     });
   }
+
+  const tfFrom = $("#transferFrom");
+  const tfTo = $("#transferTo");
+  if (tfFrom && tfTo) {
+    const disableSame = () => {
+      const fv = tfFrom.value;
+      const tv = tfTo.value;
+      Array.from(tfTo.options).forEach(o => o.disabled = o.value === fv);
+      Array.from(tfFrom.options).forEach(o => o.disabled = o.value === tv);
+    };
+    tfFrom.removeEventListener("change", disableSame);
+    tfTo.removeEventListener("change", disableSame);
+    tfFrom.addEventListener("change", disableSame);
+    tfTo.addEventListener("change", disableSame);
+    disableSame();
+  }
 }
 
 function isCategoryExcluded(categoryName, ruleKey) {
