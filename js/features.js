@@ -503,13 +503,91 @@ function handleTransactionSubmit(event) {
   const form = event.target,
     formData = new FormData(form);
   const type = formData.get("transactionType");
-  // Ensure amount from form is parsed and then immediately rounded if needed, though parseFloat is usually fine here.
-  // The main rounding will happen during balance calculations.
   const amount = parseFloat(String(formData.get("amount")).replace(/,/g, ''));
+  const description = formData.get("description").trim();
+  const date = formData.get("date");
+
+  if (type === "transfer") {
+    const fromAccountId = formData.get("transferFrom");
+    const toAccountId = formData.get("transferTo");
+    const feeRaw = formData.get("transferFee");
+    const fee = feeRaw ? parseFloat(String(feeRaw).replace(/,/g, '')) : 0;
+    const feeCategory = formData.get("category");
+
+    if (isNaN(amount) || amount <= 0) {
+      showNotification("Valid amount required.", "error");
+      return;
+    }
+    if (!fromAccountId || !toAccountId) {
+      showNotification("From and To accounts required.", "error");
+      return;
+    }
+    if (fromAccountId === toAccountId) {
+      showNotification("From and To accounts cannot be the same.", "error");
+      return;
+    }
+    if (isNaN(fee) || fee < 0) {
+      showNotification("Invalid transfer fee.", "error");
+      return;
+    }
+    if (!date) {
+      showNotification("Date required.", "error");
+      return;
+    }
+
+    const fromAccount = state.accounts.find((acc) => acc.id === fromAccountId);
+    const toAccount = state.accounts.find((acc) => acc.id === toAccountId);
+    if (!fromAccount || !toAccount) {
+      showNotification("Account not found.", "error");
+      return;
+    }
+
+    if (fromAccount.balance < amount + fee) {
+      showNotification(
+        `Insufficient funds in ${fromAccount.name}. Transfer still added.`,
+        "warning"
+      );
+    }
+
+    // Update balances
+    fromAccount.balance = roundToTwoDecimals(fromAccount.balance - amount - fee);
+    toAccount.balance = roundToTwoDecimals(toAccount.balance + amount);
+    if (isNaN(fromAccount.balance)) fromAccount.balance = 0;
+    if (isNaN(toAccount.balance)) toAccount.balance = 0;
+
+    // Log fee if > 0
+    if (fee > 0) {
+      const timestamp = Date.now();
+      const feeTransaction = {
+        id: generateId(),
+        type: "expense",
+        amount: roundToTwoDecimals(fee),
+        account: fromAccountId,
+        category: feeCategory || "Bank Charges",
+        description: description || "Bank Transfer Fee",
+        date: date,
+        timestamp: timestamp
+      };
+      state.transactions.push(feeTransaction);
+    }
+
+    showNotification("Transfer successful.", "success");
+    if (typeof trackEvent === "function") trackEvent("add_transfer", "Engagement");
+
+    saveData();
+    renderDashboard();
+    form.reset();
+    const ts = $("#transactionType");
+    if (ts) {
+      ts.value = "expense";
+      ts.dispatchEvent(new Event("change"));
+    }
+    return;
+  }
+
+  // Normal Income / Expense logic
   const accountId = formData.get("account");
-  const category = type === "expense" ? formData.get("category") : null,
-    description = formData.get("description").trim(),
-    date = formData.get("date");
+  const category = type === "expense" ? formData.get("category") : null;
 
   if (isNaN(amount) || amount <= 0) {
     showNotification("Valid amount required.", "error");
@@ -548,7 +626,7 @@ function handleTransactionSubmit(event) {
   const newTransaction = {
     id: generateId(),
     type,
-    amount: roundToTwoDecimals(amount), // Round the amount being stored in the transaction
+    amount: roundToTwoDecimals(amount),
     account: accountId,
     category,
     description,
@@ -557,17 +635,11 @@ function handleTransactionSubmit(event) {
   };
   state.transactions.push(newTransaction);
 
-  // Update account balance and round it
   if (type === "income") {
-    account.balance = roundToTwoDecimals(
-      account.balance + newTransaction.amount
-    );
+    account.balance = roundToTwoDecimals(account.balance + newTransaction.amount);
   } else {
-    account.balance = roundToTwoDecimals(
-      account.balance - newTransaction.amount
-    );
+    account.balance = roundToTwoDecimals(account.balance - newTransaction.amount);
   }
-  // Fallback if somehow balance becomes NaN (though roundToTwoDecimals handles its input)
   if (isNaN(account.balance)) account.balance = 0;
 
   showNotification(
@@ -580,6 +652,12 @@ function handleTransactionSubmit(event) {
   renderDashboard();
   populateDropdowns();
   form.reset();
+
+  const ts = $("#transactionType");
+  if (ts) {
+    ts.value = "expense";
+    ts.dispatchEvent(new Event("change"));
+  }
 
   const categorySelect = form.querySelector("#category");
   if (categorySelect) {
@@ -980,99 +1058,6 @@ function deleteTransaction(id, event) {
   );
 }
 
-function handleTransferSubmit(event) {
-  event.preventDefault();
-  const form = event.target; // The form element itself
-  const formData = new FormData(form);
-  const amount = parseFloat(String(formData.get("transferAmount")).replace(/,/g, ''));
-  const fromAccountId = formData.get("transferFrom");
-  const toAccountId = formData.get("transferTo");
-
-  // Use the correct ID for the error message paragraph in the transfer modal
-  const modalErrorEl = $("#modalTransferError");
-  if (modalErrorEl) {
-    modalErrorEl.textContent = ""; // Clear previous error message
-    modalErrorEl.classList.add("hidden"); // Hide it initially
-  } else {
-    console.warn("Modal error element (#modalTransferError) not found!");
-    // If the error element isn't found, we can't show modal-specific errors,
-    // but toast notifications will still work.
-  }
-
-  // Validate amount
-  if (isNaN(amount) || amount <= 0) {
-    showNotification("Valid amount required for transfer.", "error");
-    if (modalErrorEl) {
-      modalErrorEl.textContent = "Please enter a valid positive amount.";
-      modalErrorEl.classList.remove("hidden");
-    }
-    return;
-  }
-
-  // Check if From and To accounts are the same
-  if (fromAccountId === toAccountId) {
-    showNotification("Cannot transfer to the same account.", "error"); // Toast notification
-    if (modalErrorEl) {
-      modalErrorEl.textContent = "From and To accounts cannot be the same.";
-      modalErrorEl.classList.remove("hidden");
-    }
-    return;
-  }
-
-  const fromAccount = state.accounts.find((acc) => acc.id === fromAccountId);
-  const toAccount = state.accounts.find((acc) => acc.id === toAccountId);
-
-  // Check if accounts are valid
-  if (!fromAccount || !toAccount) {
-    showNotification("Invalid account selected for transfer.", "error");
-    if (modalErrorEl) {
-      modalErrorEl.textContent =
-        "Invalid source or destination account selected.";
-      modalErrorEl.classList.remove("hidden");
-    }
-    return;
-  }
-
-  const roundedAmount = roundToTwoDecimals(amount);
-
-  // Check for sufficient funds
-  if (fromAccount.balance < roundedAmount) {
-    showNotification(`Insufficient funds in ${fromAccount.name}.`, "warning");
-    if (modalErrorEl) {
-      modalErrorEl.textContent = `Insufficient funds in ${
-        fromAccount.name
-      }. Available: ${formatCurrency(fromAccount.balance)}`;
-      modalErrorEl.classList.remove("hidden");
-    }
-    return; // Stop the transfer if funds are insufficient
-  }
-
-  // Perform the transfer: Update account balances
-  fromAccount.balance = roundToTwoDecimals(fromAccount.balance - roundedAmount);
-  toAccount.balance = roundToTwoDecimals(toAccount.balance + roundedAmount);
-
-  // Fallback if somehow balance becomes NaN (though roundToTwoDecimals should prevent this for valid inputs)
-  if (isNaN(fromAccount.balance)) fromAccount.balance = 0;
-  if (isNaN(toAccount.balance)) toAccount.balance = 0;
-
-  saveData(); // Save the updated state
-  renderDashboard(); // Re-render dashboard elements to show new balances
-  populateDropdowns(); // Re-populate dropdowns that show account balances
-
-  showNotification(
-    `Transferred ${formatCurrency(roundedAmount)} from ${fromAccount.name} to ${
-      toAccount.name
-    }.`,
-    "success"
-  );
-
-  // IMPORTANT: Close the modal after a successful transfer
-  closeModal("transferMoneyModal");
-
-  // The form is typically reset when the modal is opened next,
-  // as handled by the 'openTransferModalBtn' click listener which calls form.reset().
-  // So, no explicit form.reset() is needed here if that behavior is desired.
-}
 
 function refreshMonthlyViewIfRelevant(dateString) {
   const monthlyViewModal = $("#monthlyViewModal");

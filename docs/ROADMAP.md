@@ -44,6 +44,10 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 10. Custom Icon and Color Tags for Categories
 - **Concept**: Allow users to associate a custom FontAwesome icon and color code to each category in Settings to dramatically improve the scannability of transaction lists, budget cards, and visual charts.
 
+### 11. Recent Activity Section
+- **Concept**: A dedicated module or dashboard section to view the most recent actions taken in the app, such as recently added, edited, or deleted transactions, as well as transfers.
+- **Implementation Idea**: Will require building a new custom UI view to display a chronological list of activities, and ensuring new transaction types like 'transfers' are easily identifiable.
+
 ---
 
 ## ✨ UI / UX Polish

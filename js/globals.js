@@ -221,6 +221,8 @@ function getDefaultState() {
         initialSetupDone: false,
         showCcDashboardSection: true,
         showMathToolbar: true,
+        defaultTransferFee: 25,
+        defaultTransferFeeCategory: "Bank Charges",
         theme: "dark", // DEPRECATED: Moved to device_settings. Kept for legacy struct validation.
         accent: "orange",
         backupReminderFrequency: "default",

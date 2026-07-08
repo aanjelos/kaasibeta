@@ -541,33 +541,7 @@ function initializeUI(isRefresh = false) {
     });
   }
 
-  const openTransferModalButton = $("#openTransferModalBtn");
-  if (openTransferModalButton) {
-    openTransferModalButton.onclick = () => {
-      const modal = $("#transferMoneyModal");
-      if (modal) {
-        populateDropdowns();
-        const transferModalForm = $("#transferModalForm");
-        if (transferModalForm) {
-          transferModalForm.reset();
-        }
-        const errorEl = $("#modalTransferError");
-        if (errorEl) {
-          errorEl.classList.add("hidden");
-        }
-        openModalHelper("transferMoneyModal");
-        const firstInput = modal.querySelector('input.calc-amount[type="text"], select');
-        if (firstInput) {
-          firstInput.focus();
-        }
-      }
-    };
-  }
 
-  const transferModalFormElement = $("#transferModalForm");
-  if (transferModalFormElement) {
-    transferModalFormElement.onsubmit = handleTransferSubmit;
-  }
 
   // --- CC History Modal Search Logic ---
   const ccHistorySearchInput = $("#ccHistorySearchInput");
@@ -665,17 +639,51 @@ function initializeUI(isRefresh = false) {
   const descriptionInput = $("#description");
 
   const toggleMainCategoryVisibility = () => {
-    if (!transactionTypeSelect || !categoryGroup) return;
-    if (transactionTypeSelect.value === "income") {
-      categoryGroup.style.display = "none";
-      $("#category").required = false;
-      if (descriptionInput)
-        descriptionInput.placeholder = "e.g., Monthly Salary";
-    } else {
-      categoryGroup.style.display = "block";
-      $("#category").required = true;
-      if (descriptionInput)
-        descriptionInput.placeholder = "e.g., Lunch, Groceries";
+    if (!transactionTypeSelect) return;
+    const isIncome = transactionTypeSelect.value === "income";
+    const isTransfer = transactionTypeSelect.value === "transfer";
+    const isExpense = transactionTypeSelect.value === "expense";
+
+    const normalAccountGroup = $("#normalAccountGroup");
+    const transferAccountsGroup = $("#transferAccountsGroup");
+    const transferFeeGroup = $("#transferFeeGroup");
+    const categoryLabel = $("#categoryLabel");
+    const categorySelect = $("#category");
+
+    if (normalAccountGroup) normalAccountGroup.style.display = isTransfer ? "none" : "block";
+    if (transferAccountsGroup) transferAccountsGroup.style.display = isTransfer ? "grid" : "none";
+    if (transferFeeGroup) transferFeeGroup.style.display = isTransfer ? "block" : "none";
+
+    if (categoryGroup) {
+      if (isIncome) {
+        categoryGroup.style.display = "none";
+        if (categorySelect) categorySelect.required = false;
+        if (descriptionInput) descriptionInput.placeholder = "e.g., Monthly Salary";
+      } else if (isTransfer) {
+        categoryGroup.style.display = "block";
+        if (categorySelect) categorySelect.required = true;
+        if (categoryLabel) categoryLabel.textContent = "Fee Category";
+        if (descriptionInput) descriptionInput.placeholder = "e.g., Transfer to Savings";
+        
+        // Auto-select default fee category if available
+        if (categorySelect) {
+          const defaultCat = state.settings.defaultTransferFeeCategory || "Bank Charges";
+          if (Array.from(categorySelect.options).some(opt => opt.value === defaultCat)) {
+            categorySelect.value = defaultCat;
+          }
+        }
+        // Pre-fill default transfer fee
+        const feeInput = $("#transferFee");
+        if (feeInput && !feeInput.value) {
+          feeInput.value = state.settings.defaultTransferFee !== undefined ? state.settings.defaultTransferFee : 25;
+        }
+      } else {
+        // Expense
+        categoryGroup.style.display = "block";
+        if (categorySelect) categorySelect.required = true;
+        if (categoryLabel) categoryLabel.textContent = "Category";
+        if (descriptionInput) descriptionInput.placeholder = "e.g., Lunch, Groceries";
+      }
     }
   };
 

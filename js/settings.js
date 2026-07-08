@@ -90,6 +90,34 @@ function renderSettingsForm() {
     manageAccountsForm.onsubmit = handleManageAccountsSubmit;
   }
 
+  const settingsDefaultTransferFee = $("#settingsDefaultTransferFee");
+  if (settingsDefaultTransferFee) {
+    settingsDefaultTransferFee.value = (
+      state.settings.defaultTransferFee !== undefined
+        ? state.settings.defaultTransferFee
+        : 25
+    ).toFixed(2);
+    settingsDefaultTransferFee.style.backgroundColor = "var(--bg-secondary)";
+    settingsDefaultTransferFee.style.borderColor = "var(--border-color)";
+    settingsDefaultTransferFee.style.color = "var(--text-primary)";
+  }
+
+  const settingsTransferFeeForm = $("#settingsTransferFeeForm");
+  if (settingsTransferFeeForm) {
+    settingsTransferFeeForm.onsubmit = (event) => {
+      event.preventDefault();
+      const formData = new FormData(settingsTransferFeeForm);
+      const fee = parseFloat(String(formData.get("defaultTransferFee")).replace(/,/g, ''));
+      if (isNaN(fee) || fee < 0) {
+        showNotification("Invalid transfer fee amount.", "error");
+        return;
+      }
+      state.settings.defaultTransferFee = fee;
+      saveData();
+      showNotification(`Default transfer fee set to ${formatCurrency(fee)}.`, "success");
+    };
+  }
+
   const settingsCcLimitAmountInput = $("#settingsCcLimitAmount");
   if (settingsCcLimitAmountInput) {
     settingsCcLimitAmountInput.value = (

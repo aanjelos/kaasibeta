@@ -350,15 +350,13 @@ function handleKeyboardShortcuts(event) {
     case "T":
       if (!inInputField) {
         event.preventDefault();
-        const openTransferBtn = $("#openTransferModalBtn");
-        if (openTransferBtn) {
-          if ($("#transferMoneyModal")?.style.display !== "block") {
-            openTransferBtn.click();
-            console.log("Shortcut: 't' pressed, opening Transfer Modal");
-          } else {
-            closeModal("transferMoneyModal");
-            console.log("Shortcut: 't' pressed, closing Transfer Modal");
-          }
+        const typeSelect = $("#transactionType");
+        const amountInput = $("#amount");
+        if (typeSelect && amountInput) {
+          typeSelect.value = "transfer";
+          typeSelect.dispatchEvent(new Event("change"));
+          amountInput.focus();
+          console.log("Shortcut: 't' pressed, selecting Transfer");
         }
       }
       break;
