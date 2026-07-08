@@ -335,7 +335,7 @@ function renderSettingsForm() {
       };
       
       $("#btnSavePinSetup").onclick = async () => {
-        const pin = $("#setupPin").value;
+        const pin = $("#setupPinInput").value;
         const confirmPin = $("#setupPinConfirm").value;
         const q = $("#setupSecuritySelect").value;
         const a = $("#setupSecurityAnswer").value.trim().toLowerCase();

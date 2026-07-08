@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.312m" />
+    <meta name="application-version" content="v5.313m" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -1858,7 +1858,7 @@
 
       <div id="editBudgetModal" class="modal z-[60]" role="dialog" aria-modal="true">
         <div class="modal-content max-w-md">
-          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" id="closeSettingsModal">&times;</span>
+          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('editBudgetModal')">&times;</span>
           <h2 class="text-2xl font-semibold mb-4 text-center">Edit Budget</h2>
           <form id="editBudgetForm" class="space-y-4">
             <input type="hidden" id="editBudgetId" />
