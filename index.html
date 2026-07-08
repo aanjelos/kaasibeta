@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v5.313m" />
+    <meta name="application-version" content="v5.314m" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -145,7 +145,7 @@
 
           <div>
             <label class="block text-sm font-medium mb-1">Your Answer</label>
-            <input type="text" id="securityAnswerInput" class="w-full" placeholder="Type your answer" required autocomplete="off">
+            <input type="text" id="securityAnswerInput" class="w-full" placeholder="Type your answer" required autocomplete="off" aria-label="Type your answer">
           </div>
 
           <div class="flex gap-2 justify-end mt-4">
@@ -160,7 +160,7 @@
             Message <a href="https://instagram.com/kaasi.com.lk" target="_blank" class="text-theme hover:underline">@kaasi.com.lk on Instagram</a> or email <a href="mailto:aanjelo99@gmail.com" class="text-theme hover:underline">aanjelo99@gmail.com</a> to request a recovery code.
           </p>
           <div class="flex gap-2">
-            <input type="text" id="recoveryCodeInput" class="w-full text-center text-sm uppercase" placeholder="Enter Recovery Code" autocomplete="off">
+            <input type="text" id="recoveryCodeInput" class="w-full text-center text-sm uppercase" placeholder="Enter Recovery Code" autocomplete="off" aria-label="Enter Recovery Code">
             <button type="button" class="btn btn-secondary whitespace-nowrap" onclick="verifyRecoveryCode()">Unlock</button>
           </div>
         </div>
@@ -301,7 +301,7 @@
                     for="transactionType"
                     class="block text-sm font-medium mb-1"
                     >Type</label
-                  ><select id="transactionType" name="transactionType" required>
+                  ><select id="transactionType" name="transactionType" required aria-label="Transaction Type">
                     <option value="expense">Expense</option>
                     <option value="income">Income</option>
                   </select>
@@ -319,7 +319,7 @@
                       min="0"
                       placeholder="e.g., 1500.50"
                       required
-                    />
+                    aria-label="e.g., 1500.50" />
                     <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                       <i class="fas fa-calculator"></i>
                     </button>
@@ -328,12 +328,12 @@
                 <div>
                   <label for="account" class="block text-sm font-medium mb-1"
                     >Account</label
-                  ><select id="account" name="account" required></select>
+                  ><select id="account" name="account" required aria-label="Account"></select>
                 </div>
                 <div id="categoryGroup">
                   <label for="category" class="block text-sm font-medium mb-1"
                     >Category</label
-                  ><select id="category" name="category" required></select>
+                  ><select id="category" name="category" required aria-label="Category"></select>
                 </div>
                 <div>
                   <label
@@ -347,12 +347,12 @@
                     name="description"
                     placeholder="e.g., Lunch, Monthly Groceries"
                     required
-                  />
+                  aria-label="e.g., Lunch, Monthly Groceries" />
                 </div>
                 <div>
                   <label for="date" class="block text-sm font-medium mb-1"
                     >Date</label
-                  ><input type="date" id="date" name="date" required />
+                  ><input type="date" id="date" name="date" required aria-label="Date" />
                 </div>
                 <button type="submit" class="btn btn-primary w-full">
                   <i class="fas fa-save"></i> Add Transaction
@@ -416,7 +416,7 @@
                       min="0"
                       placeholder="Amount spent"
                       required
-                    />
+                    aria-label="Amount spent" />
                     <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                       <i class="fas fa-calculator"></i>
                     </button>
@@ -433,12 +433,12 @@
                     name="ccDescription"
                     placeholder="e.g., Online purchase, Ride fare"
                     required
-                  />
+                  aria-label="e.g., Online purchase, Ride fare" />
                 </div>
                 <div>
                   <label for="ccDate" class="block text-sm font-medium mb-1"
                     >Date</label
-                  ><input type="date" id="ccDate" name="ccDate" required />
+                  ><input type="date" id="ccDate" name="ccDate" required aria-label="Cc Date" />
                 </div>
                 <button type="submit" class="btn btn-primary w-full">
                   <i class="fas fa-save"></i> Add CC Expense
@@ -642,7 +642,7 @@
                 <select
                   id="yearSelector"
                   class="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm"
-                ></select>
+                 aria-label="Year Selector"></select>
               </div>
             </div>
             <div
@@ -659,7 +659,7 @@
                 name="monthlySearch"
                 placeholder="Search description or amount..."
                 class="flex-grow"
-              />
+              aria-label="Search description or amount..." />
               <button
                 id="clearMonthlySearchBtn"
                 class="btn-icon-clear-search hidden flex-shrink-0"
@@ -683,7 +683,7 @@
               <!-- Custom Date Range -->
               <div class="flex flex-col gap-1.5 md:col-span-2">
                 <label for="filterDateRange" class="text-xs text-gray-300">Date Range</label>
-                <select id="filterDateRange" class="w-full text-sm px-2 py-1.5 transition-colors focus:outline-none bg-tertiary border border-theme rounded-md">
+                <select id="filterDateRange" class="w-full text-sm px-2 py-1.5 transition-colors focus:outline-none bg-tertiary border border-theme rounded-md" aria-label="Filter Date Range">
                   <option value="none">This Month (Default)</option>
                   <option value="allTime">All Time</option>
                   <option value="ytd">Year to Date</option>
@@ -693,16 +693,16 @@
                   <option value="custom">Custom Range</option>
                 </select>
                 <div id="customDateInputs" class="hidden flex-wrap items-center gap-2 mt-0.5">
-                  <input type="date" id="filterStartDate" class="flex-1 min-w-[120px] text-sm px-2 py-1" data-tooltip="Start Date" />
+                  <input type="date" id="filterStartDate" class="flex-1 min-w-[120px] text-sm px-2 py-1" data-tooltip="Start Date" aria-label="Filter Start Date" />
                   <span class="text-gray-400 text-xs">to</span>
-                  <input type="date" id="filterEndDate" class="flex-1 min-w-[120px] text-sm px-2 py-1" data-tooltip="End Date" />
+                  <input type="date" id="filterEndDate" class="flex-1 min-w-[120px] text-sm px-2 py-1" data-tooltip="End Date" aria-label="Filter End Date" />
                 </div>
               </div>
               
               <!-- Transaction Type -->
               <div class="flex flex-col gap-1 md:col-span-1">
                 <label class="text-xs text-gray-300" for="filterType">Type</label>
-                <select id="filterType" class="w-full text-sm px-2 py-1">
+                <select id="filterType" class="w-full text-sm px-2 py-1" aria-label="Filter Type">
                   <option value="all">All Types</option>
                   <option value="income">Income</option>
                   <option value="expense">Expense</option>
@@ -725,9 +725,9 @@
               <div class="flex flex-col gap-1 md:col-span-2">
                 <label class="text-xs text-gray-300">Amount Range</label>
                 <div class="flex flex-wrap items-center gap-2">
-                  <input type="number" id="filterMinAmount" placeholder="Min" class="flex-1 min-w-[80px] text-sm px-2 py-1" min="0" />
+                  <input type="number" id="filterMinAmount" placeholder="Min" class="flex-1 min-w-[80px] text-sm px-2 py-1" min="0" aria-label="Min" />
                   <span class="text-gray-400 text-xs">-</span>
-                  <input type="number" id="filterMaxAmount" placeholder="Max" class="flex-1 min-w-[80px] text-sm px-2 py-1" min="0" />
+                  <input type="number" id="filterMaxAmount" placeholder="Max" class="flex-1 min-w-[80px] text-sm px-2 py-1" min="0" aria-label="Max" />
                 </div>
               </div>
             </div>
@@ -805,7 +805,7 @@
                       placeholder="Enter total limit"
                       required
                       class="calc-amount pr-8 !py-1 !px-2 text-sm"
-                    />
+                    aria-label="Enter total limit" />
                     <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                       <i class="fas fa-calculator"></i>
                     </button>
@@ -830,7 +830,7 @@
                       type="checkbox"
                       id="toggleCcSection"
                       class="sr-only peer"
-                    />
+                    aria-label="Toggle Cc Section" />
                     <div
                       class="w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent-500/50 rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
                     ></div>
@@ -857,7 +857,7 @@
                   <div class="flex items-center justify-between">
                     <label class="text-sm font-medium text-gray-300">Hide from Dashboard Charts</label>
                     <label class="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" id="rule_excludeFromDashboardCharts" class="sr-only peer" onchange="toggleHiddenRule('excludeFromDashboardCharts')">
+                      <input type="checkbox" id="rule_excludeFromDashboardCharts" class="sr-only peer" onchange="toggleHiddenRule('excludeFromDashboardCharts')" aria-label="Rule_exclude From Dashboard Charts">
                       <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                     </label>
                   </div>
@@ -865,7 +865,7 @@
                   <div class="flex items-center justify-between">
                     <label class="text-sm font-medium text-gray-300">Exclude from PDF Reports</label>
                     <label class="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" id="rule_excludeFromReports" class="sr-only peer" onchange="toggleHiddenRule('excludeFromReports')">
+                      <input type="checkbox" id="rule_excludeFromReports" class="sr-only peer" onchange="toggleHiddenRule('excludeFromReports')" aria-label="Rule_exclude From Reports">
                       <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                     </label>
                   </div>
@@ -880,35 +880,35 @@
                       <div class="flex items-center justify-between">
                         <label class="text-sm font-medium text-gray-300">Hide from Monthly Breakdown Totals</label>
                         <label class="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" id="rule_excludeFromMonthlyTotals" class="sr-only peer" onchange="toggleHiddenRule('excludeFromMonthlyTotals')">
+                          <input type="checkbox" id="rule_excludeFromMonthlyTotals" class="sr-only peer" onchange="toggleHiddenRule('excludeFromMonthlyTotals')" aria-label="Rule_exclude From Monthly Totals">
                           <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                         </label>
                       </div>
                       <div class="flex items-center justify-between">
                         <label class="text-sm font-medium text-gray-300">Hide from Monthly Pie Chart</label>
                         <label class="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" id="rule_excludeFromPieChart" class="sr-only peer" onchange="toggleHiddenRule('excludeFromPieChart')">
+                          <input type="checkbox" id="rule_excludeFromPieChart" class="sr-only peer" onchange="toggleHiddenRule('excludeFromPieChart')" aria-label="Rule_exclude From Pie Chart">
                           <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                         </label>
                       </div>
                       <div class="flex items-center justify-between">
                         <label class="text-sm font-medium text-gray-300">Hide from Today/Past 7 Days Stats</label>
                         <label class="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" id="rule_excludeFromQuickStats" class="sr-only peer" onchange="toggleHiddenRule('excludeFromQuickStats')">
+                          <input type="checkbox" id="rule_excludeFromQuickStats" class="sr-only peer" onchange="toggleHiddenRule('excludeFromQuickStats')" aria-label="Rule_exclude From Quick Stats">
                           <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                         </label>
                       </div>
                       <div class="flex items-center justify-between">
                         <label class="text-sm font-medium text-gray-300">Hide from Yearly Totals</label>
                         <label class="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" id="rule_excludeFromYearlyTotals" class="sr-only peer" onchange="toggleHiddenRule('excludeFromYearlyTotals')">
+                          <input type="checkbox" id="rule_excludeFromYearlyTotals" class="sr-only peer" onchange="toggleHiddenRule('excludeFromYearlyTotals')" aria-label="Rule_exclude From Yearly Totals">
                           <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                         </label>
                       </div>
                       <div class="flex items-center justify-between">
                         <label class="text-sm font-medium text-gray-300">Dim in Transaction Lists (Grey out)</label>
                         <label class="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" id="rule_dimInTransactionLists" class="sr-only peer" onchange="toggleHiddenRule('dimInTransactionLists')">
+                          <input type="checkbox" id="rule_dimInTransactionLists" class="sr-only peer" onchange="toggleHiddenRule('dimInTransactionLists')" aria-label="Rule_dim In Transaction Lists">
                           <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                         </label>
                       </div>
@@ -930,7 +930,7 @@
                     placeholder="New category name"
                     class="flex-grow !py-1 !px-2 text-sm"
                     required
-                  />
+                  aria-label="New category name" />
                   <button type="submit" class="btn btn-primary btn-sm">
                     Add
                   </button>
@@ -957,12 +957,12 @@
                   </div>
                   <div>
                     <label class="block text-sm font-medium mb-1">Budget Name <span class="text-xs text-gray-300 font-normal">(Optional if selecting a single category)</span></label>
-                    <input type="text" id="addBudgetName" placeholder="e.g. Groceries" class="w-full text-sm !px-2 !py-1">
+                    <input type="text" id="addBudgetName" placeholder="e.g. Groceries" class="w-full text-sm !px-2 !py-1" aria-label="e.g. Groceries">
                   </div>
                   <div>
                     <label class="block text-sm font-medium mb-1">Monthly Limit (LKR)</label>
                     <div class="relative flex items-center w-full">
-                      <input type="text" inputmode="decimal" autocomplete="off" id="addBudgetLimit" class="calc-amount w-full pr-8 text-sm !px-2 !py-1" placeholder="e.g. 15000.00" required step="0.01" min="0">
+                      <input type="text" inputmode="decimal" autocomplete="off" id="addBudgetLimit" class="calc-amount w-full pr-8 text-sm !px-2 !py-1" placeholder="e.g. 15000.00" required step="0.01" min="0" aria-label="e.g. 15000.00">
                       <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                         <i class="fas fa-calculator"></i>
                       </button>
@@ -977,7 +977,7 @@
               >
                 <div class="flex justify-between items-center mb-3 gap-2">
                   <h3 class="text-lg font-semibold whitespace-nowrap">Active Budgets</h3>
-                  <select id="budgetSortOrderSelect" class="text-xs pl-2 pr-8 py-1.5 transition-colors focus:outline-none bg-tertiary border border-theme rounded-md w-auto cursor-pointer appearance-none" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%239CA3AF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 0.5rem top 50%; background-size: 0.65em auto;">
+                  <select id="budgetSortOrderSelect" class="text-xs pl-2 pr-8 py-1.5 transition-colors focus:outline-none bg-tertiary border border-theme rounded-md w-auto cursor-pointer appearance-none" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%239CA3AF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 0.5rem top 50%; background-size: 0.65em auto;" aria-label="Budget Sort Order Select">
                     <option value="added">Order Added</option>
                     <option value="alpha_asc">Alphabetical (A-Z)</option>
                     <option value="limit_desc">Highest Limit</option>
@@ -1054,7 +1054,7 @@
                     <label for="settingsBackupReminderFreq" class="block text-sm font-medium text-gray-300">Local Export Reminder</label>
                     <p class="text-xs text-gray-300 mt-1">Alerts you to save an offline backup file if you haven't exported one recently.</p>
                   </div>
-                  <select id="settingsBackupReminderFreq" class="w-full sm:w-[220px] mt-2 sm:mt-0 flex-shrink-0">
+                  <select id="settingsBackupReminderFreq" class="w-full sm:w-[220px] mt-2 sm:mt-0 flex-shrink-0" aria-label="Settings Backup Reminder Freq">
                     <option value="default">Auto (Smart Schedule)</option>
                     <option value="3">Every 3 Days</option>
                     <option value="7">Weekly (7 Days)</option>
@@ -1089,7 +1089,7 @@
                         value="local"
                         class="mr-2 text-accent-500 focus:ring-accent-500"
                         checked
-                      />
+                      aria-label="Shortcut Local" />
                       Local File
                     </label>
                     <label
@@ -1103,7 +1103,7 @@
                         value="cloud"
                         class="mr-2 text-accent-500 focus:ring-accent-500"
                         disabled
-                      />
+                      aria-label="Shortcut Cloud" />
                       Cloud Backup
                     </label>
                   </div>
@@ -1121,7 +1121,7 @@
                       id="importDataInput"
                       accept=".json"
                       class="hidden"
-                  /></label>
+                  aria-label="Import Data Input" /></label>
                 </div>
                 <p class="text-xs text-gray-300 mt-2">
                   Exports create a local backup file. Imports overwrite existing
@@ -1206,7 +1206,7 @@
                     <p class="text-xs text-gray-300">Show calculator icon inside amount input fields to enable the Math Toolbar</p>
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="toggleMathToolbar" class="sr-only peer" checked>
+                    <input type="checkbox" id="toggleMathToolbar" class="sr-only peer" checked aria-label="Toggle Math Toolbar">
                     <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                   </label>
                 </div>
@@ -1222,7 +1222,7 @@
                     <p class="text-xs text-gray-300">Remove the Cash Counter from the dashboard</p>
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="toggleHideCashCounter" class="sr-only peer">
+                    <input type="checkbox" id="toggleHideCashCounter" class="sr-only peer" aria-label="Toggle Hide Cash Counter">
                     <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                   </label>
                 </div>
@@ -1233,7 +1233,7 @@
                     <p class="text-xs text-gray-300">Remove the Total Potential card (Auto-hides if 0 receivables)</p>
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="toggleHideTotalPotential" class="sr-only peer">
+                    <input type="checkbox" id="toggleHideTotalPotential" class="sr-only peer" aria-label="Toggle Hide Total Potential">
                     <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                   </label>
                 </div>
@@ -1244,7 +1244,7 @@
                     <p class="text-xs text-gray-300">Remove the I Owe / Owes Me sections from the dashboard</p>
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="toggleHideDebts" class="sr-only peer">
+                    <input type="checkbox" id="toggleHideDebts" class="sr-only peer" aria-label="Toggle Hide Debts">
                     <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                   </label>
                 </div>
@@ -1255,7 +1255,7 @@
                     <p class="text-xs text-gray-300">Remove the Installment Payments section from the dashboard</p>
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="toggleHideInstallments" class="sr-only peer">
+                    <input type="checkbox" id="toggleHideInstallments" class="sr-only peer" aria-label="Toggle Hide Installments">
                     <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                   </label>
                 </div>
@@ -1278,7 +1278,7 @@
                     <p class="text-xs text-gray-300">Require a 4-digit PIN when opening the app</p>
                   </div>
                   <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="toggleAppPin" class="sr-only peer">
+                    <input type="checkbox" id="toggleAppPin" class="sr-only peer" aria-label="Toggle App Pin">
                     <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                   </label>
                 </div>
@@ -1287,16 +1287,16 @@
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium mb-1">New 4-Digit PIN</label>
-                      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="setupPinInput" class="w-full masked-pin" placeholder="e.g. 1234">
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="setupPinInput" class="w-full masked-pin" placeholder="e.g. 1234" aria-label="e.g. 1234">
                     </div>
                     <div>
                       <label class="block text-sm font-medium mb-1">Confirm PIN</label>
-                      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="setupPinConfirm" class="w-full masked-pin" placeholder="Confirm 4 digits">
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="setupPinConfirm" class="w-full masked-pin" placeholder="Confirm 4 digits" aria-label="Confirm 4 digits">
                     </div>
                     <div>
                       <label class="block text-sm font-medium mb-1">Security Question</label>
                       <p class="text-xs text-gray-300 mb-2">Used if you forget your PIN.</p>
-                      <select id="setupSecuritySelect" class="w-full">
+                      <select id="setupSecuritySelect" class="w-full" aria-label="Setup Security Select">
                         <option value="What was the name of your first pet?">What was the name of your first pet?</option>
                         <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
                         <option value="What city were you born in?">What city were you born in?</option>
@@ -1306,7 +1306,7 @@
                     </div>
                     <div>
                       <label class="block text-sm font-medium mb-1">Answer</label>
-                      <input type="text" id="setupSecurityAnswer" class="w-full" placeholder="Type your answer" autocomplete="off">
+                      <input type="text" id="setupSecurityAnswer" class="w-full" placeholder="Type your answer" autocomplete="off" aria-label="Type your answer">
                     </div>
                   </div>
                   <div class="flex gap-2 justify-end">
@@ -1333,15 +1333,15 @@
                 <div id="securityInlineChange" class="hidden space-y-4 pt-4 border-t border-gray-600">
                   <div>
                     <label class="block text-sm font-medium mb-1">Current PIN</label>
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changePinCurrent" class="w-full masked-pin">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changePinCurrent" class="w-full masked-pin" aria-label="Change Pin Current">
                   </div>
                   <div>
                     <label class="block text-sm font-medium mb-1">New 4-Digit PIN</label>
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changePinNew" class="w-full masked-pin">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changePinNew" class="w-full masked-pin" aria-label="Change Pin New">
                   </div>
                   <div>
                     <label class="block text-sm font-medium mb-1">Confirm New PIN</label>
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changePinConfirm" class="w-full masked-pin">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changePinConfirm" class="w-full masked-pin" aria-label="Change Pin Confirm">
                   </div>
                   <div class="flex gap-2 justify-end">
                     <button type="button" class="btn btn-secondary text-sm" id="btnCancelPinChange">Cancel</button>
@@ -1352,11 +1352,11 @@
                 <div id="securityInlineChangeQuestion" class="hidden space-y-4 pt-4 border-t border-gray-600">
                   <div>
                     <label class="block text-sm font-medium mb-1">Current PIN</label>
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changeQuestionPinCurrent" class="w-full masked-pin">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="changeQuestionPinCurrent" class="w-full masked-pin" aria-label="Change Question Pin Current">
                   </div>
                   <div>
                     <label class="block text-sm font-medium mb-1">New Security Question</label>
-                    <select id="changeQuestionSelect" class="w-full">
+                    <select id="changeQuestionSelect" class="w-full" aria-label="Change Question Select">
                       <option value="What was the name of your first pet?">What was the name of your first pet?</option>
                       <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
                       <option value="What city were you born in?">What city were you born in?</option>
@@ -1366,7 +1366,7 @@
                   </div>
                   <div>
                     <label class="block text-sm font-medium mb-1">New Answer</label>
-                    <input type="text" id="changeQuestionAnswer" class="w-full" placeholder="Type your answer" autocomplete="off">
+                    <input type="text" id="changeQuestionAnswer" class="w-full" placeholder="Type your answer" autocomplete="off" aria-label="Type your answer">
                   </div>
                   <div class="flex gap-2 justify-end">
                     <button type="button" class="btn btn-secondary text-sm" id="btnCancelQuestionChange">Cancel</button>
@@ -1378,7 +1378,7 @@
                   <p class="text-sm text-gray-300">Enter your current PIN to completely remove security settings.</p>
                   <div>
                     <label class="block text-sm font-medium mb-1">Current PIN</label>
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="removePinCurrent" class="w-full masked-pin">
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="removePinCurrent" class="w-full masked-pin" aria-label="Remove Pin Current">
                   </div>
                   <div class="flex gap-2 justify-end">
                     <button type="button" class="btn btn-secondary text-sm" id="btnCancelPinRemove">Cancel</button>
@@ -1484,7 +1484,7 @@
                 </button>
                 <label class="btn btn-secondary text-sm cursor-pointer flex-1 sm:flex-none justify-center m-0 whitespace-nowrap">
                   <i class="fas fa-file-import mr-2"></i>Local File
-                  <input type="file" id="setupImportInput" accept=".json" class="hidden" />
+                  <input type="file" id="setupImportInput" accept=".json" class="hidden" aria-label="Setup Import Input" />
                 </label>
               </div>
             </div>
@@ -1515,7 +1515,7 @@
                     name="setupEnableCc"
                     class="sr-only peer"
                     checked
-                  />
+                  aria-label="Setup Enable Cc" />
                   <div
                     class="w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-accent-500/50 rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
                   ></div>
@@ -1533,7 +1533,7 @@
                   step="0.01"
                   min="0"
                   placeholder="e.g., 100000"
-                />
+                aria-label="e.g., 100000" />
                 <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                   <i class="fas fa-calculator"></i>
                 </button>
@@ -1553,7 +1553,7 @@
                   id="setupNewCategoryName"
                   placeholder="Add custom category"
                   class="flex-grow !py-1.5 !px-2 text-sm"
-                />
+                aria-label="Add custom category" />
                 <button
                   type="button"
                   id="setupAddCategoryBtn"
@@ -1672,7 +1672,7 @@
                   min="0"
                   placeholder="Amount to transfer"
                   required
-                />
+                aria-label="Amount to transfer" />
                 <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                   <i class="fas fa-calculator"></i>
                 </button>
@@ -1687,14 +1687,14 @@
                 id="modalTransferFrom"
                 name="transferFrom"
                 required
-              ></select>
+               aria-label="Modal Transfer From"></select>
             </div>
             <div>
               <label
                 for="modalTransferTo"
                 class="block text-sm font-medium mb-1"
                 >To Account</label
-              ><select id="modalTransferTo" name="transferTo" required></select>
+              ><select id="modalTransferTo" name="transferTo" required aria-label="Modal Transfer To"></select>
             </div>
             <p id="modalTransferError" class="text-red-500 text-sm mt-1 hidden">
               From and To accounts cannot be the same.
@@ -1735,7 +1735,7 @@
           <div id="ccHistoryNavigationRow" class="flex flex-col sm:flex-row justify-between items-center mb-4 border-b border-gray-600 pb-2 gap-2">
             <div class="flex items-center gap-x-2 w-full sm:w-auto justify-between sm:justify-start">
               <div class="flex-shrink-0 flex items-center gap-x-2">
-                <select id="ccYearSelector" class="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm outline-none hover:bg-gray-600 transition-colors cursor-pointer"></select>
+                <select id="ccYearSelector" class="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm outline-none hover:bg-gray-600 transition-colors cursor-pointer" aria-label="Cc Year Selector"></select>
               </div>
             </div>
             <div id="ccMonthTabs" class="flex overflow-x-auto whitespace-nowrap gap-x-2 hide-scrollbar edge-fade py-1 px-4 max-w-full"></div>
@@ -1745,7 +1745,7 @@
           <div class="my-4 flex flex-col sm:flex-row items-center gap-2">
             <div class="flex-grow w-full flex flex-col sm:flex-row items-start sm:items-center gap-2">
               <div class="flex-grow w-full flex items-center gap-x-2">
-                <input type="search" id="ccHistorySearchInput" name="ccHistorySearch" placeholder="Search description or amount..." class="flex-grow bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm outline-none text-white focus:border-accent-500 transition-colors" />
+                <input type="search" id="ccHistorySearchInput" name="ccHistorySearch" placeholder="Search description or amount..." class="flex-grow bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm outline-none text-white focus:border-accent-500 transition-colors" aria-label="Search description or amount..." />
                 <button id="clearCcHistorySearchBtn" class="btn-icon-clear-search hidden flex-shrink-0" aria-label="Clear search" data-tooltip="Clear Search">
                   <i class="fas fa-times text-gray-300 hover:text-white transition-colors"></i>
                 </button>
@@ -1870,12 +1870,12 @@
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Budget Name <span class="text-xs text-gray-300 font-normal">(Optional if selecting a single category)</span></label>
-              <input type="text" id="editBudgetName" placeholder="e.g. Groceries" class="w-full text-sm !px-2 !py-1">
+              <input type="text" id="editBudgetName" placeholder="e.g. Groceries" class="w-full text-sm !px-2 !py-1" aria-label="e.g. Groceries">
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Monthly Limit (LKR)</label>
               <div class="relative flex items-center w-full">
-                <input type="text" inputmode="decimal" autocomplete="off" id="editBudgetLimit" class="calc-amount w-full pr-8 text-sm !px-2 !py-1" placeholder="e.g. 15000.00" required step="0.01" min="0">
+                <input type="text" inputmode="decimal" autocomplete="off" id="editBudgetLimit" class="calc-amount w-full pr-8 text-sm !px-2 !py-1" placeholder="e.g. 15000.00" required step="0.01" min="0" aria-label="e.g. 15000.00">
                 <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                   <i class="fas fa-calculator"></i>
                 </button>
