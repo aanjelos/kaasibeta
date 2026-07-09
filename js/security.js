@@ -41,13 +41,17 @@ function onAppUnlocked() {
   const appContainer = document.getElementById("appContainer");
   if (appContainer) appContainer.classList.remove("hidden");
 
+  let isFirstUnlock = false;
   if (!window.uiInitialized) {
+    isFirstUnlock = true;
     if (typeof initializeUI === "function") initializeUI();
     if (typeof initializeGlobalTooltips === "function") initializeGlobalTooltips();
     
     const preloaderElement = document.getElementById("preloader");
     if (preloaderElement) {
-      preloaderElement.style.display = "flex";
+      preloaderElement.style.display = "block";
+      // Force reflow
+      void preloaderElement.offsetWidth;
       preloaderElement.classList.remove("hidden");
       if (typeof executePreloaderSequence === "function") executePreloaderSequence();
     }
@@ -55,13 +59,20 @@ function onAppUnlocked() {
 
   const pinLockOverlay = document.getElementById("pinLockOverlay");
   if (pinLockOverlay) {
-    pinLockOverlay.style.opacity = "0";
-    setTimeout(() => {
+    if (isFirstUnlock) {
+      // Hide instantly so the preloader is visible without a crossfade
       pinLockOverlay.classList.add("hidden");
-      if (typeof renderDashboard === "function") {
-        renderDashboard();
-      }
-    }, 500); // Wait for fade out
+      pinLockOverlay.style.opacity = "0";
+      if (typeof renderDashboard === "function") renderDashboard();
+    } else {
+      pinLockOverlay.style.opacity = "0";
+      setTimeout(() => {
+        pinLockOverlay.classList.add("hidden");
+        if (typeof renderDashboard === "function") {
+          renderDashboard();
+        }
+      }, 500); // Wait for fade out
+    }
   }
   
   if (lockScreenKeydownListener) {
