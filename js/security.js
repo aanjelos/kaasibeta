@@ -44,6 +44,13 @@ function onAppUnlocked() {
   if (!window.uiInitialized) {
     if (typeof initializeUI === "function") initializeUI();
     if (typeof initializeGlobalTooltips === "function") initializeGlobalTooltips();
+    
+    const preloaderElement = document.getElementById("preloader");
+    if (preloaderElement) {
+      preloaderElement.style.display = "flex";
+      preloaderElement.classList.remove("hidden");
+      if (typeof executePreloaderSequence === "function") executePreloaderSequence();
+    }
   }
 
   const pinLockOverlay = document.getElementById("pinLockOverlay");

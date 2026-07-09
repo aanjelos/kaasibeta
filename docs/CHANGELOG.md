@@ -518,8 +518,9 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Accurate Expense Tracking**: Transfer fees are now logged as separate expense transactions under a customizable 'Bank Charges' category, allowing users to accurately track transaction costs without inflating standard income or expense figures. 
 - **Settings Integration**: Added a new default transfer fee configuration in Settings -> Accounts.
 
-### 100. [Security] Deferred DOM Initialization (v5.319m)
+### 100. [Security] Deferred DOM Initialization (v5.320m)
 - **Hardened PIN Lock**: Refactored the application's bootstrap sequence. If the PIN lock is enabled, the core UI and data rendering is strictly deferred until *after* a successful unlock. This completely eliminates a vulnerability where a user could bypass the lock screen using browser developer tools (Inspect Element) to reveal underlying rendered financial data.
+- **Secure Preloader Sequence**: The startup preloader animations and tooltips are now correctly queued to display *after* the PIN is successfully bypassed, preserving the loading experience without compromising security.
 
 ### 101. [Enhancement] Accessibility Improvements
 - **Aria Labels**: Added missing aria-labels to various buttons and interactive elements across the application to improve screen reader accessibility and navigation.

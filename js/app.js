@@ -888,10 +888,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const appContainer = document.getElementById("appContainer");
     if (appContainer) appContainer.classList.add("hidden");
     
+    // Hide preloader so it doesn't run its timer in the background
+    const preloaderElement = document.getElementById("preloader");
+    if (preloaderElement) {
+      preloaderElement.style.display = "none";
+      preloaderElement.classList.add("hidden");
+    }
+    
     showPinLockScreen();
   } else {
     initializeUI(); // Set up all initial UI elements, event listeners, and render initial views
     initializeGlobalTooltips(); // Initialize the global tooltip handler
+    if (typeof executePreloaderSequence === "function") executePreloaderSequence();
     onAppUnlocked();
   }
 
@@ -931,6 +939,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Event listener to update date fields and attempt to focus window when tab becomes visible
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      console.log("Page became visible, attempting to focus and update dates.");
+      window.focus(); // Attempt to bring focus to the window/document
+
+      const mainTransactionDateInput = $("#date"); // Main transaction form date
+      if (mainTransactionDateInput) {
+        mainTransactionDateInput.value = getCurrentDateString(); // Use local date
+      }
+
+      const ccTransactionDateInput = $("#ccDate"); // Credit Card transaction form date
+      if (ccTransactionDateInput) {
+        ccTransactionDateInput.value = getCurrentDateString(); // Use local date
+      }
+    }
+  });
+});
+
+window.executePreloaderSequence = function() {
   // Preloader logic
   const preloaderElement = document.getElementById("preloader");
   const appContentElement = document.getElementById("app-content");
@@ -1041,7 +1069,7 @@ document.addEventListener("DOMContentLoaded", () => {
       preloaderElement.style.display = "none";
     }
   }
-});
+};
 
 // --- PWA Offline Support & Install Logic ---
 let deferredPrompt;
