@@ -4,6 +4,8 @@
  * Sets up UI, event listeners, and coordinates core components.
  */
 function initializeUI(isRefresh = false) {
+  if (window.uiInitialized && !isRefresh) return;
+  window.uiInitialized = true;
   console.log("Initializing UI...");
 
   // --- NEW: Initialize Supabase and check auth state ---
@@ -880,12 +882,16 @@ let lastCloudSyncTimeString = "";
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM Loaded. Initializing...");
   loadData(); // Load existing data or set up default state
-  initializeUI(); // Set up all initial UI elements, event listeners, and render initial views
-  initializeGlobalTooltips(); // Initialize the global tooltip handler
   
   if (state.settings && state.settings.appPin && state.settings.appPin.enabled) {
+    // Hide main container until unlocked to prevent inspect-element vulnerability
+    const appContainer = document.getElementById("appContainer");
+    if (appContainer) appContainer.classList.add("hidden");
+    
     showPinLockScreen();
   } else {
+    initializeUI(); // Set up all initial UI elements, event listeners, and render initial views
+    initializeGlobalTooltips(); // Initialize the global tooltip handler
     onAppUnlocked();
   }
 

@@ -38,6 +38,14 @@ function showPinLockScreen() {
 }
 
 function onAppUnlocked() {
+  const appContainer = document.getElementById("appContainer");
+  if (appContainer) appContainer.classList.remove("hidden");
+
+  if (!window.uiInitialized) {
+    if (typeof initializeUI === "function") initializeUI();
+    if (typeof initializeGlobalTooltips === "function") initializeGlobalTooltips();
+  }
+
   const pinLockOverlay = document.getElementById("pinLockOverlay");
   if (pinLockOverlay) {
     pinLockOverlay.style.opacity = "0";
