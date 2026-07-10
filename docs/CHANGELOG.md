@@ -523,4 +523,4 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Secure Preloader Sequence**: The startup preloader animations and tooltips are now correctly queued to display *after* the PIN is successfully bypassed, preserving the loading experience without compromising security.
 
 ### 101. [Enhancement] Accessibility Improvements
-- **Aria Labels**: Added missing aria-labels to various buttons and interactive elements across the application to improve screen reader accessibility and navigation.
+- **Aria Labels**: Added missing aria-labels to various buttons and interactive elements across the application to improve screen reader accessibility and navigation.102. Fixed an issue where the Fee Category and Fee Description inputs wouldn't instantly grey out and disable when Transfer Fee is set to 0. (v5.323m)
