@@ -576,6 +576,7 @@ function handleTransactionSubmit(event) {
 
     saveData();
     renderDashboard();
+    populateDropdowns();
     form.reset();
     const ts = $("#transactionType");
     if (ts) {
