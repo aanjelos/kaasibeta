@@ -657,6 +657,52 @@ function initializeUI(isRefresh = false) {
     if (transferAccountsGroup) transferAccountsGroup.style.display = isTransfer ? "block" : "none";
     if (transferFeeGroup) transferFeeGroup.style.display = isTransfer ? "block" : "none";
 
+    const toggleFeeDetails = () => {
+      const feeInput = $("#transferFee");
+      if (!feeInput || transactionTypeSelect.value !== "transfer") return;
+      const feeVal = parseFloat(String(feeInput.value).replace(/,/g, ''));
+      const shouldDisable = isNaN(feeVal) || feeVal <= 0;
+      
+      const descGroup = descriptionInput ? descriptionInput.parentElement : null;
+      
+      if (shouldDisable) {
+        if (categoryGroup) categoryGroup.classList.add('opacity-50', 'pointer-events-none', 'transition-opacity', 'duration-300');
+        if (descGroup) descGroup.classList.add('opacity-50', 'pointer-events-none', 'transition-opacity', 'duration-300');
+        
+        if (descriptionInput) descriptionInput.value = "-";
+        if (categorySelect) {
+           let dashOpt = categorySelect.querySelector('option[value="-disabled-"]');
+           if (!dashOpt) {
+             dashOpt = document.createElement("option");
+             dashOpt.value = "-disabled-";
+             dashOpt.textContent = "-";
+             categorySelect.insertBefore(dashOpt, categorySelect.firstChild);
+           }
+           categorySelect.value = "-disabled-";
+        }
+      } else {
+        if (categoryGroup) categoryGroup.classList.remove('opacity-50', 'pointer-events-none');
+        if (descGroup) descGroup.classList.remove('opacity-50', 'pointer-events-none');
+        
+        if (categorySelect) {
+          const dashOpt = categorySelect.querySelector('option[value="-disabled-"]');
+          if (dashOpt) dashOpt.remove();
+          
+          if (!categorySelect.value || categorySelect.value === "-disabled-") {
+            const defaultCat = state.settings.defaultTransferFeeCategory || "Bank Charges";
+            if (Array.from(categorySelect.options).some(opt => opt.value === defaultCat)) {
+              categorySelect.value = defaultCat;
+            } else if (categorySelect.options.length > 1) {
+               categorySelect.value = categorySelect.options[1].value;
+            }
+          }
+        }
+        if (descriptionInput && (descriptionInput.value === "-" || !descriptionInput.value)) {
+          descriptionInput.value = "Transfer Fee";
+        }
+      }
+    };
+
     if (categoryGroup) {
       if (isIncome) {
         categoryGroup.style.display = "none";
@@ -664,7 +710,7 @@ function initializeUI(isRefresh = false) {
         if (descriptionLabel) descriptionLabel.textContent = "Description";
         if (descriptionInput) {
           descriptionInput.placeholder = "e.g., Monthly Salary";
-          if (descriptionInput.value === "Transfer Fee") descriptionInput.value = "";
+          if (descriptionInput.value === "Transfer Fee" || descriptionInput.value === "-") descriptionInput.value = "";
         }
       } else if (isTransfer) {
         categoryGroup.style.display = "block";
@@ -683,20 +729,36 @@ function initializeUI(isRefresh = false) {
             categorySelect.value = defaultCat;
           }
         }
-        // Pre-fill default transfer fee
+        
+        // Setup toggle Fee Details on input
         const feeInput = $("#transferFee");
-        if (feeInput && !feeInput.value) {
-          feeInput.value = state.settings.defaultTransferFee !== undefined ? state.settings.defaultTransferFee : 25;
+        if (feeInput) {
+          if (!feeInput.value) {
+            feeInput.value = state.settings.defaultTransferFee !== undefined ? state.settings.defaultTransferFee : 25;
+          }
+          feeInput.removeEventListener("input", toggleFeeDetails);
+          feeInput.addEventListener("input", toggleFeeDetails);
+          toggleFeeDetails(); // Initial evaluate
         }
       } else {
         // Expense
         categoryGroup.style.display = "block";
+        
+        // Clean up classes if switching from transfer
+        const descGroup = descriptionInput ? descriptionInput.parentElement : null;
+        if (categoryGroup) categoryGroup.classList.remove('opacity-50', 'pointer-events-none');
+        if (descGroup) descGroup.classList.remove('opacity-50', 'pointer-events-none');
+        if (categorySelect) {
+          const dashOpt = categorySelect.querySelector('option[value="-disabled-"]');
+          if (dashOpt) dashOpt.remove();
+        }
+
         if (categorySelect) categorySelect.required = true;
         if (categoryLabel) categoryLabel.textContent = "Category";
         if (descriptionLabel) descriptionLabel.textContent = "Description";
         if (descriptionInput) {
           descriptionInput.placeholder = "e.g., Lunch, Groceries";
-          if (descriptionInput.value === "Transfer Fee") descriptionInput.value = "";
+          if (descriptionInput.value === "Transfer Fee" || descriptionInput.value === "-") descriptionInput.value = "";
         }
       }
     }
