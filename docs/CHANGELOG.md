@@ -523,6 +523,13 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Secure Preloader Sequence**: The startup preloader animations and tooltips are now correctly queued to display *after* the PIN is successfully bypassed, preserving the loading experience without compromising security.
 
 ### 101. [Enhancement] Accessibility Improvements
-- **Aria Labels**: Added missing aria-labels to various buttons and interactive elements across the application to improve screen reader accessibility and navigation.102. Fixed an issue where the Fee Category and Fee Description inputs wouldn't instantly grey out and disable when Transfer Fee is set to 0. (v5.323m)
-103. Fixed off-brand bluish backgrounds in CC history bulk-pay floating bar and item categorization alert by swapping Tailwind gray utilities for Kaasi's custom theme variables. (v5.324m)
-104. Upgraded the monthly pie chart to a modern doughnut chart with curated colors, negative space borders, rounded slices, interactive hover offsets, and automatic grouping for slices under 3%. (v5.325m)
+- **Aria Labels**: Added missing aria-labels to various buttons and interactive elements across the application to improve screen reader accessibility and navigation.
+
+### 102. [Bugfix] Transfer Fee Disabling UI (v5.323m)
+- Fixed an issue where the Fee Category and Fee Description inputs wouldn't instantly grey out and disable when Transfer Fee is set to 0.
+
+### 103. [UI Polish] CC History Color Adjustments (v5.324m)
+- Fixed off-brand bluish backgrounds in CC history bulk-pay floating bar and item categorization alert by swapping Tailwind gray utilities for Kaasi's custom theme variables.
+
+### 104. [Feature] Modernized Dashboard Charts (v5.325m)
+- Upgraded the monthly pie chart to a modern doughnut chart with curated colors, negative space borders, rounded slices, interactive hover offsets, and automatic grouping for slices under 3%.
