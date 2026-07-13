@@ -542,3 +542,6 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 ### 106. [UI Polish] Chart Readability and Titles (v5.327m)
 - Fixed a contrast issue where the percentage text inside the new doughnut chart center hover became illegible against certain darker brand colors. The text is now locked to a highly readable, theme-appropriate light grey while retaining the slice-colored 20% opacity background.
 - Cleaned up the chart section headers by removing the redundant "(Full Month)" labels and ensuring both "Category Summary" and "Category Distribution" titles are consistently center-aligned.
+
+### 107. [UI Polish] Chart Hover Pill Opacity (v5.328m)
+- Increased the background opacity of the percentage badge inside the doughnut chart center hover from 12.5% to 25% to make the slice color more distinct and punchy.
