@@ -624,49 +624,73 @@ function renderMonthlyPieChart(data, isUpdate = false) {
   const computedStyle = getComputedStyle(document.documentElement);
   const chartTooltipBg = computedStyle.getPropertyValue("--chart-tooltip-bg").trim() || "rgba(0,0,0,0.85)";
   const chartTooltipText = computedStyle.getPropertyValue("--chart-tooltip-text").trim() || "#fff";
+  const bgTertiary = computedStyle.getPropertyValue("--bg-tertiary").trim() || "#2c2c2c";
 
+  // Refined, cohesive modern palette
   const brandPiePalette = [
-    "#e67e26",
-    "#2a9d8f",
-    "#e74c3c",
-    "#3498db",
-    "#f1c40f",
-    "#9b59b6",
-    "#34495e",
-    "#1abc9c",
-    "#7f8c8d",
-    "#2ecc71",
-    "#d35400",
-    "#2a9d8f",
-    "#e74c3c",
+    "#e67e26", // Brand Orange
+    "#2a9d8f", // Teal
+    "#e9c46a", // Soft Yellow
+    "#e76f51", // Burnt Orange
+    "#3498db", // Blue
+    "#9b59b6", // Soft Purple
+    "#1abc9c", // Mint
+    "#f4a261", // Light Orange
+    "#34495e", // Slate
+    "#d35400", // Dark Orange
+    "#6c7a89", // Gray (usually for "Other")
   ];
-  const backgroundColors = data.labels.map(
-    (_, index) => brandPiePalette[index % brandPiePalette.length]
-  );
+
+  // Group smaller slices into "Other"
+  let total = data.values.reduce((sum, val) => sum + val, 0);
+  let processedLabels = [];
+  let processedValues = [];
+  let otherSum = 0;
+
+  for (let i = 0; i < data.values.length; i++) {
+    // If slice is less than 3% and we have more than 5 categories, group it
+    if (data.values[i] / total < 0.03 && data.values.length > 5) {
+      otherSum += data.values[i];
+    } else {
+      processedLabels.push(data.labels[i]);
+      processedValues.push(data.values[i]);
+    }
+  }
+
+  if (otherSum > 0) {
+    processedLabels.push("Other");
+    processedValues.push(otherSum);
+  }
+
+  const backgroundColors = processedLabels.map((label, index) => {
+    if (label === "Other") return "#5e6a75"; // Specific muted color for Other
+    return brandPiePalette[index % (brandPiePalette.length - 1)];
+  });
 
   if (monthlyPieChartInstance) {
-    monthlyPieChartInstance.data.labels = data.labels;
-    monthlyPieChartInstance.data.datasets[0].data = data.values;
+    monthlyPieChartInstance.data.labels = processedLabels;
+    monthlyPieChartInstance.data.datasets[0].data = processedValues;
     monthlyPieChartInstance.data.datasets[0].backgroundColor = backgroundColors;
     monthlyPieChartInstance.update();
   } else {
     monthlyPieChartInstance = new Chart(ctx, {
-      type: "pie",
+      type: "doughnut",
       data: {
-        labels: data.labels,
+        labels: processedLabels,
         datasets: [
           {
-            label: "Expenses by Category",
-            data: data.values,
+            label: "Expenses",
+            data: processedValues,
             backgroundColor: backgroundColors,
-            borderColor: "var(--bg-secondary)",
-            borderWidth: 1,
-            hoverOffset: 8,
-            hoverBorderColor: "var(--text-primary)",
+            borderColor: bgTertiary,
+            borderWidth: 2,
+            hoverOffset: 6,
+            borderRadius: 4,
           },
         ],
       },
       options: {
+        cutout: "65%",
         animation: isUpdate ? false : { animateRotate: true, animateScale: true },
         responsive: true,
         maintainAspectRatio: false,
@@ -678,9 +702,10 @@ function renderMonthlyPieChart(data, isUpdate = false) {
             backgroundColor: chartTooltipBg,
             titleColor: chartTooltipText,
             bodyColor: chartTooltipText,
-            padding: 12,
-            cornerRadius: 4,
-            usePointStyle: true,
+            borderColor: "rgba(255,255,255,0.1)",
+            borderWidth: 1,
+            padding: 10,
+            cornerRadius: 8,
             callbacks: {
               label: function (context) {
                 let label = context.label || "";
@@ -691,12 +716,12 @@ function renderMonthlyPieChart(data, isUpdate = false) {
                   label += formatCurrency(context.parsed);
 
                   const datasetMeta = context.chart.getDatasetMeta(0);
-                  const total =
+                  const datasetTotal =
                     datasetMeta.total ||
                     datasetMeta.data.reduce((sum, el) => sum + el.raw, 0);
                   const percentage =
-                    total > 0
-                      ? ((context.parsed / total) * 100).toFixed(1) + "%"
+                    datasetTotal > 0
+                      ? ((context.parsed / datasetTotal) * 100).toFixed(1) + "%"
                       : "0.0%";
                   label += ` (${percentage})`;
                 }
