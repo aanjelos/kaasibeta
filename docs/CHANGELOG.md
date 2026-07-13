@@ -558,3 +558,6 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 
 ### 111. [Hotfix] Missing Empty States (v5.332m)
 - Fixed an issue where the "All Transactions" search modal and the "Category Summary" list were still displaying the old plain-text empty states. They have now been updated to match the new UI.
+
+### 112. [Bugfix] Missing Chart Empty State on Search (v5.333m)
+- Fixed a logic bug in the transaction rendering sequence where the beautiful chart empty state (the muted pie chart icon) would fail to render if a chart instance had previously been loaded. The fallback state is now reliably injected whenever the filtered categories list is empty.

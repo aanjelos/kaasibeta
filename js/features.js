@@ -1781,13 +1781,11 @@ function renderMonthlyDetails(
       values: pieDataCategories.map(([_, a]) => a),
     };
     setTimeout(() => renderMonthlyPieChart(pieData, isUpdate), 100);
-  } else if (sortedCategories.length === 0 && monthlyPieChartInstance) {
-    monthlyPieChartInstance.destroy();
-    monthlyPieChartInstance = null;
-  } else if (
-    sortedCategories.length === 0 &&
-    !document.getElementById("monthlyDetailPieChartCanvas")
-  ) {
+  } else if (sortedCategories.length === 0) {
+    if (monthlyPieChartInstance) {
+      monthlyPieChartInstance.destroy();
+      monthlyPieChartInstance = null;
+    }
     const noChartCard = document.createElement("div");
     noChartCard.className =
       "p-4 rounded-lg h-72 md:h-80 flex items-center justify-center";
