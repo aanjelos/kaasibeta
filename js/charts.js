@@ -535,6 +535,7 @@ function renderMonthlyOverviewChart() {
     
     // Update theme-dependent options in case the user toggled light/dark mode
     if (monthlyOverviewChartInstance.options && monthlyOverviewChartInstance.options.scales) {
+      monthlyOverviewChartInstance.options.scales.x.offset = (dashboardChartState === "monthly");
       monthlyOverviewChartInstance.options.scales.y.ticks.color = chartTickColor;
       monthlyOverviewChartInstance.options.scales.y.grid.color = chartGridColor;
       monthlyOverviewChartInstance.options.scales.x.ticks.color = chartTickColor;
@@ -572,6 +573,7 @@ function renderMonthlyOverviewChart() {
           x: {
             ticks: { color: chartTickColor },
             grid: { display: false },
+            offset: (dashboardChartState === "monthly"),
           },
         },
         plugins: {

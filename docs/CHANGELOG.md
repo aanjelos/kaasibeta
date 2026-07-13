@@ -549,3 +549,6 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 ### 108. [UI/UX] Daily Expense Bar Chart (v5.329m)
 - Transformed the "Daily Expenses (Current Month)" chart from a line graph into a bar graph to better represent the fluctuating, discrete nature of daily spending without misleading smoothing curves.
 - Maintained the dual line-graph format for the "Monthly Income vs Expenses" (Yearly overview) where smoothing is appropriate for long-term trend analysis.
+
+### 109. [Hotfix] Chart Clipping (v5.330m)
+- Fixed an issue where the first and last bars of the new daily expense bar chart were getting clipped by the Y-axis. Added a dynamic X-axis offset that activates specifically for the bar chart layout to ensure the entire bars are visible.
