@@ -555,3 +555,6 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 
 ### 110. [UI Polish] Beautiful Empty States (v5.331m)
 - Redesigned all empty states across the application (Recent Transactions, Debts, Installments, Charts, Search) to feature elegant, muted iconography and centered typography, replacing the old, plain gray text.
+
+### 111. [Hotfix] Missing Empty States (v5.332m)
+- Fixed an issue where the "All Transactions" search modal and the "Category Summary" list were still displaying the old plain-text empty states. They have now been updated to match the new UI.

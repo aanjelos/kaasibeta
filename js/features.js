@@ -1512,12 +1512,10 @@ function renderMonthlyDetails(
   // --- END FIX ---
 
   if (transactionsToDisplay.length === 0) {
-    const noTransactionsP = document.createElement("p");
-    noTransactionsP.className = "text-gray-400 text-center py-4";
-    noTransactionsP.textContent = searchTerm
-      ? "No transactions match your search."
-      : "No transactions for this period.";
-    transactionListSection.appendChild(noTransactionsP);
+    const noTransactionsDiv = document.createElement("div");
+    const msg = searchTerm ? "No transactions match your search" : "No transactions for this period";
+    noTransactionsDiv.innerHTML = `<div class="flex flex-col items-center justify-center py-12 text-gray-500"><i class="fas fa-search text-4xl mb-3 opacity-40"></i><p class="text-sm font-medium">${msg}</p></div>`;
+    transactionListSection.appendChild(noTransactionsDiv);
   } else {
     const transactionsByDay = transactionsToDisplay.reduce((acc, t) => {
       const dayKey = new Date(t.date).toLocaleDateString("en-CA");
@@ -1721,8 +1719,7 @@ function renderMonthlyDetails(
       categoryList.appendChild(li);
     });
   } else {
-    categoryList.innerHTML =
-      '<li class="text-gray-400 text-sm">No expenses in any category this month.</li>';
+      categoryList.innerHTML = '<li class="flex flex-col items-center justify-center py-8 text-gray-500"><i class="fas fa-folder-open text-3xl mb-3 opacity-40"></i><p class="text-sm font-medium">No expenses this month</p></li>';
   }
   summaryCard.appendChild(categoryList);
   categorySection.appendChild(summaryCard);
