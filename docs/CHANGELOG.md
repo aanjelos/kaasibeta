@@ -525,3 +525,4 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 ### 101. [Enhancement] Accessibility Improvements
 - **Aria Labels**: Added missing aria-labels to various buttons and interactive elements across the application to improve screen reader accessibility and navigation.102. Fixed an issue where the Fee Category and Fee Description inputs wouldn't instantly grey out and disable when Transfer Fee is set to 0. (v5.323m)
 103. Fixed off-brand bluish backgrounds in CC history bulk-pay floating bar and item categorization alert by swapping Tailwind gray utilities for Kaasi's custom theme variables. (v5.324m)
+104. Upgraded the monthly pie chart to a modern doughnut chart with curated colors, negative space borders, rounded slices, interactive hover offsets, and automatic grouping for slices under 3%. (v5.325m)
