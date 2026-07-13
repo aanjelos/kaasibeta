@@ -538,3 +538,7 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - Disabled the traditional floating tooltip on the dashboard doughnut chart.
 - Implemented a dynamic HTML overlay locked to the absolute center of the doughnut. Hovering or tapping a slice now smoothly populates the center hollow with the category name, exact amount, and percentage representation. 
 - Adjusted the slice grouping threshold down from 3% to 2% to reveal more distinct categories before bundling into "Other".
+
+### 106. [UI Polish] Chart Readability and Titles (v5.327m)
+- Fixed a contrast issue where the percentage text inside the new doughnut chart center hover became illegible against certain darker brand colors. The text is now locked to a highly readable, theme-appropriate light grey while retaining the slice-colored 20% opacity background.
+- Cleaned up the chart section headers by removing the redundant "(Full Month)" labels and ensuring both "Category Summary" and "Category Distribution" titles are consistently center-aligned.

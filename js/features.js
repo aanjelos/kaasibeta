@@ -1701,7 +1701,7 @@ function renderMonthlyDetails(
   const summaryCard = document.createElement("div");
   summaryCard.className = "p-4 rounded-lg";
   summaryCard.style.backgroundColor = "var(--bg-tertiary)";
-  summaryCard.innerHTML = `<h3 class="text-lg font-semibold mb-3">Category Summary (Full Month)</h3>`;
+  summaryCard.innerHTML = `<h3 class="text-lg font-semibold mb-3 text-center">Category Summary</h3>`;
   const categoryList = document.createElement("ul");
   categoryList.className =
     "monthly-view-category-list space-y-1 text-sm max-h-48 overflow-y-auto pr-2";
@@ -1740,7 +1740,7 @@ function renderMonthlyDetails(
       chartCard.style.backgroundColor = "var(--bg-tertiary)";
       const titleEl = document.createElement("h3");
       titleEl.className = "text-lg font-semibold mb-3 text-center";
-      titleEl.textContent = "Category Distribution (Full Month)";
+      titleEl.textContent = "Category Distribution";
       chartCard.appendChild(titleEl);
       const wrapper = document.createElement("div");
       wrapper.className = "flex-grow relative w-full min-h-0 flex items-center justify-center";

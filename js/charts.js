@@ -718,7 +718,7 @@ function renderMonthlyPieChart(data, isUpdate = false) {
             centerPercentage.textContent = percentage;
             // Add a subtle 20% opacity background of the exact slice color
             centerPercentage.style.backgroundColor = color + "20"; 
-            centerPercentage.style.color = color;
+            centerPercentage.style.color = chartTooltipText;
 
             centerInfo.classList.remove("opacity-0");
           } else {
