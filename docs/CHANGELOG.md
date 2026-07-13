@@ -564,3 +564,6 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 
 ### 113. [UI Polish] Pie Chart Default Center Text (v5.334m)
 - The center of the dashboard doughnut chart now defaults to displaying the "Total" expenses across all categories when no specific slice is being hovered, eliminating the empty dead space.
+
+### 114. [Hotfix] Chart Rendering Syntax Error (v5.335m)
+- Fixed a syntax error in the pie chart configuration introduced in the previous update that caused the entire chart rendering module to fail.

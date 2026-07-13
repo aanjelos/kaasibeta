@@ -736,6 +736,7 @@ function renderMonthlyPieChart(data, isUpdate = false) {
             enabled: false,
           },
         },
+      },
     });
     
     // Set initial state
