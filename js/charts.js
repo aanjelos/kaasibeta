@@ -452,17 +452,13 @@ function renderMonthlyOverviewChart() {
 
     chartDatasets = [
       {
+        type: "bar",
         label: "Daily Expense",
         data: dailyExpenseData,
-        borderColor: expenseColor,
-        backgroundColor: hexToRgba(expenseColor, 0.3),
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: expenseColor,
-        pointBorderColor: "#fff",
-        pointHoverRadius: 6,
-        pointHoverBackgroundColor: "#fff",
-        pointHoverBorderColor: expenseColor,
+        backgroundColor: hexToRgba(expenseColor, 0.8),
+        hoverBackgroundColor: expenseColor,
+        borderRadius: 4,
+        borderWidth: 0,
       },
     ];
 

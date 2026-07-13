@@ -545,3 +545,7 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 
 ### 107. [UI Polish] Chart Hover Pill Opacity (v5.328m)
 - Increased the background opacity of the percentage badge inside the doughnut chart center hover from 12.5% to 25% to make the slice color more distinct and punchy.
+
+### 108. [UI/UX] Daily Expense Bar Chart (v5.329m)
+- Transformed the "Daily Expenses (Current Month)" chart from a line graph into a bar graph to better represent the fluctuating, discrete nature of daily spending without misleading smoothing curves.
+- Maintained the dual line-graph format for the "Monthly Income vs Expenses" (Yearly overview) where smoothing is appropriate for long-term trend analysis.
