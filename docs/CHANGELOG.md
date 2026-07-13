@@ -561,3 +561,6 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 
 ### 112. [Bugfix] Missing Chart Empty State on Search (v5.333m)
 - Fixed a logic bug in the transaction rendering sequence where the beautiful chart empty state (the muted pie chart icon) would fail to render if a chart instance had previously been loaded. The fallback state is now reliably injected whenever the filtered categories list is empty.
+
+### 113. [UI Polish] Pie Chart Default Center Text (v5.334m)
+- The center of the dashboard doughnut chart now defaults to displaying the "Total" expenses across all categories when no specific slice is being hovered, eliminating the empty dead space.

@@ -700,6 +700,8 @@ function renderMonthlyPieChart(data, isUpdate = false) {
           
           if (!centerInfo || !centerTitle || !centerValue) return;
 
+          const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+
           if (activeElements && activeElements.length > 0) {
             const activeIndex = activeElements[0].index;
             const dataset = chart.data.datasets[0];
@@ -707,20 +709,23 @@ function renderMonthlyPieChart(data, isUpdate = false) {
             const val = dataset.data[activeIndex];
             const color = dataset.backgroundColor[activeIndex];
             
-            const total = dataset.data.reduce((a, b) => a + b, 0);
             const percentage = total > 0 ? ((val / total) * 100).toFixed(1) + "%" : "0.0%";
 
             centerTitle.textContent = label;
             centerValue.textContent = formatCurrency(val);
             
             centerPercentage.textContent = percentage;
-            // Add a subtle 25% opacity background of the exact slice color (Hex 40)
             centerPercentage.style.backgroundColor = color + "40"; 
             centerPercentage.style.color = chartTooltipText;
 
             centerInfo.classList.remove("opacity-0");
           } else {
-            centerInfo.classList.add("opacity-0");
+            // Revert to Total
+            centerTitle.textContent = "Total";
+            centerValue.textContent = formatCurrency(total);
+            centerPercentage.textContent = "";
+            centerPercentage.style.backgroundColor = "transparent";
+            centerInfo.classList.remove("opacity-0");
           }
         },
         plugins: {
@@ -731,8 +736,18 @@ function renderMonthlyPieChart(data, isUpdate = false) {
             enabled: false,
           },
         },
-      },
     });
+    
+    // Set initial state
+    const centerInfo = document.getElementById("pieChartCenterInfo");
+    const centerTitle = document.getElementById("pieChartCenterTitle");
+    const centerValue = document.getElementById("pieChartCenterValue");
+    if (centerInfo && centerTitle && centerValue) {
+      const total = data.values.reduce((a, b) => a + b, 0);
+      centerTitle.textContent = "Total";
+      centerValue.textContent = formatCurrency(total);
+      centerInfo.classList.remove("opacity-0");
+    }
   }
 }
 
