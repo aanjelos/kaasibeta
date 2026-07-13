@@ -1753,6 +1753,11 @@ function renderMonthlyDetails(
       centerInfo.id = "pieChartCenterInfo";
       centerInfo.className = "absolute flex flex-col items-center justify-center text-center pointer-events-none transition-opacity duration-200 opacity-0 z-10 w-3/5";
       
+      // 1. Data Container
+      const dataContainer = document.createElement("div");
+      dataContainer.id = "pieChartDataContainer";
+      dataContainer.className = "flex flex-col items-center justify-center hidden w-full";
+      
       const centerTitle = document.createElement("span");
       centerTitle.id = "pieChartCenterTitle";
       centerTitle.className = "text-sm text-gray-400 mb-1 truncate w-full";
@@ -1765,9 +1770,21 @@ function renderMonthlyDetails(
       centerPercentage.id = "pieChartCenterPercentage";
       centerPercentage.className = "text-xs font-medium px-2 py-0.5 rounded-full mt-1 truncate max-w-full";
       
-      centerInfo.appendChild(centerTitle);
-      centerInfo.appendChild(centerValue);
-      centerInfo.appendChild(centerPercentage);
+      dataContainer.appendChild(centerTitle);
+      dataContainer.appendChild(centerValue);
+      dataContainer.appendChild(centerPercentage);
+
+      // 2. Placeholder Container
+      const placeholderContainer = document.createElement("div");
+      placeholderContainer.id = "pieChartPlaceholderContainer";
+      placeholderContainer.className = "flex flex-col items-center justify-center text-gray-500 w-full";
+      placeholderContainer.innerHTML = `
+        <i class="fas fa-hand-pointer text-xl mb-1 opacity-40"></i>
+        <span class="text-xs font-medium opacity-60">Tap a segment</span>
+      `;
+      
+      centerInfo.appendChild(dataContainer);
+      centerInfo.appendChild(placeholderContainer);
 
       wrapper.appendChild(canvasContainer);
       wrapper.appendChild(centerInfo);

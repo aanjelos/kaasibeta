@@ -567,3 +567,6 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 
 ### 114. [Hotfix] Chart Rendering Syntax Error (v5.335m)
 - Fixed a syntax error in the pie chart configuration introduced in the previous update that caused the entire chart rendering module to fail.
+
+### 115. [UI Polish] Pie Chart Interactive Placeholder (v5.336m)
+- Replaced the redundant "Total Expenses" center text in the doughnut chart with an elegant, refined interactive placeholder ("Tap a segment") paired with a subtle pointer icon, clarifying that the chart is interactive on both desktop and mobile without duplicating data already visible elsewhere on the screen.

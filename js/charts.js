@@ -694,11 +694,14 @@ function renderMonthlyPieChart(data, isUpdate = false) {
         maintainAspectRatio: false,
         onHover: (event, activeElements, chart) => {
           const centerInfo = document.getElementById("pieChartCenterInfo");
+          const dataContainer = document.getElementById("pieChartDataContainer");
+          const placeholderContainer = document.getElementById("pieChartPlaceholderContainer");
+          
           const centerTitle = document.getElementById("pieChartCenterTitle");
           const centerValue = document.getElementById("pieChartCenterValue");
           const centerPercentage = document.getElementById("pieChartCenterPercentage");
           
-          if (!centerInfo || !centerTitle || !centerValue) return;
+          if (!centerInfo || !dataContainer || !placeholderContainer) return;
 
           const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
 
@@ -718,13 +721,13 @@ function renderMonthlyPieChart(data, isUpdate = false) {
             centerPercentage.style.backgroundColor = color + "40"; 
             centerPercentage.style.color = chartTooltipText;
 
+            placeholderContainer.classList.add("hidden");
+            dataContainer.classList.remove("hidden");
             centerInfo.classList.remove("opacity-0");
           } else {
-            // Revert to Total
-            centerTitle.textContent = "Total";
-            centerValue.textContent = formatCurrency(total);
-            centerPercentage.textContent = "";
-            centerPercentage.style.backgroundColor = "transparent";
+            // Revert to Placeholder
+            dataContainer.classList.add("hidden");
+            placeholderContainer.classList.remove("hidden");
             centerInfo.classList.remove("opacity-0");
           }
         },
@@ -741,12 +744,7 @@ function renderMonthlyPieChart(data, isUpdate = false) {
     
     // Set initial state
     const centerInfo = document.getElementById("pieChartCenterInfo");
-    const centerTitle = document.getElementById("pieChartCenterTitle");
-    const centerValue = document.getElementById("pieChartCenterValue");
-    if (centerInfo && centerTitle && centerValue) {
-      const total = data.values.reduce((a, b) => a + b, 0);
-      centerTitle.textContent = "Total";
-      centerValue.textContent = formatCurrency(total);
+    if (centerInfo) {
       centerInfo.classList.remove("opacity-0");
     }
   }
