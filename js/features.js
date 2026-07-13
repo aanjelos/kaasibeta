@@ -1778,9 +1778,14 @@ function renderMonthlyDetails(
       const placeholderContainer = document.createElement("div");
       placeholderContainer.id = "pieChartPlaceholderContainer";
       placeholderContainer.className = "flex flex-col items-center justify-center text-gray-500 w-full";
+      
+      const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+      const iconClass = isTouch ? "fa-hand-pointer" : "fa-mouse-pointer";
+      const instructionText = isTouch ? "Tap a segment" : "Hover or click";
+
       placeholderContainer.innerHTML = `
-        <i class="fas fa-hand-pointer text-xl mb-1 opacity-40"></i>
-        <span class="text-xs font-medium opacity-60">Tap a segment</span>
+        <i class="fas ${iconClass} text-xl mb-1 opacity-40"></i>
+        <span class="text-xs font-medium opacity-60">${instructionText}</span>
       `;
       
       centerInfo.appendChild(dataContainer);

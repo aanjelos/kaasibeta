@@ -692,6 +692,19 @@ function renderMonthlyPieChart(data, isUpdate = false) {
         animation: isUpdate ? false : { animateRotate: true, animateScale: true },
         responsive: true,
         maintainAspectRatio: false,
+        onClick: (event, activeElements, chart) => {
+          if (activeElements && activeElements.length > 0) {
+            const clickedIndex = activeElements[0].index;
+            if (chart.lockedIndex === clickedIndex) {
+              chart.lockedIndex = null;
+            } else {
+              chart.lockedIndex = clickedIndex;
+            }
+          } else {
+            chart.lockedIndex = null;
+          }
+          chart.options.onHover(event, activeElements, chart);
+        },
         onHover: (event, activeElements, chart) => {
           const centerInfo = document.getElementById("pieChartCenterInfo");
           const dataContainer = document.getElementById("pieChartDataContainer");
@@ -705,8 +718,7 @@ function renderMonthlyPieChart(data, isUpdate = false) {
 
           const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
 
-          if (activeElements && activeElements.length > 0) {
-            const activeIndex = activeElements[0].index;
+          const renderDataCenter = (activeIndex) => {
             const dataset = chart.data.datasets[0];
             const label = chart.data.labels[activeIndex];
             const val = dataset.data[activeIndex];
@@ -724,11 +736,19 @@ function renderMonthlyPieChart(data, isUpdate = false) {
             placeholderContainer.classList.add("hidden");
             dataContainer.classList.remove("hidden");
             centerInfo.classList.remove("opacity-0");
+          };
+
+          if (activeElements && activeElements.length > 0) {
+            renderDataCenter(activeElements[0].index);
           } else {
-            // Revert to Placeholder
-            dataContainer.classList.add("hidden");
-            placeholderContainer.classList.remove("hidden");
-            centerInfo.classList.remove("opacity-0");
+            if (chart.lockedIndex !== undefined && chart.lockedIndex !== null) {
+              renderDataCenter(chart.lockedIndex);
+            } else {
+              // Revert to Placeholder
+              dataContainer.classList.add("hidden");
+              placeholderContainer.classList.remove("hidden");
+              centerInfo.classList.remove("opacity-0");
+            }
           }
         },
         plugins: {

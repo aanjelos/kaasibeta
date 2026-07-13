@@ -570,3 +570,7 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 
 ### 115. [UI Polish] Pie Chart Interactive Placeholder (v5.336m)
 - Replaced the redundant "Total Expenses" center text in the doughnut chart with an elegant, refined interactive placeholder ("Tap a segment") paired with a subtle pointer icon, clarifying that the chart is interactive on both desktop and mobile without duplicating data already visible elsewhere on the screen.
+
+### 116. [UX Upgrade] Chart Click-to-Lock & Smart Placeholders (v5.337m)
+- The pie chart center instruction now dynamically changes based on your device ("Hover or click" with a mouse icon on desktop vs "Tap a segment" with a touch icon on mobile).
+- On desktop, you can now click a chart segment to "lock" its data in the center, keeping it visible even when you move your mouse away. Clicking again or clicking empty space unlocks it.
