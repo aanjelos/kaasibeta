@@ -2262,7 +2262,7 @@ function openCcHistoryModal() {
           ${itemsHtml}
         </div>
         
-        <p class="text-xs text-gray-400 mb-4 bg-gray-800/50 p-3 rounded"><i class="fas fa-info-circle mr-1"></i> A separate transaction will be created in your bank account for each item to ensure pie charts remain accurate.</p>
+        <p class="text-xs text-gray-400 mb-4 bg-tertiary border border-theme p-3 rounded"><i class="fas fa-info-circle mr-1"></i> A separate transaction will be created in your bank account for each item to ensure pie charts remain accurate.</p>
         <div class="flex justify-end gap-2">
             <button type="button" class="btn btn-secondary flex-1" onclick="closeModal('formModal')">Cancel</button>
             <button type="submit" class="btn btn-primary flex-1"><i class="fas fa-check-circle mr-1"></i> Settle All</button>
