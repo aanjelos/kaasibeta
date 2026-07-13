@@ -1743,13 +1743,37 @@ function renderMonthlyDetails(
       titleEl.textContent = "Category Distribution (Full Month)";
       chartCard.appendChild(titleEl);
       const wrapper = document.createElement("div");
-      wrapper.className = "flex-grow relative w-full min-h-0";
+      wrapper.className = "flex-grow relative w-full min-h-0 flex items-center justify-center";
+      
       const canvasContainer = document.createElement("div");
       canvasContainer.className = "absolute inset-0";
       const canvas = document.createElement("canvas");
       canvas.id = "monthlyDetailPieChartCanvas";
       canvasContainer.appendChild(canvas);
+      
+      // Center Info Overlay
+      const centerInfo = document.createElement("div");
+      centerInfo.id = "pieChartCenterInfo";
+      centerInfo.className = "absolute flex flex-col items-center justify-center text-center pointer-events-none transition-opacity duration-200 opacity-0 z-10 w-3/5";
+      
+      const centerTitle = document.createElement("span");
+      centerTitle.id = "pieChartCenterTitle";
+      centerTitle.className = "text-sm text-gray-400 mb-1 truncate w-full";
+      
+      const centerValue = document.createElement("span");
+      centerValue.id = "pieChartCenterValue";
+      centerValue.className = "text-xl font-bold truncate w-full";
+      
+      const centerPercentage = document.createElement("span");
+      centerPercentage.id = "pieChartCenterPercentage";
+      centerPercentage.className = "text-xs font-medium px-2 py-0.5 rounded-full mt-1 truncate max-w-full";
+      
+      centerInfo.appendChild(centerTitle);
+      centerInfo.appendChild(centerValue);
+      centerInfo.appendChild(centerPercentage);
+
       wrapper.appendChild(canvasContainer);
+      wrapper.appendChild(centerInfo);
       chartCard.appendChild(wrapper);
       categorySection.appendChild(chartCard);
     }

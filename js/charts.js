@@ -648,8 +648,8 @@ function renderMonthlyPieChart(data, isUpdate = false) {
   let otherSum = 0;
 
   for (let i = 0; i < data.values.length; i++) {
-    // If slice is less than 3% and we have more than 5 categories, group it
-    if (data.values[i] / total < 0.03 && data.values.length > 5) {
+    // If slice is less than 2% and we have more than 5 categories, group it
+    if (data.values[i] / total < 0.02 && data.values.length > 5) {
       otherSum += data.values[i];
     } else {
       processedLabels.push(data.labels[i]);
@@ -690,44 +690,47 @@ function renderMonthlyPieChart(data, isUpdate = false) {
         ],
       },
       options: {
-        cutout: "65%",
+        cutout: "72%",
         animation: isUpdate ? false : { animateRotate: true, animateScale: true },
         responsive: true,
         maintainAspectRatio: false,
+        onHover: (event, activeElements, chart) => {
+          const centerInfo = document.getElementById("pieChartCenterInfo");
+          const centerTitle = document.getElementById("pieChartCenterTitle");
+          const centerValue = document.getElementById("pieChartCenterValue");
+          const centerPercentage = document.getElementById("pieChartCenterPercentage");
+          
+          if (!centerInfo || !centerTitle || !centerValue) return;
+
+          if (activeElements && activeElements.length > 0) {
+            const activeIndex = activeElements[0].index;
+            const dataset = chart.data.datasets[0];
+            const label = chart.data.labels[activeIndex];
+            const val = dataset.data[activeIndex];
+            const color = dataset.backgroundColor[activeIndex];
+            
+            const total = dataset.data.reduce((a, b) => a + b, 0);
+            const percentage = total > 0 ? ((val / total) * 100).toFixed(1) + "%" : "0.0%";
+
+            centerTitle.textContent = label;
+            centerValue.textContent = formatCurrency(val);
+            
+            centerPercentage.textContent = percentage;
+            // Add a subtle 20% opacity background of the exact slice color
+            centerPercentage.style.backgroundColor = color + "20"; 
+            centerPercentage.style.color = color;
+
+            centerInfo.classList.remove("opacity-0");
+          } else {
+            centerInfo.classList.add("opacity-0");
+          }
+        },
         plugins: {
           legend: {
             display: false,
           },
           tooltip: {
-            backgroundColor: chartTooltipBg,
-            titleColor: chartTooltipText,
-            bodyColor: chartTooltipText,
-            borderColor: "rgba(255,255,255,0.1)",
-            borderWidth: 1,
-            padding: 10,
-            cornerRadius: 8,
-            callbacks: {
-              label: function (context) {
-                let label = context.label || "";
-                if (label) {
-                  label += ": ";
-                }
-                if (context.parsed !== null) {
-                  label += formatCurrency(context.parsed);
-
-                  const datasetMeta = context.chart.getDatasetMeta(0);
-                  const datasetTotal =
-                    datasetMeta.total ||
-                    datasetMeta.data.reduce((sum, el) => sum + el.raw, 0);
-                  const percentage =
-                    datasetTotal > 0
-                      ? ((context.parsed / datasetTotal) * 100).toFixed(1) + "%"
-                      : "0.0%";
-                  label += ` (${percentage})`;
-                }
-                return label;
-              },
-            },
+            enabled: false,
           },
         },
       },

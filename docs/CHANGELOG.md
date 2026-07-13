@@ -533,3 +533,8 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 
 ### 104. [Feature] Modernized Dashboard Charts (v5.325m)
 - Upgraded the monthly pie chart to a modern doughnut chart with curated colors, negative space borders, rounded slices, interactive hover offsets, and automatic grouping for slices under 3%.
+
+### 105. [UI/UX] Doughnut Chart Center Hover Data (v5.326m)
+- Disabled the traditional floating tooltip on the dashboard doughnut chart.
+- Implemented a dynamic HTML overlay locked to the absolute center of the doughnut. Hovering or tapping a slice now smoothly populates the center hollow with the category name, exact amount, and percentage representation. 
+- Adjusted the slice grouping threshold down from 3% to 2% to reveal more distinct categories before bundling into "Other".
