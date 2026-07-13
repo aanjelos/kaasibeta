@@ -49,7 +49,7 @@ function renderRecentTransactions() {
     .slice(0, 10);
 
   if (recent.length === 0) {
-    list.innerHTML = '<p class="text-gray-400 text-sm">No transactions yet.</p>';
+    list.innerHTML = '<div class="flex flex-col items-center justify-center py-8 text-gray-500"><i class="fas fa-receipt text-3xl mb-3 opacity-40"></i><p class="text-sm font-medium">No transactions yet</p></div>';
     return;
   }
 
@@ -105,7 +105,7 @@ function renderDebtList() {
 
   if (state.debts.length === 0) {
     listContainer.innerHTML =
-      '<p class="text-gray-400 text-sm text-center py-4">No debts recorded.</p>';
+      '<div class="flex flex-col items-center justify-center py-8 text-gray-500"><i class="fas fa-handshake text-4xl mb-3 opacity-40"></i><p class="text-sm font-medium">No debts recorded</p></div>';
     return;
   }
 
@@ -252,7 +252,7 @@ function renderReceivableList() {
   const ccReceivables = state.receivables.filter((r) => r.type === "cc");
   if (state.receivables.length === 0) {
     listContainer.innerHTML =
-      '<p class="text-gray-400 text-sm text-center py-4">No receivables recorded.</p>';
+      '<div class="flex flex-col items-center justify-center py-8 text-gray-500"><i class="fas fa-hand-holding-usd text-4xl mb-3 opacity-40"></i><p class="text-sm font-medium">No receivables recorded</p></div>';
     return;
   }
 
@@ -402,7 +402,7 @@ function renderInstallmentList() {
   });
 
   if (sortedInstallments.length === 0) {
-    list.innerHTML = '<p class="text-gray-400 text-sm">No installments.</p>';
+    list.innerHTML = '<div class="flex flex-col items-center justify-center py-8 text-gray-500"><i class="fas fa-calendar-check text-4xl mb-3 opacity-40"></i><p class="text-sm font-medium">No installments recorded</p></div>';
     return;
   }
 
@@ -1796,7 +1796,7 @@ function renderMonthlyDetails(
       "p-4 rounded-lg h-72 md:h-80 flex items-center justify-center";
     noChartCard.style.backgroundColor = "var(--bg-tertiary)";
     noChartCard.innerHTML =
-      '<p class="text-gray-400 text-sm">No expense data for chart.</p>';
+      '<div class="flex flex-col items-center justify-center py-10 text-gray-500"><i class="fas fa-chart-pie text-5xl mb-4 opacity-30"></i><p class="text-sm font-medium">No expense data for chart</p></div>';
     categorySection.appendChild(noChartCard);
   }
 
@@ -2001,7 +2001,7 @@ function openCcHistoryModal() {
     updateCcBulkPaymentBar();
     
     if (filteredTransactions.length === 0) {
-      listContainer.innerHTML = `<p class="text-gray-400 text-sm text-center py-8">No transactions found for this period.</p>`;
+      listContainer.innerHTML = `<div class="flex flex-col items-center justify-center py-12 text-gray-500"><i class="fas fa-search text-4xl mb-3 opacity-40"></i><p class="text-sm font-medium">No transactions found for this period</p></div>`;
       // Also update filter buttons
       $$("#ccHistoryFilterControls button").forEach((btn) => {
         btn.classList.toggle("active", btn.dataset.filter === ccHistoryFilter);

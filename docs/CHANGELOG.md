@@ -552,3 +552,6 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 
 ### 109. [Hotfix] Chart Clipping (v5.330m)
 - Fixed an issue where the first and last bars of the new daily expense bar chart were getting clipped by the Y-axis. Added a dynamic X-axis offset that activates specifically for the bar chart layout to ensure the entire bars are visible.
+
+### 110. [UI Polish] Beautiful Empty States (v5.331m)
+- Redesigned all empty states across the application (Recent Transactions, Debts, Installments, Charts, Search) to feature elegant, muted iconography and centered typography, replacing the old, plain gray text.
