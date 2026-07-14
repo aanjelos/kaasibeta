@@ -577,3 +577,6 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 
 ### 117. [Bugfix] Smart Placeholder Touch Detection (v5.338m)
 - Refined the device detection logic for the chart placeholders to rely on screen dimensions (CSS media queries) rather than browser touch capabilities. This prevents laptops with touchscreens or touchpads from incorrectly displaying the mobile "Tap a segment" instructions.
+
+### 118. [Bugfix] Missing Title on Chart Empty State (v5.339m)
+- Fixed a layout issue where the "Category Distribution" title would completely disappear from the top of the chart card when the beautiful icon-based empty state was displayed.

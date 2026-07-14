@@ -1810,10 +1810,11 @@ function renderMonthlyDetails(
     }
     const noChartCard = document.createElement("div");
     noChartCard.className =
-      "p-4 rounded-lg h-72 md:h-80 flex items-center justify-center";
+      "p-4 rounded-lg h-72 md:h-80 flex flex-col";
     noChartCard.style.backgroundColor = "var(--bg-tertiary)";
     noChartCard.innerHTML =
-      '<div class="flex flex-col items-center justify-center py-10 text-gray-500"><i class="fas fa-chart-pie text-5xl mb-4 opacity-30"></i><p class="text-sm font-medium">No expense data for chart</p></div>';
+      '<h3 class="text-lg font-semibold mb-3 text-center">Category Distribution</h3>' +
+      '<div class="flex flex-col items-center justify-center flex-grow text-gray-500"><i class="fas fa-chart-pie text-5xl mb-4 opacity-30"></i><p class="text-sm font-medium">No expense data for chart</p></div>';
     categorySection.appendChild(noChartCard);
   }
 
