@@ -64,7 +64,8 @@ Kaasi can now be installed directly to your phone or computer just like a native
 - **Settings Cleanup**: Consolidated the standalone Credit Card settings directly into the Accounts tab for easier management.
 - **Background Scroll Locking**: Fixed an annoying issue where the background would scroll while interacting with menus or popups on mobile.
 - **Visual Polish**: Perfectly centered the percentage text inside circular progress rings for a cleaner look.
-- **Modernized Charts**: Upgraded the generic monthly pie chart into a sleek doughnut chart with a curated color palette, soft rounded slices, and negative space borders. Replaced the traditional tooltip with a dynamic center-text overlay when hovering or tapping a slice, and intelligently bundles tiny expenses under 2% into an "Other" category to prevent visual clutter.
+- **Modernized Charts**: Upgraded the generic monthly pie chart into a sleek doughnut chart with a curated color palette, soft rounded slices, and negative space borders. Replaced the traditional tooltip with a dynamic center-text overlay (featuring smart device-aware placeholders and click-to-lock functionality) when interacting with a slice, and intelligently bundles tiny expenses under 2% into an "Other" category to prevent visual clutter. Additionally, the dashboard daily expenses chart was upgraded from a line graph to a dynamic bar chart for clearer day-to-day visualization.
+- **Beautiful Empty States**: Replaced generic plain-text empty states across the app (like "No transactions yet") with beautiful, refined layouts featuring muted FontAwesome icons and centered typography.
 
 ### ⚙️ Under the Hood
 - **Codebase Modularization**: Completely refactored the codebase into focused modules for significantly improved maintainability and performance.
