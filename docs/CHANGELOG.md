@@ -574,3 +574,6 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 ### 116. [UX Upgrade] Chart Click-to-Lock & Smart Placeholders (v5.337m)
 - The pie chart center instruction now dynamically changes based on your device ("Hover or click" with a mouse icon on desktop vs "Tap a segment" with a touch icon on mobile).
 - On desktop, you can now click a chart segment to "lock" its data in the center, keeping it visible even when you move your mouse away. Clicking again or clicking empty space unlocks it.
+
+### 117. [Bugfix] Smart Placeholder Touch Detection (v5.338m)
+- Refined the device detection logic for the chart placeholders to rely on screen dimensions (CSS media queries) rather than browser touch capabilities. This prevents laptops with touchscreens or touchpads from incorrectly displaying the mobile "Tap a segment" instructions.
