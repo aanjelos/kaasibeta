@@ -58,18 +58,17 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## 🛠️ Technical Debt & Code Organization
 
-*(No active technical debt items currently tracked)*
+### 1. Storage Future-Proofing (IndexedDB Migration)
+- **Concept**: Migrate the primary local data storage from the 5MB-capped `localStorage` string blob to `IndexedDB` (using Dexie.js).
+- **Implementation Idea**: Must be an in-place migration that safely parses the old `KaasiData` blob and inserts it into granular IndexedDB tables (`transactions`, `debts`, etc.) without risking existing user data. `localStorage` should be kept as a fallback during the transition. This also requires switching to `UUIDv4` for unique record IDs to prevent collisions.
+
+### 2. Automatic Background Cloud Backups
+- **Concept**: Solve the "I forgot to click backup" issue by running silent, timed backups.
+- **Implementation Idea**: Add a background interval timer (e.g., every 5-10 minutes) that checks if the local state has un-synced changes (`local_newer`) and the device is online. If true, trigger a silent `executeBackupToSupabase()` upsert. Additionally, automatically restore from the cloud on launch if a newer cloud state is detected and local storage is clean.
 
 ---
 
----
 
-## 📋 Pre-Release v6 Checklist
-
-### 1. Offline PWA Smoke Test
-- Verify the app launches and works perfectly in offline mode via browser DevTools (Application > Service Workers > Offline) to test stale-while-revalidate offline behavior.
-
----
 
 ## 📝 Blog Ideas
 
