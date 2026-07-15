@@ -424,6 +424,13 @@ function toggleAccountVisibility(accountId) {
   const account = state.accounts.find((acc) => acc.id === accountId);
   if (!account) return;
 
+  if (!account.hidden) {
+    const visibleAccounts = state.accounts.filter((a) => !a.hidden);
+    if (visibleAccounts.length <= 1) {
+      showNotification("You must have at least one account visible.", "error");
+      return;
+    }
+  }
   const performToggle = () => {
     account.hidden = !account.hidden;
     saveData();
