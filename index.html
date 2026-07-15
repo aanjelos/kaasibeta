@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.341m" />
+    <meta name="application-version" content="v6.342m" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -1037,6 +1037,23 @@
               class="settings-tab-panel space-y-6 hidden"
             >
 
+              <!-- 1. Storage Usage -->
+              <div
+                class="card !p-4"
+                style="background-color: var(--bg-tertiary)"
+              >
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-accent-primary/10 flex items-center justify-center text-accent-primary">
+                    <i class="fa-solid fa-hard-drive"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-semibold text-gray-200 text-sm">Storage Usage</h3>
+                    <p id="storageSizeInfo" class="text-xs text-gray-400 mt-0.5 font-medium">Calculating...</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Cloud Backup -->
               <div
                 class="card !p-4"
                 style="background-color: var(--bg-tertiary)"
@@ -1086,25 +1103,7 @@
                 </div>
               </div>
 
-
-              <div class="card !p-4" style="background-color: var(--bg-tertiary)">
-                <h3 class="text-lg font-semibold mb-3">Backup Reminders</h3>
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <label for="settingsBackupReminderFreq" class="block text-sm font-medium text-gray-300">Local Export Reminder</label>
-                    <p class="text-xs text-gray-300 mt-1">Alerts you to save an offline backup file if you haven't exported one recently.</p>
-                  </div>
-                  <select id="settingsBackupReminderFreq" class="w-full sm:w-[220px] mt-2 sm:mt-0 flex-shrink-0" aria-label="Settings Backup Reminder Freq">
-                    <option value="default">Auto (Smart Schedule)</option>
-                    <option value="3">Every 3 Days</option>
-                    <option value="7">Weekly (7 Days)</option>
-                    <option value="30">Monthly (30 Days)</option>
-                    <option value="off">Off</option>
-                  </select>
-                </div>
-              </div>
-
-
+              <!-- 3. Local Data Management -->
               <div
                 class="card !p-4"
                 style="background-color: var(--bg-tertiary)"
@@ -1112,7 +1111,6 @@
                 <h3 class="text-lg font-semibold mb-3">
                   Local Data Management
                 </h3>
-
 
                 <div class="mb-4">
                   <label class="block text-sm font-medium mb-2"
@@ -1149,7 +1147,6 @@
                   </div>
                 </div>
 
-
                 <div class="flex flex-col sm:flex-row gap-3">
                   <button id="exportDataBtn" class="btn btn-secondary flex-1">
                     <i class="fas fa-file-export mr-1"></i> Export Local File
@@ -1172,16 +1169,21 @@
                 </p>
               </div>
 
-
-              <div class="card !p-4 mb-4 flex items-center justify-between border border-gray-700 bg-secondary">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full bg-accent-primary/10 flex items-center justify-center text-accent-primary">
-                    <i class="fa-solid fa-hard-drive"></i>
-                  </div>
+              <!-- 4. Backup Reminders -->
+              <div class="card !p-4" style="background-color: var(--bg-tertiary)">
+                <h3 class="text-lg font-semibold mb-3">Backup Reminders</h3>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <h3 class="font-semibold text-gray-200 text-sm">Storage Usage</h3>
-                    <p id="storageSizeInfo" class="text-xs text-gray-400 mt-0.5 font-medium">Calculating...</p>
+                    <label for="settingsBackupReminderFreq" class="block text-sm font-medium text-gray-300">Local Export Reminder</label>
+                    <p class="text-xs text-gray-300 mt-1">Alerts you to save an offline backup file if you haven't exported one recently.</p>
                   </div>
+                  <select id="settingsBackupReminderFreq" class="w-full sm:w-[220px] mt-2 sm:mt-0 flex-shrink-0" aria-label="Settings Backup Reminder Freq">
+                    <option value="default">Auto (Smart Schedule)</option>
+                    <option value="3">Every 3 Days</option>
+                    <option value="7">Weekly (7 Days)</option>
+                    <option value="30">Monthly (30 Days)</option>
+                    <option value="off">Off</option>
+                  </select>
                 </div>
               </div>
 
