@@ -824,7 +824,9 @@ async function initializeSupabase() {
     const user = session?.user || null;
     supabaseUser = user;
     if (user) {
-      localStorage.setItem("preferredSyncMethod", "cloud");
+      if (!localStorage.getItem("preferredSyncMethod")) {
+        localStorage.setItem("preferredSyncMethod", "cloud");
+      }
     }
     updateSupabaseUI(user);
     
@@ -845,7 +847,9 @@ async function initializeSupabase() {
     const user = data.session?.user || null;
     supabaseUser = user;
     if (user) {
-      localStorage.setItem("preferredSyncMethod", "cloud");
+      if (!localStorage.getItem("preferredSyncMethod")) {
+        localStorage.setItem("preferredSyncMethod", "cloud");
+      }
     }
     updateSupabaseUI(user);
     console.log(
@@ -899,8 +903,14 @@ function updateSupabaseUI(user) {
     shortcutCloudLabel.classList.add("text-gray-300");
 
 
-    shortcutCloudInput.checked = true;
-    shortcutLocalInput.checked = false;
+    const savedMethod = localStorage.getItem("preferredSyncMethod");
+    if (savedMethod === "local") {
+      shortcutCloudInput.checked = false;
+      shortcutLocalInput.checked = true;
+    } else {
+      shortcutCloudInput.checked = true;
+      shortcutLocalInput.checked = false;
+    }
 
     
     fetchAndUpdateLastCloudSyncTime();

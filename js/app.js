@@ -600,9 +600,8 @@ function initializeUI(isRefresh = false) {
     shortcutTargetGroup.onchange = (e) => {
       if (e.target.name === "shortcutTarget") {
         console.log(`Shortcut target changed to: ${e.target.value}`);
-
+        localStorage.setItem("preferredSyncMethod", e.target.value);
         updateHeaderShortcutButtons();
-
       }
     };
   }
