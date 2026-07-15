@@ -836,10 +836,7 @@ function loadData() {
     if (!item.timestamp) item.timestamp = new Date(item.startDate).getTime();
   });
 
-  console.log(
-    "Final state after loadData and integrity checks:",
-    JSON.parse(JSON.stringify(state))
-  );
+
 }
 
 function deepMerge(target, source) {
