@@ -2,6 +2,62 @@
  * features.js
  * Implements core application features and DOM rendering logic for transactions, debts, receivables, etc.
  */
+// --- Shared Helper Functions ---
+function populateYearSelector(transactionsArray, yearSelectorElement, currentYear, selectedYear) {
+  const years = new Set(
+    (transactionsArray || []).map((t) => {
+      const d = new Date(t.date);
+      return isNaN(d.getFullYear()) ? currentYear : d.getFullYear();
+    })
+  );
+  years.add(currentYear);
+  yearSelectorElement.innerHTML = "";
+  [...years]
+    .sort((a, b) => b - a)
+    .forEach((year) => {
+      const option = document.createElement("option");
+      option.value = year;
+      option.textContent = year;
+      if (year === selectedYear) option.selected = true;
+      yearSelectorElement.appendChild(option);
+    });
+}
+
+function setupMaxMonthsValidation(totalMonthsInput, monthsLeftInput) {
+  if (totalMonthsInput && monthsLeftInput) {
+    const setMaxMonthsLeft = () => {
+      const total = parseInt(totalMonthsInput.value);
+      if (!isNaN(total) && total > 0) {
+        monthsLeftInput.max = total;
+        if (parseInt(monthsLeftInput.value) > total) {
+          monthsLeftInput.value = total;
+        }
+      } else {
+        monthsLeftInput.removeAttribute("max");
+      }
+    };
+    totalMonthsInput.addEventListener("input", setMaxMonthsLeft);
+    setMaxMonthsLeft();
+  }
+}
+
+function processPaymentDeduction(account, roundedPaymentAmount, logAsExpense, category) {
+  if (logAsExpense && !category) {
+    showNotification(
+      "Please select a category for this payment if logging as an expense.",
+      "error"
+    );
+    return false;
+  }
+  if (account.balance < roundedPaymentAmount) {
+    showNotification(`Insufficient funds in ${account.name}.`, "warning");
+    return false;
+  }
+  account.balance = roundToTwoDecimals(account.balance - roundedPaymentAmount);
+  if (isNaN(account.balance)) account.balance = 0;
+  return true;
+}
+
 function navigateMonthTabs(direction) {
   const monthTabs = $$("#monthTabs .tab-button");
   if (monthTabs.length === 0) return;
@@ -1148,24 +1204,7 @@ function setupMonthlyView() {
     return;
   }
 
-  const years = new Set(
-    (state.transactions || []).map((t) => {
-      const date = new Date(t.date);
-      return isNaN(date.getFullYear()) ? currentYear : date.getFullYear();
-    })
-  );
-  years.add(currentYear);
-
-  yearSelector.innerHTML = "";
-  [...years]
-    .sort((a, b) => b - a)
-    .forEach((year) => {
-      const option = document.createElement("option");
-      option.value = year;
-      option.textContent = year;
-      if (year === currentYear) option.selected = true;
-      yearSelector.appendChild(option);
-    });
+  populateYearSelector(state.transactions, yearSelector, currentYear, currentYear);
 
   yearSelector.addEventListener("change", () => {
     const monthlySearchInput = $("#monthlySearchInput");
@@ -1880,23 +1919,7 @@ function openCcHistoryModal() {
   ccSelectedMonth = new Date().getMonth();
 
   // --- Populate Year Selector ---
-  const years = new Set(
-    (state.creditCard.transactions || []).map((t) => {
-      const d = new Date(t.date);
-      return isNaN(d.getFullYear()) ? currentYear : d.getFullYear();
-    })
-  );
-  years.add(currentYear);
-  yearSelector.innerHTML = "";
-  [...years]
-    .sort((a, b) => b - a)
-    .forEach((year) => {
-      const option = document.createElement("option");
-      option.value = year;
-      option.textContent = year;
-      if (year === ccSelectedYear) option.selected = true;
-      yearSelector.appendChild(option);
-    });
+  populateYearSelector(state.creditCard.transactions, yearSelector, currentYear, ccSelectedYear);
 
   // --- Populate Month Tabs ---
   const renderMonthTabs = () => {
@@ -2354,9 +2377,9 @@ function openCcHistoryModal() {
               id: generateId(),
               amount: remaining,
               description: `Credit Card Payment: ${item.description}`,
-              categoryId: payCategory,
+              category: payCategory,
               type: "expense",
-              accountId: payFromAccountId,
+              account: payFromAccountId,
               date: new Date().toISOString().split("T")[0],
               timestamp: Date.now(),
             };
@@ -2809,20 +2832,7 @@ function handlePayDebtSubmit(event) {
     showNotification("Invalid payment amount for debt.", "error");
     return;
   }
-  if (logAsExpense && !category) {
-    showNotification(
-      "Please select a category for this payment if logging as an expense.",
-      "error"
-    );
-    return;
-  }
-  if (account.balance < roundedPaymentAmount) {
-    showNotification(`Insufficient funds in ${account.name}.`, "warning");
-    return;
-  }
-
-  account.balance = roundToTwoDecimals(account.balance - roundedPaymentAmount);
-  if (isNaN(account.balance)) account.balance = 0;
+  if (!processPaymentDeduction(account, roundedPaymentAmount, logAsExpense, category)) return;
 
   debt.remainingAmount = roundToTwoDecimals(
     debt.remainingAmount - roundedPaymentAmount
@@ -3460,21 +3470,7 @@ function openAddInstallmentForm() {
 
   const totalMonthsInput = $("#instTotalMonths");
   const monthsLeftInput = $("#instMonthsLeft");
-  if (totalMonthsInput && monthsLeftInput) {
-    const setMaxMonthsLeft = () => {
-      const total = parseInt(totalMonthsInput.value);
-      if (!isNaN(total) && total > 0) {
-        monthsLeftInput.max = total;
-        if (parseInt(monthsLeftInput.value) > total) {
-          monthsLeftInput.value = total;
-        }
-      } else {
-        monthsLeftInput.removeAttribute("max");
-      }
-    };
-    totalMonthsInput.addEventListener("input", setMaxMonthsLeft);
-    setMaxMonthsLeft();
-  }
+  setupMaxMonthsValidation(totalMonthsInput, monthsLeftInput);
 }
 
 function handleAddInstallmentSubmit(event) {
@@ -3589,23 +3585,7 @@ function openEditInstallmentForm(id) {
   // Add listener to ensure monthsLeft is not greater than totalMonths for edit form
   const totalMonthsInput = document.getElementById("instTotalMonths"); // Use document.getElementById for modals
   const monthsLeftInput = document.getElementById("instMonthsLeft");
-  if (totalMonthsInput && monthsLeftInput) {
-    const setMaxMonthsLeftEdit = () => {
-      const total = parseInt(totalMonthsInput.value);
-      if (!isNaN(total) && total > 0) {
-        monthsLeftInput.max = total;
-        // If current monthsLeft exceeds new totalMonths, adjust it
-        if (parseInt(monthsLeftInput.value) > total) {
-          monthsLeftInput.value = total;
-        }
-      } else {
-        monthsLeftInput.removeAttribute("max");
-      }
-    };
-    totalMonthsInput.addEventListener("input", setMaxMonthsLeftEdit);
-    // Initial call to set max based on current totalMonths value
-    setMaxMonthsLeftEdit();
-  }
+  setupMaxMonthsValidation(totalMonthsInput, monthsLeftInput);
 }
 
 function handleEditInstallmentSubmit(event) {
@@ -3887,20 +3867,7 @@ function handlePayCcItemSubmit(event) {
     showNotification("Invalid payment amount for CC item.", "error");
     return;
   }
-  if (logAsExpense && !category) {
-    showNotification(
-      "Please select a category for this payment if logging as an expense.",
-      "error"
-    );
-    return;
-  }
-  if (account.balance < roundedPaymentAmount) {
-    showNotification(`Insufficient funds in ${account.name}.`, "warning");
-    return;
-  }
-
-  account.balance = roundToTwoDecimals(account.balance - roundedPaymentAmount);
-  if (isNaN(account.balance)) account.balance = 0;
+  if (!processPaymentDeduction(account, roundedPaymentAmount, logAsExpense, category)) return;
 
   item.paidAmount = roundToTwoDecimals(
     (item.paidAmount || 0) + roundedPaymentAmount

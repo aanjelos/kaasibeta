@@ -883,31 +883,7 @@ function updateHeaderShortcutButtons() {
 
     restoreBtn.dataset.tooltip = "Import Local File (Ctrl+I)";
     restoreBtn.onclick = () => {
-      // For restore, we need to find the correct data tab and click the hidden input
-      const importInput = $("#importDataInput");
-      if (importInput) {
-        const settingsModal = $("#settingsModal");
-        // Open settings if not open, and switch to data tab
-        if (settingsModal && settingsModal.style.display !== "block") {
-          openSettingsModal();
-          setTimeout(() => {
-            const dataTabButton = Array.from(
-              $$("#settingsTabsContainer button")
-            ).find((btn) => btn.textContent === "Data");
-            if (dataTabButton) dataTabButton.click();
-            importInput.click();
-          }, 100);
-        } else if (settingsModal) {
-          // If already open, just switch tab and click
-          const dataTabButton = Array.from(
-            $$("#settingsTabsContainer button")
-          ).find((btn) => btn.textContent === "Data");
-          if (dataTabButton) dataTabButton.click();
-          importInput.click();
-        } else {
-          importInput.click(); // Fallback
-        }
-      }
+      triggerDataImport();
     };
   }
 }

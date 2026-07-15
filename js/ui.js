@@ -115,29 +115,7 @@ function handleKeyboardShortcuts(event) {
         restoreFromSupabase(false, true);
       } else {
         console.log("Shortcut: Ctrl+I pressed for Local Import");
-        const importInput = $("#importDataInput");
-        if (importInput) {
-          // Ensure settings modal is open and on the correct tab
-          const settingsModal = $("#settingsModal");
-          if (settingsModal && settingsModal.style.display !== "block") {
-            openSettingsModal();
-            setTimeout(() => {
-              const dataTabButton = Array.from(
-                $$("#settingsTabsContainer button")
-              ).find((btn) => btn.textContent === "Data");
-              if (dataTabButton) dataTabButton.click();
-              importInput.click();
-            }, 100);
-          } else if (settingsModal) {
-            const dataTabButton = Array.from(
-              $$("#settingsTabsContainer button")
-            ).find((btn) => btn.textContent === "Data");
-            if (dataTabButton) dataTabButton.click();
-            importInput.click();
-          } else {
-            importInput.click(); // Fallback
-          }
-        }
+        triggerDataImport();
       }
     }
     return; // Consume the event
@@ -956,6 +934,32 @@ function handleMathToolbarInteraction(e) {
 
 mathToolbar.addEventListener("mousedown", handleMathToolbarInteraction);
 mathToolbar.addEventListener("touchstart", handleMathToolbarInteraction, { passive: false });
+
+function triggerDataImport() {
+  const importInput = $("#importDataInput");
+  if (importInput) {
+    // Ensure settings modal is open and on the correct tab
+    const settingsModal = $("#settingsModal");
+    if (settingsModal && settingsModal.style.display !== "block") {
+      openSettingsModal();
+      setTimeout(() => {
+        const dataTabButton = Array.from(
+          $$("#settingsTabsContainer button")
+        ).find((btn) => btn.textContent === "Data");
+        if (dataTabButton) dataTabButton.click();
+        importInput.click();
+      }, 100);
+    } else if (settingsModal) {
+      const dataTabButton = Array.from(
+        $$("#settingsTabsContainer button")
+      ).find((btn) => btn.textContent === "Data");
+      if (dataTabButton) dataTabButton.click();
+      importInput.click();
+    } else {
+      importInput.click(); // Fallback
+    }
+  }
+}
 
 // --- MOBILE DROPDOWN MENU LOGIC ---
 function setupMobileDropdown() {

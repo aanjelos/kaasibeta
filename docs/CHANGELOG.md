@@ -580,3 +580,9 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 
 ### 118. [Bugfix] Missing Title on Chart Empty State (v5.339m)
 - Fixed a layout issue where the "Category Distribution" title would completely disappear from the top of the chart card when the beautiful icon-based empty state was displayed.
+
+### 119. [Refactor] Codebase Deduplication & Shared Helpers (v6.340m)
+- Extracted duplicate data sanitization blocks into `sanitizeAndMergeImportedData` (`globals.js`) to ensure both local file imports and Supabase cloud restores use identical processing logic.
+- Consolidated repetitive UI event listeners for the `Ctrl+I` shortcut and Import buttons into a reusable `triggerDataImport()` helper.
+- Abstracted and shared identical blocks of business logic across `features.js` (e.g., building Year Selectors, calculating dynamic max-months for Installments, and verifying payment deductions for Debts & Credit Cards).
+- **Bugfix**: Fixed a pre-existing issue in the "Pay Multiple CC Items" form where new transactions were being logged with incorrect object keys (`accountId`/`categoryId` instead of `account`/`category`), which previously caused them to render as "Unknown Acct" and "Uncategorized" in the dashboard.

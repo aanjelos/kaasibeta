@@ -31,17 +31,6 @@ function exportData() {
   }
 }
 
-function sanitizeNumericFields(array, fields) {
-  if (!Array.isArray(array)) return;
-  array.forEach((item) => {
-    fields.forEach((field) => {
-      if (typeof item[field] === "number") {
-        item[field] = roundToTwoDecimals(item[field]);
-      }
-    });
-  });
-}
-
 function importData(event) {
   const file = event.target.files[0];
   if (!file) {
@@ -73,89 +62,7 @@ function importData(event) {
               }
 
 
-              // Sanitization logic using the generic utility
-              sanitizeNumericFields(importedData.transactions, ["amount"]);
-              sanitizeNumericFields(importedData.accounts, ["balance"]);
-              sanitizeNumericFields(importedData.debts, ["amount", "originalAmount", "remainingAmount"]);
-              sanitizeNumericFields(importedData.receivables, ["amount", "originalAmount", "remainingAmount"]);
-              sanitizeNumericFields(importedData.installments, ["monthlyAmount", "originalFullAmount"]);
-              sanitizeNumericFields(importedData.budgets, ["limit"]);
-
-              if (
-                importedData.creditCard &&
-                typeof importedData.creditCard === "object"
-              ) {
-                if (typeof importedData.creditCard.limit === "number") {
-                  importedData.creditCard.limit = roundToTwoDecimals(
-                    importedData.creditCard.limit
-                  );
-                }
-                if (Array.isArray(importedData.creditCard.transactions)) {
-                  sanitizeNumericFields(importedData.creditCard.transactions, ["amount", "paidAmount"]);
-                  importedData.creditCard.transactions.forEach((ccTrans) => {
-                    if (
-                      ccTrans.paidAmount >=
-                      roundToTwoDecimals(ccTrans.amount - 0.005)
-                    ) {
-                      ccTrans.paidOff = true;
-                      ccTrans.paidAmount = ccTrans.amount;
-                    } else {
-                      ccTrans.paidOff = false;
-                    }
-                  });
-                }
-              }
-
-            state = deepMerge(getDefaultState(), importedData);
-            ensureDefaultAccounts();
-            ensureDefaultCategories();
-
-            state.accounts.forEach((acc) => {
-              if (isNaN(acc.balance) || typeof acc.balance !== "number")
-                acc.balance = 0;
-              else acc.balance = roundToTwoDecimals(acc.balance);
-            });
-
-            if (!state.creditCard)
-              state.creditCard = { limit: 0, transactions: [] };
-            if (
-              isNaN(state.creditCard.limit) ||
-              typeof state.creditCard.limit !== "number"
-            )
-              state.creditCard.limit = 0;
-            else
-              state.creditCard.limit = roundToTwoDecimals(
-                state.creditCard.limit
-              );
-
-            if (!Array.isArray(state.creditCard.transactions))
-              state.creditCard.transactions = [];
-            state.creditCard.transactions.forEach((t) => {
-              if (typeof t.amount !== "number" || isNaN(t.amount)) t.amount = 0;
-              else t.amount = roundToTwoDecimals(t.amount);
-              if (typeof t.paidAmount !== "number" || isNaN(t.paidAmount))
-                t.paidAmount = 0;
-              else t.paidAmount = roundToTwoDecimals(t.paidAmount);
-              if (t.paidAmount >= roundToTwoDecimals(t.amount - 0.005)) {
-                t.paidOff = true;
-                t.paidAmount = t.amount;
-              } else {
-                t.paidOff = false;
-              }
-              if (!t.timestamp) t.timestamp = new Date(t.date).getTime();
-            });
-            state.transactions.forEach((t) => {
-              if (!t.timestamp) t.timestamp = new Date(t.date).getTime();
-            });
-            state.debts.forEach((d) => {
-              if (!d.timestamp) d.timestamp = new Date(d.dueDate).getTime();
-            });
-            state.receivables.forEach((r) => {
-              if (!r.timestamp) r.timestamp = new Date(r.dateGiven).getTime();
-            });
-            state.installments.forEach((i) => {
-              if (!i.timestamp) i.timestamp = new Date(i.startDate).getTime();
-            });
+              sanitizeAndMergeImportedData(importedData);
 
             if (!state.settings) state.settings = getDefaultState().settings;
             state.settings.initialSetupDone = true;
