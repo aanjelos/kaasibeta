@@ -1014,7 +1014,7 @@ window.executePreloaderSequence = function() {
     // Tools & Shortcuts
     "Type basic math (+, -, *, /) directly into amount fields.",
     "Click the calculator icon inside inputs to open the Math Toolbar.",
-    "Transfer money between accounts via the transfer button in Balance Overview.",
+    "Transfer money between accounts by selecting 'Transfer' in Add Transaction.",
     
     // Details & Charts
     "Tap a transaction to view its full details and description.",
