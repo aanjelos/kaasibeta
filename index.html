@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.340m" />
+    <meta name="application-version" content="v6.341m" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -1173,6 +1173,18 @@
               </div>
 
 
+              <div class="card !p-4 mb-4 flex items-center justify-between border border-gray-700 bg-secondary">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-accent-primary/10 flex items-center justify-center text-accent-primary">
+                    <i class="fa-solid fa-hard-drive"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-semibold text-gray-200 text-sm">Storage Usage</h3>
+                    <p id="storageSizeInfo" class="text-xs text-gray-400 mt-0.5 font-medium">Calculating...</p>
+                  </div>
+                </div>
+              </div>
+
               <div class="card danger-zone-card !p-4">
                 <h3 class="text-lg font-semibold mb-3 danger-zone-text">
                   Danger Zone
@@ -1486,9 +1498,6 @@
                   the new version.
                 </p>
               </div>
-              <p id="storageSizeInfo" class="text-gray-400 text-xs mt-1">
-                Approx. Storage Used: Calculating...
-              </p>
             </div>
           </div>
         </div>
