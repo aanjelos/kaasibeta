@@ -72,7 +72,7 @@ function setDeviceTheme(theme) {
   localStorage.setItem("kaasi_device_theme", theme);
 }
 
-// --- NEW: SUPABASE CLIENT INITIALIZATION ---
+
 const SUPABASE_URL = "https://xcnirqsctkyyrvildqtm.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cLW_C5L7xmIinyzSaKSmBQ_EFnjbntg"; // Your publishable key
 
@@ -664,7 +664,7 @@ function saveData() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     localStorage.setItem("lastLocalDataModification", Date.now().toString());
     
-    // --- NEW: Refresh cloud sync UI status when local data is modified ---
+
     // Update window.currentCloudSyncStatus to local_newer immediately
     const lastLocalCloudSync = parseInt(localStorage.getItem("lastLocalCloudSync") || "0", 10);
     const lastLocalDataModification = Date.now();
@@ -685,7 +685,7 @@ function saveData() {
     if (typeof updateHeaderShortcutButtons === "function") {
       updateHeaderShortcutButtons();
     }
-    // --- END NEW ---
+
     
     console.log("Data saved successfully.");
   } catch (e) {

@@ -1075,7 +1075,7 @@ function refreshMonthlyViewIfRelevant(dateString) {
       transactionDate.getFullYear() === selectedYear &&
       transactionDate.getMonth() === selectedMonth
     ) {
-      // --- NEW: Preserve scroll position ---
+
       const scrollPos = monthlyViewModal.scrollTop;
       const innerListContainer = $("#monthlyTransactionsListContainer");
       const listScrollPos = innerListContainer ? innerListContainer.scrollTop : 0;
@@ -1085,7 +1085,7 @@ function refreshMonthlyViewIfRelevant(dateString) {
         container.style.minHeight = container.offsetHeight + "px";
       }
 
-      // --- NEW: Preserve accordion states ---
+
       const openDayKeys = new Set();
       // Query for all day group headers within the monthly details container
       // Then check which ones have an expanded transaction list.
@@ -1112,12 +1112,9 @@ function refreshMonthlyViewIfRelevant(dateString) {
           }
         }
       });
-      // --- END OF NEW ---
 
       const monthlySearchInput = $("#monthlySearchInput");
       const currentSearchTerm = monthlySearchInput ? monthlySearchInput.value.trim() : "";
-      renderMonthlyDetails(selectedMonth, selectedYear, openDayKeys, true, currentSearchTerm, false); // Pass isUpdate = true and currentSearchTerm
-
       // Since accordion expansion is now fully synchronous via maxHeight: "none",
       // the DOM has its full height immediately. We can restore scroll synchronously!
       monthlyViewModal.scrollTop = scrollPos;
@@ -1285,7 +1282,7 @@ function renderMonthlyDetails(
 
   container.innerHTML = "";
 
-  // --- NEW: Advanced Filter & Search Logic ---
+
   const filterStartDate = $("#filterStartDate")?.value;
   const filterEndDate = $("#filterEndDate")?.value;
   const filterType = $("#filterType")?.value || "all";

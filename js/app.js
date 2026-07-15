@@ -8,7 +8,7 @@ function initializeUI(isRefresh = false) {
   window.uiInitialized = true;
   console.log("Initializing UI...");
 
-  // --- NEW: Initialize Supabase and check auth state ---
+
   if (!isRefresh && supabaseClient) {
     initializeSupabase(); // This will check for a user session
   }
@@ -45,11 +45,11 @@ function initializeUI(isRefresh = false) {
   updateCcDashboardSectionVisibility();
   setupMonthlyView();
 
-  // --- NEW: Add new header button listeners ---
+
   // The onclick logic is now dynamic, so we set it in updateHeaderShortcutButtons()
   // This function will set their initial state (icons, tooltips, onclick)
   updateHeaderShortcutButtons();
-  setupMobileDropdown(); // NEW: Initialize top-right Mobile Dropdown
+  setupMobileDropdown();
   // --- END NEW ---
 
   if (!window.deleteSliderInitialized) {
@@ -118,7 +118,7 @@ function initializeUI(isRefresh = false) {
     shortcutsHelpBtn.onclick = openShortcutsHelpModal;
   }
 
-  // NEW: Donate Modal Logic moved inside initializeUI for robustness
+
   const donateModal = document.getElementById("donateModal");
   const footerDonateBtn = document.getElementById("footerDonateBtn");
   const closeDonateModalBtn = document.getElementById("closeDonateModal");
@@ -573,7 +573,7 @@ function initializeUI(isRefresh = false) {
     });
   }
 
-  // --- NEW: SUPABASE EVENT LISTENERS ---
+
   const googleLoginButton = $("#googleLoginBtn");
   if (googleLoginButton) {
     googleLoginButton.onclick = signInWithGoogle;
@@ -600,9 +600,9 @@ function initializeUI(isRefresh = false) {
     shortcutTargetGroup.onchange = (e) => {
       if (e.target.name === "shortcutTarget") {
         console.log(`Shortcut target changed to: ${e.target.value}`);
-        // --- NEW: Update header buttons when radio changes ---
+
         updateHeaderShortcutButtons();
-        // --- END NEW ---
+
       }
     };
   }
@@ -781,7 +781,7 @@ function initializeUI(isRefresh = false) {
   }
 }
 
-// --- NEW: SUPABASE AUTH & DATA FUNCTIONS ---
+
 
 /**
  * Initializes the Supabase client and checks for an active user session.

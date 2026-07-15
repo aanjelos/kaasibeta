@@ -338,7 +338,7 @@ function generateMonthlyPdfReport() {
         doc.text(categoryText, margin, cursorY);
         doc.text(amountText, pageWidth - margin, cursorY, { align: "right" });
 
-        // NEW: Add dotted line
+
         const categoryWidth = doc.getTextWidth(categoryText);
         const amountWidth = doc.getTextWidth(amountText);
         const startX = margin + categoryWidth + 5;

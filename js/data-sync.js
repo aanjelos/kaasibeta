@@ -21,7 +21,7 @@ function exportData() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     
-    // NEW: Update local export backup reminder date
+
     localStorage.setItem("lastSuccessfulBackupDate", getCurrentDateString());
     
     showNotification("Data exported.", "success");
@@ -64,14 +64,14 @@ function importData(event) {
             let importedData = JSON.parse(e.target.result);
             if (importedData && typeof importedData === "object") {
               
-              // --- NEW: Strict Structural Validation ---
+
               const requiredArrays = ["transactions", "accounts", "categories"];
               for (const arr of requiredArrays) {
                 if (!Array.isArray(importedData[arr])) {
                   throw new Error(`Corrupted backup file: Missing or invalid '${arr}' structure.`);
                 }
               }
-              // --- END NEW ---
+
 
               // Sanitization logic using the generic utility
               sanitizeNumericFields(importedData.transactions, ["amount"]);
@@ -392,7 +392,7 @@ async function fetchAndUpdateLastCloudSyncTime() {
       
       lastCloudSyncTimeString = formatted;
       
-      // --- NEW: Smart Contextual Sync Status ---
+
       const lastSyncedCloudUpdatedAt = localStorage.getItem("lastSyncedCloudUpdatedAt");
       const lastLocalCloudSync = parseInt(localStorage.getItem("lastLocalCloudSync") || "0", 10);
       const lastLocalDataModification = parseInt(localStorage.getItem("lastLocalDataModification") || "0", 10);
@@ -412,7 +412,7 @@ async function fetchAndUpdateLastCloudSyncTime() {
           window.currentCloudSyncStatus = "local_newer";
         }
       }
-      // --- END NEW ---
+
       
       if (timeEl) {
         if (window.currentCloudSyncStatus === "cloud_newer") {
@@ -535,8 +535,8 @@ async function executeBackupToSupabase() {
 
   try {
     // We use 'upsert' to either create a new record or update the existing one for this user.
-    // ** THE FIX IS HERE: { onConflict: 'user_id' } **
-    // This tells Supabase to use the 'user_id' column to detect conflicts.
+
+
     const { data, error } = await supabaseClient
       .from("user_data")
       .upsert(
@@ -562,7 +562,7 @@ async function executeBackupToSupabase() {
       ? new Date(data.updated_at).toLocaleString()
       : "just now";
       
-    // --- NEW: Sync Timestamps ---
+
     if (data.updated_at) localStorage.setItem("lastSyncedCloudUpdatedAt", data.updated_at);
     const now = Date.now().toString();
     localStorage.setItem("lastLocalCloudSync", now);
@@ -572,7 +572,7 @@ async function executeBackupToSupabase() {
     if (currentDataStr && typeof generateDataHash === "function") {
       localStorage.setItem("kaasi_synced_state_hash", generateDataHash(currentDataStr));
     }
-    // --- END NEW ---
+
     
     showNotification(
       `Cloud backup successful! (Last sync: ${backupTime})`,
@@ -622,7 +622,7 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
     showNotification("Restoring from cloud...", "info", 5000);
 
       try {
-        // ** THE FIX IS HERE: .order(...).limit(1) **
+
         // This makes the query more robust by ensuring we *only* get the single, most recent
         // backup for this user, which makes .single() safe to use.
         const { data, error } = await supabaseClient
@@ -680,7 +680,7 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
         // Fully refresh the entire application UI
         initializeUI(true);
 
-        // --- NEW: Sync Timestamps ---
+
         if (data.updated_at) localStorage.setItem("lastSyncedCloudUpdatedAt", data.updated_at);
         const now = Date.now().toString();
         localStorage.setItem("lastLocalCloudSync", now);
@@ -689,7 +689,7 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
         if (currentDataStr && typeof generateDataHash === "function") {
           localStorage.setItem("kaasi_synced_state_hash", generateDataHash(currentDataStr));
         }
-        // --- END NEW ---
+
 
         const backupTime = new Date(data.updated_at).toLocaleString();
         showNotification(
@@ -991,10 +991,10 @@ function updateSupabaseUI(user) {
     );
     shortcutCloudLabel.classList.add("text-gray-300");
 
-    // --- NEW: Default to Cloud Backup on login ---
+
     shortcutCloudInput.checked = true;
     shortcutLocalInput.checked = false;
-    // --- END NEW ---
+
     
     fetchAndUpdateLastCloudSyncTime();
   } else {

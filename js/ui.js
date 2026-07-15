@@ -229,7 +229,7 @@ function handleKeyboardShortcuts(event) {
       }
       break;
 
-    // --- NEW: Shortcut for Help Modal ---
+
     case "?":
       if (!inInputField) {
         event.preventDefault();
