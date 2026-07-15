@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.342m" />
+    <meta name="application-version" content="v6.343m" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -1112,41 +1112,6 @@
                   Local Data Management
                 </h3>
 
-                <div class="mb-4">
-                  <label class="block text-sm font-medium mb-2"
-                    >Keyboard/Dashboard Shortcut Does:</label
-                  >
-                  <div class="flex gap-x-4" id="shortcutTargetGroup">
-                    <label
-                      class="flex items-center text-sm text-gray-300 cursor-pointer"
-                    >
-                      <input
-                        type="radio"
-                        id="shortcutLocal"
-                        name="shortcutTarget"
-                        value="local"
-                        class="mr-2 text-accent-500 focus:ring-accent-500"
-                        checked
-                      aria-label="Shortcut Local" />
-                      Local File
-                    </label>
-                    <label
-                      class="flex items-center text-sm text-gray-300 cursor-pointer"
-                      id="shortcutCloudLabel"
-                    >
-                      <input
-                        type="radio"
-                        id="shortcutCloud"
-                        name="shortcutTarget"
-                        value="cloud"
-                        class="mr-2 text-accent-500 focus:ring-accent-500"
-                        disabled
-                      aria-label="Shortcut Cloud" />
-                      Cloud Backup
-                    </label>
-                  </div>
-                </div>
-
                 <div class="flex flex-col sm:flex-row gap-3">
                   <button id="exportDataBtn" class="btn btn-secondary flex-1">
                     <i class="fas fa-file-export mr-1"></i> Export Local File
@@ -1167,6 +1132,32 @@
                 <p class="text-xs text-red-400 mt-1">
                   Warning: Browser data can be lost. Export backups regularly!
                 </p>
+              </div>
+
+              <!-- 4. Quick Action Shortcut -->
+              <div class="card !p-4" style="background-color: var(--bg-tertiary)">
+                <div class="flex flex-col mb-3">
+                  <h3 class="text-lg font-semibold">Quick Action Shortcut</h3>
+                  <p class="text-xs text-gray-400 mt-1">
+                    Sets the default target for Dashboard buttons & <kbd class="px-1.5 py-0.5 rounded bg-gray-700 font-mono text-gray-200">Ctrl+E</kbd>
+                  </p>
+                </div>
+                
+                <div class="flex p-1 bg-secondary rounded-lg border border-gray-700" id="shortcutTargetGroup">
+                  <label class="flex-1 text-center cursor-pointer m-0">
+                    <input type="radio" id="shortcutLocal" name="shortcutTarget" value="local" class="peer sr-only" checked aria-label="Shortcut Local" />
+                    <div class="py-2 text-sm font-medium rounded-md text-gray-400 transition-all duration-200 peer-checked:bg-accent-primary peer-checked:text-white peer-checked:shadow-sm hover:text-gray-200 peer-checked:hover:text-white">
+                      <i class="fas fa-file-alt mr-1"></i> Local File
+                    </div>
+                  </label>
+                  
+                  <label class="flex-1 text-center cursor-pointer m-0 transition-opacity duration-200" id="shortcutCloudLabel">
+                    <input type="radio" id="shortcutCloud" name="shortcutTarget" value="cloud" class="peer sr-only" disabled aria-label="Shortcut Cloud" />
+                    <div class="py-2 text-sm font-medium rounded-md text-gray-400 transition-all duration-200 peer-checked:bg-accent-primary peer-checked:text-white peer-checked:shadow-sm hover:text-gray-200 peer-checked:hover:text-white">
+                      <i class="fas fa-cloud mr-1"></i> Cloud Backup
+                    </div>
+                  </label>
+                </div>
               </div>
 
               <!-- 4. Backup Reminders -->
