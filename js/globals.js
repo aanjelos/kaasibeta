@@ -315,15 +315,16 @@ function openInitialSetupWizard() {
       if (acc.id === "cash") {
         nameWrapper.innerHTML = `<label for="setupBalance-${acc.id}" class="text-sm font-medium text-gray-300 justify-self-start">${acc.name}</label>`;
       } else {
-        nameWrapper.innerHTML = `<input type="text" id="setupName-${acc.id}" name="setupName-${acc.id}" value="${acc.name}" data-account-id="${acc.id}" class="!py-1.5 !px-2 text-sm w-full rounded placeholder-gray-400" ${inputStyle} placeholder="Account Name">`;
+        nameWrapper.innerHTML = `<input type="text" id="setupName-${acc.id}" name="setupName-${acc.id}" value="${acc.name}" data-account-id="${acc.id}" class="text-sm w-full rounded placeholder-gray-400" ${inputStyle} placeholder="Account Name">`;
       }
       accRow.appendChild(nameWrapper);
 
       // 3. Balance field (Input for all)
       const balanceWrapper = document.createElement("div");
-      const balanceValue =
-        acc.balance !== 0 || acc.id === "cash" ? acc.balance.toString() : "";
-      balanceWrapper.innerHTML = `<input type="text" inputmode="decimal" class="calc-amount" id="setupBalance-${acc.id}" name="setupBalance-${acc.id}" value="${balanceValue}" data-account-id="${acc.id}" step="0.01" placeholder="0.00 (Optional)" class="!py-1.5 !px-2 text-sm w-full rounded placeholder-gray-400" ${inputStyle}>`;
+      balanceWrapper.className = "flex-1 relative flex items-center w-full";
+      
+      const balanceValue = acc.balance !== 0 || acc.id === "cash" ? acc.balance.toString() : "";
+      balanceWrapper.innerHTML = `<input type="text" inputmode="decimal" class="calc-amount" id="setupBalance-${acc.id}" name="setupBalance-${acc.id}" value="${balanceValue}" data-account-id="${acc.id}" step="0.01" placeholder="0.00 (Optional)" class="text-sm w-full rounded placeholder-gray-400" ${inputStyle}>`;
       accRow.appendChild(balanceWrapper);
 
       accountsContainer.appendChild(accRow);

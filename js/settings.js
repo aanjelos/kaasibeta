@@ -57,7 +57,7 @@ function renderSettingsForm() {
       nameInput.name = `accountName_${acc.id}`;
       nameInput.value = acc.name;
       nameInput.dataset.accountId = acc.id;
-      nameInput.className = "!py-1 !px-2 text-sm rounded placeholder-gray-400";
+      nameInput.className = "text-sm rounded placeholder-gray-400";
       nameInput.style.backgroundColor = "var(--bg-secondary)";
       nameInput.style.borderColor = "var(--border-color)";
       nameInput.style.color = "var(--text-primary)";
@@ -75,7 +75,7 @@ function renderSettingsForm() {
       balanceInput.step = "0.01";
       balanceInput.dataset.accountId = acc.id;
       balanceInput.className =
-        "!py-1 !px-2 text-sm rounded placeholder-gray-400";
+        "text-sm rounded placeholder-gray-400";
       balanceInput.style.backgroundColor = "var(--bg-secondary)";
       balanceInput.style.borderColor = "var(--border-color)";
       balanceInput.style.color = "var(--text-primary)";
