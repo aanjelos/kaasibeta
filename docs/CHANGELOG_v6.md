@@ -62,6 +62,7 @@ Kaasi can now be installed directly to your phone or computer just like a native
 - **Form Streamlining**: Rearranged the Debts and Receivables forms to place the "Amount" field first, matching the flow of regular transactions.
 - **Responsive Settings Tabs**: Added horizontal scrolling to the Settings menu tabs to prevent text from wrapping awkwardly on small screens.
 - **Settings Cleanup**: Consolidated the standalone Credit Card settings directly into the Accounts tab for easier management.
+- **Settings Polish**: Input fields across the Settings menu are now perfectly spaced, and interactive elements like segmented controls and keyboard shortcut badges visually blend with the app's brand colors.
 - **Background Scroll Locking**: Fixed an annoying issue where the background would scroll while interacting with menus or popups on mobile.
 - **Visual Polish**: Perfectly centered the percentage text inside circular progress rings for a cleaner look.
 - **Modernized Charts**: Upgraded the generic monthly pie chart into a sleek doughnut chart with a curated color palette, soft rounded slices, and negative space borders. Replaced the traditional tooltip with a dynamic center-text overlay (featuring smart device-aware placeholders and click-to-lock functionality) when interacting with a slice, and intelligently bundles tiny expenses under 2% into an "Other" category to prevent visual clutter. Additionally, the dashboard daily expenses chart was upgraded from a line graph to a dynamic bar chart for clearer day-to-day visualization.
@@ -73,4 +74,5 @@ Kaasi can now be installed directly to your phone or computer just like a native
 - **Accessibility Enhancements**: Upgraded color contrast ratios to a new highly readable palette, and improved keyboard navigation across the app so it's easier to use for everyone.
 - **Data Wipe Reset**: Choosing to 'Delete All Data' now safely logs you out and returns you immediately to the Setup Wizard for a clean slate.
 - **Security Hardening**: Significantly improved overall app security and patched potential vulnerabilities to keep your data safe.
+- **Logic & Safety**: Added protective checks preventing users from hiding all accounts (which would break transaction forms) and fixed bugs related to saving background preference states (like the quick action target).
 - **Updated Help Info**: The Settings info pane has been updated to accurately explain the new backup interval systems and cloud features.

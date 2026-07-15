@@ -586,3 +586,9 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - Consolidated repetitive UI event listeners for the `Ctrl+I` shortcut and Import buttons into a reusable `triggerDataImport()` helper.
 - Abstracted and shared identical blocks of business logic across `features.js` (e.g., building Year Selectors, calculating dynamic max-months for Installments, and verifying payment deductions for Debts & Credit Cards).
 - **Bugfix**: Fixed a pre-existing issue in the "Pay Multiple CC Items" form where new transactions were being logged with incorrect object keys (`accountId`/`categoryId` instead of `account`/`category`), which previously caused them to render as "Unknown Acct" and "Uncategorized" in the dashboard.
+
+### 120. [UI Polish & Bugfix] Settings Input Polish & Safety Nets (v6.347m)
+- **Settings Inputs**: Globally stripped hardcoded padding classes from inputs in the Settings modal (Manage Accounts, Transfer Settings, CC Settings, etc.) to ensure a spacious and consistent layout that matches the 'Add Transaction' modal.
+- **Segmented Control**: Added proper dynamic styling for the Segmented Control active state using custom Tailwind color mappings (`bg-accent-primary`), and updated the keyboard shortcut badge to cleanly display `<kbd>Ctrl+E</kbd> / <kbd>Ctrl+I</kbd>` with a brand-matching grey border.
+- **Account Visibility Safety Net**: Added a protective check preventing users from hiding their last visible account to prevent edge cases that break the transaction dropdown.
+- **Shortcut Preferences Bug**: Fixed an issue where the preferred cloud/local quick action target failed to save to `localStorage`, preventing the app from forcing "Cloud Backup" mode repeatedly on page reload for logged-in users.
