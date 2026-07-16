@@ -464,7 +464,7 @@ async function executeBackupToSupabase() {
       throw error;
     }
 
-    console.log("Backup successful. Data saved:", data);
+    console.log("Backup successful.");
     const backupTime = data.updated_at
       ? new Date(data.updated_at).toLocaleString()
       : "just now";
@@ -554,7 +554,7 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
           throw error || new Error("No data found to restore.");
         }
 
-        console.log("Data fetched successfully:", data);
+        console.log("Data fetched successfully.");
 
         if (!data.data || typeof data.data !== "object") {
           throw new Error("Cloud data is empty or in an invalid format.");
