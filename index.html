@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.351m" />
+    <meta name="application-version" content="v6.352m" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -250,28 +250,28 @@
         <div id="mobileDropdown" class="absolute right-0 top-[60px] z-40 gap-6 flex flex-col items-end transition-all duration-300 opacity-0 invisible md:hidden pointer-events-none">
            <!-- All Transactions -->
            <div class="flex items-center gap-3 pointer-events-auto">
-             <span class="bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg truncate max-w-[calc(100vw-6rem)]">All Transactions</span>
+             <span onclick="document.getElementById('dropMonthlyBtn').click()" class="cursor-pointer hover:brightness-110 transition-all bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg truncate max-w-[calc(100vw-6rem)]">All Transactions</span>
              <button id="dropMonthlyBtn" class="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-lg flex items-center justify-center hover:brightness-110 transition-all">
                <i class="fas fa-calendar-alt"></i>
              </button>
            </div>
            <!-- Export Backup -->
            <div class="flex items-center gap-3 pointer-events-auto">
-             <span id="dropBackupText" class="bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg truncate max-w-[calc(100vw-6rem)]">Export Backup</span>
+             <span id="dropBackupText" onclick="document.getElementById('dropBackupBtn').click()" class="cursor-pointer hover:brightness-110 transition-all bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg truncate max-w-[calc(100vw-6rem)]">Export Backup</span>
              <button id="dropBackupBtn" class="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-lg flex items-center justify-center hover:brightness-110 transition-all">
                <i class="fas fa-floppy-disk"></i>
              </button>
            </div>
            <!-- Import Backup -->
            <div class="flex items-center gap-3 pointer-events-auto">
-             <span id="dropRestoreText" class="bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg truncate max-w-[calc(100vw-6rem)]">Import Backup</span>
+             <span id="dropRestoreText" onclick="document.getElementById('dropRestoreBtn').click()" class="cursor-pointer hover:brightness-110 transition-all bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg truncate max-w-[calc(100vw-6rem)]">Import Backup</span>
              <button id="dropRestoreBtn" class="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-lg flex items-center justify-center hover:brightness-110 transition-all">
                <i class="fas fa-download"></i>
              </button>
            </div>
            <!-- Settings -->
            <div class="flex items-center gap-3 pointer-events-auto">
-             <span class="bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg truncate max-w-[calc(100vw-6rem)]">Settings</span>
+             <span onclick="document.getElementById('dropSettingsBtn').click()" class="cursor-pointer hover:brightness-110 transition-all bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-xs font-semibold px-3 py-1.5 rounded shadow-lg truncate max-w-[calc(100vw-6rem)]">Settings</span>
              <button id="dropSettingsBtn" class="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] shadow-lg flex items-center justify-center hover:brightness-110 transition-all">
                <i class="fas fa-cog"></i>
              </button>
