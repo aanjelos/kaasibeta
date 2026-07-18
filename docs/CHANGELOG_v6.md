@@ -8,6 +8,7 @@ Here are the major changes and new features:
 - **App PIN Lock**: Secure your financial data with a new 4-digit PIN lock screen that features auto-lock on inactivity. The app's interface is completely hidden until unlocked, preventing anyone from snooping.
 - **Secure PIN Recovery**: Forgot your PIN? You can now use a secure recovery code mechanism (contact the developer to get yours) to safely regain access without losing data.
 - **Privacy-First Analytics**: We now track basic app usage to see which features are popular, without ever collecting any of your personal or financial data.
+- **Console Privacy**: We removed the full state data dump from the developer console on load, ensuring your entire financial state isn't visible to shoulder-surfers if the dev tools are opened.
 
 ### 💰 Category Budgets & Organization
 - **Smart Category Budgets**: Create customizable monthly spending limits and group multiple categories into a single budget.
