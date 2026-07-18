@@ -598,3 +598,6 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Debt Due Date**: Modified the default Debt Due Date to strictly default to exactly one month from the current local date.
 - **Dashboard Progress Bars**: Removed the click listener from the category amount text to allow mobile users to tap and read the tooltip without accidentally triggering the modal. Opening the modal is now strictly isolated to clicking the progress bar itself.
 - **Console Log**: Removed the final state debug data dump from the console on load to improve performance in production.
+
+### 122. [Bugfix] Pie Chart Ghosting Fix (v6.351m)
+- **Chart.js Edge Case**: Added a native HTML canvas `mouseleave` event listener to the Monthly Overview Pie Chart. This fixes a rare bug where quickly moving the mouse completely outside of the modal would cause the center-text hover state to "ghost" and remain visible instead of correctly reverting to the placeholder text.
