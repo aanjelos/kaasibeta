@@ -2380,7 +2380,7 @@ function openCcHistoryModal() {
               category: payCategory,
               type: "expense",
               account: payFromAccountId,
-              date: new Date().toISOString().split("T")[0],
+              date: getCurrentDateString(),
               timestamp: Date.now(),
             };
             state.transactions.push(bankTx);
@@ -2622,11 +2622,9 @@ function openAddDebtForm() {
     `<div><label for="debtAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="debtAmount" name="debtAmount" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div><div><label for="debtWho" class="block text-sm font-medium mb-1">Who do you owe?</label><input type="text" id="debtWho" name="debtWho" placeholder="e.g., John Doe" required></div><div><label for="debtWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="debtWhy" name="debtWhy" placeholder="e.g., Loan" required></div><div><label for="debtDueDate" class="block text-sm font-medium mb-1">Due Date</label><input type="date" id="debtDueDate" name="debtDueDate" required></div><button type="submit" class="btn btn-primary w-full">Add Debt</button>`,
     handleAddDebtSubmit
   );
-  const nextMonth = new Date();
-  nextMonth.setMonth(nextMonth.getMonth() + 1);
   const debtDueDateInput = $("#debtDueDate");
   if (debtDueDateInput)
-    debtDueDateInput.value = nextMonth.toISOString().split("T")[0];
+    debtDueDateInput.value = getCurrentDateString();
 }
 
 function handleAddDebtSubmit(event) {
@@ -2925,7 +2923,7 @@ function openAddReceivableForm() {
 
   const dateGivenInput = $("#recDateGiven");
   if (dateGivenInput)
-    dateGivenInput.value = new Date().toISOString().split("T")[0];
+    dateGivenInput.value = getCurrentDateString();
 
   const sourceAccountSelect = $("#recSourceAccountAdd");
   if (sourceAccountSelect) {
@@ -3302,7 +3300,7 @@ function handleReceivePaymentSubmit(event) {
   const recId = form.get("recId");
   const paymentAmountForm = parseFloat(String(form.get("recPaymentAmount")).replace(/,/g, ''));
   const accountId = form.get("recPaymentAccount");
-  const currentDate = new Date().toISOString().split("T")[0];
+  const currentDate = getCurrentDateString();
 
   const receivable = state.receivables.find((r) => r.id === recId);
   const account = state.accounts.find((acc) => acc.id === accountId);
@@ -3466,7 +3464,7 @@ function openAddInstallmentForm() {
   );
   const instStartDateInput = $("#instStartDate");
   if (instStartDateInput)
-    instStartDateInput.value = new Date().toISOString().split("T")[0];
+    instStartDateInput.value = getCurrentDateString();
 
   const totalMonthsInput = $("#instTotalMonths");
   const monthsLeftInput = $("#instMonthsLeft");
