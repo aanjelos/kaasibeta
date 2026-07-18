@@ -617,6 +617,17 @@ function renderMonthlyPieChart(data, isUpdate = false) {
     }
     return;
   }
+  canvas.onmouseleave = () => {
+    if (monthlyPieChartInstance && (monthlyPieChartInstance.lockedIndex === undefined || monthlyPieChartInstance.lockedIndex === null)) {
+      const dataContainer = document.getElementById("pieChartDataContainer");
+      const placeholderContainer = document.getElementById("pieChartPlaceholderContainer");
+      if (dataContainer && placeholderContainer) {
+        dataContainer.classList.add("hidden");
+        placeholderContainer.classList.remove("hidden");
+      }
+    }
+  };
+
   const ctx = canvas.getContext("2d");
 
   const computedStyle = getComputedStyle(document.documentElement);
