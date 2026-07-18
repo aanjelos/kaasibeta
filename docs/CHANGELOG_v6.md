@@ -75,4 +75,5 @@ Kaasi can now be installed directly to your phone or computer just like a native
 - **Data Wipe Reset**: Choosing to 'Delete All Data' now safely logs you out and returns you immediately to the Setup Wizard for a clean slate.
 - **Security Hardening**: Significantly improved overall app security and patched potential vulnerabilities to keep your data safe.
 - **Logic & Safety**: Added protective checks preventing users from hiding all accounts (which would break transaction forms) and fixed bugs related to saving background preference states (like the quick action target).
+- **Timezone Accuracy**: Fixed a legacy issue where date inputs defaulted to UTC time, ensuring all new entries now accurately lock to your local timezone.
 - **Updated Help Info**: The Settings info pane has been updated to accurately explain the new backup interval systems and cloud features.
