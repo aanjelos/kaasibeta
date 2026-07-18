@@ -592,3 +592,9 @@ Addressed several key findings from the Kaasibeta Codebase Audit Report:
 - **Segmented Control**: Added proper dynamic styling for the Segmented Control active state using custom Tailwind color mappings (`bg-accent-primary`), and updated the keyboard shortcut badge to cleanly display `<kbd>Ctrl+E</kbd> / <kbd>Ctrl+I</kbd>` with a brand-matching grey border.
 - **Account Visibility Safety Net**: Added a protective check preventing users from hiding their last visible account to prevent edge cases that break the transaction dropdown.
 - **Shortcut Preferences Bug**: Fixed an issue where the preferred cloud/local quick action target failed to save to `localStorage`, preventing the app from forcing "Cloud Backup" mode repeatedly on page reload for logged-in users.
+
+### 121. [Bugfix] Local Timezone Fixes & UI Polish (v6.350m)
+- **Timezone Bug**: Fixed a long-standing issue inherited from v5 where date input fields (such as Debts, Receivables, and Installments) defaulted to UTC rather than the user's local timezone. This occasionally caused dates to shift to "yesterday" or "tomorrow" based on the user's physical location. All modals now correctly default to the local date.
+- **Debt Due Date**: Modified the default Debt Due Date to strictly default to exactly one month from the current local date.
+- **Dashboard Progress Bars**: Removed the click listener from the category amount text to allow mobile users to tap and read the tooltip without accidentally triggering the modal. Opening the modal is now strictly isolated to clicking the progress bar itself.
+- **Console Log**: Removed the final state debug data dump from the console on load to improve performance in production.
