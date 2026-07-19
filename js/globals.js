@@ -441,6 +441,9 @@ function openInitialSetupWizard() {
   }
 
   modal.style.display = "block";
+  if (typeof updateBodyScrollState === "function") {
+    updateBodyScrollState();
+  }
   displayAppVersion();
 }
 
