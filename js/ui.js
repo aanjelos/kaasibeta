@@ -33,18 +33,18 @@ function openShortcutsHelpModal() {
   shortcuts.forEach((shortcut) => {
     const li = document.createElement("li");
     li.className =
-      "flex justify-between items-center py-2 px-1 border-b border-gray-700 last:border-b-0";
+      "flex justify-between items-center py-2 px-1 border-b border-neutral-700 last:border-b-0";
 
     const keySpan = document.createElement("span");
     keySpan.className = "font-semibold text-accent-primary w-1/3"; // Key takes up roughly 1/3
     keySpan.textContent = shortcut.key;
 
     const actionSpan = document.createElement("span");
-    actionSpan.className = "text-gray-300 text-sm text-left flex-grow px-2"; // Action takes up most space
+    actionSpan.className = "text-neutral-300 text-sm text-left flex-grow px-2"; // Action takes up most space
     actionSpan.textContent = shortcut.action;
 
     const contextSpan = document.createElement("span");
-    contextSpan.className = "text-xs text-gray-500 text-right w-1/4 italic"; // Context takes up roughly 1/4
+    contextSpan.className = "text-xs text-neutral-500 text-right w-1/4 italic"; // Context takes up roughly 1/4
     contextSpan.textContent = shortcut.context || "";
 
     li.appendChild(keySpan);
@@ -522,7 +522,7 @@ function openCashCounter() {
     inputEl.step = "1";
     inputEl.dataset.denom = denom;
     inputEl.className =
-      "text-center bg-gray-600 border border-gray-500 rounded px-1 py-0.5 w-16 mx-auto text-sm";
+      "text-center bg-neutral-600 border border-neutral-500 rounded px-1 py-0.5 w-16 mx-auto text-sm";
     inputEl.placeholder = "0";
     inputEl.oninput = calculateCashTotal;
     inputEl.onkeydown = (e) => {
@@ -542,7 +542,7 @@ function openCashCounter() {
       }
     });
     const totalEl = document.createElement("span");
-    totalEl.className = "text-right text-gray-400 text-sm";
+    totalEl.className = "text-right text-neutral-400 text-sm";
     totalEl.id = `cashTotal-${denom}`;
     totalEl.textContent = formatCurrency(0);
     gridContainer.appendChild(denomEl);

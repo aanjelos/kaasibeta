@@ -629,13 +629,13 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
     } else {
       let extraHtml = "";
       if (isFromDashboard) {
-        extraHtml = `<div class="mt-4 pt-4 border-t border-gray-700">
+        extraHtml = `<div class="mt-4 pt-4 border-t border-neutral-700">
           <label class="flex items-start gap-2.5 cursor-pointer group text-left max-w-[260px] mx-auto">
             <input type="checkbox" id="dontShowRestoreWarning" class="peer sr-only">
-            <div class="shrink-0 w-4 h-4 rounded border border-gray-500 peer-checked:border-accent-500 flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500 mt-[3px]">
+            <div class="shrink-0 w-4 h-4 rounded border border-neutral-500 peer-checked:border-accent-500 flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500 mt-[3px]">
               <svg class="w-3 h-3 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
             </div>
-            <span class="text-sm text-gray-300 group-hover:text-white transition-colors leading-[1.35]">Don't show this warning again when restoring from the dashboard</span>
+            <span class="text-sm text-neutral-300 group-hover:text-white transition-colors leading-[1.35]">Don't show this warning again when restoring from the dashboard</span>
           </label>
         </div>`;
       }
@@ -643,7 +643,7 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
       // Show a confirmation modal first
       showConfirmationModal(
         "Restore from Cloud",
-        `<div class="text-gray-300">
+        `<div class="text-neutral-300">
           <p class="mb-3">This will <strong class="text-warning">OVERWRITE ALL</strong> your current local data with the data from your last cloud backup.</p>
           <p>Are you sure you want to proceed?</p>
         </div>${extraHtml}`,
@@ -896,11 +896,11 @@ function updateSupabaseUI(user) {
     userEmailEl.textContent = user.email;
     shortcutCloudInput.disabled = false;
     shortcutCloudLabel.classList.remove(
-      "text-gray-400",
+      "text-neutral-400",
       "opacity-60",
       "cursor-not-allowed"
     );
-    shortcutCloudLabel.classList.add("text-gray-300");
+    shortcutCloudLabel.classList.add("text-neutral-300");
 
 
     const savedMethod = localStorage.getItem("preferredSyncMethod");
@@ -923,11 +923,11 @@ function updateSupabaseUI(user) {
     shortcutCloudInput.checked = false; // Uncheck it
     if (shortcutLocalInput) shortcutLocalInput.checked = true; // Default to local
     shortcutCloudLabel.classList.add(
-      "text-gray-400",
+      "text-neutral-400",
       "opacity-60",
       "cursor-not-allowed"
     );
-    shortcutCloudLabel.classList.remove("text-gray-300");
+    shortcutCloudLabel.classList.remove("text-neutral-300");
   }
 
   // Update the header buttons to reflect the (new) shortcut state

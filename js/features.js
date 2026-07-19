@@ -105,7 +105,7 @@ function renderRecentTransactions() {
     .slice(0, 10);
 
   if (recent.length === 0) {
-    list.innerHTML = '<div class="flex flex-col items-center justify-center py-8 text-gray-500"><i class="fas fa-receipt text-3xl mb-3 opacity-40"></i><p class="text-sm font-medium">No transactions yet</p></div>';
+    list.innerHTML = '<div class="flex flex-col items-center justify-center py-8 text-neutral-500"><i class="fas fa-receipt text-3xl mb-3 opacity-40"></i><p class="text-sm font-medium">No transactions yet</p></div>';
     return;
   }
 
@@ -114,7 +114,7 @@ function renderRecentTransactions() {
   recent.forEach((t) => {
     const div = document.createElement("div");
     div.dataset.id = t.id;
-    div.className = `transaction-list-item-layout flex justify-between items-center rounded-lg bg-gray-700/50 text-sm transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group`;
+    div.className = `transaction-list-item-layout flex justify-between items-center rounded-lg bg-neutral-700/50 text-sm transition-all duration-200 hover:bg-neutral-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer group`;
     
     div.onclick = () => openTransactionDetailModal(t.id);
 
@@ -137,12 +137,12 @@ function renderRecentTransactions() {
     div.innerHTML = `
       <div class="flex-grow mr-2 overflow-hidden">
         <p class="font-medium truncate ${textColorClass}">${escapeHTML(t.description)}</p>
-        <p class="text-xs text-gray-400">${subDetailText}</p>
+        <p class="text-xs text-neutral-400">${subDetailText}</p>
       </div>
       <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums">${isIncome ? "+" : "-"}${formatCurrency(t.amount)}</span>
       <div class="edit-btn-container flex-shrink-0 hidden md:flex">
         <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionModal('${t.id}', event)" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
-        <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteTransaction('${t.id}',event)" data-tooltip="Delete"><i class="fas fa-times"></i></button>
+        <button class="text-xs text-neutral-500 hover:text-expense focus:outline-none" onclick="deleteTransaction('${t.id}',event)" data-tooltip="Delete"><i class="fas fa-times"></i></button>
       </div>`;
     
     list.appendChild(div);
@@ -161,7 +161,7 @@ function renderDebtList() {
 
   if (state.debts.length === 0) {
     listContainer.innerHTML =
-      '<div class="flex flex-col items-center justify-center py-8 text-gray-500"><i class="fas fa-handshake text-4xl mb-3 opacity-40"></i><p class="text-sm font-medium">No debts recorded</p></div>';
+      '<div class="flex flex-col items-center justify-center py-8 text-neutral-500"><i class="fas fa-handshake text-4xl mb-3 opacity-40"></i><p class="text-sm font-medium">No debts recorded</p></div>';
     return;
   }
 
@@ -188,20 +188,20 @@ function renderDebtList() {
 
     const creditorWrapper = document.createElement("div");
     creditorWrapper.className =
-      "mb-3 border border-gray-700 rounded-md overflow-hidden shadow-sm";
+      "mb-3 border border-neutral-700 rounded-md overflow-hidden shadow-sm";
 
     const creditorHeader = document.createElement("div");
     creditorHeader.className =
-      "flex flex-col sm:flex-row sm:justify-between sm:items-center items-start p-3 cursor-pointer hover:bg-gray-600/50 transition-colors gap-2 sm:gap-0";
+      "flex flex-col sm:flex-row sm:justify-between sm:items-center items-start p-3 cursor-pointer hover:bg-neutral-600/50 transition-colors gap-2 sm:gap-0";
     creditorHeader.style.backgroundColor = "var(--bg-tertiary)";
 
     creditorHeader.innerHTML = ` 
-      <h4 class="text-md font-semibold text-gray-100 force-word-wrap">${creditorName}</h4>
+      <h4 class="text-md font-semibold text-neutral-100 force-word-wrap">${creditorName}</h4>
       <div class="flex items-center flex-shrink-0 w-full sm:w-auto justify-between sm:justify-end">
         <span class="text-md font-semibold text-expense mr-3 whitespace-nowrap tabular-nums">${formatCurrency(
           creditorData.totalOwedTo
         )}</span>
-        <span class="toggle-icon text-gray-400"><i class="fas fa-chevron-down text-xs"></i></span>
+        <span class="toggle-icon text-neutral-400"><i class="fas fa-chevron-down text-xs"></i></span>
       </div>
     `;
     creditorWrapper.appendChild(creditorHeader);
@@ -226,7 +226,7 @@ function renderDebtList() {
           daysColor = "text-warning font-medium";
         } else {
           daysText = `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`;
-          daysColor = "text-gray-300";
+          daysColor = "text-neutral-300";
         }
 
         const origAmt = d.originalAmount || d.amount || d.remainingAmount;
@@ -234,7 +234,7 @@ function renderDebtList() {
         let progressBarHtml = "";
         if (percentagePaid > 0) {
           progressBarHtml = `
-            <div class="w-full bg-gray-700 rounded-full h-1.5 mt-2 mb-1" data-tooltip="${percentagePaid.toFixed(1)}% Paid">
+            <div class="w-full bg-neutral-700 rounded-full h-1.5 mt-2 mb-1" data-tooltip="${percentagePaid.toFixed(1)}% Paid">
               <div class="bg-income h-1.5 rounded-full transition-all duration-500" style="width: ${percentagePaid}%"></div>
             </div>
           `;
@@ -242,11 +242,11 @@ function renderDebtList() {
 
         const itemDiv = document.createElement("div");
         itemDiv.className =
-          "transaction-list-item-layout text-sm border-b border-gray-700 last:border-b-0";
+          "transaction-list-item-layout text-sm border-b border-neutral-700 last:border-b-0";
         itemDiv.innerHTML = `
           <div class="flex justify-between items-start mb-1 gap-x-2">
             <div class="flex-grow">
-              <p class="font-medium text-gray-200 force-word-wrap">${d.why}</p>
+              <p class="font-medium text-neutral-200 force-word-wrap">${d.why}</p>
               <p class="text-xs ${daysColor}">${daysText}</p>
             </div>
             <span class="font-semibold text-expense whitespace-nowrap tabular-nums">${formatCurrency(
@@ -254,7 +254,7 @@ function renderDebtList() {
             )}</span>
           </div>
           ${progressBarHtml}
-          <div class="flex justify-between items-center text-xs text-gray-500 mt-1">
+          <div class="flex justify-between items-center text-xs text-neutral-500 mt-1">
             <span>Due: ${new Date(d.dueDate).toLocaleDateString()}</span>
             <div class="edit-btn-container">
               <button class="link-style text-xs mr-2 accent-text hover:text-accent-hover" onclick="openEditDebtForm('${
@@ -263,7 +263,7 @@ function renderDebtList() {
               <button class="link-style text-xs mr-2 text-income hover:opacity-80" onclick="openPayDebtForm('${
                 d.id
               }')">Pay</button>
-              <button class="text-gray-500 hover:text-expense text-xs focus:outline-none" onclick="deleteDebt('${
+              <button class="text-neutral-500 hover:text-expense text-xs focus:outline-none" onclick="deleteDebt('${
                 d.id
               }')" data-tooltip="Delete"><i class="fas fa-times"></i></button>
             </div>
@@ -308,7 +308,7 @@ function renderReceivableList() {
   const ccReceivables = state.receivables.filter((r) => r.type === "cc");
   if (state.receivables.length === 0) {
     listContainer.innerHTML =
-      '<div class="flex flex-col items-center justify-center py-8 text-gray-500"><i class="fas fa-hand-holding-usd text-4xl mb-3 opacity-40"></i><p class="text-sm font-medium">No receivables recorded</p></div>';
+      '<div class="flex flex-col items-center justify-center py-8 text-neutral-500"><i class="fas fa-hand-holding-usd text-4xl mb-3 opacity-40"></i><p class="text-sm font-medium">No receivables recorded</p></div>';
     return;
   }
 
@@ -317,9 +317,9 @@ function renderReceivableList() {
     sectionWrapper.className = "mb-6";
     const sectionTitleHeader = document.createElement("div");
     sectionTitleHeader.className =
-      "flex flex-col sm:flex-row sm:justify-between sm:items-end items-start border-b border-gray-500 pb-2 mb-3 gap-1";
+      "flex flex-col sm:flex-row sm:justify-between sm:items-end items-start border-b border-neutral-500 pb-2 mb-3 gap-1";
     const sectionTitle = document.createElement("h3");
-    sectionTitle.className = "text-xl font-semibold text-gray-100";
+    sectionTitle.className = "text-xl font-semibold text-neutral-100";
     sectionTitle.textContent = title;
     sectionTitleHeader.appendChild(sectionTitle);
     const groupTotalAmount = receivablesForGroup.reduce(
@@ -328,7 +328,7 @@ function renderReceivableList() {
     );
     const groupTotalSpan = document.createElement("span");
     groupTotalSpan.className =
-      "text-base font-normal text-gray-100 tabular-nums";
+      "text-base font-normal text-neutral-100 tabular-nums";
     groupTotalSpan.textContent = `Total: ${formatCurrency(groupTotalAmount)}`;
     sectionTitleHeader.appendChild(groupTotalSpan);
     sectionWrapper.appendChild(sectionTitleHeader);
@@ -357,18 +357,18 @@ function renderReceivableList() {
         .replace(/[^a-z0-9]/g, "")}-${generateId()}`;
       const personWrapper = document.createElement("div");
       personWrapper.className =
-        "mb-3 border border-gray-700 rounded-md overflow-hidden shadow-sm";
+        "mb-3 border border-neutral-700 rounded-md overflow-hidden shadow-sm";
       const personHeader = document.createElement("div");
       personHeader.className =
-        "flex flex-col sm:flex-row sm:justify-between sm:items-center items-start p-3 cursor-pointer hover:bg-gray-600/50 transition-colors gap-2 sm:gap-0";
+        "flex flex-col sm:flex-row sm:justify-between sm:items-center items-start p-3 cursor-pointer hover:bg-neutral-600/50 transition-colors gap-2 sm:gap-0";
       personHeader.style.backgroundColor = "var(--bg-tertiary)";
       personHeader.innerHTML = `
-          <h4 class="text-md font-semibold text-gray-100 force-word-wrap">${personName}</h4>
+          <h4 class="text-md font-semibold text-neutral-100 force-word-wrap">${personName}</h4>
           <div class="flex items-center flex-shrink-0 w-full sm:w-auto justify-between sm:justify-end">
             <span class="text-md font-semibold text-income mr-3 whitespace-nowrap tabular-nums">${formatCurrency(
               personData.totalOwed
             )}</span>
-            <span class="toggle-icon text-gray-400"><i class="fas fa-chevron-down text-xs"></i></span>
+            <span class="toggle-icon text-neutral-400"><i class="fas fa-chevron-down text-xs"></i></span>
           </div>
       `;
       personWrapper.appendChild(personHeader);
@@ -390,7 +390,7 @@ function renderReceivableList() {
           let progressBarHtml = "";
           if (percentagePaid > 0) {
             progressBarHtml = `
-              <div class="w-full bg-gray-700 rounded-full h-1.5 mt-2 mb-1" data-tooltip="${percentagePaid.toFixed(1)}% Received">
+              <div class="w-full bg-neutral-700 rounded-full h-1.5 mt-2 mb-1" data-tooltip="${percentagePaid.toFixed(1)}% Received">
                 <div class="bg-income h-1.5 rounded-full transition-all duration-500" style="width: ${percentagePaid}%"></div>
               </div>
             `;
@@ -398,19 +398,19 @@ function renderReceivableList() {
 
           const itemDiv = document.createElement("div");
           itemDiv.className =
-            "transaction-list-item-layout text-sm border-b border-gray-700 last:border-b-0";
+            "transaction-list-item-layout text-sm border-b border-neutral-700 last:border-b-0";
           itemDiv.innerHTML = `
           <div class="flex justify-between items-start mb-1 gap-x-2">
             <div class="flex-grow">
-              <p class="font-medium text-gray-200 force-word-wrap">${r.why}</p>
-              <p class="text-xs text-gray-400">${srcTxt}</p>
+              <p class="font-medium text-neutral-200 force-word-wrap">${r.why}</p>
+              <p class="text-xs text-neutral-400">${srcTxt}</p>
             </div>
             <span class="font-semibold text-income whitespace-nowrap tabular-nums">${formatCurrency(
               r.remainingAmount
             )}</span>
           </div>
           ${progressBarHtml}
-          <div class="flex justify-between items-center text-xs text-gray-500 mt-1">
+          <div class="flex justify-between items-center text-xs text-neutral-500 mt-1">
             <span>Given: ${new Date(r.dateGiven).toLocaleDateString()}</span>
             <div class="edit-btn-container">
               <button class="link-style text-xs mr-2 accent-text hover:text-accent-hover" onclick="openEditReceivableForm('${
@@ -419,7 +419,7 @@ function renderReceivableList() {
               <button class="link-style text-xs mr-2 text-income hover:opacity-80" onclick="openReceivePaymentForm('${
                 r.id
               }')">Receive</button>
-              <button class="text-gray-500 hover:text-expense text-xs focus:outline-none" onclick="deleteReceivable('${
+              <button class="text-neutral-500 hover:text-expense text-xs focus:outline-none" onclick="deleteReceivable('${
                 r.id
               }')" data-tooltip="Delete"><i class="fas fa-times"></i></button>
             </div>
@@ -458,7 +458,7 @@ function renderInstallmentList() {
   });
 
   if (sortedInstallments.length === 0) {
-    list.innerHTML = '<div class="flex flex-col items-center justify-center py-8 text-gray-500"><i class="fas fa-calendar-check text-4xl mb-3 opacity-40"></i><p class="text-sm font-medium">No installments recorded</p></div>';
+    list.innerHTML = '<div class="flex flex-col items-center justify-center py-8 text-neutral-500"><i class="fas fa-calendar-check text-4xl mb-3 opacity-40"></i><p class="text-sm font-medium">No installments recorded</p></div>';
     return;
   }
 
@@ -468,7 +468,7 @@ function renderInstallmentList() {
     const daysLeft = getDaysLeft(endDate);
     let daysLeftText =
       daysLeft < 0
-        ? `<span class="text-gray-500">Finished</span>`
+        ? `<span class="text-neutral-500">Finished</span>`
         : `${daysLeft} day${daysLeft === 1 ? '' : 's'} left`;
     const totalLeftToPay = i.monthlyAmount * i.monthsLeft;
     const progressPercent =
@@ -477,7 +477,7 @@ function renderInstallmentList() {
         : 0;
 
     const div = document.createElement("div");
-    div.className = "transaction-list-item-layout rounded-lg bg-gray-700/50 text-sm mb-2 transition-all duration-200 hover:bg-gray-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer";
+    div.className = "transaction-list-item-layout rounded-lg bg-neutral-700/50 text-sm mb-2 transition-all duration-200 hover:bg-neutral-700/70 hover:-translate-y-0.5 hover:shadow-md cursor-pointer";
 
     const ringHtml = `
       <div class="installment-progress-ring-container w-10 h-10 flex-shrink-0" data-tooltip="${progressPercent.toFixed(
@@ -501,13 +501,13 @@ function renderInstallmentList() {
               i.monthsLeft > 0
                 ? `
                 <button class="text-sm text-income hover:opacity-80 focus:outline-none transition-opacity" onclick="payInstallmentMonth('${i.id}')" data-tooltip="Pay Installment"><i class="fas fa-credit-card"></i></button>
-                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
+                <button class="text-sm text-neutral-400 hover:text-neutral-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
               `
                 : `
-                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
+                <button class="text-sm text-neutral-400 hover:text-neutral-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
               `
             }
-            <button class="text-sm text-gray-500 hover:text-expense focus:outline-none transition-colors" onclick="deleteInstallment('${
+            <button class="text-sm text-neutral-500 hover:text-expense focus:outline-none transition-colors" onclick="deleteInstallment('${
               i.id
             }')" data-tooltip="Delete"><i class="fas fa-times"></i></button>
         </div>
@@ -520,11 +520,11 @@ function renderInstallmentList() {
           <div class="flex-grow flex justify-between items-start ml-2 min-w-0">
               <div class="flex flex-col min-w-0 pr-2">
                   <p class="text-sm md:text-base font-medium truncate mb-0.5">${i.description}</p>
-                  <p class="text-[11px] md:text-xs text-gray-400 mb-1.5 tabular-nums truncate">${formatCurrency(i.monthlyAmount)} / month</p>
-                  <p class="text-[11px] md:text-xs text-gray-500 truncate tabular-nums">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
+                  <p class="text-[11px] md:text-xs text-neutral-400 mb-1.5 tabular-nums truncate">${formatCurrency(i.monthlyAmount)} / month</p>
+                  <p class="text-[11px] md:text-xs text-neutral-500 truncate tabular-nums">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
               </div>
               <div class="flex flex-col items-end flex-shrink-0">
-                  <span class="text-xs md:text-sm font-semibold text-gray-200 mb-2.5 whitespace-nowrap tabular-nums">${formatCurrency(totalLeftToPay)} Left</span>
+                  <span class="text-xs md:text-sm font-semibold text-neutral-200 mb-2.5 whitespace-nowrap tabular-nums">${formatCurrency(totalLeftToPay)} Left</span>
                   ${buttonsHtml}
               </div>
           </div>
@@ -536,12 +536,12 @@ function renderInstallmentList() {
               ${ringHtml}
               <div class="flex flex-col min-w-0 flex-grow">
                   <p class="text-sm font-medium truncate mb-0.5">${i.description}</p>
-                  <p class="text-[11px] text-gray-400 mb-1.5 tabular-nums truncate">${formatCurrency(i.monthlyAmount)} / month</p>
-                  <p class="text-[11px] text-gray-500 truncate tabular-nums">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
+                  <p class="text-[11px] text-neutral-400 mb-1.5 tabular-nums truncate">${formatCurrency(i.monthlyAmount)} / month</p>
+                  <p class="text-[11px] text-neutral-500 truncate tabular-nums">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
               </div>
           </div>
-          <div class="flex flex-row justify-between items-center w-full border-t border-gray-600 pt-3 mt-3">
-              <span class="text-xs font-semibold text-gray-200 whitespace-nowrap tabular-nums">${formatCurrency(totalLeftToPay)} Left</span>
+          <div class="flex flex-row justify-between items-center w-full border-t border-neutral-600 pt-3 mt-3">
+              <span class="text-xs font-semibold text-neutral-200 whitespace-nowrap tabular-nums">${formatCurrency(totalLeftToPay)} Left</span>
               ${buttonsHtml}
           </div>
       </div>
@@ -744,8 +744,8 @@ function openTransactionDetailModal(transactionId, skipHistory = false) {
   let categoryHtml = "";
   if (transaction.type === "expense") {
     categoryHtml = `
-      <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
-        <span class="text-gray-400">Category</span>
+      <div class="flex justify-between items-center py-2 border-b border-neutral-700/50">
+        <span class="text-neutral-400">Category</span>
         <span class="font-medium">${transaction.category || "Uncategorized"}</span>
       </div>`;
   }
@@ -753,17 +753,17 @@ function openTransactionDetailModal(transactionId, skipHistory = false) {
   const html = `
     <div class="text-center mb-4">
       <div class="text-3xl font-bold ${textColorClass} tabular-nums mb-1">${isIncome ? "+" : "-"}${formatCurrency(transaction.amount)}</div>
-      <div class="text-sm text-gray-400 mb-3">${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</div>
-      <div class="text-lg font-semibold text-gray-50 px-2" style="text-wrap: balance;">${transaction.description}</div>
+      <div class="text-sm text-neutral-400 mb-3">${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</div>
+      <div class="text-lg font-semibold text-neutral-50 px-2" style="text-wrap: balance;">${transaction.description}</div>
     </div>
     
-    <div class="bg-gray-700/30 rounded-lg p-4 space-y-2 mb-6">
-      <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
-        <span class="text-gray-400">Date</span>
+    <div class="bg-neutral-700/30 rounded-lg p-4 space-y-2 mb-6">
+      <div class="flex justify-between items-center py-2 border-b border-neutral-700/50">
+        <span class="text-neutral-400">Date</span>
         <span class="font-medium">${new Date(transaction.date).toLocaleDateString([], { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>
       </div>
-      <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
-        <span class="text-gray-400">Account</span>
+      <div class="flex justify-between items-center py-2 border-b border-neutral-700/50">
+        <span class="text-neutral-400">Account</span>
         <span class="font-medium">${accountName}</span>
       </div>
       ${categoryHtml}
@@ -814,23 +814,23 @@ function openCcTransactionDetailModal(transactionId, skipHistory = false) {
 
   const html = `
     <div class="text-center mb-4">
-      <div class="text-3xl font-bold ${transaction.paidOff ? "text-gray-500" : "text-gray-200"} tabular-nums mb-1">${formatCurrency(transaction.amount)}</div>
+      <div class="text-3xl font-bold ${transaction.paidOff ? "text-neutral-500" : "text-neutral-200"} tabular-nums mb-1">${formatCurrency(transaction.amount)}</div>
       <div class="mb-3">${statusBadge}</div>
-      <div class="text-lg font-semibold text-gray-50 px-2" style="text-wrap: balance;">${escapeHTML(transaction.description)}</div>
+      <div class="text-lg font-semibold text-neutral-50 px-2" style="text-wrap: balance;">${escapeHTML(transaction.description)}</div>
     </div>
     
-    <div class="bg-gray-700/30 rounded-lg p-4 space-y-2 mb-6">
-      <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
-        <span class="text-gray-400">Date</span>
+    <div class="bg-neutral-700/30 rounded-lg p-4 space-y-2 mb-6">
+      <div class="flex justify-between items-center py-2 border-b border-neutral-700/50">
+        <span class="text-neutral-400">Date</span>
         <span class="font-medium">${new Date(transaction.date).toLocaleDateString([], { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>
       </div>
-      <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
-        <span class="text-gray-400">Paid So Far</span>
-        <span class="font-medium text-gray-300">${formatCurrency(transaction.paidAmount || 0)}</span>
+      <div class="flex justify-between items-center py-2 border-b border-neutral-700/50">
+        <span class="text-neutral-400">Paid So Far</span>
+        <span class="font-medium text-neutral-300">${formatCurrency(transaction.paidAmount || 0)}</span>
       </div>
-      <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
-        <span class="text-gray-400">Remaining</span>
-        <span class="font-medium ${remainingOnItem > 0.005 ? "text-expense" : "text-gray-300"}">${formatCurrency(remainingOnItem)}</span>
+      <div class="flex justify-between items-center py-2 border-b border-neutral-700/50">
+        <span class="text-neutral-400">Remaining</span>
+        <span class="font-medium ${remainingOnItem > 0.005 ? "text-expense" : "text-neutral-300"}">${formatCurrency(remainingOnItem)}</span>
       </div>
     </div>
     
@@ -905,7 +905,7 @@ function openEditTransactionModal(transactionId, event) {
                 <label for="modalAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>
                 <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="modalAmount" name="amount" value="${transaction.amount.toFixed(
                   2
-                )}" step="0.01" min="0" placeholder="e.g., 1500.50" required><button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
+                )}" step="0.01" min="0" placeholder="e.g., 1500.50" required><button type="button" class="calc-toggle-btn absolute right-4 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
             </div>
             <div>
                 <label for="modalAccount" class="block text-sm font-medium mb-1">Account</label>
@@ -1218,7 +1218,7 @@ function setupMonthlyView() {
     }
     renderMonthTabs(parseInt(yearSelector.value));
     $("#monthlyDetailsContainer").innerHTML =
-      '<p class="text-center text-gray-400">Select a month to view details.</p>';
+      '<p class="text-center text-neutral-400">Select a month to view details.</p>';
     if (monthlyPieChartInstance) {
       monthlyPieChartInstance.destroy();
       monthlyPieChartInstance = null;
@@ -1505,13 +1505,13 @@ function renderMonthlyDetails(
     )})"></i>`;
   }
   summaryGrid.innerHTML = `
-      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Total Income</p><p class="text-xl font-semibold text-income tabular-nums">${formatCurrency(
+      <div class="monthly-view-summary-card"><p class="text-sm text-neutral-400 mb-1">Total Income</p><p class="text-xl font-semibold text-income tabular-nums">${formatCurrency(
         totalIncome
       )}</p></div>
-      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Total Expenses ${monthSpendingIndicatorHtml}</p><p class="text-xl font-semibold text-expense tabular-nums">${formatCurrency(
+      <div class="monthly-view-summary-card"><p class="text-sm text-neutral-400 mb-1">Total Expenses ${monthSpendingIndicatorHtml}</p><p class="text-xl font-semibold text-expense tabular-nums">${formatCurrency(
     totalExpense
   )}</p></div>
-      <div class="monthly-view-summary-card"><p class="text-sm text-gray-400 mb-1">Net Flow</p><p class="text-xl font-semibold ${
+      <div class="monthly-view-summary-card"><p class="text-sm text-neutral-400 mb-1">Net Flow</p><p class="text-xl font-semibold ${
         totalIncome - totalExpense >= 0 ? "text-income" : "text-expense"
       } tabular-nums">${formatCurrency(totalIncome - totalExpense)}</p></div>`;
   container.appendChild(summaryGrid);
@@ -1550,7 +1550,7 @@ function renderMonthlyDetails(
   if (transactionsToDisplay.length === 0) {
     const noTransactionsDiv = document.createElement("div");
     const msg = searchTerm ? "No transactions match your search" : "No transactions for this period";
-    noTransactionsDiv.innerHTML = `<div class="flex flex-col items-center justify-center py-12 text-gray-500"><i class="fas fa-search text-4xl mb-3 opacity-40"></i><p class="text-sm font-medium">${msg}</p></div>`;
+    noTransactionsDiv.innerHTML = `<div class="flex flex-col items-center justify-center py-12 text-neutral-500"><i class="fas fa-search text-4xl mb-3 opacity-40"></i><p class="text-sm font-medium">${msg}</p></div>`;
     transactionListSection.appendChild(noTransactionsDiv);
   } else {
     const transactionsByDay = transactionsToDisplay.reduce((acc, t) => {
@@ -1610,7 +1610,7 @@ function renderMonthlyDetails(
         dailyTotalExpenseForDisplay
       )}`;
       const chevronIcon = document.createElement("i");
-      chevronIcon.className = "fas text-xs text-gray-400";
+      chevronIcon.className = "fas text-xs text-neutral-400";
 
       rightSideContainer.appendChild(spentSpan);
       rightSideContainer.appendChild(chevronIcon);
@@ -1663,7 +1663,7 @@ function renderMonthlyDetails(
           itemDiv.innerHTML = `
               <div class="flex-grow min-w-0 ${opacityClass} mr-2">
                 <p class="font-medium truncate ${textColorClass}">${escapeHTML(t.description)}</p>
-                <p class="text-xs text-gray-400 mt-0.5 truncate">${subDetailText}</p>
+                <p class="text-xs text-neutral-400 mt-0.5 truncate">${subDetailText}</p>
               </div>
               <div class="flex items-center justify-end flex-shrink-0">
                 <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums ${opacityClass}" data-tooltip="${isExcluded ? 'Excluded from totals' : ''}">${
@@ -1673,7 +1673,7 @@ function renderMonthlyDetails(
                   <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionModal('${
                     t.id
                   }', event)" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
-                  <button class="text-xs text-gray-500 hover:text-expense focus:outline-none ml-2" onclick="deleteTransaction('${
+                  <button class="text-xs text-neutral-500 hover:text-expense focus:outline-none ml-2" onclick="deleteTransaction('${
                     t.id
                   }', event)" data-tooltip="Delete"><i class="fas fa-times"></i></button>
                 </div>
@@ -1755,7 +1755,7 @@ function renderMonthlyDetails(
       categoryList.appendChild(li);
     });
   } else {
-      categoryList.innerHTML = '<li class="flex flex-col items-center justify-center py-8 text-gray-500"><i class="fas fa-folder-open text-3xl mb-3 opacity-40"></i><p class="text-sm font-medium">No expenses this month</p></li>';
+      categoryList.innerHTML = '<li class="flex flex-col items-center justify-center py-8 text-neutral-500"><i class="fas fa-folder-open text-3xl mb-3 opacity-40"></i><p class="text-sm font-medium">No expenses this month</p></li>';
   }
   summaryCard.appendChild(categoryList);
   categorySection.appendChild(summaryCard);
@@ -1796,7 +1796,7 @@ function renderMonthlyDetails(
       
       const centerTitle = document.createElement("span");
       centerTitle.id = "pieChartCenterTitle";
-      centerTitle.className = "text-sm text-gray-400 mb-1 truncate w-full";
+      centerTitle.className = "text-sm text-neutral-400 mb-1 truncate w-full";
       
       const centerValue = document.createElement("span");
       centerValue.id = "pieChartCenterValue";
@@ -1813,7 +1813,7 @@ function renderMonthlyDetails(
       // 2. Placeholder Container
       const placeholderContainer = document.createElement("div");
       placeholderContainer.id = "pieChartPlaceholderContainer";
-      placeholderContainer.className = "flex flex-col items-center justify-center text-gray-500 w-full";
+      placeholderContainer.className = "flex flex-col items-center justify-center text-neutral-500 w-full";
       
       const isMobileLayout = window.matchMedia("(max-width: 768px)").matches;
       const iconClass = isMobileLayout ? "fa-hand-pointer" : "fa-mouse-pointer";
@@ -1850,7 +1850,7 @@ function renderMonthlyDetails(
     noChartCard.style.backgroundColor = "var(--bg-tertiary)";
     noChartCard.innerHTML =
       '<h3 class="text-lg font-semibold mb-3 text-center">Category Distribution</h3>' +
-      '<div class="flex flex-col items-center justify-center flex-grow text-gray-500"><i class="fas fa-chart-pie text-5xl mb-4 opacity-30"></i><p class="text-sm font-medium">No expense data for chart</p></div>';
+      '<div class="flex flex-col items-center justify-center flex-grow text-neutral-500"><i class="fas fa-chart-pie text-5xl mb-4 opacity-30"></i><p class="text-sm font-medium">No expense data for chart</p></div>';
     categorySection.appendChild(noChartCard);
   }
 
@@ -1880,7 +1880,7 @@ function renderCreditCardSection() {
   if (progressBar) {
     if (limit <= 0) {
       progressBar.style.width = "0%";
-      progressBar.className = "bg-gray-500 h-1.5 rounded-full transition-all duration-500 ease-out";
+      progressBar.className = "bg-neutral-500 h-1.5 rounded-full transition-all duration-500 ease-out";
     } else {
       let percentUsed = (spentUnpaid / limit) * 100;
       percentUsed = Math.min(100, Math.max(0, percentUsed)); // clamp between 0 and 100
@@ -2039,7 +2039,7 @@ function openCcHistoryModal() {
     updateCcBulkPaymentBar();
     
     if (filteredTransactions.length === 0) {
-      listContainer.innerHTML = `<div class="flex flex-col items-center justify-center py-12 text-gray-500"><i class="fas fa-search text-4xl mb-3 opacity-40"></i><p class="text-sm font-medium">No transactions found for this period</p></div>`;
+      listContainer.innerHTML = `<div class="flex flex-col items-center justify-center py-12 text-neutral-500"><i class="fas fa-search text-4xl mb-3 opacity-40"></i><p class="text-sm font-medium">No transactions found for this period</p></div>`;
       // Also update filter buttons
       $$("#ccHistoryFilterControls button").forEach((btn) => {
         btn.classList.toggle("active", btn.dataset.filter === ccHistoryFilter);
@@ -2069,7 +2069,7 @@ function openCcHistoryModal() {
           const monthYearStr = dateObj.toLocaleDateString("en-US", { month: "long", year: "numeric" });
           if (monthYearStr !== lastMonthYearStr) {
             const headerDiv = document.createElement("div");
-            headerDiv.className = "text-gray-300 font-bold text-sm mt-4 mb-0 pb-2 border-b border-gray-700 px-2";
+            headerDiv.className = "text-neutral-300 font-bold text-sm mt-4 mb-0 pb-2 border-b border-neutral-700 px-2";
             headerDiv.textContent = monthYearStr;
             listContainer.appendChild(headerDiv);
             lastMonthYearStr = monthYearStr;
@@ -2092,22 +2092,22 @@ function openCcHistoryModal() {
         if (t.paidOff || remainingOnItem <= 0.005) {
           statusText = `<span class="text-income font-medium">Settled</span>`;
           bigAmountText = `
-            <span class="font-semibold text-sm sm:text-base tabular-nums text-gray-500">${formatCurrency(t.amount)}</span>
+            <span class="font-semibold text-sm sm:text-base tabular-nums text-neutral-500">${formatCurrency(t.amount)}</span>
           `;
         } else if (t.paidAmount > 0) {
-          statusText = `<span class="text-gray-400">Paid ${formatCurrency(t.paidAmount)}</span>`;
+          statusText = `<span class="text-neutral-400">Paid ${formatCurrency(t.paidAmount)}</span>`;
           bigAmountText = `
             <span class="font-semibold sm:text-base tabular-nums hidden sm:inline text-expense">
-              ${formatCurrency(remainingOnItem)} <span class="text-gray-500 text-sm font-normal">of ${formatCurrency(t.amount)} Left</span>
+              ${formatCurrency(remainingOnItem)} <span class="text-neutral-500 text-sm font-normal">of ${formatCurrency(t.amount)} Left</span>
             </span>
             <span class="font-semibold text-sm tabular-nums sm:hidden text-expense">
               ${formatCurrency(remainingOnItem)}
             </span>
           `;
         } else {
-          statusText = `<span class="text-gray-400">Unpaid</span>`;
+          statusText = `<span class="text-neutral-400">Unpaid</span>`;
           bigAmountText = `
-            <span class="font-semibold sm:text-base tabular-nums hidden sm:inline text-expense">${formatCurrency(remainingOnItem)} <span class="text-gray-500 text-sm font-normal">Left</span></span>
+            <span class="font-semibold sm:text-base tabular-nums hidden sm:inline text-expense">${formatCurrency(remainingOnItem)} <span class="text-neutral-500 text-sm font-normal">Left</span></span>
             <span class="font-semibold text-sm tabular-nums sm:hidden text-expense">${formatCurrency(remainingOnItem)}</span>
           `;
         }
@@ -2117,7 +2117,7 @@ function openCcHistoryModal() {
         if (isSelectable) {
           checkboxHtml = `
             <div class="flex-shrink-0 mr-3 flex items-center h-full" onclick="event.stopPropagation(); toggleCcItemSelection('${t.id}')">
-              <div id="cc-checkbox-${t.id}" class="w-5 h-5 rounded-full border border-gray-500 flex items-center justify-center transition-colors cursor-pointer hover:border-accent-500">
+              <div id="cc-checkbox-${t.id}" class="w-5 h-5 rounded-full border border-neutral-500 flex items-center justify-center transition-colors cursor-pointer hover:border-accent-500">
                 <i class="fas fa-check text-xs text-white opacity-0 transition-opacity"></i>
               </div>
             </div>
@@ -2153,8 +2153,8 @@ function openCcHistoryModal() {
         mainRow.innerHTML = `
           ${checkboxHtml}
           <div class="flex-grow min-w-0 mr-2 text-left">
-              <p class="font-medium truncate ${t.paidOff ? "text-gray-500" : "text-gray-200"}">${escapeHTML(t.description)}</p>
-              <p class="text-xs text-gray-400 mt-0.5 truncate">${formattedDate} &bull; ${statusText}</p>
+              <p class="font-medium truncate ${t.paidOff ? "text-neutral-500" : "text-neutral-200"}">${escapeHTML(t.description)}</p>
+              <p class="text-xs text-neutral-400 mt-0.5 truncate">${formattedDate} &bull; ${statusText}</p>
           </div>
           <div class="flex items-center justify-end flex-shrink-0 text-right">
               ${bigAmountText}
@@ -2190,11 +2190,11 @@ function openCcHistoryModal() {
         const footerDiv = document.createElement("div");
         footerDiv.className = "flex justify-between items-center mt-2 monthly-view-summary-card !text-left";
         if (ccHistoryFilter === "unpaid") {
-          footerDiv.innerHTML = `<span class="text-gray-400 font-medium">Total Unpaid</span><span class="font-bold text-white text-base tabular-nums">${formatCurrency(currentTotal)}</span>`;
+          footerDiv.innerHTML = `<span class="text-neutral-400 font-medium">Total Unpaid</span><span class="font-bold text-white text-base tabular-nums">${formatCurrency(currentTotal)}</span>`;
         } else if (searchTerm) {
-          footerDiv.innerHTML = `<span class="text-gray-400 font-medium">Search Results (${filteredTransactions.length})</span><span class="font-bold text-white text-base">Total: <span class="tabular-nums">${formatCurrency(currentTotal)}</span></span>`;
+          footerDiv.innerHTML = `<span class="text-neutral-400 font-medium">Search Results (${filteredTransactions.length})</span><span class="font-bold text-white text-base">Total: <span class="tabular-nums">${formatCurrency(currentTotal)}</span></span>`;
         } else {
-          footerDiv.innerHTML = `<span class="text-gray-400 font-medium">Monthly Total</span><span class="font-bold text-white text-base tabular-nums">${formatCurrency(currentTotal)}</span>`;
+          footerDiv.innerHTML = `<span class="text-neutral-400 font-medium">Monthly Total</span><span class="font-bold text-white text-base tabular-nums">${formatCurrency(currentTotal)}</span>`;
         }
         listContainer.appendChild(footerDiv);
       }
@@ -2288,9 +2288,9 @@ function openCcHistoryModal() {
         totalAmount += remaining;
         
         itemsHtml += `
-          <div class="mb-3 pb-3 border-b border-gray-700 last:border-0 last:pb-0">
+          <div class="mb-3 pb-3 border-b border-neutral-700 last:border-0 last:pb-0">
             <div class="flex justify-between items-center mb-1.5">
-              <span class="font-medium text-sm truncate pr-2 text-gray-100">${escapeHTML(item.description)}</span>
+              <span class="font-medium text-sm truncate pr-2 text-neutral-100">${escapeHTML(item.description)}</span>
               <span class="text-expense font-semibold text-sm flex-shrink-0 tabular-nums">${formatCurrency(remaining)}</span>
             </div>
             <select name="payCategory_${id}" class="w-full text-sm" required>
@@ -2303,7 +2303,7 @@ function openCcHistoryModal() {
 
     const formHtml = `
         <input type="hidden" name="isBulkCcPayment" value="true">
-        <p class="mb-4 text-sm text-gray-300">You are settling <span class="text-white font-semibold">${window.ccSelectedItems.size} items</span> for a total of <span class="font-semibold text-expense text-base tabular-nums">${formatCurrency(totalAmount)}</span>.</p>
+        <p class="mb-4 text-sm text-neutral-300">You are settling <span class="text-white font-semibold">${window.ccSelectedItems.size} items</span> for a total of <span class="font-semibold text-expense text-base tabular-nums">${formatCurrency(totalAmount)}</span>.</p>
         <div class="mb-4">
           <label class="block text-sm font-medium mb-1">Pay From Account</label>
           <select name="payFromAccount" class="w-full text-sm" required>
@@ -2320,11 +2320,11 @@ function openCcHistoryModal() {
         </div>
         
         <div class="mb-4 mt-5 max-h-[40vh] overflow-y-auto custom-scrollbar pr-2">
-          <label class="block text-sm font-medium mb-3 text-gray-300">Categorize Items</label>
+          <label class="block text-sm font-medium mb-3 text-neutral-300">Categorize Items</label>
           ${itemsHtml}
         </div>
         
-        <p class="text-xs text-gray-400 mb-4 bg-tertiary border border-theme p-3 rounded"><i class="fas fa-info-circle mr-1"></i> A separate transaction will be created in your bank account for each item to ensure pie charts remain accurate.</p>
+        <p class="text-xs text-neutral-400 mb-4 bg-tertiary border border-theme p-3 rounded"><i class="fas fa-info-circle mr-1"></i> A separate transaction will be created in your bank account for each item to ensure pie charts remain accurate.</p>
         <div class="flex justify-end gap-2">
             <button type="button" class="btn btn-secondary flex-1" onclick="closeModal('formModal')">Cancel</button>
             <button type="submit" class="btn btn-primary flex-1"><i class="fas fa-check-circle mr-1"></i> Settle All</button>
@@ -2475,7 +2475,7 @@ function openEditCcTransactionModal(ccTransactionId) {
                 <label for="modalCcAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>
                 <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="modalCcAmount" name="ccAmount" value="${transaction.amount.toFixed(
                   2
-                )}" step="0.01" min="0" placeholder="Amount spent" required><button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
+                )}" step="0.01" min="0" placeholder="Amount spent" required><button type="button" class="calc-toggle-btn absolute right-4 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
             </div>
             <div>
                 <label for="modalCcDescription" class="block text-sm font-medium mb-1">Description</label>
@@ -2619,7 +2619,7 @@ function deleteCcTransaction(transactionId) {
 function openAddDebtForm() {
   openFormModal(
     "Add New Debt",
-    `<div><label for="debtAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="debtAmount" name="debtAmount" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div><div><label for="debtWho" class="block text-sm font-medium mb-1">Who do you owe?</label><input type="text" id="debtWho" name="debtWho" placeholder="e.g., John Doe" required></div><div><label for="debtWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="debtWhy" name="debtWhy" placeholder="e.g., Loan" required></div><div><label for="debtDueDate" class="block text-sm font-medium mb-1">Due Date</label><input type="date" id="debtDueDate" name="debtDueDate" required></div><button type="submit" class="btn btn-primary w-full">Add Debt</button>`,
+    `<div><label for="debtAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="debtAmount" name="debtAmount" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div><div><label for="debtWho" class="block text-sm font-medium mb-1">Who do you owe?</label><input type="text" id="debtWho" name="debtWho" placeholder="e.g., John Doe" required></div><div><label for="debtWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="debtWhy" name="debtWhy" placeholder="e.g., Loan" required></div><div><label for="debtDueDate" class="block text-sm font-medium mb-1">Due Date</label><input type="date" id="debtDueDate" name="debtDueDate" required></div><button type="submit" class="btn btn-primary w-full">Add Debt</button>`,
     handleAddDebtSubmit
   );
   const nextMonth = new Date();
@@ -2676,9 +2676,9 @@ function openEditDebtForm(id) {
       d.originalAmount || d.amount
     ).toFixed(
       2
-    )}" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Remaining Amount</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" name="debtRemainingAmount" value="${d.remainingAmount.toFixed(
+    )}" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Remaining Amount</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" name="debtRemainingAmount" value="${d.remainingAmount.toFixed(
       2
-    )}" step="0.01" min="0" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="debtWho" value="${
+    )}" step="0.01" min="0" required><button type="button" class="calc-toggle-btn absolute right-2 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="debtWho" value="${
       d.who
     }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="debtWhy" value="${
       d.why
@@ -2766,15 +2766,15 @@ function openPayDebtForm(debtId) {
           <label for="payDebtAmount" class="block text-sm font-medium mb-1">Payment Amount (LKR)</label>
           <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="payDebtAmount" name="payDebtAmount" step="0.01" min="0.01" max="${debt.remainingAmount.toFixed(
             2
-          )}" value="${debt.remainingAmount.toFixed(2)}" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
+          )}" value="${debt.remainingAmount.toFixed(2)}" required><button type="button" class="calc-toggle-btn absolute right-2 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
       </div>
       <div>
           <label for="modalPayDebtAccount" class="block text-sm font-medium mb-1">Pay From Account</label>
           <select id="modalPayDebtAccount" name="payDebtAccount" required></select>
       </div>
       <div class="flex items-center mt-3 mb-1">
-          <input type="checkbox" id="logDebtPaymentAsExpense" name="logDebtPaymentAsExpense" class="h-4 w-4 text-accent-500 border-gray-500 rounded focus:ring-accent-500 mr-2" checked>
-          <label for="logDebtPaymentAsExpense" class="text-sm font-medium text-gray-300">Log this payment as an expense?</label>
+          <input type="checkbox" id="logDebtPaymentAsExpense" name="logDebtPaymentAsExpense" class="h-4 w-4 text-accent-500 border-neutral-500 rounded focus:ring-accent-500 mr-2" checked>
+          <label for="logDebtPaymentAsExpense" class="text-sm font-medium text-neutral-300">Log this payment as an expense?</label>
       </div>
       <div id="debtPaymentCategoryGroup">
           <label for="modalPayDebtCategory" class="block text-sm font-medium mb-1">Category for this Payment</label>
@@ -2906,7 +2906,7 @@ function deleteDebt(debtId) {
 
 function openAddReceivableForm() {
   const formHtml = `
-            <div><label for="recAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="recAmount" name="recAmount" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div>
+            <div><label for="recAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="recAmount" name="recAmount" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div>
             <div>
                 <label for="recType" class="block text-sm font-medium mb-1">Type</label>
                 <select id="recType" name="recType" required onchange="toggleReceivableSourceAccount(this.value, 'recSourceAccountGroupAdd', 'recSourceAccountAdd')">
@@ -3075,9 +3075,9 @@ function openEditReceivableForm(id) {
       r.originalAmount || r.amount
     ).toFixed(
       2
-    )}" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Remaining</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" name="recRemainingAmount" value="${r.remainingAmount.toFixed(
+    )}" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Remaining</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" name="recRemainingAmount" value="${r.remainingAmount.toFixed(
       2
-    )}" step="0.01" min="0" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Type</label><select id="recTypeEdit" name="recType" onchange="toggleReceivableSourceAccount(this.value, 'recSourceAccountGroupEdit', 'recSourceAccountEdit')"><option value="cash" ${
+    )}" step="0.01" min="0" required><button type="button" class="calc-toggle-btn absolute right-2 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Type</label><select id="recTypeEdit" name="recType" onchange="toggleReceivableSourceAccount(this.value, 'recSourceAccountGroupEdit', 'recSourceAccountEdit')"><option value="cash" ${
       r.type === "cash" ? "selected" : ""
     }>Cash/Bank</option><option value="cc" ${
       r.type === "cc" ? "selected" : ""
@@ -3247,7 +3247,7 @@ function openReceivePaymentForm(recId) {
   }
 
   const overpaymentInfoHtml = `
-    <p id="overpaymentInfo" class="text-xs text-gray-400 mt-1 mb-2" style="display: none;">
+    <p id="overpaymentInfo" class="text-xs text-neutral-400 mt-1 mb-2" style="display: none;">
       Any amount received over <span class="tabular-nums">${formatCurrency(
         receivable.remainingAmount
       )}</span> will be logged as additional income.
@@ -3261,7 +3261,7 @@ function openReceivePaymentForm(recId) {
     <div>
       <label for="recPaymentAmount" class="block text-sm font-medium mb-1">Amount Received (LKR)</label>
       <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="recPaymentAmount" name="recPaymentAmount" step="0.01" min="0.01" 
-             value="${receivable.remainingAmount.toFixed(2)}" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div> 
+             value="${receivable.remainingAmount.toFixed(2)}" required><button type="button" class="calc-toggle-btn absolute right-2 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div> 
     </div>
     ${overpaymentInfoHtml}
     <div>
@@ -3445,15 +3445,15 @@ function openAddInstallmentForm() {
     </div>
     <div>
       <label for="instFullAmount" class="block text-sm font-medium mb-1">Full Original Amount (LKR)</label>
-      <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="instFullAmount" name="instFullAmount" step="0.01" min="0.01" placeholder="Total original cost" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
+      <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="instFullAmount" name="instFullAmount" step="0.01" min="0.01" placeholder="Total original cost" required><button type="button" class="calc-toggle-btn absolute right-2 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
     </div>
     <div>
       <label for="instTotalMonths" class="block text-sm font-medium mb-1">Total Months for Plan</label>
-      <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="instTotalMonths" name="instTotalMonths" step="1" min="1" placeholder="e.g., 12" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
+      <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="instTotalMonths" name="instTotalMonths" step="1" min="1" placeholder="e.g., 12" required><button type="button" class="calc-toggle-btn absolute right-2 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
     </div>
     <div>
       <label for="instMonthsLeft" class="block text-sm font-medium mb-1">Months Left (if not full term)</label>
-      <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="instMonthsLeft" name="instMonthsLeft" step="1" min="0" placeholder="Defaults to Total Months"><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
+      <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="instMonthsLeft" name="instMonthsLeft" step="1" min="0" placeholder="Defaults to Total Months"><button type="button" class="calc-toggle-btn absolute right-2 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
     </div>
     <div>
       <label for="instStartDate" class="block text-sm font-medium mb-1">Start Date</label>
@@ -3560,19 +3560,19 @@ function openEditInstallmentForm(id) {
       <label for="instFullAmount" class="block text-sm font-medium mb-1">Full Original Amount (LKR)</label>
       <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="instFullAmount" name="instFullAmount" value="${currentFullAmount.toFixed(
         2
-      )}" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
+      )}" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
     </div>
     <div>
       <label for="instTotalMonths" class="block text-sm font-medium mb-1">Total Months for Plan</label>
       <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="instTotalMonths" name="instTotalMonths" value="${
         i.totalMonths
-      }" step="1" min="1" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
+      }" step="1" min="1" required><button type="button" class="calc-toggle-btn absolute right-2 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
     </div>
     <div>
       <label for="instMonthsLeft" class="block text-sm font-medium mb-1">Months Left</label>
       <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="instMonthsLeft" name="instMonthsLeft" value="${
         i.monthsLeft
-      }" step="1" min="0" max="${i.totalMonths}" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
+      }" step="1" min="0" max="${i.totalMonths}" required><button type="button" class="calc-toggle-btn absolute right-2 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
     </div>
     <div>
       <label for="instStartDate" class="block text-sm font-medium mb-1">Start Date</label>
@@ -3651,10 +3651,10 @@ function payInstallmentMonth(installmentId) {
   }
 
   const confirmationMessageHtml = `
-    <p class="mb-4 text-center text-gray-300 force-word-wrap">
+    <p class="mb-4 text-center text-neutral-300 force-word-wrap">
       Mark one month as paid for "<strong>${installment.description}</strong>"?
     </p>
-    <p class="mb-4 text-center text-sm text-gray-400">
+    <p class="mb-4 text-center text-sm text-neutral-400">
       Amount: <span class="tabular-nums">${formatCurrency(
         installment.monthlyAmount
       )}</span><br>
@@ -3796,15 +3796,15 @@ function openPayCcItemForm(ccTransactionId) {
           <label for="ccItemPayAmount" class="block text-sm font-medium mb-1">Payment Amount</label>
           <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="ccItemPayAmount" name="ccItemPayAmount" step="0.01" min="0.01" max="${remaining.toFixed(
             2
-          )}" value="${remaining.toFixed(2)}" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
+          )}" value="${remaining.toFixed(2)}" required><button type="button" class="calc-toggle-btn absolute right-2 text-neutral-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
       </div>
       <div>
           <label for="modalCcPayFromAccount" class="block text-sm font-medium mb-1">Pay From Account</label>
           <select id="modalCcPayFromAccount" name="ccPayFromAccount" required></select>
       </div>
       <div class="flex items-center mt-3 mb-1">
-          <input type="checkbox" id="logCcPaymentAsExpense" name="logCcPaymentAsExpense" class="h-4 w-4 text-accent-500 border-gray-500 rounded focus:ring-accent-500 mr-2" checked>
-          <label for="logCcPaymentAsExpense" class="text-sm font-medium text-gray-300">Log this payment as an expense?</label>
+          <input type="checkbox" id="logCcPaymentAsExpense" name="logCcPaymentAsExpense" class="h-4 w-4 text-accent-500 border-neutral-500 rounded focus:ring-accent-500 mr-2" checked>
+          <label for="logCcPaymentAsExpense" class="text-sm font-medium text-neutral-300">Log this payment as an expense?</label>
       </div>
       <div id="ccPaymentCategoryGroup">
           <label for="modalCcPayCategory" class="block text-sm font-medium mb-1">Category for this Payment</label>
@@ -3988,11 +3988,11 @@ function renderDashboard() {
       
       if (hideDebts) {
         if (debtsReceivablesContainer) debtsReceivablesContainer.style.display = "none";
-        if (installmentsContainer) installmentsContainer.classList.remove("mt-6", "pt-4", "border-t", "border-gray-600");
+        if (installmentsContainer) installmentsContainer.classList.remove("mt-6", "pt-4", "border-t", "border-neutral-600");
         if (debtsInstallmentsTitle) debtsInstallmentsTitle.style.display = "none";
       } else {
         if (debtsReceivablesContainer) debtsReceivablesContainer.style.display = "grid";
-        if (installmentsContainer) installmentsContainer.classList.add("mt-6", "pt-4", "border-t", "border-gray-600");
+        if (installmentsContainer) installmentsContainer.classList.add("mt-6", "pt-4", "border-t", "border-neutral-600");
         if (debtsInstallmentsTitle) debtsInstallmentsTitle.style.display = "block";
       }
 
@@ -4055,9 +4055,9 @@ function renderDashboard() {
       visibleAccounts.forEach((acc) => {
         const card = document.createElement("div");
         card.id = `accountBalance-${acc.id}`;
-        card.className = "bg-gray-600 p-3 rounded";
+        card.className = "bg-neutral-600 p-3 rounded";
         card.innerHTML = `
-          <p class="text-xs font-medium text-gray-300 truncate">${acc.name}</p>
+          <p class="text-xs font-medium text-neutral-300 truncate">${acc.name}</p>
           <p class="font-semibold text-sm tabular-nums balance-val"></p>
         `;
         accountCardsContainer.appendChild(card);
@@ -4296,9 +4296,9 @@ function renderCategoryBudgets() {
     if (headerEl) {
       if (showTip) {
         headerEl.classList.remove("mb-0");
-        headerEl.classList.add("border-b", "border-gray-600", "pb-2", "mb-4");
+        headerEl.classList.add("border-b", "border-neutral-600", "pb-2", "mb-4");
       } else {
-        headerEl.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
+        headerEl.classList.remove("border-b", "border-neutral-600", "pb-2", "mb-4");
         headerEl.classList.add("mb-0");
       }
     }
@@ -4307,7 +4307,7 @@ function renderCategoryBudgets() {
     if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
     if (headerEl) {
       headerEl.classList.remove("mb-0");
-      headerEl.classList.add("border-b", "border-gray-600", "pb-2", "mb-4");
+      headerEl.classList.add("border-b", "border-neutral-600", "pb-2", "mb-4");
     }
   }
 
@@ -4317,7 +4317,7 @@ function renderCategoryBudgets() {
     if (showTip) {
       tipContainer.classList.remove("hidden");
       tipContainer.innerHTML = `
-        <div class="flex items-start justify-between bg-accent-500/10 border border-accent-500/30 rounded-lg p-3 text-xs text-gray-300 relative">
+        <div class="flex items-start justify-between bg-accent-500/10 border border-accent-500/30 rounded-lg p-3 text-xs text-neutral-300 relative">
           <div class="flex gap-2">
             <i class="fas fa-lightbulb text-accent-500 mt-0.5"></i>
             <div>
@@ -4325,7 +4325,7 @@ function renderCategoryBudgets() {
               It's the start of the month. Do you need to adjust or update your budget limits in Settings?
             </div>
           </div>
-          <button id="dismissBudgetTipBtn" class="text-gray-400 hover:text-white ml-2 focus:outline-none" data-tooltip="Dismiss">
+          <button id="dismissBudgetTipBtn" class="text-neutral-400 hover:text-white ml-2 focus:outline-none" data-tooltip="Dismiss">
             <i class="fas fa-times"></i>
           </button>
         </div>
@@ -4336,7 +4336,7 @@ function renderCategoryBudgets() {
           localStorage.setItem("kaasi_lastDismissedBudgetTipMonth", currentMonthStr);
           tipContainer.classList.add("hidden");
           if (localStorage.getItem("kaasi_collapseCategoryBudgets") === "true" && headerEl) {
-            headerEl.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
+            headerEl.classList.remove("border-b", "border-neutral-600", "pb-2", "mb-4");
             headerEl.classList.add("mb-0");
           }
         });
@@ -4360,7 +4360,7 @@ function renderCategoryBudgets() {
         // Expand
         if (header) {
           header.classList.remove("mb-0");
-          header.classList.add("border-b", "border-gray-600", "pb-2", "mb-4");
+          header.classList.add("border-b", "border-neutral-600", "pb-2", "mb-4");
         }
 
         container.style.maxHeight = "0px";
@@ -4388,7 +4388,7 @@ function renderCategoryBudgets() {
         const onTransitionEnd = () => {
           if (localStorage.getItem("kaasi_collapseCategoryBudgets") === "true") {
             if (header && !isTipVisible) {
-              header.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
+              header.classList.remove("border-b", "border-neutral-600", "pb-2", "mb-4");
               header.classList.add("mb-0");
             }
           }
@@ -4450,10 +4450,10 @@ function renderCategoryBudgets() {
       budgetItem.dataset.budgetId = budget.id;
       budgetItem.innerHTML = `
         <div class="flex justify-between items-end mb-2">
-          <span class="text-sm font-medium text-gray-200 truncate pr-2 budget-title"></span>
+          <span class="text-sm font-medium text-neutral-200 truncate pr-2 budget-title"></span>
           <span class="text-xs font-semibold budget-status whitespace-nowrap"></span>
         </div>
-        <div class="w-full bg-gray-700 rounded-full h-2 overflow-hidden cursor-pointer hover:opacity-80 transition-opacity budget-progress-container">
+        <div class="w-full bg-neutral-700 rounded-full h-2 overflow-hidden cursor-pointer hover:opacity-80 transition-opacity budget-progress-container">
           <div class="budget-progress h-2 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
         </div>
       `;
@@ -4478,7 +4478,7 @@ function renderCategoryBudgets() {
         statusEl.dataset.tooltip = "No categories assigned";
         statusEl.textContent = "⚠️ 0 Categories";
       } else {
-        statusEl.className = `text-xs font-semibold budget-status whitespace-nowrap ${isOver ? 'text-[#E74C3C]' : 'text-gray-400'}`;
+        statusEl.className = `text-xs font-semibold budget-status whitespace-nowrap ${isOver ? 'text-[#E74C3C]' : 'text-neutral-400'}`;
         statusEl.dataset.tooltip = tooltipText;
         statusEl.textContent = `${statusText} (${percent.toFixed(1)}%)`;
       }
