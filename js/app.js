@@ -109,7 +109,7 @@ function initializeUI(isRefresh = false) {
       $$("#monthTabs .tab-button")[0].click();
     } else {
       $("#monthlyDetailsContainer").innerHTML =
-        '<p class="text-center text-gray-400">Select a month.</p>';
+        '<p class="text-center text-[var(--text-secondary)]">Select a month.</p>';
     }
   };
 
