@@ -1,4 +1,4 @@
-const CACHE_NAME = "kaasi-cache-v6.352m";
+const CACHE_NAME = "kaasi-cache-v6.353m";
 const STATIC_ASSETS = [
   "./",
   "./index.html",
@@ -78,9 +78,10 @@ self.addEventListener("fetch", (event) => {
       // Create a fetch promise to get the latest version from the network
       const fetchPromise = fetch(event.request).then((networkResponse) => {
         // Update the cache with the new network response
-        if (networkResponse && networkResponse.status === 200) {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, networkResponse.clone());
+            cache.put(event.request, responseToCache);
           });
         }
         return networkResponse;
