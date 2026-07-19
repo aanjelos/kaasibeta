@@ -313,7 +313,7 @@ function openInitialSetupWizard() {
       // 2. Name field (Label for Cash, Input for others)
       const nameWrapper = document.createElement("div");
       if (acc.id === "cash") {
-        nameWrapper.innerHTML = `<label for="setupBalance-${acc.id}" class="text-sm font-medium text-[var(--text-secondary)] justify-self-start">${acc.name}</label>`;
+        nameWrapper.innerHTML = `<label for="setupBalance-${acc.id}" class="text-sm font-medium text-gray-300 justify-self-start">${acc.name}</label>`;
       } else {
         nameWrapper.innerHTML = `<input type="text" id="setupName-${acc.id}" name="setupName-${acc.id}" value="${acc.name}" data-account-id="${acc.id}" class="text-sm w-full rounded placeholder-gray-400" ${inputStyle} placeholder="Account Name">`;
       }
@@ -1113,7 +1113,7 @@ function populateDropdowns() {
 
     // Add "All Categories" option at the top
     const allLabel = document.createElement("label");
-    allLabel.className = "group flex items-center gap-3 px-2 py-2 hover:bg-white/5 focus:bg-white/10 focus:outline-none cursor-pointer rounded text-sm text-gray-200 border-b border-[var(--border-color)]/50 pb-2 mb-1 transition-colors";
+    allLabel.className = "group flex items-center gap-3 px-2 py-2 hover:bg-white/5 focus:bg-white/10 focus:outline-none cursor-pointer rounded text-sm text-gray-200 border-b border-gray-700/50 pb-2 mb-1 transition-colors";
     allLabel.tabIndex = 0;
     allLabel.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
@@ -1128,7 +1128,7 @@ function populateDropdowns() {
     const isAllChecked = checkedCategories.size === 0;
     allLabel.innerHTML = `
       <input type="checkbox" id="filterCategoryAll" value="all" class="peer sr-only" ${isAllChecked ? "checked" : ""}>
-      <div class="w-4 h-4 rounded border border-[var(--border-color)] peer-checked:border-accent-500 flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500">
+      <div class="w-4 h-4 rounded border border-gray-500 peer-checked:border-accent-500 flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500">
           <svg class="w-3 h-3 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
       </div>
       <span>All Categories</span>
@@ -1143,7 +1143,7 @@ function populateDropdowns() {
 
     generalCategories.forEach((c) => {
       const label = document.createElement("label");
-      label.className = "group flex items-center gap-3 px-2 py-1.5 hover:bg-white/5 focus:bg-white/10 focus:outline-none cursor-pointer rounded text-sm text-[var(--text-secondary)] transition-colors";
+      label.className = "group flex items-center gap-3 px-2 py-1.5 hover:bg-white/5 focus:bg-white/10 focus:outline-none cursor-pointer rounded text-sm text-gray-300 transition-colors";
       label.tabIndex = 0;
       label.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -1156,7 +1156,7 @@ function populateDropdowns() {
       const isChecked = checkedCategories.has(c);
       label.innerHTML = `
         <input type="checkbox" value="${c}" class="peer sr-only filter-category-checkbox" ${isChecked ? "checked" : ""}>
-        <div class="w-4 h-4 rounded border border-[var(--border-color)] peer-checked:border-accent-500 flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500">
+        <div class="w-4 h-4 rounded border border-gray-500 peer-checked:border-accent-500 flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500">
           <svg class="w-3 h-3 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
         </div>
         <span>${c}</span>

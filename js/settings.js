@@ -63,7 +63,7 @@ function renderSettingsForm() {
       nameInput.style.color = "var(--text-primary)";
       if (acc.id === "cash") {
         nameInput.readOnly = true;
-        nameInput.classList.add("text-[var(--text-secondary)]", "cursor-not-allowed");
+        nameInput.classList.add("text-gray-400", "cursor-not-allowed");
       }
       accRow.appendChild(nameInput);
 
@@ -539,13 +539,13 @@ function renderCategorySettingsList() {
     buttonsDiv.className = "flex items-center gap-x-3";
 
     const isHidden = state.hiddenCategories?.includes(cat);
-    const eyeIconClass = isHidden ? "fa-eye-slash text-[var(--text-placeholder)]" : "fa-eye text-accent-primary";
+    const eyeIconClass = isHidden ? "fa-eye-slash text-gray-500" : "fa-eye text-accent-primary";
     const eyeTooltip = isHidden ? "Hidden Category (Click to make visible)" : "Visible Category (Click to hide)";
     
     const toggleBtn = `<button class="focus:outline-none hover:scale-110 transition-transform flex items-center justify-center w-6 h-6" onclick="toggleHiddenCategory('${cat}')" data-tooltip="${eyeTooltip}"><i class="fas ${eyeIconClass}"></i></button>`;
 
     const saveButtonHTML = `<button class="btn btn-primary btn-sm !py-1 !px-3 text-xs font-medium" onclick="renameCategory(this)">Save</button>`;
-    const deleteButtonHTML = `<button class="text-[var(--text-secondary)] hover:text-expense focus:outline-none w-6 h-6 flex items-center justify-center" onclick="deleteCategory('${cat}')" data-tooltip="Delete Category"><i class="fas fa-times"></i></button>`;
+    const deleteButtonHTML = `<button class="text-gray-400 hover:text-expense focus:outline-none w-6 h-6 flex items-center justify-center" onclick="deleteCategory('${cat}')" data-tooltip="Delete Category"><i class="fas fa-times"></i></button>`;
 
     li.innerHTML = inputElementHTML;
     buttonsDiv.innerHTML = toggleBtn + saveButtonHTML + deleteButtonHTML;
@@ -972,7 +972,7 @@ function buildBudgetCategoryCheckboxes(containerId, selectedCategories = [], cur
   ).sort((a, b) => a.localeCompare(b));
 
   if (generalCategories.length === 0) {
-    container.innerHTML = `<p class="text-xs text-[var(--text-secondary)] p-2">No categories available.</p>`;
+    container.innerHTML = `<p class="text-xs text-gray-400 p-2">No categories available.</p>`;
     return;
   }
 
@@ -994,9 +994,9 @@ function buildBudgetCategoryCheckboxes(containerId, selectedCategories = [], cur
     const label = document.createElement("label");
     
     if (isUsed) {
-      label.className = "flex items-center gap-2 px-2 py-1.5 opacity-40 cursor-not-allowed rounded text-sm text-[var(--text-secondary)] transition-colors select-none";
+      label.className = "flex items-center gap-2 px-2 py-1.5 opacity-40 cursor-not-allowed rounded text-sm text-gray-400 transition-colors select-none";
     } else {
-      label.className = "flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 focus:bg-white/10 focus:outline-none cursor-pointer rounded text-sm text-[var(--text-secondary)] transition-colors";
+      label.className = "flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 focus:bg-white/10 focus:outline-none cursor-pointer rounded text-sm text-gray-300 transition-colors";
       label.tabIndex = 0;
       label.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -1010,11 +1010,11 @@ function buildBudgetCategoryCheckboxes(containerId, selectedCategories = [], cur
     
     label.innerHTML = `
       <input type="checkbox" value="${cat}" class="budget-category-checkbox peer sr-only" ${isChecked ? "checked" : ""} ${isUsed ? "disabled" : ""}>
-      <div class="w-4 h-4 rounded border ${isUsed ? "border-[var(--border-color)] bg-[var(--bg-secondary)] border border-[var(--border-color)]" : "border-[var(--border-color)] peer-checked:border-accent-500"} flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500">
+      <div class="w-4 h-4 rounded border ${isUsed ? "border-gray-700 bg-gray-800" : "border-gray-500 peer-checked:border-accent-500"} flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500">
         <svg class="w-3 h-3 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
       </div>
       <span class="truncate flex-grow">${cat}</span>
-      ${isUsed ? `<span class="text-[10px] bg-gray-850 text-[var(--text-secondary)] px-1.5 py-0.5 rounded uppercase font-semibold tracking-wider">Used</span>` : ""}
+      ${isUsed ? `<span class="text-[10px] bg-gray-850 text-gray-400 px-1.5 py-0.5 rounded uppercase font-semibold tracking-wider">Used</span>` : ""}
     `;
     container.appendChild(label);
   });
@@ -1062,7 +1062,7 @@ function renderBudgetsSettingsList() {
   if (!container) return;
 
   if (!state.budgets || state.budgets.length === 0) {
-    container.innerHTML = `<p class="text-xs text-[var(--text-secondary)]">No active budgets.</p>`;
+    container.innerHTML = `<p class="text-xs text-gray-400">No active budgets.</p>`;
     return;
   }
 
@@ -1072,7 +1072,7 @@ function renderBudgetsSettingsList() {
     container.innerHTML = "";
     sortedBudgets.forEach((budget) => {
       const div = document.createElement("div");
-      div.className = "flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-black/20 rounded-md border border-[var(--border-color)] gap-3";
+      div.className = "flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-black/20 rounded-md border border-gray-600 gap-3";
       div.dataset.budgetId = budget.id;
       
       const catList = budget.categories.join(", ");
@@ -1083,7 +1083,7 @@ function renderBudgetsSettingsList() {
           <h4 class="font-medium text-gray-200 truncate">${budget.name}</h4>
           <span class="text-sm font-semibold text-accent-500 whitespace-nowrap">${formatCurrency(budget.limit)}</span>
         </div>
-        <p class="text-xs text-[var(--text-secondary)] line-clamp-2" data-tooltip="${catList}">Categories: ${catList || 'None'}</p>
+        <p class="text-xs text-gray-400 line-clamp-2" data-tooltip="${catList}">Categories: ${catList || 'None'}</p>
       </div>
       <div class="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
         <button type="button" class="btn btn-icon btn-sm" onclick="openEditBudgetModal('${budget.id}')" data-tooltip="Edit Budget">
