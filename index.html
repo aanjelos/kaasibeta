@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.357m" />
+    <meta name="application-version" content="v6.358m" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -1910,10 +1910,6 @@
         </div>
       </div>
 
-      <div
-        id="notificationArea"
-        class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
-      ></div>
     </div>
 
     <!-- The main change is adding mt-16 to the footer and max-w-7xl to the inner div -->
@@ -2050,6 +2046,20 @@
       </div>
     </div>
 
+    <div id="offlineSyncWarningModal" class="modal" role="dialog" aria-modal="true" tabindex="-1">
+      <div class="modal-content max-w-sm w-full mx-auto p-6 flex flex-col relative z-10" style="max-height: 90vh;">
+        <h2 class="text-lg font-bold mb-4 text-warning">Offline</h2>
+        <p class="text-gray-300 text-sm mb-6">Cloud sync requires an internet connection. Your changes will be saved locally and you can sync them when you're back online.</p>
+        <div class="flex justify-end">
+          <button id="closeOfflineSyncWarningModalBtn" class="btn btn-secondary btn-sm">Understood</button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="notificationArea"
+      class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
+    ></div>
 
     <script src="js/globals.js" defer></script>
     <script src="js/animations.js" defer></script>
