@@ -746,7 +746,7 @@ function openTransactionDetailModal(transactionId, skipHistory = false) {
     categoryHtml = `
       <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
         <span class="text-gray-400">Category</span>
-        <span class="font-medium">${transaction.category || "Uncategorized"}</span>
+        <span class="font-medium">${escapeHTML(transaction.category) || "Uncategorized"}</span>
       </div>`;
   }
 
@@ -754,7 +754,7 @@ function openTransactionDetailModal(transactionId, skipHistory = false) {
     <div class="text-center mb-4">
       <div class="text-3xl font-bold ${textColorClass} tabular-nums mb-1">${isIncome ? "+" : "-"}${formatCurrency(transaction.amount)}</div>
       <div class="text-sm text-gray-400 mb-3">${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</div>
-      <div class="text-lg font-semibold text-gray-50 px-2" style="text-wrap: balance;">${transaction.description}</div>
+      <div class="text-lg font-semibold text-gray-50 px-2" style="text-wrap: balance;">${escapeHTML(transaction.description)}</div>
     </div>
     
     <div class="bg-gray-700/30 rounded-lg p-4 space-y-2 mb-6">
@@ -764,7 +764,7 @@ function openTransactionDetailModal(transactionId, skipHistory = false) {
       </div>
       <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
         <span class="text-gray-400">Account</span>
-        <span class="font-medium">${accountName}</span>
+        <span class="font-medium">${escapeHTML(accountName)}</span>
       </div>
       ${categoryHtml}
     </div>
@@ -922,7 +922,7 @@ function openEditTransactionModal(transactionId, event) {
             <div>
                 <label for="modalDescription" class="block text-sm font-medium mb-1">Description</label>
                 <input type="text" id="modalDescription" name="description" value="${
-                  transaction.description
+                  escapeHTML(transaction.description)
                 }" placeholder="e.g., Lunch with friends" required>
             </div>
             <div>
@@ -1075,7 +1075,7 @@ function deleteTransaction(id, event) {
   showConfirmationModal(
     "Delete Transaction",
     `Are you sure you want to delete the transaction: <br><strong>"${
-      transaction.description
+      escapeHTML(transaction.description)
     }"</strong> (${formatCurrency(transaction.amount)})?`,
     "Delete",
     "Cancel",
@@ -2480,7 +2480,7 @@ function openEditCcTransactionModal(ccTransactionId) {
             <div>
                 <label for="modalCcDescription" class="block text-sm font-medium mb-1">Description</label>
                 <input type="text" id="modalCcDescription" name="ccDescription" value="${
-                  transaction.description
+                  escapeHTML(transaction.description)
                 }" placeholder="e.g., Online purchase" required>
             </div>
             <div>
@@ -2576,7 +2576,7 @@ function deleteCcTransaction(transactionId) {
   showConfirmationModal(
     "Delete CC Transaction",
     `Are you sure you want to delete the CC transaction: <br><strong>"${
-      transaction.description
+      escapeHTML(transaction.description)
     }"</strong> (${formatCurrency(
       transaction.amount
     )})?<br><br><strong class="text-warning">Warning:</strong> This will also remove any associated payment records made through the app for this specific CC item.`,
@@ -2887,8 +2887,8 @@ function deleteDebt(debtId) {
   showConfirmationModal(
     "Delete Debt",
     `Are you sure you want to delete the debt for <strong>"${
-      debt.who
-    }"</strong> regarding "${debt.why}" (${formatCurrency(
+      escapeHTML(debt.who)
+    }"</strong> regarding "${escapeHTML(debt.why)}" (${formatCurrency(
       debt.remainingAmount
     )})?<br><br>This removes the record only.`,
     "Delete",
@@ -3398,8 +3398,8 @@ function deleteReceivable(recId) {
   }
 
   let modalMessage = `Are you sure you want to delete the receivable from <strong>"${
-    receivable.who
-  }"</strong> for "${receivable.why}" (${formatCurrency(
+    escapeHTML(receivable.who)
+  }"</strong> for "${escapeHTML(receivable.why)}" (${formatCurrency(
     receivable.remainingAmount
   )})?<br><br>This action only removes the record of them owing you money.`;
 
@@ -3732,7 +3732,7 @@ function deleteInstallment(installmentId) {
 
   showConfirmationModal(
     "Delete Installment Plan",
-    `Are you sure you want to delete the installment plan: <br><strong>"${installment.description}"</strong>?<br><br>This removes the record only.`,
+    `Are you sure you want to delete the installment plan: <br><strong>"${escapeHTML(installment.description)}"</strong>?<br><br>This removes the record only.`,
     "Delete",
     "Cancel",
     () => {
