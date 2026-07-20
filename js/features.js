@@ -922,7 +922,7 @@ function openEditTransactionModal(transactionId, event) {
             <div>
                 <label for="modalDescription" class="block text-sm font-medium mb-1">Description</label>
                 <input type="text" id="modalDescription" name="description" value="${
-                  transaction.description
+                  escapeHTML(transaction.description)
                 }" placeholder="e.g., Lunch with friends" required>
             </div>
             <div>
@@ -2480,7 +2480,7 @@ function openEditCcTransactionModal(ccTransactionId) {
             <div>
                 <label for="modalCcDescription" class="block text-sm font-medium mb-1">Description</label>
                 <input type="text" id="modalCcDescription" name="ccDescription" value="${
-                  transaction.description
+                  escapeHTML(transaction.description)
                 }" placeholder="e.g., Online purchase" required>
             </div>
             <div>
@@ -2679,9 +2679,9 @@ function openEditDebtForm(id) {
     )}" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Remaining Amount</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" name="debtRemainingAmount" value="${d.remainingAmount.toFixed(
       2
     )}" step="0.01" min="0" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="debtWho" value="${
-      d.who
+      escapeHTML(d.who)
     }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="debtWhy" value="${
-      d.why
+      escapeHTML(d.why)
     }" required></div> <div><label class="block text-sm font-medium mb-1">Due Date</label><input type="date" name="debtDueDate" value="${
       d.dueDate
     }" required></div> <button type="submit" class="btn btn-primary w-full">Update Debt</button> `,
@@ -2761,7 +2761,7 @@ function openPayDebtForm(debtId) {
   const formHtml = `
       <p class="mb-2 force-word-wrap">Owed: <span class="font-semibold tabular-nums">${formatCurrency(
         debt.remainingAmount
-      )}</span> to ${debt.who} for ${debt.why}</p>
+      )}</span> to ${escapeHTML(debt.who)} for ${escapeHTML(debt.why)}</p>
       <div>
           <label for="payDebtAmount" class="block text-sm font-medium mb-1">Payment Amount (LKR)</label>
           <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="payDebtAmount" name="payDebtAmount" step="0.01" min="0.01" max="${debt.remainingAmount.toFixed(
@@ -2783,7 +2783,7 @@ function openPayDebtForm(debtId) {
       <input type="hidden" name="debtId" value="${debtId}">
       <button type="submit" class="btn btn-primary w-full mt-3">Make Payment</button>
   `;
-  openFormModal(`Pay Debt: ${debt.who}`, formHtml, handlePayDebtSubmit);
+  openFormModal(`Pay Debt: ${escapeHTML(debt.who)}`, formHtml, handlePayDebtSubmit);
   populateDropdowns();
 
   const logExpenseCheckbox = document.getElementById("logDebtPaymentAsExpense");
@@ -3093,9 +3093,9 @@ function openEditReceivableForm(id) {
       .join(
         ""
       )}</select></div> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="recWho" value="${
-      r.who
+      escapeHTML(r.who)
     }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="recWhy" value="${
-      r.why
+      escapeHTML(r.why)
     }" required></div> <div><label class="block text-sm font-medium mb-1">Date Given</label><input type="date" name="recDateGiven" value="${
       r.dateGiven
     }" required></div> <button type="submit" class="btn btn-primary w-full">Update Receivable</button> `,
@@ -3257,7 +3257,7 @@ function openReceivePaymentForm(recId) {
   const formHtml = `
     <p class="mb-2 force-word-wrap">Owed: <span class="font-semibold tabular-nums">${formatCurrency(
       receivable.remainingAmount
-    )}</span> by ${receivable.who} for ${receivable.why}</p>
+    )}</span> by ${escapeHTML(receivable.who)} for ${escapeHTML(receivable.why)}</p>
     <div>
       <label for="recPaymentAmount" class="block text-sm font-medium mb-1">Amount Received (LKR)</label>
       <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="recPaymentAmount" name="recPaymentAmount" step="0.01" min="0.01" 
@@ -3274,7 +3274,7 @@ function openReceivePaymentForm(recId) {
   `;
 
   openFormModal(
-    `Receive Payment from: ${receivable.who}`,
+    `Receive Payment from: ${escapeHTML(receivable.who)}`,
     formHtml,
     handleReceivePaymentSubmit
   );
@@ -3553,7 +3553,7 @@ function openEditInstallmentForm(id) {
     <div>
       <label for="instDescription" class="block text-sm font-medium mb-1">Description</label>
       <input type="text" id="instDescription" name="instDescription" value="${
-        i.description
+        escapeHTML(i.description)
       }" required>
     </div>
     <div>
@@ -3652,7 +3652,7 @@ function payInstallmentMonth(installmentId) {
 
   const confirmationMessageHtml = `
     <p class="mb-4 text-center text-gray-300 force-word-wrap">
-      Mark one month as paid for "<strong>${installment.description}</strong>"?
+      Mark one month as paid for "<strong>${escapeHTML(installment.description)}</strong>"?
     </p>
     <p class="mb-4 text-center text-sm text-gray-400">
       Amount: <span class="tabular-nums">${formatCurrency(
@@ -3671,7 +3671,7 @@ function payInstallmentMonth(installmentId) {
   `;
 
   openFormModal(
-    `Confirm Installment Update: ${installment.description}`,
+    `Confirm Installment Update: ${escapeHTML(installment.description)}`,
     confirmationMessageHtml,
     null
   );
@@ -3813,7 +3813,7 @@ function openPayCcItemForm(ccTransactionId) {
       <button type="submit" class="btn btn-primary w-full mt-3">Make Payment</button>
   `;
   openFormModal(
-    `Pay CC Item: ${item.description.substring(0, 30)}...`,
+    `Pay CC Item: ${escapeHTML(item.description).substring(0, 30)}...`,
     formHtml,
     handlePayCcItemSubmit
   );
