@@ -746,7 +746,7 @@ function openTransactionDetailModal(transactionId, skipHistory = false) {
     categoryHtml = `
       <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
         <span class="text-gray-400">Category</span>
-        <span class="font-medium">${escapeHTML(transaction.category) || "Uncategorized"}</span>
+        <span class="font-medium">${transaction.category || "Uncategorized"}</span>
       </div>`;
   }
 
@@ -754,7 +754,7 @@ function openTransactionDetailModal(transactionId, skipHistory = false) {
     <div class="text-center mb-4">
       <div class="text-3xl font-bold ${textColorClass} tabular-nums mb-1">${isIncome ? "+" : "-"}${formatCurrency(transaction.amount)}</div>
       <div class="text-sm text-gray-400 mb-3">${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</div>
-      <div class="text-lg font-semibold text-gray-50 px-2" style="text-wrap: balance;">${escapeHTML(transaction.description)}</div>
+      <div class="text-lg font-semibold text-gray-50 px-2" style="text-wrap: balance;">${transaction.description}</div>
     </div>
     
     <div class="bg-gray-700/30 rounded-lg p-4 space-y-2 mb-6">
@@ -764,7 +764,7 @@ function openTransactionDetailModal(transactionId, skipHistory = false) {
       </div>
       <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
         <span class="text-gray-400">Account</span>
-        <span class="font-medium">${escapeHTML(accountName)}</span>
+        <span class="font-medium">${accountName}</span>
       </div>
       ${categoryHtml}
     </div>
@@ -922,7 +922,7 @@ function openEditTransactionModal(transactionId, event) {
             <div>
                 <label for="modalDescription" class="block text-sm font-medium mb-1">Description</label>
                 <input type="text" id="modalDescription" name="description" value="${
-                  escapeHTML(transaction.description)
+                  transaction.description
                 }" placeholder="e.g., Lunch with friends" required>
             </div>
             <div>
@@ -2480,7 +2480,7 @@ function openEditCcTransactionModal(ccTransactionId) {
             <div>
                 <label for="modalCcDescription" class="block text-sm font-medium mb-1">Description</label>
                 <input type="text" id="modalCcDescription" name="ccDescription" value="${
-                  escapeHTML(transaction.description)
+                  transaction.description
                 }" placeholder="e.g., Online purchase" required>
             </div>
             <div>
@@ -3407,7 +3407,7 @@ function deleteReceivable(recId) {
     const sourceAccountName =
       state.accounts.find((acc) => acc.id === receivable.sourceAccount)?.name ||
       "Unknown Account";
-    modalMessage += `<br><br><strong class="text-warning">Important:</strong> This will NOT automatically refund the amount to your source account ('${sourceAccountName}'). That adjustment needs to be handled manually if required.`;
+    modalMessage += `<br><br><strong class="text-warning">Important:</strong> This will NOT automatically refund the amount to your source account ('${escapeHTML(sourceAccountName)}'). That adjustment needs to be handled manually if required.`;
   } else if (receivable.type === "cc") {
     modalMessage += `<br><br><strong class="text-warning">Note:</strong> This does NOT affect any separate credit card expense you might have recorded on your own card for giving out this loan.`;
   }
