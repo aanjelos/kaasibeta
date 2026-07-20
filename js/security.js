@@ -9,6 +9,14 @@ let expectedPin = "";
 let failedSecurityAttempts = 0;
 let lockScreenKeydownListener = null;
 
+// PIN brute-force protection
+let pinFailedAttempts = 0;
+let pinLockoutUntil = 0;
+
+// Recovery code brute-force protection
+let recoveryCodeFailedAttempts = 0;
+let recoveryCodeLockoutUntil = 0;
+
 function showPinLockScreen() {
   const pinLockOverlay = document.getElementById("pinLockOverlay");
   if (!pinLockOverlay) return;
@@ -114,11 +122,28 @@ function updatePinDots() {
 }
 
 async function verifyPin() {
+  // Rate limiting: prevent brute-force
+  if (Date.now() < pinLockoutUntil) {
+    const secsLeft = Math.ceil((pinLockoutUntil - Date.now()) / 1000);
+    showNotification(`Too many failed attempts. Try again in ${secsLeft}s.`, "error");
+    currentPinInput = "";
+    updatePinDots();
+    return;
+  }
+
   const currentHash = await hashString(currentPinInput);
   if (currentHash === expectedPin) {
+    pinFailedAttempts = 0;
+    pinLockoutUntil = 0;
     onAppUnlocked();
     if (typeof trackEvent === "function") trackEvent("pin_login_success", "Security");
   } else {
+    pinFailedAttempts++;
+    if (pinFailedAttempts >= 5) {
+      pinLockoutUntil = Date.now() + 30_000; // 30-second lockout
+      pinFailedAttempts = 0;
+      showNotification("Too many failed attempts. Locked for 30 seconds.", "error");
+    }
     // Error animation
     const dotsContainer = document.getElementById("pinLockDots");
     dotsContainer.classList.add("pin-error");
@@ -181,6 +206,13 @@ function showForgotPinModal() {
 }
 
 async function verifyRecoveryCode() {
+  // Rate limiting: prevent brute-force
+  if (Date.now() < recoveryCodeLockoutUntil) {
+    const secsLeft = Math.ceil((recoveryCodeLockoutUntil - Date.now()) / 1000);
+    showNotification(`Too many failed attempts. Try again in ${secsLeft}s.`, "error");
+    return;
+  }
+
   const inputEl = document.getElementById("recoveryCodeInput");
   const code = inputEl.value.trim().toUpperCase();
   if (!code) return;
@@ -201,7 +233,9 @@ async function verifyRecoveryCode() {
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
     if (validHashes.includes(hashHex)) {
-      // Valid recovery code!
+      // Valid recovery code — reset counters
+      recoveryCodeFailedAttempts = 0;
+      recoveryCodeLockoutUntil = 0;
       state.settings.appPin = { enabled: false };
       saveData();
       closeModal("securityQuestionModal");
@@ -214,7 +248,14 @@ async function verifyRecoveryCode() {
       const opts = document.getElementById("securityManagementOptions");
       if (opts) opts.classList.add("hidden");
     } else {
-      showNotification("Invalid recovery code.", "error");
+      recoveryCodeFailedAttempts++;
+      if (recoveryCodeFailedAttempts >= 5) {
+        recoveryCodeLockoutUntil = Date.now() + 60_000; // 60-second lockout
+        recoveryCodeFailedAttempts = 0;
+        showNotification("Too many failed attempts. Locked for 60 seconds.", "error");
+      } else {
+        showNotification("Invalid recovery code.", "error");
+      }
       inputEl.value = "";
     }
   } catch (err) {

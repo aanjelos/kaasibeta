@@ -196,7 +196,7 @@ function renderDebtList() {
     creditorHeader.style.backgroundColor = "var(--bg-tertiary)";
 
     creditorHeader.innerHTML = ` 
-      <h4 class="text-md font-semibold text-gray-100 force-word-wrap">${creditorName}</h4>
+      <h4 class="text-md font-semibold text-gray-100 force-word-wrap">${escapeHTML(creditorName)}</h4>
       <div class="flex items-center flex-shrink-0 w-full sm:w-auto justify-between sm:justify-end">
         <span class="text-md font-semibold text-expense mr-3 whitespace-nowrap tabular-nums">${formatCurrency(
           creditorData.totalOwedTo
@@ -246,7 +246,7 @@ function renderDebtList() {
         itemDiv.innerHTML = `
           <div class="flex justify-between items-start mb-1 gap-x-2">
             <div class="flex-grow">
-              <p class="font-medium text-gray-200 force-word-wrap">${d.why}</p>
+              <p class="font-medium text-gray-200 force-word-wrap">${escapeHTML(d.why)}</p>
               <p class="text-xs ${daysColor}">${daysText}</p>
             </div>
             <span class="font-semibold text-expense whitespace-nowrap tabular-nums">${formatCurrency(
@@ -363,7 +363,7 @@ function renderReceivableList() {
         "flex flex-col sm:flex-row sm:justify-between sm:items-center items-start p-3 cursor-pointer hover:bg-gray-600/50 transition-colors gap-2 sm:gap-0";
       personHeader.style.backgroundColor = "var(--bg-tertiary)";
       personHeader.innerHTML = `
-          <h4 class="text-md font-semibold text-gray-100 force-word-wrap">${personName}</h4>
+          <h4 class="text-md font-semibold text-gray-100 force-word-wrap">${escapeHTML(personName)}</h4>
           <div class="flex items-center flex-shrink-0 w-full sm:w-auto justify-between sm:justify-end">
             <span class="text-md font-semibold text-income mr-3 whitespace-nowrap tabular-nums">${formatCurrency(
               personData.totalOwed
@@ -402,7 +402,7 @@ function renderReceivableList() {
           itemDiv.innerHTML = `
           <div class="flex justify-between items-start mb-1 gap-x-2">
             <div class="flex-grow">
-              <p class="font-medium text-gray-200 force-word-wrap">${r.why}</p>
+              <p class="font-medium text-gray-200 force-word-wrap">${escapeHTML(r.why)}</p>
               <p class="text-xs text-gray-400">${srcTxt}</p>
             </div>
             <span class="font-semibold text-income whitespace-nowrap tabular-nums">${formatCurrency(
@@ -519,7 +519,7 @@ function renderInstallmentList() {
           ${ringHtml}
           <div class="flex-grow flex justify-between items-start ml-2 min-w-0">
               <div class="flex flex-col min-w-0 pr-2">
-                  <p class="text-sm md:text-base font-medium truncate mb-0.5">${i.description}</p>
+                  <p class="text-sm md:text-base font-medium truncate mb-0.5">${escapeHTML(i.description)}</p>
                   <p class="text-[11px] md:text-xs text-gray-400 mb-1.5 tabular-nums truncate">${formatCurrency(i.monthlyAmount)} / month</p>
                   <p class="text-[11px] md:text-xs text-gray-500 truncate tabular-nums">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
               </div>
@@ -535,7 +535,7 @@ function renderInstallmentList() {
           <div class="flex items-center gap-x-3 w-full">
               ${ringHtml}
               <div class="flex flex-col min-w-0 flex-grow">
-                  <p class="text-sm font-medium truncate mb-0.5">${i.description}</p>
+                  <p class="text-sm font-medium truncate mb-0.5">${escapeHTML(i.description)}</p>
                   <p class="text-[11px] text-gray-400 mb-1.5 tabular-nums truncate">${formatCurrency(i.monthlyAmount)} / month</p>
                   <p class="text-[11px] text-gray-500 truncate tabular-nums">${i.monthsLeft} of ${i.totalMonths} months left (${daysLeftText})</p>
               </div>
@@ -4057,7 +4057,7 @@ function renderDashboard() {
         card.id = `accountBalance-${acc.id}`;
         card.className = "bg-gray-600 p-3 rounded";
         card.innerHTML = `
-          <p class="text-xs font-medium text-gray-300 truncate">${acc.name}</p>
+          <p class="text-xs font-medium text-gray-300 truncate">${escapeHTML(acc.name)}</p>
           <p class="font-semibold text-sm tabular-nums balance-val"></p>
         `;
         accountCardsContainer.appendChild(card);

@@ -1158,11 +1158,11 @@ function populateDropdowns() {
       });
       const isChecked = checkedCategories.has(c);
       label.innerHTML = `
-        <input type="checkbox" value="${c}" class="peer sr-only filter-category-checkbox" ${isChecked ? "checked" : ""}>
+        <input type="checkbox" value="${escapeHTML(c)}" class="peer sr-only filter-category-checkbox" ${isChecked ? "checked" : ""}>
         <div class="w-4 h-4 rounded border border-gray-500 peer-checked:border-accent-500 flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500">
           <svg class="w-3 h-3 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
         </div>
-        <span>${c}</span>
+        <span>${escapeHTML(c)}</span>
       `;
       filterDropdownMenu.appendChild(label);
     });
