@@ -52,11 +52,37 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Concept**: A Spotify Wrapped-style "Fun Facts" or "Stats" page that highlights interesting all-time data points for the user to reflect on their financial journey.
 - **Implementation Idea**: Build a dedicated view that parses the entire `transactions` array to calculate and display fun metrics such as: Total transactions added, most common spending category, highest single expense of all time, highest earning month, highest spending day, etc. Could be implemented as a new tab in the Monthly Overview or a standalone widget.
 
+### 13. Flexible Credit Card Tracking Modes (Lump-Sum Bill vs. Per-Transaction)
+- **Concept**: Provide an option for users to select their preferred credit card tracking workflow: either logging individual credit card purchases transaction-by-transaction, or entering the total monthly credit card statement bill as a single lump-sum expense.
+
+### 14. Credit Card Initial / Starting Expenses
+- **Concept**: Allow users to set an initial carried-over balance or starting un-billed expense total when adding or configuring a Credit Card account.
+
+### 15. Support > 3 Bank Accounts
+- **Concept**: Remove or expand the restriction capping users to 3 bank accounts in setup and settings, allowing full flexibility for power users with multiple accounts.
+
+### 16. Multi-Product Ecosystem & Embedded Tools Suite (Top App Tabs)
+- **Concept**: Introduce a top-level tab switcher to seamlessly toggle between Kaasi Core expense tracking and sub-products / micro-apps.
+- **Product Ideas**:
+  - **Kaasi Split**: Shared expense and bill divider (Splitwise alternative).
+  - **BuyBye**: Impulse purchase delay & expense regret tracker.
+  - **Sri Lanka Financial Calculators**: Embedded PAYE Income Tax Calculator, EPF/ETF Payout Estimator, and Loan/Leasing Amortization Tool.
+
 ---
 
 ## ✨ UI / UX Polish
 
-*(No active UI/UX polish items currently tracked)*
+### 1. Segmented Control Buttons for Transaction Type
+- **Concept**: Replace the standard `<select>` dropdown for Transaction Type (`Income` | `Expense` | `Transfer`) in the Add/Edit modal with prominent segmented toggle buttons for faster, one-tap selection.
+
+### 2. Mobile Floating Action Button (FAB)
+- **Concept**: Add an optional floating `+` button in the bottom-right corner visible on mobile viewports for instant 1-tap transaction entry.
+
+### 3. Prominent Credit Card Transactions Button
+- **Concept**: Redesign the "View Credit Card Transactions" button on Credit Card cards/sections to make it visually distinct and immediately noticeable.
+
+### 4. Prevent Accidental Modal Close on Text Selection Dragging
+- **Concept**: Fix an issue where selecting/dragging text inside a modal and releasing the cursor outside the modal box triggers the backdrop click handler, accidentally closing the modal.
 
 ---
 
