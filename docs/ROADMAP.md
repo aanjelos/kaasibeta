@@ -61,12 +61,12 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 15. Support > 3 Bank Accounts
 - **Concept**: Remove or expand the restriction capping users to 3 bank accounts in setup and settings, allowing full flexibility for power users with multiple accounts.
 
-### 16. Multi-Product Ecosystem & Embedded Tools Suite (Top App Tabs)
-- **Concept**: Introduce a top-level tab switcher to seamlessly toggle between Kaasi Core expense tracking and sub-products / micro-apps.
-- **Product Ideas**:
-  - **Kaasi Split**: Shared expense and bill divider (Splitwise alternative).
-  - **BuyBye**: Impulse purchase delay & expense regret tracker.
-  - **Sri Lanka Financial Calculators**: Embedded PAYE Income Tax Calculator, EPF/ETF Payout Estimator, and Loan/Leasing Amortization Tool.
+### 17. Exclude Bulk Credit Card Payments from Expenses
+- **Concept**: Add a "Log as expense?" toggle/checkbox to the Bulk Credit Card Settlement modal (matching individual CC item settlements), allowing users to clear credit card items without creating matching expense entries when desired.
+
+### 18. Per-Month Historical Budget Storage & Persistence
+- **Concept**: Save category budget limits on a per-month basis instead of having a single static budget that resets every month. This allows users to accurately review historical budget targets vs. actual spending for past months.
+- **Implementation Note**: Best implemented alongside the **IndexedDB Migration** to easily handle the expanded historical data schema without exceeding `localStorage` limits.
 
 ---
 
@@ -84,6 +84,9 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 4. Prevent Accidental Modal Close on Text Selection Dragging
 - **Concept**: Fix an issue where selecting/dragging text inside a modal and releasing the cursor outside the modal box triggers the backdrop click handler, accidentally closing the modal.
 
+### 5. Explicit Evaluation Triggers for Math Calculator Fields
+- **Concept**: Adjust the inline calculation parser (`math-tool.js`) so math expressions in amount input fields do not auto-calculate on `blur` (focus loss). Only trigger calculation when the user explicitly presses `Tab`, `Enter`, or `=`.
+
 ---
 
 ## 🛠️ Technical Debt & Code Organization
@@ -95,6 +98,9 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 2. Automatic Background Cloud Backups
 - **Concept**: Solve the "I forgot to click backup" issue by running silent, timed backups.
 - **Implementation Idea**: Add a background interval timer (e.g., every 5-10 minutes) that checks if the local state has un-synced changes (`local_newer`) and the device is online. If true, trigger a silent `executeBackupToSupabase()` upsert. Additionally, automatically restore from the cloud on launch if a newer cloud state is detected and local storage is clean.
+
+### 3. Fix Immediate DOM Refresh on Item Deletion (Bug)
+- **Concept**: Fix a UI state bug where deleted records (transactions, debts, receivables, etc.) remain visually visible in the DOM list view until the page is manually reloaded.
 
 ---
 
