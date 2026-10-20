@@ -284,3 +284,151 @@ test('date defaults are today on launch while visibility changes preserve unfini
   r.context.initializeUI(true);
   assert.equal(r.element('#date').value, r.context.getCurrentDateString());
 });
+
+function receivableEdit(values = {}) {
+  return { preventDefault() {}, target: { values: {
+    editReceivableId: 'r1', recOriginalAmount: '2000', recRemainingAmount: '2000',
+    recType: 'cash', receivableSourceAccount: 'cash', recWho: 'Changed',
+    recWhy: 'Changed reason', recDateGiven: '2026-10-20', ...values
+  } } };
+}
+
+function seedReceivable(r) {
+  r.run(`state.receivables = [{id:'r1',who:'Original',why:'Loan',dateGiven:'2026-10-01',
+    type:'cash',sourceAccount:'cash',originalAmount:100,amount:100,remainingAmount:80,timestamp:1}];
+    state.accounts[0].balance=900; saveData();`);
+  r.context.renderCreditCardSection = () => {};
+}
+
+test('rejected receivable edit leaves every field and stored balance unchanged; retry uses original amount', () => {
+  const r = runtime(); seedReceivable(r);
+  const before = r.run('JSON.stringify(state)'); const saved = r.storage.get('KaasiData');
+  r.context.handleEditReceivableSubmit(receivableEdit());
+  assert.equal(r.run('JSON.stringify(state)'), before);
+  assert.equal(r.storage.get('KaasiData'), saved);
+  r.context.handleEditReceivableSubmit(receivableEdit({recOriginalAmount:'200',recRemainingAmount:'180'}));
+  assert.equal(r.run('state.accounts[0].balance'), 800);
+  assert.equal(r.run('state.receivables[0].originalAmount'), 200);
+  assert.equal(r.run('state.receivables[0].remainingAmount'), 180);
+});
+
+test('receivable account/type switches validate first and financial save failure rolls back the whole edit', () => {
+  const r = runtime(); seedReceivable(r);
+  r.run('state.accounts.push({id:"other",name:"Other bank",balance:50});saveData();');
+  const before = r.run('JSON.stringify(state)');
+  r.context.handleEditReceivableSubmit(receivableEdit({receivableSourceAccount:'other'}));
+  assert.equal(r.run('JSON.stringify(state)'), before);
+  r.context.handleEditReceivableSubmit(receivableEdit({receivableSourceAccount:'missing'}));
+  assert.equal(r.run('JSON.stringify(state)'), before);
+  r.localStorage.failMain = true;
+  assert.throws(() => r.context.handleEditReceivableSubmit(receivableEdit({recOriginalAmount:'200',recRemainingAmount:'180'})), /not saved/);
+  assert.equal(r.run('JSON.stringify(state)'), before);
+  r.localStorage.failMain = false;
+  r.context.handleEditReceivableSubmit(receivableEdit({recType:'cc',recOriginalAmount:'100',recRemainingAmount:'80'}));
+  assert.equal(r.run('state.accounts[0].balance'), 1000);
+  assert.equal(r.run('state.receivables[0].sourceAccount'), null);
+  r.context.handleEditReceivableSubmit(receivableEdit({recOriginalAmount:'100',recRemainingAmount:'80',receivableSourceAccount:'other'}));
+  assert.equal(r.run('state.receivables[0].type'), 'cc');
+  assert.equal(r.run('state.accounts.find(a=>a.id==="other").balance'), 50);
+});
+
+function seedCards(r) {
+  r.run(`state.creditCard.limit=10000;state.creditCard.transactions=[
+    {id:'c1',amount:100,paidAmount:0,paidOff:false,description:'Online shopping shoes',date:'2026-10-20',timestamp:1},
+    {id:'c2',amount:100,paidAmount:0,paidOff:false,description:'Online shopping groceries',date:'2026-10-20',timestamp:2}
+  ];saveData();`);
+  for (const name of ['renderCreditCardSection','refreshMonthlyViewIfRelevant','openCcHistoryModal']) r.context[name]=()=>{};
+}
+
+function cardPayment(r, id, amount = '20') {
+  r.context.handlePayCcItemSubmit({preventDefault(){},target:{values:{
+    ccItemId:id,ccItemPayAmount:amount,ccPayFromAccount:'cash',logCcPaymentAsExpense:'on',ccPayCategory:'Groceries'
+  }}});
+}
+
+test('CC payment links survive renaming/import; deleting a purchase never matches descriptions/categories', () => {
+  const r = runtime(); seedCards(r);
+  cardPayment(r,'c1'); cardPayment(r,'c2');
+  assert.equal(r.run('state.transactions[0].ccPurchaseId'), 'c1');
+  assert.equal(r.run('prepareImportedData(JSON.parse(JSON.stringify(state))).transactions[0].ccPurchaseId'), 'c1');
+  r.run(`state.transactions.push({id:'legacy',type:'expense',amount:20,account:'cash',category:'Credit Card Payment',
+    description:'Credit Card Payment: Online shopping shoes',date:'2026-10-20',timestamp:3});
+    state.creditCard.transactions[0].description='Renamed purchase';saveData();`);
+  const balance = r.run('state.accounts[0].balance');
+  r.context.showConfirmationModal = (...args) => args[4]();
+  r.context.deleteCcTransaction('c1');
+  assert.equal(r.run('state.transactions.length'), 2);
+  assert.equal(r.run('state.transactions.some(t=>t.ccPurchaseId==="c1")'), false);
+  assert.equal(r.run('state.transactions.some(t=>t.ccPurchaseId==="c2")'), true);
+  assert.equal(r.run('state.transactions.some(t=>t.id==="legacy")'), true);
+  assert.equal(r.run('state.accounts[0].balance'), balance);
+});
+
+test('deleting a payment expense continues to leave the CC purchase paid as requested', () => {
+  const r = runtime(); seedCards(r); cardPayment(r,'c1','100');
+  r.context.showConfirmationModal = (...args) => args[4]();
+  const id=r.run('state.transactions[0].id'); r.context.deleteTransaction(id);
+  assert.equal(r.run('state.creditCard.transactions[0].paidOff'), true);
+  assert.equal(r.run('state.creditCard.transactions[0].paidAmount'), 100);
+  assert.equal(r.run('state.accounts[0].balance'), 1000);
+});
+
+function delayedBackup(r) {
+  let finish, payload, uploads=0;
+  const refresh=r.context.fetchAndUpdateLastCloudSyncTime;
+  const query={upsert(value){payload=value;uploads++;return this;},select(){return this;},eq(){return this;},
+    single(){return new Promise(resolve=>{finish=resolve;});}};
+  r.context.testClient={from:()=>query};r.run('supabaseUser={id:"test-user"};supabaseClient=testClient;');
+  r.context.fetchAndUpdateLastCloudSyncTime=()=>{};
+  return {refresh,complete(error=null){finish({data:error?null:{updated_at:'2026-10-20T01:00:00Z'},error});},
+    get payload(){return payload;},get uploads(){return uploads;}};
+}
+
+test('editing during upload leaves the uploaded snapshot fixed and new local edits pending, even inside two seconds', async () => {
+  const r=runtime();const cloud=delayedBackup(r);const pending=r.context.executeBackupToSupabase();
+  const uploaded=JSON.stringify(cloud.payload.data);
+  await r.context.executeBackupToSupabase();assert.equal(cloud.uploads,1);
+  r.run('state.accounts[0].balance=990;saveData();');
+  const editTime=r.storage.get('lastLocalDataModification');
+  assert.equal(JSON.stringify(cloud.payload.data),uploaded);
+  cloud.complete();await pending;
+  assert.equal(r.storage.get('lastLocalDataModification'),editTime);
+  assert.equal(r.storage.get('kaasi_synced_state_hash'),r.context.generateDataHash(uploaded));
+  assert.equal(r.context.currentCloudSyncStatus,'local_newer');
+  assert.ok(r.notices.some(([msg])=>msg.includes('still need backing up')));
+  // Run the real cloud-status refresh to cover the former two-second blind spot.
+  r.context.statusClient={from:()=>({select(){return this;},eq(){return this;},
+    single:async()=>({data:{updated_at:'2026-10-20T01:00:00Z'},error:null})})};
+  r.run('supabaseClient=statusClient;');
+  await cloud.refresh();
+  assert.equal(r.context.currentCloudSyncStatus,'local_newer');
+});
+
+test('unchanged upload marks only its snapshot synced; failed uploads preserve sync metadata and allow retry', async () => {
+  const r=runtime();const cloud=delayedBackup(r);const pending=r.context.executeBackupToSupabase();
+  cloud.complete();await pending;
+  assert.equal(r.context.currentCloudSyncStatus,'synced');assert.equal(r.context.cloudBackupInProgress,false);
+  const hash=r.storage.get('kaasi_synced_state_hash');
+  r.run('state.accounts[0].balance=950;saveData();');
+  const retry=r.context.executeBackupToSupabase();cloud.complete({message:'Simulated network failure'});await retry;
+  assert.equal(r.storage.get('kaasi_synced_state_hash'),hash);assert.equal(r.context.cloudBackupInProgress,false);
+  assert.ok(r.notices.some(([msg])=>msg.includes('Cloud backup failed')));
+  const successfulRetry=r.context.executeBackupToSupabase();cloud.complete();await successfulRetry;
+  assert.equal(r.context.currentCloudSyncStatus,'synced');
+  assert.equal(r.storage.get('kaasi_synced_state_hash'),r.context.generateDataHash(r.run('JSON.stringify(state)')));
+});
+
+test('bulk CC payments save a separate purchase ID for each payment', () => {
+  const r=runtime(); const openHistory=r.context.openCcHistoryModal; seedCards(r);
+  r.context.openModalHelper=()=>{};
+  openHistory();
+  r.context.ccSelectedItems=new Set(['c1','c2']);
+  let submit;
+  r.context.openFormModal=(title,html,callback)=>{submit=callback;};
+  r.context.openBulkPayCcItemForm();
+  submit({preventDefault(){},target:{values:{payFromAccount:'cash',payCategory_c1:'Groceries',payCategory_c2:'Other'}}});
+  assert.equal(r.run('state.transactions.length'),2);
+  assert.equal(r.run('state.transactions[0].ccPurchaseId'),'c1');
+  assert.equal(r.run('state.transactions[1].ccPurchaseId'),'c2');
+  assert.equal(r.run('state.accounts[0].balance'),800);
+});

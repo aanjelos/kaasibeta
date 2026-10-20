@@ -80,6 +80,7 @@ function prepareImportedData(input) {
     if (!["income", "expense"].includes(transaction.type)) fail("unsupported transaction type");
     number(transaction, "amount");
     accountReference(transaction.account);
+    if (transaction.ccPurchaseId !== undefined) identifier(transaction.ccPurchaseId, "CC purchase link");
     text(transaction.description, "transaction description", true);
     if (transaction.category !== null && transaction.category !== undefined) text(transaction.category, "transaction category");
     date(transaction.date, "transaction date");

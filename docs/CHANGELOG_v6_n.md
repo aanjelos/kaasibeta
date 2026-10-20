@@ -1,5 +1,18 @@
 # Kaasi v6 — Chat n development changelog
 
+## v6.363n — 2026-10-20
+
+One version increment covers the newly approved fixes. All changes remain inside kaasibeta.
+
+1. Fix rejected receivable edits: calculate and validate the proposed account balances before changing any receivable fields or balances. Insufficient funds or missing source accounts leave the original record intact; retries use the original amounts. Existing save-failure rollback covers the completed edit.
+2. Link new individual and bulk credit-card payment expenses to the purchase using `ccPurchaseId`. Deleting a purchase removes only expenses with that exact link, independent of descriptions, category changes, or purchase renames. Preserve older unlinked payments instead of guessing. Keep bank balances unchanged when deleting a purchase, and retain the requested behavior where deleting a payment expense leaves the purchase paid. Explain linked/unlinked payment handling in the delete confirmation and refresh open monthly results after deletion.
+3. Validate optional purchase-link IDs on import while keeping legacy backups without links compatible.
+4. Freeze a separate snapshot for each cloud upload. Record the hash of the uploaded snapshot rather than the latest local data, preserve local edit timestamps, and keep edits made during the upload marked as pending. Prefer content comparison when refreshing cloud status so edits within two seconds of backup completion are not incorrectly marked synced. Inform the user when another backup is needed and prevent overlapping uploads.
+5. Increment the application and service-worker cache versions together to v6.363n. No Supabase schema or service changes are required.
+6. Extend the regression suite from 15 to 22 tests, covering rejected-edit retries and account/type changes, storage rollback, linked CC deletion, legacy payment preservation, individual/bulk links, import round trips, intentionally independent expense deletion, delayed uploads, overlapping backup attempts, failure recovery, and successful retry. All 22 pass; JavaScript syntax and staged-diff checks are included before publishing.
+
+The newer-cloud overwrite protection (#4 in the follow-up discussion), undo, realtime synchronization, IndexedDB migration, landing-page changes, and other deferred suggestions remain outside this round. Cloud upload tests use a delayed mock; no live cloud data is uploaded.
+
 ## v6.362n — 2026-10-20
 
 One version increment covers this round of changes. Existing documentation, recovery-code files, and beta domain/branding are preserved. Only kaasibeta is modified; kaasiapp and kaasipublic remain unchanged.

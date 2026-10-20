@@ -304,14 +304,14 @@ async function fetchAndUpdateLastCloudSyncTime() {
       
       if (data.updated_at !== lastSyncedCloudUpdatedAt && lastSyncedCloudUpdatedAt) {
         window.currentCloudSyncStatus = "cloud_newer";
-      } else if (lastLocalDataModification > lastLocalCloudSync + 2000) {
+      } else {
         const currentDataStr = localStorage.getItem("KaasiData");
         const currentHash = typeof generateDataHash === "function" ? generateDataHash(currentDataStr) : null;
         const syncedHash = localStorage.getItem("kaasi_synced_state_hash");
         
-        if (currentHash && syncedHash && currentHash === syncedHash) {
-          window.currentCloudSyncStatus = "synced";
-        } else {
+        if (currentHash && syncedHash) {
+          window.currentCloudSyncStatus = currentHash === syncedHash ? "synced" : "local_newer";
+        } else if (lastLocalDataModification > lastLocalCloudSync + 2000) {
           window.currentCloudSyncStatus = "local_newer";
         }
       }
@@ -428,6 +428,8 @@ async function backupToSupabase() {
 
 async function executeBackupToSupabase() {
   if (isAppLocked()) return;
+  if (window.cloudBackupInProgress) return;
+  window.cloudBackupInProgress = true;
 
   // Show loading state on button
   const backupBtn = $("#backupToSupabaseBtn");
@@ -439,6 +441,9 @@ async function executeBackupToSupabase() {
   showNotification("Saving backup...", "info", 5000);
 
   try {
+    // Freeze this upload; subsequent edits must stay pending for the next backup.
+    const uploadedDataStr = JSON.stringify(state);
+    const uploadedSnapshot = JSON.parse(uploadedDataStr);
     // We use 'upsert' to either create a new record or update the existing one for this user.
 
 
@@ -447,7 +452,7 @@ async function executeBackupToSupabase() {
       .upsert(
         {
           user_id: supabaseUser.id,
-          data: state, // 'state' is our complete localstorage JSON object
+          data: uploadedSnapshot,
           updated_at: new Date().toISOString(),
         },
         {
@@ -471,17 +476,17 @@ async function executeBackupToSupabase() {
     if (data.updated_at) localStorage.setItem("lastSyncedCloudUpdatedAt", data.updated_at);
     const now = Date.now().toString();
     localStorage.setItem("lastLocalCloudSync", now);
-    localStorage.setItem("lastLocalDataModification", now);
     localStorage.setItem("lastSuccessfulCloudBackupDate", getCurrentDateString());
-    const currentDataStr = localStorage.getItem("KaasiData");
-    if (currentDataStr && typeof generateDataHash === "function") {
-      localStorage.setItem("kaasi_synced_state_hash", generateDataHash(currentDataStr));
+    if (typeof generateDataHash === "function") {
+      localStorage.setItem("kaasi_synced_state_hash", generateDataHash(uploadedDataStr));
     }
-
-    
+    const changesDuringUpload = JSON.stringify(state) !== uploadedDataStr;
+    window.currentCloudSyncStatus = changesDuringUpload ? "local_newer" : "synced";
     showNotification(
-      `Cloud backup successful! (Last sync: ${backupTime})`,
-      "success"
+      changesDuringUpload
+        ? "Cloud backup completed. Changes made during the upload still need backing up."
+        : `Cloud backup successful! (Last sync: ${backupTime})`,
+      changesDuringUpload ? "info" : "success"
     );
     
     // Refresh the UI timestamp and tooltips
@@ -490,6 +495,7 @@ async function executeBackupToSupabase() {
     console.error("Exception during backup:", error);
     showNotification(`Cloud backup failed: ${error.message}`, "error", 7000);
   } finally {
+    window.cloudBackupInProgress = false;
     // Restore button text and state
     backupBtn.innerHTML = originalText;
     backupBtn.disabled = false;

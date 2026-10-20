@@ -2356,6 +2356,7 @@ function openCcHistoryModal() {
               id: generateId(),
               amount: remaining,
               description: `Credit Card Payment: ${item.description}`,
+              ccPurchaseId: item.id,
               category: payCategory,
               type: "expense",
               account: payFromAccountId,
@@ -2558,7 +2559,7 @@ function deleteCcTransaction(transactionId) {
       escapeHTML(transaction.description)
     }"</strong> (${formatCurrency(
       transaction.amount
-    )})?<br><br><strong class="text-warning">Warning:</strong> This will also remove any associated payment records made through the app for this specific CC item.`,
+    )})?<br><br><strong class="text-warning">Warning:</strong> This also removes payment records linked to this CC item. Older payments without a saved link are kept because their purchase cannot be identified reliably. Account balances are unchanged.`,
     "Delete",
     "Cancel",
     () => {
@@ -2566,10 +2567,7 @@ function deleteCcTransaction(transactionId) {
       state.transactions = state.transactions.filter(
         (tx) =>
           !(
-            (
-              tx.category === "Credit Card Payment" &&
-              tx.description.includes(transaction.description.substring(0, 15))
-            ) // Ensure this matching logic is your intent
+            tx.ccPurchaseId === transaction.id
           )
       );
       state.creditCard.transactions.splice(transactionIndex, 1);
@@ -2577,8 +2575,9 @@ function deleteCcTransaction(transactionId) {
       renderDashboard();
       renderCreditCardSection();
       if ($("#ccHistoryModal").style.display === "block") openCcHistoryModal();
+      refreshMonthlyViewIfRelevant(transaction.date);
       showNotification(
-        "CC transaction and related payments deleted.",
+        "CC transaction and linked payments deleted. Unlinked payments and account balances were kept.",
         "success"
       );
 
@@ -3128,21 +3127,25 @@ function handleEditReceivableSubmit(event) {
     showNotification("Source account required for cash loan type.", "error");
     return;
   }
+  if (!["cash", "cc"].includes(newType)) {
+    showNotification("Invalid receivable type.", "error");
+    return;
+  }
 
   // Round amounts from form
   const roundedNewOriginalAmount = roundToTwoDecimals(newOriginalAmountForm);
   const roundedNewRemainingAmount = roundToTwoDecimals(newRemainingAmountForm);
 
-  // Revert effect of old receivable if type or source account or original amount changed
+  // Validate projected balances before changing either accounts or the receivable.
+  const proposedBalances = new Map();
   if (oldType === "cash" && oldSourceAccountId) {
     const oldSrcAccount = state.accounts.find(
       (acc) => acc.id === oldSourceAccountId
     );
     if (oldSrcAccount) {
-      oldSrcAccount.balance = roundToTwoDecimals(
-        oldSrcAccount.balance + oldOriginalAmount
-      );
-      if (isNaN(oldSrcAccount.balance)) oldSrcAccount.balance = 0;
+      proposedBalances.set(oldSrcAccount, roundToTwoDecimals(
+        oldSrcAccount.balance + (oldOriginalAmount ?? rec.amount)
+      ));
     }
   } else if (oldType === "cc" && oldCcTxId) {
     // If it was a CC type and had an associated CC transaction (if that logic existed)
@@ -3150,7 +3153,28 @@ function handleEditReceivableSubmit(event) {
     // Currently, ccTransactionId is not actively used to link to an auto-created CC expense.
   }
 
-  // Update receivable properties
+  if (newType === "cash") {
+    const newSrcAccount = state.accounts.find(acc => acc.id === newSourceAccountId);
+    if (!newSrcAccount) {
+      showNotification("Source account not found. No changes were saved.", "error");
+      return;
+    }
+    const available = proposedBalances.get(newSrcAccount) ?? newSrcAccount.balance;
+    if (available < roundedNewOriginalAmount) {
+      showNotification(`Insufficient funds in source account ${newSrcAccount.name}. No changes were saved.`, "warning");
+      return;
+    }
+    proposedBalances.set(newSrcAccount, roundToTwoDecimals(available - roundedNewOriginalAmount));
+  }
+  for (const balance of proposedBalances.values()) {
+    if (!Number.isFinite(balance)) {
+      showNotification("Invalid account balance. No changes were saved.", "error");
+      return;
+    }
+  }
+
+  // Commit the validated edit together; saveData restores the prior snapshot on failure.
+  proposedBalances.forEach((balance, account) => { account.balance = balance; });
   rec.who = form.get("recWho").trim();
   rec.why = form.get("recWhy").trim();
   rec.originalAmount = roundedNewOriginalAmount;
@@ -3161,44 +3185,6 @@ function handleEditReceivableSubmit(event) {
   rec.sourceAccount = newSourceAccountId;
   rec.timestamp = Date.now();
   rec.ccTransactionId = null; // Reset if type changed, or if it was never used for auto-creation
-
-  // Apply effect of new receivable
-  if (rec.type === "cash" && rec.sourceAccount) {
-    const newSrcAccount = state.accounts.find(
-      (acc) => acc.id === rec.sourceAccount
-    );
-    if (newSrcAccount) {
-      if (newSrcAccount.balance < rec.originalAmount) {
-        showNotification(
-          `Insufficient funds in new source account ${newSrcAccount.name}. Reverting changes.`,
-          "warning"
-        );
-        // Re-apply old state (simplified: ideally, store full old rec object and restore)
-        if (oldType === "cash" && oldSourceAccountId) {
-          const oldSrcAccForRevert = state.accounts.find(
-            (acc) => acc.id === oldSourceAccountId
-          );
-          if (oldSrcAccForRevert)
-            oldSrcAccForRevert.balance = roundToTwoDecimals(
-              oldSrcAccForRevert.balance - oldOriginalAmount
-            );
-        }
-        // This revert is partial; a full object clone and restore would be safer for complex edits.
-        // For now, we'll just stop the update. The form will retain user's bad input.
-        return;
-      }
-      newSrcAccount.balance = roundToTwoDecimals(
-        newSrcAccount.balance - rec.originalAmount
-      );
-      if (isNaN(newSrcAccount.balance)) newSrcAccount.balance = 0;
-    }
-  } else if (rec.type === "cc") {
-    // If auto-creating a CC transaction upon edit to 'cc' type:
-    // const ccTx = { id: generateId(), amount: rec.originalAmount, ... };
-    // state.creditCard.transactions.push(ccTx);
-    // rec.ccTransactionId = ccTx.id;
-    // For now, no auto CC transaction creation on edit.
-  }
 
   saveData();
   renderDashboard();
@@ -3877,6 +3863,7 @@ function handlePayCcItemSubmit(event) {
       category: category,
       // CORRECTED: Store the full description, not the truncated version.
       description: `Credit Card Payment: ${item.description}`,
+      ccPurchaseId: item.id,
       date: paymentDate,
       timestamp: Date.now(),
     };
