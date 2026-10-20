@@ -11,7 +11,6 @@ function evaluateMathExpression(inputStr) {
   expr = expr.replace(/×/g, "*").replace(/÷/g, "/");
 
   if (!/^[\d\.\+\-\*\/\(\)\s]+$/.test(expr)) return null;
-  if (!/[\+\-\*\/]/.test(expr)) return null;
 
   try {
     const tokens = expr.match(/([0-9\.]+)|([\+\-\*\/\(\)])/g);
@@ -46,11 +45,12 @@ function evaluateMathExpression(inputStr) {
       }
       if (token === '-') return -parseFactor();
       if (token === '+') return parseFactor();
-      return parseFloat(token);
+      if (!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(token)) throw new Error("Invalid number");
+      return Number(token);
     }
     
     const result = parseExpression();
-    if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
+    if (pos === tokens.length && Number.isFinite(result) && Math.abs(result) <= Number.MAX_SAFE_INTEGER / 100) {
       return parseFloat(result.toFixed(2));
     }
   } catch (e) {
@@ -62,12 +62,35 @@ function evaluateMathExpression(inputStr) {
 function processCalculation(inputEl) {
   const result = evaluateMathExpression(inputEl.value);
   if (result !== null) {
+    const wasExpression = /[+*/()×÷=]|\d\s*-/.test(inputEl.value);
     inputEl.value = result;
-    if (typeof trackEvent === "function") trackEvent("used_inline_calculator", "Feature Usage");
-    return true; 
+    if (wasExpression && typeof trackEvent === "function") trackEvent("used_inline_calculator", "Feature Usage");
+    return wasExpression;
   }
   return false; 
 }
+
+function parseAmountValue(value) {
+  const result = evaluateMathExpression(String(value ?? ""));
+  return result === null ? NaN : result;
+}
+
+// Catch invalid calculator fields before any form handler mutates financial state.
+document.addEventListener("submit", (event) => {
+  const fields = event.target.querySelectorAll("input.calc-amount");
+  for (const input of fields) {
+    if (input.disabled || !input.getClientRects().length || !input.value.trim()) continue;
+    const result = parseAmountValue(input.value);
+    if (!Number.isFinite(result)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      showNotification("Enter a valid amount or complete calculation. Division by zero and unfinished expressions cannot be saved.", "error", 7000);
+      input.focus();
+      return;
+    }
+    input.value = result;
+  }
+}, true);
 
 function positionMathToolbar(inputEl) {
   const parent = inputEl.parentElement;

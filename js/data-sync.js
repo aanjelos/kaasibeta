@@ -3,6 +3,7 @@
  * Handles data import/export, local storage persistence, and cloud synchronization (Supabase).
  */
 function exportData() {
+  if (isAppLocked()) return;
   try {
     const dataStr = JSON.stringify(state, null, 2);
     const dataBlob = new Blob([dataStr], {
@@ -32,6 +33,7 @@ function exportData() {
 }
 
 function importData(event) {
+  if (isAppLocked()) return;
   const file = event.target.files[0];
   if (!file) {
     if (event && event.target) event.target.value = null;
@@ -62,13 +64,7 @@ function importData(event) {
               }
 
 
-              sanitizeAndMergeImportedData(importedData);
-
-            if (!state.settings) state.settings = getDefaultState().settings;
-            state.settings.initialSetupDone = true;
-
-            saveData();
-            initializeUI(true);
+              applyImportedData(importedData);
             showNotification(
               "Data imported and sanitized successfully. Application refreshed.",
               "success"
@@ -409,6 +405,7 @@ async function signOut() {
 }
 
 async function backupToSupabase() {
+  if (isAppLocked()) return;
   if (!supabaseUser) {
     showNotification("You must be logged in to back up to the cloud.", "error");
     return;
@@ -430,6 +427,7 @@ async function backupToSupabase() {
 }
 
 async function executeBackupToSupabase() {
+  if (isAppLocked()) return;
 
   // Show loading state on button
   const backupBtn = $("#backupToSupabaseBtn");
@@ -499,6 +497,7 @@ async function executeBackupToSupabase() {
 }
 
 async function restoreFromSupabase(force = false, isFromDashboard = false) {
+  if (isAppLocked()) return;
   // Prevent MouseEvent from being evaluated as true when called via onclick
   if (typeof force !== "boolean") force = false;
 
@@ -516,6 +515,7 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
   if (window.isRestoringFromCloud) return;
 
   const doRestore = async () => {
+    if (isAppLocked()) return;
     window.isRestoringFromCloud = true;
     // onConfirm: Proceed with restore
     console.log("Starting cloud restore...");
@@ -560,32 +560,8 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
           throw new Error("Cloud data is empty or in an invalid format.");
         }
 
-        // --- Overwrite Local State ---
-        // We deep merge into a default state to ensure all functions exist,
-        // just like we do in loadData() and importData()
-        let importedData = data.data;
-        const previousState = JSON.parse(JSON.stringify(state)); // In-memory backup
-        
-        try {
-          state = deepMerge(getDefaultState(), importedData);
-
-          // Run the same integrity checks as local import
-          ensureDefaultAccounts();
-          ensureDefaultCategories();
-
-          // Mark setup as done
-          if (state.settings) state.settings.initialSetupDone = true;
-        } catch (mergeError) {
-          state = previousState; // Revert to backup on failure
-          console.error("State merge failed:", mergeError);
-          throw new Error("Failed to merge cloud data. State reverted.");
-        }
-
-        // Save the restored state to LocalStorage
-        saveData();
-
-        // Fully refresh the entire application UI
-        initializeUI(true);
+        if (isAppLocked()) throw new Error("Unlock the app before restoring data.");
+        applyImportedData(data.data);
 
 
         if (data.updated_at) localStorage.setItem("lastSyncedCloudUpdatedAt", data.updated_at);

@@ -1,10 +1,11 @@
-const CACHE_NAME = "kaasi-cache-v6.358m";
+const CACHE_NAME = "kaasi-cache-v6.362n";
 const STATIC_ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./tailwind.css",
   "./js/globals.js",
+  "./js/import-validation.js",
   "./js/data-sync.js",
   "./js/math-tool.js",
   "./js/settings.js",

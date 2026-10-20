@@ -107,7 +107,7 @@ function renderSettingsForm() {
     settingsTransferFeeForm.onsubmit = (event) => {
       event.preventDefault();
       const formData = new FormData(settingsTransferFeeForm);
-      const fee = parseFloat(String(formData.get("defaultTransferFee")).replace(/,/g, ''));
+      const fee = parseAmountValue(formData.get("defaultTransferFee"));
       if (isNaN(fee) || fee < 0) {
         showNotification("Invalid transfer fee amount.", "error");
         return;
@@ -134,7 +134,7 @@ function renderSettingsForm() {
     settingsCcLimitForm.onsubmit = (event) => {
       event.preventDefault();
       const formData = new FormData(settingsCcLimitForm);
-      const limit = parseFloat(String(formData.get("ccLimitAmount")).replace(/,/g, ''));
+      const limit = parseAmountValue(formData.get("ccLimitAmount"));
       if (isNaN(limit) || limit < 0) {
         showNotification("Invalid credit limit amount.", "error");
         return;
@@ -563,13 +563,12 @@ function toggleHiddenCategory(categoryName) {
   const index = state.hiddenCategories.indexOf(categoryName);
   if (index > -1) {
     state.hiddenCategories.splice(index, 1);
-    showNotification(`${categoryName} is now visible`, "success");
   } else {
     state.hiddenCategories.push(categoryName);
-    showNotification(`${categoryName} is now hidden`, "success");
   }
   
   saveData();
+  showNotification(`${categoryName} is now ${index > -1 ? "visible" : "hidden"}`, "success");
   renderCategorySettingsList();
   renderDashboard();
 }
@@ -632,6 +631,14 @@ function renameCategory(buttonElement) {
       }
     });
 
+    state.hiddenCategories = (state.hiddenCategories || []).map(cat => cat === originalName ? newName : cat);
+    if (state.settings.defaultTransferFeeCategory === originalName) {
+      state.settings.defaultTransferFeeCategory = newName;
+    }
+    $$(".filter-category-checkbox").forEach(checkbox => {
+      if (checkbox.value === originalName) checkbox.value = newName;
+    });
+
     // Cascade to budgets
     let budgetUpdateCount = 0;
     if (state.budgets) {
@@ -646,7 +653,10 @@ function renameCategory(buttonElement) {
     saveData();
     populateDropdowns();
     renderCategorySettingsList();
-    if (typeof renderCategoryBudgets === "function") renderCategoryBudgets();
+    renderDashboard();
+    refreshMonthlyViewIfRelevant(getCurrentDateString());
+    if (typeof renderBudgetsSettingsList === "function") renderBudgetsSettingsList();
+    buildBudgetCategoryCheckboxes("addBudgetCategoriesContainer");
     
     showNotification(
       `Category "${originalName}" renamed to "${newName}". ${updateCount} transaction(s) and ${budgetUpdateCount} budget(s) updated.`,
@@ -743,7 +753,7 @@ function handleManageAccountsSubmit(event) {
     }
 
     const newName = newNameInput.trim();
-    const newBalance = parseFloat(String(newBalanceInput).replace(/,/g, ''));
+    const newBalance = parseAmountValue(newBalanceInput);
 
     if (acc.id !== "cash") {
       if (!newName) {
@@ -816,7 +826,7 @@ function handleManageAccountsSubmit(event) {
     // Check if any balance was just re-formatted to 2 decimals without changing its value significantly
     let formattingChangeOnly = false;
     state.accounts.forEach((acc) => {
-      const newBalanceFromForm = parseFloat(String(formData.get(`accountBalance_${acc.id}`)).replace(/,/g, ''));
+      const newBalanceFromForm = parseAmountValue(formData.get(`accountBalance_${acc.id}`));
       if (
         !isNaN(newBalanceFromForm) &&
         acc.balance !== roundToTwoDecimals(newBalanceFromForm) &&
@@ -1086,10 +1096,10 @@ function renderBudgetsSettingsList() {
         <p class="text-xs text-gray-400 line-clamp-2" data-tooltip="${escapeHTML(catList)}">Categories: ${escapeHTML(catList) || 'None'}</p>
       </div>
       <div class="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
-        <button type="button" class="btn btn-icon btn-sm" onclick="openEditBudgetModal('${budget.id}')" data-tooltip="Edit Budget">
+        <button type="button" class="btn btn-icon btn-sm" data-record-action="editBudget" data-record-id="${escapeHTML(budget.id)}" data-tooltip="Edit Budget">
           <i class="fas fa-edit"></i>
         </button>
-        <button type="button" class="btn btn-icon-danger btn-sm" onclick="deleteBudget('${budget.id}')" data-tooltip="Delete Budget">
+        <button type="button" class="btn btn-icon-danger btn-sm" data-record-action="deleteBudget" data-record-id="${escapeHTML(budget.id)}" data-tooltip="Delete Budget">
           <i class="fas fa-trash-alt"></i>
         </button>
       </div>
@@ -1108,7 +1118,7 @@ function renderBudgetsSettingsList() {
 function handleAddBudgetSubmit(event) {
   event.preventDefault();
   let nameInput = $("#addBudgetName").value.trim();
-  const limitInput = parseFloat(String($("#addBudgetLimit").value).replace(/,/g, ''));
+  const limitInput = parseAmountValue($("#addBudgetLimit").value);
   
   if (isNaN(limitInput) || limitInput <= 0) {
     showNotification("Please provide a valid budget limit.", "error");
@@ -1169,7 +1179,7 @@ function handleEditBudgetSubmit(event) {
   event.preventDefault();
   const id = $("#editBudgetId").value;
   let nameInput = $("#editBudgetName").value.trim();
-  const limitInput = parseFloat(String($("#editBudgetLimit").value).replace(/,/g, ''));
+  const limitInput = parseAmountValue($("#editBudgetLimit").value);
   
   if (isNaN(limitInput) || limitInput <= 0) {
     showNotification("Please provide a valid budget limit.", "error");

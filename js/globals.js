@@ -5,6 +5,7 @@
 
 // --- GLOBAL ERROR SAFETY NET ---
 window.addEventListener('error', function(event) {
+  if (event.error?.kaasiSaveFailure) { event.preventDefault(); return; }
   console.error("Global Error Caught:", event.error);
   if (typeof showNotification === 'function') {
     showNotification("An unexpected error occurred. Please refresh if the app stops responding.", "error");
@@ -12,6 +13,7 @@ window.addEventListener('error', function(event) {
 });
 
 window.addEventListener('unhandledrejection', function(event) {
+  if (event.reason?.kaasiSaveFailure) { event.preventDefault(); return; }
   console.error("Unhandled Promise Rejection:", event.reason);
   if (typeof showNotification === 'function') {
     showNotification("An unexpected error occurred. Please refresh if the app stops responding.", "error");
@@ -267,7 +269,7 @@ function openInitialSetupWizard() {
         acc.name = nameInput.value.trim() || acc.name;
       }
       if (balanceInput) {
-        const balanceValue = parseFloat(String(balanceInput.value).replace(/,/g, ''));
+        const balanceValue = parseAmountValue(balanceInput.value);
         // Only update if it's a valid number, otherwise keep the old value
         if (!isNaN(balanceValue)) {
           // We don't round here, just store what the user typed. Rounding happens on final save.
@@ -313,9 +315,9 @@ function openInitialSetupWizard() {
       // 2. Name field (Label for Cash, Input for others)
       const nameWrapper = document.createElement("div");
       if (acc.id === "cash") {
-        nameWrapper.innerHTML = `<label for="setupBalance-${acc.id}" class="text-sm font-medium text-gray-300 justify-self-start">${acc.name}</label>`;
+        nameWrapper.innerHTML = `<label for="setupBalance-${acc.id}" class="text-sm font-medium text-gray-300 justify-self-start">${escapeHTML(acc.name)}</label>`;
       } else {
-        nameWrapper.innerHTML = `<input type="text" id="setupName-${acc.id}" name="setupName-${acc.id}" value="${acc.name}" data-account-id="${acc.id}" class="text-sm w-full rounded placeholder-gray-400" ${inputStyle} placeholder="Account Name">`;
+        nameWrapper.innerHTML = `<input type="text" id="setupName-${acc.id}" name="setupName-${acc.id}" value="${escapeHTML(acc.name)}" data-account-id="${acc.id}" class="text-sm w-full rounded placeholder-gray-400" ${inputStyle} placeholder="Account Name">`;
       }
       accRow.appendChild(nameWrapper);
 
@@ -381,8 +383,8 @@ function openInitialSetupWizard() {
         div.style.borderWidth = "1px";
 
         div.innerHTML = `
-              <span>${cat}</span>
-              <button type="button" class="text-red-400 hover:text-red-300 text-xs ml-2" data-category-name="${cat}" data-tooltip="Remove">
+              <span>${escapeHTML(cat)}</span>
+              <button type="button" class="text-red-400 hover:text-red-300 text-xs ml-2" data-category-name="${escapeHTML(cat)}" data-tooltip="Remove">
                   <i class="fas fa-times"></i>
               </button>
           `;
@@ -450,6 +452,19 @@ function openInitialSetupWizard() {
 function handleInitialSetupSubmit(event, tempSetupAccounts) {
   event.preventDefault();
   console.log("Handling initial setup form submission...");
+  for (const account of tempSetupAccounts) {
+    const value = $(`#setupBalance-${account.id}`)?.value.trim();
+    if (value && !Number.isFinite(parseAmountValue(value))) {
+      showNotification("Enter a valid starting account balance.", "error");
+      return;
+    }
+  }
+  const initialLimit = $("#setupCcLimit").value.trim();
+  if ($("#setupEnableCc").checked && initialLimit &&
+      (!Number.isFinite(parseAmountValue(initialLimit)) || parseAmountValue(initialLimit) < 0)) {
+    showNotification("Enter a valid credit card limit.", "error");
+    return;
+  }
   let newState = getDefaultState();
 
   newState.accounts = tempSetupAccounts.map((acc) => {
@@ -468,8 +483,8 @@ function handleInitialSetupSubmit(event, tempSetupAccounts) {
     if (balanceInput) {
       const balanceStr = balanceInput.value.trim();
       if (balanceStr !== "" && balanceStr !== null) {
-        const parsedBalance = parseFloat(String(balanceStr).replace(/,/g, ''));
-        balance = isNaN(parsedBalance) ? 0 : parsedBalance;
+        const parsedBalance = parseAmountValue(balanceStr);
+        balance = parsedBalance;
       }
     }
 
@@ -488,7 +503,7 @@ function handleInitialSetupSubmit(event, tempSetupAccounts) {
     if (ccLimitStr === "" || ccLimitStr === null) {
       newState.creditCard.limit = 0;
     } else {
-      const limit = parseFloat(String(ccLimitStr).replace(/,/g, ''));
+      const limit = parseAmountValue(ccLimitStr);
       newState.creditCard.limit = roundToTwoDecimals(
         isNaN(limit) || limit < 0 ? 0 : limit
       );
@@ -525,15 +540,8 @@ function handleSetupImport(event) {
       importedData = JSON.parse(e.target.result);
       if (importedData && typeof importedData === "object") {
         console.log("USING SHARED SANITIZE FUNCTION IN GLOBALS.JS");
-        sanitizeAndMergeImportedData(importedData);
-
-
-        if (!state.settings) state.settings = getDefaultState().settings;
-        state.settings.initialSetupDone = true; // Mark setup as done
-
-        saveData();
+        applyImportedData(importedData);
         closeModal("initialSetupModal");
-        initializeUI(true); // Full refresh
         showNotification(
           "Data imported and sanitized successfully from setup wizard!",
           "success"
@@ -559,103 +567,35 @@ function handleSetupImport(event) {
   reader.readAsText(file);
 }
 
-function sanitizeNumericFields(array, fields) {
-  if (!Array.isArray(array)) return;
-  array.forEach((item) => {
-    fields.forEach((field) => {
-      if (typeof item[field] === "number") {
-        item[field] = roundToTwoDecimals(item[field]);
-      }
-    });
-  });
-}
-
 function sanitizeAndMergeImportedData(importedData) {
-  sanitizeNumericFields(importedData.transactions, ["amount"]);
-  sanitizeNumericFields(importedData.accounts, ["balance"]);
-  sanitizeNumericFields(importedData.debts, ["amount", "originalAmount", "remainingAmount"]);
-  sanitizeNumericFields(importedData.receivables, ["amount", "originalAmount", "remainingAmount"]);
-  sanitizeNumericFields(importedData.installments, ["monthlyAmount", "originalFullAmount"]);
-  sanitizeNumericFields(importedData.budgets, ["limit"]);
-
-  if (
-    importedData.creditCard &&
-    typeof importedData.creditCard === "object"
-  ) {
-    if (typeof importedData.creditCard.limit === "number") {
-      importedData.creditCard.limit = roundToTwoDecimals(
-        importedData.creditCard.limit
-      );
-    }
-    if (Array.isArray(importedData.creditCard.transactions)) {
-      sanitizeNumericFields(importedData.creditCard.transactions, ["amount", "paidAmount"]);
-      importedData.creditCard.transactions.forEach((ccTrans) => {
-        if (
-          ccTrans.paidAmount >=
-          roundToTwoDecimals(ccTrans.amount - 0.005)
-        ) {
-          ccTrans.paidOff = true;
-          ccTrans.paidAmount = ccTrans.amount;
-        } else {
-          ccTrans.paidOff = false;
-        }
-      });
-    }
-  }
-
-  state = deepMerge(getDefaultState(), importedData);
-  ensureDefaultAccounts();
-  ensureDefaultCategories();
-
-  state.accounts.forEach((acc) => {
-    if (isNaN(acc.balance) || typeof acc.balance !== "number")
-      acc.balance = 0;
-    else acc.balance = roundToTwoDecimals(acc.balance);
-  });
-
-  if (!state.creditCard)
-    state.creditCard = { limit: 0, transactions: [] };
-  if (
-    isNaN(state.creditCard.limit) ||
-    typeof state.creditCard.limit !== "number"
-  )
-    state.creditCard.limit = 0;
-  else
-    state.creditCard.limit = roundToTwoDecimals(
-      state.creditCard.limit
-    );
-
-  if (!Array.isArray(state.creditCard.transactions))
-    state.creditCard.transactions = [];
-  state.creditCard.transactions.forEach((t) => {
-    if (typeof t.amount !== "number" || isNaN(t.amount)) t.amount = 0;
-    else t.amount = roundToTwoDecimals(t.amount);
-    if (typeof t.paidAmount !== "number" || isNaN(t.paidAmount))
-      t.paidAmount = 0;
-    else t.paidAmount = roundToTwoDecimals(t.paidAmount);
-    if (t.paidAmount >= roundToTwoDecimals(t.amount - 0.005)) {
-      t.paidOff = true;
-      t.paidAmount = t.amount;
-    } else {
-      t.paidOff = false;
-    }
-    if (!t.timestamp) t.timestamp = new Date(t.date).getTime();
-  });
-  state.transactions.forEach((t) => {
-    if (!t.timestamp) t.timestamp = new Date(t.date).getTime();
-  });
-  state.debts.forEach((d) => {
-    if (!d.timestamp) d.timestamp = new Date(d.dueDate).getTime();
-  });
-  state.receivables.forEach((r) => {
-    if (!r.timestamp) r.timestamp = new Date(r.dateGiven).getTime();
-  });
-  state.installments.forEach((i) => {
-    if (!i.timestamp) i.timestamp = new Date(i.startDate).getTime();
-  });
+  return prepareImportedData(importedData);
 }
 
 const STORAGE_KEY = "KaasiData";
+let lastPersistedStateJson = null;
+
+function restoreStateSnapshot(current, saved) {
+  if (Array.isArray(saved)) {
+    if (!Array.isArray(current)) return saved;
+    const byId = new Map(current.filter(item => item && typeof item === "object" && item.id).map(item => [item.id, item]));
+    const restored = saved.map(value => {
+      const existing = value && typeof value === "object" && value.id
+        ? byId.get(value.id) : undefined;
+      return restoreStateSnapshot(existing, value);
+    });
+    current.splice(0, current.length, ...restored);
+    return current;
+  }
+  if (saved && typeof saved === "object") {
+    if (!current || typeof current !== "object" || Array.isArray(current)) return saved;
+    Object.keys(current).forEach(key => { if (!Object.prototype.hasOwnProperty.call(saved, key)) delete current[key]; });
+    Object.keys(saved).forEach(key => {
+      if (!["__proto__", "constructor", "prototype"].includes(key)) current[key] = restoreStateSnapshot(current[key], saved[key]);
+    });
+    return current;
+  }
+  return saved;
+}
 
 function generateDataHash(str) {
   if (!str) return null;
@@ -668,9 +608,23 @@ function generateDataHash(str) {
   return hash.toString();
 }
 
-function saveData() {
+function saveData(nextState = state) {
+  let serialized;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    serialized = JSON.stringify(nextState);
+    localStorage.setItem(STORAGE_KEY, serialized);
+  } catch (cause) {
+    if (lastPersistedStateJson !== null) state = restoreStateSnapshot(state, JSON.parse(lastPersistedStateJson));
+    const error = new Error(cause.name === "QuotaExceededError"
+      ? "Changes were not saved: device storage is full. Your last saved data is unchanged. Free space or export a backup and try again."
+      : "Changes were not saved. Your last saved data is unchanged. Please retry or export a backup.");
+    error.kaasiSaveFailure = true;
+    showNotification(error.message, "error", 10000);
+    throw error; // Stop callers before resetting forms, closing dialogs, or claiming success.
+  }
+  state = nextState;
+  lastPersistedStateJson = serialized;
+  try {
     localStorage.setItem("lastLocalDataModification", Date.now().toString());
     
 
@@ -698,17 +652,11 @@ function saveData() {
     
     console.log("Data saved successfully.");
   } catch (e) {
-    console.error("Error saving data to localStorage:", e);
-    if (e.name === "QuotaExceededError") {
-      showNotification(
-        "Error: Local storage quota exceeded. Data is too large to save.",
-        "error",
-        10000
-      );
-    } else {
-      showNotification("Error saving data. Check console.", "error", 10000);
-    }
+    // The financial record was saved; failure of optional sync metadata must not undo it.
+    console.error("Data saved, but backup status could not be updated:", e);
+    showNotification("Data saved locally, but backup status could not be updated.", "warning", 7000);
   }
+  return true;
 }
 
 function loadData() {
@@ -845,12 +793,14 @@ function loadData() {
     if (!item.timestamp) item.timestamp = new Date(item.startDate).getTime();
   });
 
+  lastPersistedStateJson = JSON.stringify(state);
   console.log("Data loaded and integrity checks completed.");
 }
 
 function deepMerge(target, source) {
   for (const key in source) {
-    if (source.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(source, key) &&
+        !["__proto__", "constructor", "prototype"].includes(key)) {
       const sourceValue = source[key];
       const targetValue = target[key];
 
@@ -876,27 +826,27 @@ function deepMerge(target, source) {
   return target;
 }
 
-function ensureDefaultAccounts() {
+function ensureDefaultAccounts(targetState = state) {
   const defaultAccounts = getDefaultState().accounts;
-  if (!Array.isArray(state.accounts)) {
+  if (!Array.isArray(targetState.accounts)) {
     console.warn(
       "state.accounts was not an array. Resetting to default accounts structure."
     );
-    state.accounts = JSON.parse(JSON.stringify(defaultAccounts));
+    targetState.accounts = JSON.parse(JSON.stringify(defaultAccounts));
 
-    state.accounts.forEach((acc) => (acc.balance = 0));
+    targetState.accounts.forEach((acc) => (acc.balance = 0));
     return;
   }
 
   defaultAccounts.forEach((defaultAcc) => {
-    const existingAccount = state.accounts.find(
+    const existingAccount = targetState.accounts.find(
       (acc) => acc.id === defaultAcc.id
     );
     if (!existingAccount) {
       console.warn(
         `Default account '${defaultAcc.name}' (ID: ${defaultAcc.id}) was missing. Adding it.`
       );
-      state.accounts.push({
+      targetState.accounts.push({
         ...defaultAcc,
         balance: 0,
       });
@@ -916,34 +866,34 @@ function ensureDefaultAccounts() {
   });
 }
 
-function ensureDefaultCategories() {
+function ensureDefaultCategories(targetState = state) {
   const defaultCategories = getDefaultState().categories;
 
-  if (!state.categories || !Array.isArray(state.categories)) {
+  if (!targetState.categories || !Array.isArray(targetState.categories)) {
     console.warn(
       "state.categories was missing or not an array. Initializing as empty array."
     );
-    state.categories = [];
+    targetState.categories = [];
   }
 
-  if (state.categories.length === 0) {
+  if (targetState.categories.length === 0) {
     console.warn(
       "state.categories is empty. Populating with default categories."
     );
-    state.categories = JSON.parse(JSON.stringify(defaultCategories));
+    targetState.categories = JSON.parse(JSON.stringify(defaultCategories));
   }
 
-  state.categories.sort((a, b) => a.localeCompare(b));
+  targetState.categories.sort((a, b) => a.localeCompare(b));
 
   const otherCategory = "Other";
   if (
-    !state.categories.some(
+    !targetState.categories.some(
       (cat) => cat.toLowerCase() === otherCategory.toLowerCase()
     )
   ) {
     console.warn("'Other' category was missing. Adding it back.");
-    state.categories.push(otherCategory);
-    state.categories.sort((a, b) => a.localeCompare(b));
+    targetState.categories.push(otherCategory);
+    targetState.categories.sort((a, b) => a.localeCompare(b));
   }
 }
 window.triggerHapticFeedback = function(duration = 55) {

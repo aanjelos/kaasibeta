@@ -127,7 +127,7 @@ function renderRecentTransactions() {
       day: "2-digit",
       month: "short",
     })}`; // Date first
-    subDetailText += ` - ${accountName}`;
+    subDetailText += ` - ${escapeHTML(accountName)}`;
     if (!isIncome && t.category) {
       subDetailText += ` | ${escapeHTML(t.category)}`;
     } else if (!isIncome && !t.category) {
@@ -141,8 +141,8 @@ function renderRecentTransactions() {
       </div>
       <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums">${isIncome ? "+" : "-"}${formatCurrency(t.amount)}</span>
       <div class="edit-btn-container flex-shrink-0 hidden md:flex">
-        <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionModal('${t.id}', event)" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
-        <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" onclick="deleteTransaction('${t.id}',event)" data-tooltip="Delete"><i class="fas fa-times"></i></button>
+        <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" data-record-action="editTransaction" data-record-id="${escapeHTML(t.id)}" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
+        <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" data-record-action="deleteTransaction" data-record-id="${escapeHTML(t.id)}" data-tooltip="Delete"><i class="fas fa-times"></i></button>
       </div>`;
     
     list.appendChild(div);
@@ -176,7 +176,7 @@ function renderDebtList() {
     acc[creditorName].totalOwedTo += d.remainingAmount;
     acc[creditorName].items.push(d);
     return acc;
-  }, {});
+  }, Object.create(null));
 
   const sortedCreditors = Object.keys(totalsByCreditor).sort((a, b) =>
     a.localeCompare(b)
@@ -257,15 +257,9 @@ function renderDebtList() {
           <div class="flex justify-between items-center text-xs text-gray-500 mt-1">
             <span>Due: ${new Date(d.dueDate).toLocaleDateString()}</span>
             <div class="edit-btn-container">
-              <button class="link-style text-xs mr-2 accent-text hover:text-accent-hover" onclick="openEditDebtForm('${
-                d.id
-              }')">Edit</button>
-              <button class="link-style text-xs mr-2 text-income hover:opacity-80" onclick="openPayDebtForm('${
-                d.id
-              }')">Pay</button>
-              <button class="text-gray-500 hover:text-expense text-xs focus:outline-none" onclick="deleteDebt('${
-                d.id
-              }')" data-tooltip="Delete"><i class="fas fa-times"></i></button>
+              <button class="link-style text-xs mr-2 accent-text hover:text-accent-hover" data-record-action="editDebt" data-record-id="${escapeHTML(d.id)}">Edit</button>
+              <button class="link-style text-xs mr-2 text-income hover:opacity-80" data-record-action="payDebt" data-record-id="${escapeHTML(d.id)}">Pay</button>
+              <button class="text-gray-500 hover:text-expense text-xs focus:outline-none" data-record-action="deleteDebt" data-record-id="${escapeHTML(d.id)}" data-tooltip="Delete"><i class="fas fa-times"></i></button>
             </div>
           </div>
         `;
@@ -345,7 +339,7 @@ function renderReceivableList() {
       acc[personName].totalOwed += r.remainingAmount;
       acc[personName].items.push(r);
       return acc;
-    }, {});
+    }, Object.create(null));
 
     const sortedPeople = Object.keys(totalsByPerson).sort((a, b) =>
       a.localeCompare(b)
@@ -383,7 +377,7 @@ function renderReceivableList() {
           const srcAcc = state.accounts.find((a) => a.id === r.sourceAccount);
           let srcTxt =
             r.type === "cash"
-              ? `(From: ${srcAcc?.name || "Unknown"})`
+              ? `(From: ${escapeHTML(srcAcc?.name || "Unknown")})`
               : "(Via CC)";
           const origAmt = r.originalAmount || r.amount || r.remainingAmount;
           const percentagePaid = origAmt > 0 ? ((origAmt - r.remainingAmount) / origAmt) * 100 : 0;
@@ -413,15 +407,9 @@ function renderReceivableList() {
           <div class="flex justify-between items-center text-xs text-gray-500 mt-1">
             <span>Given: ${new Date(r.dateGiven).toLocaleDateString()}</span>
             <div class="edit-btn-container">
-              <button class="link-style text-xs mr-2 accent-text hover:text-accent-hover" onclick="openEditReceivableForm('${
-                r.id
-              }')">Edit</button>
-              <button class="link-style text-xs mr-2 text-income hover:opacity-80" onclick="openReceivePaymentForm('${
-                r.id
-              }')">Receive</button>
-              <button class="text-gray-500 hover:text-expense text-xs focus:outline-none" onclick="deleteReceivable('${
-                r.id
-              }')" data-tooltip="Delete"><i class="fas fa-times"></i></button>
+              <button class="link-style text-xs mr-2 accent-text hover:text-accent-hover" data-record-action="editReceivable" data-record-id="${escapeHTML(r.id)}">Edit</button>
+              <button class="link-style text-xs mr-2 text-income hover:opacity-80" data-record-action="receivePayment" data-record-id="${escapeHTML(r.id)}">Receive</button>
+              <button class="text-gray-500 hover:text-expense text-xs focus:outline-none" data-record-action="deleteReceivable" data-record-id="${escapeHTML(r.id)}" data-tooltip="Delete"><i class="fas fa-times"></i></button>
             </div>
           </div>
         `;
@@ -500,16 +488,14 @@ function renderInstallmentList() {
             ${
               i.monthsLeft > 0
                 ? `
-                <button class="text-sm text-income hover:opacity-80 focus:outline-none transition-opacity" onclick="payInstallmentMonth('${i.id}')" data-tooltip="Pay Installment"><i class="fas fa-credit-card"></i></button>
-                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
+                <button class="text-sm text-income hover:opacity-80 focus:outline-none transition-opacity" data-record-action="payInstallment" data-record-id="${escapeHTML(i.id)}" data-tooltip="Pay Installment"><i class="fas fa-credit-card"></i></button>
+                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" data-record-action="editInstallment" data-record-id="${escapeHTML(i.id)}" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
               `
                 : `
-                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" onclick="openEditInstallmentForm('${i.id}')" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
+                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" data-record-action="editInstallment" data-record-id="${escapeHTML(i.id)}" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
               `
             }
-            <button class="text-sm text-gray-500 hover:text-expense focus:outline-none transition-colors" onclick="deleteInstallment('${
-              i.id
-            }')" data-tooltip="Delete"><i class="fas fa-times"></i></button>
+            <button class="text-sm text-gray-500 hover:text-expense focus:outline-none transition-colors" data-record-action="deleteInstallment" data-record-id="${escapeHTML(i.id)}" data-tooltip="Delete"><i class="fas fa-times"></i></button>
         </div>
     `;
 
@@ -559,7 +545,7 @@ function handleTransactionSubmit(event) {
   const form = event.target,
     formData = new FormData(form);
   const type = formData.get("transactionType");
-  const amount = parseFloat(String(formData.get("amount")).replace(/,/g, ''));
+  const amount = parseAmountValue(formData.get("amount"));
   const description = formData.get("description").trim();
   const date = formData.get("date");
 
@@ -567,7 +553,7 @@ function handleTransactionSubmit(event) {
     const fromAccountId = formData.get("transferFrom");
     const toAccountId = formData.get("transferTo");
     const feeRaw = formData.get("transferFee");
-    const fee = feeRaw ? parseFloat(String(feeRaw).replace(/,/g, '')) : 0;
+    const fee = feeRaw ? parseAmountValue(feeRaw) : 0;
     const feeCategory = formData.get("category");
 
     if (isNaN(amount) || amount <= 0) {
@@ -627,10 +613,10 @@ function handleTransactionSubmit(event) {
       state.transactions.push(feeTransaction);
     }
 
+    saveData();
     showNotification("Transfer successful.", "success");
     if (typeof trackEvent === "function") trackEvent("add_transfer", "Engagement");
 
-    saveData();
     renderDashboard();
     populateDropdowns();
     form.reset();
@@ -699,13 +685,13 @@ function handleTransactionSubmit(event) {
   }
   if (isNaN(account.balance)) account.balance = 0;
 
+  saveData();
   showNotification(
     `${type.charAt(0).toUpperCase() + type.slice(1)} added.`,
     "success"
   );
   if (typeof trackEvent === "function") trackEvent(`add_${type}`, "Engagement");
 
-  saveData();
   renderDashboard();
   populateDropdowns();
   form.reset();
@@ -746,7 +732,7 @@ function openTransactionDetailModal(transactionId, skipHistory = false) {
     categoryHtml = `
       <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
         <span class="text-gray-400">Category</span>
-        <span class="font-medium">${transaction.category || "Uncategorized"}</span>
+        <span class="font-medium">${escapeHTML(transaction.category) || "Uncategorized"}</span>
       </div>`;
   }
 
@@ -754,7 +740,7 @@ function openTransactionDetailModal(transactionId, skipHistory = false) {
     <div class="text-center mb-4">
       <div class="text-3xl font-bold ${textColorClass} tabular-nums mb-1">${isIncome ? "+" : "-"}${formatCurrency(transaction.amount)}</div>
       <div class="text-sm text-gray-400 mb-3">${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</div>
-      <div class="text-lg font-semibold text-gray-50 px-2" style="text-wrap: balance;">${transaction.description}</div>
+      <div class="text-lg font-semibold text-gray-50 px-2" style="text-wrap: balance;">${escapeHTML(transaction.description)}</div>
     </div>
     
     <div class="bg-gray-700/30 rounded-lg p-4 space-y-2 mb-6">
@@ -764,16 +750,16 @@ function openTransactionDetailModal(transactionId, skipHistory = false) {
       </div>
       <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
         <span class="text-gray-400">Account</span>
-        <span class="font-medium">${accountName}</span>
+        <span class="font-medium">${escapeHTML(accountName)}</span>
       </div>
       ${categoryHtml}
     </div>
     
     <div class="flex gap-3 mt-4">
-      <button class="btn btn-secondary flex-1" onclick="openEditTransactionModal('${transaction.id}', null)">
+      <button class="btn btn-secondary flex-1" data-record-action="editTransaction" data-record-id="${escapeHTML(transaction.id)}">
         <i class="fas fa-edit mr-2"></i> Edit
       </button>
-      <button class="btn btn-danger flex-1" onclick="deleteTransaction('${transaction.id}', null)">
+      <button class="btn btn-danger flex-1" data-record-action="deleteTransaction" data-record-id="${escapeHTML(transaction.id)}">
         <i class="fas fa-trash mr-2"></i> Delete
       </button>
     </div>
@@ -809,7 +795,7 @@ function openCcTransactionDetailModal(transactionId, skipHistory = false) {
 
   let payButtonHtml = "";
   if (isSelectable) {
-    payButtonHtml = `<button class="btn btn-primary flex-1 py-2.5" onclick="openPayCcItemForm('${transaction.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
+    payButtonHtml = `<button class="btn btn-primary flex-1 py-2.5" data-record-action="payCc" data-record-id="${escapeHTML(transaction.id)}"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
   }
 
   const html = `
@@ -837,10 +823,10 @@ function openCcTransactionDetailModal(transactionId, skipHistory = false) {
     <div class="flex flex-col sm:flex-row gap-3 mt-4">
       ${payButtonHtml}
       <div class="flex gap-3 flex-1 w-full">
-        <button class="btn btn-secondary flex-1 py-2.5" onclick="openEditCcTransactionModal('${transaction.id}')">
+        <button class="btn btn-secondary flex-1 py-2.5" data-record-action="editCc" data-record-id="${escapeHTML(transaction.id)}">
           <i class="fas fa-edit mr-2"></i> Edit
         </button>
-        <button class="btn btn-secondary flex-1 py-2.5 hover:!text-expense hover:!border-expense" onclick="deleteCcTransaction('${transaction.id}')">
+        <button class="btn btn-secondary flex-1 py-2.5 hover:!text-expense hover:!border-expense" data-record-action="deleteCc" data-record-id="${escapeHTML(transaction.id)}">
           <i class="fas fa-trash mr-2"></i> Delete
         </button>
       </div>
@@ -870,9 +856,9 @@ function openEditTransactionModal(transactionId, event) {
   const accountOptions = state.accounts
     .map(
       (acc) =>
-        `<option value="${acc.id}" ${
+        `<option value="${escapeHTML(acc.id)}" ${
           transaction.account === acc.id ? "selected" : ""
-        }>${acc.name} (${formatCurrency(acc.balance)})</option>`
+        }>${escapeHTML(acc.name)} (${formatCurrency(acc.balance)})</option>`
     )
     .join("");
 
@@ -880,15 +866,15 @@ function openEditTransactionModal(transactionId, event) {
     .sort((a, b) => a.localeCompare(b))
     .map(
       (cat) =>
-        `<option value="${cat}" ${
+        `<option value="${escapeHTML(cat)}" ${
           transaction.category === cat ? "selected" : ""
-        }>${cat}</option>`
+        }>${escapeHTML(cat)}</option>`
     )
     .join("");
 
   const formHtml = `
             <input type="hidden" name="editTransactionId" value="${
-              transaction.id
+              escapeHTML(transaction.id)
             }">
             <div>
                 <label for="modalTransactionType" class="block text-sm font-medium mb-1">Type</label>
@@ -928,7 +914,7 @@ function openEditTransactionModal(transactionId, event) {
             <div>
                 <label for="modalDate" class="block text-sm font-medium mb-1">Date</label>
                 <input type="date" id="modalDate" name="date" value="${
-                  transaction.date
+                  escapeHTML(transaction.date)
                 }" required>
             </div>
             <button type="submit" class="btn btn-primary w-full"><i class="fas fa-save"></i> Update Transaction</button>
@@ -960,7 +946,7 @@ function handleEditTransactionModalSubmit(event) {
   const originalDate = transaction.date;
 
   const newType = formData.get("transactionType");
-  const newAmount = parseFloat(String(formData.get("amount")).replace(/,/g, '')); // Parsed from form
+  const newAmount = parseAmountValue(formData.get("amount"));
   const newAccountId = formData.get("account");
   const newCategory = newType === "expense" ? formData.get("category") : null;
   const newDescription = formData.get("description").trim();
@@ -1118,7 +1104,7 @@ function deleteTransaction(id, event) {
 
 function refreshMonthlyViewIfRelevant(dateString) {
   const monthlyViewModal = $("#monthlyViewModal");
-  const activeTab = $("#monthTabs .tab-button.active");
+  const activeTab = $("#monthTabs .tab-button[data-logically-active='true']") || $("#monthTabs .tab-button.active");
 
   if (monthlyViewModal.style.display === "block" && activeTab) {
     const selectedMonth = parseInt(activeTab.dataset.month);
@@ -1126,11 +1112,7 @@ function refreshMonthlyViewIfRelevant(dateString) {
     const transactionDate = new Date(dateString + "T00:00:00");
 
     // Check if the modified transaction's date falls within the currently viewed month
-    if (
-      !isNaN(transactionDate.getTime()) &&
-      transactionDate.getFullYear() === selectedYear &&
-      transactionDate.getMonth() === selectedMonth
-    ) {
+    if (!isNaN(transactionDate.getTime())) {
 
       const scrollPos = monthlyViewModal.scrollTop;
       const innerListContainer = $("#monthlyTransactionsListContainer");
@@ -1171,6 +1153,7 @@ function refreshMonthlyViewIfRelevant(dateString) {
 
       const monthlySearchInput = $("#monthlySearchInput");
       const currentSearchTerm = monthlySearchInput ? monthlySearchInput.value.trim() : "";
+      renderMonthlyDetails(selectedMonth, selectedYear, openDayKeys, true, currentSearchTerm, true);
       // Since accordion expansion is now fully synchronous via maxHeight: "none",
       // the DOM has its full height immediately. We can restore scroll synchronously!
       monthlyViewModal.scrollTop = scrollPos;
@@ -1206,7 +1189,7 @@ function setupMonthlyView() {
 
   populateYearSelector(state.transactions, yearSelector, currentYear, currentYear);
 
-  yearSelector.addEventListener("change", () => {
+  yearSelector.onchange = () => {
     const monthlySearchInput = $("#monthlySearchInput");
     const clearMonthlySearchBtn = $("#clearMonthlySearchBtn");
     if (monthlySearchInput) {
@@ -1223,7 +1206,7 @@ function setupMonthlyView() {
       monthlyPieChartInstance.destroy();
       monthlyPieChartInstance = null;
     }
-  });
+  };
   const initialYear = yearSelector.value
     ? parseInt(yearSelector.value)
     : currentYear;
@@ -1446,7 +1429,7 @@ function renderMonthlyDetails(
   // --- Summary calculations are now based on the FILTERED transaction pool ---
   let totalIncome = 0;
   let totalExpense = 0;
-  const categoryTotals = {};
+  const categoryTotals = Object.create(null);
   if (state.categories && Array.isArray(state.categories)) {
     state.categories.forEach((cat) => (categoryTotals[cat] = 0));
   }
@@ -1649,7 +1632,7 @@ function renderMonthlyDetails(
           const isIncome = t.type === "income";
           const textColorClass = isIncome ? "text-income" : "text-expense";
 
-          let subDetailText = accountName;
+          let subDetailText = escapeHTML(accountName);
           if (!isIncome && t.category) {
             subDetailText += ` | ${escapeHTML(t.category)}`;
           } else if (!isIncome && !t.category) {
@@ -1670,12 +1653,8 @@ function renderMonthlyDetails(
               isIncome ? "+" : "-"
             }${formatCurrency(t.amount)}</span>
                 <div class="edit-btn-container ml-3 hidden md:flex">
-                  <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" onclick="openEditTransactionModal('${
-                    t.id
-                  }', event)" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
-                  <button class="text-xs text-gray-500 hover:text-expense focus:outline-none ml-2" onclick="deleteTransaction('${
-                    t.id
-                  }', event)" data-tooltip="Delete"><i class="fas fa-times"></i></button>
+                  <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" data-record-action="editTransaction" data-record-id="${escapeHTML(t.id)}" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
+                  <button class="text-xs text-gray-500 hover:text-expense focus:outline-none ml-2" data-record-action="deleteTransaction" data-record-id="${escapeHTML(t.id)}" data-tooltip="Delete"><i class="fas fa-times"></i></button>
                 </div>
               </div>`;
           dayTransactionsContainer.appendChild(itemDiv);
@@ -1748,8 +1727,8 @@ function renderMonthlyDetails(
       const isExcluded = isCategoryExcluded(category, 'excludeFromMonthlyTotals');
       const li = document.createElement("li");
       const opacityClass = isExcluded ? "opacity-50" : "";
-      const tooltip = isExcluded ? `data-tooltip="${category} (Hidden Category)"` : `data-tooltip="${category}"`;
-      li.innerHTML = `<span class="truncate pr-2 ${opacityClass}" ${tooltip}>${category}</span><span class="font-medium whitespace-nowrap tabular-nums ${opacityClass}" ${tooltip}>${formatCurrency(
+      const tooltip = isExcluded ? `data-tooltip="${escapeHTML(category)} (Hidden Category)"` : `data-tooltip="${escapeHTML(category)}"`;
+      li.innerHTML = `<span class="truncate pr-2 ${opacityClass}" ${tooltip}>${escapeHTML(category)}</span><span class="font-medium whitespace-nowrap tabular-nums ${opacityClass}" ${tooltip}>${formatCurrency(
         amount
       )}</span>`;
       categoryList.appendChild(li);
@@ -2116,8 +2095,8 @@ function openCcHistoryModal() {
         let checkboxHtml = "";
         if (isSelectable) {
           checkboxHtml = `
-            <div class="flex-shrink-0 mr-3 flex items-center h-full" onclick="event.stopPropagation(); toggleCcItemSelection('${t.id}')">
-              <div id="cc-checkbox-${t.id}" class="w-5 h-5 rounded-full border border-gray-500 flex items-center justify-center transition-colors cursor-pointer hover:border-accent-500">
+            <div class="flex-shrink-0 mr-3 flex items-center h-full" data-record-action="selectCc" data-record-id="${escapeHTML(t.id)}">
+              <div id="cc-checkbox-${escapeHTML(t.id)}" class="w-5 h-5 rounded-full border border-gray-500 flex items-center justify-center transition-colors cursor-pointer hover:border-accent-500">
                 <i class="fas fa-check text-xs text-white opacity-0 transition-opacity"></i>
               </div>
             </div>
@@ -2169,14 +2148,14 @@ function openCcHistoryModal() {
       
       let payButtonHtml = "";
       if (isSelectable) {
-        payButtonHtml = `<button class="btn btn-primary flex-1 py-1 sm:py-1.5 px-0 text-sm" onclick="event.stopPropagation(); openPayCcItemForm('${t.id}')"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
+        payButtonHtml = `<button class="btn btn-primary flex-1 py-1 sm:py-1.5 px-0 text-sm" data-record-action="payCc" data-record-id="${escapeHTML(t.id)}"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
       }
       
       drawerDiv.innerHTML = `
         <div class="flex w-full gap-2 pt-3 pb-1 pl-${isSelectable ? '8' : '0'}">
           ${payButtonHtml}
-          <button class="btn btn-secondary flex-1 py-1 sm:py-1.5 px-0 text-sm" onclick="event.stopPropagation(); openEditCcTransactionModal('${t.id}')"><i class="fas fa-edit mr-1"></i> Edit</button>
-          <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense py-1 sm:py-1.5 px-0 text-sm" onclick="event.stopPropagation(); deleteCcTransaction('${t.id}')"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
+          <button class="btn btn-secondary flex-1 py-1 sm:py-1.5 px-0 text-sm" data-record-action="editCc" data-record-id="${escapeHTML(t.id)}"><i class="fas fa-edit mr-1"></i> Edit</button>
+          <button class="btn btn-secondary flex-1 hover:!text-expense hover:!border-expense py-1 sm:py-1.5 px-0 text-sm" data-record-action="deleteCc" data-record-id="${escapeHTML(t.id)}"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
         </div>
       `;
 
@@ -2278,7 +2257,7 @@ function openCcHistoryModal() {
       .sort((a, b) => a.localeCompare(b));
 
     expenseCategories.forEach((cat) => {
-      categoryOptions += `<option value="${cat}">${cat}</option>`;
+      categoryOptions += `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`;
     });
 
     window.ccSelectedItems.forEach(id => {
@@ -2293,7 +2272,7 @@ function openCcHistoryModal() {
               <span class="font-medium text-sm truncate pr-2 text-gray-100">${escapeHTML(item.description)}</span>
               <span class="text-expense font-semibold text-sm flex-shrink-0 tabular-nums">${formatCurrency(remaining)}</span>
             </div>
-            <select name="payCategory_${id}" class="w-full text-sm" required>
+            <select name="payCategory_${escapeHTML(id)}" class="w-full text-sm" required>
               ${categoryOptions}
             </select>
           </div>
@@ -2311,7 +2290,7 @@ function openCcHistoryModal() {
               .filter((acc) => !acc.hidden)
               .map(
                 (acc) =>
-                  `<option value="${acc.id}">${escapeHTML(acc.name)} (${formatCurrency(
+                  `<option value="${escapeHTML(acc.id)}">${escapeHTML(acc.name)} (${formatCurrency(
                     acc.balance
                   )})</option>`
               )
@@ -2413,7 +2392,7 @@ function handleCcTransactionSubmit(event) {
   event.preventDefault();
   const form = event.target,
     formData = new FormData(form);
-  const amount = parseFloat(String(formData.get("ccAmount")).replace(/,/g, ''));
+  const amount = parseAmountValue(formData.get("ccAmount"));
   const description = formData.get("ccDescription").trim();
   const date = formData.get("ccDate");
 
@@ -2444,10 +2423,10 @@ function handleCcTransactionSubmit(event) {
     timestamp,
   };
   state.creditCard.transactions.push(newCcTransaction);
+  saveData();
   showNotification("CC transaction added.", "success");
   if (typeof trackEvent === "function") trackEvent("add_cc_transaction", "Engagement");
 
-  saveData();
   renderCreditCardSection(); // This will use the rounded amount
   if ($("#ccHistoryModal").style.display === "block") openCcHistoryModal();
   form.reset();
@@ -2469,7 +2448,7 @@ function openEditCcTransactionModal(ccTransactionId) {
 
   const formHtml = `
             <input type="hidden" name="editCcTransactionId" value="${
-              transaction.id
+              escapeHTML(transaction.id)
             }">
             <div>
                 <label for="modalCcAmount" class="block text-sm font-medium mb-1">Amount (LKR)</label>
@@ -2486,7 +2465,7 @@ function openEditCcTransactionModal(ccTransactionId) {
             <div>
                 <label for="modalCcDate" class="block text-sm font-medium mb-1">Date</label>
                 <input type="date" id="modalCcDate" name="ccDate" value="${
-                  transaction.date
+                  escapeHTML(transaction.date)
                 }" required>
             </div>
             <button type="submit" class="btn btn-primary w-full"><i class="fas fa-save"></i> Update CC Transaction</button>
@@ -2513,7 +2492,7 @@ function handleEditCcTransactionModalSubmit(event) {
     return;
   }
 
-  const newAmount = parseFloat(String(formData.get("ccAmount")).replace(/,/g, ''));
+  const newAmount = parseAmountValue(formData.get("ccAmount"));
   const newDescription = formData.get("ccDescription").trim();
   const newDate = formData.get("ccDate");
 
@@ -2636,7 +2615,7 @@ function openAddDebtForm() {
 function handleAddDebtSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
-  const amount = parseFloat(String(form.get("debtAmount")).replace(/,/g, ''));
+  const amount = parseAmountValue(form.get("debtAmount"));
 
   if (isNaN(amount) || amount <= 0) {
     showNotification("Invalid amount for debt.", "error");
@@ -2671,7 +2650,7 @@ function openEditDebtForm(id) {
   openFormModal(
     "Edit Debt",
     ` <input type="hidden" name="editDebtId" value="${
-      d.id
+      escapeHTML(d.id)
     }"> <div><label class="block text-sm font-medium mb-1">Original Amount</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" name="debtOriginalAmount" value="${(
       d.originalAmount || d.amount
     ).toFixed(
@@ -2683,7 +2662,7 @@ function openEditDebtForm(id) {
     }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="debtWhy" value="${
       escapeHTML(d.why)
     }" required></div> <div><label class="block text-sm font-medium mb-1">Due Date</label><input type="date" name="debtDueDate" value="${
-      d.dueDate
+      escapeHTML(d.dueDate)
     }" required></div> <button type="submit" class="btn btn-primary w-full">Update Debt</button> `,
     handleEditDebtSubmit
   );
@@ -2699,8 +2678,8 @@ function handleEditDebtSubmit(event) {
     return;
   }
 
-  const originalAmount = parseFloat(String(form.get("debtOriginalAmount")).replace(/,/g, ''));
-  const remainingAmount = parseFloat(String(form.get("debtRemainingAmount")).replace(/,/g, ''));
+  const originalAmount = parseAmountValue(form.get("debtOriginalAmount"));
+  const remainingAmount = parseAmountValue(form.get("debtRemainingAmount"));
 
   if (
     isNaN(originalAmount) ||
@@ -2755,7 +2734,7 @@ function openPayDebtForm(debtId) {
     categoryOptions += `<option value="${debtRepaymentCategoryName}" selected>${debtRepaymentCategoryName} (Suggested)</option>`;
   }
   otherCategories.forEach((cat) => {
-    categoryOptions += `<option value="${cat}">${cat}</option>`;
+    categoryOptions += `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`;
   });
 
   const formHtml = `
@@ -2780,10 +2759,10 @@ function openPayDebtForm(debtId) {
           <label for="modalPayDebtCategory" class="block text-sm font-medium mb-1">Category for this Payment</label>
           <select id="modalPayDebtCategory" name="payDebtCategory" required>${categoryOptions}</select>
       </div>
-      <input type="hidden" name="debtId" value="${debtId}">
+      <input type="hidden" name="debtId" value="${escapeHTML(debtId)}">
       <button type="submit" class="btn btn-primary w-full mt-3">Make Payment</button>
   `;
-  openFormModal(`Pay Debt: ${escapeHTML(debt.who)}`, formHtml, handlePayDebtSubmit);
+  openFormModal(`Pay Debt: ${debt.who}`, formHtml, handlePayDebtSubmit);
   populateDropdowns();
 
   const logExpenseCheckbox = document.getElementById("logDebtPaymentAsExpense");
@@ -2812,7 +2791,7 @@ function handlePayDebtSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
   const debtId = form.get("debtId");
-  const paymentAmount = parseFloat(String(form.get("payDebtAmount")).replace(/,/g, ''));
+  const paymentAmount = parseAmountValue(form.get("payDebtAmount"));
   const accountId = form.get("payDebtAccount");
   const logAsExpense = form.get("logDebtPaymentAsExpense") === "on";
   const category = logAsExpense ? form.get("payDebtCategory") : null;
@@ -2991,7 +2970,7 @@ function toggleReceivableSourceAccount(type, groupId, selectId) {
 function handleAddReceivableSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
-  const amount = parseFloat(String(form.get("recAmount")).replace(/,/g, ''));
+  const amount = parseAmountValue(form.get("recAmount"));
   const type = form.get("recType");
   const sourceAccountId =
     type === "cash" ? form.get("receivableSourceAccount") : null;
@@ -3070,7 +3049,7 @@ function openEditReceivableForm(id) {
   openFormModal(
     "Edit Receivable",
     ` <input type="hidden" name="editReceivableId" value="${
-      r.id
+      escapeHTML(r.id)
     }"> <div><label class="block text-sm font-medium mb-1">Original Amount</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" name="recOriginalAmount" value="${(
       r.originalAmount || r.amount
     ).toFixed(
@@ -3086,9 +3065,9 @@ function openEditReceivableForm(id) {
     }"><label class="block text-sm font-medium mb-1">Source Account</label><select id="recSourceAccountEdit" name="receivableSourceAccount">${state.accounts
       .map(
         (acc) =>
-          `<option value="${acc.id}" ${
+          `<option value="${escapeHTML(acc.id)}" ${
             r.sourceAccount === acc.id ? "selected" : ""
-          }>${acc.name} (${formatCurrency(acc.balance)})</option>`
+          }>${escapeHTML(acc.name)} (${formatCurrency(acc.balance)})</option>`
       )
       .join(
         ""
@@ -3097,7 +3076,7 @@ function openEditReceivableForm(id) {
     }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="recWhy" value="${
       escapeHTML(r.why)
     }" required></div> <div><label class="block text-sm font-medium mb-1">Date Given</label><input type="date" name="recDateGiven" value="${
-      r.dateGiven
+      escapeHTML(r.dateGiven)
     }" required></div> <button type="submit" class="btn btn-primary w-full">Update Receivable</button> `,
     handleEditReceivableSubmit
   );
@@ -3125,8 +3104,8 @@ function handleEditReceivableSubmit(event) {
   const oldType = rec.type;
   const oldCcTxId = rec.ccTransactionId;
 
-  const newOriginalAmountForm = parseFloat(String(form.get("recOriginalAmount")).replace(/,/g, ''));
-  const newRemainingAmountForm = parseFloat(String(form.get("recRemainingAmount")).replace(/,/g, ''));
+  const newOriginalAmountForm = parseAmountValue(form.get("recOriginalAmount"));
+  const newRemainingAmountForm = parseAmountValue(form.get("recRemainingAmount"));
   const newType = form.get("recType");
   const newSourceAccountId =
     newType === "cash" ? form.get("receivableSourceAccount") : null;
@@ -3269,12 +3248,12 @@ function openReceivePaymentForm(recId) {
       <select id="recPaymentAccount" name="recPaymentAccount" required></select>
     </div>
     ${disclaimerHtml} 
-    <input type="hidden" name="recId" value="${recId}">
+    <input type="hidden" name="recId" value="${escapeHTML(recId)}">
     <button type="submit" class="btn btn-primary w-full mt-3">Record Payment</button>
   `;
 
   openFormModal(
-    `Receive Payment from: ${escapeHTML(receivable.who)}`,
+    `Receive Payment from: ${receivable.who}`,
     formHtml,
     handleReceivePaymentSubmit
   );
@@ -3304,7 +3283,7 @@ function handleReceivePaymentSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
   const recId = form.get("recId");
-  const paymentAmountForm = parseFloat(String(form.get("recPaymentAmount")).replace(/,/g, ''));
+  const paymentAmountForm = parseAmountValue(form.get("recPaymentAmount"));
   const accountId = form.get("recPaymentAccount");
   const currentDate = getCurrentDateString();
 
@@ -3480,15 +3459,16 @@ function openAddInstallmentForm() {
 function handleAddInstallmentSubmit(event) {
   event.preventDefault();
   const formData = new FormData(event.target);
-  const fullAmount = parseFloat(String(formData.get("instFullAmount")).replace(/,/g, ''));
-  const totalMonths = parseInt(formData.get("instTotalMonths"));
-  let monthsLeft = parseInt(formData.get("instMonthsLeft"));
+  const fullAmount = parseAmountValue(formData.get("instFullAmount"));
+  const totalMonths = parseAmountValue(formData.get("instTotalMonths"));
+  let monthsLeft = parseAmountValue(formData.get("instMonthsLeft"));
 
   if (
     isNaN(fullAmount) ||
     fullAmount <= 0 ||
     isNaN(totalMonths) ||
-    totalMonths <= 0
+    totalMonths <= 0 || !Number.isInteger(totalMonths) ||
+    (formData.get("instMonthsLeft")?.trim() && (!Number.isInteger(monthsLeft) || monthsLeft < 0 || monthsLeft > totalMonths))
   ) {
     showNotification(
       "Invalid full amount or total months for installment.",
@@ -3549,7 +3529,7 @@ function openEditInstallmentForm(id) {
     i.originalFullAmount || i.monthlyAmount * i.totalMonths;
 
   const formHtml = `
-    <input type="hidden" name="editInstallmentId" value="${i.id}">
+    <input type="hidden" name="editInstallmentId" value="${escapeHTML(i.id)}">
     <div>
       <label for="instDescription" class="block text-sm font-medium mb-1">Description</label>
       <input type="text" id="instDescription" name="instDescription" value="${
@@ -3577,7 +3557,7 @@ function openEditInstallmentForm(id) {
     <div>
       <label for="instStartDate" class="block text-sm font-medium mb-1">Start Date</label>
       <input type="date" id="instStartDate" name="instStartDate" value="${
-        i.startDate
+        escapeHTML(i.startDate)
       }" required>
     </div>
     ${disclaimerHtml} 
@@ -3602,15 +3582,15 @@ function handleEditInstallmentSubmit(event) {
     return;
   }
 
-  const fullAmount = parseFloat(String(form.get("instFullAmount")).replace(/,/g, ''));
-  const totalMonths = parseInt(form.get("instTotalMonths"));
-  const monthsLeft = parseInt(form.get("instMonthsLeft"));
+  const fullAmount = parseAmountValue(form.get("instFullAmount"));
+  const totalMonths = parseAmountValue(form.get("instTotalMonths"));
+  const monthsLeft = parseAmountValue(form.get("instMonthsLeft"));
 
   if (
     isNaN(fullAmount) ||
     fullAmount <= 0 ||
     isNaN(totalMonths) ||
-    totalMonths <= 0
+    totalMonths <= 0 || !Number.isInteger(totalMonths)
   ) {
     showNotification(
       "Invalid full amount or total months for installment.",
@@ -3618,7 +3598,7 @@ function handleEditInstallmentSubmit(event) {
     );
     return;
   }
-  if (isNaN(monthsLeft) || monthsLeft < 0 || monthsLeft > totalMonths) {
+  if (!Number.isInteger(monthsLeft) || monthsLeft < 0 || monthsLeft > totalMonths) {
     showNotification("Invalid months left for installment.", "error");
     return;
   }
@@ -3671,7 +3651,7 @@ function payInstallmentMonth(installmentId) {
   `;
 
   openFormModal(
-    `Confirm Installment Update: ${escapeHTML(installment.description)}`,
+    `Confirm Installment Update: ${installment.description}`,
     confirmationMessageHtml,
     null
   );
@@ -3778,11 +3758,11 @@ function openPayCcItemForm(ccTransactionId) {
     categoryOptions += `<option value="${ccPaymentCategoryName}" selected>${ccPaymentCategoryName} (Suggested)</option>`;
   }
   otherCcCategories.forEach((cat) => {
-    categoryOptions += `<option value="${cat}">${cat}</option>`;
+    categoryOptions += `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`;
   });
 
   const formHtml = `
-      <input type="hidden" name="ccItemId" value="${item.id}">
+      <input type="hidden" name="ccItemId" value="${escapeHTML(item.id)}">
       <p class="mb-2 tabular-nums">Item Amount: ${formatCurrency(
         item.amount
       )}</p>
@@ -3813,7 +3793,7 @@ function openPayCcItemForm(ccTransactionId) {
       <button type="submit" class="btn btn-primary w-full mt-3">Make Payment</button>
   `;
   openFormModal(
-    `Pay CC Item: ${escapeHTML(item.description).substring(0, 30)}...`,
+    `Pay CC Item: ${item.description.substring(0, 30)}...`,
     formHtml,
     handlePayCcItemSubmit
   );
@@ -3845,7 +3825,7 @@ function handlePayCcItemSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
   const ccItemId = form.get("ccItemId");
-  const paymentAmountForm = parseFloat(String(form.get("ccItemPayAmount")).replace(/,/g, ''));
+  const paymentAmountForm = parseAmountValue(form.get("ccItemPayAmount"));
   const accountId = form.get("ccPayFromAccount");
   const logAsExpense = form.get("logCcPaymentAsExpense") === "on";
   const category = logAsExpense ? form.get("ccPayCategory") : null;

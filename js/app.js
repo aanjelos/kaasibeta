@@ -35,6 +35,7 @@ function initializeUI(isRefresh = false) {
     }
   }
 
+  const bindOnce = !window.uiListenersInitialized;
   const mainDateInput = $("#date");
   if (mainDateInput) mainDateInput.value = getCurrentDateString();
   const mainCcDateInput = $("#ccDate");
@@ -124,7 +125,7 @@ function initializeUI(isRefresh = false) {
   const closeDonateModalBtn = document.getElementById("closeDonateModal");
 
   if (donateModal && footerDonateBtn && closeDonateModalBtn) {
-    if (!isRefresh) {
+    if (bindOnce) {
       footerDonateBtn.addEventListener("click", () => {
         openModalHelper("donateModal");
       });
@@ -208,7 +209,7 @@ function initializeUI(isRefresh = false) {
   const advancedFiltersAccordion = $("#advancedFiltersAccordion");
   const resetAdvancedFiltersBtn = $("#resetAdvancedFiltersBtn");
   
-  if (!isRefresh && toggleAdvancedFiltersBtn && advancedFiltersAccordion) {
+  if (bindOnce && toggleAdvancedFiltersBtn && advancedFiltersAccordion) {
     toggleAdvancedFiltersBtn.addEventListener("click", () => {
       advancedFiltersAccordion.classList.toggle("hidden");
     });
@@ -219,7 +220,7 @@ function initializeUI(isRefresh = false) {
   const filterCategoryDropdown = $("#filterCategoryDropdown");
   const filterCategoryBtnText = $("#filterCategoryBtnText");
 
-  if (!isRefresh && filterCategoryBtn && filterCategoryDropdown) {
+  if (bindOnce && filterCategoryBtn && filterCategoryDropdown) {
     filterCategoryBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       filterCategoryDropdown.classList.toggle("hidden");
@@ -429,7 +430,7 @@ function initializeUI(isRefresh = false) {
   const filterDateRange = $("#filterDateRange");
   const customDateInputs = $("#customDateInputs");
   
-  if (filterDateRange && !isRefresh) {
+  if (filterDateRange && bindOnce) {
     filterDateRange.addEventListener("change", (e) => {
       const range = e.target.value;
       const filterStartDate = $("#filterStartDate");
@@ -487,7 +488,7 @@ function initializeUI(isRefresh = false) {
     $("#filterMaxAmount")
   ];
 
-  filterInputs.forEach(input => {
+  if (bindOnce) filterInputs.forEach(input => {
     if (input) {
       const handler = (e) => {
         if ((input.id === "filterStartDate" || input.id === "filterEndDate") && e.isTrusted) {
@@ -500,13 +501,13 @@ function initializeUI(isRefresh = false) {
     }
   });
 
-  if (!isRefresh && resetAdvancedFiltersBtn) {
+  if (bindOnce && resetAdvancedFiltersBtn) {
     resetAdvancedFiltersBtn.addEventListener("click", () => {
       window.resetAdvancedFiltersAndSearch(true);
     });
   }
 
-  if (monthlySearchInput && clearMonthlySearchBtn) {
+  if (bindOnce && monthlySearchInput && clearMonthlySearchBtn) {
     if (!monthlySearchInput.value.trim()) {
       clearMonthlySearchBtn.style.display = "none";
       clearMonthlySearchBtn.disabled = true;
@@ -549,7 +550,7 @@ function initializeUI(isRefresh = false) {
   const ccHistorySearchInput = $("#ccHistorySearchInput");
   const clearCcHistorySearchBtn = $("#clearCcHistorySearchBtn");
 
-  if (!isRefresh && ccHistorySearchInput && clearCcHistorySearchBtn) {
+  if (bindOnce && ccHistorySearchInput && clearCcHistorySearchBtn) {
     const triggerCcSearch = () => {
       const renderFunction = document.body.renderCcHistoryList;
       if (typeof renderFunction === "function") {
@@ -778,6 +779,7 @@ function initializeUI(isRefresh = false) {
     document.body.dataset.keyboardListenerAttached = "true";
     console.log("Keyboard shortcut listener attached.");
   }
+  window.uiListenersInitialized = true;
 }
 
 
@@ -922,8 +924,8 @@ document.addEventListener("DOMContentLoaded", () => {
   
   if (state.settings && state.settings.appPin && state.settings.appPin.enabled) {
     // Hide main container until unlocked to prevent inspect-element vulnerability
-    const appContainer = document.getElementById("appContainer");
-    if (appContainer) appContainer.classList.add("hidden");
+    const appContent = document.getElementById("app-content");
+    if (appContent) appContent.inert = true;
     
     // Hide preloader so it doesn't run its timer in the background
     const preloaderElement = document.getElementById("preloader");
@@ -958,41 +960,8 @@ document.addEventListener("DOMContentLoaded", () => {
   resetInactivityTimer();
   // --- END AUTO-LOCK ---
 
-  // Event listener to update date fields and attempt to focus window when tab becomes visible
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") {
-      console.log("Page became visible, attempting to focus and update dates.");
-      window.focus(); // Attempt to bring focus to the window/document
-
-      const mainTransactionDateInput = $("#date"); // Main transaction form date
-      if (mainTransactionDateInput) {
-        mainTransactionDateInput.value = getCurrentDateString(); // Use local date
-      }
-
-      const ccTransactionDateInput = $("#ccDate"); // Credit Card transaction form date
-      if (ccTransactionDateInput) {
-        ccTransactionDateInput.value = getCurrentDateString(); // Use local date
-      }
-    }
-  });
-
-  // Event listener to update date fields and attempt to focus window when tab becomes visible
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") {
-      console.log("Page became visible, attempting to focus and update dates.");
-      window.focus(); // Attempt to bring focus to the window/document
-
-      const mainTransactionDateInput = $("#date"); // Main transaction form date
-      if (mainTransactionDateInput) {
-        mainTransactionDateInput.value = getCurrentDateString(); // Use local date
-      }
-
-      const ccTransactionDateInput = $("#ccDate"); // Credit Card transaction form date
-      if (ccTransactionDateInput) {
-        ccTransactionDateInput.value = getCurrentDateString(); // Use local date
-      }
-    }
-  });
+  // Date defaults are set by initializeUI on launch/refresh. Returning from
+  // another tab must preserve the date on an unfinished transaction.
 });
 
 window.executePreloaderSequence = function() {

@@ -61,6 +61,10 @@ function openShortcutsHelpModal() {
 }
 
 function handleKeyboardShortcuts(event) {
+  if (isAppLocked()) {
+    if ((event.ctrlKey || event.metaKey) && ["e", "i"].includes(event.key.toLowerCase())) event.preventDefault();
+    return;
+  }
   const activeElement = document.activeElement;
   const inInputField =
     activeElement &&
@@ -360,6 +364,25 @@ function handleKeyboardShortcuts(event) {
       break;
   }
 }
+
+// Record IDs are data, never JavaScript source embedded in an HTML handler.
+document.addEventListener("click", (event) => {
+  const target = event.target.closest("[data-record-action]");
+  if (!target || isAppLocked()) return;
+  const actions = {
+    editTransaction: openEditTransactionModal, deleteTransaction,
+    editDebt: openEditDebtForm, payDebt: openPayDebtForm, deleteDebt,
+    editReceivable: openEditReceivableForm, receivePayment: openReceivePaymentForm, deleteReceivable,
+    editInstallment: openEditInstallmentForm, payInstallment: payInstallmentMonth, deleteInstallment,
+    editCc: openEditCcTransactionModal, payCc: openPayCcItemForm, deleteCc: deleteCcTransaction,
+    selectCc: (id) => window.toggleCcItemSelection?.(id),
+    editBudget: openEditBudgetModal, deleteBudget
+  };
+  if (!Object.prototype.hasOwnProperty.call(actions, target.dataset.recordAction)) return;
+  event.preventDefault();
+  event.stopPropagation();
+  actions[target.dataset.recordAction](target.dataset.recordId, event);
+}, true);
 
 // --- Helper function for month tab navigation ---
 function applyAppearance() {

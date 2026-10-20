@@ -38,7 +38,7 @@ function generateMonthlyPdfReport() {
 
   let totalIncome = 0;
   let totalExpense = 0;
-  const categoryTotals = {};
+  const categoryTotals = Object.create(null);
 
   transactionsInMonth.forEach((t) => {
     if (t.type === "income") {
