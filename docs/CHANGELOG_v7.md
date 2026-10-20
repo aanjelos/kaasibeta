@@ -1,4 +1,4 @@
-# Kaasi v6 - Development Changelog
+# Kaasi v7 - Development Changelog
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
