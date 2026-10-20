@@ -2559,17 +2559,11 @@ function deleteCcTransaction(transactionId) {
       escapeHTML(transaction.description)
     }"</strong> (${formatCurrency(
       transaction.amount
-    )})?<br><br><strong class="text-warning">Warning:</strong> This also removes payment records linked to this CC item. Older payments without a saved link are kept because their purchase cannot be identified reliably. Account balances are unchanged.`,
+    )})?<br><br>Payments already recorded and account balances will be kept.`,
     "Delete",
     "Cancel",
     () => {
       // onConfirm
-      state.transactions = state.transactions.filter(
-        (tx) =>
-          !(
-            tx.ccPurchaseId === transaction.id
-          )
-      );
       state.creditCard.transactions.splice(transactionIndex, 1);
       saveData();
       renderDashboard();
@@ -2577,7 +2571,7 @@ function deleteCcTransaction(transactionId) {
       if ($("#ccHistoryModal").style.display === "block") openCcHistoryModal();
       refreshMonthlyViewIfRelevant(transaction.date);
       showNotification(
-        "CC transaction and linked payments deleted. Unlinked payments and account balances were kept.",
+        "CC transaction deleted. Recorded payments and account balances were kept.",
         "success"
       );
 

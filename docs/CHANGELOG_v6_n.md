@@ -1,5 +1,12 @@
 # Kaasi v6 — Chat n development changelog
 
+## v6.364n — 2026-10-21
+
+1. Correct credit-card purchase deletion to preserve every recorded payment expense, including payments linked to that purchase. Deletion removes only the selected CC purchase; account balances and other purchases remain unchanged. This supersedes the cascading-payment deletion described in v6.363n. Purchase-link metadata is retained without triggering deletion of payments.
+2. Update the deletion confirmation and success message to explain that recorded payments and account balances are kept.
+3. Increment the application and service-worker cache versions together to v6.364n.
+4. Update regression coverage for partial and fully paid purchase deletion, saved payment preservation, remaining purchases, and backup compatibility after purchase deletion. All 23 regression tests pass. Deleting a payment expense continues to leave CC settlement unchanged, as requested. Only kaasibeta is modified.
+
 ## v6.363n — 2026-10-20
 
 One version increment covers the newly approved fixes. All changes remain inside kaasibeta.

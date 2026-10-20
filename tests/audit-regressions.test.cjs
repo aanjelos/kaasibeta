@@ -346,7 +346,7 @@ function cardPayment(r, id, amount = '20') {
   }}});
 }
 
-test('CC payment links survive renaming/import; deleting a purchase never matches descriptions/categories', () => {
+test('CC payment links survive renaming/import; deleting a purchase preserves all recorded payments', () => {
   const r = runtime(); seedCards(r);
   cardPayment(r,'c1'); cardPayment(r,'c2');
   assert.equal(r.run('state.transactions[0].ccPurchaseId'), 'c1');
@@ -355,13 +355,27 @@ test('CC payment links survive renaming/import; deleting a purchase never matche
     description:'Credit Card Payment: Online shopping shoes',date:'2026-10-20',timestamp:3});
     state.creditCard.transactions[0].description='Renamed purchase';saveData();`);
   const balance = r.run('state.accounts[0].balance');
+  const payments = r.run('JSON.stringify(state.transactions)');
   r.context.showConfirmationModal = (...args) => args[4]();
   r.context.deleteCcTransaction('c1');
-  assert.equal(r.run('state.transactions.length'), 2);
-  assert.equal(r.run('state.transactions.some(t=>t.ccPurchaseId==="c1")'), false);
+  assert.equal(r.run('state.transactions.length'), 3);
+  assert.equal(r.run('JSON.stringify(state.transactions)'), payments);
+  assert.equal(r.run('state.transactions.some(t=>t.ccPurchaseId==="c1")'), true);
   assert.equal(r.run('state.transactions.some(t=>t.ccPurchaseId==="c2")'), true);
   assert.equal(r.run('state.transactions.some(t=>t.id==="legacy")'), true);
   assert.equal(r.run('state.accounts[0].balance'), balance);
+  assert.equal(r.run('state.creditCard.transactions.some(t=>t.id==="c1")'), false);
+  assert.equal(JSON.parse(r.storage.get('KaasiData')).transactions.length, 3);
+});
+
+test('deleting a fully paid CC purchase keeps its payments, bank balance and other purchases intact', () => {
+  const r=runtime();seedCards(r);cardPayment(r,'c1','100');cardPayment(r,'c2','20');
+  const before=r.run('JSON.stringify({payments:state.transactions,accounts:state.accounts,other:state.creditCard.transactions[1]})');
+  r.context.showConfirmationModal=(...args)=>args[4]();
+  r.context.deleteCcTransaction('c1');
+  assert.equal(r.run('JSON.stringify({payments:state.transactions,accounts:state.accounts,other:state.creditCard.transactions[0]})'),before);
+  assert.equal(r.run('state.creditCard.transactions.length'),1);
+  assert.equal(r.run('prepareImportedData(JSON.parse(JSON.stringify(state))).transactions.length'),2);
 });
 
 test('deleting a payment expense continues to leave the CC purchase paid as requested', () => {
