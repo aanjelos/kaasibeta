@@ -12,6 +12,10 @@ Reorganized the Storage Usage card with a separate Storage Protection section, e
 
 Enabled protection always displays `Persistent storage is enabled. External backups are still important.`, including when reopening Settings. The action changes to a disabled **Protection Enabled** indicator after permission is granted. Requests disable the button while pending, and delayed initial checks cannot replace a newer permission result. Added regression coverage for reopening Settings, asynchronous permission results, and backend labels; all 25 application regression tests pass. Updated application and service-worker versions to `v6.367n`.
 
+### 2. [Maintenance] Roadmap Reconciliation
+
+Removed the completed IndexedDB migration and immediate deletion-list refresh items from the roadmap after checking the storage boundary, deletion handlers, and regression coverage. Retained UUID generation for new financial records as a separate pending task, updated historical-budget prerequisites for the current database, and added public-release validation requirements. Clarified that unattended cloud operations require server-side conflict protection before implementation. Documentation-only maintenance; application and cache versions remain unchanged.
+
 ## v6.366n - 2026-10-21
 
 ### 1. [Enhancement] Export Existing Data Before Storage Upgrade

@@ -61,12 +61,12 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 15. Support > 3 Bank Accounts
 - **Concept**: Remove or expand the restriction capping users to 3 bank accounts in setup and settings, allowing full flexibility for power users with multiple accounts.
 
-### 17. Exclude Bulk Credit Card Payments from Expenses
+### 16. Exclude Bulk Credit Card Payments from Expenses
 - **Concept**: Add a "Log as expense?" toggle/checkbox to the Bulk Credit Card Settlement modal (matching individual CC item settlements), allowing users to clear credit card items without creating matching expense entries when desired.
 
-### 18. Per-Month Historical Budget Storage & Persistence
+### 17. Per-Month Historical Budget Storage & Persistence
 - **Concept**: Save category budget limits on a per-month basis instead of having a single static budget that resets every month. This allows users to accurately review historical budget targets vs. actual spending for past months.
-- **Implementation Note**: Best implemented alongside the **IndexedDB Migration** to easily handle the expanded historical data schema without exceeding `localStorage` limits.
+- **Implementation Note**: IndexedDB storage is now available. Add a versioned schema upgrade and backup compatibility for historical budget records; the migration itself did not implement budget history. Coordinate this feature with Historical Budget Progress in PDF Export.
 
 ---
 
@@ -91,16 +91,18 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## 🛠️ Technical Debt & Code Organization
 
-### 1. Storage Future-Proofing (IndexedDB Migration)
-- **Concept**: Migrate the primary local data storage from the 5MB-capped `localStorage` string blob to `IndexedDB` (using Dexie.js).
-- **Implementation Idea**: Must be an in-place migration that safely parses the old `KaasiData` blob and inserts it into granular IndexedDB tables (`transactions`, `debts`, etc.) without risking existing user data. `localStorage` should be kept as a fallback during the transition. This also requires switching to `UUIDv4` for unique record IDs to prevent collisions.
-
-### 2. Automatic Background Cloud Backups
+### 1. Automatic Background Cloud Backups
 - **Concept**: Solve the "I forgot to click backup" issue by running silent, timed backups.
 - **Implementation Idea**: Add a background interval timer (e.g., every 5-10 minutes) that checks if the local state has un-synced changes (`local_newer`) and the device is online. If true, trigger a silent `executeBackupToSupabase()` upsert. Additionally, automatically restore from the cloud on launch if a newer cloud state is detected and local storage is clean.
+- **Prerequisite**: Add server-enforced cloud revision checks and explicit conflict handling before enabling unattended uploads or restores. Local IndexedDB revision checks protect local writes; they do not prevent one device from overwriting another device's cloud backup. Realtime synchronization remains a separate future project. Manual cloud backups remain the current behavior.
 
-### 3. Fix Immediate DOM Refresh on Item Deletion (Bug)
-- **Concept**: Fix a UI state bug where deleted records (transactions, debts, receivables, etc.) remain visually visible in the DOM list view until the page is manually reloaded.
+### 2. UUIDs for New Financial Records
+- **Concept**: Replace the timestamp/random-fragment financial record ID generator with UUIDs for new records. This portion of the former storage migration item is still pending.
+- **Compatibility**: Preserve existing IDs, payment references, and imported backup records. Database generations already use UUIDs; financial records still use the existing `generateId()` helper.
+
+### 3. Public Release Validation for IndexedDB
+- **Scope**: Before promoting the beta storage changes, verify an authorized cloud backup/restore using a test account, production service-worker updates and offline launches, and the actual mobile/browser combinations in use.
+- **Acceptance**: Existing data survives upgrade and reload, exported backups restore correctly, PIN-protected access remains intact, and interrupted or failed operations retain recovery options. Automated database tests and localhost browser checks do not replace these environment-specific checks.
 
 ---
 
