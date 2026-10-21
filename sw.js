@@ -1,20 +1,11 @@
-const CACHE_NAME = "kaasi-cache-v6.364n";
+const BUILD = "v6.365n";
+const CACHE_NAME = `kaasi-cache-${BUILD}`;
 const STATIC_ASSETS = [
   "./",
   "./index.html",
-  "./style.css",
-  "./tailwind.css",
-  "./js/globals.js",
-  "./js/import-validation.js",
-  "./js/data-sync.js",
-  "./js/math-tool.js",
-  "./js/settings.js",
-  "./js/charts.js",
-  "./js/ui.js",
-  "./js/features.js",
-  "./js/animations.js",
-  "./js/security.js",
-  "./js/app.js",
+  `./style.css?v=${BUILD}`,
+  `./tailwind.css?v=${BUILD}`,
+  ...["globals", "import-validation", "storage", "storage-ui", "data-sync", "math-tool", "settings", "charts", "ui", "features", "animations", "security", "app"].map(name => `./js/${name}.js?v=${BUILD}`),
   "./img/LogoIcon.svg",
   "./img/LogoIcon_Maskable.svg",
   "./img/FullLogo.svg",
@@ -41,7 +32,7 @@ self.addEventListener("install", (event) => {
       return cache.addAll(STATIC_ASSETS);
     })
   );
-  self.skipWaiting();
+  // Existing windows finish their work before an update takes control.
 });
 
 // Activate Event: Clean up old caches if CACHE_NAME changes
@@ -50,14 +41,17 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
+          if (cacheName.startsWith("kaasi-cache-") && cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
-  self.clients.claim();
+});
+
+self.addEventListener("message", event => {
+  if (event.data === "KAASI_APPLY_UPDATE") self.skipWaiting();
 });
 
 // Fetch Event: Stale-While-Revalidate Strategy
@@ -73,6 +67,26 @@ self.addEventListener("fetch", (event) => {
   
   // Ignore chrome extensions and other schemes
   if (!event.request.url.startsWith("http")) return;
+
+  const url = new URL(event.request.url);
+  if (url.origin === self.location.origin && event.request.mode === "navigate") {
+    event.respondWith(caches.open(CACHE_NAME).then(async cache => {
+      return (await cache.match("./index.html")) || fetch(event.request);
+    }));
+    return;
+  }
+  if (url.origin === self.location.origin && (event.request.destination === "script" || event.request.destination === "style")) {
+    // Versioned assets are immutable within this cache; never mix builds.
+    if (url.searchParams.get("v") !== BUILD) return;
+    event.respondWith(caches.open(CACHE_NAME).then(async cache => {
+      const cached = await cache.match(event.request);
+      if (cached) return cached;
+      const response = await fetch(event.request);
+      if (response.ok) await cache.put(event.request, response.clone());
+      return response;
+    }));
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {

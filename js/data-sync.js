@@ -2,10 +2,19 @@
  * data-sync.js
  * Handles data import/export, local storage persistence, and cloud synchronization (Supabase).
  */
-function exportData() {
-  if (isAppLocked()) return;
+function downloadKaasiSnapshot(snapshot, prefix = "kaasi-backup") {
+  const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.download = `${prefix}-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.json`;
+  link.href = url; link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function exportData() {
+  if (isAppLocked() || storageOperationPending) return;
   try {
-    const dataStr = JSON.stringify(state, null, 2);
+    const dataStr = JSON.stringify(await KaasiStorage.snapshot(), null, 2);
     const dataBlob = new Blob([dataStr], {
       type: "application/json",
     });
@@ -23,7 +32,7 @@ function exportData() {
     URL.revokeObjectURL(url);
     
 
-    localStorage.setItem("lastSuccessfulBackupDate", getCurrentDateString());
+    appPreferences.setItem("lastSuccessfulBackupDate", getCurrentDateString());
     
     showNotification("Data exported.", "success");
   } catch (error) {
@@ -48,9 +57,10 @@ function importData(event) {
     () => {
       // onConfirm
       const reader = new FileReader();
+      const expectedRevision = KaasiStorage.revision;
       reader.onload = (e) => {
         showNotification("Restoring data... Please wait.", "info");
-        setTimeout(() => {
+        setTimeout(async () => {
           try {
             let importedData = JSON.parse(e.target.result);
             if (importedData && typeof importedData === "object") {
@@ -64,7 +74,7 @@ function importData(event) {
               }
 
 
-              applyImportedData(importedData);
+              await applyImportedData(importedData, expectedRevision);
             showNotification(
               "Data imported and sanitized successfully. Application refreshed.",
               "success"
@@ -235,7 +245,8 @@ function completeDeletion() {
       await signOut();
     }
     
-    localStorage.removeItem(STORAGE_KEY);
+    await KaasiStorage.clear();
+    await startLocalStorage();
     state = getDefaultState();
     ensureDefaultAccounts();
     ensureDefaultCategories();
@@ -296,18 +307,18 @@ async function fetchAndUpdateLastCloudSyncTime() {
       lastCloudSyncTimeString = formatted;
       
 
-      const lastSyncedCloudUpdatedAt = localStorage.getItem("lastSyncedCloudUpdatedAt");
-      const lastLocalCloudSync = parseInt(localStorage.getItem("lastLocalCloudSync") || "0", 10);
-      const lastLocalDataModification = parseInt(localStorage.getItem("lastLocalDataModification") || "0", 10);
+      const lastSyncedCloudUpdatedAt = appPreferences.getItem("lastSyncedCloudUpdatedAt");
+      const lastLocalCloudSync = parseInt(appPreferences.getItem("lastLocalCloudSync") || "0", 10);
+      const lastLocalDataModification = parseInt(appPreferences.getItem("lastLocalDataModification") || "0", 10);
       
       window.currentCloudSyncStatus = "synced";
       
       if (data.updated_at !== lastSyncedCloudUpdatedAt && lastSyncedCloudUpdatedAt) {
         window.currentCloudSyncStatus = "cloud_newer";
       } else {
-        const currentDataStr = localStorage.getItem("KaasiData");
+        const currentDataStr = lastPersistedStateJson;
         const currentHash = typeof generateDataHash === "function" ? generateDataHash(currentDataStr) : null;
-        const syncedHash = localStorage.getItem("kaasi_synced_state_hash");
+        const syncedHash = appPreferences.getItem("kaasi_synced_state_hash");
         
         if (currentHash && syncedHash) {
           window.currentCloudSyncStatus = currentHash === syncedHash ? "synced" : "local_newer";
@@ -339,7 +350,8 @@ async function signInWithGoogle() {
   console.log("Attempting Google Sign-In...");
   try {
     // Set a flag to indicate we should automatically restore data upon returning
-    localStorage.setItem("pendingCloudRestore", "true");
+    appPreferences.setItem("pendingCloudRestore", "true");
+    await appPreferences.flush();
     
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
@@ -349,14 +361,14 @@ async function signInWithGoogle() {
       },
     });
     if (error) {
-      localStorage.removeItem("pendingCloudRestore");
+      appPreferences.removeItem("pendingCloudRestore");
       console.error("Error during Google sign-in:", error.message);
       showNotification(`Google Sign-In Error: ${error.message}`, "error");
     } else {
       console.log("Google Sign-In initiated successfully");
     }
   } catch (err) {
-    localStorage.removeItem("pendingCloudRestore");
+    appPreferences.removeItem("pendingCloudRestore");
     console.error("Exception during Google sign-in:", err);
     showNotification("An unexpected error occurred during sign-in.", "error");
   }
@@ -367,7 +379,7 @@ async function signOut() {
   console.log("Attempting Sign-Out...");
   
   const localSignOutCleanup = () => {
-    localStorage.removeItem("preferredSyncMethod");
+    appPreferences.removeItem("preferredSyncMethod");
     for (let i = localStorage.length - 1; i >= 0; i--) {
       const key = localStorage.key(i);
       if (key && (key.startsWith("sb-") || key.includes("supabase"))) {
@@ -385,7 +397,7 @@ async function signOut() {
   }
 
   try {
-    localStorage.removeItem("preferredSyncMethod");
+    appPreferences.removeItem("preferredSyncMethod");
     const { error } = await supabaseClient.auth.signOut();
     if (error) {
       console.error("Error during sign-out:", error.message);
@@ -442,7 +454,7 @@ async function executeBackupToSupabase() {
 
   try {
     // Freeze this upload; subsequent edits must stay pending for the next backup.
-    const uploadedDataStr = JSON.stringify(state);
+    const uploadedDataStr = JSON.stringify(await KaasiStorage.snapshot());
     const uploadedSnapshot = JSON.parse(uploadedDataStr);
     // We use 'upsert' to either create a new record or update the existing one for this user.
 
@@ -473,14 +485,15 @@ async function executeBackupToSupabase() {
       : "just now";
       
 
-    if (data.updated_at) localStorage.setItem("lastSyncedCloudUpdatedAt", data.updated_at);
+    if (data.updated_at) appPreferences.setItem("lastSyncedCloudUpdatedAt", data.updated_at);
     const now = Date.now().toString();
-    localStorage.setItem("lastLocalCloudSync", now);
-    localStorage.setItem("lastSuccessfulCloudBackupDate", getCurrentDateString());
+    appPreferences.setItem("lastLocalCloudSync", now);
+    appPreferences.setItem("lastSuccessfulCloudBackupDate", getCurrentDateString());
     if (typeof generateDataHash === "function") {
-      localStorage.setItem("kaasi_synced_state_hash", generateDataHash(uploadedDataStr));
+      appPreferences.setItem("kaasi_synced_state_hash", generateDataHash(uploadedDataStr));
     }
-    const changesDuringUpload = JSON.stringify(state) !== uploadedDataStr;
+    const changesDuringUpload = KaasiStorage.canonical(JSON.parse(lastPersistedStateJson)) !== KaasiStorage.canonical(uploadedSnapshot);
+    await appPreferences.flush();
     window.currentCloudSyncStatus = changesDuringUpload ? "local_newer" : "synced";
     showNotification(
       changesDuringUpload
@@ -507,7 +520,7 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
   // Prevent MouseEvent from being evaluated as true when called via onclick
   if (typeof force !== "boolean") force = false;
 
-  if (isFromDashboard && localStorage.getItem("skipRestoreWarning") === "true") {
+  if (isFromDashboard && appPreferences.getItem("skipRestoreWarning") === "true") {
     force = true;
   }
   if (!supabaseUser) {
@@ -538,6 +551,7 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
 
         // This makes the query more robust by ensuring we *only* get the single, most recent
         // backup for this user, which makes .single() safe to use.
+        const expectedRevision = KaasiStorage.revision;
         const { data, error } = await supabaseClient
           .from("user_data")
           .select("data, updated_at")
@@ -567,16 +581,16 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
         }
 
         if (isAppLocked()) throw new Error("Unlock the app before restoring data.");
-        applyImportedData(data.data);
+        await applyImportedData(data.data, expectedRevision);
 
 
-        if (data.updated_at) localStorage.setItem("lastSyncedCloudUpdatedAt", data.updated_at);
+        if (data.updated_at) appPreferences.setItem("lastSyncedCloudUpdatedAt", data.updated_at);
         const now = Date.now().toString();
-        localStorage.setItem("lastLocalCloudSync", now);
-        localStorage.setItem("lastLocalDataModification", now);
-        const currentDataStr = localStorage.getItem("KaasiData");
+        appPreferences.setItem("lastLocalCloudSync", now);
+        appPreferences.setItem("lastLocalDataModification", now);
+        const currentDataStr = lastPersistedStateJson;
         if (currentDataStr && typeof generateDataHash === "function") {
-          localStorage.setItem("kaasi_synced_state_hash", generateDataHash(currentDataStr));
+          appPreferences.setItem("kaasi_synced_state_hash", generateDataHash(currentDataStr));
         }
 
 
@@ -633,7 +647,7 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
         "Cancel",
         () => {
           if (isFromDashboard && document.getElementById("dontShowRestoreWarning")?.checked) {
-            localStorage.setItem("skipRestoreWarning", "true");
+            appPreferences.setItem("skipRestoreWarning", "true");
           }
           doRestore();
         },
@@ -649,7 +663,7 @@ async function restoreFromSupabase(force = false, isFromDashboard = false) {
 
 function handleBackupReminderDismiss(reminderKey) {
   try {
-    localStorage.setItem(reminderKey, getCurrentDateString());
+    appPreferences.setItem(reminderKey, getCurrentDateString());
     console.log(
       `Backup reminder dismissed for key: ${reminderKey} on ${getCurrentDateString()}`
     );
@@ -711,8 +725,8 @@ function checkAndTriggerBackupReminder() {
 
   const currentDateStr = getCurrentDateString();
   const reminderKey = "lastBackupReminderDismissedDate";
-  const lastDismissedStr = localStorage.getItem(reminderKey);
-  const lastBackupStr = localStorage.getItem("lastSuccessfulBackupDate");
+  const lastDismissedStr = appPreferences.getItem(reminderKey);
+  const lastBackupStr = appPreferences.getItem("lastSuccessfulBackupDate");
   
   // Parse dates. If no previous date, treat it as epoch 0 to trigger immediately (or based on last sync)
   const today = new Date(currentDateStr);
@@ -769,7 +783,7 @@ async function initializeSupabase() {
         try {
           await restoreFromSupabase(true);
         } finally {
-          localStorage.removeItem("pendingCloudRestore");
+          appPreferences.removeItem("pendingCloudRestore");
         }
         
         if (state && state.settings && state.settings.initialSetupDone) {
@@ -784,7 +798,7 @@ async function initializeSupabase() {
         }
       }
     } else {
-      localStorage.removeItem("pendingCloudRestore");
+      appPreferences.removeItem("pendingCloudRestore");
       if (!state || !state.settings || !state.settings.initialSetupDone) {
         if (typeof openInitialSetupWizard === "function") {
           console.log("No user session found, opening setup wizard.");
@@ -806,13 +820,13 @@ async function initializeSupabase() {
     const user = session?.user || null;
     supabaseUser = user;
     if (user) {
-      if (!localStorage.getItem("preferredSyncMethod")) {
-        localStorage.setItem("preferredSyncMethod", "cloud");
+      if (!appPreferences.getItem("preferredSyncMethod")) {
+        appPreferences.setItem("preferredSyncMethod", "cloud");
       }
     }
     updateSupabaseUI(user);
     
-    if (!user && localStorage.getItem("preferredSyncMethod") === "cloud") {
+    if (!user && appPreferences.getItem("preferredSyncMethod") === "cloud") {
       openCloudSessionExpiredModal();
     } else {
       await checkAutoRestore(user);
@@ -829,8 +843,8 @@ async function initializeSupabase() {
     const user = data.session?.user || null;
     supabaseUser = user;
     if (user) {
-      if (!localStorage.getItem("preferredSyncMethod")) {
-        localStorage.setItem("preferredSyncMethod", "cloud");
+      if (!appPreferences.getItem("preferredSyncMethod")) {
+        appPreferences.setItem("preferredSyncMethod", "cloud");
       }
     }
     updateSupabaseUI(user);
@@ -839,7 +853,7 @@ async function initializeSupabase() {
       user ? user.email : "none"
     );
     
-    if (!user && localStorage.getItem("preferredSyncMethod") === "cloud") {
+    if (!user && appPreferences.getItem("preferredSyncMethod") === "cloud") {
       openCloudSessionExpiredModal();
     } else {
       await checkAutoRestore(user);
@@ -885,7 +899,7 @@ function updateSupabaseUI(user) {
     shortcutCloudLabel.classList.add("text-gray-300");
 
 
-    const savedMethod = localStorage.getItem("preferredSyncMethod");
+    const savedMethod = appPreferences.getItem("preferredSyncMethod");
     if (savedMethod === "local") {
       shortcutCloudInput.checked = false;
       shortcutLocalInput.checked = true;
@@ -942,7 +956,7 @@ function openCloudSessionExpiredModal() {
   
   if (localBtn) {
     localBtn.onclick = () => {
-      localStorage.setItem("preferredSyncMethod", "local");
+      appPreferences.setItem("preferredSyncMethod", "local");
       
       // Default UI switches back to Local
       const localRadio = $("#shortcutLocal");

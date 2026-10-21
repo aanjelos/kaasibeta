@@ -443,7 +443,7 @@ function setupAppearanceListeners() {
 
 
 
-function toggleAccountVisibility(accountId) {
+async function toggleAccountVisibility(accountId) {
   const account = state.accounts.find((acc) => acc.id === accountId);
   if (!account) return;
 
@@ -454,9 +454,9 @@ function toggleAccountVisibility(accountId) {
       return;
     }
   }
-  const performToggle = () => {
+  const performToggle = async () => {
     account.hidden = !account.hidden;
-    saveData();
+    await saveData();
     renderDashboard();
     populateDropdowns();
     renderSettingsForm(); // Re-render settings to update the button and style
@@ -481,7 +481,7 @@ function toggleAccountVisibility(accountId) {
       "btn-primary" // Use a less destructive button color
     );
   } else {
-    performToggle(); // Hide if balance is zero or unhide without confirmation
+    await performToggle(); // Hide if balance is zero or unhide without confirmation
   }
 }
 
@@ -799,10 +799,13 @@ function showConfirmationModal(
   const newCancelBtn = cancelBtn.cloneNode(true);
   cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
 
-  newConfirmBtn.onclick = () => {
+  newConfirmBtn.onclick = async () => {
     let handled = false;
     if (typeof currentConfirmCallback === "function") {
-      handled = currentConfirmCallback();
+      newConfirmBtn.disabled = true;
+      try { handled = await currentConfirmCallback(); }
+      catch (error) { if (!error.kaasiSaveFailure) showNotification(error.message, "error"); return; }
+      finally { newConfirmBtn.disabled = false; }
     }
     if (handled !== true) {
       closeModal("confirmationModal");

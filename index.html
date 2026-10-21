@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.364n" />
+    <meta name="application-version" content="v6.365n" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -51,8 +51,8 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="tailwind.css" />
+    <link rel="stylesheet" href="style.css?v=v6.365n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.365n" />
 
     <script
       async
@@ -72,6 +72,15 @@
   </head>
 
   <body class="min-h-screen transition-colors duration-300">
+    <section id="storageScreen" class="storage-screen" hidden role="dialog" aria-modal="true" aria-labelledby="storageTitle">
+      <div class="storage-panel">
+        <img src="img/FullLogo.svg" alt="Kaasi" width="160" />
+        <h1 id="storageTitle">Opening local data</h1>
+        <p id="storageStatus">Please wait while Kaasi checks your saved data.</p>
+        <div id="storageActions"></div>
+        <input type="file" id="storageRecoveryInput" accept=".json" hidden aria-label="Import recovery backup" />
+      </div>
+    </section>
     <div id="preloader">
       <div class="pulsing-icon-container">
         <img
@@ -1051,6 +1060,8 @@
                     <p id="storageSizeInfo" class="text-xs text-gray-400 mt-0.5 font-medium">Calculating...</p>
                   </div>
                 </div>
+                <button id="requestPersistenceBtn" type="button" class="btn btn-secondary mt-4" hidden>Protect local storage</button>
+                <p id="persistenceStatus" class="text-sm text-gray-400 mt-2" aria-live="polite"></p>
               </div>
 
               <!-- 2. Cloud Backup -->
@@ -1483,12 +1494,11 @@
               <p id="appVersionSettings" class="text-gray-400 text-xs"></p>
               <div class="max-w-2xl mx-auto">
                 <p class="font-semibold text-gray-300 mt-2">
-                  For optimal performance and to prevent data loss due to
-                  browser storage limits, we recommend backing up your data
-                  regularly. Consider starting fresh after 1-2 years of use. If
-                  you notice an update to the app, exporting and re-importing
-                  your data can help ensure all features function correctly with
-                  the new version.
+                  Keep regular local or cloud backups. Persistent storage can
+                  reduce automatic browser cleanup when granted, but clearing
+                  site data or losing access to this device can still remove
+                  local records. App updates preserve saved data; routine
+                  re-imports or starting fresh are not required.
                 </p>
               </div>
             </div>
@@ -1662,12 +1672,11 @@
               <p id="appVersionSetup" class="text-gray-400 text-xs"></p>
               <div class="max-w-2xl mx-auto">
                 <p class="font-semibold text-gray-300 mt-2">
-                  For optimal performance and to prevent data loss due to
-                  browser storage limits, we recommend backing up your data
-                  regularly. Consider starting fresh after 1-2 years of use. If
-                  you notice an update to the app, exporting and re-importing
-                  your data can help ensure all features function correctly with
-                  the new version.
+                  Keep regular local or cloud backups. Persistent storage can
+                  reduce automatic browser cleanup when granted, but clearing
+                  site data or losing access to this device can still remove
+                  local records. App updates preserve saved data; routine
+                  re-imports or starting fresh are not required.
                 </p>
               </div>
             </div>
@@ -2061,17 +2070,19 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js" defer></script>
-    <script src="js/import-validation.js" defer></script>
-    <script src="js/animations.js" defer></script>
-    <script src="js/data-sync.js" defer></script>
-    <script src="js/math-tool.js" defer></script>
-    <script src="js/settings.js" defer></script>
-    <script src="js/charts.js" defer></script>
-    <script src="js/ui.js" defer></script>
-    <script src="js/features.js" defer></script>
-    <script src="js/security.js" defer></script>
-    <script src="js/app.js" defer></script>
+    <script src="js/globals.js?v=v6.365n" defer></script>
+    <script src="js/import-validation.js?v=v6.365n" defer></script>
+    <script src="js/storage.js?v=v6.365n" defer></script>
+    <script src="js/storage-ui.js?v=v6.365n" defer></script>
+    <script src="js/animations.js?v=v6.365n" defer></script>
+    <script src="js/data-sync.js?v=v6.365n" defer></script>
+    <script src="js/math-tool.js?v=v6.365n" defer></script>
+    <script src="js/settings.js?v=v6.365n" defer></script>
+    <script src="js/charts.js?v=v6.365n" defer></script>
+    <script src="js/ui.js?v=v6.365n" defer></script>
+    <script src="js/features.js?v=v6.365n" defer></script>
+    <script src="js/security.js?v=v6.365n" defer></script>
+    <script src="js/app.js?v=v6.365n" defer></script>
   </body>
 </html>
 

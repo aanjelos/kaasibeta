@@ -14,7 +14,7 @@ function openSettingsModal() {
 
   const storageInfoElement = $("#storageSizeInfo");
   if (storageInfoElement) {
-    storageInfoElement.textContent = `Approx. Storage Used: ${getFormattedLocalStorageSize(
+    storageInfoElement.textContent = `${KaasiStorage.mode === "indexeddb" ? "IndexedDB" : "Legacy local storage"} — Financial data: ${getFormattedLocalStorageSize(
       STORAGE_KEY
     )}`;
   }
@@ -22,6 +22,17 @@ function openSettingsModal() {
   openModalHelper("settingsModal");
   cancelDeleteAllData();
   displayAppVersion();
+  const persistButton = $("#requestPersistenceBtn");
+  if (persistButton) {
+    persistButton.hidden = KaasiStorage.mode !== "indexeddb";
+    persistButton.onclick = async () => {
+      try {
+        const granted = await navigator.storage?.persist?.() || false;
+        $("#persistenceStatus").textContent = granted ? "Persistent storage is enabled. External backups are still important." : "Persistent storage was not granted. IndexedDB remains available; keep external backups.";
+      } catch (_) { $("#persistenceStatus").textContent = "Persistent storage is unavailable in this browser."; }
+    };
+    navigator.storage?.persisted?.().then(granted => { $("#persistenceStatus").textContent = granted ? "Persistent storage is enabled." : "Persistent storage is not enabled."; }).catch(() => {});
+  }
 }
 
 function renderSettingsForm() {
@@ -104,7 +115,7 @@ function renderSettingsForm() {
 
   const settingsTransferFeeForm = $("#settingsTransferFeeForm");
   if (settingsTransferFeeForm) {
-    settingsTransferFeeForm.onsubmit = (event) => {
+    settingsTransferFeeForm.onsubmit = async (event) => {
       event.preventDefault();
       const formData = new FormData(settingsTransferFeeForm);
       const fee = parseAmountValue(formData.get("defaultTransferFee"));
@@ -113,7 +124,7 @@ function renderSettingsForm() {
         return;
       }
       state.settings.defaultTransferFee = fee;
-      saveData();
+      await saveData();
       showNotification(`Default transfer fee set to ${formatCurrency(fee)}.`, "success");
     };
   }
@@ -131,7 +142,7 @@ function renderSettingsForm() {
 
   const settingsCcLimitForm = $("#settingsCcLimitForm");
   if (settingsCcLimitForm) {
-    settingsCcLimitForm.onsubmit = (event) => {
+    settingsCcLimitForm.onsubmit = async (event) => {
       event.preventDefault();
       const formData = new FormData(settingsCcLimitForm);
       const limit = parseAmountValue(formData.get("ccLimitAmount"));
@@ -143,7 +154,7 @@ function renderSettingsForm() {
         state.creditCard = { limit: 0, transactions: [] };
       }
       state.creditCard.limit = limit;
-      saveData();
+      await saveData();
       renderCreditCardSection();
       if ($("#ccHistoryModal").style.display === "block") openCcHistoryModal();
       showNotification(
@@ -168,7 +179,7 @@ function renderSettingsForm() {
         : true;
 
     if (!toggleCcSectionElement.dataset.listenerAttached) {
-      toggleCcSectionElement.onchange = () => {
+      toggleCcSectionElement.onchange = async () => {
         if (!state.settings) {
           state.settings = {
             initialSetupDone: false,
@@ -177,7 +188,7 @@ function renderSettingsForm() {
           };
         }
         state.settings.showCcDashboardSection = toggleCcSectionElement.checked;
-        saveData();
+        await saveData();
         updateCcDashboardSectionVisibility();
         showNotification(
           `Credit Card section on dashboard will now be ${
@@ -206,7 +217,7 @@ function renderSettingsForm() {
         : true;
 
     if (!toggleMathToolbarElement.dataset.listenerAttached) {
-      toggleMathToolbarElement.onchange = () => {
+      toggleMathToolbarElement.onchange = async () => {
         if (!state.settings) {
           state.settings = {
             initialSetupDone: false,
@@ -216,7 +227,7 @@ function renderSettingsForm() {
           };
         }
         state.settings.showMathToolbar = toggleMathToolbarElement.checked;
-        saveData();
+        await saveData();
         applyAppearance();
       };
       toggleMathToolbarElement.dataset.listenerAttached = "true";
@@ -237,12 +248,12 @@ function renderSettingsForm() {
         : "default";
 
     if (!backupReminderSelect.dataset.listenerAttached) {
-      backupReminderSelect.onchange = () => {
+      backupReminderSelect.onchange = async () => {
         if (!state.settings) {
           state.settings = { backupReminderFrequency: "default" };
         }
         state.settings.backupReminderFrequency = backupReminderSelect.value;
-        saveData();
+        await saveData();
         showNotification("Local backup reminder frequency updated.", "success");
       };
       backupReminderSelect.dataset.listenerAttached = "true";
@@ -255,10 +266,10 @@ function renderSettingsForm() {
     toggleHideCashCounter.checked = state.settings.hideCashCounter === true;
 
     if (!toggleHideCashCounter.dataset.listenerAttached) {
-      toggleHideCashCounter.onchange = () => {
+      toggleHideCashCounter.onchange = async () => {
         if (!state.settings) state.settings = {};
         state.settings.hideCashCounter = toggleHideCashCounter.checked;
-        saveData();
+        await saveData();
         if (typeof renderDashboard === "function") renderDashboard();
       };
       toggleHideCashCounter.dataset.listenerAttached = "true";
@@ -270,10 +281,10 @@ function renderSettingsForm() {
   if (toggleHideTotalPotential) {
     toggleHideTotalPotential.checked = state.settings.hideTotalPotential === true;
     if (!toggleHideTotalPotential.dataset.listenerAttached) {
-      toggleHideTotalPotential.onchange = () => {
+      toggleHideTotalPotential.onchange = async () => {
         if (!state.settings) state.settings = {};
         state.settings.hideTotalPotential = toggleHideTotalPotential.checked;
-        saveData();
+        await saveData();
         if (typeof renderDashboard === "function") renderDashboard();
       };
       toggleHideTotalPotential.dataset.listenerAttached = "true";
@@ -284,10 +295,10 @@ function renderSettingsForm() {
   if (toggleHideDebts) {
     toggleHideDebts.checked = state.settings.hideDebts === true;
     if (!toggleHideDebts.dataset.listenerAttached) {
-      toggleHideDebts.onchange = () => {
+      toggleHideDebts.onchange = async () => {
         if (!state.settings) state.settings = {};
         state.settings.hideDebts = toggleHideDebts.checked;
-        saveData();
+        await saveData();
         if (typeof renderDashboard === "function") renderDashboard();
       };
       toggleHideDebts.dataset.listenerAttached = "true";
@@ -298,10 +309,10 @@ function renderSettingsForm() {
   if (toggleHideInstallments) {
     toggleHideInstallments.checked = state.settings.hideInstallments === true;
     if (!toggleHideInstallments.dataset.listenerAttached) {
-      toggleHideInstallments.onchange = () => {
+      toggleHideInstallments.onchange = async () => {
         if (!state.settings) state.settings = {};
         state.settings.hideInstallments = toggleHideInstallments.checked;
-        saveData();
+        await saveData();
         if (typeof renderDashboard === "function") renderDashboard();
       };
       toggleHideInstallments.dataset.listenerAttached = "true";
@@ -372,12 +383,10 @@ function renderSettingsForm() {
         if (pin !== confirmPin) return showNotification("PINs do not match.", "error");
         if (!a) return showNotification("You must provide an answer to the security question.", "error");
         
-        if (!state.settings.appPin) state.settings.appPin = {};
-        state.settings.appPin.enabled = true;
-        state.settings.appPin.pin = await hashString(pin);
-        state.settings.appPin.question = q;
-        state.settings.appPin.answer = await hashString(a);
-        saveData();
+        const pinHash = await hashString(pin);
+        const answerHash = await hashString(a);
+        state.settings.appPin = { enabled: true, pin: pinHash, question: q, answer: answerHash };
+        await saveData();
         
         hideAllInlineForms();
         toggleAppPin.checked = true;
@@ -413,7 +422,7 @@ function renderSettingsForm() {
         if (newPin !== confirmPin) return showNotification("New PINs do not match.", "error");
         
         state.settings.appPin.pin = await hashString(newPin);
-        saveData();
+        await saveData();
         hideAllInlineForms();
         showNotification("PIN changed successfully.", "success");
       };
@@ -448,7 +457,7 @@ function renderSettingsForm() {
         
         state.settings.appPin.question = newQ;
         state.settings.appPin.answer = await hashString(newA);
-        saveData();
+        await saveData();
         if (inlineChangeQuestion) inlineChangeQuestion.classList.add("hidden");
         hideAllInlineForms();
         showNotification("Security Question updated.", "success");
@@ -475,7 +484,7 @@ function renderSettingsForm() {
         if (currentHash !== state.settings.appPin.pin) return showNotification("Incorrect current PIN.", "error");
         
         state.settings.appPin = { enabled: false };
-        saveData();
+        await saveData();
         hideAllInlineForms();
         toggleAppPin.checked = false;
         securityManagementOptions.classList.add("hidden");
@@ -486,6 +495,13 @@ function renderSettingsForm() {
     }
   }
   // --- END SECURITY PANEL UI INIT ---
+  for (const id of ["btnSavePinSetup", "btnSavePinChange", "btnSaveQuestionChange", "btnConfirmPinRemove"]) {
+    const button = document.getElementById(id);
+    if (button?.onclick && !button.dataset.storageGuard) {
+      button.onclick = guardStorageAction(button.onclick);
+      button.dataset.storageGuard = "true";
+    }
+  }
 
   const addCategoryForm = $("#addCategoryForm");
   if (addCategoryForm) {
@@ -555,7 +571,7 @@ function renderCategorySettingsList() {
   });
 }
 
-function toggleHiddenCategory(categoryName) {
+async function toggleHiddenCategory(categoryName) {
   if (!Array.isArray(state.hiddenCategories)) {
     state.hiddenCategories = [];
   }
@@ -567,7 +583,7 @@ function toggleHiddenCategory(categoryName) {
     state.hiddenCategories.push(categoryName);
   }
   
-  saveData();
+  await saveData();
   showNotification(`${categoryName} is now ${index > -1 ? "visible" : "hidden"}`, "success");
   renderCategorySettingsList();
   renderDashboard();
@@ -587,18 +603,18 @@ function toggleAdvancedRules() {
   }
 }
 
-function toggleHiddenRule(ruleKey) {
+async function toggleHiddenRule(ruleKey) {
   if (!state.settings) state.settings = {};
   if (!state.settings.hiddenCategoryRules) state.settings.hiddenCategoryRules = {};
   
   const checkbox = document.getElementById(`rule_${ruleKey}`);
   state.settings.hiddenCategoryRules[ruleKey] = checkbox.checked;
   
-  saveData();
+  await saveData();
   renderDashboard();
 }
 
-function renameCategory(buttonElement) {
+async function renameCategory(buttonElement) {
   const liElement = buttonElement.closest("li");
   const inputElement = liElement.querySelector('input[type="text"]');
   const newName = inputElement.value.trim();
@@ -650,7 +666,7 @@ function renameCategory(buttonElement) {
       });
     }
 
-    saveData();
+    await saveData();
     populateDropdowns();
     renderCategorySettingsList();
     renderDashboard();
@@ -668,7 +684,7 @@ function renameCategory(buttonElement) {
   }
 }
 
-function addCategory(event) {
+async function addCategory(event) {
   event.preventDefault();
   const input = $("#newCategoryName");
   const newCategoryName = input.value.trim();
@@ -690,14 +706,14 @@ function addCategory(event) {
   }
   state.categories.push(newCategoryName);
   state.categories.sort((a, b) => a.localeCompare(b));
-  saveData();
+  await saveData();
   populateDropdowns();
   renderCategorySettingsList();
   input.value = "";
   showNotification(`Category "${newCategoryName}" added.`, "success");
 }
 
-function deleteCategory(categoryName) {
+async function deleteCategory(categoryName) {
   if (categoryName === "Other") {
     showNotification("The 'Other' category cannot be deleted.", "warning");
     return;
@@ -729,7 +745,7 @@ function deleteCategory(categoryName) {
       // Removed clean up empty budgets to avoid silent deletion
     }
 
-    saveData();
+    await saveData();
     populateDropdowns();
     renderCategorySettingsList();
     if (typeof renderCategoryBudgets === "function") renderCategoryBudgets();
@@ -737,7 +753,7 @@ function deleteCategory(categoryName) {
   }
 }
 
-function handleManageAccountsSubmit(event) {
+async function handleManageAccountsSubmit(event) {
   event.preventDefault();
   const formData = new FormData(event.target);
   let changesMade = false;
@@ -814,7 +830,7 @@ function handleManageAccountsSubmit(event) {
     if (state.settings && !state.settings.initialSetupDone) {
       state.settings.initialSetupDone = true;
     }
-    saveData();
+    await saveData();
     renderDashboard();
     populateDropdowns();
     renderSettingsForm();
@@ -840,7 +856,7 @@ function handleManageAccountsSubmit(event) {
     });
     if (formattingChangeOnly && !changesMade) {
       // only save if it was just a formatting cleanup
-      saveData();
+      await saveData();
       renderDashboard();
       populateDropdowns();
       renderSettingsForm();
@@ -1115,7 +1131,7 @@ function renderBudgetsSettingsList() {
   }
 }
 
-function handleAddBudgetSubmit(event) {
+async function handleAddBudgetSubmit(event) {
   event.preventDefault();
   let nameInput = $("#addBudgetName").value.trim();
   const limitInput = parseAmountValue($("#addBudgetLimit").value);
@@ -1153,7 +1169,7 @@ function handleAddBudgetSubmit(event) {
   if (!state.budgets) state.budgets = [];
   state.budgets.push(newBudget);
   
-  saveData();
+  await saveData();
   renderBudgetsSettingsList();
   $("#addBudgetForm").reset();
   buildBudgetCategoryCheckboxes("addBudgetCategoriesContainer");
@@ -1175,7 +1191,7 @@ function openEditBudgetModal(budgetId) {
   openModalHelper("editBudgetModal");
 }
 
-function handleEditBudgetSubmit(event) {
+async function handleEditBudgetSubmit(event) {
   event.preventDefault();
   const id = $("#editBudgetId").value;
   let nameInput = $("#editBudgetName").value.trim();
@@ -1212,7 +1228,7 @@ function handleEditBudgetSubmit(event) {
       limit: roundToTwoDecimals(limitInput),
       categories: selectedCategories
     };
-    saveData();
+    await saveData();
     renderBudgetsSettingsList();
     closeModal("editBudgetModal");
     if (typeof renderCategoryBudgets === "function") renderCategoryBudgets();
@@ -1220,13 +1236,13 @@ function handleEditBudgetSubmit(event) {
   }
 }
 
-function deleteBudget(budgetId) {
+async function deleteBudget(budgetId) {
   const budget = state.budgets.find(b => b.id === budgetId);
   if (!budget) return;
   
   if (confirm(`Are you sure you want to delete the budget "${budget.name}"?`)) {
     state.budgets = state.budgets.filter(b => b.id !== budgetId);
-    saveData();
+    await saveData();
     renderBudgetsSettingsList();
     if (typeof renderCategoryBudgets === "function") renderCategoryBudgets();
     showNotification(`Budget deleted.`, "success");
@@ -1244,10 +1260,10 @@ setTimeout(() => {
   const sortSelect = $("#budgetSortOrderSelect");
   if (sortSelect) {
     sortSelect.value = state.settings?.budgetSortOrder || "added";
-    sortSelect.addEventListener("change", (e) => {
+    sortSelect.addEventListener("change", async (e) => {
       if (!state.settings) state.settings = {};
       state.settings.budgetSortOrder = e.target.value;
-      saveData();
+      await saveData();
       renderBudgetsSettingsList();
       if (typeof renderCategoryBudgets === "function") renderCategoryBudgets();
     });

@@ -4,6 +4,34 @@ Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed ne
 
 ---
 
+## v6.365n - 2026-10-21
+
+### 1. [Feature] IndexedDB Financial Storage
+
+Added a versioned local database with separate account, transaction, credit card, debt, receivable, installment, budget, category, settings, preference, and recovery stores. Records retain their existing IDs, ordering, balances, and monetary values. Financial updates now commit related records and modification metadata atomically, and forms wait for confirmation before clearing input or displaying success.
+
+### 2. [Feature] Verified Legacy Data Migration
+
+Existing installations receive a one-time upgrade screen. Continue requests persistent storage before copying data; denied requests allow explicit continuation or postponement. New installations use IndexedDB immediately. Migration stages a separate generation, verifies the reconstructed data with SHA-256, and activates it only after checking that the source and saved revision have not changed. The original localStorage data remains untouched as a frozen recovery copy.
+
+### 3. [Fix] Storage Failure Recovery and Concurrent Writes
+
+Unreadable or incompatible saved data now opens recovery instead of silently starting fresh. Added exports of readable recovery copies, PIN checks for protected copies, and confirmed backup restoration. Revision checks prevent stale windows or overlapping saves from overwriting newer data. Changes made by an older localStorage-only window are detected and retained for recovery. Explicit data deletion clears recovery data and uses a reset marker to prevent interrupted wipes from restoring old records.
+
+### 4. [Enhancement] Storage-Independent Local and Cloud Backups
+
+Exports and uploads reconstruct the existing Kaasi JSON object from a consistent committed snapshot. Imports and cloud restores validate and stage replacements while retaining the previous dataset. Cloud restores reject replacement when local data changes during download. Snapshot comparisons ignore object-key ordering, preventing false unsaved-change reports after database reconstruction. Supabase authentication and the existing cloud table format remain unchanged.
+
+### 5. [Maintenance] Coordinated Startup and Application Updates
+
+Database initialization now completes before financial UI and cloud restore initialization. Moved application-owned preferences and backup status away from direct localStorage access, added persistent-storage controls alongside storage usage, and reset stale modal navigation state on launch. Updated backup guidance to remove routine resets and re-imports. Versioned local assets and controlled service-worker activation reduce mixed-build updates. Updated application and cache versions to `v6.365n`.
+
+### 6. [Maintenance] Database Regression Tests and Developer Reference
+
+Added IndexedDB transaction tests for migration, interruption, quota/write failures, recovery, incompatible formats, persistence decisions, multiple tabs, backup compatibility, and 20,000-record datasets. Updated existing financial regressions for asynchronous saves and added an isolated legacy-to-current browser QA server. Documented schema, recovery, backup boundaries, and public rollout checks in `docs/INDEXEDDB_STORAGE.md`.
+
+Validation: all 45 automated tests pass. Browser checks confirmed postponement, persistence denial, migration of a 3,688-transaction dataset with identical exported values, successful saves across reload without another migration prompt, and restoration of the original dataset through local import. Live Supabase uploads, physical target browsers, and production service-worker update/offline behavior remain public-release verification requirements.
+
 ## v6.364n - 2026-10-21
 
 ### 1. [Fix] Preserve Payments When Deleting Credit Card Purchases

@@ -540,7 +540,7 @@ let monthlyOverviewChartInstance = null;
 
 
 
-function handleTransactionSubmit(event) {
+async function handleTransactionSubmit(event) {
   event.preventDefault();
   const form = event.target,
     formData = new FormData(form);
@@ -613,7 +613,7 @@ function handleTransactionSubmit(event) {
       state.transactions.push(feeTransaction);
     }
 
-    saveData();
+    await saveData();
     showNotification("Transfer successful.", "success");
     if (typeof trackEvent === "function") trackEvent("add_transfer", "Engagement");
 
@@ -685,7 +685,7 @@ function handleTransactionSubmit(event) {
   }
   if (isNaN(account.balance)) account.balance = 0;
 
-  saveData();
+  await saveData();
   showNotification(
     `${type.charAt(0).toUpperCase() + type.slice(1)} added.`,
     "success"
@@ -931,7 +931,7 @@ function openEditTransactionModal(transactionId, event) {
   }
 }
 
-function handleEditTransactionModalSubmit(event) {
+async function handleEditTransactionModalSubmit(event) {
   event.preventDefault();
   const form = event.target;
   const formData = new FormData(form);
@@ -1033,7 +1033,7 @@ function handleEditTransactionModalSubmit(event) {
     );
   }
 
-  saveData();
+  await saveData();
   renderDashboard();
   populateDropdowns();
   closeModal("formModal");
@@ -1065,7 +1065,7 @@ function deleteTransaction(id, event) {
     }"</strong> (${formatCurrency(transaction.amount)})?`,
     "Delete",
     "Cancel",
-    () => {
+    async () => {
       // onConfirm
       if (account) {
         if (transaction.type === "income") {
@@ -1081,7 +1081,7 @@ function deleteTransaction(id, event) {
       }
       const deletedDate = transaction.date;
       state.transactions.splice(transactionIndex, 1);
-      saveData();
+      await saveData();
       renderDashboard();
       populateDropdowns();
       showNotification("Transaction deleted.", "success");
@@ -2310,7 +2310,7 @@ function openCcHistoryModal() {
         </div>
     `;
 
-    openFormModal("Bulk CC Payment", formHtml, (e) => {
+    openFormModal("Bulk CC Payment", formHtml, async (e) => {
       e.preventDefault();
       const form = e.target;
       const formData = new FormData(form);
@@ -2372,7 +2372,7 @@ function openCcHistoryModal() {
         // Deduct from bank balance
         account.balance -= aggregateAmount;
         
-        saveData();
+        await saveData();
         renderFilteredCcList();
         renderCreditCardSection();
         renderDashboard();
@@ -2389,7 +2389,7 @@ function openCcHistoryModal() {
   openModalHelper("ccHistoryModal");
 }
 
-function handleCcTransactionSubmit(event) {
+async function handleCcTransactionSubmit(event) {
   event.preventDefault();
   const form = event.target,
     formData = new FormData(form);
@@ -2424,7 +2424,7 @@ function handleCcTransactionSubmit(event) {
     timestamp,
   };
   state.creditCard.transactions.push(newCcTransaction);
-  saveData();
+  await saveData();
   showNotification("CC transaction added.", "success");
   if (typeof trackEvent === "function") trackEvent("add_cc_transaction", "Engagement");
 
@@ -2478,7 +2478,7 @@ function openEditCcTransactionModal(ccTransactionId) {
   );
 }
 
-function handleEditCcTransactionModalSubmit(event) {
+async function handleEditCcTransactionModalSubmit(event) {
   event.preventDefault();
   const form = event.target;
   const formData = new FormData(form);
@@ -2528,7 +2528,7 @@ function handleEditCcTransactionModalSubmit(event) {
     transaction.paidOff = false;
   }
 
-  saveData();
+  await saveData();
   renderCreditCardSection();
 
   // If the history modal is open, just refresh its content
@@ -2562,10 +2562,10 @@ function deleteCcTransaction(transactionId) {
     )})?<br><br>Payments already recorded and account balances will be kept.`,
     "Delete",
     "Cancel",
-    () => {
+    async () => {
       // onConfirm
       state.creditCard.transactions.splice(transactionIndex, 1);
-      saveData();
+      await saveData();
       renderDashboard();
       renderCreditCardSection();
       if ($("#ccHistoryModal").style.display === "block") openCcHistoryModal();
@@ -2605,7 +2605,7 @@ function openAddDebtForm() {
     debtDueDateInput.value = `${year}-${month}-${day}`;
 }
 
-function handleAddDebtSubmit(event) {
+async function handleAddDebtSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
   const amount = parseAmountValue(form.get("debtAmount"));
@@ -2631,7 +2631,7 @@ function handleAddDebtSubmit(event) {
     return;
   }
   state.debts.push(newDebt);
-  saveData();
+  await saveData();
   renderDashboard(); // This will call renderDebtList which should use formatted values
   closeModal("formModal");
   showNotification("Debt added.", "success");
@@ -2661,7 +2661,7 @@ function openEditDebtForm(id) {
   );
 }
 
-function handleEditDebtSubmit(event) {
+async function handleEditDebtSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
   const id = form.get("editDebtId");
@@ -2696,7 +2696,7 @@ function handleEditDebtSubmit(event) {
   debt.timestamp = Date.now(); // Timestamp update is fine for edits if it signifies last modification
   debt.amount = debt.originalAmount; // Ensure 'amount' (if used elsewhere) matches originalAmount
 
-  saveData();
+  await saveData();
   renderDashboard();
   closeModal("formModal");
   showNotification("Debt updated.", "success");
@@ -2780,7 +2780,7 @@ function openPayDebtForm(debtId) {
   }
 }
 
-function handlePayDebtSubmit(event) {
+async function handlePayDebtSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
   const debtId = form.get("debtId");
@@ -2845,7 +2845,7 @@ function handlePayDebtSubmit(event) {
     }`;
   }
 
-  saveData();
+  await saveData();
   renderDashboard();
   populateDropdowns();
   closeModal("formModal");
@@ -2865,10 +2865,10 @@ function deleteDebt(debtId) {
     )})?<br><br>This removes the record only.`,
     "Delete",
     "Cancel",
-    () => {
+    async () => {
       // onConfirm
       state.debts = state.debts.filter((d) => d.id !== debtId);
-      saveData();
+      await saveData();
       renderDashboard();
       if ($("#debtsViewModal").style.display === "block") renderDebtList();
       showNotification("Debt entry deleted.", "success");
@@ -2960,7 +2960,7 @@ function toggleReceivableSourceAccount(type, groupId, selectId) {
   }
 }
 
-function handleAddReceivableSubmit(event) {
+async function handleAddReceivableSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
   const amount = parseAmountValue(form.get("recAmount"));
@@ -3021,7 +3021,7 @@ function handleAddReceivableSubmit(event) {
   }
 
   state.receivables.push(newRec);
-  saveData();
+  await saveData();
   renderDashboard();
   populateDropdowns();
   if (type === "cc") renderCreditCardSection(); // If it affects CC, re-render that section
@@ -3082,7 +3082,7 @@ function openEditReceivableForm(id) {
     );
 }
 
-function handleEditReceivableSubmit(event) {
+async function handleEditReceivableSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
   const id = form.get("editReceivableId");
@@ -3180,7 +3180,7 @@ function handleEditReceivableSubmit(event) {
   rec.timestamp = Date.now();
   rec.ccTransactionId = null; // Reset if type changed, or if it was never used for auto-creation
 
-  saveData();
+  await saveData();
   renderDashboard();
   populateDropdowns();
   if (rec.type === "cc" || oldType === "cc") renderCreditCardSection();
@@ -3259,7 +3259,7 @@ function openReceivePaymentForm(recId) {
   }
 }
 
-function handleReceivePaymentSubmit(event) {
+async function handleReceivePaymentSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
   const recId = form.get("recId");
@@ -3338,7 +3338,7 @@ function handleReceivePaymentSubmit(event) {
     )}.`;
   }
 
-  saveData();
+  await saveData();
   renderDashboard();
   populateDropdowns();
   closeModal("formModal");
@@ -3376,10 +3376,10 @@ function deleteReceivable(recId) {
     modalMessage,
     "Delete",
     "Cancel",
-    () => {
+    async () => {
       // onConfirm
       state.receivables = state.receivables.filter((r) => r.id !== recId);
-      saveData();
+      await saveData();
       renderDashboard();
       if ($("#receivablesViewModal").style.display === "block") {
         renderReceivableList();
@@ -3436,7 +3436,7 @@ function openAddInstallmentForm() {
   setupMaxMonthsValidation(totalMonthsInput, monthsLeftInput);
 }
 
-function handleAddInstallmentSubmit(event) {
+async function handleAddInstallmentSubmit(event) {
   event.preventDefault();
   const formData = new FormData(event.target);
   const fullAmount = parseAmountValue(formData.get("instFullAmount"));
@@ -3485,7 +3485,7 @@ function handleAddInstallmentSubmit(event) {
   }
 
   state.installments.push(newInstallment);
-  saveData();
+  await saveData();
   renderDashboard();
   closeModal("formModal");
   showNotification("Installment plan added.", "success");
@@ -3552,7 +3552,7 @@ function openEditInstallmentForm(id) {
   setupMaxMonthsValidation(totalMonthsInput, monthsLeftInput);
 }
 
-function handleEditInstallmentSubmit(event) {
+async function handleEditInstallmentSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
   const id = form.get("editInstallmentId");
@@ -3594,7 +3594,7 @@ function handleEditInstallmentSubmit(event) {
   inst.originalFullAmount = roundedFullAmount; // Update with new rounded full amount
   inst.timestamp = Date.now();
 
-  saveData();
+  await saveData();
   renderDashboard();
   closeModal("formModal");
   showNotification("Installment plan updated.", "success");
@@ -3640,8 +3640,8 @@ function payInstallmentMonth(installmentId) {
   const cancelBtn = document.getElementById("cancelInstallmentConfirmBtn");
 
   if (confirmBtn) {
-    confirmBtn.onclick = () => {
-      handleConfirmInstallmentPayment(installmentId);
+    confirmBtn.onclick = async () => {
+      await handleConfirmInstallmentPayment(installmentId);
       closeModal("formModal");
     };
   }
@@ -3652,7 +3652,7 @@ function payInstallmentMonth(installmentId) {
   }
 }
 
-function handleConfirmInstallmentPayment(installmentId) {
+async function handleConfirmInstallmentPayment(installmentId) {
   const installment = state.installments.find((i) => i.id === installmentId);
 
   if (!installment) {
@@ -3681,7 +3681,7 @@ function handleConfirmInstallmentPayment(installmentId) {
     notificationMessage = `Installment status updated for "${installment.description}". ${installment.monthsLeft} months remaining.`;
   }
 
-  saveData();
+  await saveData();
   renderDashboard();
   showNotification(notificationMessage, "success");
 }
@@ -3695,12 +3695,12 @@ function deleteInstallment(installmentId) {
     `Are you sure you want to delete the installment plan: <br><strong>"${escapeHTML(installment.description)}"</strong>?<br><br>This removes the record only.`,
     "Delete",
     "Cancel",
-    () => {
+    async () => {
       // onConfirm
       state.installments = state.installments.filter(
         (i) => i.id !== installmentId
       );
-      saveData();
+      await saveData();
       renderDashboard();
       showNotification("Installment plan deleted.", "success");
     }
@@ -3801,7 +3801,7 @@ function openPayCcItemForm(ccTransactionId) {
   }
 }
 
-function handlePayCcItemSubmit(event) {
+async function handlePayCcItemSubmit(event) {
   event.preventDefault();
   const form = new FormData(event.target);
   const ccItemId = form.get("ccItemId");
@@ -3876,7 +3876,7 @@ function handlePayCcItemSubmit(event) {
     }`;
   }
 
-  saveData();
+  await saveData();
   renderDashboard();
   renderCreditCardSection();
   populateDropdowns();
@@ -4242,12 +4242,12 @@ function renderCategoryBudgets() {
   // Handle Collapsed State
   const toggleBtn = $("#toggleBudgetsCardBtn");
   const headerEl = card.querySelector(".flex.justify-between.items-center");
-  const isCollapsed = localStorage.getItem("kaasi_collapseCategoryBudgets") === "true";
+  const isCollapsed = appPreferences.getItem("kaasi_collapseCategoryBudgets") === "true";
   
   const now = new Date();
   const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const isFirst5Days = now.getDate() <= 5;
-  const lastDismissed = localStorage.getItem("kaasi_lastDismissedBudgetTipMonth");
+  const lastDismissed = appPreferences.getItem("kaasi_lastDismissedBudgetTipMonth");
   const isDismissedForThisMonth = lastDismissed === currentMonthStr;
   const showTip = isFirst5Days && !isDismissedForThisMonth;
 
@@ -4294,9 +4294,9 @@ function renderCategoryBudgets() {
       const dismissBtn = $("#dismissBudgetTipBtn");
       if (dismissBtn) {
         dismissBtn.addEventListener("click", () => {
-          localStorage.setItem("kaasi_lastDismissedBudgetTipMonth", currentMonthStr);
+          appPreferences.setItem("kaasi_lastDismissedBudgetTipMonth", currentMonthStr);
           tipContainer.classList.add("hidden");
-          if (localStorage.getItem("kaasi_collapseCategoryBudgets") === "true" && headerEl) {
+          if (appPreferences.getItem("kaasi_collapseCategoryBudgets") === "true" && headerEl) {
             headerEl.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
             headerEl.classList.add("mb-0");
           }
@@ -4310,7 +4310,7 @@ function renderCategoryBudgets() {
   // Set up event listener if not already done
   if (toggleBtn && !toggleBtn.dataset.listenerAttached) {
     toggleBtn.addEventListener("click", () => {
-      const currentlyCollapsed = localStorage.getItem("kaasi_collapseCategoryBudgets") === "true";
+      const currentlyCollapsed = appPreferences.getItem("kaasi_collapseCategoryBudgets") === "true";
       const header = card.querySelector(".flex.justify-between.items-center");
       const tip = $("#categoryBudgetsTipContainer");
       const isTipVisible = tip && !tip.classList.contains("hidden");
@@ -4328,10 +4328,10 @@ function renderCategoryBudgets() {
         container.offsetHeight; // force reflow
         container.style.maxHeight = container.scrollHeight + "px";
         toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
-        localStorage.setItem("kaasi_collapseCategoryBudgets", "false");
+        appPreferences.setItem("kaasi_collapseCategoryBudgets", "false");
 
         const onTransitionEnd = () => {
-          if (localStorage.getItem("kaasi_collapseCategoryBudgets") === "false") {
+          if (appPreferences.getItem("kaasi_collapseCategoryBudgets") === "false") {
             container.style.maxHeight = "";
           }
           container.classList.remove("collapsible-transition");
@@ -4344,10 +4344,10 @@ function renderCategoryBudgets() {
         container.offsetHeight; // force reflow
         container.style.maxHeight = "0px";
         toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
-        localStorage.setItem("kaasi_collapseCategoryBudgets", "true");
+        appPreferences.setItem("kaasi_collapseCategoryBudgets", "true");
 
         const onTransitionEnd = () => {
-          if (localStorage.getItem("kaasi_collapseCategoryBudgets") === "true") {
+          if (appPreferences.getItem("kaasi_collapseCategoryBudgets") === "true") {
             if (header && !isTipVisible) {
               header.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
               header.classList.add("mb-0");

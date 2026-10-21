@@ -155,35 +155,36 @@ function prepareImportedData(input) {
   return candidate;
 }
 
-function applyImportedData(input) {
+async function applyImportedData(input, expectedRevision = KaasiStorage.revision) {
   if (isAppLocked()) throw new Error("Unlock the app before importing data.");
+  if (storageOperationPending) throw new Error("Wait for the current save before importing.");
   const candidate = sanitizeAndMergeImportedData(input);
-  const previousState = state;
-  const previousStored = localStorage.getItem(STORAGE_KEY);
-  const previousSnapshot = lastPersistedStateJson;
-  const previousModification = localStorage.getItem("lastLocalDataModification");
+  const previousState = JSON.parse(lastPersistedStateJson);
   const previousSyncStatus = window.currentCloudSyncStatus;
-  saveData(candidate);
+  storageOperationPending = true;
+  let activated = false;
   try {
+    await KaasiStorage.replace(candidate, expectedRevision);
+    activated = true;
+    state = candidate;
+    lastPersistedStateJson = JSON.stringify(candidate);
     initializeUI(true);
+    appPreferences.setItem("lastLocalDataModification", Date.now().toString());
+    window.currentCloudSyncStatus = "local_newer";
   } catch (error) {
-    state = previousState;
-    lastPersistedStateJson = previousSnapshot;
-    try {
-      if (previousStored === null) localStorage.removeItem(STORAGE_KEY);
-      else localStorage.setItem(STORAGE_KEY, previousStored);
-    } catch (rollbackError) {
-      showNotification("Import could not finish or restore device storage. Your previous data is in memory; export a local backup now.", "error", 15000);
-      throw rollbackError;
+    if (activated) {
+      try {
+        await KaasiStorage.replace(previousState);
+        state = previousState;
+        lastPersistedStateJson = JSON.stringify(previousState);
+        window.currentCloudSyncStatus = previousSyncStatus;
+        try { initializeUI(true); } catch (_) { /* Recovery screen remains available. */ }
+      } catch (rollbackError) {
+        showStorageFailure(new Error("Import could not finish. The previous dataset is retained in recovery. Do not reset storage."));
+      }
     }
-    window.currentCloudSyncStatus = previousSyncStatus;
-    try {
-      if (previousModification === null) localStorage.removeItem("lastLocalDataModification");
-      else localStorage.setItem("lastLocalDataModification", previousModification);
-    } catch (metadataError) {
-      console.warn("Previous financial data restored; backup status metadata could not be restored.", metadataError);
-    }
-    try { initializeUI(true); } catch (_) { /* Preserve the original failure. */ }
     throw error;
+  } finally {
+    storageOperationPending = false;
   }
 }

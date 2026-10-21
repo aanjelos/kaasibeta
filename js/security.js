@@ -199,7 +199,7 @@ function showForgotPinModal() {
     if (answerHash === expectedAnswerHash) {
       // Correct! Unlock app and remove PIN
       state.settings.appPin = { enabled: false };
-      saveData();
+      await saveData();
       closeModal("securityQuestionModal");
       onAppUnlocked();
       showNotification("App unlocked. PIN has been disabled.", "success");
@@ -253,7 +253,7 @@ async function verifyRecoveryCode() {
       recoveryCodeFailedAttempts = 0;
       recoveryCodeLockoutUntil = 0;
       state.settings.appPin = { enabled: false };
-      saveData();
+      await saveData();
       closeModal("securityQuestionModal");
       inputEl.value = "";
       onAppUnlocked();

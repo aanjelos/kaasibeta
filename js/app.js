@@ -25,7 +25,7 @@ function initializeUI(isRefresh = false) {
     state.settings.initialSetupDone === false
   ) {
     if (!isRefresh) {
-      if (localStorage.getItem("pendingCloudRestore") === "true") {
+      if (appPreferences.getItem("pendingCloudRestore") === "true") {
         console.log("Pending cloud restore detected. Skipping initial render and waiting for restore...");
         return;
       }
@@ -601,7 +601,7 @@ function initializeUI(isRefresh = false) {
     shortcutTargetGroup.onchange = (e) => {
       if (e.target.name === "shortcutTarget") {
         console.log(`Shortcut target changed to: ${e.target.value}`);
-        localStorage.setItem("preferredSyncMethod", e.target.value);
+        appPreferences.setItem("preferredSyncMethod", e.target.value);
         updateHeaderShortcutButtons();
       }
     };
@@ -918,8 +918,14 @@ let lastCloudSyncTimeString = "";
 
 // --- END NEW SUPABASE FUNCTIONS ---
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   console.log("DOM Loaded. Initializing...");
+  document.getElementById("app-content").inert = true;
+  try { await startLocalStorage(); }
+  catch (error) { showStorageFailure(error); return; }
+  // Reload starts with no open dialogs, even if the previous page had pushed
+  // modal navigation entries before it was refreshed.
+  history.replaceState({ openModals: [] }, "", location.href);
   loadData(); // Load existing data or set up default state
   
   if (state.settings && state.settings.appPin && state.settings.appPin.enabled) {
@@ -936,6 +942,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     showPinLockScreen();
   } else {
+    document.getElementById("app-content").inert = false;
     initializeUI(); // Set up all initial UI elements, event listeners, and render initial views
     initializeGlobalTooltips(); // Initialize the global tooltip handler
     if (typeof executePreloaderSequence === "function") executePreloaderSequence();
@@ -1029,7 +1036,7 @@ window.executePreloaderSequence = function() {
   }
 
   if (preloaderElement && appContentElement) {
-    if (localStorage.getItem("pendingCloudRestore") === "true") {
+    if (appPreferences.getItem("pendingCloudRestore") === "true") {
       console.log("Pending cloud restore detected. Keeping preloader visible until restore completes.");
       // We attach a global helper to hide it later when restore finishes
       window.hidePreloader = () => {
@@ -1084,6 +1091,20 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("sw.js").then((reg) => {
       console.log("Service Worker registered successfully.", reg);
+      const offerUpdate = () => {
+        if (!reg.waiting) return;
+        const button = document.createElement("button");
+        button.type = "button"; button.className = "btn btn-secondary"; button.textContent = "Update Kaasi";
+        button.onclick = async () => {
+          if (storageOperationPending) return showNotification("Wait for your save to finish before updating.", "info");
+          await appPreferences.flush();
+          navigator.serviceWorker.addEventListener("controllerchange", () => location.reload(), { once: true });
+          reg.waiting.postMessage("KAASI_APPLY_UPDATE");
+        };
+        document.querySelector("footer")?.appendChild(button);
+      };
+      offerUpdate();
+      reg.addEventListener("updatefound", () => reg.installing?.addEventListener("statechange", offerUpdate));
     }).catch((err) => {
       console.error("Service Worker registration failed:", err);
     });

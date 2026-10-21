@@ -67,11 +67,11 @@ function trackEvent(action, category = "Engagement", label = "") {
 
 // Device-Specific Settings
 function getDeviceTheme() {
-  return localStorage.getItem("kaasi_device_theme") || "dark";
+  return appPreferences.getItem("kaasi_device_theme") || "dark";
 }
 
 function setDeviceTheme(theme) {
-  localStorage.setItem("kaasi_device_theme", theme);
+  appPreferences.setItem("kaasi_device_theme", theme);
 }
 
 
@@ -112,12 +112,12 @@ function getCurrentDateString() {
 }
 
 function getFormattedLocalStorageSize(key) {
-  const item = localStorage.getItem(key);
+  const item = lastPersistedStateJson;
   if (item === null) {
     return "N/A (No data found)";
   }
 
-  const sizeInBytes = item.length;
+  const sizeInBytes = new TextEncoder().encode(item).length;
 
   if (sizeInBytes < 1024) {
     return `${sizeInBytes} Bytes`;
@@ -449,7 +449,7 @@ function openInitialSetupWizard() {
   displayAppVersion();
 }
 
-function handleInitialSetupSubmit(event, tempSetupAccounts) {
+async function handleInitialSetupSubmit(event, tempSetupAccounts) {
   event.preventDefault();
   console.log("Handling initial setup form submission...");
   for (const account of tempSetupAccounts) {
@@ -522,7 +522,7 @@ function handleInitialSetupSubmit(event, tempSetupAccounts) {
       : getDefaultState().categories;
   newState.settings.initialSetupDone = true;
   state = newState;
-  saveData();
+  await saveData();
   closeModal("initialSetupModal");
   initializeUI(true);
   showNotification("Setup complete! Welcome to Kaasi.", "success", 5000);
@@ -534,13 +534,13 @@ function handleSetupImport(event) {
 
   console.log("Importing data from setup wizard...");
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = async (e) => {
     let importedData;
     try {
       importedData = JSON.parse(e.target.result);
       if (importedData && typeof importedData === "object") {
         console.log("USING SHARED SANITIZE FUNCTION IN GLOBALS.JS");
-        applyImportedData(importedData);
+        await applyImportedData(importedData);
         closeModal("initialSetupModal");
         showNotification(
           "Data imported and sanitized successfully from setup wizard!",
@@ -599,6 +599,10 @@ function restoreStateSnapshot(current, saved) {
 
 function generateDataHash(str) {
   if (!str) return null;
+  // Object-store reconstruction may change object-key order without changing data.
+  if (typeof KaasiStorage !== "undefined" && KaasiStorage.canonical) {
+    try { str = KaasiStorage.canonical(JSON.parse(str)); } catch (_) { /* Non-JSON metadata retains its original representation. */ }
+  }
   let hash = 0;
   for (let i = 0, len = str.length; i < len; i++) {
     let chr = str.charCodeAt(i);
@@ -608,193 +612,37 @@ function generateDataHash(str) {
   return hash.toString();
 }
 
-function saveData(nextState = state) {
+async function saveData(nextState = state) {
+  if (storageOperationPending) throw new Error("A save is already in progress. Please wait.");
+  storageOperationPending = true;
   let serialized;
   try {
     serialized = JSON.stringify(nextState);
-    localStorage.setItem(STORAGE_KEY, serialized);
+    await KaasiStorage.commit(JSON.parse(serialized), { lastLocalDataModification: Date.now().toString() });
   } catch (cause) {
     if (lastPersistedStateJson !== null) state = restoreStateSnapshot(state, JSON.parse(lastPersistedStateJson));
     const error = new Error(cause.name === "QuotaExceededError"
-      ? "Changes were not saved: device storage is full. Your last saved data is unchanged. Free space or export a backup and try again."
-      : "Changes were not saved. Your last saved data is unchanged. Please retry or export a backup.");
+      ? "Changes were not saved: device storage is full. Your last saved data is unchanged. Export a backup and free space before retrying."
+      : cause.name === "KaasiConflictError" ? cause.message : "Changes were not saved. Your last saved data is unchanged. Please retry or export a backup.");
     error.kaasiSaveFailure = true;
     showNotification(error.message, "error", 10000);
-    throw error; // Stop callers before resetting forms, closing dialogs, or claiming success.
+    if (cause.name === "KaasiConflictError") showStorageFailure(cause);
+    throw error;
+  } finally {
+    storageOperationPending = false;
   }
   state = nextState;
   lastPersistedStateJson = serialized;
-  try {
-    localStorage.setItem("lastLocalDataModification", Date.now().toString());
-    
-
-    // Update window.currentCloudSyncStatus to local_newer immediately
-    const lastLocalCloudSync = parseInt(localStorage.getItem("lastLocalCloudSync") || "0", 10);
-    const lastLocalDataModification = Date.now();
-    if (lastLocalDataModification > lastLocalCloudSync + 2000) {
-      const currentDataStr = localStorage.getItem(STORAGE_KEY);
-      const currentHash = generateDataHash(currentDataStr);
-      const syncedHash = localStorage.getItem("kaasi_synced_state_hash");
-
-      if (currentHash && syncedHash && currentHash === syncedHash) {
-        // Data is identical to what was last synced!
-        if (window.currentCloudSyncStatus === "local_newer") {
-          window.currentCloudSyncStatus = "synced";
-        }
-      } else {
-        window.currentCloudSyncStatus = "local_newer";
-      }
-    }
-    if (typeof updateHeaderShortcutButtons === "function") {
-      updateHeaderShortcutButtons();
-    }
-
-    
-    console.log("Data saved successfully.");
-  } catch (e) {
-    // The financial record was saved; failure of optional sync metadata must not undo it.
-    console.error("Data saved, but backup status could not be updated:", e);
-    showNotification("Data saved locally, but backup status could not be updated.", "warning", 7000);
-  }
+  const syncedHash = appPreferences.getItem("kaasi_synced_state_hash");
+  window.currentCloudSyncStatus = syncedHash && generateDataHash(serialized) === syncedHash ? "synced" : "local_newer";
+  if (typeof updateHeaderShortcutButtons === "function") updateHeaderShortcutButtons();
   return true;
 }
 
 function loadData() {
-  const d = localStorage.getItem(STORAGE_KEY);
-  let parsedData = null;
-
-  if (d) {
-    console.log("Uncompressed data found. Attempting to parse...");
-    try {
-      parsedData = JSON.parse(d);
-    } catch (e) {
-      console.error("Error parsing data from localStorage:", e);
-
-      showNotification(
-        "Error loading data. Data might be corrupted. Starting fresh.",
-        "error",
-        8000
-      );
-    }
-  }
-
-  state = getDefaultState();
-
-  if (parsedData && typeof parsedData === "object") {
-    console.log("Merging loaded data into default state structure...");
-
-    state = deepMerge(state, parsedData);
-    console.log("Data merged successfully.");
-  } else if (d && !parsedData) {
-    console.log(
-      "Previous data existed but was unparsable. Using fresh default state."
-    );
-  } else {
-    console.log(
-      "No saved data found or data was null/invalid. Starting with fresh default state."
-    );
-  }
-
-  const defaultStateTemplate = getDefaultState();
-
-  if (!state.settings || typeof state.settings !== "object") {
-    console.warn(
-      "State.settings was missing or invalid after merge. Resetting to default settings structure."
-    );
-    state.settings = { ...defaultStateTemplate.settings };
-  } else {
-    for (const settingKey in defaultStateTemplate.settings) {
-      if (state.settings[settingKey] === undefined) {
-        state.settings[settingKey] = defaultStateTemplate.settings[settingKey];
-      }
-    }
-    
-    // Ensure hiddenCategoryRules is initialized
-    if (!state.settings.hiddenCategoryRules || typeof state.settings.hiddenCategoryRules !== "object") {
-      state.settings.hiddenCategoryRules = { ...defaultStateTemplate.settings.hiddenCategoryRules };
-    } else {
-      for (const rule in defaultStateTemplate.settings.hiddenCategoryRules) {
-        if (state.settings.hiddenCategoryRules[rule] === undefined) {
-          state.settings.hiddenCategoryRules[rule] = defaultStateTemplate.settings.hiddenCategoryRules[rule];
-        }
-      }
-    }
-  }
-
-  if (!state.creditCard || typeof state.creditCard !== "object") {
-    console.warn(
-      "State.creditCard was missing or invalid after merge. Resetting to default creditCard structure."
-    );
-    state.creditCard = { ...defaultStateTemplate.creditCard };
-    if (!Array.isArray(state.creditCard.transactions)) {
-      state.creditCard.transactions = [];
-    }
-  } else {
-    for (const ccKey in defaultStateTemplate.creditCard) {
-      if (state.creditCard[ccKey] === undefined) {
-        state.creditCard[ccKey] = defaultStateTemplate.creditCard[ccKey];
-      }
-    }
-    if (!Array.isArray(state.creditCard.transactions)) {
-      state.creditCard.transactions = [];
-    }
-  }
-
-  if (!Array.isArray(state.hiddenCategories)) {
-    state.hiddenCategories = [];
-  }
-  
-  if (state.categorySettings !== undefined) {
-    delete state.categorySettings; // Cleanup old state structure
-  }
-
-  if (!Array.isArray(state.transactions)) state.transactions = [];
-  if (!Array.isArray(state.accounts)) state.accounts = [];
-  if (!Array.isArray(state.categories)) state.categories = [];
-  if (!Array.isArray(state.debts)) state.debts = [];
-  if (!Array.isArray(state.receivables)) state.receivables = [];
-  if (!Array.isArray(state.installments)) state.installments = [];
-  if (!Array.isArray(state.budgets)) state.budgets = [];
-
-  ensureDefaultAccounts();
-  ensureDefaultCategories();
-
-  state.accounts.forEach((a) => {
-    if (isNaN(a.balance) || typeof a.balance !== "number") a.balance = 0;
-  });
-
-  if (
-    isNaN(state.creditCard.limit) ||
-    typeof state.creditCard.limit !== "number"
-  )
-    state.creditCard.limit = 0;
-  state.creditCard.transactions.forEach((t) => {
-    if (t.paidAmount === undefined || typeof t.paidAmount !== "number")
-      t.paidAmount = 0;
-    if (t.paidOff === undefined) t.paidOff = t.paidAmount >= t.amount - 0.005;
-    if (!t.timestamp) t.timestamp = new Date(t.date).getTime();
-  });
-
-  state.transactions.forEach((t) => {
-    if (!t.timestamp) t.timestamp = new Date(t.date).getTime();
-  });
-
-  state.debts.forEach((item) => {
-    if (!item.timestamp) item.timestamp = new Date(item.dueDate).getTime();
-    if (item.originalAmount === undefined) item.originalAmount = item.amount;
-  });
-
-  state.receivables.forEach((item) => {
-    if (!item.timestamp) item.timestamp = new Date(item.dateGiven).getTime();
-    if (item.originalAmount === undefined) item.originalAmount = item.amount;
-  });
-
-  state.installments.forEach((item) => {
-    if (!item.timestamp) item.timestamp = new Date(item.startDate).getTime();
-  });
-
+  if (!KaasiStorage.ready) throw new Error("Local data is not ready. Complete storage initialization first.");
+  state = KaasiStorage.current;
   lastPersistedStateJson = JSON.stringify(state);
-  console.log("Data loaded and integrity checks completed.");
 }
 
 function deepMerge(target, source) {
