@@ -130,7 +130,7 @@ test('storage protection retains its backup reminder on reopen and ignores an ou
   for (const name of ['renderSettingsForm','setupSettingsTabs','setupAppearanceListeners','renderBudgetsSettingsList','buildBudgetCategoryCheckboxes','openModalHelper','cancelDeleteAllData','displayAppVersion']) c[name] = () => {};
   c.navigator.storage = { persisted: async () => true, persist: async () => true };
   for (let attempt = 0; attempt < 2; attempt++) {
-    c.openSettingsModal(); await Promise.resolve();
+    c.openSettingsModal(); await new Promise(setImmediate);
     assert.equal(r.element('#persistenceStatus').textContent, 'Persistent storage is enabled. External backups are still important.');
     assert.equal(r.element('#requestPersistenceBtn').disabled, true);
     assert.equal(r.element('#requestPersistenceBtn').textContent, 'Protection Enabled');
@@ -139,12 +139,49 @@ test('storage protection retains its backup reminder on reopen and ignores an ou
   let finishCheck;
   c.navigator.storage.persisted = () => new Promise(resolve => finishCheck = resolve);
   c.openSettingsModal(); await r.element('#requestPersistenceBtn').onclick();
-  finishCheck(false); await Promise.resolve();
+  finishCheck(false); await new Promise(setImmediate);
   assert.match(r.element('#persistenceStatus').textContent, /enabled\. External backups are still important\./);
   assert.equal(r.element('#requestPersistenceBtn').disabled, true);
   c.KaasiStorage.mode = 'legacy'; c.openSettingsModal();
   assert.match(r.element('#storageSizeInfo').textContent, /\(localStorage\)$/);
   assert.equal(r.element('#storageProtectionSection').hidden, true);
+});
+
+test('storage protection refreshes after revocation on focus, visibility, Data tab, and modal reopen', async () => {
+  const r = runtime(); const c = r.context;
+  for (const name of ['renderSettingsForm','setupSettingsTabs','setupAppearanceListeners','renderBudgetsSettingsList','buildBudgetCategoryCheckboxes','openModalHelper','cancelDeleteAllData','displayAppVersion']) c[name] = () => {};
+  let granted=true, requests=0, checks=0;
+  c.navigator.storage={persisted:async()=>{checks++;return granted;},persist:async()=>{requests++;return true;}};
+  r.element('#settingsModal').style.display='block';c.document.visibilityState='visible';
+  c.openSettingsModal();await new Promise(setImmediate);
+  assert.equal(r.element('#requestPersistenceBtn').textContent,'Protection Enabled');
+  granted=false;
+  for(const fn of r.windowEvents.get('focus'))fn();await new Promise(setImmediate);
+  assert.equal(r.element('#requestPersistenceBtn').disabled,false);
+  assert.equal(r.element('#requestPersistenceBtn').textContent,'Protect Local Storage');
+  assert.equal(r.element('#persistenceStatus').textContent,'Persistent storage is not enabled.');
+  granted=true;
+  for(const fn of r.documentEvents.get('visibilitychange'))fn();await new Promise(setImmediate);
+  assert.equal(r.element('#requestPersistenceBtn').disabled,true);
+  granted=false;c.switchSettingsTab(new Element(),'settingsDataManagementPanel');await new Promise(setImmediate);
+  assert.equal(r.element('#requestPersistenceBtn').disabled,false);
+  granted=true;c.openSettingsModal();await new Promise(setImmediate);
+  assert.equal(r.element('#requestPersistenceBtn').textContent,'Protection Enabled');
+  assert.equal(requests,0,'status checks never request permission');
+  const count=checks;r.element('#settingsModal').style.display='none';
+  for(const fn of r.windowEvents.get('focus'))fn();assert.equal(checks,count);
+  r.element('#settingsModal').style.display='block';c.document.visibilityState='hidden';
+  c.refreshVisibleStorageProtection();assert.equal(checks,count);
+});
+
+test('a delayed protection check cannot overwrite a newer refresh result', async () => {
+  const r=runtime(),c=r.context;let finish;
+  c.navigator.storage={persist:async()=>true,persisted:()=>new Promise(resolve=>finish=resolve)};
+  const old=c.refreshStorageProtection();
+  c.navigator.storage.persisted=async()=>false;await c.refreshStorageProtection();
+  finish(true);await old;
+  assert.equal(r.element('#requestPersistenceBtn').textContent,'Protect Local Storage');
+  assert.equal(r.element('#requestPersistenceBtn').disabled,false);
 });
 
 test('strict calculator evaluates supported operations and rejects partial/invalid expressions', () => {

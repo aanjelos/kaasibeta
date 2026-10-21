@@ -1,4 +1,4 @@
-const BUILD = "v6.369n";
+const BUILD = "v6.370n";
 const CACHE_NAME = `kaasi-cache-${BUILD}`;
 const STATIC_ASSETS = [
   "./",

@@ -22,12 +22,20 @@ function openSettingsModal() {
   openModalHelper("settingsModal");
   cancelDeleteAllData();
   displayAppVersion();
+  refreshStorageProtection();
+}
+
+let storageProtectionCheck = 0;
+let storageProtectionRequestPending = false;
+
+async function refreshStorageProtection() {
   const persistButton = $("#requestPersistenceBtn");
   if (persistButton) {
     $("#storageProtectionSection").hidden = KaasiStorage.mode !== "indexeddb";
     persistButton.hidden = KaasiStorage.mode !== "indexeddb";
     const canRequest = typeof navigator.storage?.persist === "function";
-    let requestStarted = false;
+    if (storageProtectionRequestPending) return;
+    const check = ++storageProtectionCheck;
     const renderProtection = (granted, message) => {
       persistButton.disabled = granted || !canRequest;
       persistButton.textContent = granted ? "Protection Enabled" : "Protect Local Storage";
@@ -37,20 +45,33 @@ function openSettingsModal() {
     };
     renderProtection(false, "Checking storage protection…");
     persistButton.onclick = async () => {
-      requestStarted = true;
+      if (storageProtectionRequestPending) return;
+      storageProtectionRequestPending = true;
+      ++storageProtectionCheck;
       persistButton.disabled = true;
       try {
         const granted = await navigator.storage.persist();
         renderProtection(granted, "Persistent storage was not granted. Your data remains saved; keep external backups.");
       } catch (_) { renderProtection(false, "Persistent storage is unavailable in this browser. Keep external backups."); }
+      finally { storageProtectionRequestPending = false; }
     };
     if (navigator.storage?.persisted) {
-      navigator.storage.persisted().then(granted => {
-        if (!requestStarted) renderProtection(granted);
-      }).catch(() => { if (!requestStarted) renderProtection(false, "Storage protection could not be checked. Keep external backups."); });
+      try {
+        const granted = await navigator.storage.persisted();
+        if (check === storageProtectionCheck) renderProtection(granted);
+      } catch (_) {
+        if (check === storageProtectionCheck) renderProtection(false, "Storage protection could not be checked. Keep external backups.");
+      }
     } else renderProtection(false);
   }
 }
+
+function refreshVisibleStorageProtection() {
+  if (document.visibilityState === "hidden" || $("#settingsModal")?.style.display !== "block") return;
+  refreshStorageProtection();
+}
+window.addEventListener("focus", refreshVisibleStorageProtection);
+document.addEventListener("visibilitychange", refreshVisibleStorageProtection);
 
 function renderSettingsForm() {
   const accountManagementList = $("#accountManagementList");
@@ -998,6 +1019,7 @@ function switchSettingsTab(clickedButton, targetPanelId) {
   }
 
   activeSettingsTab = { button: clickedButton, panelId: targetPanelId };
+  if (targetPanel?.querySelector("#requestPersistenceBtn")) refreshStorageProtection();
 }
 
 

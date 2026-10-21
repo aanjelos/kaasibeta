@@ -4,6 +4,14 @@ Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed ne
 
 ---
 
+## v6.370n - 2026-10-21
+
+### 1. [Fix] Refresh Storage Protection After Browser Permission Changes
+
+Storage protection is rechecked when Settings opens, when its Data tab is selected, and when an open Settings dialog regains browser focus or visibility. Revoked permission restores the **Protect Local Storage** action and disabled-protection status. Enabled protection continues to display the external-backup reminder. Status checks never request permission; only the explicit button does. Sequence checks prevent delayed results from overriding newer checks or permission requests, and focus/visibility listeners are registered once.
+
+Validation: regression coverage includes permission revocation and restoration, modal reopening, Data-tab selection, hidden/closed dialogs, permission-request isolation, and delayed check results. Updated application and service-worker versions to `v6.370n`.
+
 ## v6.369n - 2026-10-21
 
 ### 1. [Fix] Export Divergent Legacy Data During Recovery
