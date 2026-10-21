@@ -273,6 +273,69 @@ test('cloud backup keeps the existing JSON object shape and recognizes unchanged
   assert.equal(e.run('appPreferences.getItem("kaasi_synced_state_hash")'),e.context.generateDataHash(e.run('lastPersistedStateJson')));
 });
 
+test('recovery offers changed legacy data separately and enforces its own PIN',async()=>{
+  const e=environment();const original=legacy(e);await e.initialize();
+  assert.equal((await e.db.recoverySources()).filter(s=>s.raw).length,1);
+  const changed=copy(original);changed.accounts[0].balance=7777;
+  changed.settings.appPin={enabled:true,pin:await e.context.hashString('1234')};
+  const raw=JSON.stringify(changed);e.data.set('KaasiData',raw);
+  const sources=await e.db.recoverySources();
+  const extra=sources.find(s=>s.label==='Changed localStorage copy');
+  assert.deepEqual(copy(extra.value),changed);assert.equal(extra.raw,raw);
+  assert.deepEqual(copy(sources.find(s=>s.label==='Original migration copy').value),original);
+  e.element('storageRecoveryPin').value='0000';assert.equal(await e.context.authorizeStorageRecovery(extra.value),false);
+  e.element('storageRecoveryPin').value='1234';assert.equal(await e.context.authorizeStorageRecovery(extra.value),true);
+  assert.deepEqual(copy(await e.db.snapshot()),original);assert.equal(e.data.get('KaasiData'),raw);
+});
+
+test('stale reset rejects without deleting newer records, preferences, or recovery copies',async()=>{
+  const a=environment();legacy(a);await a.initialize();const b=environment(a);await b.initialize();
+  const next=await b.db.snapshot();next.accounts[0].balance=999;
+  await b.db.commit(next,{lastLocalDataModification:'new'});
+  const raw=a.data.get('KaasiData');
+  await assert.rejects(a.db.clear(),/Reload before deleting/);
+  assert.deepEqual(copy(await b.db.snapshot()),copy(next));assert.equal(a.data.get('KaasiData'),raw);
+  assert.equal((await rawStore(b,'deviceSettings','lastLocalDataModification')).value,'new');
+  assert.ok(await rawStore(b,'recovery','legacy'));
+  await b.db.clear();assert.equal(await rawStore(b,'datasets','local'),undefined);
+});
+
+test('postponed migration serializes simultaneous tab saves and rejects stale reset',async()=>{
+  const a=environment();legacy(a);await a.initialize(()=> 'later');
+  const b=environment(a);await b.initialize(()=> 'later');
+  const first=await a.db.snapshot(),second=await b.db.snapshot();
+  first.accounts[0].balance=100;second.accounts[0].balance=200;
+  const results=await Promise.allSettled([a.db.commit(first),b.db.commit(second)]);
+  assert.equal(results.filter(r=>r.status==='fulfilled').length,1);
+  const loser=results[0].status==='rejected'?a:b;
+  const saved=a.data.get('KaasiData');
+  await assert.rejects(loser.db.clear(),/Reload before retrying/);assert.equal(a.data.get('KaasiData'),saved);
+  const reopen=environment(a);await reopen.initialize(()=> 'later');
+  const next=await reopen.db.snapshot();next.accounts[0].balance=300;
+  await reopen.db.commit(next);assert.equal(JSON.parse(a.data.get('KaasiData')).accounts[0].balance,300);
+  await reopen.db.clear();assert.equal(a.data.has('KaasiData'),false);
+});
+
+test('postponed tabs cannot save or reset after another tab migrates',async()=>{
+  const a=environment();legacy(a);await a.initialize(()=> 'later');
+  const b=environment(a);await b.initialize();const migrated=await b.db.snapshot();
+  await assert.rejects(a.db.commit(a.db.current),/changed or upgraded/);
+  await assert.rejects(a.db.clear(),/changed or upgraded/);
+  assert.deepEqual(copy(await b.db.snapshot()),copy(migrated));
+});
+
+test('legacy saves preserve data on quota failure and reject an outdated restore revision',async()=>{
+  const e=environment();legacy(e);await e.initialize(()=> 'later');
+  const before=e.data.get('KaasiData');const next=await e.db.snapshot();next.accounts[0].balance=123;
+  const set=e.localStorage.setItem;
+  e.localStorage.setItem=()=>{throw new DOMException('Full disk','QuotaExceededError');};
+  await assert.rejects(e.db.commit(next),/Full disk/);assert.equal(e.data.get('KaasiData'),before);
+  e.localStorage.setItem=set;
+  const revision=e.db.revision;await e.db.commit(next);
+  await assert.rejects(e.db.replace(JSON.parse(before),revision),/Reload before restoring/);
+  assert.equal(JSON.parse(e.data.get('KaasiData')).accounts[0].balance,123);
+});
+
 test('a blocked schema upgrade reports recovery instead of waiting silently or deleting the database',async()=>{
   const e=environment();await e.initialize();
   const foreign=await new Promise(resolve=>{const req=e.factory.open('kaasi-finances',1);req.onsuccess=()=>resolve(req.result);});

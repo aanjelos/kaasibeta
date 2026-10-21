@@ -4,6 +4,22 @@ Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed ne
 
 ---
 
+## v6.369n - 2026-10-21
+
+### 1. [Fix] Export Divergent Legacy Data During Recovery
+
+Recovery now offers a separate **Changed localStorage copy** when an older application window has modified the legacy data after migration. Identical copies are not listed twice. Each export retains its own PIN authorization; the current database and original migration snapshot remain unchanged.
+
+### 2. [Fix] Reject Deletion From Stale Windows
+
+Delete All Data checks the active dataset revision and generation inside the same transaction that clears IndexedDB. A stale window must reload before deleting data, preserving newer records, device settings, and recovery copies even when cross-window notifications are unavailable.
+
+### 3. [Fix] Coordinate Saves While Migration Is Postponed
+
+Updated windows serialize legacy financial saves and resets through short IndexedDB transactions. Each operation checks that the localStorage source is unchanged and that no migration, active database, or reset has superseded it. Stale operations are rejected instead of overwriting another window's work. Legacy saves also advance the local revision so a delayed cloud restore cannot replace intervening edits. Multiple windows may remain open; older application builds that do not implement coordination must still be closed before migration.
+
+Validation: all 60 automated tests pass, including simultaneous legacy saves, stale resets, migration in another window, quota failure, delayed restore rejection, recovery PIN checks, and the existing 20,000-record migration test. Updated application and service-worker versions to `v6.369n`.
+
 ## v6.368n - 2026-10-21
 
 ### 1. [Fix] Preserve Modals After Text-Selection Drags

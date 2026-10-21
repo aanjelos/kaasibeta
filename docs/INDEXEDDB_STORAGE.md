@@ -37,6 +37,8 @@ Each financial save writes changed records, account balances, dataset revision/d
 
 Every save captures its expected revision before asynchronous work. A stale revision aborts rather than overwriting another tab's changes. BroadcastChannel notifies current tabs; database revision checks remain authoritative. Changes to the legacy copy from an older application window stop further writes and preserve both copies. Legacy-only windows cannot be remotely prevented from writing; users must close them before migration or recovery.
 
+Delete All Data checks both revision and generation within its clearing transaction. When migration is postponed, updated tabs use short readwrite transactions on `datasets` to serialize localStorage comparisons and financial writes or resets. A changed source, migration staging record, active dataset, migration marker, or reset marker rejects the legacy operation. An interrupted migration with staging records must be retried rather than continuing legacy writes. These locks coordinate updated tabs only; localStorage and IndexedDB are not a single atomic storage system. Legacy saves advance the in-memory revision to reject delayed restores after intervening edits.
+
 Exports read all collections and metadata through one consistent read transaction and reconstruct the existing Kaasi JSON object. Local files remain JSON text; Supabase receives an object in `user_data.data`, not a JSON string or IndexedDB-specific envelope. Backups exclude database internals, device preferences, recovery archives, and auth tokens. Content comparisons ignore JSON object-key order while preserving array order.
 
 Imports stage a verified replacement generation. The previous dataset is retained as one recovery snapshot. Cloud restores capture the local revision before fetching and reject replacement if it changed during download. Uploads use a committed snapshot; later edits remain pending.
@@ -44,6 +46,8 @@ Imports stage a verified replacement generation. The previous dataset is retaine
 ## Recovery and rollback
 
 The recovery screen can export readable current, previous, and original copies and restore a validated backup through an explicit confirmation. Protected copies require their existing PIN. Recovery never silently changes a balance or selects between divergent legacy/database copies.
+
+If the current localStorage text differs from the retained migration snapshot, recovery also offers a **Changed localStorage copy** with its own PIN authorization. Identical legacy copies are listed only once. Exporting a divergent copy does not merge it into the active database.
 
 Use a database-aware application build for rollback. Deploying an old localStorage-only build after migration would show outdated data and may create divergent writes. Do not automatically delete IndexedDB or copy its data back over the original localStorage snapshot.
 

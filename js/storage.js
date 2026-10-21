@@ -236,8 +236,11 @@ const KaasiStorage = (() => {
     assertWritable();
     const next = clone(value);
     if (mode === "legacy") {
-      localStorage.setItem(LEGACY, JSON.stringify(next)); legacyRaw = localStorage.getItem(LEGACY);
-      current = next;
+      await withLegacyWrite(() => {
+        const raw = JSON.stringify(next);
+        localStorage.setItem(LEGACY, raw);
+        legacyRaw = raw; current = next; revision++;
+      });
       for (const [key, entry] of Object.entries(metadata)) appPreferences.setItem(key, entry);
       return;
     }
@@ -269,6 +272,7 @@ const KaasiStorage = (() => {
   }
   async function replace(value, expected = revision) {
     assertWritable();
+    if (expected !== revision) throw conflict("Saved data changed while the import was being prepared. Reload before restoring.");
     if (mode === "legacy") return commit(value);
     await preferenceQueue;
     return activate(value, { expected });
@@ -291,16 +295,38 @@ const KaasiStorage = (() => {
     if (await digest(value) !== latest.hash) throw new Error("Backup snapshot failed verification. Please retry.");
     return value;
   }
+  // IndexedDB serializes these short transactions across updated tabs, even while
+  // financial data remains in localStorage. Older builds cannot honor this lock.
+  async function withLegacyWrite(action) {
+    const expectedRaw = legacyRaw;
+    const tx = transaction(["datasets"], true); const done = finished(tx);
+    try {
+      const rows = await request(tx.objectStore("datasets").getAll());
+      if (rows.some(row => [DATASET, "staging", "reset"].includes(row.id)) ||
+          localStorage.getItem(MARKER) || localStorage.getItem(LEGACY) !== expectedRaw) {
+        throw conflict("Another Kaasi window changed or upgraded the saved data. Reload before retrying. Your draft has not been saved.");
+      }
+      action(); // Keep comparison and localStorage mutation inside the lock.
+      await done;
+    } catch (error) { return abortFailure(tx, done, error); }
+  }
   async function clear() {
+    const expectedRevision = revision;
     assertWritable(); await preferenceQueue;
     if (mode === "indexeddb") {
       const tx = transaction(stores, true); const done = finished(tx);
       try {
+        const latest = await request(tx.objectStore("datasets").get(DATASET));
+        if (!latest || latest.revision !== expectedRevision || latest.generation !== root.generation) {
+          throw conflict("Another Kaasi window changed the saved data. Reload before deleting data.");
+        }
         stores.forEach(name => tx.objectStore(name).clear());
         tx.objectStore("datasets").put({ id: "reset", pending: true }); await done;
       } catch (error) { return abortFailure(tx, done, error); }
+      localStorage.removeItem(LEGACY); localStorage.removeItem(MARKER);
+    } else {
+      await withLegacyWrite(() => { localStorage.removeItem(LEGACY); localStorage.removeItem(MARKER); });
     }
-    localStorage.removeItem(LEGACY); localStorage.removeItem(MARKER);
     for (let index = localStorage.length - 1; index >= 0; index--) { const key = localStorage.key(index); if (key && owns(key)) localStorage.removeItem(key); }
     preferences.clear(); mode = undefined; current = undefined; root = undefined; revision = 0; legacyRaw = null;
   }
@@ -330,9 +356,12 @@ const KaasiStorage = (() => {
         try { sources.unshift({ label: "Current database copy", value: await readGeneration(active.generation) }); } catch (_) { /* Keep incomplete generations for repair. */ }
       }
     } catch (_) { /* Original localStorage may still be readable if IndexedDB is unavailable. */ }
-    if (!sources.some(item => item.raw)) {
-      try { const raw = localStorage.getItem(LEGACY); if (raw) sources.push({ label: "Original local copy", value: JSON.parse(raw), raw }); } catch (_) { /* An unreadable source is never reset. */ }
-    }
+    try {
+      const raw = localStorage.getItem(LEGACY);
+      if (raw && !sources.some(item => item.raw === raw)) {
+        sources.push({ label: sources.some(item => item.raw) ? "Changed localStorage copy" : "Original local copy", value: JSON.parse(raw), raw });
+      }
+    } catch (_) { /* An unreadable source is never reset. */ }
     return sources.filter(item => item.value && typeof item.value === "object" && Array.isArray(item.value.accounts));
   }
   async function recover(value, expected = revision) {
