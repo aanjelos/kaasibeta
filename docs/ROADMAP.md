@@ -61,10 +61,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 15. Support > 3 Bank Accounts
 - **Concept**: Remove or expand the restriction capping users to 3 bank accounts in setup and settings, allowing full flexibility for power users with multiple accounts.
 
-### 16. Exclude Bulk Credit Card Payments from Expenses
-- **Concept**: Add a "Log as expense?" toggle/checkbox to the Bulk Credit Card Settlement modal (matching individual CC item settlements), allowing users to clear credit card items without creating matching expense entries when desired.
-
-### 17. Per-Month Historical Budget Storage & Persistence
+### 16. Per-Month Historical Budget Storage & Persistence
 - **Concept**: Save category budget limits on a per-month basis instead of having a single static budget that resets every month. This allows users to accurately review historical budget targets vs. actual spending for past months.
 - **Implementation Note**: IndexedDB storage is now available. Add a versioned schema upgrade and backup compatibility for historical budget records; the migration itself did not implement budget history. Coordinate this feature with Historical Budget Progress in PDF Export.
 
@@ -80,12 +77,6 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ### 3. Prominent Credit Card Transactions Button
 - **Concept**: Redesign the "View Credit Card Transactions" button on Credit Card cards/sections to make it visually distinct and immediately noticeable.
-
-### 4. Prevent Accidental Modal Close on Text Selection Dragging
-- **Concept**: Fix an issue where selecting/dragging text inside a modal and releasing the cursor outside the modal box triggers the backdrop click handler, accidentally closing the modal.
-
-### 5. Explicit Evaluation Triggers for Math Calculator Fields
-- **Concept**: Adjust the inline calculation parser (`math-tool.js`) so math expressions in amount input fields do not auto-calculate on `blur` (focus loss). Only trigger calculation when the user explicitly presses `Tab`, `Enter`, or `=`.
 
 ---
 

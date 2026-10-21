@@ -4,6 +4,22 @@ Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed ne
 
 ---
 
+## v6.368n - 2026-10-21
+
+### 1. [Fix] Preserve Modals After Text-Selection Drags
+
+Backdrop dismissal now requires a pointer action to start and finish on the backdrop itself. Selecting text inside a dialog and releasing outside it no longer closes the dialog. Applied the same guard to donation-modal handlers while retaining ordinary backdrop clicks, close buttons, and keyboard dismissal.
+
+### 2. [Enhancement] Explicit Calculator Evaluation
+
+Amount expressions remain unchanged when a field loses focus. Tab evaluates the expression and moves focus normally; Enter evaluates an expression before submitting on a subsequent press; equals input and the calculator equals button remain supported. Form submission still validates complete expressions and rejects invalid amounts before saving.
+
+### 3. [Feature] Optional Expense Logging for Bulk Credit Card Payments
+
+Added a checked-by-default **Log as Expense?** toggle to bulk CC settlement. Disabling it hides category controls and removes their validation requirements. Both modes deduct the total payment from the selected account and mark the selected purchases as paid; only enabled logging creates linked expense records. Existing payment records remain unchanged. Categories and available funds are checked before modifying purchases, and save failures roll back the entire settlement.
+
+Removed these three completed items from the roadmap and rebuilt Tailwind styles. All 55 automated tests pass, including settlement validation, preservation of existing payments, failed-save rollback, backdrop pointer sequences, and calculator triggers. Browser checks confirmed draft preservation, Tab/Enter evaluation, category-toggle behavior, Cancel, close buttons, and Escape. Updated application and service-worker versions to `v6.368n`.
+
 ## v6.367n - 2026-10-21
 
 ### 1. [Enhancement] Storage Settings Layout and Protection Status

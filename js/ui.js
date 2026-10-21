@@ -741,9 +741,20 @@ function openFormModal(title, formHtml, submitHandler) {
   if (firstInput) firstInput.focus();
 }
 
+let modalPointerDownTarget = null;
+let modalPointerUpTarget = null;
+window.addEventListener("pointerdown", event => { modalPointerDownTarget = event.target; modalPointerUpTarget = null; }, true);
+window.addEventListener("pointerup", event => { modalPointerUpTarget = event.target; }, true);
+window.addEventListener("pointercancel", () => { modalPointerDownTarget = null; modalPointerUpTarget = null; }, true);
+
+function isModalBackdropClick(event, modal) {
+  return event.target === modal && (event.detail === 0 ||
+    (modalPointerDownTarget === modal && modalPointerUpTarget === modal));
+}
+
 window.addEventListener("click", (event) => {
   $$(".modal").forEach((modal) => {
-    if (event.target === modal && modal.id !== "initialSetupModal" && modal.id !== "cloudSessionExpiredModal") {
+    if (isModalBackdropClick(event, modal) && modal.id !== "initialSetupModal" && modal.id !== "cloudSessionExpiredModal") {
       closeModal(modal.id);
     }
   });
@@ -861,7 +872,7 @@ document
   });
 window.addEventListener("click", function (event) {
   const modal = document.getElementById("donateModal");
-  if (event.target === modal) {
+  if (isModalBackdropClick(event, modal)) {
     modal.style.display = "none";
   }
 });
@@ -915,7 +926,6 @@ document.addEventListener("click", (e) => {
 document.addEventListener("focusout", (e) => {
   if (e.target.classList && e.target.classList.contains("calc-amount")) {
     hideMathToolbar();
-    processCalculation(e.target);
   }
 });
 
@@ -929,9 +939,9 @@ document.addEventListener("input", (e) => {
 });
 
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && e.target.classList && e.target.classList.contains("calc-amount")) {
+  if ((e.key === "Enter" || e.key === "Tab") && e.target.classList && e.target.classList.contains("calc-amount")) {
     const calculated = processCalculation(e.target);
-    if (calculated) {
+    if (calculated && e.key === "Enter") {
       e.preventDefault(); 
     }
   }

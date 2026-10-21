@@ -134,7 +134,7 @@ function initializeUI(isRefresh = false) {
       });
       // Close modal if user clicks on the background overlay
       donateModal.addEventListener("click", (e) => {
-        if (e.target === donateModal) {
+        if (isModalBackdropClick(e, donateModal)) {
           donateModal.style.display = "none";
         }
       });

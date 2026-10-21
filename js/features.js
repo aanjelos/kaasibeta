@@ -2298,12 +2298,16 @@ function openCcHistoryModal() {
           </select>
         </div>
         
+        <div class="flex items-center mt-3 mb-1">
+          <input type="checkbox" id="logBulkCcPaymentAsExpense" name="logBulkCcPaymentAsExpense" class="h-4 w-4 text-accent-500 border-gray-500 rounded focus:ring-accent-500 mr-2" checked>
+          <label for="logBulkCcPaymentAsExpense" class="text-sm font-medium text-gray-300">Log as Expense?</label>
+        </div>
         <div class="mb-4 mt-5 max-h-[40vh] overflow-y-auto custom-scrollbar pr-2">
-          <label class="block text-sm font-medium mb-3 text-gray-300">Categorize Items</label>
+          <label id="bulkCcItemsHeading" class="block text-sm font-medium mb-3 text-gray-300">Categorize Items</label>
           ${itemsHtml}
         </div>
         
-        <p class="text-xs text-gray-400 mb-4 bg-tertiary border border-theme p-3 rounded"><i class="fas fa-info-circle mr-1"></i> A separate transaction will be created in your bank account for each item to ensure pie charts remain accurate.</p>
+        <p id="bulkCcExpenseHint" class="text-xs text-gray-400 mb-4 bg-tertiary border border-theme p-3 rounded">Your account balance will be reduced. A separate expense will be recorded for each selected item.</p>
         <div class="flex justify-end gap-2">
             <button type="button" class="btn btn-secondary flex-1" onclick="closeModal('formModal')">Cancel</button>
             <button type="submit" class="btn btn-primary flex-1"><i class="fas fa-check-circle mr-1"></i> Settle All</button>
@@ -2315,6 +2319,7 @@ function openCcHistoryModal() {
       const form = e.target;
       const formData = new FormData(form);
       const payFromAccountId = formData.get("payFromAccount");
+      const logAsExpense = formData.get("logBulkCcPaymentAsExpense") === "on";
       
       const account = state.accounts.find((a) => a.id === payFromAccountId);
       if (!account) {
@@ -2324,6 +2329,7 @@ function openCcHistoryModal() {
       
       let paidItemCount = 0;      
       let aggregateAmount = 0;
+      let validCategories = true;
       
       window.ccSelectedItems.forEach(id => {
         const item = state.creditCard.transactions.find(t => t.id === id);
@@ -2331,10 +2337,15 @@ function openCcHistoryModal() {
           const remaining = item.amount - (item.paidAmount || 0);
           if (remaining > 0) {
             aggregateAmount += remaining;
+            if (logAsExpense && !state.categories.includes(formData.get(`payCategory_${id}`))) validCategories = false;
           }
         }
       });
       
+      if (!validCategories) {
+        showNotification("Select a category for each item when logging expenses.", "error");
+        return;
+      }
       if (account.balance < aggregateAmount) {
         showNotification(`Insufficient funds in ${account.name}.`, "warning");
         return;
@@ -2349,21 +2360,21 @@ function openCcHistoryModal() {
             item.paidOff = true;
             paidItemCount++;
             
-            const payCategory = formData.get(`payCategory_${id}`);
-            
-            // Record individual bank transaction for perfect chart tracking
-            const bankTx = {
-              id: generateId(),
-              amount: remaining,
-              description: `Credit Card Payment: ${item.description}`,
-              ccPurchaseId: item.id,
-              category: payCategory,
-              type: "expense",
-              account: payFromAccountId,
-              date: getCurrentDateString(),
-              timestamp: Date.now(),
-            };
-            state.transactions.push(bankTx);
+            if (logAsExpense) {
+              const payCategory = formData.get(`payCategory_${id}`);
+              const bankTx = {
+                id: generateId(),
+                amount: remaining,
+                description: `Credit Card Payment: ${item.description}`,
+                ccPurchaseId: item.id,
+                category: payCategory,
+                type: "expense",
+                account: payFromAccountId,
+                date: getCurrentDateString(),
+                timestamp: Date.now(),
+              };
+              state.transactions.push(bankTx);
+            }
           }
         }
       });
@@ -2376,12 +2387,26 @@ function openCcHistoryModal() {
         renderFilteredCcList();
         renderCreditCardSection();
         renderDashboard();
-        showNotification(`Settled ${paidItemCount} items successfully.`, "success");
+        if (logAsExpense) refreshMonthlyViewIfRelevant(getCurrentDateString());
+        showNotification(`Settled ${paidItemCount} items successfully.${logAsExpense ? " Expenses logged." : " No expenses logged."}`, "success");
         if (typeof trackEvent === "function") trackEvent("bulk_pay_cc", "Engagement", paidItemCount);
       }
       
       closeModal("formModal");
     });
+    const expenseToggle = document.getElementById("logBulkCcPaymentAsExpense");
+    expenseToggle.onchange = () => {
+      const logExpenses = expenseToggle.checked;
+      document.getElementById("dynamicForm").querySelectorAll('[name^="payCategory_"]').forEach(select => {
+        select.required = logExpenses;
+        select.disabled = !logExpenses;
+        select.hidden = !logExpenses;
+      });
+      document.getElementById("bulkCcItemsHeading").textContent = logExpenses ? "Categorize Items" : "Selected Items";
+      document.getElementById("bulkCcExpenseHint").textContent = logExpenses
+        ? "Your account balance will be reduced. A separate expense will be recorded for each selected item."
+        : "Your account balance will still be reduced. No expense records will be created.";
+    };
   };
 
   // Initial render
