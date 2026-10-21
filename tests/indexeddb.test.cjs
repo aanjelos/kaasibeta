@@ -171,6 +171,47 @@ test('persistence is requested only after Continue; denial offers explicit conti
   assert.equal(await accepted,'migrate');
 });
 
+test('upgrade-screen export downloads the original data without starting migration or requesting persistence',async()=>{
+  const e=environment();const original=legacy(e);const raw=e.data.get('KaasiData');
+  let requests=0,downloaded,shown;
+  e.context.navigator.storage={persist:async()=>{requests++;return false;}};
+  e.context.downloadKaasiSnapshot=(value,prefix)=>{downloaded={value:copy(value),prefix};};
+  const visible=new Promise(resolve=>shown=resolve);
+  const initialization=e.initialize(value=>{const decision=e.context.chooseStorageMigration(value);shown();return decision;});
+  await visible;
+  const click=label=>e.element('storageActions').children.find(child=>child.textContent===label).onclick();
+  await click('Export Existing Data');
+  assert.deepEqual(downloaded.value,original);assert.equal(downloaded.prefix,'kaasi-before-upgrade');
+  assert.equal(requests,0);assert.equal(e.db.ready,false);assert.equal(await rawStore(e,'datasets','local'),undefined);
+  assert.equal(e.data.get('KaasiData'),raw);assert.match(e.element('storageStatus').textContent,/Check that the JSON file was saved/);
+  await click('Not Now');await initialization;assert.equal(e.db.mode,'legacy');
+});
+
+test('pre-upgrade exports of PIN-protected data require the correct existing PIN and allow cancelling',async()=>{
+  const e=environment();const original=legacy(e);original.settings.appPin={enabled:true,pin:await e.context.hashString('1234')};
+  let downloads=0;e.context.downloadKaasiSnapshot=value=>{downloads++;assert.deepEqual(copy(value),original);};
+  const decision=e.context.chooseStorageMigration(original);
+  const click=label=>e.element('storageActions').children.find(child=>child.textContent===label).onclick();
+  await click('Export Existing Data');await click('Back');assert.equal(downloads,0);
+  await click('Export Existing Data');
+  const pin=e.element('storageActions').children[0].children[0];pin.value='9999';
+  await click('Download Backup');assert.equal(downloads,0);assert.match(e.element('storageStatus').textContent,/Incorrect PIN/);
+  pin.value='1234';await click('Download Backup');assert.equal(downloads,1);assert.equal(pin.value,'');
+  await click('Not Now');assert.equal(await decision,'later');
+});
+
+test('export remains available after persistence denial and download failures can be retried',async()=>{
+  const e=environment();const original=legacy(e);let attempts=0;
+  e.context.navigator.storage={persist:async()=>false};
+  e.context.downloadKaasiSnapshot=()=>{if(++attempts===1)throw new Error('Download unavailable');};
+  const decision=e.context.chooseStorageMigration(original);
+  const click=label=>e.element('storageActions').children.find(child=>child.textContent===label).onclick();
+  await click('Continue');await click('Export Existing Data');assert.match(e.element('storageStatus').textContent,/could not be started/);
+  await click('Export Existing Data');assert.equal(attempts,2);
+  assert.equal(e.element('storageTitle').textContent,'Persistent storage is not enabled');
+  await click('Continue with IndexedDB');assert.equal(await decision,'migrate');
+});
+
 test('concurrent saves within one tab reject a stale snapshot rather than combining inconsistent writes',async()=>{
   const e=environment();await e.initialize();const a=copy(e.db.current),b=copy(e.db.current);
   a.accounts[0].balance=10;b.accounts[1].balance=20;

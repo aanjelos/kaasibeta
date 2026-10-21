@@ -222,7 +222,7 @@ const KaasiStorage = (() => {
     if (legacyRaw !== null) {
       const parsed = JSON.parse(legacyRaw);
       const candidate = validate(parsed);
-      const choice = await chooseMigration();
+      const choice = await chooseMigration(clone(parsed));
       if (choice === "later") {
         current = clone(candidate); mode = "legacy"; return clone(current);
       }

@@ -4,6 +4,16 @@ Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed ne
 
 ---
 
+## v6.366n - 2026-10-21
+
+### 1. [Enhancement] Export Existing Data Before Storage Upgrade
+
+Added an **Export Existing Data** action to the initial storage-upgrade screen and the persistent-storage denial screen. The action downloads the original financial dataset as a compatible JSON backup before migration, without modifying the saved data, requesting persistence, or starting the upgrade. PIN-protected datasets require the existing app PIN before export. Users return to the same upgrade step after requesting the download and can retry failed downloads or postpone migration. Standardized the upgrade action labels to title case.
+
+Added regression coverage for export before migration, exact preservation of original fields, PIN verification and cancellation, exports after persistence denial, and download retries. Updated application and service-worker versions to `v6.366n`.
+
+Validation: all 48 automated tests pass. A browser download from the upgrade screen preserved every field of the original 3,688-transaction sample, and the screen remained at the consent step after export.
+
 ## v6.365n - 2026-10-21
 
 ### 1. [Feature] IndexedDB Financial Storage

@@ -37,22 +37,56 @@ function storageButton(actions, text, action) {
   actions.appendChild(button);
 }
 
-async function chooseStorageMigration() {
+function addMigrationExport(actions, existingData, returnTo) {
+  if (!existingData) return;
+  const download = () => {
+    try {
+      downloadKaasiSnapshot(existingData, "kaasi-before-upgrade");
+      returnTo("Backup download requested. Check that the JSON file was saved before continuing with the upgrade.");
+    } catch (_) {
+      document.getElementById("storageStatus").textContent = "The backup download could not be started. Please retry; your existing data has not been changed.";
+    }
+  };
+  storageButton(actions, "Export Existing Data", () => {
+    if (!existingData.settings?.appPin?.enabled) return download();
+    const exportActions = storageScreen("Export existing data", "Enter your existing app PIN to download a backup before upgrading. Exporting does not start the migration.");
+    const label = document.createElement("label"); label.textContent = "Existing app PIN";
+    label.style.flexBasis = "100%";
+    const pin = document.createElement("input"); pin.type = "password"; pin.inputMode = "numeric"; pin.autocomplete = "off";
+    label.appendChild(pin); exportActions.appendChild(label);
+    storageButton(exportActions, "Download Backup", async () => {
+      if (await hashString(pin.value) !== existingData.settings.appPin.pin) {
+        document.getElementById("storageStatus").textContent = "Incorrect PIN. Enter your existing app PIN to export this data.";
+        return;
+      }
+      pin.value = "";
+      download();
+    });
+    storageButton(exportActions, "Back", () => returnTo());
+  });
+}
+
+async function chooseStorageMigration(existingData) {
   return new Promise(resolve => {
-    const intro = () => {
-      const actions = storageScreen("Upgrade local storage", "Kaasi can move your existing data to a larger local database. Your original data will be kept. Close other Kaasi tabs and app windows before continuing. Keep a recent exported backup as an additional safeguard.");
+    const intro = message => {
+      const actions = storageScreen("Upgrade local storage", message || "Kaasi can move your existing data to a larger local database. Your original data will be kept. Export your existing data below to save a backup before upgrading. Close other Kaasi tabs and app windows before continuing.");
       storageButton(actions, "Continue", async () => {
         let persistent = false;
         try { persistent = await navigator.storage?.persist?.() || false; } catch (_) { /* The decision below remains explicit. */ }
         if (persistent) {
           storageScreen("Upgrading local storage", "Copying and verifying your data. Please keep Kaasi open."); resolve("migrate");
         } else {
-          const denied = storageScreen("Persistent storage is not enabled", "This browser did not grant persistent storage. IndexedDB still provides more capacity, but automatic storage cleanup may remove data. External backups remain important.");
-          storageButton(denied, "Continue with IndexedDB", () => { storageScreen("Upgrading local storage", "Copying and verifying your data. Please keep Kaasi open."); resolve("migrate"); });
-          storageButton(denied, "Not now", () => resolve("later"));
+          const showDenied = message => {
+            const denied = storageScreen("Persistent storage is not enabled", message || "This browser did not grant persistent storage. IndexedDB still provides more capacity, but automatic storage cleanup may remove data. Export your existing data below before continuing if you need a backup.");
+            storageButton(denied, "Continue with IndexedDB", () => { storageScreen("Upgrading local storage", "Copying and verifying your data. Please keep Kaasi open."); resolve("migrate"); });
+            storageButton(denied, "Not Now", () => resolve("later"));
+            addMigrationExport(denied, existingData, showDenied);
+          };
+          showDenied();
         }
       });
-      storageButton(actions, "Not now", () => resolve("later"));
+      addMigrationExport(actions, existingData, intro);
+      storageButton(actions, "Not Now", () => resolve("later"));
     };
     intro();
   });
