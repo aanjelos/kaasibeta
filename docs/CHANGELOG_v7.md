@@ -20,6 +20,10 @@ Added a checked-by-default **Log as Expense?** toggle to bulk CC settlement. Dis
 
 Removed these three completed items from the roadmap and rebuilt Tailwind styles. All 55 automated tests pass, including settlement validation, preservation of existing payments, failed-save rollback, backdrop pointer sequences, and calculator triggers. Browser checks confirmed draft preservation, Tab/Enter evaluation, category-toggle behavior, Cancel, close buttons, and Escape. Updated application and service-worker versions to `v6.368n`.
 
+### 4. [Planning] Credit Card Payment Workflow Follow-Up
+
+Added a future roadmap task for directly accessible single-purchase payments, secondary multi-item selection, and partial payments across selected purchases. The task requires a compact mobile-friendly design and an explicit payment-allocation decision before implementation. Documentation only; current payment behavior and application/cache versions remain unchanged.
+
 ## v6.367n - 2026-10-21
 
 ### 1. [Enhancement] Storage Settings Layout and Protection Status
