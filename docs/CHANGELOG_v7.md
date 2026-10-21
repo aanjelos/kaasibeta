@@ -4,6 +4,14 @@ Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed ne
 
 ---
 
+## v6.367n - 2026-10-21
+
+### 1. [Enhancement] Storage Settings Layout and Protection Status
+
+Reorganized the Storage Usage card with a separate Storage Protection section, explanatory text, and an aligned action that stacks below the description on narrow screens. The size label now reads `Approx. Storage Used: [size] (IndexedDB)` or `(localStorage)` so the storage backend remains available for debugging without leading the description.
+
+Enabled protection always displays `Persistent storage is enabled. External backups are still important.`, including when reopening Settings. The action changes to a disabled **Protection Enabled** indicator after permission is granted. Requests disable the button while pending, and delayed initial checks cannot replace a newer permission result. Added regression coverage for reopening Settings, asynchronous permission results, and backend labels; all 25 application regression tests pass. Updated application and service-worker versions to `v6.367n`.
+
 ## v6.366n - 2026-10-21
 
 ### 1. [Enhancement] Export Existing Data Before Storage Upgrade

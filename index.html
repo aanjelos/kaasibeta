@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.366n" />
+    <meta name="application-version" content="v6.367n" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -51,8 +51,8 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v6.366n" />
-    <link rel="stylesheet" href="tailwind.css?v=v6.366n" />
+    <link rel="stylesheet" href="style.css?v=v6.367n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.367n" />
 
     <script
       async
@@ -1060,8 +1060,16 @@
                     <p id="storageSizeInfo" class="text-xs text-gray-400 mt-0.5 font-medium">Calculating...</p>
                   </div>
                 </div>
-                <button id="requestPersistenceBtn" type="button" class="btn btn-secondary mt-4" hidden>Protect local storage</button>
-                <p id="persistenceStatus" class="text-sm text-gray-400 mt-2" aria-live="polite"></p>
+                <div id="storageProtectionSection" class="storage-protection" hidden>
+                  <div class="storage-protection-row">
+                    <div class="storage-protection-copy">
+                      <h4>Storage Protection</h4>
+                      <p>Help protect saved data from automatic browser cleanup.</p>
+                    </div>
+                    <button id="requestPersistenceBtn" type="button" class="btn btn-secondary" hidden>Protect Local Storage</button>
+                  </div>
+                  <p id="persistenceStatus" class="storage-protection-status" aria-live="polite"></p>
+                </div>
               </div>
 
               <!-- 2. Cloud Backup -->
@@ -2070,19 +2078,19 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v6.366n" defer></script>
-    <script src="js/import-validation.js?v=v6.366n" defer></script>
-    <script src="js/storage.js?v=v6.366n" defer></script>
-    <script src="js/storage-ui.js?v=v6.366n" defer></script>
-    <script src="js/animations.js?v=v6.366n" defer></script>
-    <script src="js/data-sync.js?v=v6.366n" defer></script>
-    <script src="js/math-tool.js?v=v6.366n" defer></script>
-    <script src="js/settings.js?v=v6.366n" defer></script>
-    <script src="js/charts.js?v=v6.366n" defer></script>
-    <script src="js/ui.js?v=v6.366n" defer></script>
-    <script src="js/features.js?v=v6.366n" defer></script>
-    <script src="js/security.js?v=v6.366n" defer></script>
-    <script src="js/app.js?v=v6.366n" defer></script>
+    <script src="js/globals.js?v=v6.367n" defer></script>
+    <script src="js/import-validation.js?v=v6.367n" defer></script>
+    <script src="js/storage.js?v=v6.367n" defer></script>
+    <script src="js/storage-ui.js?v=v6.367n" defer></script>
+    <script src="js/animations.js?v=v6.367n" defer></script>
+    <script src="js/data-sync.js?v=v6.367n" defer></script>
+    <script src="js/math-tool.js?v=v6.367n" defer></script>
+    <script src="js/settings.js?v=v6.367n" defer></script>
+    <script src="js/charts.js?v=v6.367n" defer></script>
+    <script src="js/ui.js?v=v6.367n" defer></script>
+    <script src="js/features.js?v=v6.367n" defer></script>
+    <script src="js/security.js?v=v6.367n" defer></script>
+    <script src="js/app.js?v=v6.367n" defer></script>
   </body>
 </html>
 

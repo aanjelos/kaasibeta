@@ -14,9 +14,9 @@ function openSettingsModal() {
 
   const storageInfoElement = $("#storageSizeInfo");
   if (storageInfoElement) {
-    storageInfoElement.textContent = `${KaasiStorage.mode === "indexeddb" ? "IndexedDB" : "Legacy local storage"} — Financial data: ${getFormattedLocalStorageSize(
+    storageInfoElement.textContent = `Approx. Storage Used: ${getFormattedLocalStorageSize(
       STORAGE_KEY
-    )}`;
+    )} (${KaasiStorage.mode === "indexeddb" ? "IndexedDB" : "localStorage"})`;
   }
 
   openModalHelper("settingsModal");
@@ -24,14 +24,31 @@ function openSettingsModal() {
   displayAppVersion();
   const persistButton = $("#requestPersistenceBtn");
   if (persistButton) {
+    $("#storageProtectionSection").hidden = KaasiStorage.mode !== "indexeddb";
     persistButton.hidden = KaasiStorage.mode !== "indexeddb";
-    persistButton.onclick = async () => {
-      try {
-        const granted = await navigator.storage?.persist?.() || false;
-        $("#persistenceStatus").textContent = granted ? "Persistent storage is enabled. External backups are still important." : "Persistent storage was not granted. IndexedDB remains available; keep external backups.";
-      } catch (_) { $("#persistenceStatus").textContent = "Persistent storage is unavailable in this browser."; }
+    const canRequest = typeof navigator.storage?.persist === "function";
+    let requestStarted = false;
+    const renderProtection = (granted, message) => {
+      persistButton.disabled = granted || !canRequest;
+      persistButton.textContent = granted ? "Protection Enabled" : "Protect Local Storage";
+      $("#persistenceStatus").textContent = granted
+        ? "Persistent storage is enabled. External backups are still important."
+        : message || (canRequest ? "Persistent storage is not enabled." : "Persistent storage is unavailable in this browser. Keep external backups.");
     };
-    navigator.storage?.persisted?.().then(granted => { $("#persistenceStatus").textContent = granted ? "Persistent storage is enabled." : "Persistent storage is not enabled."; }).catch(() => {});
+    renderProtection(false, "Checking storage protection…");
+    persistButton.onclick = async () => {
+      requestStarted = true;
+      persistButton.disabled = true;
+      try {
+        const granted = await navigator.storage.persist();
+        renderProtection(granted, "Persistent storage was not granted. Your data remains saved; keep external backups.");
+      } catch (_) { renderProtection(false, "Persistent storage is unavailable in this browser. Keep external backups."); }
+    };
+    if (navigator.storage?.persisted) {
+      navigator.storage.persisted().then(granted => {
+        if (!requestStarted) renderProtection(granted);
+      }).catch(() => { if (!requestStarted) renderProtection(false, "Storage protection could not be checked. Keep external backups."); });
+    } else renderProtection(false);
   }
 }
 

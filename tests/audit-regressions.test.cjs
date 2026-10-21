@@ -125,6 +125,28 @@ test('all application scripts parse', () => {
   }
 });
 
+test('storage protection retains its backup reminder on reopen and ignores an outdated permission check', async () => {
+  const r = runtime(); const c = r.context;
+  for (const name of ['renderSettingsForm','setupSettingsTabs','setupAppearanceListeners','renderBudgetsSettingsList','buildBudgetCategoryCheckboxes','openModalHelper','cancelDeleteAllData','displayAppVersion']) c[name] = () => {};
+  c.navigator.storage = { persisted: async () => true, persist: async () => true };
+  for (let attempt = 0; attempt < 2; attempt++) {
+    c.openSettingsModal(); await Promise.resolve();
+    assert.equal(r.element('#persistenceStatus').textContent, 'Persistent storage is enabled. External backups are still important.');
+    assert.equal(r.element('#requestPersistenceBtn').disabled, true);
+    assert.equal(r.element('#requestPersistenceBtn').textContent, 'Protection Enabled');
+  }
+  assert.match(r.element('#storageSizeInfo').textContent, /^Approx\. Storage Used: .+ \(IndexedDB\)$/);
+  let finishCheck;
+  c.navigator.storage.persisted = () => new Promise(resolve => finishCheck = resolve);
+  c.openSettingsModal(); await r.element('#requestPersistenceBtn').onclick();
+  finishCheck(false); await Promise.resolve();
+  assert.match(r.element('#persistenceStatus').textContent, /enabled\. External backups are still important\./);
+  assert.equal(r.element('#requestPersistenceBtn').disabled, true);
+  c.KaasiStorage.mode = 'legacy'; c.openSettingsModal();
+  assert.match(r.element('#storageSizeInfo').textContent, /\(localStorage\)$/);
+  assert.equal(r.element('#storageProtectionSection').hidden, true);
+});
+
 test('strict calculator evaluates supported operations and rejects partial/invalid expressions', () => {
   const { context: c } = runtime();
   for (const [input, expected] of [['(1500*2)+350', 3350], ['1,000+250', 1250], ['-.5+1', .5], ['10/4', 2.5], ['25', 25]]) {
