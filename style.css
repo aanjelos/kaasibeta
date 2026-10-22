@@ -1777,20 +1777,48 @@ footer a[href^="https://kaasi.com.lk"]:hover
 }
 .pulse-sync-conflict { animation: pulseSyncConflict 2s infinite ease-in-out !important; }
 #cloudSyncModal { z-index: 66; }
-.cloud-sync-content { max-width: 800px; }
-.sync-export-actions, .sync-choice-actions, .sync-pagination { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+.cloud-sync-content {
+  max-width: 620px; padding: 0; display: flex; flex-direction: column; overflow: hidden;
+  max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px); margin: 20px auto;
+}
+.sync-review-heading { padding: 26px 24px 16px; flex-shrink: 0; }
+.sync-review-heading h2 { font-size: 24px; line-height: 1.25; font-weight: 700; padding-right: 28px; margin: 0; }
+.sync-review-heading p { margin: 10px 0 0; color: var(--text-secondary); font-size: 14px; }
+.sync-review-body { min-height: 0; overflow-y: auto; padding: 0 24px 20px; overscroll-behavior: contain; }
+.sync-counts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.sync-counts > span, .sync-entry-badge { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 6px; padding: 5px 8px; font-size: 12px; }
+.sync-review-details > summary, .sync-backup-menu > summary { cursor: pointer; font-size: 14px; padding: 12px 0; }
+.sync-backup-menu { margin-top: 4px; color: var(--text-secondary); }
+.sync-detail-note { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin: 4px 0 12px; }
+.sync-export-actions, .sync-pagination { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.sync-export-actions .btn { flex: 1; font-size: 13px; }
 .sync-pagination { align-items: center; justify-content: center; }
 .sync-pagination[hidden] { display: none; }
-.sync-differences { margin-top: 18px; text-align: left; }
+.sync-differences { text-align: left; }
 .sync-differences details { border-bottom: 1px solid var(--border-color); padding: 12px 0; }
-.sync-differences summary { cursor: pointer; overflow-wrap: anywhere; }
+.sync-differences summary { display: flex; align-items: center; gap: 10px; cursor: pointer; list-style: none; }
+.sync-differences summary::-webkit-details-marker { display: none; }
+.sync-differences summary::before { content: "›"; font-size: 22px; color: var(--text-secondary); flex-shrink: 0; }
+.sync-differences details[open] > summary::before { transform: rotate(90deg); }
+.sync-entry-caption { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.sync-entry-name { font-size: 14px; overflow-wrap: anywhere; }
+.sync-entry-meta { font-size: 11px; color: var(--text-secondary); }
+.sync-entry-badge { flex-shrink: 0; white-space: nowrap; font-size: 10px; padding: 4px 6px; }
 .sync-diff-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 16px; margin-top: 14px; }
 .sync-diff-row > strong { grid-column: 1 / -1; }
 .sync-diff-row span { color: var(--text-secondary); font-size: 12px; }
-.sync-diff-row pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: 13px; max-height: 240px; overflow: auto; }
+.sync-diff-row pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: 13px; max-height: 160px; overflow: auto; }
+.sync-choice-actions { flex-shrink: 0; padding: 16px 24px 8px; border-top: 1px solid var(--border-color); text-align: center; }
+.sync-choice-actions > p { font-size: 12px; color: var(--text-secondary); margin: 0 0 12px; }
+.sync-copy-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.sync-copy-choices .btn { font-size: 14px; padding: 12px 8px; margin: 0; min-width: 0; }
+.sync-choice-actions .sync-cancel { background: transparent; border-color: transparent; font-size: 13px; margin: 4px 0 0; padding: 8px 18px; }
 @media (max-width: 560px) {
-  .sync-choice-actions, .sync-export-actions { flex-direction: column; }
-  .sync-diff-row { grid-template-columns: minmax(0, 1fr); }
+  .sync-review-heading { padding: 24px 20px 16px; }
+  .sync-review-heading h2 { font-size: 22px; }
+  .sync-review-body { padding: 0 20px 16px; }
+  .sync-choice-actions { padding: 14px 20px 8px; }
+  .sync-diff-row { column-gap: 10px; }
 }
 @media (prefers-reduced-motion: reduce) { .pulse-sync-conflict { animation: none !important; color: var(--accent-primary); } }
 

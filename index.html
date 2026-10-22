@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.371n" />
+    <meta name="application-version" content="v6.372n" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -51,8 +51,8 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v6.371n" />
-    <link rel="stylesheet" href="tailwind.css?v=v6.371n" />
+    <link rel="stylesheet" href="style.css?v=v6.372n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.372n" />
 
     <script
       async
@@ -1827,22 +1827,41 @@
       <div id="cloudSyncModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="cloudSyncTitle">
         <div class="modal-content cloud-sync-content">
           <button class="modal-close" type="button" aria-label="Close comparison" onclick="closeModal('cloudSyncModal')">&times;</button>
-          <h2 id="cloudSyncTitle" class="text-2xl font-bold mb-4">Compare Sync Copies</h2>
-          <p id="cloudSyncSummary" class="text-sm text-gray-300" aria-live="polite"></p>
-          <div class="sync-export-actions">
-            <button id="cloudSyncExportLocal" type="button" class="btn btn-secondary">Export This Device's Copy</button>
-            <button id="cloudSyncExportCloud" type="button" class="btn btn-secondary">Export Cloud Copy</button>
+          <div class="sync-review-heading">
+            <h2 id="cloudSyncTitle">Which Data Should We Keep?</h2>
+            <p>This device and the cloud have different data.</p>
           </div>
-          <div id="cloudSyncDifferences" class="sync-differences"></div>
-          <div id="cloudSyncPagination" class="sync-pagination">
-            <button id="cloudSyncPrevious" type="button" class="btn btn-secondary">Previous</button>
-            <span id="cloudSyncPage" aria-live="polite"></span>
-            <button id="cloudSyncNext" type="button" class="btn btn-secondary">Next</button>
+          <div class="sync-review-body">
+            <div id="cloudSyncSummary" class="sync-counts" aria-live="polite">
+              <span id="cloudSyncDeviceCount"></span>
+              <span id="cloudSyncCloudCount"></span>
+              <span id="cloudSyncChangedCount"></span>
+            </div>
+            <details id="cloudSyncDetails" class="sync-review-details">
+              <summary>View Differences</summary>
+              <p class="sync-detail-note">Entries shown on only one side may be new or deleted. Copies are not merged.</p>
+              <div id="cloudSyncDifferences" class="sync-differences"></div>
+              <div id="cloudSyncPagination" class="sync-pagination">
+                <button id="cloudSyncPrevious" type="button" class="btn btn-secondary">Previous</button>
+                <span id="cloudSyncPage" aria-live="polite"></span>
+                <button id="cloudSyncNext" type="button" class="btn btn-secondary">Next</button>
+              </div>
+            </details>
+            <details id="cloudSyncBackup" class="sync-backup-menu">
+              <summary>Save a Backup</summary>
+              <div class="sync-export-actions">
+                <button id="cloudSyncExportLocal" type="button" class="btn btn-secondary">This Device</button>
+                <button id="cloudSyncExportCloud" type="button" class="btn btn-secondary">Cloud</button>
+              </div>
+            </details>
           </div>
           <div class="sync-choice-actions">
-            <button id="cloudSyncUseLocal" type="button" class="btn btn-primary">Use This Device's Copy</button>
-            <button id="cloudSyncUseCloud" type="button" class="btn btn-secondary">Use Cloud Copy</button>
-            <button type="button" class="btn btn-secondary" onclick="closeModal('cloudSyncModal')">Cancel</button>
+            <p>Your choice replaces the other copy.</p>
+            <div class="sync-copy-choices">
+              <button id="cloudSyncUseLocal" type="button" class="btn btn-secondary">Use This Device</button>
+              <button id="cloudSyncUseCloud" type="button" class="btn btn-secondary">Use Cloud</button>
+            </div>
+            <button type="button" class="btn btn-secondary sync-cancel" onclick="closeModal('cloudSyncModal')">Cancel</button>
           </div>
         </div>
       </div>
@@ -2092,20 +2111,20 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v6.371n" defer></script>
-    <script src="js/import-validation.js?v=v6.371n" defer></script>
-    <script src="js/storage.js?v=v6.371n" defer></script>
-    <script src="js/storage-ui.js?v=v6.371n" defer></script>
-    <script src="js/animations.js?v=v6.371n" defer></script>
-    <script src="js/data-sync.js?v=v6.371n" defer></script>
-    <script src="js/cloud-sync.js?v=v6.371n" defer></script>
-    <script src="js/math-tool.js?v=v6.371n" defer></script>
-    <script src="js/settings.js?v=v6.371n" defer></script>
-    <script src="js/charts.js?v=v6.371n" defer></script>
-    <script src="js/ui.js?v=v6.371n" defer></script>
-    <script src="js/features.js?v=v6.371n" defer></script>
-    <script src="js/security.js?v=v6.371n" defer></script>
-    <script src="js/app.js?v=v6.371n" defer></script>
+    <script src="js/globals.js?v=v6.372n" defer></script>
+    <script src="js/import-validation.js?v=v6.372n" defer></script>
+    <script src="js/storage.js?v=v6.372n" defer></script>
+    <script src="js/storage-ui.js?v=v6.372n" defer></script>
+    <script src="js/animations.js?v=v6.372n" defer></script>
+    <script src="js/data-sync.js?v=v6.372n" defer></script>
+    <script src="js/cloud-sync.js?v=v6.372n" defer></script>
+    <script src="js/math-tool.js?v=v6.372n" defer></script>
+    <script src="js/settings.js?v=v6.372n" defer></script>
+    <script src="js/charts.js?v=v6.372n" defer></script>
+    <script src="js/ui.js?v=v6.372n" defer></script>
+    <script src="js/features.js?v=v6.372n" defer></script>
+    <script src="js/security.js?v=v6.372n" defer></script>
+    <script src="js/app.js?v=v6.372n" defer></script>
   </body>
 </html>
 

@@ -4,6 +4,16 @@ Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed ne
 
 ---
 
+## v6.372n - 2026-10-22
+
+### 1. [Enhancement] Simplified Sync Comparison Dialog
+
+Replaced the dense comparison introduction with **Which Data Should We Keep?**, a short explanation, and compact Device Only / Cloud Only / Changed counts. Differences are collapsed by default; expanded entries show a concise name, readable date/type, and status badge instead of repeating long labels. Backup exports are grouped under a secondary **Save a Backup** disclosure.
+
+Shortened the equal-weight choice buttons to **Use This Device** and **Use Cloud**. The choice actions and replacement reminder stay visible while the details scroll, including on mobile. New comparisons reset both disclosures to their collapsed state; pagination preserves the open details view. Existing security redaction, exports, replacement confirmations, and sync safeguards remain in place.
+
+Validation: all 80 automated tests pass. Synthetic browser checks covered the compact desktop/390px views, expanded differences with side-by-side amounts, the backup menu, and replacement confirmation/cancellation. Rebuilt Tailwind and updated application/service-worker versions to `v6.372n`. No live cloud operations were performed.
+
 ## v6.371n - 2026-10-22
 
 ### 1. [Feature] Single Manual Cloud Sync Action

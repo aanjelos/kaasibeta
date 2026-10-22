@@ -591,7 +591,7 @@ test('without an account-specific baseline, unequal copies open review without w
   r.storage.set('kaasi_synced_state_hash',r.context.generateDataHash(before));r.storage.set('lastSyncedCloudUpdatedAt',cloud.row.updated_at);
   await r.context.syncCloudData();assert.equal(r.element('#cloudSyncModal').style.display,'block');
   assert.equal(r.storage.get('KaasiData'),before);assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);
-  assert.match(r.element('#cloudSyncSummary').textContent,/1 differences/);
+  assert.equal(r.element('#cloudSyncChangedCount').textContent,'1 Changed');
 });
 
 test('first Sync recognizes equal copies despite object-key ordering without uploading',async()=>{
@@ -688,7 +688,7 @@ test('comparison labels missing records accurately, redacts security values, and
   r.run('cloudSyncReview={userId:"sync-user",local:reviewLocal,cloud:reviewRemote,cloudExport:reviewRemote};');
   r.context.renderCloudSyncReview();assert.equal(r.element('#cloudSyncDifferences').children.length,25);
   assert.equal(r.element('#cloudSyncPage').textContent,'1 / 2');
-  const first=r.element('#cloudSyncDifferences').children[0];assert.match(first.children[0].textContent,/<img/);assert.equal(first.children[0].innerHTML,'');
+  const first=r.element('#cloudSyncDifferences').children[0];const title=first.children[0].children[0].children[0];assert.match(title.textContent,/<img/);assert.equal(title.innerHTML,'');
   r.element('#cloudSyncNext').onclick();assert.equal(r.element('#cloudSyncPage').textContent,'2 / 2');
   let exported;r.context.downloadKaasiSnapshot=data=>{exported=data;};
   r.context.exportCloudSyncCopy('cloud');assert.deepEqual(exported,remote);assert.equal(cloud.calls.length,0);

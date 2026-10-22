@@ -163,6 +163,8 @@ async function syncCloudData() {
     } else {
       window.currentCloudSyncStatus = direction;
       cloudSyncReview = context;
+      $("#cloudSyncDetails").open = false;
+      $("#cloudSyncBackup").open = false;
       renderCloudSyncReview();
       openModalHelper("cloudSyncModal");
     }
@@ -221,14 +223,28 @@ function renderCloudSyncReview(page = 0) {
   const changes = cloudSyncDifferences(context.local, context.cloud);
   const pageSize = 25, pages = Math.max(1, Math.ceil(changes.length / pageSize));
   const host = $("#cloudSyncDifferences"); host.replaceChildren();
-  $("#cloudSyncSummary").textContent = `${changes.length} differences: ${changes.filter(c => c.kind === "Only on this device").length} only on this device, ${changes.filter(c => c.kind === "Only in cloud").length} only in cloud, ${changes.filter(c => c.kind === "Different values").length} changed. Missing entries may be additions or deletions. Choose a whole copy; entries will not be merged.`;
+  $("#cloudSyncDeviceCount").textContent = `${changes.filter(c => c.kind === "Only on this device").length} Device Only`;
+  $("#cloudSyncCloudCount").textContent = `${changes.filter(c => c.kind === "Only in cloud").length} Cloud Only`;
+  $("#cloudSyncChangedCount").textContent = `${changes.filter(c => c.kind === "Different values").length} Changed`;
+  $("#cloudSyncSummary").setAttribute("aria-label", `${changes.length} differences`);
   const labels = { amount: "Amount", balance: "Balance", paidAmount: "Amount paid", paidOff: "Fully paid", originalAmount: "Original amount", remainingAmount: "Remaining amount", originalFullAmount: "Original total", monthlyAmount: "Monthly amount", limit: "Limit", type: "Type", date: "Date", description: "Description", account: "Account", category: "Category", name: "Name", ccPurchaseId: "Linked card purchase", timestamp: "Recorded time", hidden: "Hidden", totalMonths: "Total months", monthsLeft: "Months remaining", startDate: "Start date", dueDate: "Due date", dateGiven: "Date lent" };
   const money = new Set(["amount", "balance", "paidAmount", "originalAmount", "remainingAmount", "originalFullAmount", "monthlyAmount", "limit"]);
   const display = (value, key) => value === undefined ? "Absent" : money.has(key) && typeof value === "number" ? formatCurrency(value)
     : typeof value === "boolean" ? value ? "Yes" : "No" : typeof value === "string" ? value : JSON.stringify(value, null, 2);
   for (const change of changes.slice(page * pageSize, (page + 1) * pageSize)) {
     const details = document.createElement("details");
-    const summary = document.createElement("summary"); summary.textContent = `${change.area} · ${change.label} — ${change.kind}`;
+    const summary = document.createElement("summary");
+    const caption = document.createElement("span"); caption.className = "sync-entry-caption";
+    const title = document.createElement("span"); title.className = "sync-entry-name";
+    const dateLabel = change.label.match(/^(\d{4}-\d{2}-\d{2})\s+(.+)$/);
+    title.textContent = dateLabel ? dateLabel[2] : change.label.replace(/^./, c => c.toUpperCase());
+    const meta = document.createElement("span"); meta.className = "sync-entry-meta";
+    const area = { Transactions: "Transaction", Accounts: "Account", Debts: "Debt", Receivables: "Receivable", Installments: "Installment", Budgets: "Budget", "Settings & categories": "Settings" }[change.area] || change.area;
+    meta.textContent = dateLabel ? `${new Date(`${dateLabel[1]}T00:00:00`).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })} · ${area}` : area;
+    caption.appendChild(title); caption.appendChild(meta);
+    const badge = document.createElement("span"); badge.className = "sync-entry-badge";
+    badge.textContent = { "Only on this device": "Device Only", "Only in cloud": "Cloud Only", "Different values": "Changed" }[change.kind];
+    summary.appendChild(caption); summary.appendChild(badge);
     details.appendChild(summary);
     for (const field of change.fields) {
       const row = document.createElement("div"); row.className = "sync-diff-row";
@@ -246,6 +262,10 @@ function renderCloudSyncReview(page = 0) {
   $("#cloudSyncPrevious").disabled = page === 0; $("#cloudSyncNext").disabled = page + 1 >= pages;
   $("#cloudSyncPrevious").onclick = () => renderCloudSyncReview(page - 1);
   $("#cloudSyncNext").onclick = () => renderCloudSyncReview(page + 1);
+  $("#cloudSyncDetails").ontoggle = () => {
+    $("#cloudSyncDetails").querySelector("summary").textContent = $("#cloudSyncDetails").open ? "Hide Differences" : "View Differences";
+  };
+  $("#cloudSyncDetails").ontoggle();
   $("#cloudSyncUseLocal").onclick = () => chooseCloudSyncCopy("local");
   $("#cloudSyncUseCloud").onclick = () => chooseCloudSyncCopy("cloud");
   $("#cloudSyncExportLocal").onclick = () => exportCloudSyncCopy("local");
@@ -276,7 +296,8 @@ function chooseCloudSyncCopy(which) {
 function resetCloudSyncAccount(user) {
   if (cloudSyncReview && cloudSyncReview.userId !== user?.id) {
     cloudSyncReview = null;
-    $("#cloudSyncDifferences").replaceChildren(); $("#cloudSyncSummary").textContent = "";
+    $("#cloudSyncDifferences").replaceChildren();
+    for (const id of ["cloudSyncDeviceCount", "cloudSyncCloudCount", "cloudSyncChangedCount"]) $(`#${id}`).textContent = "";
     $("#cloudSyncModal").style.display = "none";
   }
   if (!user || cloudSyncRemote?.userId !== user.id) {
