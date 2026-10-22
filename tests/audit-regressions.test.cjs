@@ -32,6 +32,7 @@ class Element {
   }
   removeEventListener() {}
   appendChild(child) { this.children.push(child); child.parentElement = this; return child; }
+  replaceChildren(...children) { this.children = children; }
   querySelector() { return new Element(); }
   querySelectorAll() { return []; }
   setAttribute(key, value) { this.attributes.set(key, value); }
@@ -96,8 +97,10 @@ function runtime() {
   // Financial-domain tests inject a controllable async backend; indexeddb.test.cjs
   // separately exercises the native IndexedDB boundary and transaction failures.
   let revision=0;
+  const canonical=value=>Array.isArray(value)?`[${value.map(canonical).join(',')}]`:value&&typeof value==='object'?`{${Object.keys(value).sort().map(key=>`${JSON.stringify(key)}:${canonical(value[key])}`).join(',')}}`:JSON.stringify(value);
   context.KaasiStorage={ready:true,mode:'indexeddb',get revision(){return revision;},
-    canonical:JSON.stringify,
+    canonical,
+    async digest(value){return Buffer.from(await webcrypto.subtle.digest('SHA-256',new TextEncoder().encode(canonical(value)))).toString('hex');},
     get current(){return JSON.parse(storage.get('KaasiData')||'{}');},
     async commit(value,metadata={}){
       if(localStorage.failMain)throw new Error('Changes were not saved');
@@ -107,7 +110,7 @@ function runtime() {
     },
     async replace(value,expected=revision){if(expected!==revision)throw new Error('Revision changed');return this.commit(value);},
     async snapshot(){return this.current;}};
-  for (const file of ['globals', 'import-validation', 'animations', 'data-sync', 'math-tool', 'settings', 'charts', 'ui', 'features', 'security', 'app']) {
+  for (const file of ['globals', 'import-validation', 'animations', 'data-sync', 'cloud-sync', 'math-tool', 'settings', 'charts', 'ui', 'features', 'security', 'app']) {
     vm.runInContext(fs.readFileSync(path.join(root, 'js', `${file}.js`), 'utf8'), context, { filename: `${file}.js` });
   }
   const run = source => vm.runInContext(source, context);
@@ -285,7 +288,7 @@ test('cloud restore validates before replacing the local backup', async () => {
   const r = runtime(); const before = r.storage.get('KaasiData');
   r.run('supabaseUser = {id:"test-user"};');
   const query = { select() { return this; }, eq() { return this; }, order() { return this; }, limit() { return this; },
-    single: async () => ({ data: { data: { accounts: [], transactions: null, categories: [] }, updated_at: '2026-10-20T00:00:00Z' } }) };
+    maybeSingle: async () => ({ data: { data: { accounts: [], transactions: null, categories: [] }, updated_at: '2026-10-20T00:00:00Z' } }) };
   r.context.testClient = { from: () => query }; r.run('supabaseClient = testClient;');
   await r.context.restoreFromSupabase(true);
   assert.equal(r.storage.get('KaasiData'), before);
@@ -477,14 +480,15 @@ test('deleting a payment expense continues to leave the CC purchase paid as requ
 });
 
 function delayedBackup(r) {
-  let finish, payload, uploads=0;
+  let finish, payload, uploads=0,row=null;
   const refresh=r.context.fetchAndUpdateLastCloudSyncTime;
-  const query={upsert(value){payload=value;uploads++;return this;},select(){return this;},eq(){return this;},
-    single(){return new Promise(resolve=>{finish=resolve;});}};
-  r.context.testClient={from:()=>query};r.run('supabaseUser={id:"test-user"};supabaseClient=testClient;');
+  r.context.testClient={from:()=>{let write=false;return {
+    insert(value){payload=value;uploads++;write=true;return this;},update(value){payload=value;uploads++;write=true;return this;},select(){return this;},eq(){return this;},
+    maybeSingle(){return write?new Promise(resolve=>{finish=resolve;}):Promise.resolve({data:row&&{updated_at:row.updated_at},error:null});}};}};
+  r.run('supabaseUser={id:"test-user"};supabaseClient=testClient;');
   r.context.fetchAndUpdateLastCloudSyncTime=()=>{};
-  return {refresh,async ready(count=1){for(let i=0;i<10&&uploads<count;i++)await Promise.resolve();assert.equal(uploads,count,'upload started');},
-    complete(error=null){finish({data:error?null:{updated_at:'2026-10-20T01:00:00Z'},error});},
+  return {refresh,async ready(count=1){for(let i=0;i<100&&uploads<count;i++)await new Promise(setImmediate);assert.equal(uploads,count,'upload started');},
+    complete(error=null){if(!error)row={...payload,updated_at:'2026-10-20T01:00:00Z'};finish({data:error?null:{updated_at:row.updated_at},error});},
     get payload(){return payload;},get uploads(){return uploads;}};
 }
 
@@ -500,10 +504,10 @@ test('editing during upload leaves the uploaded snapshot fixed and new local edi
   assert.equal(r.storage.get('lastLocalDataModification'),editTime);
   assert.equal(r.storage.get('kaasi_synced_state_hash'),r.context.generateDataHash(uploaded));
   assert.equal(r.context.currentCloudSyncStatus,'local_newer');
-  assert.ok(r.notices.some(([msg])=>msg.includes('still need backing up')));
+  assert.ok(r.notices.some(([msg])=>msg.includes('still need syncing')));
   // Run the real cloud-status refresh to cover the former two-second blind spot.
   r.context.statusClient={from:()=>({select(){return this;},eq(){return this;},
-    single:async()=>({data:{updated_at:'2026-10-20T01:00:00Z'},error:null})})};
+    maybeSingle:async()=>({data:{updated_at:'2026-10-20T01:00:00Z'},error:null})})};
   r.run('supabaseClient=statusClient;');
   await cloud.refresh();
   assert.equal(r.context.currentCloudSyncStatus,'local_newer');
@@ -518,10 +522,213 @@ test('unchanged upload marks only its snapshot synced; failed uploads preserve s
   await r.run('state.accounts[0].balance=950;saveData();');
   const retry=r.context.executeBackupToSupabase();await cloud.ready(2);cloud.complete({message:'Simulated network failure'});await retry;
   assert.equal(r.storage.get('kaasi_synced_state_hash'),hash);assert.equal(r.context.cloudBackupInProgress,false);
-  assert.ok(r.notices.some(([msg])=>msg.includes('Cloud backup failed')));
+  assert.ok(r.notices.some(([msg])=>msg.includes('Sync stopped')));
   const successfulRetry=r.context.executeBackupToSupabase();await cloud.ready(3);cloud.complete();await successfulRetry;
   assert.equal(r.context.currentCloudSyncStatus,'synced');
   assert.equal(r.storage.get('kaasi_synced_state_hash'),r.context.generateDataHash(r.run('JSON.stringify(state)')));
+});
+
+function syncCloud(r, initial) {
+  const clone=value=>value==null?value:JSON.parse(JSON.stringify(value));
+  const cloud={row:clone(initial),calls:[],beforeRead:null,beforeWrite:null,error:null};
+  r.context.initializeUI=()=>{};
+  r.context.openModalHelper=id=>{r.element(`#${id}`).style.display='block';};
+  r.context.closeModal=id=>{r.element(`#${id}`).style.display='none';};
+  r.context.showConfirmationModal=(...args)=>{cloud.confirm=args[4];};
+  r.context.testClient={from:()=>{
+    const call={type:'read',fields:null,filters:{},payload:null};
+    return {select(fields){call.fields=fields;return this;},eq(key,value){call.filters[key]=value;return this;},
+      update(value){call.type='update';call.payload=clone(value);return this;},insert(value){call.type='insert';call.payload=clone(value);return this;},
+      async maybeSingle(){
+        cloud.calls.push(clone(call));
+        if(cloud.error)return {data:null,error:cloud.error};
+        if(call.type==='read'){
+          if(cloud.beforeRead)await cloud.beforeRead(call);
+          return {data:cloud.row?(call.fields==='updated_at'?{updated_at:cloud.row.updated_at}:clone(cloud.row)):null,error:null};
+        }
+        if(cloud.beforeWrite)await cloud.beforeWrite(call);
+        if(call.type==='insert'&&cloud.row)return {data:null,error:{code:'23505',message:'duplicate'}};
+        if(call.type==='update'&&(!cloud.row||call.filters.updated_at!==cloud.row.updated_at))return {data:null,error:null};
+        cloud.row={...clone(call.payload)};return {data:{updated_at:cloud.row.updated_at},error:null};
+      }};
+  }};
+  r.run('supabaseUser={id:"sync-user"};supabaseClient=testClient;');
+  cloud.baseline=async(data=JSON.parse(r.storage.get('KaasiData')),updated='2026-10-21T00:00:00Z')=>{
+    await r.context.recordCloudSync('sync-user',data,updated,false);
+  };
+  return cloud;
+}
+
+test('manual Sync with an unchanged baseline checks metadata only and never transfers the dataset',async()=>{
+  const r=runtime();const local=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:local,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();
+  await r.context.syncCloudData();assert.equal(cloud.calls.length,1);
+  assert.equal(cloud.calls[0].fields,'updated_at');assert.equal(cloud.calls[0].type,'read');
+  assert.equal(r.context.currentCloudSyncStatus,'synced');assert.ok(r.notices.some(([m])=>m==='Already synced.'));
+});
+
+test('local-only changes use a conditional upload and return only metadata',async()=>{
+  const r=runtime();const original=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();
+  await r.run('state.accounts[0].balance=900;saveData();');await r.context.syncCloudData();
+  const write=cloud.calls.find(c=>c.type==='update');assert.equal(write.filters.updated_at,'2026-10-21T00:00:00Z');
+  assert.equal(write.filters.user_id,'sync-user');assert.equal(write.fields,'updated_at');
+  assert.equal(cloud.row.data.accounts[0].balance,900);assert.equal(r.context.currentCloudSyncStatus,'synced');
+});
+
+test('cloud-only changes download and apply while preserving the compatible JSON format',async()=>{
+  const r=runtime();const original=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();
+  cloud.row.data.accounts[0].balance=750;cloud.row.updated_at='2026-10-22T00:00:00Z';
+  await r.context.syncCloudData();assert.equal(r.run('state.accounts[0].balance'),750);
+  assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);assert.equal(r.context.currentCloudSyncStatus,'synced');
+});
+
+test('without an account-specific baseline, unequal copies open review without writing either copy',async()=>{
+  const r=runtime(),before=r.storage.get('KaasiData');const remote=JSON.parse(before);remote.accounts[0].balance=444;
+  const cloud=syncCloud(r,{data:remote,updated_at:'2026-10-21T00:00:00Z'});
+  // Legacy metadata from another account is deliberately not trusted.
+  r.storage.set('kaasi_synced_state_hash',r.context.generateDataHash(before));r.storage.set('lastSyncedCloudUpdatedAt',cloud.row.updated_at);
+  await r.context.syncCloudData();assert.equal(r.element('#cloudSyncModal').style.display,'block');
+  assert.equal(r.storage.get('KaasiData'),before);assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);
+  assert.match(r.element('#cloudSyncSummary').textContent,/1 differences/);
+});
+
+test('first Sync recognizes equal copies despite object-key ordering without uploading',async()=>{
+  const r=runtime();const local=JSON.parse(r.storage.get('KaasiData'));const reversed=Object.fromEntries(Object.entries(local).reverse());
+  const cloud=syncCloud(r,{data:reversed,updated_at:'2026-10-21T00:00:00Z'});
+  await r.context.syncCloudData();assert.equal(r.context.currentCloudSyncStatus,'synced');
+  assert.ok(r.context.cloudSyncBaseline('sync-user'));assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);
+});
+
+test('both-changed status survives local edits and review replacement requires explicit confirmation',async()=>{
+  const r=runtime();const original=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();
+  cloud.row.data.accounts[0].balance=700;cloud.row.updated_at='2026-10-22T00:00:00Z';
+  await r.context.refreshCloudSyncStatus();await r.run('state.accounts[0].balance=800;saveData();');
+  assert.equal(r.context.currentCloudSyncStatus,'conflict');
+  await r.context.syncCloudData();r.context.chooseCloudSyncCopy('local');
+  assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);
+  await cloud.confirm();assert.equal(cloud.row.data.accounts[0].balance,800);
+  assert.equal(r.element('#cloudSyncModal').style.display,'none');
+});
+
+test('review rejects a local change made after comparison without replacing cloud',async()=>{
+  const r=runtime();const remote=JSON.parse(r.storage.get('KaasiData'));remote.accounts[0].balance=444;
+  const cloud=syncCloud(r,{data:remote,updated_at:'2026-10-21T00:00:00Z'});
+  await r.context.syncCloudData();r.context.chooseCloudSyncCopy('local');
+  await r.run('state.accounts[0].balance=999;saveData();');await cloud.confirm();
+  assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);assert.equal(cloud.row.data.accounts[0].balance,444);
+  assert.ok(r.notices.some(([m])=>m.includes('Local data changed')));
+});
+
+test('review rejects an account switch and cloud edits after comparison',async()=>{
+  const r=runtime();const before=r.storage.get('KaasiData'),remote=JSON.parse(before);remote.accounts[0].balance=444;
+  const cloud=syncCloud(r,{data:remote,updated_at:'2026-10-21T00:00:00Z'});
+  await r.context.syncCloudData();r.context.chooseCloudSyncCopy('cloud');
+  cloud.row.updated_at='2026-10-22T00:00:00Z';await cloud.confirm();assert.equal(r.storage.get('KaasiData'),before);
+  r.run('supabaseUser={id:"other-user"};');r.context.chooseCloudSyncCopy('local');await cloud.confirm();
+  assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);assert.equal(r.storage.get('KaasiData'),before);
+});
+
+test('conditional upload cannot overwrite a cloud change between check and write',async()=>{
+  const r=runtime();const remote=JSON.parse(r.storage.get('KaasiData'));const cloud=syncCloud(r,{data:remote,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();
+  await r.run('state.accounts[0].balance=900;saveData();');
+  cloud.beforeWrite=()=>{cloud.row.updated_at='2026-10-22T00:00:00Z';cloud.row.data.accounts[0].balance=500;};
+  await r.context.syncCloudData();assert.equal(cloud.row.data.accounts[0].balance,500);
+  assert.equal(r.run('state.accounts[0].balance'),900);assert.ok(r.notices.some(([m])=>m.includes('Nothing was overwritten')));
+  assert.equal(r.context.cloudSyncBaseline('sync-user').updatedAt,'2026-10-21T00:00:00Z');
+});
+
+test('first-upload collision preserves the existing cloud row',async()=>{
+  const r=runtime();const cloud=syncCloud(r,null);
+  cloud.beforeWrite=()=>{cloud.row={data:{keep:true},updated_at:'2026-10-22T00:00:00Z'};};
+  await r.context.syncCloudData();assert.equal(cloud.row.data.keep,true);assert.equal(r.context.cloudSyncBaseline('sync-user'),null);
+});
+
+test('local edits during cloud download prevent replacement',async()=>{
+  const r=runtime();const original=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();
+  cloud.row.data.accounts[0].balance=500;cloud.row.updated_at='2026-10-22T00:00:00Z';
+  cloud.beforeRead=async call=>{if(call.fields.includes('data'))await r.run('state.accounts[0].balance=600;saveData();');};
+  await r.context.syncCloudData();assert.equal(r.run('state.accounts[0].balance'),600);
+  assert.ok(r.notices.some(([m])=>m.includes('Local data changed')));
+});
+
+test('failed downloads, invalid backups, and failed local writes preserve saved data',async()=>{
+  for(const failure of ['network','invalid','storage']){
+    const r=runtime();const before=r.storage.get('KaasiData'),original=JSON.parse(before);
+    const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();
+    cloud.row.updated_at='2026-10-22T00:00:00Z';cloud.row.data.accounts[0].balance=500;
+    if(failure==='network')cloud.error={message:'Network failed'};
+    if(failure==='invalid')cloud.row.data.transactions=null;
+    if(failure==='storage')r.localStorage.failMain=true;
+    await r.context.syncCloudData();assert.equal(r.storage.get('KaasiData'),before,failure);
+    assert.equal(r.context.cloudSyncBaseline('sync-user').updatedAt,'2026-10-21T00:00:00Z');
+  }
+});
+
+test('offline status is unknown and Sync does not upload or download',async()=>{
+  const r=runtime();const cloud=syncCloud(r,null);r.context.navigator.onLine=false;
+  await r.context.refreshCloudSyncStatus();assert.equal(r.context.currentCloudSyncStatus,'unknown');
+  await r.context.syncCloudData();assert.equal(cloud.calls.length,0);
+});
+
+test('comparison labels missing records accurately, redacts security values, and paginates safely',async()=>{
+  const r=runtime();const local=JSON.parse(r.storage.get('KaasiData')),remote=JSON.parse(JSON.stringify(local));
+  local.transactions=Array.from({length:31},(_,i)=>({id:`local_${i}`,amount:1,description:'<img src=x onerror=alert(1)>',date:'2026-10-21',type:'expense',account:'cash',category:'Other',timestamp:i}));
+  remote.transactions=[{...local.transactions[0],id:'remote_1'}];
+  local.settings.appPin={enabled:true,pin:'private-pin-hash',answer:'private-answer-hash'};
+  const changes=r.context.cloudSyncDifferences(local,remote);
+  assert.equal(changes.filter(c=>c.kind==='Only on this device').length,31);
+  assert.equal(changes.filter(c=>c.kind==='Only in cloud').length,1);
+  assert.ok(!JSON.stringify(changes).includes('private-pin-hash'));assert.ok(!JSON.stringify(changes).includes('private-answer-hash'));
+  const cloud=syncCloud(r,{data:remote,updated_at:'2026-10-21T00:00:00Z'});
+  r.context.reviewLocal=local;r.context.reviewRemote=remote;
+  r.run('cloudSyncReview={userId:"sync-user",local:reviewLocal,cloud:reviewRemote,cloudExport:reviewRemote};');
+  r.context.renderCloudSyncReview();assert.equal(r.element('#cloudSyncDifferences').children.length,25);
+  assert.equal(r.element('#cloudSyncPage').textContent,'1 / 2');
+  const first=r.element('#cloudSyncDifferences').children[0];assert.match(first.children[0].textContent,/<img/);assert.equal(first.children[0].innerHTML,'');
+  r.element('#cloudSyncNext').onclick();assert.equal(r.element('#cloudSyncPage').textContent,'2 / 2');
+  let exported;r.context.downloadKaasiSnapshot=data=>{exported=data;};
+  r.context.exportCloudSyncCopy('cloud');assert.deepEqual(exported,remote);assert.equal(cloud.calls.length,0);
+});
+
+test('single cloud shortcut uses upload/download/conflict colours and local shortcuts remain available',()=>{
+  const r=runtime();r.context.updateHeaderShortcutButtons=vm.runInContext('updateHeaderShortcutButtons',r.context);
+  // runtime substitutes a rendering stub; load the actual function for this UI check.
+  const source=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
+  vm.runInContext(source.slice(source.indexOf('function updateHeaderShortcutButtons()'),source.indexOf('let lastCloudSyncTimeString')),r.context);
+  r.element('#shortcutCloud').checked=true;r.element('#shortcutCloud').disabled=false;
+  for(const [status,colour] of [['local_newer','pulse-orange'],['cloud_newer','pulse-green'],['conflict','pulse-sync-conflict']]){
+    r.context.currentCloudSyncStatus=status;r.context.updateHeaderShortcutButtons();
+    assert.equal(r.element('#headerBackupBtn').classList.contains(colour),true);
+    assert.equal(r.element('#headerRestoreBtn').hidden,true);assert.equal(r.element('#headerBackupBtn').onclick,r.context.syncCloudData);
+  }
+  r.element('#shortcutCloud').checked=false;r.context.updateHeaderShortcutButtons();
+  assert.equal(r.element('#headerRestoreBtn').hidden,false);assert.equal(r.element('#headerBackupBtn').onclick,r.context.exportData);
+});
+
+test('focus checks transfer metadata only; account changes clear the previous comparison',async()=>{
+  const r=runtime();const original=JSON.parse(r.storage.get('KaasiData'));const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});
+  r.context.uiInitialized=true;r.context.document.visibilityState='visible';
+  r.context.checkVisibleCloudSync();await new Promise(setImmediate);await new Promise(setImmediate);
+  assert.equal(cloud.calls.length,1);assert.equal(cloud.calls[0].fields,'updated_at');
+  assert.equal(cloud.calls[0].type,'read');
+  r.context.reviewLocal=original;r.run('cloudSyncReview={userId:"sync-user",local:reviewLocal,cloud:reviewLocal,cloudExport:reviewLocal};');
+  r.context.renderCloudSyncReview();r.element('#cloudSyncModal').style.display='block';
+  r.context.resetCloudSyncAccount({id:'different-user'});
+  assert.equal(r.element('#cloudSyncDifferences').children.length,0);
+  assert.equal(r.element('#cloudSyncModal').style.display,'none');assert.equal(r.run('cloudSyncReview'),null);
+});
+
+test('comparison exports work offline and legacy mode cannot replace data without recovery protection',async()=>{
+  const r=runtime();const original=JSON.parse(r.storage.get('KaasiData')),remote=JSON.parse(JSON.stringify(original));remote.accounts[0].balance=500;
+  const cloud=syncCloud(r,{data:remote,updated_at:'2026-10-21T00:00:00Z'});
+  await r.context.syncCloudData();let exported;r.context.downloadKaasiSnapshot=data=>{exported=data;};
+  r.context.navigator.onLine=false;r.context.exportCloudSyncCopy('local');assert.deepEqual(exported,original);
+  r.context.navigator.onLine=true;r.context.KaasiStorage.mode='legacy';r.context.chooseCloudSyncCopy('cloud');await cloud.confirm();
+  assert.equal(r.run('state.accounts[0].balance'),1000);assert.ok(r.notices.some(([m])=>m.includes('Complete the local storage upgrade')));
 });
 
 test('bulk CC payments save a separate purchase ID for each payment', async () => {

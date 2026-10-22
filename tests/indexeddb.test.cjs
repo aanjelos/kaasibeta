@@ -261,11 +261,12 @@ test('cloud backup keeps the existing JSON object shape and recognizes unchanged
   const e=environment();const original=legacy(e);await e.initialize();
   e.run('state=KaasiStorage.current;lastPersistedStateJson=JSON.stringify(state);supabaseUser={id:"qa-user"};');
   vm.runInContext(fs.readFileSync(path.join(root,'js/data-sync.js'),'utf8'),e.context);
+  vm.runInContext(fs.readFileSync(path.join(root,'js/cloud-sync.js'),'utf8'),e.context);
+  e.context.navigator.onLine=true;e.context.updateHeaderShortcutButtons=()=>{};
   const notices=[];e.context.showNotification=(...args)=>notices.push(args);
   e.context.fetchAndUpdateLastCloudSyncTime=()=>{};
   let payload;
-  const query={upsert(value){payload=value;return this;},select(){return this;},single:async()=>({data:{updated_at:'2026-10-21T01:00:00Z'},error:null})};
-  e.context.client={from:()=>query};e.run('supabaseClient=client;');
+  e.context.client={from:()=>{let write=false;return {insert(value){payload=value;write=true;return this;},select(){return this;},eq(){return this;},maybeSingle:async()=>({data:write?{updated_at:'2026-10-21T01:00:00Z'}:null,error:null})};}};e.run('supabaseClient=client;');
   await e.context.executeBackupToSupabase();
   assert.equal(typeof payload.data,'object');assert.deepEqual(copy(payload.data),original);
   assert.equal(e.context.currentCloudSyncStatus,'synced');
@@ -334,6 +335,19 @@ test('legacy saves preserve data on quota failure and reject an outdated restore
   const revision=e.db.revision;await e.db.commit(next);
   await assert.rejects(e.db.replace(JSON.parse(before),revision),/Reload before restoring/);
   assert.equal(JSON.parse(e.data.get('KaasiData')).accounts[0].balance,123);
+});
+
+test('repeated replacements retain one previous dataset instead of an accumulating history',async()=>{
+  const e=environment();legacy(e);await e.initialize();
+  let previous;
+  for(let i=0;i<4;i++){
+    previous=await e.db.snapshot();const next=copy(previous);next.accounts[0].balance=100+i;
+    await e.db.replace(next);
+    assert.deepEqual(copy((await rawStore(e,'recovery','previous')).value),copy(previous));
+  }
+  const sources=await e.db.recoverySources();
+  assert.equal(sources.filter(s=>s.label==='Previous saved dataset').length,1);
+  assert.equal(sources.length,3,'active, one previous, and frozen migration copy only');
 });
 
 test('a blocked schema upgrade reports recovery instead of waiting silently or deleting the database',async()=>{

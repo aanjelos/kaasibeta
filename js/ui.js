@@ -23,8 +23,8 @@ function openShortcutsHelpModal() {
     { key: "D", action: "View All Debts." },
     { key: "R", action: "View All Receivables." },
     { key: "T", action: "Transfer Money." },
-    { key: "Ctrl + E", action: "Export Data." },
-    { key: "Ctrl + I", action: "Import Data." },
+    { key: "Ctrl + E", action: "Sync Cloud / Export Local File." },
+    { key: "Ctrl + I", action: "Sync Cloud / Import Local File." },
     { key: "← / →", action: "Navigate Month Tabs in All Transactions." },
   ];
 
@@ -245,6 +245,7 @@ function handleKeyboardShortcuts(event) {
       } else {
         const modalsToClose = [
           "confirmationModal",
+          "cloudSyncModal",
           "formModal",
           "transactionDetailModal",
           "ccHistoryModal",
@@ -675,7 +676,7 @@ window.addEventListener("popstate", (event) => {
   const modalsToClose = [
     "confirmationModal", "formModal", "transactionDetailModal", "ccTransactionDetailModal", "ccHistoryModal", "cashCounterModal",
     "debtsViewModal", "receivablesViewModal", "transferMoneyModal",
-    "monthlyViewModal", "settingsModal", "donateModal", "shortcutsHelpModal", "securityQuestionModal", "initialSetupModal", "editBudgetModal"
+    "monthlyViewModal", "settingsModal", "cloudSyncModal", "donateModal", "shortcutsHelpModal", "securityQuestionModal", "initialSetupModal", "editBudgetModal"
   ];
   
   const targetOpenModals = (event.state && event.state.openModals) ? event.state.openModals : [];

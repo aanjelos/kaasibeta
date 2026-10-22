@@ -1,11 +1,11 @@
-const BUILD = "v6.370n";
+const BUILD = "v6.371n";
 const CACHE_NAME = `kaasi-cache-${BUILD}`;
 const STATIC_ASSETS = [
   "./",
   "./index.html",
   `./style.css?v=${BUILD}`,
   `./tailwind.css?v=${BUILD}`,
-  ...["globals", "import-validation", "storage", "storage-ui", "data-sync", "math-tool", "settings", "charts", "ui", "features", "animations", "security", "app"].map(name => `./js/${name}.js?v=${BUILD}`),
+  ...["globals", "import-validation", "storage", "storage-ui", "data-sync", "cloud-sync", "math-tool", "settings", "charts", "ui", "features", "animations", "security", "app"].map(name => `./js/${name}.js?v=${BUILD}`),
   "./img/LogoIcon.svg",
   "./img/LogoIcon_Maskable.svg",
   "./img/FullLogo.svg",

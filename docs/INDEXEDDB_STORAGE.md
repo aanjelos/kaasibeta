@@ -43,6 +43,18 @@ Exports read all collections and metadata through one consistent read transactio
 
 Imports stage a verified replacement generation. The previous dataset is retained as one recovery snapshot. Cloud restores capture the local revision before fetching and reject replacement if it changed during download. Uploads use a committed snapshot; later edits remain pending.
 
+## Manual cloud Sync
+
+`js/cloud-sync.js` owns the single manual Sync workflow. The table remains `user_data` with `user_id`, JSON-object `data`, and `updated_at`; no schema changes or automatic record merging are introduced. Device preferences contain one `kaasi_cloud_sync_baseline_<userId>` record per signed-in account with a canonical SHA-256 content hash and the last accepted cloud timestamp. Legacy unscoped hashes do not authorize an automatic replacement.
+
+Status checks request only `updated_at`; focus/visibility/reconnect checks are throttled and never transfer datasets. Sync with an unchanged baseline needs only metadata. Changed local data uploads conditionally; changed cloud data downloads, validates, rechecks the cloud timestamp and local revision, then applies through the existing replacement boundary. First uploads insert; subsequent writes filter by owner and the expected timestamp. Responses request only `updated_at`. SHA-256 baselines are recorded only after successful operations; later local edits stay pending.
+
+Unknown pairings and independently changed copies open a paginated comparison. Users select a whole dataset after confirmation, or export either captured copy. Security values are redacted in the comparison, while explicit exports retain the compatible full JSON object. Missing records cannot be distinguished from deletions without history, so they are labeled only by which copy contains them. Baselines are per account; signing out/switching accounts clears the previous cloud comparison. Applying cloud data is unavailable in postponed legacy mode because that mode cannot provide the same bounded recovery guarantee.
+
+Cloud downloads retain the existing single `recovery/previous` snapshot; repeated replacements overwrite this recovery slot. Staging generations are cleaned after activation. The frozen migration copy remains separate. The old public app can still overwrite the shared cloud row using its own unconditional uploads: these safeguards govern updated beta operations only. `updated_at` remains a client-supplied equality token for backward compatibility, not a server-enforced monotonic revision. Test production RLS/update permissions on an authorized test account before rollout.
+
+`node tests/serve-sync-qa.cjs` serves a synthetic cloud/account and disposable sample dataset at `127.0.0.1:8768` (override with `KAASI_SYNC_QA_PORT`). It does not send backup requests to Supabase and must not be used with real data. The preview excludes service workers and repository/private files.
+
 ## Recovery and rollback
 
 The recovery screen can export readable current, previous, and original copies and restore a validated backup through an explicit confirmation. Protected copies require their existing PIN. Recovery never silently changes a balance or selects between divergent legacy/database copies.

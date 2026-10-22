@@ -585,15 +585,13 @@ function initializeUI(isRefresh = false) {
     googleLogoutButton.onclick = signOut;
   }
 
-  const backupToSupabaseButton = $("#backupToSupabaseBtn");
+  const backupToSupabaseButton = $("#syncCloudBtn");
   if (backupToSupabaseButton) {
-    backupToSupabaseButton.onclick = backupToSupabase;
+    backupToSupabaseButton.onclick = syncCloudData;
   }
 
-  const restoreFromSupabaseButton = $("#restoreFromSupabaseBtn");
-  if (restoreFromSupabaseButton) {
-    restoreFromSupabaseButton.onclick = restoreFromSupabase;
-  }
+  const setupCloudSyncButton = $("#setupCloudSyncBtn");
+  if (setupCloudSyncButton) setupCloudSyncButton.onclick = syncCloudData;
 
   // --- MODIFIED: shortcutTargetGroup listener ---
   const shortcutTargetGroup = $("#shortcutTargetGroup");
@@ -799,93 +797,59 @@ function initializeUI(isRefresh = false) {
  * Updates the header backup/restore buttons to reflect the selected shortcut target.
  */
 function updateHeaderShortcutButtons() {
-  const backupBtn = $("#headerBackupBtn");
-  const restoreBtn = $("#headerRestoreBtn");
-  const localRadio = $("#shortcutLocal");
+  const backupBtn = $("#headerBackupBtn"), restoreBtn = $("#headerRestoreBtn");
   const cloudRadio = $("#shortcutCloud");
-
-  if (!backupBtn || !restoreBtn || !localRadio || !cloudRadio) {
-    console.warn("Header shortcut buttons or radio inputs not found.");
-    return;
-  }
-
-  const importInput = $("#importDataInput"); // Get the file input element
-  
-  // Mobile elements
-  const dropBackupText = $("#dropBackupText");
-  const dropRestoreText = $("#dropRestoreText");
-  const dropBackupBtn = $("#dropBackupBtn");
-  const dropRestoreBtn = $("#dropRestoreBtn");
-  const mobileMenuIcon = $("#mobileMenuIcon");
-
-  // Check if cloud is selected AND enabled
+  if (!backupBtn || !restoreBtn || !cloudRadio) return;
   const isCloud = cloudRadio.checked && !cloudRadio.disabled;
-  
-  // Reset mobile classes and text first
-  if (dropBackupBtn) dropBackupBtn.classList.remove("pulse-orange");
-  if (dropRestoreBtn) dropRestoreBtn.classList.remove("pulse-green");
-  if (mobileMenuIcon) mobileMenuIcon.classList.remove("pulse-orange", "pulse-green");
-  
-  // Default base texts depending on mode
-  const baseExportText = isCloud ? "Export to Cloud" : "Export Local File";
-  const baseImportText = isCloud ? "Import from Cloud" : "Import Local File";
-  
-  if (dropBackupText) dropBackupText.textContent = baseExportText;
-  if (dropRestoreText) dropRestoreText.textContent = baseImportText;
-
+  const dropBackupBtn = $("#dropBackupBtn"), dropRestoreBtn = $("#dropRestoreBtn");
+  const dropBackupText = $("#dropBackupText"), dropRestoreText = $("#dropRestoreText");
+  const syncBtn = $("#syncCloudBtn"), menuIcon = $("#mobileMenuIcon");
+  const status = window.currentCloudSyncStatus || "unknown";
+  const descriptions = {
+    local_newer: "Sync — local changes ready to upload",
+    cloud_newer: "Sync — cloud changes ready to download",
+    conflict: "Sync — changes on both devices; review copies",
+    review: "Sync — compare copies before choosing",
+    synced: "Sync — already synced",
+    unknown: "Sync — check cloud status"
+  };
+  for (const element of [backupBtn, restoreBtn, dropBackupBtn, dropRestoreBtn, syncBtn, menuIcon]) {
+    element?.classList.remove("pulse-orange", "pulse-green", "pulse-sync-conflict");
+  }
+  restoreBtn.hidden = isCloud;
+  restoreBtn.classList.toggle("hidden", isCloud);
+  if (dropRestoreBtn?.parentElement) { dropRestoreBtn.parentElement.hidden = isCloud; dropRestoreBtn.parentElement.classList.toggle("hidden", isCloud); }
+  backupBtn.innerHTML = isCloud ? '<i class="fas fa-sync-alt fa-lg"></i>' : '<i class="fas fa-floppy-disk fa-lg"></i>';
+  if (dropBackupBtn) dropBackupBtn.innerHTML = isCloud ? '<i class="fas fa-sync-alt fa-lg"></i>' : '<i class="fas fa-floppy-disk fa-lg"></i>';
   if (isCloud) {
-    // Set to CLOUD mode
-    backupBtn.classList.remove("pulse-orange");
-    restoreBtn.classList.remove("pulse-green");
-    
-    const modalBackupBtn = $("#backupToSupabaseBtn");
-    const modalRestoreBtn = $("#restoreFromSupabaseBtn");
-    if (modalBackupBtn) modalBackupBtn.style.boxShadow = "";
-    if (modalRestoreBtn) modalRestoreBtn.style.boxShadow = "";
-
-    if (window.currentCloudSyncStatus === "cloud_newer") {
-      restoreBtn.classList.add("pulse-green");
-      if (modalRestoreBtn) modalRestoreBtn.style.boxShadow = "0 0 0 2px var(--success-indicator-color)";
-      
-      restoreBtn.dataset.tooltip = `New cloud data! (Synced ${lastCloudSyncTimeString} elsewhere)`;
-      backupBtn.dataset.tooltip = "Export to Cloud (Ctrl+E)";
-      
-      // Mobile UI
-      if (dropRestoreText) dropRestoreText.textContent = `Import from Cloud (New: ${lastCloudSyncTimeString})`;
-      if (dropRestoreBtn) dropRestoreBtn.classList.add("pulse-green");
-      if (mobileMenuIcon) mobileMenuIcon.classList.add("pulse-green");
-    } else if (window.currentCloudSyncStatus === "local_newer") {
-      backupBtn.classList.add("pulse-orange");
-      if (modalBackupBtn) modalBackupBtn.style.boxShadow = "0 0 0 2px var(--accent-primary)";
-      
-      backupBtn.dataset.tooltip = "Unsaved local changes! Export to save.";
-      restoreBtn.dataset.tooltip = "Import from Cloud (Ctrl+I)";
-      
-      // Mobile UI
-      if (dropBackupText) dropBackupText.textContent = "Export to Cloud (Unsaved changes)";
-      if (dropBackupBtn) dropBackupBtn.classList.add("pulse-orange");
-      if (mobileMenuIcon) mobileMenuIcon.classList.add("pulse-orange");
-    } else {
-      if (lastCloudSyncTimeString) {
-        backupBtn.dataset.tooltip = `Export to Cloud (Fully synced: ${lastCloudSyncTimeString})`;
-        if (dropBackupText) dropBackupText.textContent = `Export to Cloud (Synced: ${lastCloudSyncTimeString})`;
-      } else {
-        backupBtn.dataset.tooltip = "Export to Cloud (Ctrl+E)";
-      }
-      restoreBtn.dataset.tooltip = "Import from Cloud (Ctrl+I)";
+    const text = cloudSyncBusy ? "Syncing…" : descriptions[status] || descriptions.unknown;
+    backupBtn.dataset.tooltip = text;
+    backupBtn.setAttribute("aria-label", text);
+    backupBtn.disabled = cloudSyncBusy;
+    backupBtn.onclick = syncCloudData;
+    if (dropBackupBtn) dropBackupBtn.disabled = cloudSyncBusy;
+    if (dropBackupText) dropBackupText.textContent = text;
+    if (!cloudSyncBusy) {
+      const pulse = status === "local_newer" ? "pulse-orange" : status === "cloud_newer" ? "pulse-green"
+        : status === "conflict" || status === "review" ? "pulse-sync-conflict" : null;
+      if (pulse) for (const element of [backupBtn, dropBackupBtn, syncBtn, menuIcon]) element?.classList.add(pulse);
     }
-
-    backupBtn.onclick = backupToSupabase; // Assign cloud backup function
-    restoreBtn.onclick = () => restoreFromSupabase(false, true); // Assign cloud restore function
   } else {
-    // Set to LOCAL mode (default)
+    backupBtn.disabled = false;
     backupBtn.dataset.tooltip = "Export Local File (Ctrl+E)";
-    backupBtn.onclick = exportData; // Assign local export function
-
+    backupBtn.setAttribute("aria-label", "Export Local File");
+    backupBtn.onclick = exportData;
     restoreBtn.dataset.tooltip = "Import Local File (Ctrl+I)";
-    restoreBtn.onclick = () => {
-      triggerDataImport();
-    };
+    restoreBtn.onclick = triggerDataImport;
+    if (dropBackupText) dropBackupText.textContent = "Export Local File";
+    if (dropRestoreText) dropRestoreText.textContent = "Import Local File";
+    if (dropBackupBtn) dropBackupBtn.disabled = false;
+  }
+  // Settings always represents cloud sync, independent of header shortcut mode.
+  if (syncBtn && !cloudSyncBusy) {
+    const pulse = status === "local_newer" ? "pulse-orange" : status === "cloud_newer" ? "pulse-green"
+      : status === "conflict" || status === "review" ? "pulse-sync-conflict" : null;
+    if (pulse) syncBtn.classList.add(pulse);
   }
 }
 
@@ -1014,7 +978,7 @@ window.executePreloaderSequence = function() {
   const isMobile = window.innerWidth < 768;
   if (!isMobile) {
     PRELOADER_TIPS.push(
-      "Quickly backup with Ctrl+E and restore with Ctrl+I.",
+      "Use Ctrl+E or Ctrl+I to Sync in cloud mode, or export/import a local file in local mode.",
       "Press the 'A' key to view All Transactions.",
       "Press the '?' key to view Keyboard Shortcuts."
     );

@@ -263,86 +263,7 @@ function completeDeletion() {
 
 
 async function fetchAndUpdateLastCloudSyncTime() {
-  if (!supabaseUser || !supabaseClient) return;
-
-  const timeEl = $("#lastCloudBackupTime");
-  if (timeEl) timeEl.textContent = "Last backed up: Fetching...";
-
-  try {
-    const { data, error } = await supabaseClient
-      .from("user_data")
-      .select("updated_at")
-      .eq("user_id", supabaseUser.id)
-      .single();
-
-    if (error || !data || !data.updated_at) {
-      if (timeEl) timeEl.textContent = "Last backed up: Never";
-      lastCloudSyncTimeString = "Never";
-    } else {
-      const date = new Date(data.updated_at);
-      const now = new Date();
-      const diffMs = now - date;
-      const diffMins = Math.floor(diffMs / (1000 * 60));
-      
-      const formattedTime = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }).toUpperCase();
-      let formatted = "";
-      
-      if (diffMins <= 1) {
-        formatted = "Just now";
-      } else {
-        const isToday = date.toDateString() === now.toDateString();
-        const yesterday = new Date(now);
-        yesterday.setDate(now.getDate() - 1);
-        const isYesterday = date.toDateString() === yesterday.toDateString();
-        
-        if (isToday) {
-          formatted = `Today at ${formattedTime}`;
-        } else if (isYesterday) {
-          formatted = `Yesterday at ${formattedTime}`;
-        } else {
-          formatted = `${date.toLocaleDateString()} at ${formattedTime}`;
-        }
-      }
-      
-      lastCloudSyncTimeString = formatted;
-      
-
-      const lastSyncedCloudUpdatedAt = appPreferences.getItem("lastSyncedCloudUpdatedAt");
-      const lastLocalCloudSync = parseInt(appPreferences.getItem("lastLocalCloudSync") || "0", 10);
-      const lastLocalDataModification = parseInt(appPreferences.getItem("lastLocalDataModification") || "0", 10);
-      
-      window.currentCloudSyncStatus = "synced";
-      
-      if (data.updated_at !== lastSyncedCloudUpdatedAt && lastSyncedCloudUpdatedAt) {
-        window.currentCloudSyncStatus = "cloud_newer";
-      } else {
-        const currentDataStr = lastPersistedStateJson;
-        const currentHash = typeof generateDataHash === "function" ? generateDataHash(currentDataStr) : null;
-        const syncedHash = appPreferences.getItem("kaasi_synced_state_hash");
-        
-        if (currentHash && syncedHash) {
-          window.currentCloudSyncStatus = currentHash === syncedHash ? "synced" : "local_newer";
-        } else if (lastLocalDataModification > lastLocalCloudSync + 2000) {
-          window.currentCloudSyncStatus = "local_newer";
-        }
-      }
-
-      
-      if (timeEl) {
-        if (window.currentCloudSyncStatus === "cloud_newer") {
-          timeEl.textContent = `Last backed up: ${formatted} (elsewhere)`;
-        } else {
-          timeEl.textContent = `Last backed up: ${formatted}`;
-        }
-      }
-    }
-    
-    updateHeaderShortcutButtons();
-  } catch (err) {
-    console.error("Failed to fetch last backup time", err);
-    if (timeEl) timeEl.textContent = "Last backed up: Unknown";
-    lastCloudSyncTimeString = "";
-  }
+  return refreshCloudSyncStatus();
 }
 
 async function signInWithGoogle() {
@@ -417,246 +338,15 @@ async function signOut() {
 }
 
 async function backupToSupabase() {
-  if (isAppLocked()) return;
-  if (!supabaseUser) {
-    showNotification("You must be logged in to back up to the cloud.", "error");
-    return;
-  }
-
-  if (window.currentCloudSyncStatus === "cloud_newer") {
-    showConfirmationModal(
-      "Overwrite Newer Cloud Data?",
-      "<p class='mb-3'>Your cloud backup contains <strong class='text-warning'>newer data</strong> than what is currently on this device.</p><p>If you proceed, you will permanently overwrite the newer cloud data with your older local data.</p>",
-      "Overwrite Cloud Data",
-      "Cancel",
-      async () => {
-        await executeBackupToSupabase();
-      }
-    );
-  } else {
-    await executeBackupToSupabase();
-  }
+  return syncCloudData();
 }
 
 async function executeBackupToSupabase() {
-  if (isAppLocked()) return;
-  if (window.cloudBackupInProgress) return;
-  window.cloudBackupInProgress = true;
-
-  // Show loading state on button
-  const backupBtn = $("#backupToSupabaseBtn");
-  const originalText = backupBtn.innerHTML;
-  backupBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Backing up...`;
-  backupBtn.disabled = true;
-
-  console.log("Starting cloud backup...");
-  showNotification("Saving backup...", "info", 5000);
-
-  try {
-    // Freeze this upload; subsequent edits must stay pending for the next backup.
-    const uploadedDataStr = JSON.stringify(await KaasiStorage.snapshot());
-    const uploadedSnapshot = JSON.parse(uploadedDataStr);
-    // We use 'upsert' to either create a new record or update the existing one for this user.
-
-
-    const { data, error } = await supabaseClient
-      .from("user_data")
-      .upsert(
-        {
-          user_id: supabaseUser.id,
-          data: uploadedSnapshot,
-          updated_at: new Date().toISOString(),
-        },
-        {
-          onConflict: "user_id", // This is the magic line!
-        }
-      )
-      .select() // Ask Supabase to return the saved row
-      .single(); // We only expect one row
-
-    if (error) {
-      console.error("Error backing up data:", error.message);
-      throw error;
-    }
-
-    console.log("Backup successful.");
-    const backupTime = data.updated_at
-      ? new Date(data.updated_at).toLocaleString()
-      : "just now";
-      
-
-    if (data.updated_at) appPreferences.setItem("lastSyncedCloudUpdatedAt", data.updated_at);
-    const now = Date.now().toString();
-    appPreferences.setItem("lastLocalCloudSync", now);
-    appPreferences.setItem("lastSuccessfulCloudBackupDate", getCurrentDateString());
-    if (typeof generateDataHash === "function") {
-      appPreferences.setItem("kaasi_synced_state_hash", generateDataHash(uploadedDataStr));
-    }
-    const changesDuringUpload = KaasiStorage.canonical(JSON.parse(lastPersistedStateJson)) !== KaasiStorage.canonical(uploadedSnapshot);
-    await appPreferences.flush();
-    window.currentCloudSyncStatus = changesDuringUpload ? "local_newer" : "synced";
-    showNotification(
-      changesDuringUpload
-        ? "Cloud backup completed. Changes made during the upload still need backing up."
-        : `Cloud backup successful! (Last sync: ${backupTime})`,
-      changesDuringUpload ? "info" : "success"
-    );
-    
-    // Refresh the UI timestamp and tooltips
-    fetchAndUpdateLastCloudSyncTime();
-  } catch (error) {
-    console.error("Exception during backup:", error);
-    showNotification(`Cloud backup failed: ${error.message}`, "error", 7000);
-  } finally {
-    window.cloudBackupInProgress = false;
-    // Restore button text and state
-    backupBtn.innerHTML = originalText;
-    backupBtn.disabled = false;
-  }
+  return syncCloudData();
 }
 
 async function restoreFromSupabase(force = false, isFromDashboard = false) {
-  if (isAppLocked()) return;
-  // Prevent MouseEvent from being evaluated as true when called via onclick
-  if (typeof force !== "boolean") force = false;
-
-  if (isFromDashboard && appPreferences.getItem("skipRestoreWarning") === "true") {
-    force = true;
-  }
-  if (!supabaseUser) {
-    showNotification(
-      "You must be logged in to restore from the cloud.",
-      "error"
-    );
-    return;
-  }
-  
-  if (window.isRestoringFromCloud) return;
-
-  const doRestore = async () => {
-    if (isAppLocked()) return;
-    window.isRestoringFromCloud = true;
-    // onConfirm: Proceed with restore
-    console.log("Starting cloud restore...");
-
-    const restoreBtn = $("#restoreFromSupabaseBtn");
-    const originalText = restoreBtn ? restoreBtn.innerHTML : "Restore";
-    if (restoreBtn) {
-      restoreBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Restoring...`;
-      restoreBtn.disabled = true;
-    }
-    showNotification("Restoring from cloud...", "info", 5000);
-
-      try {
-
-        // This makes the query more robust by ensuring we *only* get the single, most recent
-        // backup for this user, which makes .single() safe to use.
-        const expectedRevision = KaasiStorage.revision;
-        const { data, error } = await supabaseClient
-          .from("user_data")
-          .select("data, updated_at")
-          .eq("user_id", supabaseUser.id)
-          .order("updated_at", { ascending: false }) // Get newest one first
-          .limit(1) // Only take that one
-          .single(); // Now this is safe
-
-        if (error || !data) {
-          if (error && error.code === "PGRST116") {
-            // "PostgREST error: No rows found"
-            console.warn("No cloud backup found for this user.");
-            showNotification("No cloud backup found to restore.", "info");
-            return;
-          }
-          console.error(
-            "Error fetching data:",
-            error ? error.message : "No data found"
-          );
-          throw error || new Error("No data found to restore.");
-        }
-
-        console.log("Data fetched successfully.");
-
-        if (!data.data || typeof data.data !== "object") {
-          throw new Error("Cloud data is empty or in an invalid format.");
-        }
-
-        if (isAppLocked()) throw new Error("Unlock the app before restoring data.");
-        await applyImportedData(data.data, expectedRevision);
-
-
-        if (data.updated_at) appPreferences.setItem("lastSyncedCloudUpdatedAt", data.updated_at);
-        const now = Date.now().toString();
-        appPreferences.setItem("lastLocalCloudSync", now);
-        appPreferences.setItem("lastLocalDataModification", now);
-        const currentDataStr = lastPersistedStateJson;
-        if (currentDataStr && typeof generateDataHash === "function") {
-          appPreferences.setItem("kaasi_synced_state_hash", generateDataHash(currentDataStr));
-        }
-
-
-        const backupTime = new Date(data.updated_at).toLocaleString();
-        showNotification(
-          `Restore successful! (Data from ${backupTime})`,
-          "success"
-        );
-
-        // Refresh the UI timestamp and tooltips
-        fetchAndUpdateLastCloudSyncTime();
-
-        closeModal("settingsModal");
-      } catch (error) {
-        console.error("Exception during restore:", error);
-        showNotification(
-          `Cloud restore failed: ${error.message}`,
-          "error",
-          7000
-        );
-      } finally {
-        if (restoreBtn) {
-          restoreBtn.innerHTML = originalText;
-          restoreBtn.disabled = false;
-        }
-        window.isRestoringFromCloud = false;
-      }
-  };
-
-    if (force) {
-      await doRestore();
-    } else {
-      let extraHtml = "";
-      if (isFromDashboard) {
-        extraHtml = `<div class="mt-4 pt-4 border-t border-gray-700">
-          <label class="flex items-start gap-2.5 cursor-pointer group text-left max-w-[260px] mx-auto">
-            <input type="checkbox" id="dontShowRestoreWarning" class="peer sr-only">
-            <div class="shrink-0 w-4 h-4 rounded border border-gray-500 peer-checked:border-accent-500 flex items-center justify-center transition-colors text-transparent peer-checked:text-accent-500 mt-[3px]">
-              <svg class="w-3 h-3 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-            </div>
-            <span class="text-sm text-gray-300 group-hover:text-white transition-colors leading-[1.35]">Don't show this warning again when restoring from the dashboard</span>
-          </label>
-        </div>`;
-      }
-
-      // Show a confirmation modal first
-      showConfirmationModal(
-        "Restore from Cloud",
-        `<div class="text-gray-300">
-          <p class="mb-3">This will <strong class="text-warning">OVERWRITE ALL</strong> your current local data with the data from your last cloud backup.</p>
-          <p>Are you sure you want to proceed?</p>
-        </div>${extraHtml}`,
-        "Restore & Overwrite",
-        "Cancel",
-        () => {
-          if (isFromDashboard && document.getElementById("dontShowRestoreWarning")?.checked) {
-            appPreferences.setItem("skipRestoreWarning", "true");
-          }
-          doRestore();
-        },
-        () => {
-          // onCancel: Do nothing
-          console.log("Cloud restore cancelled by user.");
-        }
-      );
-    }
+  return syncCloudData();
 }
 
 
@@ -777,34 +467,11 @@ async function initializeSupabase() {
   console.log("Checking Supabase auth state...");
 
   const checkAutoRestore = async (user) => {
-    if (user && (!state || !state.settings || !state.settings.initialSetupDone)) {
-      if (typeof restoreFromSupabase === "function") {
-        console.log("User signed in with incomplete setup, attempting auto-restore...");
-        try {
-          await restoreFromSupabase(true);
-        } finally {
-          appPreferences.removeItem("pendingCloudRestore");
-        }
-        
-        if (state && state.settings && state.settings.initialSetupDone) {
-          if (typeof closeModal === "function") closeModal("initialSetupModal");
-          if (typeof renderDashboard === "function") renderDashboard();
-        } else {
-          // If restore failed or user had no data, and setup is still incomplete
-          if (typeof openInitialSetupWizard === "function") {
-            console.log("Auto-restore did not complete setup. Opening wizard.");
-            openInitialSetupWizard();
-          }
-        }
-      }
-    } else {
-      appPreferences.removeItem("pendingCloudRestore");
-      if (!state || !state.settings || !state.settings.initialSetupDone) {
-        if (typeof openInitialSetupWizard === "function") {
-          console.log("No user session found, opening setup wizard.");
-          openInitialSetupWizard();
-        }
-      }
+    appPreferences.removeItem("pendingCloudRestore");
+    if (!state?.settings?.initialSetupDone) {
+      // Signing in never replaces data. Sync remains an explicit action.
+      openInitialSetupWizard();
+      if (user) { $("#setupCloudSyncBtn").hidden = false; $("#setupCloudSyncBtn").onclick = syncCloudData; }
     }
     
     // Hide the preloader if it was kept visible for pending restore
@@ -865,6 +532,7 @@ async function initializeSupabase() {
 }
 
 function updateSupabaseUI(user) {
+  resetCloudSyncAccount(user);
   const loggedOutView = $("#cloudBackupLoggedOut");
   const loggedInView = $("#cloudBackupLoggedIn");
   const userEmailEl = $("#userEmail");

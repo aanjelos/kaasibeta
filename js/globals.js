@@ -635,6 +635,7 @@ async function saveData(nextState = state) {
   lastPersistedStateJson = serialized;
   const syncedHash = appPreferences.getItem("kaasi_synced_state_hash");
   window.currentCloudSyncStatus = syncedHash && generateDataHash(serialized) === syncedHash ? "synced" : "local_newer";
+  if (typeof updateLocalCloudSyncStatus === "function") await updateLocalCloudSyncStatus();
   if (typeof updateHeaderShortcutButtons === "function") updateHeaderShortcutButtons();
   return true;
 }

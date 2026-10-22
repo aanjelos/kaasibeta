@@ -1771,6 +1771,29 @@ footer a[href^="https://kaasi.com.lk"]:hover
   animation: pulseOrangeText 2s infinite ease-in-out !important;
 }
 
+@keyframes pulseSyncConflict {
+  0%, 100% { color: var(--accent-primary); }
+  50% { color: var(--success-indicator-color); }
+}
+.pulse-sync-conflict { animation: pulseSyncConflict 2s infinite ease-in-out !important; }
+#cloudSyncModal { z-index: 66; }
+.cloud-sync-content { max-width: 800px; }
+.sync-export-actions, .sync-choice-actions, .sync-pagination { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+.sync-pagination { align-items: center; justify-content: center; }
+.sync-pagination[hidden] { display: none; }
+.sync-differences { margin-top: 18px; text-align: left; }
+.sync-differences details { border-bottom: 1px solid var(--border-color); padding: 12px 0; }
+.sync-differences summary { cursor: pointer; overflow-wrap: anywhere; }
+.sync-diff-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 16px; margin-top: 14px; }
+.sync-diff-row > strong { grid-column: 1 / -1; }
+.sync-diff-row span { color: var(--text-secondary); font-size: 12px; }
+.sync-diff-row pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: 13px; max-height: 240px; overflow: auto; }
+@media (max-width: 560px) {
+  .sync-choice-actions, .sync-export-actions { flex-direction: column; }
+  .sync-diff-row { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { .pulse-sync-conflict { animation: none !important; color: var(--accent-primary); } }
+
 /* --- MATH TOOLBAR HIDE OVERRIDE --- */
 .hide-calc-buttons .calc-toggle-btn {
   display: none !important;

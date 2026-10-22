@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.370n" />
+    <meta name="application-version" content="v6.371n" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -51,8 +51,8 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v6.370n" />
-    <link rel="stylesheet" href="tailwind.css?v=v6.370n" />
+    <link rel="stylesheet" href="style.css?v=v6.371n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.371n" />
 
     <script
       async
@@ -1100,21 +1100,11 @@
                   </p>
                   <p id="lastCloudBackupTime" class="text-xs text-gray-300 -mt-2">Last backed up: Fetching...</p>
                   <div class="flex flex-col sm:flex-row gap-3">
-                    <button
-                      id="backupToSupabaseBtn"
-                      class="btn btn-primary flex-1"
-                    >
-                      <i class="fas fa-cloud-upload-alt mr-2"></i> Export to
-                      Cloud
-                    </button>
-                    <button
-                      id="restoreFromSupabaseBtn"
-                      class="btn btn-secondary flex-1"
-                    >
-                      <i class="fas fa-cloud-download-alt mr-2"></i> Import from
-                      Cloud
+                    <button id="syncCloudBtn" class="btn btn-primary flex-1" type="button">
+                      <i class="fas fa-sync-alt mr-2"></i> Sync
                     </button>
                   </div>
+                  <p class="text-xs text-gray-300">Sync manually uploads or downloads the changed copy. If both differ, review them before choosing. No automatic merging.</p>
 
                   <button id="googleLogoutBtn" class="btn btn-secondary w-full">
                     <i class="fas fa-sign-out-alt mr-1"></i> Sign Out
@@ -1481,8 +1471,8 @@
             <div class="max-w-lg mx-auto">
               <p>
                 This was made and refined using AI. All data are handled
-                locally. This cannot be automatically synced to a different
-                device, unless cloud backups are enabled.
+                locally. Select Sync to exchange a cloud copy manually between
+                devices after signing in.
               </p>
               <p>
                 Make sure to back up the data from time to time. You will receive
@@ -1535,13 +1525,14 @@
             <div class="card !p-4 border-2 border-dashed border-gray-600 bg-[var(--bg-tertiary)] flex flex-col sm:flex-row items-center justify-between gap-4">
               <div class="text-center sm:text-left flex-grow">
                 <h3 class="text-sm font-semibold text-[var(--text-primary)]">Already have data?</h3>
-                <p class="text-xs text-gray-300 mt-1">Sign in or import a backup file to instantly restore your data and skip this setup.</p>
+                <p class="text-xs text-gray-300 mt-1">Sign in and select Sync to compare your cloud copy, or import a backup file.</p>
               </div>
               <div class="flex flex-row gap-2 w-full sm:w-auto shrink-0 justify-center">
                 <button type="button" id="setupCloudLoginBtn" class="btn btn-secondary text-sm flex-1 sm:flex-none justify-center m-0 whitespace-nowrap">
                   <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-4 h-4 mr-2 inline-block" />
-                  Cloud Restore
+                  Sign In
                 </button>
+                <button type="button" id="setupCloudSyncBtn" class="btn btn-secondary text-sm" onclick="syncCloudData()" hidden>Sync</button>
                 <label class="btn btn-secondary text-sm cursor-pointer flex-1 sm:flex-none justify-center m-0 whitespace-nowrap">
                   <i class="fas fa-file-import mr-2"></i>Local File
                   <input type="file" id="setupImportInput" accept=".json" class="hidden" aria-label="Setup Import Input" />
@@ -1660,8 +1651,8 @@
             <div class="max-w-lg mx-auto">
               <p>
                 This was made and refined using AI. All data are handled
-                locally. This cannot be automatically synced to a different
-                device, unless cloud backups are enabled.
+                locally. Select Sync to exchange a cloud copy manually between
+                devices after signing in.
               </p>
               <p>
                 Make sure to back up the data from time to time. You will receive
@@ -1829,6 +1820,29 @@
             class="space-y-3 max-h-[70vh] overflow-y-auto pr-2"
           >
             <p class="text-gray-300 text-sm">Loading receivables...</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="cloudSyncModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="cloudSyncTitle">
+        <div class="modal-content cloud-sync-content">
+          <button class="modal-close" type="button" aria-label="Close comparison" onclick="closeModal('cloudSyncModal')">&times;</button>
+          <h2 id="cloudSyncTitle" class="text-2xl font-bold mb-4">Compare Sync Copies</h2>
+          <p id="cloudSyncSummary" class="text-sm text-gray-300" aria-live="polite"></p>
+          <div class="sync-export-actions">
+            <button id="cloudSyncExportLocal" type="button" class="btn btn-secondary">Export This Device's Copy</button>
+            <button id="cloudSyncExportCloud" type="button" class="btn btn-secondary">Export Cloud Copy</button>
+          </div>
+          <div id="cloudSyncDifferences" class="sync-differences"></div>
+          <div id="cloudSyncPagination" class="sync-pagination">
+            <button id="cloudSyncPrevious" type="button" class="btn btn-secondary">Previous</button>
+            <span id="cloudSyncPage" aria-live="polite"></span>
+            <button id="cloudSyncNext" type="button" class="btn btn-secondary">Next</button>
+          </div>
+          <div class="sync-choice-actions">
+            <button id="cloudSyncUseLocal" type="button" class="btn btn-primary">Use This Device's Copy</button>
+            <button id="cloudSyncUseCloud" type="button" class="btn btn-secondary">Use Cloud Copy</button>
+            <button type="button" class="btn btn-secondary" onclick="closeModal('cloudSyncModal')">Cancel</button>
           </div>
         </div>
       </div>
@@ -2078,19 +2092,20 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v6.370n" defer></script>
-    <script src="js/import-validation.js?v=v6.370n" defer></script>
-    <script src="js/storage.js?v=v6.370n" defer></script>
-    <script src="js/storage-ui.js?v=v6.370n" defer></script>
-    <script src="js/animations.js?v=v6.370n" defer></script>
-    <script src="js/data-sync.js?v=v6.370n" defer></script>
-    <script src="js/math-tool.js?v=v6.370n" defer></script>
-    <script src="js/settings.js?v=v6.370n" defer></script>
-    <script src="js/charts.js?v=v6.370n" defer></script>
-    <script src="js/ui.js?v=v6.370n" defer></script>
-    <script src="js/features.js?v=v6.370n" defer></script>
-    <script src="js/security.js?v=v6.370n" defer></script>
-    <script src="js/app.js?v=v6.370n" defer></script>
+    <script src="js/globals.js?v=v6.371n" defer></script>
+    <script src="js/import-validation.js?v=v6.371n" defer></script>
+    <script src="js/storage.js?v=v6.371n" defer></script>
+    <script src="js/storage-ui.js?v=v6.371n" defer></script>
+    <script src="js/animations.js?v=v6.371n" defer></script>
+    <script src="js/data-sync.js?v=v6.371n" defer></script>
+    <script src="js/cloud-sync.js?v=v6.371n" defer></script>
+    <script src="js/math-tool.js?v=v6.371n" defer></script>
+    <script src="js/settings.js?v=v6.371n" defer></script>
+    <script src="js/charts.js?v=v6.371n" defer></script>
+    <script src="js/ui.js?v=v6.371n" defer></script>
+    <script src="js/features.js?v=v6.371n" defer></script>
+    <script src="js/security.js?v=v6.371n" defer></script>
+    <script src="js/app.js?v=v6.371n" defer></script>
   </body>
 </html>
 

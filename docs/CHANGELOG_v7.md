@@ -4,6 +4,26 @@ Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed ne
 
 ---
 
+## v6.371n - 2026-10-22
+
+### 1. [Feature] Single Manual Cloud Sync Action
+
+Replaced separate cloud upload/restore controls with **Sync** in Settings and cloud-mode desktop/mobile shortcuts. Sync uses an account-specific SHA-256 baseline and the cloud's existing `updated_at` value to choose upload, download, or no change. When no trustworthy baseline exists, differing copies require review; identical copies establish a baseline without an upload. Ordinary status refreshes fetch only `updated_at`, including throttled checks on focus, visibility, and reconnect. Transfers remain manual. Local JSON export/import controls remain available.
+
+### 2. [Feature] Review Differences Before Replacing Divergent Copies
+
+Added a responsive comparison dialog for independently changed or previously unpaired datasets. Records are matched by ID, with separate labels for device-only records, cloud-only records, and changed values. Account balances, card payments, commitments, budgets, categories, settings, and compatible unknown fields are included. Missing records are not assumed deleted. Differences are paginated, rendered as text, and security values are redacted. Users can export either captured copy, cancel, or confirm replacement using one whole dataset; records are not merged.
+
+### 3. [Fix] Conditional Cloud Writes and Stale Comparison Protection
+
+Existing cloud rows are updated only when `user_id` and the reviewed `updated_at` still match. First uploads use insert and reject an existing row rather than overwriting it. Write responses request timestamp metadata only. Local revision and snapshot checks reject edits made during download or while reviewing, and account/lock checks guard actions. Edits during upload remain pending for another sync. Network failures do not establish a synced baseline, and delayed status responses cannot replace a newer sync result. Sign-in no longer restores automatically.
+
+### 4. [Enhancement] Unified Sync Status Indicators and Bounded Recovery
+
+The cloud Sync icon pulses orange for local changes, green for cloud changes, and alternates both colours for conflicts or unpaired copies. Synced status stops flashing; offline or failed checks display unknown status. Cloud replacements retain one previous local dataset using the existing IndexedDB recovery mechanism, rather than accumulating saved histories. Applying a cloud copy requires completing the IndexedDB upgrade. Added a regression verifying bounded recovery across repeated replacements.
+
+Validation: all 80 automated tests pass, including conditional-write races, first-upload collisions, local edits during transfer, account changes, failed restores, security redaction, pagination, and the existing financial/migration regressions. Synthetic browser QA verified comparison, export controls, cancellation/confirmation, application of a cloud copy, reload persistence, and the 390px layout. Rebuilt Tailwind and updated application/service-worker assets to `v6.371n`. No live Supabase writes or schema changes were performed; live permissions and production service-worker behavior still require release validation. Android and public app sources were not changed.
+
 ## v6.370n - 2026-10-21
 
 ### 1. [Fix] Refresh Storage Protection After Browser Permission Changes

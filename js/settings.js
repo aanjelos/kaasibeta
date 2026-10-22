@@ -23,6 +23,7 @@ function openSettingsModal() {
   cancelDeleteAllData();
   displayAppVersion();
   refreshStorageProtection();
+  if (supabaseUser && typeof refreshCloudSyncStatus === "function") refreshCloudSyncStatus();
 }
 
 let storageProtectionCheck = 0;
