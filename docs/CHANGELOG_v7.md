@@ -4,6 +4,14 @@ Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed ne
 
 ---
 
+## v6.376n - 2026-10-23
+
+### 1. [Enhancement] Keep Descriptions in the Entry Column
+
+Removed repeated description previews and their expansion controls from the device/cloud value columns. Entries with wording changes display **Description Changed** beneath the entry name; **Show More** reveals both full descriptions in the expanded detail row, including short descriptions. Other changed values remain side by side. Description-only differences show dashes in the value columns. This changes comparison presentation only and preserves all detected differences and captured data.
+
+Validation: all 51 application regression tests pass, including amount/description edits, description-only edits, full-text preservation, escaping, and expansion controls. Synthetic desktop/mobile checks confirmed clean value columns, both descriptions in expanded details, neutral counts, and no horizontal overflow. Updated application/service-worker versions to `v6.376n`. No live cloud operations were performed.
+
 ## v6.375n - 2026-10-23
 
 ### 1. [Enhancement] Consistent Sync Difference Counts

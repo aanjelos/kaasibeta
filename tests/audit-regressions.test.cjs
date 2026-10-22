@@ -707,18 +707,28 @@ test('long comparison descriptions and values stay complete, escaped, and separa
   const title=row.children[0].children[0],toggle=row.children[0].children[1];
   assert.equal(title.textContent,description.trim());assert.equal(title.innerHTML,'');assert.equal(toggle.textContent,'Show More');
   assert.match(row.children[0].children[2].textContent,/22/);
-  assert.equal(row.children[1].children[0].children[1].textContent,'2,000.00');
-  assert.equal(row.children[2].children[0].children[1].textContent,'1,500.00');
-  const localDescription=row.children[1].children.find(value=>value.children[0]?.textContent==='Description');
-  assert.equal(localDescription.children[1].textContent,description);
+  assert.equal(row.children[1].children[0].children[0].textContent,'2,000.00');
+  assert.equal(row.children[2].children[0].children[0].textContent,'1,500.00');
+  assert.equal(row.children[1].children.length,1);assert.equal(row.children[2].children.length,1);
+  assert.match(row.children[0].children[2].textContent,/Description Changed/);
   const detailRow=r.element('#cloudSyncDifferences').children[1];assert.equal(detailRow.hidden,true);
   assert.equal(detailRow.children[0].getAttribute('colspan'),'3');
   toggle.onclick();assert.equal(detailRow.hidden,false);assert.equal(toggle.getAttribute('aria-expanded'),'true');
-  assert.equal(toggle.textContent,'Show Less');assert.equal(localDescription.children[2].textContent,'Show Less');
+  assert.equal(toggle.textContent,'Show Less');
   const sections=detailRow.children[0].children[0].children;
-  assert.equal(sections.length,2);assert.equal(sections[0].children[1].textContent.trim(),description.trim());
-  localDescription.children[2].onclick();assert.equal(detailRow.hidden,true);assert.equal(toggle.textContent,'Show More');
+  assert.equal(sections.length,2);assert.equal(sections[0].children[1].textContent,description);
+  assert.equal(sections[0].children[0].textContent,'This Device · Description');
+  assert.equal(sections[1].children[1].textContent,description+'Extra cloud note.');
+  toggle.onclick();assert.equal(detailRow.hidden,true);assert.equal(toggle.textContent,'Show More');
   assert.equal(local.transactions[0].description,description);assert.equal(remote.transactions[0].description,description+'Extra cloud note.');
+  local.transactions[0].description='Lunch';remote.transactions[0].description='Lunch with team';remote.transactions[0].amount=2000;
+  r.context.renderCloudSyncReview();
+  const descriptionOnly=r.element('#cloudSyncDifferences').children[0],descriptionDetails=r.element('#cloudSyncDifferences').children[1];
+  assert.equal(descriptionOnly.children[1].textContent,'—');assert.equal(descriptionOnly.children[2].textContent,'—');
+  assert.match(descriptionOnly.children[0].children[2].textContent,/Description Changed/);
+  descriptionOnly.children[0].children[1].onclick();assert.equal(descriptionDetails.hidden,false);
+  const wording=descriptionDetails.children[0].children[0].children;
+  assert.equal(wording[0].children[1].textContent,'Lunch');assert.equal(wording[1].children[1].textContent,'Lunch with team');
 });
 
 test('single cloud shortcut uses upload/download/conflict colours and local shortcuts remain available',()=>{

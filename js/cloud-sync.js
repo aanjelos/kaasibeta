@@ -244,7 +244,7 @@ function renderCloudSyncReview(page = 0) {
     const panel = document.createElement("div"); panel.className = "sync-expanded-content";
     detailCell.appendChild(panel); detailRow.appendChild(detailCell);
     const sections = new Map(), toggles = [];
-    const expand = (parent, label, value) => {
+    const addSection = (label, value) => {
       // Identical title/field text shares one full-width section, preserving its full value.
       const existing = sections.get(value.trim());
       if (existing) {
@@ -256,6 +256,8 @@ function renderCloudSyncReview(page = 0) {
         heading.textContent = label; full.textContent = value;
         section.appendChild(heading); section.appendChild(full); panel.appendChild(section); sections.set(value.trim(), { heading, full });
       }
+    };
+    const addToggle = parent => {
       const toggle = document.createElement("button"); toggle.type = "button"; toggle.className = "sync-text-toggle";
       toggle.textContent = "Show More"; toggle.setAttribute("aria-expanded", "false"); toggle.setAttribute("aria-controls", detailRow.id);
       toggle.onclick = () => {
@@ -264,6 +266,7 @@ function renderCloudSyncReview(page = 0) {
       };
       toggles.push(toggle); parent.appendChild(toggle);
     };
+    const expand = (parent, label, value) => { addSection(label, value); addToggle(parent); };
     const entry = document.createElement("th"); entry.setAttribute("scope", "row");
     const dateLabel = change.label.match(/^(\d{4}-\d{2}-\d{2})\s+(.+)$/);
     let dateText = "";
@@ -276,8 +279,15 @@ function renderCloudSyncReview(page = 0) {
     appendText(entry, dateLabel ? dateLabel[2] : change.label.replace(/^./, c => c.toUpperCase()), "sync-entry-name", expand, "Entry");
     const area = { Transactions: "Transaction", Accounts: "Account", Debts: "Debt", Receivables: "Receivable", Installments: "Installment", Budgets: "Budget", "Settings & categories": "Settings" }[change.area] || change.area;
     const fieldLabel = key => labels[key] || key.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, c => c.toUpperCase());
-    const singleField = change.kind === "Different values" && change.fields.length === 1 ? change.fields[0].name : null;
-    const subtitle = [dateText, area !== "Transaction" ? area : "", singleField && singleField !== "amount" ? fieldLabel(singleField) : ""].filter(Boolean).join(" · ");
+    const descriptionChange = change.kind === "Different values" ? change.fields.find(field => field.name === "description") : null;
+    const valueFields = change.fields.filter(field => field.name !== "description");
+    if (descriptionChange) {
+      addSection("This Device · Description", display(descriptionChange.local, "description"));
+      addSection("Cloud · Description", display(descriptionChange.cloud, "description"));
+      if (!toggles.length) addToggle(entry);
+    }
+    const singleField = change.kind === "Different values" && valueFields.length === 1 ? valueFields[0].name : null;
+    const subtitle = [dateText, area !== "Transaction" ? area : "", singleField && singleField !== "amount" ? fieldLabel(singleField) : "", descriptionChange ? "Description Changed" : ""].filter(Boolean).join(" · ");
     if (subtitle) {
       const meta = document.createElement("span"); meta.className = "sync-entry-meta"; meta.textContent = subtitle; entry.appendChild(meta);
     }
@@ -289,9 +299,10 @@ function renderCloudSyncReview(page = 0) {
         const status = document.createElement("span"); status.className = `sync-presence ${present ? "is-present" : "is-absent"}`;
         status.textContent = present ? "Present" : "Absent"; cell.appendChild(status);
       } else {
-        for (const field of change.fields) {
+        if (!valueFields.length) { cell.textContent = "—"; cell.setAttribute("aria-label", "Description changed; expand the entry for details"); }
+        for (const field of valueFields) {
           const value = document.createElement("div"); value.className = "sync-cell-value";
-          if (change.fields.length > 1) {
+          if (valueFields.length > 1) {
             const name = document.createElement("span"); name.className = "sync-field-name"; name.textContent = fieldLabel(field.name); value.appendChild(name);
           }
           appendText(value, display(field[side], field.name), "sync-cell-text", expand, `${side === "local" ? "This Device" : "Cloud"} · ${fieldLabel(field.name)}`, 96);
