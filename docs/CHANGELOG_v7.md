@@ -4,6 +4,18 @@ Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed ne
 
 ---
 
+## v6.374n - 2026-10-22
+
+### 1. [Enhancement] Refined Sync Comparison Layout and Actions
+
+Added a compact sync heading, clearer difference counts, a bordered comparison table, and device/cloud column icons. Entry dates now appear beneath descriptions. Present records use a subtle status badge; absent records remain muted. Both copy-choice buttons use orange with equal emphasis, readable dark labels, and mobile-sized touch targets. The replacement reminder and actions remain visible while the comparison scrolls. Monetary values omit the repeated LKR prefix while retaining grouping separators and two decimal places.
+
+### 2. [Enhancement] Expandable Long Comparison Text
+
+Long entry names and changed values now use two-line previews with **Show More / Show Less** controls. Expansion reveals complete text in a section spanning the table's width, including separate device/cloud labels for changed descriptions. Repeated title/field text shares one expanded section. Long strings wrap within the dialog; dates remain visible beside collapsed previews. Expansion supports keyboard controls and changes only the displayed comparison, leaving the captured datasets intact.
+
+Validation: all 81 automated tests pass, including long descriptions, text escaping, complete field values, expansion controls, and existing sync/storage regressions. Synthetic browser checks covered desktop, 390px and 320px layouts, long paragraphs, unbroken strings, keyboard expansion/collapse, and visible choice actions while scrolling. Updated application/service-worker versions to `v6.374n` and rebuilt Tailwind. No live cloud operations were performed.
+
 ## v6.373n - 2026-10-22
 
 ### 1. [Enhancement] Direct Table Comparison for Sync Conflicts

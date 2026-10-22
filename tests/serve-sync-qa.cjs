@@ -8,6 +8,11 @@ fixture.transactions=[{id:'qa_groceries',type:'expense',amount:2000,account:'cas
   {id:'qa_lunch',type:'expense',amount:500,account:'cash',category:'Food & Dining',description:'Lunch',date:'2026-10-22',timestamp:2}];
 const remote=JSON.parse(JSON.stringify(fixture));remote.accounts[0].balance=4300;remote.transactions[0].amount=1500;
 remote.transactions[1]={...remote.transactions[1],id:'qa_taxi',amount:200,description:'Taxi',category:'Transportation'};
+if(process.env.KAASI_SYNC_QA_LONG_TEXT==='1'){
+  fixture.transactions[0].description='Weekly groceries for the household — vegetables, fresh fruit, pantry essentials and supplies for the family gathering this weekend, including the extra items collected from the second supermarket. '+ 'Additional items for the household. '.repeat(12);
+  remote.transactions[0].description='Weekly groceries for the household — vegetables, fresh fruit and pantry essentials for the family gathering this weekend. '+ 'Items collected from the first supermarket. '.repeat(10);
+  fixture.transactions[1].description='LunchWithTheTeamAfterTheQuarterlyPlanningSession'.repeat(8);
+}
 const bootstrap=`<script>
 if(!localStorage.getItem('syncQaSeeded')){localStorage.setItem('KaasiData',${JSON.stringify(JSON.stringify(fixture))});localStorage.setItem('syncQaSeeded','true');}
 navigator.storage.persist=async()=>true;

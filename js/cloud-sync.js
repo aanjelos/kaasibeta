@@ -220,30 +220,64 @@ function renderCloudSyncReview(page = 0) {
   const changes = cloudSyncDifferences(context.local, context.cloud);
   const pageSize = 25, pages = Math.max(1, Math.ceil(changes.length / pageSize));
   const host = $("#cloudSyncDifferences"); host.replaceChildren();
-  $("#cloudSyncDeviceCount").textContent = `${changes.filter(c => c.kind === "Only on this device").length} Device Only`;
-  $("#cloudSyncCloudCount").textContent = `${changes.filter(c => c.kind === "Only in cloud").length} Cloud Only`;
-  $("#cloudSyncChangedCount").textContent = `${changes.filter(c => c.kind === "Different values").length} Changed`;
+  $("#cloudSyncDeviceCount").textContent = String(changes.filter(c => c.kind === "Only on this device").length);
+  $("#cloudSyncCloudCount").textContent = String(changes.filter(c => c.kind === "Only in cloud").length);
+  $("#cloudSyncChangedCount").textContent = String(changes.filter(c => c.kind === "Different values").length);
   $("#cloudSyncSummary").setAttribute("aria-label", `${changes.length} differences`);
   const labels = { amount: "Amount", balance: "Balance", paidAmount: "Amount paid", paidOff: "Fully paid", originalAmount: "Original amount", remainingAmount: "Remaining amount", originalFullAmount: "Original total", monthlyAmount: "Monthly amount", limit: "Limit", type: "Type", date: "Date", description: "Description", account: "Account", category: "Category", name: "Name", ccPurchaseId: "Linked card purchase", timestamp: "Recorded time", hidden: "Hidden", totalMonths: "Total months", monthsLeft: "Months remaining", startDate: "Start date", dueDate: "Due date", dateGiven: "Date lent" };
   const money = new Set(["amount", "balance", "paidAmount", "originalAmount", "remainingAmount", "originalFullAmount", "monthlyAmount", "limit"]);
-  const display = (value, key) => value === undefined ? "Absent" : money.has(key) && typeof value === "number" ? formatCurrency(value)
+  const display = (value, key) => value === undefined ? "Absent" : money.has(key) && typeof value === "number" ? formatCurrency(value).replace(/^LKR\s*/, "")
     : typeof value === "boolean" ? value ? "Yes" : "No" : typeof value === "string" ? value : JSON.stringify(value, null, 2);
+  const appendText = (parent, value, className, expand, label, limit = 64) => {
+    const text = document.createElement("span"); text.className = className; text.textContent = value;
+    parent.appendChild(text);
+    if (value.length <= limit && !value.includes("\n")) return;
+    text.classList.add("sync-text-preview");
+    expand(parent, label, value);
+  };
+  let rowIndex = 0;
   for (const change of changes.slice(page * pageSize, (page + 1) * pageSize)) {
     const row = document.createElement("tr");
+    const detailRow = document.createElement("tr"); detailRow.className = "sync-expanded-row"; detailRow.hidden = true;
+    detailRow.id = `cloudSyncText-${page}-${rowIndex++}`;
+    const detailCell = document.createElement("td"); detailCell.setAttribute("colspan", "3");
+    const panel = document.createElement("div"); panel.className = "sync-expanded-content";
+    detailCell.appendChild(panel); detailRow.appendChild(detailCell);
+    const sections = new Map(), toggles = [];
+    const expand = (parent, label, value) => {
+      // Identical title/field text shares one full-width section, preserving its full value.
+      const existing = sections.get(value.trim());
+      if (existing) {
+        existing.heading.textContent = existing.heading.textContent === "Entry" ? label : `${existing.heading.textContent} / ${label}`;
+        existing.full.textContent = value;
+      }
+      else {
+        const section = document.createElement("div"), heading = document.createElement("strong"), full = document.createElement("span");
+        heading.textContent = label; full.textContent = value;
+        section.appendChild(heading); section.appendChild(full); panel.appendChild(section); sections.set(value.trim(), { heading, full });
+      }
+      const toggle = document.createElement("button"); toggle.type = "button"; toggle.className = "sync-text-toggle";
+      toggle.textContent = "Show More"; toggle.setAttribute("aria-expanded", "false"); toggle.setAttribute("aria-controls", detailRow.id);
+      toggle.onclick = () => {
+        detailRow.hidden = !detailRow.hidden;
+        for (const button of toggles) { button.textContent = detailRow.hidden ? "Show More" : "Show Less"; button.setAttribute("aria-expanded", String(!detailRow.hidden)); }
+      };
+      toggles.push(toggle); parent.appendChild(toggle);
+    };
     const entry = document.createElement("th"); entry.setAttribute("scope", "row");
-    const title = document.createElement("span"); title.className = "sync-entry-name";
     const dateLabel = change.label.match(/^(\d{4}-\d{2}-\d{2})\s+(.+)$/);
+    let dateText = "";
     if (dateLabel) {
       const date = new Date(`${dateLabel[1]}T00:00:00`);
       const options = { day: "numeric", month: "short" };
       if (date.getFullYear() !== new Date().getFullYear()) options.year = "numeric";
-      title.textContent = `${dateLabel[2]} — ${date.toLocaleDateString(undefined, options)}`;
-    } else title.textContent = change.label.replace(/^./, c => c.toUpperCase());
-    entry.appendChild(title);
+      dateText = date.toLocaleDateString(undefined, options);
+    }
+    appendText(entry, dateLabel ? dateLabel[2] : change.label.replace(/^./, c => c.toUpperCase()), "sync-entry-name", expand, "Entry");
     const area = { Transactions: "Transaction", Accounts: "Account", Debts: "Debt", Receivables: "Receivable", Installments: "Installment", Budgets: "Budget", "Settings & categories": "Settings" }[change.area] || change.area;
     const fieldLabel = key => labels[key] || key.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, c => c.toUpperCase());
     const singleField = change.kind === "Different values" && change.fields.length === 1 ? change.fields[0].name : null;
-    const subtitle = [area !== "Transaction" ? area : "", singleField && singleField !== "amount" ? fieldLabel(singleField) : ""].filter(Boolean).join(" · ");
+    const subtitle = [dateText, area !== "Transaction" ? area : "", singleField && singleField !== "amount" ? fieldLabel(singleField) : ""].filter(Boolean).join(" · ");
     if (subtitle) {
       const meta = document.createElement("span"); meta.className = "sync-entry-meta"; meta.textContent = subtitle; entry.appendChild(meta);
     }
@@ -252,21 +286,22 @@ function renderCloudSyncReview(page = 0) {
       const cell = document.createElement("td");
       if (change.kind !== "Different values") {
         const present = change.kind === "Only on this device" ? side === "local" : side === "cloud";
-        cell.textContent = present ? "Present" : "Absent";
-        if (!present) cell.className = "sync-absent";
+        const status = document.createElement("span"); status.className = `sync-presence ${present ? "is-present" : "is-absent"}`;
+        status.textContent = present ? "Present" : "Absent"; cell.appendChild(status);
       } else {
         for (const field of change.fields) {
           const value = document.createElement("div"); value.className = "sync-cell-value";
           if (change.fields.length > 1) {
             const name = document.createElement("span"); name.className = "sync-field-name"; name.textContent = fieldLabel(field.name); value.appendChild(name);
           }
-          const text = document.createElement("span"); text.className = "sync-cell-text"; text.textContent = display(field[side], field.name);
-          value.appendChild(text); cell.appendChild(value);
+          appendText(value, display(field[side], field.name), "sync-cell-text", expand, `${side === "local" ? "This Device" : "Cloud"} · ${fieldLabel(field.name)}`, 96);
+          cell.appendChild(value);
         }
       }
       row.appendChild(cell);
     }
     host.appendChild(row);
+    if (toggles.length) host.appendChild(detailRow);
   }
   $("#cloudSyncPage").textContent = `${page + 1} / ${pages}`;
   $("#cloudSyncPagination").hidden = pages === 1;

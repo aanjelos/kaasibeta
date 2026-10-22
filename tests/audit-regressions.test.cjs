@@ -591,7 +591,7 @@ test('without an account-specific baseline, unequal copies open review without w
   r.storage.set('kaasi_synced_state_hash',r.context.generateDataHash(before));r.storage.set('lastSyncedCloudUpdatedAt',cloud.row.updated_at);
   await r.context.syncCloudData();assert.equal(r.element('#cloudSyncModal').style.display,'block');
   assert.equal(r.storage.get('KaasiData'),before);assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);
-  assert.equal(r.element('#cloudSyncChangedCount').textContent,'1 Changed');
+  assert.equal(r.element('#cloudSyncChangedCount').textContent,'1');
 });
 
 test('first Sync recognizes equal copies despite object-key ordering without uploading',async()=>{
@@ -689,10 +689,36 @@ test('comparison labels missing records accurately, redacts security values, and
   r.context.renderCloudSyncReview();assert.equal(r.element('#cloudSyncDifferences').children.length,25);
   assert.equal(r.element('#cloudSyncPage').textContent,'1 / 2');
   const first=r.element('#cloudSyncDifferences').children[0];const title=first.children[0].children[0];assert.match(title.textContent,/<img/);assert.equal(title.innerHTML,'');
-  assert.equal(first.children[1].textContent,'Present');assert.equal(first.children[2].textContent,'Absent');
+  assert.equal(first.children[1].children[0].textContent,'Present');assert.equal(first.children[2].children[0].textContent,'Absent');
   r.element('#cloudSyncNext').onclick();assert.equal(r.element('#cloudSyncPage').textContent,'2 / 2');
-  const remoteRow=r.element('#cloudSyncDifferences').children.find(row=>row.children[1]?.textContent==='Absent');
-  assert.equal(remoteRow.children[2].textContent,'Present');assert.equal(cloud.calls.length,0);
+  const remoteRow=r.element('#cloudSyncDifferences').children.find(row=>row.children[1]?.children[0]?.textContent==='Absent');
+  assert.equal(remoteRow.children[2].children[0].textContent,'Present');assert.equal(cloud.calls.length,0);
+});
+
+test('long comparison descriptions and values stay complete, escaped, and separate from dates',()=>{
+  const r=runtime();const local=JSON.parse(r.storage.get('KaasiData')),remote=JSON.parse(JSON.stringify(local));
+  const description='<img src=x onerror=alert(1)> '+ 'Long household grocery description. '.repeat(100);
+  const entry={id:'long-description',amount:2000,description,date:'2026-10-22',type:'expense',account:'cash',category:'Groceries',timestamp:1};
+  local.transactions=[entry];remote.transactions=[{...entry,description:description+'Extra cloud note.',amount:1500}];
+  r.context.reviewLocal=local;r.context.reviewRemote=remote;
+  r.run('cloudSyncReview={userId:"sync-user",local:reviewLocal,cloud:reviewRemote};');
+  r.context.renderCloudSyncReview();
+  const row=r.element('#cloudSyncDifferences').children[0];
+  const title=row.children[0].children[0],toggle=row.children[0].children[1];
+  assert.equal(title.textContent,description.trim());assert.equal(title.innerHTML,'');assert.equal(toggle.textContent,'Show More');
+  assert.match(row.children[0].children[2].textContent,/22/);
+  assert.equal(row.children[1].children[0].children[1].textContent,'2,000.00');
+  assert.equal(row.children[2].children[0].children[1].textContent,'1,500.00');
+  const localDescription=row.children[1].children.find(value=>value.children[0]?.textContent==='Description');
+  assert.equal(localDescription.children[1].textContent,description);
+  const detailRow=r.element('#cloudSyncDifferences').children[1];assert.equal(detailRow.hidden,true);
+  assert.equal(detailRow.children[0].getAttribute('colspan'),'3');
+  toggle.onclick();assert.equal(detailRow.hidden,false);assert.equal(toggle.getAttribute('aria-expanded'),'true');
+  assert.equal(toggle.textContent,'Show Less');assert.equal(localDescription.children[2].textContent,'Show Less');
+  const sections=detailRow.children[0].children[0].children;
+  assert.equal(sections.length,2);assert.equal(sections[0].children[1].textContent.trim(),description.trim());
+  localDescription.children[2].onclick();assert.equal(detailRow.hidden,true);assert.equal(toggle.textContent,'Show More');
+  assert.equal(local.transactions[0].description,description);assert.equal(remote.transactions[0].description,description+'Extra cloud note.');
 });
 
 test('single cloud shortcut uses upload/download/conflict colours and local shortcuts remain available',()=>{
