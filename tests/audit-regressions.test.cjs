@@ -685,13 +685,14 @@ test('comparison labels missing records accurately, redacts security values, and
   assert.ok(!JSON.stringify(changes).includes('private-pin-hash'));assert.ok(!JSON.stringify(changes).includes('private-answer-hash'));
   const cloud=syncCloud(r,{data:remote,updated_at:'2026-10-21T00:00:00Z'});
   r.context.reviewLocal=local;r.context.reviewRemote=remote;
-  r.run('cloudSyncReview={userId:"sync-user",local:reviewLocal,cloud:reviewRemote,cloudExport:reviewRemote};');
+  r.run('cloudSyncReview={userId:"sync-user",local:reviewLocal,cloud:reviewRemote};');
   r.context.renderCloudSyncReview();assert.equal(r.element('#cloudSyncDifferences').children.length,25);
   assert.equal(r.element('#cloudSyncPage').textContent,'1 / 2');
-  const first=r.element('#cloudSyncDifferences').children[0];const title=first.children[0].children[0].children[0];assert.match(title.textContent,/<img/);assert.equal(title.innerHTML,'');
+  const first=r.element('#cloudSyncDifferences').children[0];const title=first.children[0].children[0];assert.match(title.textContent,/<img/);assert.equal(title.innerHTML,'');
+  assert.equal(first.children[1].textContent,'Present');assert.equal(first.children[2].textContent,'Absent');
   r.element('#cloudSyncNext').onclick();assert.equal(r.element('#cloudSyncPage').textContent,'2 / 2');
-  let exported;r.context.downloadKaasiSnapshot=data=>{exported=data;};
-  r.context.exportCloudSyncCopy('cloud');assert.deepEqual(exported,remote);assert.equal(cloud.calls.length,0);
+  const remoteRow=r.element('#cloudSyncDifferences').children.find(row=>row.children[1]?.textContent==='Absent');
+  assert.equal(remoteRow.children[2].textContent,'Present');assert.equal(cloud.calls.length,0);
 });
 
 test('single cloud shortcut uses upload/download/conflict colours and local shortcuts remain available',()=>{
@@ -715,19 +716,18 @@ test('focus checks transfer metadata only; account changes clear the previous co
   r.context.checkVisibleCloudSync();await new Promise(setImmediate);await new Promise(setImmediate);
   assert.equal(cloud.calls.length,1);assert.equal(cloud.calls[0].fields,'updated_at');
   assert.equal(cloud.calls[0].type,'read');
-  r.context.reviewLocal=original;r.run('cloudSyncReview={userId:"sync-user",local:reviewLocal,cloud:reviewLocal,cloudExport:reviewLocal};');
+  r.context.reviewLocal=original;r.run('cloudSyncReview={userId:"sync-user",local:reviewLocal,cloud:reviewLocal};');
   r.context.renderCloudSyncReview();r.element('#cloudSyncModal').style.display='block';
   r.context.resetCloudSyncAccount({id:'different-user'});
   assert.equal(r.element('#cloudSyncDifferences').children.length,0);
   assert.equal(r.element('#cloudSyncModal').style.display,'none');assert.equal(r.run('cloudSyncReview'),null);
 });
 
-test('comparison exports work offline and legacy mode cannot replace data without recovery protection',async()=>{
+test('legacy mode cannot replace data without recovery protection',async()=>{
   const r=runtime();const original=JSON.parse(r.storage.get('KaasiData')),remote=JSON.parse(JSON.stringify(original));remote.accounts[0].balance=500;
   const cloud=syncCloud(r,{data:remote,updated_at:'2026-10-21T00:00:00Z'});
-  await r.context.syncCloudData();let exported;r.context.downloadKaasiSnapshot=data=>{exported=data;};
-  r.context.navigator.onLine=false;r.context.exportCloudSyncCopy('local');assert.deepEqual(exported,original);
-  r.context.navigator.onLine=true;r.context.KaasiStorage.mode='legacy';r.context.chooseCloudSyncCopy('cloud');await cloud.confirm();
+  await r.context.syncCloudData();
+  r.context.KaasiStorage.mode='legacy';r.context.chooseCloudSyncCopy('cloud');await cloud.confirm();
   assert.equal(r.run('state.accounts[0].balance'),1000);assert.ok(r.notices.some(([m])=>m.includes('Complete the local storage upgrade')));
 });
 

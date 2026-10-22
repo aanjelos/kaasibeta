@@ -153,7 +153,6 @@ async function syncCloudData() {
     const full = await readCloudSyncRow(userId, true);
     if (!full || full.updated_at !== context.updatedAt) throw new Error("The cloud copy changed. Start Sync again.");
     context.cloud = prepareImportedData(full.data);
-    context.cloudExport = full.data;
     await assertCloudSyncLocal(context);
     if (KaasiStorage.canonical(local) === KaasiStorage.canonical(context.cloud)) {
       await recordCloudSync(userId, local, context.updatedAt, false);
@@ -163,8 +162,6 @@ async function syncCloudData() {
     } else {
       window.currentCloudSyncStatus = direction;
       cloudSyncReview = context;
-      $("#cloudSyncDetails").open = false;
-      $("#cloudSyncBackup").open = false;
       renderCloudSyncReview();
       openModalHelper("cloudSyncModal");
     }
@@ -232,55 +229,58 @@ function renderCloudSyncReview(page = 0) {
   const display = (value, key) => value === undefined ? "Absent" : money.has(key) && typeof value === "number" ? formatCurrency(value)
     : typeof value === "boolean" ? value ? "Yes" : "No" : typeof value === "string" ? value : JSON.stringify(value, null, 2);
   for (const change of changes.slice(page * pageSize, (page + 1) * pageSize)) {
-    const details = document.createElement("details");
-    const summary = document.createElement("summary");
-    const caption = document.createElement("span"); caption.className = "sync-entry-caption";
+    const row = document.createElement("tr");
+    const entry = document.createElement("th"); entry.setAttribute("scope", "row");
     const title = document.createElement("span"); title.className = "sync-entry-name";
     const dateLabel = change.label.match(/^(\d{4}-\d{2}-\d{2})\s+(.+)$/);
-    title.textContent = dateLabel ? dateLabel[2] : change.label.replace(/^./, c => c.toUpperCase());
-    const meta = document.createElement("span"); meta.className = "sync-entry-meta";
+    if (dateLabel) {
+      const date = new Date(`${dateLabel[1]}T00:00:00`);
+      const options = { day: "numeric", month: "short" };
+      if (date.getFullYear() !== new Date().getFullYear()) options.year = "numeric";
+      title.textContent = `${dateLabel[2]} — ${date.toLocaleDateString(undefined, options)}`;
+    } else title.textContent = change.label.replace(/^./, c => c.toUpperCase());
+    entry.appendChild(title);
     const area = { Transactions: "Transaction", Accounts: "Account", Debts: "Debt", Receivables: "Receivable", Installments: "Installment", Budgets: "Budget", "Settings & categories": "Settings" }[change.area] || change.area;
-    meta.textContent = dateLabel ? `${new Date(`${dateLabel[1]}T00:00:00`).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })} · ${area}` : area;
-    caption.appendChild(title); caption.appendChild(meta);
-    const badge = document.createElement("span"); badge.className = "sync-entry-badge";
-    badge.textContent = { "Only on this device": "Device Only", "Only in cloud": "Cloud Only", "Different values": "Changed" }[change.kind];
-    summary.appendChild(caption); summary.appendChild(badge);
-    details.appendChild(summary);
-    for (const field of change.fields) {
-      const row = document.createElement("div"); row.className = "sync-diff-row";
-      const name = document.createElement("strong"); name.textContent = labels[field.name] || field.name.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, c => c.toUpperCase()); row.appendChild(name);
-      for (const [label, value] of [["This device", field.local], ["Cloud", field.cloud]]) {
-        const column = document.createElement("div"), heading = document.createElement("span"), text = document.createElement("pre");
-        heading.textContent = label; text.textContent = display(value, field.name); column.appendChild(heading); column.appendChild(text); row.appendChild(column);
-      }
-      details.appendChild(row);
+    const fieldLabel = key => labels[key] || key.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, c => c.toUpperCase());
+    const singleField = change.kind === "Different values" && change.fields.length === 1 ? change.fields[0].name : null;
+    const subtitle = [area !== "Transaction" ? area : "", singleField && singleField !== "amount" ? fieldLabel(singleField) : ""].filter(Boolean).join(" · ");
+    if (subtitle) {
+      const meta = document.createElement("span"); meta.className = "sync-entry-meta"; meta.textContent = subtitle; entry.appendChild(meta);
     }
-    host.appendChild(details);
+    row.appendChild(entry);
+    for (const side of ["local", "cloud"]) {
+      const cell = document.createElement("td");
+      if (change.kind !== "Different values") {
+        const present = change.kind === "Only on this device" ? side === "local" : side === "cloud";
+        cell.textContent = present ? "Present" : "Absent";
+        if (!present) cell.className = "sync-absent";
+      } else {
+        for (const field of change.fields) {
+          const value = document.createElement("div"); value.className = "sync-cell-value";
+          if (change.fields.length > 1) {
+            const name = document.createElement("span"); name.className = "sync-field-name"; name.textContent = fieldLabel(field.name); value.appendChild(name);
+          }
+          const text = document.createElement("span"); text.className = "sync-cell-text"; text.textContent = display(field[side], field.name);
+          value.appendChild(text); cell.appendChild(value);
+        }
+      }
+      row.appendChild(cell);
+    }
+    host.appendChild(row);
   }
   $("#cloudSyncPage").textContent = `${page + 1} / ${pages}`;
   $("#cloudSyncPagination").hidden = pages === 1;
   $("#cloudSyncPrevious").disabled = page === 0; $("#cloudSyncNext").disabled = page + 1 >= pages;
   $("#cloudSyncPrevious").onclick = () => renderCloudSyncReview(page - 1);
   $("#cloudSyncNext").onclick = () => renderCloudSyncReview(page + 1);
-  $("#cloudSyncDetails").ontoggle = () => {
-    $("#cloudSyncDetails").querySelector("summary").textContent = $("#cloudSyncDetails").open ? "Hide Differences" : "View Differences";
-  };
-  $("#cloudSyncDetails").ontoggle();
   $("#cloudSyncUseLocal").onclick = () => chooseCloudSyncCopy("local");
   $("#cloudSyncUseCloud").onclick = () => chooseCloudSyncCopy("cloud");
-  $("#cloudSyncExportLocal").onclick = () => exportCloudSyncCopy("local");
-  $("#cloudSyncExportCloud").onclick = () => exportCloudSyncCopy("cloud");
-}
-function exportCloudSyncCopy(which) {
-  if (!cloudSyncReview || isAppLocked() || cloudSyncBusy) return;
-  if (supabaseUser?.id !== cloudSyncReview.userId) { showNotification("Your signed-in account changed. Start Sync again.", "error"); return; }
-  downloadKaasiSnapshot(which === "local" ? cloudSyncReview.local : cloudSyncReview.cloudExport, `kaasi-sync-${which}`);
 }
 function chooseCloudSyncCopy(which) {
   if (!cloudSyncReview || cloudSyncBusy || isAppLocked()) return;
   const context = cloudSyncReview;
   showConfirmationModal(which === "local" ? "Replace Cloud Copy?" : "Replace This Device's Copy?",
-    which === "local" ? "This replaces the cloud dataset with this device's copy. Cloud-only entries will no longer be in the active cloud copy. Export both copies first if needed."
+    which === "local" ? "This replaces the cloud dataset with this device's copy. Cloud-only entries will no longer be in the active cloud copy."
       : "This replaces this device's dataset with the cloud copy. Device-only entries will no longer be active. One previous local copy is retained for recovery.",
     which === "local" ? "Use This Device's Copy" : "Use Cloud Copy", "Cancel", async () => {
       if (cloudSyncBusy || isAppLocked() || cloudSyncReview !== context) return;

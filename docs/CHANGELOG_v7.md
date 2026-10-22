@@ -4,6 +4,18 @@ Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed ne
 
 ---
 
+## v6.373n - 2026-10-22
+
+### 1. [Enhancement] Direct Table Comparison for Sync Conflicts
+
+Replaced expandable difference entries with an immediately visible **Entry / This Device / Cloud** table. Changed amounts appear side by side; records found in only one copy show **Present / Absent**. Other changed fields retain readable labels, and sensitive values remain redacted. The table adapts to narrow screens, keeps its column headings visible while scrolling, and retains pagination for larger comparisons. The copy-choice actions remain visible below the scrolling content.
+
+### 2. [Enhancement] Removed Backup Actions From Sync Comparison
+
+Removed the **Save a Backup** menu and its device/cloud export actions from the conflict dialog. Standard JSON export remains available in Settings. Replacement confirmations, conditional cloud writes, stale-data checks, and the single previous-local-copy recovery slot remain in place.
+
+Validation: all 80 automated tests pass. Synthetic browser checks covered desktop, 390px and 320px layouts, table values, Present / Absent states, replacement confirmation, and cancellation. Captured desktop/mobile screenshots, rebuilt Tailwind, and updated application/service-worker versions to `v6.373n`. No live cloud operations were performed.
+
 ## v6.372n - 2026-10-22
 
 ### 1. [Enhancement] Simplified Sync Comparison Dialog
