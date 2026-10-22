@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.377n" />
+    <meta name="application-version" content="v6.378n" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -51,8 +51,8 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v6.377n" />
-    <link rel="stylesheet" href="tailwind.css?v=v6.377n" />
+    <link rel="stylesheet" href="style.css?v=v6.378n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.378n" />
 
     <script
       async
@@ -1005,7 +1005,7 @@
                     </div>
                   </div>
                   <div>
-                    <label class="block text-sm font-medium mb-1">Budget Name <span class="text-xs text-gray-300 font-normal">(Optional if selecting a single category)</span></label>
+                    <label class="block text-sm font-medium mb-1">Budget Name</label>
                     <input type="text" id="addBudgetName" placeholder="e.g. Groceries" class="w-full text-sm" aria-label="e.g. Groceries">
                   </div>
                   <div>
@@ -1064,7 +1064,6 @@
                   <div class="storage-protection-row">
                     <div class="storage-protection-copy">
                       <h4>Storage Protection</h4>
-                      <p>Help protect saved data from automatic browser cleanup.</p>
                     </div>
                     <button id="requestPersistenceBtn" type="button" class="btn btn-secondary" hidden>Protect Local Storage</button>
                   </div>
@@ -1133,10 +1132,6 @@
                       class="hidden"
                   aria-label="Import Data Input" /></label>
                 </div>
-                <p class="text-xs text-gray-300 mt-2">
-                  Exports create a local backup file. Imports overwrite existing
-                  data from a local file.
-                </p>
                 <p class="text-xs text-red-400 mt-1">
                   Warning: Browser data can be lost. Export backups regularly!
                 </p>
@@ -1469,9 +1464,7 @@
             </p>
             <div class="max-w-lg mx-auto">
               <p>
-                This was made and refined using AI. All data are handled
-                locally. Select Sync to exchange a cloud copy manually between
-                devices after signing in.
+                This was made and refined using AI.
               </p>
               <p>
                 Make sure to back up the data from time to time. You will receive
@@ -1494,8 +1487,7 @@
                   Keep regular local or cloud backups. Persistent storage can
                   reduce automatic browser cleanup when granted, but clearing
                   site data or losing access to this device can still remove
-                  local records. App updates preserve saved data; routine
-                  re-imports or starting fresh are not required.
+                  local records.
                 </p>
               </div>
             </div>
@@ -1649,9 +1641,7 @@
             </p>
             <div class="max-w-lg mx-auto">
               <p>
-                This was made and refined using AI. All data are handled
-                locally. Select Sync to exchange a cloud copy manually between
-                devices after signing in.
+                This was made and refined using AI.
               </p>
               <p>
                 Make sure to back up the data from time to time. You will receive
@@ -1673,8 +1663,7 @@
                   Keep regular local or cloud backups. Persistent storage can
                   reduce automatic browser cleanup when granted, but clearing
                   site data or losing access to this device can still remove
-                  local records. App updates preserve saved data; routine
-                  re-imports or starting fresh are not required.
+                  local records.
                 </p>
               </div>
             </div>
@@ -1897,7 +1886,7 @@
               </div>
             </div>
             <div>
-              <label class="block text-sm font-medium mb-1">Budget Name <span class="text-xs text-gray-300 font-normal">(Optional if selecting a single category)</span></label>
+              <label class="block text-sm font-medium mb-1">Budget Name</label>
               <input type="text" id="editBudgetName" placeholder="e.g. Groceries" class="w-full text-sm" aria-label="e.g. Groceries">
             </div>
             <div>
@@ -2108,20 +2097,20 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v6.377n" defer></script>
-    <script src="js/import-validation.js?v=v6.377n" defer></script>
-    <script src="js/storage.js?v=v6.377n" defer></script>
-    <script src="js/storage-ui.js?v=v6.377n" defer></script>
-    <script src="js/animations.js?v=v6.377n" defer></script>
-    <script src="js/data-sync.js?v=v6.377n" defer></script>
-    <script src="js/cloud-sync.js?v=v6.377n" defer></script>
-    <script src="js/math-tool.js?v=v6.377n" defer></script>
-    <script src="js/settings.js?v=v6.377n" defer></script>
-    <script src="js/charts.js?v=v6.377n" defer></script>
-    <script src="js/ui.js?v=v6.377n" defer></script>
-    <script src="js/features.js?v=v6.377n" defer></script>
-    <script src="js/security.js?v=v6.377n" defer></script>
-    <script src="js/app.js?v=v6.377n" defer></script>
+    <script src="js/globals.js?v=v6.378n" defer></script>
+    <script src="js/import-validation.js?v=v6.378n" defer></script>
+    <script src="js/storage.js?v=v6.378n" defer></script>
+    <script src="js/storage-ui.js?v=v6.378n" defer></script>
+    <script src="js/animations.js?v=v6.378n" defer></script>
+    <script src="js/data-sync.js?v=v6.378n" defer></script>
+    <script src="js/cloud-sync.js?v=v6.378n" defer></script>
+    <script src="js/math-tool.js?v=v6.378n" defer></script>
+    <script src="js/settings.js?v=v6.378n" defer></script>
+    <script src="js/charts.js?v=v6.378n" defer></script>
+    <script src="js/ui.js?v=v6.378n" defer></script>
+    <script src="js/features.js?v=v6.378n" defer></script>
+    <script src="js/security.js?v=v6.378n" defer></script>
+    <script src="js/app.js?v=v6.378n" defer></script>
   </body>
 </html>
 

@@ -4,6 +4,18 @@ Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed ne
 
 ---
 
+## v6.378n - 2026-10-23
+
+### 1. [Enhancement] Reduce Settings and Budget Form Text
+
+- Removed the local-data/cloud-Sync explanation from the Settings and setup About sections, retaining the AI credit and backup reminder.
+- Removed the app-update/re-import reassurance from both backup notices, retaining the data-loss warning.
+- Removed the single-category optional-name annotation from the add/edit budget labels. Budget-name behavior is unchanged.
+- Removed the Storage Protection helper sentence, retaining its action, permission status, and external-backup reminder.
+- Removed the local export/import explanation beneath the file actions, retaining the backup warning and existing import confirmations.
+
+Validation: checked all matching text removals and surrounding markup, rebuilt Tailwind, and passed the whitespace/diff check. Updated application/service-worker versions to `v6.378n`. No financial, storage, or sync behavior changed.
+
 ## v6.377n - 2026-10-23
 
 ### 1. [Enhancement] Calmer Cloud Backup Settings
