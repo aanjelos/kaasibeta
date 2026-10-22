@@ -4,6 +4,12 @@ Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed ne
 
 ---
 
+## v6.375n - 2026-10-23
+
+### 1. [Enhancement] Consistent Sync Difference Counts
+
+Removed the orange emphasis from the **Changed** count so all three sync comparison counts use the same neutral text colour. Updated application/service-worker versions to `v6.375n`.
+
 ## v6.374n - 2026-10-22
 
 ### 1. [Enhancement] Refined Sync Comparison Layout and Actions
