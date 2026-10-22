@@ -24,6 +24,15 @@ function cloudSyncAssertUser(userId) {
   if (!supabaseUser || supabaseUser.id !== userId) throw new Error("Your signed-in account changed. Start Sync again.");
   if (!navigator.onLine) throw new Error("You are offline. Your saved data is unchanged; reconnect to sync.");
 }
+function formatCloudBackupTime(updatedAt, now = new Date()) {
+  const date = new Date(updatedAt);
+  if (!Number.isFinite(date.getTime())) return "Unavailable";
+  const yesterday = new Date(now); yesterday.setDate(yesterday.getDate() - 1);
+  const day = date.toDateString() === now.toDateString() ? "Today"
+    : date.toDateString() === yesterday.toDateString() ? "Yesterday"
+    : date.toLocaleDateString("en-GB", { day: "numeric", month: "short", ...(date.getFullYear() !== now.getFullYear() ? { year: "numeric" } : {}) });
+  return `${day} at ${date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}`;
+}
 async function updateLocalCloudSyncStatus() {
   const userId = supabaseUser?.id;
   const json = lastPersistedStateJson;
@@ -57,8 +66,8 @@ async function refreshCloudSyncStatus() {
     const row = await readCloudSyncRow(userId);
     if (sequence !== cloudSyncRemoteSequence || cloudSyncBusy) return;
     cloudSyncRemote = { userId, exists: !!row, updatedAt: row?.updated_at ?? null };
-    lastCloudSyncTimeString = row ? new Date(row.updated_at).toLocaleString() : "";
-    if (timeEl) timeEl.textContent = row ? `Cloud copy updated: ${lastCloudSyncTimeString}` : "No cloud copy yet. Select Sync to upload.";
+    lastCloudSyncTimeString = row ? formatCloudBackupTime(row.updated_at) : "";
+    if (timeEl) timeEl.textContent = row ? `Last backed up: ${lastCloudSyncTimeString}` : "No cloud copy yet. Select Sync to upload.";
     await updateLocalCloudSyncStatus();
   } catch (_) {
     if (userId !== supabaseUser?.id || sequence !== cloudSyncRemoteSequence || cloudSyncBusy) return;
@@ -79,8 +88,8 @@ async function recordCloudSync(userId, snapshot, updatedAt, uploaded) {
   if (uploaded) appPreferences.setItem("lastSuccessfulCloudBackupDate", getCurrentDateString());
   await appPreferences.flush();
   cloudSyncRemote = { userId, exists: true, updatedAt };
-  lastCloudSyncTimeString = new Date(updatedAt).toLocaleString();
-  $("#lastCloudBackupTime").textContent = `Cloud copy updated: ${lastCloudSyncTimeString}`;
+  lastCloudSyncTimeString = formatCloudBackupTime(updatedAt);
+  $("#lastCloudBackupTime").textContent = `Last backed up: ${lastCloudSyncTimeString}`;
   await updateLocalCloudSyncStatus();
 }
 async function assertCloudSyncLocal(context) {
@@ -122,7 +131,7 @@ async function downloadCloudSync(context) {
   // applyImportedData normalizes legacy optional defaults; baseline matches what was actually saved.
   await recordCloudSync(context.userId, KaasiStorage.current, context.updatedAt, false);
   if (state.settings.initialSetupDone && $("#initialSetupModal")?.style.display === "block") closeModal("initialSetupModal");
-  showNotification("Sync complete. The cloud copy was applied. Your previous saved copy is retained for recovery.", "success");
+  showNotification("Sync complete. The cloud copy was applied.", "success");
 }
 function setCloudSyncBusy(busy) {
   cloudSyncBusy = busy;
@@ -328,7 +337,7 @@ function chooseCloudSyncCopy(which) {
   showConfirmationModal(which === "local" ? "Replace Cloud Copy?" : "Replace This Device's Copy?",
     which === "local" ? "This replaces the cloud dataset with this device's copy. Cloud-only entries will no longer be in the active cloud copy."
       : "This replaces this device's dataset with the cloud copy. Device-only entries will no longer be active. One previous local copy is retained for recovery.",
-    which === "local" ? "Use This Device's Copy" : "Use Cloud Copy", "Cancel", async () => {
+    which === "local" ? "Replace Cloud" : "Replace Device", "Cancel", async () => {
       if (cloudSyncBusy || isAppLocked() || cloudSyncReview !== context) return;
       setCloudSyncBusy(true);
       try {
@@ -336,7 +345,7 @@ function chooseCloudSyncCopy(which) {
         closeModal("cloudSyncModal"); cloudSyncReview = null;
       } catch (error) { showNotification(`Sync stopped: ${error.message}`, "error", 10000); }
       finally { setCloudSyncBusy(false); }
-    });
+    }, undefined, "btn-danger sync-confirm-action");
 }
 
 function resetCloudSyncAccount(user) {

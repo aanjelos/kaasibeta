@@ -23,8 +23,9 @@ function openShortcutsHelpModal() {
     { key: "D", action: "View All Debts." },
     { key: "R", action: "View All Receivables." },
     { key: "T", action: "Transfer Money." },
-    { key: "Ctrl + E", action: "Sync Cloud / Export Local File." },
-    { key: "Ctrl + I", action: "Sync Cloud / Import Local File." },
+    { key: "Ctrl + S", action: "Sync Cloud (Signed In)." },
+    { key: "Ctrl + E", action: "Export Local File." },
+    { key: "Ctrl + I", action: "Import Local File." },
     { key: "← / →", action: "Navigate Month Tabs in All Transactions." },
   ];
 
@@ -62,7 +63,7 @@ function openShortcutsHelpModal() {
 
 function handleKeyboardShortcuts(event) {
   if (isAppLocked()) {
-    if ((event.ctrlKey || event.metaKey) && ["e", "i"].includes(event.key.toLowerCase())) event.preventDefault();
+    if ((event.ctrlKey || event.metaKey) && ["s", "e", "i"].includes(event.key.toLowerCase())) event.preventDefault();
     return;
   }
   const activeElement = document.activeElement;
@@ -85,44 +86,19 @@ function handleKeyboardShortcuts(event) {
   const receivablesModalVisible =
     $("#receivablesViewModal")?.style.display === "block";
 
-  // --- MODIFIED: Ctrl+E for Export ---
-  if (event.ctrlKey && (event.key === "e" || event.key === "E")) {
-    if (!inInputField) {
-      event.preventDefault();
-      const target =
-        $("#shortcutCloud")?.checked && !$("#shortcutCloud")?.disabled
-          ? "cloud"
-          : "local";
-
-      if (target === "cloud") {
-        console.log("Shortcut: Ctrl+E pressed for Cloud Backup");
-        backupToSupabase();
-      } else {
-        console.log("Shortcut: Ctrl+E pressed for Local Export");
-        exportData();
+  // Dedicated actions are independent of the selected Dashboard button mode.
+  if (event.ctrlKey && !event.altKey && !event.metaKey && !event.shiftKey) {
+    const key = event.key.toLowerCase();
+    if (["s", "e", "i"].includes(key)) {
+      // Keep the browser's Save Page dialog from appearing on Ctrl+S.
+      if (key === "s" || !inInputField) event.preventDefault();
+      if (!inInputField && !event.repeat) {
+        if (key === "s") syncCloudData();
+        else if (key === "e") exportData();
+        else triggerDataImport();
       }
+      return;
     }
-    return; // Consume the event
-  }
-
-  // --- MODIFIED: Ctrl+I for Import ---
-  if (event.ctrlKey && (event.key === "i" || event.key === "I")) {
-    if (!inInputField) {
-      event.preventDefault();
-      const target =
-        $("#shortcutCloud")?.checked && !$("#shortcutCloud")?.disabled
-          ? "cloud"
-          : "local";
-
-      if (target === "cloud") {
-        console.log("Shortcut: Ctrl+I pressed for Cloud Restore");
-        restoreFromSupabase(false, true);
-      } else {
-        console.log("Shortcut: Ctrl+I pressed for Local Import");
-        triggerDataImport();
-      }
-    }
-    return; // Consume the event
   }
 
   // For other shortcuts, if a modifier key (Ctrl, Alt, Meta) is pressed, generally ignore,

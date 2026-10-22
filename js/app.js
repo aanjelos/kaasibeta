@@ -823,7 +823,8 @@ function updateHeaderShortcutButtons() {
   if (dropBackupBtn) dropBackupBtn.innerHTML = isCloud ? '<i class="fas fa-sync-alt fa-lg"></i>' : '<i class="fas fa-floppy-disk fa-lg"></i>';
   if (isCloud) {
     const text = cloudSyncBusy ? "Syncing…" : descriptions[status] || descriptions.unknown;
-    backupBtn.dataset.tooltip = text;
+    backupBtn.dataset.tooltip = `${text} (Ctrl+S)`;
+    backupBtn.setAttribute("aria-keyshortcuts", "Control+S");
     backupBtn.setAttribute("aria-label", text);
     backupBtn.disabled = cloudSyncBusy;
     backupBtn.onclick = syncCloudData;
@@ -832,11 +833,12 @@ function updateHeaderShortcutButtons() {
     if (!cloudSyncBusy) {
       const pulse = status === "local_newer" ? "pulse-orange" : status === "cloud_newer" ? "pulse-green"
         : status === "conflict" || status === "review" ? "pulse-sync-conflict" : null;
-      if (pulse) for (const element of [backupBtn, dropBackupBtn, syncBtn, menuIcon]) element?.classList.add(pulse);
+      if (pulse) for (const element of [backupBtn, dropBackupBtn, menuIcon]) element?.classList.add(pulse);
     }
   } else {
     backupBtn.disabled = false;
     backupBtn.dataset.tooltip = "Export Local File (Ctrl+E)";
+    backupBtn.setAttribute("aria-keyshortcuts", "Control+E");
     backupBtn.setAttribute("aria-label", "Export Local File");
     backupBtn.onclick = exportData;
     restoreBtn.dataset.tooltip = "Import Local File (Ctrl+I)";
@@ -844,12 +846,6 @@ function updateHeaderShortcutButtons() {
     if (dropBackupText) dropBackupText.textContent = "Export Local File";
     if (dropRestoreText) dropRestoreText.textContent = "Import Local File";
     if (dropBackupBtn) dropBackupBtn.disabled = false;
-  }
-  // Settings always represents cloud sync, independent of header shortcut mode.
-  if (syncBtn && !cloudSyncBusy) {
-    const pulse = status === "local_newer" ? "pulse-orange" : status === "cloud_newer" ? "pulse-green"
-      : status === "conflict" || status === "review" ? "pulse-sync-conflict" : null;
-    if (pulse) syncBtn.classList.add(pulse);
   }
 }
 
@@ -978,7 +974,7 @@ window.executePreloaderSequence = function() {
   const isMobile = window.innerWidth < 768;
   if (!isMobile) {
     PRELOADER_TIPS.push(
-      "Use Ctrl+E or Ctrl+I to Sync in cloud mode, or export/import a local file in local mode.",
+      "Use Ctrl+S to Sync with the cloud, Ctrl+E to export a local file, or Ctrl+I to import one.",
       "Press the 'A' key to view All Transactions.",
       "Press the '?' key to view Keyboard Shortcuts."
     );

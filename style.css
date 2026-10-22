@@ -1777,6 +1777,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
 }
 .pulse-sync-conflict { animation: pulseSyncConflict 2s infinite ease-in-out !important; }
 #cloudSyncModal { z-index: 66; }
+.sync-confirm-action { white-space: nowrap; flex-shrink: 0; }
 .cloud-sync-content {
   max-width: 720px; padding: 0; display: flex; flex-direction: column; overflow: hidden;
   max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px); margin: 20px auto;

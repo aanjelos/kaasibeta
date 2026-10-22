@@ -738,12 +738,42 @@ test('single cloud shortcut uses upload/download/conflict colours and local shor
   vm.runInContext(source.slice(source.indexOf('function updateHeaderShortcutButtons()'),source.indexOf('let lastCloudSyncTimeString')),r.context);
   r.element('#shortcutCloud').checked=true;r.element('#shortcutCloud').disabled=false;
   for(const [status,colour] of [['local_newer','pulse-orange'],['cloud_newer','pulse-green'],['conflict','pulse-sync-conflict']]){
+    r.element('#syncCloudBtn').classList.add('pulse-orange','pulse-green','pulse-sync-conflict');
     r.context.currentCloudSyncStatus=status;r.context.updateHeaderShortcutButtons();
     assert.equal(r.element('#headerBackupBtn').classList.contains(colour),true);
+    for(const pulse of ['pulse-orange','pulse-green','pulse-sync-conflict']) assert.equal(r.element('#syncCloudBtn').classList.contains(pulse),false);
+    assert.match(r.element('#headerBackupBtn').dataset.tooltip,/Ctrl\+S/);
     assert.equal(r.element('#headerRestoreBtn').hidden,true);assert.equal(r.element('#headerBackupBtn').onclick,r.context.syncCloudData);
   }
   r.element('#shortcutCloud').checked=false;r.context.updateHeaderShortcutButtons();
   assert.equal(r.element('#headerRestoreBtn').hidden,false);assert.equal(r.element('#headerBackupBtn').onclick,r.context.exportData);
+});
+
+test('cloud backup times use calendar-relative days and readable local times',()=>{
+  const r=runtime(),format=(date,now)=>r.context.formatCloudBackupTime(date.toISOString(),now).replace(/\s+/g,' ');
+  assert.equal(format(new Date(2026,9,23,19,30),new Date(2026,9,23,20,0)),'Today at 7:30 PM');
+  assert.equal(format(new Date(2026,9,22,19,30),new Date(2026,9,23,0,5)),'Yesterday at 7:30 PM');
+  assert.equal(format(new Date(2026,11,31,23,59),new Date(2027,0,1,0,5)),'Yesterday at 11:59 PM');
+  assert.equal(format(new Date(2026,9,20,7,5),new Date(2026,9,23,12,0)),'20 Oct at 7:05 AM');
+  assert.equal(format(new Date(2025,9,20,7,5),new Date(2026,9,23,12,0)),'20 Oct 2025 at 7:05 AM');
+  assert.equal(r.context.formatCloudBackupTime('invalid'),'Unavailable');
+});
+
+test('Ctrl+S syncs and Ctrl+E/I remain local in either dashboard mode, with input and lock guards',()=>{
+  const r=runtime(),calls=[];
+  r.context.syncCloudData=()=>calls.push('sync');r.context.exportData=()=>calls.push('export');r.context.triggerDataImport=()=>calls.push('import');
+  const press=(key,extra={})=>{let prevented=false;r.context.handleKeyboardShortcuts({key,ctrlKey:true,altKey:false,metaKey:false,shiftKey:false,repeat:false,preventDefault(){prevented=true;},...extra});return prevented;};
+  for(const mode of [false,true]){
+    r.element('#shortcutCloud').checked=mode;r.element('#shortcutCloud').disabled=false;
+    for(const key of ['s','e','i'])assert.equal(press(key),true);
+  }
+  assert.deepEqual(calls,['sync','export','import','sync','export','import']);calls.length=0;
+  assert.equal(press('s',{repeat:true}),true);assert.equal(press('S',{shiftKey:true}),false);
+  r.context.document.activeElement.tagName='INPUT';assert.equal(press('s'),true);press('e');press('i');
+  r.context.document.activeElement.tagName='DIV';
+  r.run('state.settings.appPin={enabled:true,pin:"hash"};');r.context.showPinLockScreen();
+  for(const key of ['s','e','i'])assert.equal(press(key),true);
+  assert.deepEqual(calls,[]);
 });
 
 test('focus checks transfer metadata only; account changes clear the previous comparison',async()=>{

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.376n" />
+    <meta name="application-version" content="v6.377n" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -51,8 +51,8 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v6.376n" />
-    <link rel="stylesheet" href="tailwind.css?v=v6.376n" />
+    <link rel="stylesheet" href="style.css?v=v6.377n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.377n" />
 
     <script
       async
@@ -1098,13 +1098,12 @@
                       >...</strong
                     >
                   </p>
-                  <p id="lastCloudBackupTime" class="text-xs text-gray-300 -mt-2">Last backed up: Fetching...</p>
+                  <p id="lastCloudBackupTime" class="text-xs text-gray-300 -mt-2">Last backed up: Checking…</p>
                   <div class="flex flex-col sm:flex-row gap-3">
-                    <button id="syncCloudBtn" class="btn btn-primary flex-1" type="button">
+                    <button id="syncCloudBtn" class="btn btn-primary flex-1" type="button" data-tooltip="Sync (Ctrl+S)" aria-keyshortcuts="Control+S">
                       <i class="fas fa-sync-alt mr-2"></i> Sync
                     </button>
                   </div>
-                  <p class="text-xs text-gray-300">Sync manually uploads or downloads the changed copy. If both differ, review them before choosing. No automatic merging.</p>
 
                   <button id="googleLogoutBtn" class="btn btn-secondary w-full">
                     <i class="fas fa-sign-out-alt mr-1"></i> Sign Out
@@ -1148,7 +1147,7 @@
                 <div class="flex flex-col mb-3">
                   <h3 class="text-lg font-semibold">Quick Action Shortcut</h3>
                   <p class="text-xs text-gray-400 mt-1">
-                    Sets the default target for Dashboard buttons & <kbd class="px-1.5 py-0.5 rounded bg-secondary border border-gray-700 font-mono text-gray-200">Ctrl+E</kbd> / <kbd class="px-1.5 py-0.5 rounded bg-secondary border border-gray-700 font-mono text-gray-200">Ctrl+I</kbd>
+                    Choose between local file actions and cloud Sync on the Dashboard.
                   </p>
                 </div>
                 
@@ -1947,7 +1946,7 @@
           <div id="confirmationMessage" class="text-gray-300 mb-6">
             Are you sure?
           </div>
-          <div class="flex justify-center gap-4">
+          <div class="flex flex-wrap justify-center gap-4">
             <button id="confirmModalCancelBtn" class="btn btn-secondary">
               Cancel
             </button>
@@ -2109,20 +2108,20 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v6.376n" defer></script>
-    <script src="js/import-validation.js?v=v6.376n" defer></script>
-    <script src="js/storage.js?v=v6.376n" defer></script>
-    <script src="js/storage-ui.js?v=v6.376n" defer></script>
-    <script src="js/animations.js?v=v6.376n" defer></script>
-    <script src="js/data-sync.js?v=v6.376n" defer></script>
-    <script src="js/cloud-sync.js?v=v6.376n" defer></script>
-    <script src="js/math-tool.js?v=v6.376n" defer></script>
-    <script src="js/settings.js?v=v6.376n" defer></script>
-    <script src="js/charts.js?v=v6.376n" defer></script>
-    <script src="js/ui.js?v=v6.376n" defer></script>
-    <script src="js/features.js?v=v6.376n" defer></script>
-    <script src="js/security.js?v=v6.376n" defer></script>
-    <script src="js/app.js?v=v6.376n" defer></script>
+    <script src="js/globals.js?v=v6.377n" defer></script>
+    <script src="js/import-validation.js?v=v6.377n" defer></script>
+    <script src="js/storage.js?v=v6.377n" defer></script>
+    <script src="js/storage-ui.js?v=v6.377n" defer></script>
+    <script src="js/animations.js?v=v6.377n" defer></script>
+    <script src="js/data-sync.js?v=v6.377n" defer></script>
+    <script src="js/cloud-sync.js?v=v6.377n" defer></script>
+    <script src="js/math-tool.js?v=v6.377n" defer></script>
+    <script src="js/settings.js?v=v6.377n" defer></script>
+    <script src="js/charts.js?v=v6.377n" defer></script>
+    <script src="js/ui.js?v=v6.377n" defer></script>
+    <script src="js/features.js?v=v6.377n" defer></script>
+    <script src="js/security.js?v=v6.377n" defer></script>
+    <script src="js/app.js?v=v6.377n" defer></script>
   </body>
 </html>
 

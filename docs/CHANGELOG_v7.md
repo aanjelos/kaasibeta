@@ -4,6 +4,26 @@ Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed ne
 
 ---
 
+## v6.377n - 2026-10-23
+
+### 1. [Enhancement] Calmer Cloud Backup Settings
+
+Removed pending-change colour pulses from the Settings Sync button; Dashboard shortcuts retain their upload/download/conflict indicators. The cloud timestamp now reads **Last backed up: Today / Yesterday at 7:30 PM**, using the device's local time and a readable date for older backups. Dates from another year include the year. Removed the explanatory paragraph beneath Sync.
+
+### 2. [Enhancement] Dedicated Cloud Sync Keyboard Shortcut
+
+Added **Ctrl+S** for cloud Sync when signed in, independently of the Dashboard button mode. **Ctrl+E** and **Ctrl+I** now consistently export/import local files. Updated shortcut help, Dashboard tooltips, Settings guidance, and startup tips. Input focus, PIN lock, and repeated-key guards prevent unintended operations; Ctrl+S suppresses the browser's Save Page action. Modified combinations such as Ctrl+Shift+S retain their normal browser behavior when unlocked.
+
+### 3. [Enhancement] Shorter Sync Completion Notification
+
+Successful cloud downloads now display **Sync complete. The cloud copy was applied.** Removed the recovery-copy detail from the success toast while preserving the existing bounded local recovery mechanism.
+
+### 4. [Fix] Keep Sync Confirmation Actions on One Line
+
+Shortened replacement confirmation actions to **Replace Cloud** and **Replace Device**, with non-wrapping labels. Confirmation action rows can wrap whole buttons on narrow screens instead of squeezing the sync button text onto multiple lines. Replacement warnings and confirmation safeguards remain in place.
+
+Validation: all 53 application regression tests pass, including local/cloud keyboard routing, input/PIN/repeat guards, Settings pulse removal, calendar-relative backup times, and existing financial/sync checks. Synthetic browser checks verified Ctrl+S, the steady Settings button, relative backup time, both confirmation labels at 320px, cancellation, and the shortened download toast. Rebuilt Tailwind and updated application/service-worker versions to `v6.377n`. No live cloud operations were performed.
+
 ## v6.376n - 2026-10-23
 
 ### 1. [Enhancement] Keep Descriptions in the Entry Column
