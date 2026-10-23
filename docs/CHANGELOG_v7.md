@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.387n - 2026-10-23
+
+### 1. [Improvement] Labelled Credit Card Selection Control
+
+The checklist action now includes a visible Select label and sits after the All, Unpaid and Settled filters with separate spacing. Selection mode changes the label to Cancel and displays Tap purchases to select until a purchase is selected, after which the existing selected-count/payment bar provides feedback. Mobile uses a full-width search row followed by filters and the selection action, retaining touch-sized controls. Settled continues to hide selection controls.
+
 ## v6.386n - 2026-10-23
 
 ### 1. [Fix] Stale Payment Preview Handler on Reused Forms

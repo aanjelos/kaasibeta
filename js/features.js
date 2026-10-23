@@ -1879,7 +1879,7 @@ function renderCreditCardSection() {
 
 function updateCcSelectionControl(button, selecting) {
   const label = selecting ? "Cancel Selection" : "Select Multiple";
-  button.innerHTML = `<i class="fas ${selecting ? "fa-times" : "fa-tasks"}" aria-hidden="true"></i>`;
+  button.innerHTML = `<i class="fas ${selecting ? "fa-times" : "fa-tasks"}" aria-hidden="true"></i><span>${selecting ? "Cancel" : "Select"}</span>`;
   button.setAttribute("aria-label", label);
   button.setAttribute("title", label);
   button.setAttribute("data-tooltip", label);
@@ -2257,6 +2257,7 @@ function openCcHistoryModal() {
     const text = document.getElementById("ccBulkPaymentText");
     const container = document.getElementById("ccHistoryListContainer");
     if (!bar || !text) return;
+    document.getElementById("ccSelectionHint").hidden = !selectionMode || !!window.ccSelectedItems?.size;
     
     if (window.ccSelectedItems && window.ccSelectedItems.size > 0) {
       let totalAmount = 0;

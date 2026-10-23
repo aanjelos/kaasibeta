@@ -2157,9 +2157,11 @@ footer a[href^="https://kaasi.com.lk"]:hover
   .storage-protection-row .btn { width: 100%; }
 }
 /* Credit-card payments: direct single actions and deliberate multiple selection. */
-#ccHistoryToolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+#ccHistoryToolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; }
 #ccHistoryToolbar input { min-width: 0; width: 100%; }
-#ccSelectMultipleBtn { flex: 0 0 44px; width: 44px; height: 44px; padding: 0; }
+#ccSelectMultipleBtn { min-height: 44px; padding: 0 12px; margin-left: 8px; gap: 7px; white-space: nowrap; }
+#ccSelectionHint { margin: 0 0 12px; }
+#ccSelectionHint[hidden] { display: none; }
 #ccSelectMultipleBtn[aria-pressed="true"] { color: var(--accent-color, #e67e22); border-color: currentColor; }
 #ccSelectMultipleBtn[hidden], .cc-payment-summary[hidden], .cc-payment-summary > span[hidden] { display: none; }
 .cc-history-entry { min-height: 44px; font-size: .85rem; white-space: nowrap; }
@@ -2190,8 +2192,11 @@ footer a[href^="https://kaasi.com.lk"]:hover
 #ccBulkPaymentText { min-width: 0; font-size: .85rem; }
 #ccBulkPaymentBtn { flex-shrink: 0; min-height: 44px; white-space: nowrap; }
 @media (max-width: 639px) {
-  #ccHistoryToolbar { grid-template-columns: minmax(0, 1fr); gap: 8px; }
-  #ccHistoryFilterControls { width: 100%; }
+  #ccHistoryToolbar { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+  #ccHistoryToolbar > div:first-child { grid-column: 1 / -1; }
+  #ccHistoryFilterControls { width: 100%; gap: 4px; }
+  #ccHistoryFilterControls .btn { min-height: 44px; padding: 8px 7px; font-size: .8rem; }
+  #ccSelectMultipleBtn { margin-left: 4px; padding: 0 10px; font-size: .8rem; }
   .cc-direct-pay { padding: 8px 12px; margin-left: 4px; }
   #ccHistoryModal .monthly-view-summary-grid { grid-template-columns: minmax(0, 1fr); gap: 6px; }
   #ccHistoryModal .monthly-view-summary-grid .monthly-view-summary-card { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 12px; }
