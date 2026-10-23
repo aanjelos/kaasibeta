@@ -906,6 +906,31 @@ test('bulk expense toggle removes category requirements and restores them when r
   const toggle=r.element('#logBulkCcPaymentAsExpense');toggle.checked=false;toggle.onchange();
   assert.equal(select.required,false);assert.equal(select.disabled,true);assert.equal(select.hidden,true);
   toggle.checked=true;toggle.onchange();assert.equal(select.required,true);assert.equal(select.disabled,false);assert.equal(select.hidden,false);
+  assert.equal(r.element('#ccPaymentRemainingGroup').hidden,false);
+  input.value='100';r.element('#dynamicForm').oninput();
+  assert.equal(r.element('#ccPaymentRemainingGroup').hidden,true);
+});
+
+test('single payment remaining preview is shown only for a valid partial payment', async () => {
+  const r=runtime();await seedCards(r);let html;
+  r.context.openFormModal=(title,markup)=>{html=markup;};r.context.populateDropdowns=()=>{};
+  r.context.openPayCcItemForm('c1');
+  assert.match(html,/id="ccSinglePaymentRemainingGroup"[^>]*hidden/);
+  assert.ok(!html.includes('Pay in full or enter a smaller amount.'));
+  const input=r.element('#ccItemPayAmount');
+  for(const [value,hidden] of [['50',false],['100',true],['0',true],['150',true],['',true]]){
+    input.oninput({target:{value}});
+    assert.equal(r.element('#ccSinglePaymentRemainingGroup').hidden,hidden);
+  }
+});
+
+test('multiple selection makes rows select purchases without attaching action drawers', async () => {
+  const r=runtime();const openHistory=r.context.openCcHistoryModal;await seedCards(r);r.context.openModalHelper=()=>{};openHistory();
+  r.element('#ccSelectMultipleBtn').onclick();
+  const row=r.element('#ccHistoryListContainer').children[1];
+  assert.equal(row.children.length,1);
+  let selected;r.context.toggleCcItemSelection=id=>{selected=id;};
+  row.children[0].onclick();assert.equal(selected,'c2');
 });
 
 test('modal backdrop dismisses only clicks that start and end on the backdrop', () => {

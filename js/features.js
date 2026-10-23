@@ -1952,6 +1952,11 @@ function openCcHistoryModal() {
   const renderFilteredCcList = () => {
     ccSelectedYear = parseInt(yearSelector.value);
     const navRow = $("#ccHistoryNavigationRow");
+    if (ccHistoryFilter === "paid") selectionMode = false;
+    const selectionButton = document.getElementById("ccSelectMultipleBtn");
+    selectionButton.hidden = ccHistoryFilter === "paid";
+    selectionButton.textContent = selectionMode ? "Cancel Selection" : "Select Multiple";
+    selectionButton.setAttribute("aria-pressed", String(selectionMode));
     
     if (ccHistoryFilter === "unpaid") {
       if (navRow) navRow.style.display = "none";
@@ -2109,6 +2114,10 @@ function openCcHistoryModal() {
         mainRow.className = "flex justify-between items-center gap-x-2 w-full cursor-pointer";
         if (!selectionMode) mainRow.classList.add("cc-payment-history-main");
         mainRow.onclick = () => {
+          if (selectionMode) {
+            if (isSelectable) window.toggleCcItemSelection(t.id);
+            return;
+          }
           if (window.matchMedia("(min-width: 640px)").matches) {
             // Desktop: Toggle drawer logic
             $$(".cc-history-row .overflow-hidden").forEach(drawer => {
@@ -2163,7 +2172,7 @@ function openCcHistoryModal() {
       `;
 
       itemDiv.appendChild(mainRow);
-      itemDiv.appendChild(drawerDiv);
+      if (!selectionMode) itemDiv.appendChild(drawerDiv);
       listContainer.appendChild(itemDiv);
     });
 
@@ -2329,7 +2338,7 @@ function openCcHistoryModal() {
         </div>
         
         <p id="bulkCcExpenseHint" class="cc-payment-intro">Deducted from your account and logged as expenses.</p>
-        <div class="cc-payment-summary" aria-live="polite"><span>Total Payment<strong id="ccPaymentTotal">${formatCurrency(totalAmount)}</strong></span><span>Remaining After<strong id="ccPaymentRemaining">${formatCurrency(0)}</strong></span></div>
+        <div class="cc-payment-summary" aria-live="polite"><span>Total Payment<strong id="ccPaymentTotal">${formatCurrency(totalAmount)}</strong></span><span id="ccPaymentRemainingGroup" hidden>Remaining After<strong id="ccPaymentRemaining">${formatCurrency(0)}</strong></span></div>
         <div class="flex justify-end gap-2">
             <button type="button" class="btn btn-secondary flex-1" onclick="closeModal('formModal')">Cancel</button>
             <button type="submit" class="btn btn-primary flex-1">Pay Selected</button>
@@ -2459,6 +2468,7 @@ function openCcHistoryModal() {
       });
       document.getElementById("ccPaymentTotal").textContent = valid ? formatCurrency(total) : "—";
       document.getElementById("ccPaymentRemaining").textContent = valid ? formatCurrency(roundToTwoDecimals(totalAmount - total)) : "—";
+      document.getElementById("ccPaymentRemainingGroup").hidden = !valid || total <= 0 || roundToTwoDecimals(totalAmount - total) <= 0;
     }
     paymentForm.oninput = updatePaymentPreview;
   };
@@ -3830,7 +3840,6 @@ function openPayCcItemForm(ccTransactionId) {
             2
           )}" value="${remaining.toFixed(2)}" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
       </div>
-      <p class="cc-payment-intro">Pay in full or enter a smaller amount.</p>
       <div>
           <label for="modalCcPayFromAccount" class="block text-sm font-medium mb-1">Pay From Account</label>
           <select id="modalCcPayFromAccount" name="ccPayFromAccount" required></select>
@@ -3844,7 +3853,7 @@ function openPayCcItemForm(ccTransactionId) {
           <select id="modalCcPayCategory" name="ccPayCategory" required>${categoryOptions}</select>
       </div>
       <p id="ccSinglePaymentHint" class="cc-payment-intro">Deducted from your account and logged as an expense.</p>
-      <div class="cc-payment-summary" aria-live="polite"><span>Remaining After<strong id="ccSinglePaymentRemaining">${formatCurrency(0)}</strong></span></div>
+      <div id="ccSinglePaymentRemainingGroup" class="cc-payment-summary" aria-live="polite" hidden><span>Remaining After<strong id="ccSinglePaymentRemaining">${formatCurrency(0)}</strong></span></div>
       <button type="submit" class="btn btn-primary w-full mt-3">Record Payment</button>
   `;
   openFormModal(
@@ -3879,6 +3888,7 @@ function openPayCcItemForm(ccTransactionId) {
   }
   document.getElementById("ccItemPayAmount").oninput = (event) => {
     const amount = parseAmountValue(event.target.value);
+    document.getElementById("ccSinglePaymentRemainingGroup").hidden = !Number.isFinite(amount) || amount <= 0 || roundToTwoDecimals(amount) >= roundToTwoDecimals(remaining);
     document.getElementById("ccSinglePaymentRemaining").textContent = Number.isFinite(amount) && amount > 0 && amount <= remaining
       ? formatCurrency(roundToTwoDecimals(remaining - amount)) : "—";
   };

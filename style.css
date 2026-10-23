@@ -2155,9 +2155,10 @@ footer a[href^="https://kaasi.com.lk"]:hover
   .storage-protection-row .btn { width: 100%; }
 }
 /* Credit-card payments: direct single actions and deliberate multiple selection. */
-.cc-selection-toolbar { display: flex; justify-content: flex-end; margin: 0 0 12px; }
+#ccHistoryToolbar { flex-wrap: wrap; }
+#ccSelectMultipleBtn { flex-shrink: 0; white-space: nowrap; min-height: 44px; font-size: .85rem; }
+#ccSelectMultipleBtn[hidden], .cc-payment-summary[hidden], .cc-payment-summary > span[hidden] { display: none; }
 .cc-history-entry { min-height: 44px; font-size: .85rem; white-space: nowrap; }
-.cc-selection-toolbar .btn { min-height: 40px; font-size: .85rem; }
 .cc-direct-pay { min-height: 44px; margin-left: 10px; padding: 8px 16px; white-space: nowrap; }
 .cc-select-control { flex-shrink: 0; display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; background: transparent; border: 0; }
 .cc-select-control:focus-visible { outline: 2px solid var(--accent-color, #e67e22); outline-offset: 2px; border-radius: 6px; }
@@ -2179,6 +2180,11 @@ footer a[href^="https://kaasi.com.lk"]:hover
 #ccBulkPaymentText { min-width: 0; font-size: .85rem; }
 #ccBulkPaymentBtn { flex-shrink: 0; min-height: 44px; white-space: nowrap; }
 @media (max-width: 639px) {
+  #ccHistoryToolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+  #ccHistoryToolbar > div:first-child { grid-column: 1 / -1; }
+  #ccHistoryFilterControls { width: auto; gap: 4px; }
+  #ccHistoryFilterControls .btn { padding-left: 8px; padding-right: 8px; font-size: .8rem; }
+  #ccSelectMultipleBtn { padding-left: 10px; padding-right: 10px; font-size: .8rem; }
   .cc-direct-pay { padding: 8px 12px; margin-left: 4px; }
   #ccHistoryModal .monthly-view-summary-grid { grid-template-columns: minmax(0, 1fr); gap: 6px; }
   #ccHistoryModal .monthly-view-summary-grid .monthly-view-summary-card { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 12px; }
@@ -2188,4 +2194,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
   .cc-payment-history-main .cc-payment-history-value { grid-column: 1; grid-row: 2; justify-content: flex-start; text-align: left; }
   .cc-payment-history-main .cc-direct-pay { grid-column: 2; grid-row: 1 / span 2; }
   #ccHistoryListContainer { max-height: 48vh; padding-right: 0; }
+}
+@media (max-width: 359px) {
+  #ccSelectMultipleBtn { grid-column: 1 / -1; width: 100%; }
 }

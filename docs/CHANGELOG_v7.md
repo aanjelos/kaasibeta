@@ -2,6 +2,16 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.382n - 2026-10-23
+
+### 1. [Improvement] Focused Credit Card Selection
+
+Multiple-selection mode now selects or deselects a purchase by tapping its row. Edit, Delete and individual Pay drawers are not attached in this mode. Selection controls are grouped with the history filters and disappear on Settled; switching to Settled exits selection and clears selected purchases.
+
+### 2. [Improvement] Payment Summary Cleanup
+
+The Remaining After summary appears only for a valid partial payment in both single and multiple payment forms. Full payments omit the zero remaining balance. Removed the single-payment instruction about entering a smaller amount. Payment calculations, account deductions, expense logging and saved data formats are unchanged.
+
 ## v6.381n - 2026-10-23
 
 ### 1. [Improvement] Direct Credit Card Payments
