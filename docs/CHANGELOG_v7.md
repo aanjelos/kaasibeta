@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.388n - 2026-10-23
+
+### 1. [Improvement] Credit Card Selection Toolbar Cleanup
+
+Added a subtle vertical divider between the status filters and Select action on desktop and mobile. Removed the selection instruction; the existing selected-count/payment bar remains the selection feedback.
+
 ## v6.387n - 2026-10-23
 
 ### 1. [Improvement] Labelled Credit Card Selection Control

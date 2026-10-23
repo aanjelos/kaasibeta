@@ -2257,7 +2257,6 @@ function openCcHistoryModal() {
     const text = document.getElementById("ccBulkPaymentText");
     const container = document.getElementById("ccHistoryListContainer");
     if (!bar || !text) return;
-    document.getElementById("ccSelectionHint").hidden = !selectionMode || !!window.ccSelectedItems?.size;
     
     if (window.ccSelectedItems && window.ccSelectedItems.size > 0) {
       let totalAmount = 0;
