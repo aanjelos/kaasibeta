@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.384n - 2026-10-23
+
+### 1. [Improvement] Calculator Inputs for Multiple Credit Card Payments
+
+Selected purchases' payment amounts now use the shared decimal calculator input and calculator toggle instead of native number inputs with increment/decrement arrows. Expressions use the existing amount parser, preview and payment validation. Single-payment fields already use this control.
+
 ## v6.383n - 2026-10-23
 
 ### 1. [Improvement] Lighter Credit Card Payment Forms

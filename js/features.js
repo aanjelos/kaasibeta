@@ -2306,7 +2306,7 @@ function openCcHistoryModal() {
             </div>
             <div class="cc-payment-fields">
             <label class="cc-payment-amount-label">Pay Amount
-              <input type="number" inputmode="decimal" name="payAmount_${escapeHTML(id)}" min="0" max="${remaining.toFixed(2)}" step="0.01" value="${remaining.toFixed(2)}" required>
+              <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" name="payAmount_${escapeHTML(id)}" min="0" max="${remaining.toFixed(2)}" step="0.01" value="${remaining.toFixed(2)}" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" aria-label="Toggle Calculator" tabindex="-1"><i class="fas fa-calculator" aria-hidden="true"></i></button></div>
             </label>
             <label class="cc-payment-category-label">Category
             <select name="payCategory_${escapeHTML(id)}" class="w-full text-sm" required>

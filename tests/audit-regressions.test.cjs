@@ -847,7 +847,7 @@ test('partial multiple payments use explicit amounts, retain unpaid balances, an
   r.context.ccSelectedItems=new Set(['c1','c2']);let submit;
   r.context.openFormModal=(title,html,callback)=>{submit=callback;};r.context.openBulkPayCcItemForm();
   r.context.ccSelectedItems.clear(); // The form owns its selection even if the list changes.
-  await submit({preventDefault(){},target:{values:{payFromAccount:'cash',payAmount_c1:'25.15',payAmount_c2:'0',logBulkCcPaymentAsExpense:'on',payCategory_c1:'Groceries'}}});
+  await submit({preventDefault(){},target:{values:{payFromAccount:'cash',payAmount_c1:'20+5.15',payAmount_c2:'0',logBulkCcPaymentAsExpense:'on',payCategory_c1:'Groceries'}}});
   assert.equal(r.run('state.accounts[0].balance'),974.85);
   assert.equal(r.run('state.creditCard.transactions[0].paidAmount'),25.15);
   assert.equal(r.run('state.creditCard.transactions[0].paidOff'),false);
