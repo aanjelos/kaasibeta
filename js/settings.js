@@ -718,6 +718,9 @@ async function renameCategory(buttonElement) {
     });
 
     state.hiddenCategories = (state.hiddenCategories || []).map(cat => cat === originalName ? newName : cat);
+    state.creditCard.transactions.forEach(item => {
+      if (item.category === originalName) item.category = newName;
+    });
     if (state.settings.defaultTransferFeeCategory === originalName) {
       state.settings.defaultTransferFeeCategory = newName;
     }
@@ -748,6 +751,7 @@ async function renameCategory(buttonElement) {
       `Category "${originalName}" renamed to "${newName}". ${updateCount} transaction(s) and ${budgetUpdateCount} budget(s) updated.`,
       "success"
     );
+    document.body.renderCcHistoryList?.();
   } else {
     showNotification(`Original category "${originalName}" not found.`, "error");
     inputElement.value = originalName;
@@ -806,6 +810,9 @@ async function deleteCategory(categoryName) {
     )
   ) {
     state.categories = state.categories.filter((cat) => cat !== categoryName);
+    state.creditCard.transactions.forEach(item => {
+      if (item.category === categoryName) delete item.category;
+    });
     
     // Cascade to budgets
     if (state.budgets) {
@@ -820,6 +827,7 @@ async function deleteCategory(categoryName) {
     renderCategorySettingsList();
     if (typeof renderCategoryBudgets === "function") renderCategoryBudgets();
     showNotification(`Category "${categoryName}" deleted.`, "success");
+    document.body.renderCcHistoryList?.();
   }
 }
 

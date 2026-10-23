@@ -814,6 +814,10 @@ function showNotification(message, type = "success", duration = 4000) {
 }
 
 function populateDropdowns() {
+  const ccPurchaseCategory = document.getElementById("ccPurchaseCategory");
+  if (ccPurchaseCategory) {
+    ccPurchaseCategory.innerHTML = ccPurchaseCategoryOptions(getCcPurchaseCategory({category: ccPurchaseCategory.value}));
+  }
   const accountSelects = $$(
     'select[name="account"], select[name="transferFrom"], select[name="transferTo"], select[name="receivableSourceAccount"], select[name="payDebtAccount"], select[name="recPaymentAccount"], select[name="instPayAccount"], select[name="ccPayFromAccount"], #modalAccount, #recSourceAccountAdd, #recSourceAccountEdit, #modalCcPayFromAccount, #modalInstPayAccount, #modalPayDebtAccount, #modalTransferFrom, #modalTransferTo'
   );

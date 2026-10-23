@@ -2,6 +2,16 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.390n - 2026-10-23
+
+### 1. [Feature] Optional Categories for Credit Card Purchases
+
+Add/edit CC purchase forms accept an optional expense category. Categories appear in desktop history rows and purchase details; mobile history rows retain their existing date/payment-status layout. Uncategorized purchases omit the listing label. Adding or editing a purchase category does not create an expense or modify previously recorded payments.
+
+### 2. [Improvement] Payment Category Defaults
+
+Single and multiple payment forms prefill each purchase's saved category. Logging an expense requires a valid category; disabling expense logging continues to deduct the bank payment without requiring or recording a category. The first logged payment remembers its selected category on an uncategorized purchase, including partial payments. Later payment overrides affect only that expense. Category renames update purchase defaults; deleting an eligible category clears them. Legacy purchases remain valid, and backup validation preserves valid optional categories while treating missing references as uncategorized. No database or Supabase schema change is required.
+
 ## v6.389n - 2026-10-23
 
 ### 1. [Fix] Smooth Dashboard Chart Updates

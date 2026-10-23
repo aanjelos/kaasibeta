@@ -117,6 +117,8 @@ function prepareImportedData(input) {
   number(candidate.creditCard, "limit");
   records(candidate.creditCard.transactions, "credit card transactions", item => {
     text(item.description, "credit card description", true);
+    if (item.category !== undefined && item.category !== null) text(item.category, "credit card category", true);
+    if (!candidate.categories.includes(item.category) || item.category?.toLowerCase() === "income") delete item.category;
     date(item.date, "credit card date");
     timestamp(item, "date");
     number(item, "amount");

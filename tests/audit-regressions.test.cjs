@@ -405,6 +405,10 @@ test('renaming a hidden category preserves exclusions, budgets, and transfer def
   assert.equal(r.run('isCategoryExcluded("New", "excludeFromMonthlyTotals")'), true);
   assert.equal(r.run('state.budgets[0].categories[0]'), 'New');
   assert.equal(r.run('state.settings.defaultTransferFeeCategory'), 'New');
+  r.run('state.creditCard.transactions=[{id:"rename_cc",category:"New"}];state.categories.push("RenameAgain");');
+  const nextInput={value:'Renamed',dataset:{originalName:'New'}};
+  await r.context.renameCategory({closest:()=>({querySelector:()=>nextInput})});
+  assert.equal(r.run('state.creditCard.transactions[0].category'),'Renamed');
 });
 
 test('user labels and record IDs render as data rather than HTML or inline JavaScript', () => {
@@ -511,6 +515,45 @@ test('CC payment links survive renaming/import; deleting a purchase preserves al
   assert.equal(r.run('state.accounts[0].balance'), balance);
   assert.equal(r.run('state.creditCard.transactions.some(t=>t.id==="c1")'), false);
   assert.equal(JSON.parse(r.storage.get('KaasiData')).transactions.length, 3);
+});
+
+test('CC purchase categories are optional, round-trip backups, and remember first payment without rewriting previous expenses', async () => {
+  const r=runtime();await seedCards(r);
+  await cardPayment(r,'c1','20');
+  assert.equal(r.run('state.creditCard.transactions[0].category'),'Groceries');
+  await r.context.handlePayCcItemSubmit({preventDefault(){},target:{values:{ccItemId:'c1',ccItemPayAmount:'10',ccPayFromAccount:'cash',logCcPaymentAsExpense:'on',ccPayCategory:'Other'}}});
+  assert.equal(r.run('state.creditCard.transactions[0].category'),'Groceries');
+  assert.equal(r.run('state.transactions[0].category'),'Groceries');
+  assert.equal(r.run('state.transactions[1].category'),'Other');
+  const parsed=r.context.prepareImportedData(JSON.parse(r.run('JSON.stringify(state)')));
+  assert.equal(parsed.creditCard.transactions[0].category,'Groceries');
+  assert.equal(parsed.creditCard.transactions[1].category,undefined);
+  const missing=JSON.parse(r.run('JSON.stringify(state)'));missing.creditCard.transactions[0].category='Removed';
+  assert.equal(r.context.prepareImportedData(missing).creditCard.transactions[0].category,undefined);
+  missing.creditCard.transactions[0].category={bad:true};
+  assert.throws(()=>r.context.prepareImportedData(missing),/credit card category/);
+});
+
+test('CC category edits only update purchase metadata and payment forms prefill valid saved categories', async () => {
+  const r=runtime();await seedCards(r);await cardPayment(r,'c1','20');
+  const before=r.run('JSON.stringify(state.transactions)');
+  await r.context.handleEditCcTransactionModalSubmit({preventDefault(){},target:{values:{editCcTransactionId:'c1',ccAmount:'100',ccDescription:'Edited purchase',ccDate:'2026-10-20',ccPurchaseCategory:'Other'}}});
+  assert.equal(r.run('state.creditCard.transactions[0].category'),'Other');
+  assert.equal(r.run('JSON.stringify(state.transactions)'),before);
+  r.context.openFormModal=()=>{};r.context.openPayCcItemForm('c1');
+  assert.match(r.element('#modalCcPayCategory').innerHTML,/value="Other" selected/);
+});
+
+test('CC category deletion removes purchase defaults; categories remain optional on addition', async () => {
+  const r=runtime();await seedCards(r);r.run('state.categories.push("Temporary");state.creditCard.transactions[0].category="Temporary";');
+  r.context.confirm=()=>true;r.context.renderCategorySettingsList=()=>{};r.context.renderCategoryBudgets=()=>{};
+  await r.context.deleteCategory('Temporary');
+  assert.equal(r.run('state.creditCard.transactions[0].category'),undefined);
+  const form={values:{ccAmount:'50',ccDescription:'No category',ccDate:'2026-10-23'},reset(){},querySelector(){return null;}};
+  await r.context.handleCcTransactionSubmit({preventDefault(){},target:form});
+  assert.equal(r.run('state.creditCard.transactions.at(-1).category'),undefined);
+  form.values.ccPurchaseCategory='Groceries';await r.context.handleCcTransactionSubmit({preventDefault(){},target:form});
+  assert.equal(r.run('state.creditCard.transactions.at(-1).category'),'Groceries');
 });
 
 test('deleting a fully paid CC purchase keeps its payments, bank balance and other purchases intact', async () => {
@@ -862,6 +905,8 @@ test('bulk CC payments save a separate purchase ID for each payment', async () =
   assert.equal(r.run('state.transactions.length'),2);
   assert.equal(r.run('state.transactions[0].ccPurchaseId'),'c1');
   assert.equal(r.run('state.transactions[1].ccPurchaseId'),'c2');
+  assert.equal(r.run('state.creditCard.transactions[0].category'),'Groceries');
+  assert.equal(r.run('state.creditCard.transactions[1].category'),'Other');
   assert.equal(r.run('state.accounts[0].balance'),800);
 });
 

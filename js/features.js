@@ -777,6 +777,17 @@ function openTransactionDetailModal(transactionId, skipHistory = false) {
   }
 }
 
+function getCcPurchaseCategory(item) {
+  return typeof item.category === "string" && item.category.toLowerCase() !== "income" && state.categories.includes(item.category) ? item.category : "";
+}
+
+function ccPurchaseCategoryOptions(selected = "", optional = true) {
+  return `<option value="">${optional ? "Uncategorized" : "Select Category"}</option>` + state.categories
+    .filter(category => category.toLowerCase() !== "income")
+    .slice().sort((a, b) => a.localeCompare(b))
+    .map(category => `<option value="${escapeHTML(category)}"${category === selected ? " selected" : ""}>${escapeHTML(category)}</option>`).join("");
+}
+
 function openCcTransactionDetailModal(transactionId, skipHistory = false) {
   const transaction = state.creditCard.transactions.find((tx) => tx.id === transactionId);
   if (!transaction) return;
@@ -809,6 +820,10 @@ function openCcTransactionDetailModal(transactionId, skipHistory = false) {
       <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
         <span class="text-gray-400">Date</span>
         <span class="font-medium">${new Date(transaction.date).toLocaleDateString([], { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>
+      </div>
+      <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
+        <span class="text-gray-400">Category</span>
+        <span class="cc-detail-category">${escapeHTML(getCcPurchaseCategory(transaction) || "Uncategorized")}</span>
       </div>
       <div class="flex justify-between items-center py-2 border-b border-gray-700/50">
         <span class="text-gray-400">Paid So Far</span>
@@ -2155,7 +2170,7 @@ function openCcHistoryModal() {
           ${checkboxHtml}
           <div class="flex-grow min-w-0 mr-2 text-left">
               <p class="font-medium truncate ${t.paidOff ? "text-gray-500" : "text-gray-200"}">${escapeHTML(t.description)}</p>
-              <p class="text-xs text-gray-400 mt-0.5 truncate">${formattedDate} &bull; ${statusText}</p>
+              <p class="text-xs text-gray-400 mt-0.5 truncate">${formattedDate}${getCcPurchaseCategory(t) ? `<span class="cc-list-category"> &bull; ${escapeHTML(getCcPurchaseCategory(t))}</span>` : ""} &bull; ${statusText}</p>
           </div>
           <div class="cc-payment-history-value flex items-center justify-end flex-shrink-0 text-right">
               ${bigAmountText}
@@ -2283,15 +2298,6 @@ function openCcHistoryModal() {
     let totalAmount = 0;
     let itemsHtml = "";
     
-    let categoryOptions = `<option value="" disabled selected>Select Category</option>`;
-    const expenseCategories = state.categories
-      .filter((c) => c.toLowerCase() !== "income")
-      .sort((a, b) => a.localeCompare(b));
-
-    expenseCategories.forEach((cat) => {
-      categoryOptions += `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`;
-    });
-
     selectedIds.forEach(id => {
       const item = state.creditCard.transactions.find(t => t.id === id);
       if (item) {
@@ -2310,7 +2316,7 @@ function openCcHistoryModal() {
             </label>
             <label class="cc-payment-category-label">Category
             <select name="payCategory_${escapeHTML(id)}" class="w-full text-sm" required>
-              ${categoryOptions}
+              ${ccPurchaseCategoryOptions(getCcPurchaseCategory(item), false)}
             </select>
             </label>
             </div>
@@ -2385,7 +2391,7 @@ function openCcHistoryModal() {
           if (amount > 0) {
             aggregateAmount = roundToTwoDecimals(aggregateAmount + amount);
             payments.push({item, amount});
-            if (logAsExpense && !state.categories.includes(formData.get(`payCategory_${id}`))) validCategories = false;
+            if (logAsExpense && !getCcPurchaseCategory({category: formData.get(`payCategory_${id}`)})) validCategories = false;
           }
         }
       });
@@ -2411,6 +2417,7 @@ function openCcHistoryModal() {
             
             if (logAsExpense) {
               const payCategory = formData.get(`payCategory_${item.id}`);
+              if (!getCcPurchaseCategory(item)) item.category = payCategory;
               const bankTx = {
                 id: generateId(),
                 amount,
@@ -2489,6 +2496,11 @@ async function handleCcTransactionSubmit(event) {
   const amount = parseAmountValue(formData.get("ccAmount"));
   const description = formData.get("ccDescription").trim();
   const date = formData.get("ccDate");
+  const category = formData.get("ccPurchaseCategory") || "";
+  if (category && !getCcPurchaseCategory({category})) {
+    showNotification("Choose a valid category or leave this purchase uncategorized.", "error");
+    return;
+  }
 
   if (isNaN(amount) || amount <= 0) {
     showNotification("Valid amount required for CC transaction.", "error");
@@ -2517,6 +2529,7 @@ async function handleCcTransactionSubmit(event) {
     timestamp,
   };
   state.creditCard.transactions.push(newCcTransaction);
+  if (category) newCcTransaction.category = category;
   await saveData();
   showNotification("CC transaction added.", "success");
   if (typeof trackEvent === "function") trackEvent("add_cc_transaction", "Engagement");
@@ -2526,6 +2539,8 @@ async function handleCcTransactionSubmit(event) {
   form.reset();
   const ccDateInput = form.querySelector("#ccDate");
   if (ccDateInput) ccDateInput.value = getCurrentDateString(); // Use local date
+  const categoryInput = form.querySelector("#ccPurchaseCategory");
+  if (categoryInput) categoryInput.value = "";
 }
 
 function openEditCcTransactionModal(ccTransactionId) {
@@ -2555,6 +2570,10 @@ function openEditCcTransactionModal(ccTransactionId) {
                 <input type="text" id="modalCcDescription" name="ccDescription" value="${
                   escapeHTML(transaction.description)
                 }" placeholder="e.g., Online purchase" required>
+            </div>
+            <div>
+                <label for="modalCcPurchaseCategory" class="block text-sm font-medium mb-1">Category (Optional)</label>
+                <select id="modalCcPurchaseCategory" name="ccPurchaseCategory">${ccPurchaseCategoryOptions(getCcPurchaseCategory(transaction))}</select>
             </div>
             <div>
                 <label for="modalCcDate" class="block text-sm font-medium mb-1">Date</label>
@@ -2589,6 +2608,11 @@ async function handleEditCcTransactionModalSubmit(event) {
   const newAmount = parseAmountValue(formData.get("ccAmount"));
   const newDescription = formData.get("ccDescription").trim();
   const newDate = formData.get("ccDate");
+  const category = formData.get("ccPurchaseCategory") || "";
+  if (category && !getCcPurchaseCategory({category})) {
+    showNotification("Choose a valid category or leave this purchase uncategorized.", "error");
+    return;
+  }
 
   if (isNaN(newAmount) || newAmount <= 0) {
     showNotification("Valid amount required for CC transaction.", "error");
@@ -2608,6 +2632,8 @@ async function handleEditCcTransactionModalSubmit(event) {
   transaction.amount = roundedNewAmount;
   transaction.description = newDescription;
   transaction.date = newDate;
+  if (category) transaction.category = category;
+  else delete transaction.category;
   // Do not update timestamp on edit to preserve original order in lists
 
   // Adjust paidAmount and paidOff status if new amount is less than what was already paid
@@ -3811,29 +3837,6 @@ function openPayCcItemForm(ccTransactionId) {
     return;
   }
 
-  const ccPaymentCategoryName = "Credit Card Payment";
-  let categoryOptions = "";
-  const otherCcCategories = state.categories
-    .filter(
-      (c) =>
-        c.toLowerCase() !== "income" &&
-        c.toLowerCase() !== ccPaymentCategoryName.toLowerCase()
-    )
-    .sort((a, b) => a.localeCompare(b));
-
-  if (
-    state.categories.some(
-      (c) => c.toLowerCase() === ccPaymentCategoryName.toLowerCase()
-    )
-  ) {
-    categoryOptions += `<option value="${ccPaymentCategoryName}" selected>${ccPaymentCategoryName}</option>`;
-  } else {
-    categoryOptions += `<option value="${ccPaymentCategoryName}" selected>${ccPaymentCategoryName} (Suggested)</option>`;
-  }
-  otherCcCategories.forEach((cat) => {
-    categoryOptions += `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`;
-  });
-
   const formHtml = `
       <input type="hidden" name="ccItemId" value="${escapeHTML(item.id)}">
       <p class="cc-payment-description">${escapeHTML(item.description)}</p>
@@ -3854,7 +3857,7 @@ function openPayCcItemForm(ccTransactionId) {
       </div>
       <div id="ccPaymentCategoryGroup">
           <label for="modalCcPayCategory" class="block text-sm font-medium mb-1">Category</label>
-          <select id="modalCcPayCategory" name="ccPayCategory" required>${categoryOptions}</select>
+          <select id="modalCcPayCategory" name="ccPayCategory" required>${ccPurchaseCategoryOptions(getCcPurchaseCategory(item), false)}</select>
       </div>
       <div id="ccSinglePaymentRemainingGroup" class="cc-payment-summary cc-payment-summary-compact" aria-live="polite" hidden><span>Remaining After<strong id="ccSinglePaymentRemaining">${formatCurrency(0)}</strong></span></div>
       <button type="submit" class="btn btn-primary w-full mt-3">Record Payment</button>
@@ -3869,6 +3872,7 @@ function openPayCcItemForm(ccTransactionId) {
   const logCcExpenseCheckbox = document.getElementById("logCcPaymentAsExpense");
   const ccCategoryGroupDiv = document.getElementById("ccPaymentCategoryGroup");
   const ccCategorySelect = document.getElementById("modalCcPayCategory");
+  ccCategorySelect.innerHTML = ccPurchaseCategoryOptions(getCcPurchaseCategory(item), false);
 
   if (logCcExpenseCheckbox && ccCategoryGroupDiv && ccCategorySelect) {
     ccCategoryGroupDiv.style.display = logCcExpenseCheckbox.checked
@@ -3924,7 +3928,12 @@ async function handlePayCcItemSubmit(event) {
     showNotification("Invalid payment amount for CC item.", "error");
     return;
   }
+  if (logAsExpense && !getCcPurchaseCategory({category})) {
+    showNotification("Select a category for this payment.", "error");
+    return;
+  }
   if (!processPaymentDeduction(account, roundedPaymentAmount, logAsExpense, category)) return;
+  if (logAsExpense && !getCcPurchaseCategory(item)) item.category = category;
 
   item.paidAmount = roundToTwoDecimals(
     (item.paidAmount || 0) + roundedPaymentAmount

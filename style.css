@@ -2168,6 +2168,9 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .cc-select-control { flex-shrink: 0; display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; background: transparent; border: 0; }
 .cc-select-control:focus-visible { outline: 2px solid var(--accent-color, #e67e22); outline-offset: 2px; border-radius: 6px; }
 .cc-payment-description { min-width: 0; overflow-wrap: anywhere; font-weight: 600; line-height: 1.5; }
+.cc-detail-category { text-align: right; min-width: 0; max-width: 65%; overflow-wrap: anywhere; }
+.cc-list-category { display: none; }
+@media (min-width: 640px) { .cc-list-category { display: inline; } }
 .cc-payment-item { padding: 14px 0; border-bottom: 1px solid var(--border-color, #444); }
 .cc-payment-item:first-of-type { padding-top: 0; }
 .cc-payment-item-title { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; }
