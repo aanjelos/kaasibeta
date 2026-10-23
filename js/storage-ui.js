@@ -73,6 +73,7 @@ async function chooseStorageMigration(existingData) {
       storageButton(actions, "Continue", async () => {
         let persistent = false;
         try { persistent = await navigator.storage?.persist?.() || false; } catch (_) { /* The decision below remains explicit. */ }
+        window.storagePersistenceDecision = persistent;
         if (persistent) {
           storageScreen("Upgrading local storage", "Copying and verifying your data. Please keep Kaasi open."); resolve("migrate");
         } else {

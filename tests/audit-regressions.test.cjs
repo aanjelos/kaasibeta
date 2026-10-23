@@ -187,6 +187,36 @@ test('a delayed protection check cannot overwrite a newer refresh result', async
   assert.equal(r.element('#requestPersistenceBtn').disabled,false);
 });
 
+test('startup requests storage protection once, remembers refusal, and allows a manual retry',async()=>{
+  const r=runtime(),c=r.context;let requests=0,granted=false;
+  c.navigator.storage={persisted:async()=>granted,persist:async()=>{requests++;return granted;}};
+  await c.requestStartupStorageProtection();await c.requestStartupStorageProtection();assert.equal(requests,1);
+  assert.equal(r.storage.get('kaasi_storage_protection_denied'),'true');
+  r.run('storageProtectionLaunchChecked=false');await c.requestStartupStorageProtection();assert.equal(requests,1);
+  granted=true;await r.element('#requestPersistenceBtn').onclick();assert.equal(requests,2);
+  assert.equal(r.storage.has('kaasi_storage_protection_denied'),false);
+  assert.equal(r.element('#requestPersistenceBtn').textContent,'Protection Enabled');
+});
+
+test('startup respects browser denial, existing grants, unsupported APIs, PIN lock, and legacy mode',async()=>{
+  for(const scenario of ['denied','granted','unsupported','locked','legacy']){
+    const r=runtime(),c=r.context;let requests=0;
+    c.navigator.storage={persisted:async()=>scenario==='granted',persist:async()=>{requests++;return true;}};
+    if(scenario==='denied')c.navigator.permissions={query:async()=>({state:'denied'})};
+    if(scenario==='unsupported')c.navigator.storage={};
+    if(scenario==='locked')c.kaasiAppLocked=true;
+    if(scenario==='legacy')c.KaasiStorage.mode='legacy';
+    await c.requestStartupStorageProtection();assert.equal(requests,0,scenario);
+  }
+});
+
+test('migration persistence decision is reused instead of immediately requesting again',async()=>{
+  const r=runtime(),c=r.context;let requests=0;c.storagePersistenceDecision=false;
+  c.navigator.storage={persisted:async()=>false,persist:async()=>{requests++;return false;}};
+  await c.requestStartupStorageProtection();assert.equal(requests,0);
+  assert.equal(r.storage.get('kaasi_storage_protection_denied'),'true');
+});
+
 test('strict calculator evaluates supported operations and rejects partial/invalid expressions', () => {
   const { context: c } = runtime();
   for (const [input, expected] of [['(1500*2)+350', 3350], ['1,000+250', 1250], ['-.5+1', .5], ['10/4', 2.5], ['25', 25]]) {

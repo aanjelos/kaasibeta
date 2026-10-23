@@ -4,6 +4,18 @@ Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed ne
 
 ---
 
+## v6.380n - 2026-10-23
+
+### 1. [Enhancement] Request Storage Protection Automatically After Launch
+
+After startup/unlock, IndexedDB installations check persistence and request it automatically when off. Already-protected, unsupported, PIN-locked, and legacy-storage states do not request permission. A browser denial or prior unsuccessful request suppresses further automatic requests; the outcome is saved as a device preference. Settings retains a manual retry, and a successful grant clears the refusal flag. Migration's existing permission result is reused rather than immediately requesting again. Permission failures do not block opening the app, and browser decisions are never overridden.
+
+### 2. [Enhancement] Align Storage Protection Status and Action
+
+Moved the status directly beneath the Storage Protection heading and aligned the action beside that text block on desktop. Mobile retains its stacked full-width action. Reduced divider/status spacing and shortened the refusal message while retaining the backup reminder.
+
+Validation: all 87 automated tests pass, including automatic request deduplication, remembered refusals, manual retry, browser denial, existing grants, unsupported APIs, PIN/legacy guards, migration result reuse, and existing storage/financial/sync checks. Inspected the revised card in a synthetic browser preview; the development screenshot is stored under `docs/dev screenshots`. Updated application/service-worker versions to `v6.380n`.
+
 ## v6.379n - 2026-10-23
 
 ### 1. [Fix] Explain Browser Storage Access Blocks

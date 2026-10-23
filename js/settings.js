@@ -28,6 +28,36 @@ function openSettingsModal() {
 
 let storageProtectionCheck = 0;
 let storageProtectionRequestPending = false;
+let storageProtectionLaunchChecked = false;
+
+async function rememberStorageProtectionDecision(granted) {
+  try {
+    if (granted) appPreferences.removeItem("kaasi_storage_protection_denied");
+    else appPreferences.setItem("kaasi_storage_protection_denied", "true");
+    await appPreferences.flush();
+  } catch (error) { console.warn("Storage protection preference could not be saved.", error); }
+}
+
+async function requestStartupStorageProtection() {
+  if (storageProtectionLaunchChecked || KaasiStorage.mode !== "indexeddb" || isAppLocked()) return;
+  storageProtectionLaunchChecked = true;
+  try {
+    if (window.storagePersistenceDecision !== undefined) {
+      await rememberStorageProtectionDecision(window.storagePersistenceDecision);
+      return;
+    }
+    if (!navigator.storage?.persist || !navigator.storage?.persisted) return;
+    if (await navigator.storage.persisted()) { await rememberStorageProtectionDecision(true); return; }
+    if (appPreferences.getItem("kaasi_storage_protection_denied") === "true") return;
+    try {
+      const permission = await navigator.permissions?.query({ name: "persistent-storage" });
+      if (permission?.state === "denied") { await rememberStorageProtectionDecision(false); return; }
+    } catch (_) { /* Not every browser supports this permission query. */ }
+    if (isAppLocked() || storageProtectionRequestPending) return;
+    await refreshStorageProtection();
+    if (!isAppLocked() && !storageProtectionRequestPending && !$("#requestPersistenceBtn").disabled) await $("#requestPersistenceBtn").onclick();
+  } catch (error) { console.warn("Automatic storage protection request could not complete.", error); }
+}
 
 async function refreshStorageProtection() {
   const persistButton = $("#requestPersistenceBtn");
@@ -52,7 +82,8 @@ async function refreshStorageProtection() {
       persistButton.disabled = true;
       try {
         const granted = await navigator.storage.persist();
-        renderProtection(granted, "Protection was not enabled. Your browser may decide without showing a prompt. Keep external backups.");
+        renderProtection(granted, "Not enabled. Your browser may decide without a prompt. Keep external backups.");
+        await rememberStorageProtectionDecision(granted);
       } catch (_) { renderProtection(false, "Persistent storage is unavailable in this browser. Keep external backups."); }
       finally { storageProtectionRequestPending = false; }
     };
