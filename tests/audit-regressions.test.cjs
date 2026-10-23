@@ -959,6 +959,26 @@ test('calculator leaves drafts unchanged on blur and evaluates explicitly on Tab
   input.value='30+5=';r.documentEvents.get('input').forEach(fn=>fn({target:input}));assert.equal(Number(input.value),35);
 });
 
+test('calculator floats outside scrolling forms and clamps above/below within the visible viewport', () => {
+  const r=runtime();r.context.innerWidth=360;r.context.innerHeight=640;
+  r.run('mathToolbar.getBoundingClientRect=()=>({width:232,height:50});');
+  const input=new Element();r.context.calcTestInput=input;
+  input.getBoundingClientRect=()=>({left:10,right:130,top:100,bottom:144});
+  r.context.positionMathToolbar(input);
+  assert.equal(r.run('mathToolbar.parentElement===document.body'),true);
+  assert.equal(r.run('mathToolbar.style.left'),'8px');
+  assert.equal(r.run('mathToolbar.style.top'),'148px');
+  input.getBoundingClientRect=()=>({left:280,right:400,top:590,bottom:634});
+  r.context.positionMathToolbar(input);
+  assert.equal(r.run('mathToolbar.style.left'),'120px');
+  assert.equal(r.run('mathToolbar.style.top'),'536px');
+  r.context.visualViewport={offsetLeft:20,offsetTop:100,width:300,height:200};
+  input.getBoundingClientRect=()=>({left:0,right:100,top:280,bottom:324});
+  r.context.positionMathToolbar(input);
+  assert.equal(r.run('mathToolbar.style.left'),'28px');
+  assert.equal(r.run('mathToolbar.style.top'),'226px');
+});
+
 test('failed bulk CC settlement restores the balance and all purchase payment states', async () => {
   const r=runtime();const openHistory=r.context.openCcHistoryModal;await seedCards(r);r.context.openModalHelper=()=>{};openHistory();
   r.context.ccSelectedItems=new Set(['c1','c2']);let submit;

@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.385n - 2026-10-23
+
+### 1. [Fix] Calculator Toolbar Clipping
+
+The shared calculator toolbar stays attached to the document body with fixed positioning instead of moving into an input's scrolling container. It floats over modal content, aligns with the active input, opens above it when there is insufficient space below, and clamps to the visible viewport with an eight-pixel margin. Viewport size limits prevent overflow on narrow screens; scrolling, resizing and mobile visual-viewport changes reposition the toolbar. Financial calculations are unchanged.
+
 ## v6.384n - 2026-10-23
 
 ### 1. [Improvement] Calculator Inputs for Multiple Credit Card Payments

@@ -1519,7 +1519,9 @@ footer a[href^="https://kaasi.com.lk"]:hover
 /* --- MATH TOOLBAR --- */
 /* ------------------------- */
 .math-toolbar {
-  position: absolute;
+  position: fixed;
+  box-sizing: border-box;
+  overflow: auto;
   display: flex;
   gap: 0.25rem;
   background: var(--bg-secondary);
@@ -1531,7 +1533,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
   transition: opacity 0.2s ease, transform 0.2s ease;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-10px);
+  transform: none;
 }
 
 .math-toolbar.visible {

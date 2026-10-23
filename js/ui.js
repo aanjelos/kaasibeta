@@ -936,6 +936,15 @@ window.addEventListener("resize", () => {
   }
 });
 
+// Mobile keyboards and pinch zoom can resize/move the visible viewport alone.
+if (window.visualViewport) {
+  const repositionCalculator = () => {
+    if (activeCalcInput && mathToolbar.classList.contains("visible")) positionMathToolbar(activeCalcInput);
+  };
+  window.visualViewport.addEventListener("resize", repositionCalculator);
+  window.visualViewport.addEventListener("scroll", repositionCalculator);
+}
+
 function handleMathToolbarInteraction(e) {
   e.preventDefault(); // Prevents input from losing focus
   if (e.target.classList.contains("math-btn") && activeCalcInput) {

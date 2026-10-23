@@ -93,17 +93,26 @@ document.addEventListener("submit", (event) => {
 }, true);
 
 function positionMathToolbar(inputEl) {
-  const parent = inputEl.parentElement;
-  if (!parent.classList.contains("relative")) {
-    parent.classList.add("relative");
-  }
-  if (!parent.contains(mathToolbar)) {
-    parent.appendChild(mathToolbar);
-  }
-  mathToolbar.style.left = 'auto';
-  mathToolbar.style.right = '1rem';
-  mathToolbar.style.top = '100%';
-  mathToolbar.style.marginTop = '4px';
+  // Keep the shared toolbar outside modal scroll/overflow containers.
+  if (mathToolbar.parentElement !== document.body) document.body.appendChild(mathToolbar);
+  const viewport = window.visualViewport;
+  const left = viewport?.offsetLeft || 0, top = viewport?.offsetTop || 0;
+  const width = viewport?.width || window.innerWidth;
+  const height = viewport?.height || window.innerHeight;
+  const margin = 8, gap = 4;
+  mathToolbar.style.maxWidth = `${Math.max(0, width - margin * 2)}px`;
+  mathToolbar.style.maxHeight = `${Math.max(0, height - margin * 2)}px`;
+  const input = inputEl.getBoundingClientRect();
+  const toolbar = mathToolbar.getBoundingClientRect();
+  const clamp = (value, min, max) => Math.max(min, Math.min(value, Math.max(min, max)));
+  const x = clamp(input.right - toolbar.width, left + margin, left + width - toolbar.width - margin);
+  const below = input.bottom + gap;
+  const preferredY = below + toolbar.height <= top + height - margin ? below : input.top - toolbar.height - gap;
+  const y = clamp(preferredY, top + margin, top + height - toolbar.height - margin);
+  mathToolbar.style.left = `${x}px`;
+  mathToolbar.style.right = 'auto';
+  mathToolbar.style.top = `${y}px`;
+  mathToolbar.style.marginTop = '0';
 }
 
 function showMathToolbar(inputEl) {
