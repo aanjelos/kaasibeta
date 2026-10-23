@@ -784,7 +784,7 @@ function getCcPurchaseCategory(item) {
 function ccPurchaseCategoryOptions(selected = "", optional = true) {
   return `<option value="">${optional ? "Uncategorized" : "Select Category"}</option>` + state.categories
     .filter(category => category.toLowerCase() !== "income")
-    .slice().sort((a, b) => a.localeCompare(b))
+    .slice().sort(compareCategoryNames)
     .map(category => `<option value="${escapeHTML(category)}"${category === selected ? " selected" : ""}>${escapeHTML(category)}</option>`).join("");
 }
 
@@ -878,7 +878,7 @@ function openEditTransactionModal(transactionId, event) {
     .join("");
 
   const categoryOptions = state.categories
-    .sort((a, b) => a.localeCompare(b))
+    .slice().sort(compareCategoryNames)
     .map(
       (cat) =>
         `<option value="${escapeHTML(cat)}" ${
@@ -2566,14 +2566,14 @@ function openEditCcTransactionModal(ccTransactionId) {
                 )}" step="0.01" min="0" placeholder="Amount spent" required><button type="button" class="calc-toggle-btn absolute right-4 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
             </div>
             <div>
+                <label for="modalCcPurchaseCategory" class="block text-sm font-medium mb-1">Category (Optional)</label>
+                <select id="modalCcPurchaseCategory" name="ccPurchaseCategory">${ccPurchaseCategoryOptions(getCcPurchaseCategory(transaction))}</select>
+            </div>
+            <div>
                 <label for="modalCcDescription" class="block text-sm font-medium mb-1">Description</label>
                 <input type="text" id="modalCcDescription" name="ccDescription" value="${
                   escapeHTML(transaction.description)
                 }" placeholder="e.g., Online purchase" required>
-            </div>
-            <div>
-                <label for="modalCcPurchaseCategory" class="block text-sm font-medium mb-1">Category (Optional)</label>
-                <select id="modalCcPurchaseCategory" name="ccPurchaseCategory">${ccPurchaseCategoryOptions(getCcPurchaseCategory(transaction))}</select>
             </div>
             <div>
                 <label for="modalCcDate" class="block text-sm font-medium mb-1">Date</label>
@@ -2834,7 +2834,7 @@ function openPayDebtForm(debtId) {
         c.toLowerCase() !== "credit card payment" &&
         c.toLowerCase() !== debtRepaymentCategoryName.toLowerCase()
     )
-    .sort((a, b) => a.localeCompare(b));
+    .sort(compareCategoryNames);
 
   if (
     state.categories.some(

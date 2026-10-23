@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.391n - 2026-10-23
+
+### 1. [Improvement] Consistent Category Field Order and Choices
+
+CC purchase add/edit forms place Category before Description, matching regular transaction entry. Shared display ordering keeps Other after all alphabetically sorted default and custom categories in CC purchase/payment selectors, transaction editing, debt-payment choices, history category filters and budget category pickers. Existing main transaction/payment dropdowns already place Other last. Sorting display choices does not reorder stored categories or change selected values, financial records or balances.
+
 ## v6.390n - 2026-10-23
 
 ### 1. [Feature] Optional Categories for Credit Card Purchases

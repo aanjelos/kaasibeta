@@ -813,6 +813,11 @@ function showNotification(message, type = "success", duration = 4000) {
   }, duration);
 }
 
+function compareCategoryNames(a, b) {
+  const aOther = a.toLowerCase() === "other", bOther = b.toLowerCase() === "other";
+  return aOther === bOther ? a.localeCompare(b) : aOther ? 1 : -1;
+}
+
 function populateDropdowns() {
   const ccPurchaseCategory = document.getElementById("ccPurchaseCategory");
   if (ccPurchaseCategory) {
@@ -945,7 +950,7 @@ function populateDropdowns() {
       (c) =>
         c.toLowerCase() !== "income" &&
         c.toLowerCase() !== "credit card payment"
-    ).sort((a, b) => a.localeCompare(b));
+    ).sort(compareCategoryNames);
 
     generalCategories.forEach((c) => {
       const label = document.createElement("label");

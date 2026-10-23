@@ -1074,7 +1074,7 @@ function buildBudgetCategoryCheckboxes(containerId, selectedCategories = [], cur
     (c) =>
       c.toLowerCase() !== "income" &&
       c.toLowerCase() !== "credit card payment"
-  ).sort((a, b) => a.localeCompare(b));
+  ).sort(compareCategoryNames);
 
   if (generalCategories.length === 0) {
     container.innerHTML = `<p class="text-xs text-gray-400 p-2">No categories available.</p>`;

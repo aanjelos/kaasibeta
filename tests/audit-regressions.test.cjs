@@ -128,6 +128,20 @@ test('all application scripts parse', () => {
   }
 });
 
+test('category choices keep Other last after custom categories and CC forms put category before description', async () => {
+  const r=runtime();r.run('state.categories=["Other","Zebra Custom","Apple Custom","Groceries"];');
+  assert.deepEqual(Array.from(r.run('state.categories.slice().sort(compareCategoryNames)')),['Apple Custom','Groceries','Zebra Custom','Other']);
+  const markup=r.context.ccPurchaseCategoryOptions('Other');
+  assert.ok(markup.indexOf('Zebra Custom')<markup.indexOf('value="Other"'));
+  assert.match(markup,/value="Other" selected/);
+  assert.equal(r.run('state.categories[0]'),'Other','display sorting must not mutate saved order');
+  await seedCards(r);let html;r.context.openFormModal=(title,markup)=>{html=markup;};
+  r.context.openEditCcTransactionModal('c1');
+  assert.ok(html.indexOf('for="modalCcPurchaseCategory"')<html.indexOf('for="modalCcDescription"'));
+  const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
+  assert.ok(index.indexOf('for="ccPurchaseCategory"')<index.indexOf('for="ccDescription"'));
+});
+
 test('dashboard chart preserves series and points for edits and skips unchanged renders', () => {
   const r=runtime();r.element('#monthlyOverviewChart').getContext=()=>({});
   let creations=0,updates=0;
