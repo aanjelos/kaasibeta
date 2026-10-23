@@ -128,6 +128,29 @@ test('all application scripts parse', () => {
   }
 });
 
+test('dashboard chart preserves series and points for edits and skips unchanged renders', () => {
+  const r=runtime();r.element('#monthlyOverviewChart').getContext=()=>({});
+  let creations=0,updates=0;
+  r.context.Chart=class {constructor(ctx,config){creations++;this.data=config.data;this.options=config.options;}update(){updates++;}};
+  r.context.renderMonthlyOverviewChart();
+  const chart=r.run('monthlyOverviewChartInstance');
+  const series=chart.data.datasets[1],points=series.data,labels=chart.data.labels;
+  points.splice=()=>{throw new Error('Removing/reinserting points would replay their entrance animation');};
+  series.hidden=true;
+  r.context.renderMonthlyOverviewChart();assert.equal(updates,0);
+  r.run('state.transactions.push({id:"chart1",type:"expense",amount:100,date:getCurrentDateString(),category:"Groceries"});');
+  r.context.renderMonthlyOverviewChart();
+  assert.equal(creations,1);assert.equal(updates,1);
+  assert.equal(chart.data.datasets[1],series);assert.equal(series.data,points);assert.equal(chart.data.labels,labels);
+  assert.equal(points.at(-1),100);assert.equal(series.hidden,true);
+  r.run('state.transactions[0].amount=150;');r.context.renderMonthlyOverviewChart();assert.equal(points.at(-1),150);
+  r.run('state.transactions=[];');r.context.renderMonthlyOverviewChart();assert.equal(points.at(-1),0);
+  r.run('dashboardChartState="monthly";');r.context.renderMonthlyOverviewChart();
+  assert.equal(chart.data.datasets.length,1);assert.equal(chart.data.datasets[0].type,'bar');
+  r.run('dashboardChartState="yearly";');r.context.renderMonthlyOverviewChart();
+  assert.equal(chart.data.datasets.length,2);assert.equal(creations,1);
+});
+
 test('storage protection retains its backup reminder on reopen and ignores an outdated permission check', async () => {
   const r = runtime(); const c = r.context;
   for (const name of ['renderSettingsForm','setupSettingsTabs','setupAppearanceListeners','renderBudgetsSettingsList','buildBudgetCategoryCheckboxes','openModalHelper','cancelDeleteAllData','displayAppVersion']) c[name] = () => {};

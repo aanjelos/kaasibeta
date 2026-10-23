@@ -528,10 +528,28 @@ function renderMonthlyOverviewChart() {
   }
 
   // --- Create or Update the Chart ---
+  const renderSignature = JSON.stringify({
+    mode: dashboardChartState, labels: chartLabels, datasets: chartDatasets,
+    chartGridColor, chartTickColor, chartLegendColor, chartTooltipBg, chartTooltipText
+  });
   if (monthlyOverviewChartInstance) {
-    // Optimization: Update data and options instead of destroying the canvas
-    monthlyOverviewChartInstance.data.labels = chartLabels;
-    monthlyOverviewChartInstance.data.datasets = chartDatasets;
+    if (monthlyOverviewChartInstance.kaasiOverviewSignature === renderSignature) return;
+    // Chart.js tracks series by object identity. Retain their controllers and
+    // point positions so edits animate from the currently displayed values.
+    const data = monthlyOverviewChartInstance.data;
+    data.labels.splice(0, data.labels.length, ...chartLabels);
+    const nextDatasets = chartDatasets.map(next => {
+      const existing = data.datasets.find(series => series.label === next.label && series.type === next.type);
+      if (!existing) return next;
+      const values = existing.data;
+      // Splicing every value makes Chart.js remove/reinsert every point.
+      // Assign slots directly so existing point elements retain their positions.
+      values.length = next.data.length;
+      next.data.forEach((value, index) => { values[index] = value; });
+      Object.assign(existing, next, {data: values});
+      return existing;
+    });
+    data.datasets.splice(0, data.datasets.length, ...nextDatasets);
     
     // Update theme-dependent options in case the user toggled light/dark mode
     if (monthlyOverviewChartInstance.options && monthlyOverviewChartInstance.options.scales) {
@@ -556,6 +574,7 @@ function renderMonthlyOverviewChart() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: { duration: 400, easing: "easeOutQuart" },
         scales: {
           y: {
             beginAtZero: true,
@@ -598,6 +617,7 @@ function renderMonthlyOverviewChart() {
       },
     });
   }
+  monthlyOverviewChartInstance.kaasiOverviewSignature = renderSignature;
 }
 
 function renderMonthlyPieChart(data, isUpdate = false) {

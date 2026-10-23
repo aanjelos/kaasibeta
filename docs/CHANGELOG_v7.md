@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.389n - 2026-10-23
+
+### 1. [Fix] Smooth Dashboard Chart Updates
+
+The income/expense dashboard chart retains dataset objects and value arrays when transactions are added, edited or deleted, allowing existing points to animate to their new values instead of replaying series entrance animations. Renders with unchanged data and colours skip Chart.js updates. Legend visibility survives routine updates, daily/monthly view switching remains available, and transitions use a 400ms animation. Added regression checks for object identity, changed totals, unchanged renders and chart-mode switches.
+
 ## v6.388n - 2026-10-23
 
 ### 1. [Improvement] Credit Card Selection Toolbar Cleanup
