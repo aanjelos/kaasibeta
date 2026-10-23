@@ -1890,6 +1890,7 @@ function openCcHistoryModal() {
 
   // --- Reset state on open ---
   ccHistoryFilter = "unpaid"; // Default filter
+  let selectionMode = false;
   if (searchInput) searchInput.value = "";
   if (clearSearchBtn) clearSearchBtn.classList.add("hidden");
 
@@ -1914,7 +1915,7 @@ function openCcHistoryModal() {
       let hasData = (state.creditCard.transactions || []).some(t => {
         const d = new Date(t.date);
         if (d.getFullYear() !== ccSelectedYear || d.getMonth() !== index) return false;
-        if (ccHistoryFilter === "paid" && !t.paidOff && (!t.paidAmount || t.paidAmount <= 0)) return false;
+        if (ccHistoryFilter === "paid" && !t.paidOff) return false;
         // if unpaid, it's bypassed entirely anyway, but just in case
         if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
         return true;
@@ -1968,7 +1969,7 @@ function openCcHistoryModal() {
         
         // Status checks
         if (ccHistoryFilter === "unpaid" && t.paidOff) return false;
-        if (ccHistoryFilter === "paid" && !t.paidOff && (!t.paidAmount || t.paidAmount <= 0)) return false;
+        if (ccHistoryFilter === "paid" && !t.paidOff) return false;
 
         // If not unpaid, strictly filter by year and month
         if (ccHistoryFilter !== "unpaid") {
@@ -2093,19 +2094,20 @@ function openCcHistoryModal() {
 
         const isSelectable = !t.paidOff && remainingOnItem > 0.005;
         let checkboxHtml = "";
-        if (isSelectable) {
+        if (isSelectable && selectionMode) {
           checkboxHtml = `
-            <div class="flex-shrink-0 mr-3 flex items-center h-full" data-record-action="selectCc" data-record-id="${escapeHTML(t.id)}">
+            <button type="button" class="cc-select-control" aria-label="Select ${escapeHTML(t.description)}" aria-pressed="false" data-record-action="selectCc" data-record-id="${escapeHTML(t.id)}">
               <div id="cc-checkbox-${escapeHTML(t.id)}" class="w-5 h-5 rounded-full border border-gray-500 flex items-center justify-center transition-colors cursor-pointer hover:border-accent-500">
                 <i class="fas fa-check text-xs text-white opacity-0 transition-opacity"></i>
               </div>
-            </div>
+            </button>
           `;
         }
 
         // The main row
         const mainRow = document.createElement("div");
         mainRow.className = "flex justify-between items-center gap-x-2 w-full cursor-pointer";
+        if (!selectionMode) mainRow.classList.add("cc-payment-history-main");
         mainRow.onclick = () => {
           if (window.matchMedia("(min-width: 640px)").matches) {
             // Desktop: Toggle drawer logic
@@ -2135,9 +2137,10 @@ function openCcHistoryModal() {
               <p class="font-medium truncate ${t.paidOff ? "text-gray-500" : "text-gray-200"}">${escapeHTML(t.description)}</p>
               <p class="text-xs text-gray-400 mt-0.5 truncate">${formattedDate} &bull; ${statusText}</p>
           </div>
-          <div class="flex items-center justify-end flex-shrink-0 text-right">
+          <div class="cc-payment-history-value flex items-center justify-end flex-shrink-0 text-right">
               ${bigAmountText}
           </div>
+          ${isSelectable && !selectionMode ? `<button type="button" class="btn btn-primary cc-direct-pay" data-record-action="payCc" data-record-id="${escapeHTML(t.id)}" aria-label="Pay ${escapeHTML(t.description)}">Pay</button>` : ""}
         `;
 
       // Expandable Drawer
@@ -2147,7 +2150,7 @@ function openCcHistoryModal() {
       drawerDiv.style.opacity = "0";
       
       let payButtonHtml = "";
-      if (isSelectable) {
+      if (isSelectable && selectionMode) {
         payButtonHtml = `<button class="btn btn-primary flex-1 py-1 sm:py-1.5 px-0 text-sm" data-record-action="payCc" data-record-id="${escapeHTML(t.id)}"><i class="fas fa-credit-card mr-1"></i> Pay</button>`;
       }
       
@@ -2202,6 +2205,15 @@ function openCcHistoryModal() {
   document.body.renderCcHistoryList = renderFilteredCcList;
 
   // --- Bulk Selection Logic ---
+  const selectMultiple = document.getElementById("ccSelectMultipleBtn");
+  selectMultiple.onclick = () => {
+    selectionMode = !selectionMode;
+    selectMultiple.textContent = selectionMode ? "Cancel Selection" : "Select Multiple";
+    selectMultiple.setAttribute("aria-pressed", String(selectionMode));
+    renderFilteredCcList();
+  };
+  selectMultiple.textContent = "Select Multiple";
+  selectMultiple.setAttribute("aria-pressed", "false");
   window.toggleCcItemSelection = (id) => {
     if (!window.ccSelectedItems) window.ccSelectedItems = new Set();
     const checkbox = document.getElementById(`cc-checkbox-${id}`);
@@ -2218,6 +2230,7 @@ function openCcHistoryModal() {
       checkbox.querySelector("i").classList.remove("opacity-0");
       checkbox.querySelector("i").classList.add("opacity-100");
     }
+    checkbox.parentElement.setAttribute("aria-pressed", String(window.ccSelectedItems.has(id)));
     updateCcBulkPaymentBar();
   };
 
@@ -2247,6 +2260,7 @@ function openCcHistoryModal() {
 
   window.openBulkPayCcItemForm = () => {
     if (!window.ccSelectedItems || window.ccSelectedItems.size === 0) return;
+    const selectedIds = [...window.ccSelectedItems];
     
     let totalAmount = 0;
     let itemsHtml = "";
@@ -2260,21 +2274,28 @@ function openCcHistoryModal() {
       categoryOptions += `<option value="${escapeHTML(cat)}">${escapeHTML(cat)}</option>`;
     });
 
-    window.ccSelectedItems.forEach(id => {
+    selectedIds.forEach(id => {
       const item = state.creditCard.transactions.find(t => t.id === id);
       if (item) {
         const remaining = item.amount - (item.paidAmount || 0);
         totalAmount += remaining;
         
         itemsHtml += `
-          <div class="mb-3 pb-3 border-b border-gray-700 last:border-0 last:pb-0">
-            <div class="flex justify-between items-center mb-1.5">
-              <span class="font-medium text-sm truncate pr-2 text-gray-100">${escapeHTML(item.description)}</span>
+          <div class="cc-payment-item">
+            <div class="cc-payment-item-title">
+              <span class="cc-payment-description">${escapeHTML(item.description)}</span>
               <span class="text-expense font-semibold text-sm flex-shrink-0 tabular-nums">${formatCurrency(remaining)}</span>
             </div>
+            <div class="cc-payment-fields">
+            <label class="cc-payment-amount-label">Pay Amount
+              <input type="number" inputmode="decimal" name="payAmount_${escapeHTML(id)}" min="0" max="${remaining.toFixed(2)}" step="0.01" value="${remaining.toFixed(2)}" required>
+            </label>
+            <label class="cc-payment-category-label">Category
             <select name="payCategory_${escapeHTML(id)}" class="w-full text-sm" required>
               ${categoryOptions}
             </select>
+            </label>
+            </div>
           </div>
         `;
       }
@@ -2282,10 +2303,10 @@ function openCcHistoryModal() {
 
     const formHtml = `
         <input type="hidden" name="isBulkCcPayment" value="true">
-        <p class="mb-4 text-sm text-gray-300">You are settling <span class="text-white font-semibold">${window.ccSelectedItems.size} items</span> for a total of <span class="font-semibold text-expense text-base tabular-nums">${formatCurrency(totalAmount)}</span>.</p>
+        <p class="cc-payment-intro">${selectedIds.length} ${selectedIds.length === 1 ? "purchase" : "purchases"}. Adjust each amount to pay in full or in part.</p>
         <div class="mb-4">
-          <label class="block text-sm font-medium mb-1">Pay From Account</label>
-          <select name="payFromAccount" class="w-full text-sm" required>
+          <label for="ccMultiplePayAccount" class="block text-sm font-medium mb-1">Pay From Account</label>
+          <select id="ccMultiplePayAccount" name="payFromAccount" class="w-full text-sm" required>
             ${state.accounts
               .filter((acc) => !acc.hidden)
               .map(
@@ -2300,21 +2321,22 @@ function openCcHistoryModal() {
         
         <div class="flex items-center mt-3 mb-1">
           <input type="checkbox" id="logBulkCcPaymentAsExpense" name="logBulkCcPaymentAsExpense" class="h-4 w-4 text-accent-500 border-gray-500 rounded focus:ring-accent-500 mr-2" checked>
-          <label for="logBulkCcPaymentAsExpense" class="text-sm font-medium text-gray-300">Log as Expense?</label>
+          <label for="logBulkCcPaymentAsExpense" class="text-sm font-medium text-gray-300">Log as Expense</label>
         </div>
         <div class="mb-4 mt-5 max-h-[40vh] overflow-y-auto custom-scrollbar pr-2">
-          <label id="bulkCcItemsHeading" class="block text-sm font-medium mb-3 text-gray-300">Categorize Items</label>
+          <label id="bulkCcItemsHeading" class="block text-sm font-medium mb-3 text-gray-300">Payment Breakdown</label>
           ${itemsHtml}
         </div>
         
-        <p id="bulkCcExpenseHint" class="text-xs text-gray-400 mb-4 bg-tertiary border border-theme p-3 rounded">Your account balance will be reduced. A separate expense will be recorded for each selected item.</p>
+        <p id="bulkCcExpenseHint" class="cc-payment-intro">Deducted from your account and logged as expenses.</p>
+        <div class="cc-payment-summary" aria-live="polite"><span>Total Payment<strong id="ccPaymentTotal">${formatCurrency(totalAmount)}</strong></span><span>Remaining After<strong id="ccPaymentRemaining">${formatCurrency(0)}</strong></span></div>
         <div class="flex justify-end gap-2">
             <button type="button" class="btn btn-secondary flex-1" onclick="closeModal('formModal')">Cancel</button>
-            <button type="submit" class="btn btn-primary flex-1"><i class="fas fa-check-circle mr-1"></i> Settle All</button>
+            <button type="submit" class="btn btn-primary flex-1">Pay Selected</button>
         </div>
     `;
 
-    openFormModal("Bulk CC Payment", formHtml, async (e) => {
+    openFormModal("Pay Selected Purchases", formHtml, async (e) => {
       e.preventDefault();
       const form = e.target;
       const formData = new FormData(form);
@@ -2330,17 +2352,30 @@ function openCcHistoryModal() {
       let paidItemCount = 0;      
       let aggregateAmount = 0;
       let validCategories = true;
+      const payments = [];
+      let invalidAmount = false;
       
-      window.ccSelectedItems.forEach(id => {
+      selectedIds.forEach(id => {
         const item = state.creditCard.transactions.find(t => t.id === id);
-        if (item) {
-          const remaining = item.amount - (item.paidAmount || 0);
-          if (remaining > 0) {
-            aggregateAmount += remaining;
+        if (!item) { invalidAmount = true; return; }
+        {
+          const remaining = roundToTwoDecimals(item.amount - (item.paidAmount || 0));
+          const raw = formData.get(`payAmount_${id}`);
+          const amount = roundToTwoDecimals(parseAmountValue(raw));
+          if (raw === null || String(raw).trim() === "" || !Number.isFinite(amount) || amount < 0 || amount > remaining || item.paidOff) {
+            invalidAmount = true; return;
+          }
+          if (amount > 0) {
+            aggregateAmount = roundToTwoDecimals(aggregateAmount + amount);
+            payments.push({item, amount});
             if (logAsExpense && !state.categories.includes(formData.get(`payCategory_${id}`))) validCategories = false;
           }
         }
       });
+      if (invalidAmount || aggregateAmount <= 0) {
+        showNotification("Enter payment amounts within each purchase's remaining balance.", "error");
+        return;
+      }
       
       if (!validCategories) {
         showNotification("Select a category for each item when logging expenses.", "error");
@@ -2351,20 +2386,17 @@ function openCcHistoryModal() {
         return;
       }
       
-      window.ccSelectedItems.forEach(id => {
-        const item = state.creditCard.transactions.find(t => t.id === id);
-        if (item) {
-          const remaining = item.amount - (item.paidAmount || 0);
-          if (remaining > 0) {
-            item.paidAmount = item.amount;
-            item.paidOff = true;
+      payments.forEach(({item, amount}) => {
+          {
+            item.paidAmount = roundToTwoDecimals((item.paidAmount || 0) + amount);
+            item.paidOff = item.paidAmount >= item.amount;
             paidItemCount++;
             
             if (logAsExpense) {
-              const payCategory = formData.get(`payCategory_${id}`);
+              const payCategory = formData.get(`payCategory_${item.id}`);
               const bankTx = {
                 id: generateId(),
-                amount: remaining,
+                amount,
                 description: `Credit Card Payment: ${item.description}`,
                 ccPurchaseId: item.id,
                 category: payCategory,
@@ -2376,19 +2408,21 @@ function openCcHistoryModal() {
               state.transactions.push(bankTx);
             }
           }
-        }
       });
       
       if (aggregateAmount > 0) {
         // Deduct from bank balance
-        account.balance -= aggregateAmount;
+        account.balance = roundToTwoDecimals(account.balance - aggregateAmount);
         
         await saveData();
+        selectionMode = false;
+        selectMultiple.textContent = "Select Multiple";
+        selectMultiple.setAttribute("aria-pressed", "false");
         renderFilteredCcList();
         renderCreditCardSection();
         renderDashboard();
         if (logAsExpense) refreshMonthlyViewIfRelevant(getCurrentDateString());
-        showNotification(`Settled ${paidItemCount} items successfully.${logAsExpense ? " Expenses logged." : " No expenses logged."}`, "success");
+        showNotification(`Payment recorded for ${paidItemCount} purchases.`, "success");
         if (typeof trackEvent === "function") trackEvent("bulk_pay_cc", "Engagement", paidItemCount);
       }
       
@@ -2402,11 +2436,31 @@ function openCcHistoryModal() {
         select.disabled = !logExpenses;
         select.hidden = !logExpenses;
       });
-      document.getElementById("bulkCcItemsHeading").textContent = logExpenses ? "Categorize Items" : "Selected Items";
+      document.getElementById("bulkCcItemsHeading").textContent = "Payment Breakdown";
       document.getElementById("bulkCcExpenseHint").textContent = logExpenses
-        ? "Your account balance will be reduced. A separate expense will be recorded for each selected item."
-        : "Your account balance will still be reduced. No expense records will be created.";
+        ? "Deducted from your account and logged as expenses."
+        : "Deducted from your account without expense entries.";
+      updatePaymentPreview();
     };
+    const paymentForm = document.getElementById("dynamicForm");
+    function updatePaymentPreview() {
+      let total = 0;
+      let valid = true;
+      selectedIds.forEach(id => {
+        const input = paymentForm.elements.namedItem(`payAmount_${id}`);
+        const amount = roundToTwoDecimals(parseAmountValue(input.value));
+        const item = state.creditCard.transactions.find(t => t.id === id);
+        if (!item || input.value.trim() === "" || !Number.isFinite(amount) || amount < 0 || amount > roundToTwoDecimals(item.amount - (item.paidAmount || 0))) valid = false;
+        if (Number.isFinite(amount) && amount > 0) total = roundToTwoDecimals(total + amount);
+        const category = paymentForm.elements.namedItem(`payCategory_${id}`);
+        category.required = expenseToggle.checked && amount > 0;
+        category.disabled = !expenseToggle.checked || !(amount > 0);
+        category.parentElement.hidden = !expenseToggle.checked;
+      });
+      document.getElementById("ccPaymentTotal").textContent = valid ? formatCurrency(total) : "—";
+      document.getElementById("ccPaymentRemaining").textContent = valid ? formatCurrency(roundToTwoDecimals(totalAmount - total)) : "—";
+    }
+    paymentForm.oninput = updatePaymentPreview;
   };
 
   // Initial render
@@ -3768,37 +3822,33 @@ function openPayCcItemForm(ccTransactionId) {
 
   const formHtml = `
       <input type="hidden" name="ccItemId" value="${escapeHTML(item.id)}">
-      <p class="mb-2 tabular-nums">Item Amount: ${formatCurrency(
-        item.amount
-      )}</p>
-      <p class="mb-2 tabular-nums">Paid So Far: ${formatCurrency(
-        item.paidAmount || 0
-      )}</p>
-      <p class="mb-2">Remaining on Item: <strong class="text-danger tabular-nums">${formatCurrency(
-        remaining
-      )}</strong></p>
+      <p class="cc-payment-description">${escapeHTML(item.description)}</p>
+      <div class="cc-payment-summary"><span>Remaining<strong>${formatCurrency(remaining)}</strong></span><span>Paid So Far<strong>${formatCurrency(item.paidAmount || 0)}</strong></span></div>
       <div>
           <label for="ccItemPayAmount" class="block text-sm font-medium mb-1">Payment Amount</label>
           <div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="ccItemPayAmount" name="ccItemPayAmount" step="0.01" min="0.01" max="${remaining.toFixed(
             2
           )}" value="${remaining.toFixed(2)}" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div>
       </div>
+      <p class="cc-payment-intro">Pay in full or enter a smaller amount.</p>
       <div>
           <label for="modalCcPayFromAccount" class="block text-sm font-medium mb-1">Pay From Account</label>
           <select id="modalCcPayFromAccount" name="ccPayFromAccount" required></select>
       </div>
       <div class="flex items-center mt-3 mb-1">
           <input type="checkbox" id="logCcPaymentAsExpense" name="logCcPaymentAsExpense" class="h-4 w-4 text-accent-500 border-gray-500 rounded focus:ring-accent-500 mr-2" checked>
-          <label for="logCcPaymentAsExpense" class="text-sm font-medium text-gray-300">Log this payment as an expense?</label>
+          <label for="logCcPaymentAsExpense" class="text-sm font-medium text-gray-300">Log as Expense</label>
       </div>
       <div id="ccPaymentCategoryGroup">
           <label for="modalCcPayCategory" class="block text-sm font-medium mb-1">Category for this Payment</label>
           <select id="modalCcPayCategory" name="ccPayCategory" required>${categoryOptions}</select>
       </div>
-      <button type="submit" class="btn btn-primary w-full mt-3">Make Payment</button>
+      <p id="ccSinglePaymentHint" class="cc-payment-intro">Deducted from your account and logged as an expense.</p>
+      <div class="cc-payment-summary" aria-live="polite"><span>Remaining After<strong id="ccSinglePaymentRemaining">${formatCurrency(0)}</strong></span></div>
+      <button type="submit" class="btn btn-primary w-full mt-3">Record Payment</button>
   `;
   openFormModal(
-    `Pay CC Item: ${item.description.substring(0, 30)}...`,
+    "Pay Purchase",
     formHtml,
     handlePayCcItemSubmit
   );
@@ -3815,6 +3865,9 @@ function openPayCcItemForm(ccTransactionId) {
     ccCategorySelect.required = logCcExpenseCheckbox.checked;
 
     logCcExpenseCheckbox.onchange = () => {
+      document.getElementById("ccSinglePaymentHint").textContent = logCcExpenseCheckbox.checked
+        ? "Deducted from your account and logged as an expense."
+        : "Deducted from your account without an expense entry.";
       if (logCcExpenseCheckbox.checked) {
         ccCategoryGroupDiv.style.display = "block";
         ccCategorySelect.required = true;
@@ -3824,6 +3877,11 @@ function openPayCcItemForm(ccTransactionId) {
       }
     };
   }
+  document.getElementById("ccItemPayAmount").oninput = (event) => {
+    const amount = parseAmountValue(event.target.value);
+    document.getElementById("ccSinglePaymentRemaining").textContent = Number.isFinite(amount) && amount > 0 && amount <= remaining
+      ? formatCurrency(roundToTwoDecimals(remaining - amount)) : "—";
+  };
 }
 
 async function handlePayCcItemSubmit(event) {

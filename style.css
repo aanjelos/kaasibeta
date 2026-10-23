@@ -2154,3 +2154,38 @@ footer a[href^="https://kaasi.com.lk"]:hover
   .storage-protection-row { flex-direction: column; align-items: stretch; gap: 12px; }
   .storage-protection-row .btn { width: 100%; }
 }
+/* Credit-card payments: direct single actions and deliberate multiple selection. */
+.cc-selection-toolbar { display: flex; justify-content: flex-end; margin: 0 0 12px; }
+.cc-history-entry { min-height: 44px; font-size: .85rem; white-space: nowrap; }
+.cc-selection-toolbar .btn { min-height: 40px; font-size: .85rem; }
+.cc-direct-pay { min-height: 44px; margin-left: 10px; padding: 8px 16px; white-space: nowrap; }
+.cc-select-control { flex-shrink: 0; display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; background: transparent; border: 0; }
+.cc-select-control:focus-visible { outline: 2px solid var(--accent-color, #e67e22); outline-offset: 2px; border-radius: 6px; }
+.cc-payment-description { min-width: 0; overflow-wrap: anywhere; font-weight: 600; line-height: 1.5; }
+.cc-payment-item { padding: 14px 0; border-bottom: 1px solid var(--border-color, #444); }
+.cc-payment-item:first-of-type { padding-top: 0; }
+.cc-payment-item-title { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; }
+.cc-payment-item-title > span:last-child { white-space: nowrap; padding-top: 2px; }
+.cc-payment-fields { display: grid; grid-template-columns: minmax(90px, .8fr) minmax(0, 1.2fr); gap: 12px; }
+.cc-payment-amount-label, .cc-payment-category-label { display: block; margin-top: 10px; font-size: .85rem; }
+.cc-payment-amount-label input, .cc-payment-category-label select { display: block; width: 100%; margin-top: 5px; min-height: 44px; }
+.cc-payment-category-label[hidden] { display: none; }
+.cc-payment-summary { display: flex; gap: 16px; justify-content: space-between; background: var(--bg-tertiary); padding: 14px; border-radius: 10px; margin: 12px 0; }
+.cc-payment-summary span { min-width: 0; font-size: .8rem; color: var(--text-secondary); }
+.cc-payment-summary strong { display: block; color: var(--text-primary); font-size: 1rem; margin-top: 4px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.cc-payment-intro { color: var(--text-secondary); font-size: .85rem; line-height: 1.5; }
+#ccBulkPaymentBar { position: sticky; bottom: 0; margin-top: 12px; gap: 12px; }
+#ccBulkPaymentBar.opacity-0 { display: none; }
+#ccBulkPaymentText { min-width: 0; font-size: .85rem; }
+#ccBulkPaymentBtn { flex-shrink: 0; min-height: 44px; white-space: nowrap; }
+@media (max-width: 639px) {
+  .cc-direct-pay { padding: 8px 12px; margin-left: 4px; }
+  #ccHistoryModal .monthly-view-summary-grid { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  #ccHistoryModal .monthly-view-summary-grid .monthly-view-summary-card { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 12px; }
+  #ccHistoryModal .monthly-view-summary-grid p { font-size: .85rem; margin: 0; }
+  #ccHistoryModal .cc-payment-history-main { display: grid; grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; }
+  .cc-payment-history-main > div:first-child { grid-column: 1; grid-row: 1; }
+  .cc-payment-history-main .cc-payment-history-value { grid-column: 1; grid-row: 2; justify-content: flex-start; text-align: left; }
+  .cc-payment-history-main .cc-direct-pay { grid-column: 2; grid-row: 1 / span 2; }
+  #ccHistoryListContainer { max-height: 48vh; padding-right: 0; }
+}

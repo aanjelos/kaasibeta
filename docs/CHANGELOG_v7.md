@@ -2,6 +2,22 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.381n - 2026-10-23
+
+### 1. [Improvement] Direct Credit Card Payments
+
+The dashboard credit-card section now has a labelled **View & Pay** entry point. Unpaid purchases show an orange **Pay** button directly in their history row on desktop and mobile. **Select Multiple** enables a separate selection mode with keyboard-accessible controls, pressed states, and a payment bar beneath the list. Cancelling selection clears it. The Settled filter now contains only fully settled purchases, leaving partially paid purchases in Unpaid.
+
+### 2. [Feature] Partial Payments Across Selected Purchases
+
+Each selected purchase has an editable payment amount, initially its full outstanding balance. Users choose the exact allocation, with no automatic distribution. A zero amount skips a purchase. The form previews the total payment and the selected purchases' remaining balance. Amounts, categories for positive payments, current outstanding balances, and available funds are validated before any financial mutation. Bank deduction, purchase payment totals, and optional expense records use the existing atomic save and rollback path. New expense records retain their purchase references; historical records and deletion behavior are unchanged.
+
+### 3. [Improvement] Compact Payment Forms
+
+Single payments show the purchase description, paid/outstanding summary, and a live remaining-balance preview. Multiple-payment rows place amounts and categories side by side, wrap long descriptions, and hide category controls when expense logging is off. Both forms explain the account deduction independently of expense logging. Mobile history uses compact summary cards and touch-sized payment controls; the selection bar stays in normal modal flow. Removed the completed payment-workflow and prominent credit-card-entry items from the roadmap.
+
+Validation: automated financial/storage/sync regression tests cover partial allocations, skipped purchases, invalid and outdated amounts, insufficient funds, optional expenses, and failed-save rollback. Browser verification uses disposable synthetic data and a fake cloud account, with desktop and 390px mobile layouts. Application and service-worker versions are `v6.381n`.
+
 ---
 
 ## v6.380n - 2026-10-23

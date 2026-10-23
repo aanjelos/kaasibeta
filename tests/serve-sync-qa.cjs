@@ -4,6 +4,14 @@ const root=path.resolve(__dirname,'..');
 const context={window:{addEventListener(){},supabase:{createClient:()=>null}},console:{log(){},error(){}}};
 const fixture=JSON.parse(vm.runInNewContext(fs.readFileSync(path.join(root,'js/globals.js'),'utf8')+'\nJSON.stringify(getDefaultState())',context));
 fixture.settings.initialSetupDone=true;fixture.settings.backupReminderFrequency='off';fixture.accounts[0].balance=4000;
+if(process.env.KAASI_CC_QA==='1'){
+  fixture.settings.enableCreditCard=true;
+  fixture.creditCard={limit:100000,transactions:[
+    {id:'qa_cc1',description:'Weekly groceries for the household — vegetables, pantry essentials and supplies',amount:2500,paidAmount:500,paidOff:false,date:'2026-10-22',timestamp:1},
+    {id:'qa_cc2',description:'Lunch with friends',amount:1500,paidAmount:0,paidOff:false,date:'2026-10-21',timestamp:2},
+    {id:'qa_cc3',description:'Settled purchase',amount:200,paidAmount:200,paidOff:true,date:'2026-10-20',timestamp:3}
+  ]};
+}
 fixture.transactions=[{id:'qa_groceries',type:'expense',amount:2000,account:'cash',category:'Groceries',description:'Groceries',date:'2026-10-22',timestamp:1},
   {id:'qa_lunch',type:'expense',amount:500,account:'cash',category:'Food & Dining',description:'Lunch',date:'2026-10-22',timestamp:2}];
 const remote=JSON.parse(JSON.stringify(fixture));remote.accounts[0].balance=4300;remote.transactions[0].amount=1500;

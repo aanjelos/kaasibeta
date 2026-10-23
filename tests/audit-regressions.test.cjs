@@ -835,20 +835,50 @@ test('bulk CC payments save a separate purchase ID for each payment', async () =
   let submit;
   r.context.openFormModal=(title,html,callback)=>{submit=callback;};
   r.context.openBulkPayCcItemForm();
-  await submit({preventDefault(){},target:{values:{payFromAccount:'cash',logBulkCcPaymentAsExpense:'on',payCategory_c1:'Groceries',payCategory_c2:'Other'}}});
+  await submit({preventDefault(){},target:{values:{payFromAccount:'cash',payAmount_c1:'100',payAmount_c2:'100',logBulkCcPaymentAsExpense:'on',payCategory_c1:'Groceries',payCategory_c2:'Other'}}});
   assert.equal(r.run('state.transactions.length'),2);
   assert.equal(r.run('state.transactions[0].ccPurchaseId'),'c1');
   assert.equal(r.run('state.transactions[1].ccPurchaseId'),'c2');
   assert.equal(r.run('state.accounts[0].balance'),800);
 });
 
+test('partial multiple payments use explicit amounts, retain unpaid balances, and skip zero entries', async () => {
+  const r=runtime();const openHistory=r.context.openCcHistoryModal;await seedCards(r);r.context.openModalHelper=()=>{};openHistory();
+  r.context.ccSelectedItems=new Set(['c1','c2']);let submit;
+  r.context.openFormModal=(title,html,callback)=>{submit=callback;};r.context.openBulkPayCcItemForm();
+  r.context.ccSelectedItems.clear(); // The form owns its selection even if the list changes.
+  await submit({preventDefault(){},target:{values:{payFromAccount:'cash',payAmount_c1:'25.15',payAmount_c2:'0',logBulkCcPaymentAsExpense:'on',payCategory_c1:'Groceries'}}});
+  assert.equal(r.run('state.accounts[0].balance'),974.85);
+  assert.equal(r.run('state.creditCard.transactions[0].paidAmount'),25.15);
+  assert.equal(r.run('state.creditCard.transactions[0].paidOff'),false);
+  assert.equal(r.run('state.creditCard.transactions[1].paidAmount'),0);
+  assert.equal(r.run('state.transactions.length'),1);
+  assert.equal(r.run('state.transactions[0].amount'),25.15);
+  assert.equal(JSON.parse(r.storage.get('KaasiData')).accounts[0].balance,974.85);
+});
+
+test('invalid or outdated multiple-payment amounts never mutate financial data', async () => {
+  const r=runtime();const openHistory=r.context.openCcHistoryModal;await seedCards(r);r.context.openModalHelper=()=>{};openHistory();
+  r.context.ccSelectedItems=new Set(['c1','c2']);let submit;
+  r.context.openFormModal=(title,html,callback)=>{submit=callback;};r.context.openBulkPayCcItemForm();
+  for(const amount of ['', '-1', '101', 'Infinity', 'nope', '0']){
+    const before=r.run('JSON.stringify(state)');
+    await submit({preventDefault(){},target:{values:{payFromAccount:'cash',payAmount_c1:amount,payAmount_c2:'0'}}});
+    assert.equal(r.run('JSON.stringify(state)'),before);
+  }
+  r.run('state.creditCard.transactions[0].paidAmount=95;');
+  const before=r.run('JSON.stringify(state)');
+  await submit({preventDefault(){},target:{values:{payFromAccount:'cash',payAmount_c1:'25',payAmount_c2:'20'}}});
+  assert.equal(r.run('JSON.stringify(state)'),before);
+});
+
 test('bulk CC settlement without expense logging deducts funds without changing existing payment records', async () => {
   const r=runtime();const openHistory=r.context.openCcHistoryModal;await seedCards(r);await cardPayment(r,'c1','20');r.context.openModalHelper=()=>{};openHistory();
   r.context.ccSelectedItems=new Set(['c1','c2']);let submit;
-  r.context.openFormModal=(title,html,callback)=>{submit=callback;assert.match(html,/Log as Expense\?/);};
+  r.context.openFormModal=(title,html,callback)=>{submit=callback;assert.match(html,/Log as Expense/);};
   r.context.openBulkPayCcItemForm();
   const before=r.run('JSON.stringify(state.transactions)');
-  await submit({preventDefault(){},target:{values:{payFromAccount:'cash'}}});
+  await submit({preventDefault(){},target:{values:{payFromAccount:'cash',payAmount_c1:'80',payAmount_c2:'100'}}});
   assert.equal(r.run('state.accounts[0].balance'),800);
   assert.equal(r.run('state.creditCard.transactions.every(item=>item.paidOff && item.paidAmount===item.amount)'),true);
   assert.equal(r.run('JSON.stringify(state.transactions)'),before);
@@ -860,10 +890,10 @@ test('bulk CC expense validation and insufficient funds leave all purchases and 
   r.context.ccSelectedItems=new Set(['c1','c2']);let submit;
   r.context.openFormModal=(title,html,callback)=>{submit=callback;};r.context.openBulkPayCcItemForm();
   const before=r.run('JSON.stringify(state)');
-  await submit({preventDefault(){},target:{values:{payFromAccount:'cash',logBulkCcPaymentAsExpense:'on',payCategory_c1:'Groceries'}}});
+  await submit({preventDefault(){},target:{values:{payFromAccount:'cash',payAmount_c1:'100',payAmount_c2:'100',logBulkCcPaymentAsExpense:'on',payCategory_c1:'Groceries'}}});
   assert.equal(r.run('JSON.stringify(state)'),before);
   r.run('state.accounts[0].balance=1;');const insufficient=r.run('JSON.stringify(state)');
-  await submit({preventDefault(){},target:{values:{payFromAccount:'cash'}}});
+  await submit({preventDefault(){},target:{values:{payFromAccount:'cash',payAmount_c1:'100',payAmount_c2:'100'}}});
   assert.equal(r.run('JSON.stringify(state)'),insufficient);
 });
 
@@ -871,6 +901,8 @@ test('bulk expense toggle removes category requirements and restores them when r
   const r=runtime();const openHistory=r.context.openCcHistoryModal;await seedCards(r);r.context.openModalHelper=()=>{};openHistory();
   r.context.ccSelectedItems=new Set(['c1']);r.context.openFormModal=()=>{};r.context.openBulkPayCcItemForm();
   const select=new Element();r.element('#dynamicForm').querySelectorAll=()=>[select];
+  const input=new Element();input.value='50';select.parentElement=new Element();
+  r.element('#dynamicForm').elements={namedItem:name=>name.startsWith('payAmount_')?input:select};
   const toggle=r.element('#logBulkCcPaymentAsExpense');toggle.checked=false;toggle.onchange();
   assert.equal(select.required,false);assert.equal(select.disabled,true);assert.equal(select.hidden,true);
   toggle.checked=true;toggle.onchange();assert.equal(select.required,true);assert.equal(select.disabled,false);assert.equal(select.hidden,false);
@@ -906,7 +938,7 @@ test('failed bulk CC settlement restores the balance and all purchase payment st
   r.context.ccSelectedItems=new Set(['c1','c2']);let submit;
   r.context.openFormModal=(title,html,callback)=>{submit=callback;};r.context.openBulkPayCcItemForm();
   const before=r.run('JSON.stringify(state)');r.localStorage.failMain=true;
-  await assert.rejects(submit({preventDefault(){},target:{values:{payFromAccount:'cash'}}}),/not saved/);
+  await assert.rejects(submit({preventDefault(){},target:{values:{payFromAccount:'cash',payAmount_c1:'100',payAmount_c2:'100'}}}),/not saved/);
   assert.equal(r.run('JSON.stringify(state)'),before);
   assert.equal(r.notices.some(([message])=>message.includes('Settled')),false);
 });

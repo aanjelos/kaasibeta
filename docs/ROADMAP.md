@@ -69,21 +69,11 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## ✨ UI / UX Polish
 
-### 1. Credit Card Payment Workflow and Partial Bulk Payments
-- **Single-item payments**: Make paying one purchase an obvious, directly accessible primary action. Users should not need to open another action menu to find it. Keep multi-item selection as a secondary workflow rather than making bulk payment appear to be the default.
-- **Partial bulk payments**: Let users pay selected entries partially instead of requiring settlement of every selected entry's entire remaining balance. Review how users enter amounts and allocate a payment across entries before implementation; do not silently choose an allocation rule.
-- **Mobile and modal layout**: Review the interaction design first. Keep the payment modal compact, readable, and touch-friendly on narrow screens. Reveal additional amount/category controls only when needed, while keeping the payment total and remaining balances clear.
-- **Compatibility**: Retain the expense-logging option and existing payment records. Clearly distinguish payments that reduce an account balance from optional expense entries, and validate partial amounts before saving.
-- **Status**: Planned for a later design and implementation round; current payment behavior remains unchanged.
-
 ### 2. Segmented Control Buttons for Transaction Type
 - **Concept**: Replace the standard `<select>` dropdown for Transaction Type (`Income` | `Expense` | `Transfer`) in the Add/Edit modal with prominent segmented toggle buttons for faster, one-tap selection.
 
 ### 3. Mobile Floating Action Button (FAB)
 - **Concept**: Add an optional floating `+` button in the bottom-right corner visible on mobile viewports for instant 1-tap transaction entry.
-
-### 4. Prominent Credit Card Transactions Button
-- **Concept**: Redesign the "View Credit Card Transactions" button on Credit Card cards/sections to make it visually distinct and immediately noticeable.
 
 ---
 
