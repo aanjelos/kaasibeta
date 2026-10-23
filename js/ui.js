@@ -670,6 +670,7 @@ window.addEventListener("popstate", (event) => {
         if (id === "formModal") {
           $("#dynamicForm").innerHTML = "";
           $("#dynamicForm").onsubmit = null;
+          $("#dynamicForm").oninput = null;
         }
         if (id === "settingsModal") cancelDeleteAllData();
         if (id === "ccHistoryModal") document.body.renderCcHistoryList = null;
@@ -688,6 +689,7 @@ function closeModal(modalId) {
   if (modalId === "formModal") {
     $("#dynamicForm").innerHTML = "";
     $("#dynamicForm").onsubmit = null;
+    $("#dynamicForm").oninput = null;
   }
   if (modalId === "settingsModal") cancelDeleteAllData();
   if (modalId === "ccHistoryModal") {
@@ -709,6 +711,7 @@ function openFormModal(title, formHtml, submitHandler) {
   }
 
   const form = $("#dynamicForm");
+  form.oninput = null;
   form.innerHTML = formHtml;
   form.onsubmit = submitHandler;
   openModalHelper("formModal");

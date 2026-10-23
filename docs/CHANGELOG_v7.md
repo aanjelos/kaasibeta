@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.386n - 2026-10-23
+
+### 1. [Fix] Stale Payment Preview Handler on Reused Forms
+
+Opening another shared form after a multiple credit-card payment could trigger the previous payment preview on input and throw a null-input error. Shared forms now clear their input handler before replacement, when closed explicitly, and when dismissed through browser history. Added regression coverage for all three lifecycle paths. Payment calculations and saved financial data are unchanged.
+
 ## v6.385n - 2026-10-23
 
 ### 1. [Fix] Calculator Toolbar Clipping

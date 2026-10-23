@@ -934,6 +934,19 @@ test('multiple selection makes rows select purchases without attaching action dr
   row.onclick();assert.equal(selected,'c2');
 });
 
+test('reusing, closing, or navigating away from the shared form clears its old payment preview handler', () => {
+  const r=runtime();r.context.openModalHelper=()=>{};r.context.updateBodyScrollState=()=>{};
+  const form=r.element('#dynamicForm');
+  form.oninput=()=>{throw new Error('Stale payment preview');};
+  r.context.openFormModal('Another form','<input name="other">',()=>{});
+  assert.equal(form.oninput,null);
+  form.oninput=()=>{};r.context.closeModal('formModal');
+  assert.equal(form.oninput,null);
+  form.oninput=()=>{};r.element('#formModal').style.display='block';
+  r.windowEvents.get('popstate').forEach(fn=>fn({state:{openModals:[]}}));
+  assert.equal(form.oninput,null);
+});
+
 test('modal backdrop dismisses only clicks that start and end on the backdrop', () => {
   const r=runtime();const modal=new Element();const content=new Element();
   const pointer=(type,target)=>r.windowEvents.get(type).forEach(fn=>fn({target}));
