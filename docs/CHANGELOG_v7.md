@@ -4,6 +4,18 @@ Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed ne
 
 ---
 
+## v6.379n - 2026-10-23
+
+### 1. [Fix] Explain Browser Storage Access Blocks
+
+Storage access errors now open **Browser storage is blocked**, with instructions to allow site data in browser settings and reload Kaasi without clearing existing site data. This screen offers **Reload Kaasi** rather than exposing the browser's technical error or offering backup restoration while saving is blocked. It does not read recovery sources, reset data, or replace saved records. Opening the screen also invalidates earlier recovery-view callbacks.
+
+### 2. [Enhancement] Clarify Silent Storage Protection Decisions
+
+When a persistence request is declined, the existing status message explains that a browser may decide without displaying a permission prompt. The button continues to call the native persistence API directly; permission decisions remain browser-controlled. Enabled protection and the external-backup reminder retain their existing behavior.
+
+Validation: all 84 automated tests pass, including blocked-storage guidance, data preservation, recovery-action suppression, persistence controls, and existing financial/storage/sync checks. Updated application/service-worker versions to `v6.379n`.
+
 ## v6.378n - 2026-10-23
 
 ### 1. [Enhancement] Reduce Settings and Budget Form Text

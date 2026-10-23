@@ -94,9 +94,15 @@ async function chooseStorageMigration(existingData) {
 
 function showStorageFailure(error) {
   console.error("Local storage operation stopped:", error);
+  const view = ++storageRecoveryView;
+  if (["SecurityError", "NotAllowedError"].includes(error?.name)) {
+    storageRecoverySources = [];
+    const actions = storageScreen("Browser storage is blocked", "Allow this site to save data in your browser’s site settings, then reload Kaasi. Do not clear the site’s existing data.");
+    storageButton(actions, "Reload Kaasi", () => location.reload());
+    return;
+  }
   const actions = storageScreen("Your data needs attention", `${error.message} No automatic reset was performed. Your existing saved copies have been kept.`);
   storageButton(actions, "Reload and retry", () => location.reload());
-  const view = ++storageRecoveryView;
   KaasiStorage.recoverySources().then(sources => {
     if (view !== storageRecoveryView) return;
     storageRecoverySources = sources;

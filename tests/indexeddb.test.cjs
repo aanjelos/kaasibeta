@@ -48,6 +48,17 @@ async function rawStore(e,store,key) {
   finally {db.close();}
 }
 
+test('blocked storage shows actionable guidance without offering an unusable restore or touching data',()=>{
+  const e=environment();legacy(e);const before=JSON.stringify([...e.data]);let recoveryReads=0;
+  e.db.recoverySources=()=>{recoveryReads++;return Promise.resolve([]);};
+  e.context.showStorageFailure(new DOMException('Access is denied for this document.','SecurityError'));
+  assert.equal(e.element('storageTitle').textContent,'Browser storage is blocked');
+  assert.match(e.element('storageStatus').textContent,/site settings/);
+  assert.ok(!e.element('storageStatus').textContent.includes('Access is denied'));
+  assert.deepEqual(e.element('storageActions').children.map(button=>button.textContent),['Reload Kaasi']);
+  assert.equal(recoveryReads,0);assert.equal(JSON.stringify([...e.data]),before);
+});
+
 test('new users create IndexedDB immediately without creating a financial localStorage copy',async()=>{
   const e=environment();let asked=0;const value=await e.initialize(()=>{asked++;return 'migrate';});
   assert.equal(asked,0);assert.equal(e.db.mode,'indexeddb');assert.equal(e.data.has('KaasiData'),false);

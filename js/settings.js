@@ -52,7 +52,7 @@ async function refreshStorageProtection() {
       persistButton.disabled = true;
       try {
         const granted = await navigator.storage.persist();
-        renderProtection(granted, "Persistent storage was not granted. Your data remains saved; keep external backups.");
+        renderProtection(granted, "Protection was not enabled. Your browser may decide without showing a prompt. Keep external backups.");
       } catch (_) { renderProtection(false, "Persistent storage is unavailable in this browser. Keep external backups."); }
       finally { storageProtectionRequestPending = false; }
     };
