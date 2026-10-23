@@ -65,6 +65,22 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Concept**: Save category budget limits on a per-month basis instead of having a single static budget that resets every month. This allows users to accurately review historical budget targets vs. actual spending for past months.
 - **Implementation Note**: IndexedDB storage is now available. Add a versioned schema upgrade and backup compatibility for historical budget records; the migration itself did not implement budget history. Coordinate this feature with Historical Budget Progress in PDF Export.
 
+### 17. Possible Duplicate Entry Warning
+- **Concept**: Warn before saving a manually entered transaction that closely matches a recent entry, helping prevent accidental double entry.
+- **Behaviour**: Compare transaction type, account, amount, date and normalised description. Present the matching entry with options to go back or save anyway; legitimate repeated purchases must remain possible. Exclude the edited record itself, and treat transfers and automatically generated payment records explicitly to avoid false warnings.
+- **Scope**: Advisory duplicate detection, not automatic deletion, merging or blocking. Define the matching window and apply equivalent rules on web and Android before implementation.
+
+### 18. Subscriptions and Recurring Payment Reminders
+- **Concept**: Save subscription name, expected amount, account/payment method, next renewal date and recurrence (weekly, monthly, quarterly or annually), with pause/cancel controls.
+- **Entry**: Start with manual creation and an optional Save as Subscription action on an existing transaction. Historical pattern detection is a separate future enhancement; do not automatically create subscriptions from guesses.
+- **Behaviour**: Reminder schedules do not deduct balances or create expenses automatically. A renewal may prefill a normal payment/transaction form; recording payment and advancing the renewal must avoid duplicate expenses. Allow linking an already-recorded payment and skipping a renewal without logging spending. Preserve the intended recurrence anchor for short months and leap years.
+- **Compatibility**: Store schedules locally for offline use and include them in supported JSON/cloud backups. Plan schema/version handling with Android before rollout.
+
+### 19. Unified Upcoming Payments Area
+- **Concept**: A compact dashboard area for subscription renewals and dated debt/installment obligations due within seven calendar days, including items due today or overdue.
+- **Presentation**: Use one grouped summary with expandable details, dates, amounts and relevant actions rather than separate banners for every obligation. Distinguish expected costs from recorded transactions; avoid counting the same obligation twice.
+- **Behaviour**: Recalculate on launch, focus and local date changes. Completed, cancelled, paused or settled obligations must not continue appearing. In-app reminders work offline; notifications while the app is closed require a separately designed platform-specific notification feature.
+
 ---
 
 ## ✨ UI / UX Polish
