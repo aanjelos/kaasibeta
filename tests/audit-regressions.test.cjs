@@ -930,7 +930,8 @@ test('multiple selection makes rows select purchases without attaching action dr
   const row=r.element('#ccHistoryListContainer').children[1];
   assert.equal(row.children.length,1);
   let selected;r.context.toggleCcItemSelection=id=>{selected=id;};
-  row.children[0].onclick();assert.equal(selected,'c2');
+  row.children[0].onclick();assert.equal(selected,undefined);
+  row.onclick();assert.equal(selected,'c2');
 });
 
 test('modal backdrop dismisses only clicks that start and end on the backdrop', () => {

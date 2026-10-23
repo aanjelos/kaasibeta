@@ -2,6 +2,18 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.383n - 2026-10-23
+
+### 1. [Improvement] Lighter Credit Card Payment Forms
+
+Single payments show the outstanding balance as a compact text line and omit Paid when no payments have been made. Partial-payment remaining balances and multiple-payment totals use simple summary rows instead of additional shaded cards. Removed repeated account-deduction helper text from both forms and shortened the single-payment category label. Financial behavior is unchanged.
+
+### 2. [Improvement] Separate Selection From History Filters
+
+Multiple selection is a compact checklist icon beside search, with accessible labels and tooltips; it changes to a cancel icon while selecting. Desktop search and filters share a row again. On mobile, the three filters occupy their own full-width row without competing with the selection action. Selection remains unavailable on Settled.
+
+The entire selectable purchase row, including its outer padding and unused space, toggles selection. The dedicated selection button continues to support keyboard interaction without toggling twice.
+
 ## v6.382n - 2026-10-23
 
 ### 1. [Improvement] Focused Credit Card Selection
