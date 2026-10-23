@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.392n - 2026-10-23
+
+### 1. [Copy] Consolidated Creator Credit
+
+Setup and About now use one creator credit: Created by Aanjelo Salgado with Antigravity and Codex. Removed the separate sentence about AI refinement and the Gemini-specific attribution.
+
 ## v6.391n - 2026-10-23
 
 ### 1. [Improvement] Consistent Category Field Order and Choices
