@@ -2,6 +2,16 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.397n - 2026-10-24
+
+### 1. [Feature] Cloud Backup Recovery During Startup Failure
+
+Added Restore From Cloud to the storage recovery screen, including explicit Google sign-in when the saved session is unavailable. Recovery reads and validates the signed-in account's existing cloud backup before offering Download Cloud Backup or confirmed Restore Cloud Backup. It enforces the existing local-copy PIN and cloud-copy PIN where applicable, rechecks the account, cloud timestamp and local revision before replacement, and uses the existing staged recovery mechanism. Offline, missing, invalid, stale or failed responses leave local data unchanged. Returning to another recovery view discards late responses. The flow never uploads or changes the cloud row and requires no database schema changes.
+
+### 2. [Improvement] Consistent Recovery and Pop-Up Action Labels
+
+Applied title case to migration, recovery, backup-restoration, Google sign-in, Save As Subscription and custom-icon action buttons. Long recovery text wraps within narrow mobile screens. Added disposable cloud-recovery preview support and regression coverage for damaged-database recovery, protected copies, cancellation, account changes, concurrent writes and failed commits.
+
 ## v6.396n - 2026-10-24
 
 ### 1. [Improvement] Curated Subscription Catalogue and Shared Adobe Identity

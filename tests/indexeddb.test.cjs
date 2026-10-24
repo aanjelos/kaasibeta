@@ -48,6 +48,110 @@ async function rawStore(e,store,key) {
   finally {db.close();}
 }
 
+function recoveryCloud(e, backup=e.defaults()) {
+  const cloud={user:{id:'recovery-user',email:'qa@example.invalid'},row:{data:copy(backup),updated_at:'2026-10-24T10:00:00Z'},reads:[],signIns:[],downloads:[],reloads:0};
+  vm.runInContext(fs.readFileSync(path.join(root,'js/cloud-sync.js'),'utf8'),e.context);
+  e.context.navigator.onLine=true;e.context.location={origin:'https://beta.example.invalid',pathname:'/index.html',reload(){assert.equal(e.run('storageOperationPending'),false);assert.equal(e.run('storageActionPending'),false);cloud.reloads++;}};
+  e.context.downloadKaasiSnapshot=(data,name)=>cloud.downloads.push({data:copy(data),name});
+  e.context.showNotification=()=>{};
+  const client={auth:{getSession:async()=>({data:{session:cloud.user?{user:copy(cloud.user)}:null},error:cloud.authError}),
+    signInWithOAuth:async options=>{cloud.signIns.push(copy(options));return {error:null};}},
+    from(table){assert.equal(table,'user_data');let fields,userId;return {
+      select(value){fields=value;return this;},eq(key,value){assert.equal(key,'user_id');userId=value;return this;},
+      async maybeSingle(){cloud.reads.push({fields,userId});if(cloud.beforeRead)await cloud.beforeRead();
+        return {data:cloud.row?(fields==='updated_at'?{updated_at:cloud.row.updated_at}:copy(cloud.row)):null,error:cloud.readError};}
+    };}};
+  e.context.client=client;e.run('supabaseClient=client;');
+  cloud.button=text=>{const button=e.element('storageActions').children.find(child=>child.textContent===text);assert.ok(button,`Missing recovery action: ${text}`);return button;};
+  cloud.open=async()=>{await e.context.showStorageFailure(new Error('Saved data failed its integrity check.'));await cloud.button('Restore From Cloud').onclick();};
+  return cloud;
+}
+
+test('cloud recovery validates and downloads without writes, then explicitly repairs a damaged database while retaining history',async()=>{
+  const e=environment(),original=legacy(e);await e.initialize();
+  const connection=await new Promise(resolve=>{const req=e.factory.open('kaasi-finances');req.onsuccess=()=>resolve(req.result);});
+  await new Promise(resolve=>{const tx=connection.transaction('transactions','readwrite');tx.objectStore('transactions').clear();tx.oncomplete=resolve;});connection.close();
+  const reopen=environment(e);await assert.rejects(reopen.initialize(),/integrity/);
+  const cloud=recoveryCloud(reopen,original);await cloud.open();
+  assert.equal(reopen.element('storageTitle').textContent,'Restore cloud backup?');
+  assert.equal(cloud.reads.length,1);assert.deepEqual(cloud.reads[0],{fields:'data, updated_at',userId:'recovery-user'});
+  assert.equal(cloud.reloads,0);assert.equal((await rawStore(reopen,'datasets','local')).revision,1);
+  await cloud.button('Download Cloud Backup').onclick();assert.deepEqual(cloud.downloads[0].data,original);
+  assert.equal(cloud.reloads,0);assert.equal((await rawStore(reopen,'datasets','local')).revision,1);
+  await cloud.button('Restore Cloud Backup').onclick();assert.equal(cloud.reloads,1);
+  assert.deepEqual(copy(await reopen.db.snapshot()),original);
+  assert.equal((await rawStore(reopen,'recovery','previous')).value.transactions.length,0);
+  assert.deepEqual(cloud.row.data,original);assert.equal(cloud.reads[1].fields,'updated_at');
+  const baseline=JSON.parse(reopen.run('appPreferences.getItem("kaasi_cloud_sync_baseline_recovery-user")'));
+  assert.equal(baseline.hash,await reopen.db.digest(original));assert.equal(baseline.updatedAt,cloud.row.updated_at);
+});
+
+test('cloud recovery offers explicit sign-in on the current beta URL without touching financial preferences or backups',async()=>{
+  const e=environment();await e.initialize();const before=copy(await e.db.snapshot()),cloud=recoveryCloud(e);cloud.user=null;
+  await cloud.open();assert.deepEqual(e.element('storageActions').children.map(button=>button.textContent),['Sign In With Google','Back']);
+  await cloud.button('Sign In With Google').onclick();assert.equal(cloud.reads.length,0);
+  assert.deepEqual(cloud.signIns,[{provider:'google',options:{redirectTo:'https://beta.example.invalid/index.html'}}]);
+  assert.deepEqual(copy(await e.db.snapshot()),before);assert.equal(e.run('appPreferences.getItem("pendingCloudRestore")'),null);
+});
+
+test('offline, missing, invalid and unavailable cloud backups never replace local data',async()=>{
+  for(const failure of ['offline','missing','invalid','invalid-json','timestamp','network','auth']){
+    const e=environment();await e.initialize();const before=copy(await e.db.snapshot()),cloud=recoveryCloud(e);
+    if(failure==='offline')e.context.navigator.onLine=false;
+    if(failure==='missing')cloud.row=null;
+    if(failure==='invalid')cloud.row.data.accounts=null;
+    if(failure==='invalid-json')cloud.row.data='{bad';
+    if(failure==='timestamp')cloud.row.updated_at='invalid';
+    if(failure==='network')cloud.readError={message:'Network unavailable'};
+    if(failure==='auth')cloud.authError={message:'Session unavailable'};
+    await cloud.open();assert.notEqual(e.element('storageTitle').textContent,'Restore cloud backup?',failure);
+    assert.ok(!e.element('storageActions').children.some(button=>button.textContent==='Restore Cloud Backup'),failure);
+    assert.deepEqual(copy(await e.db.snapshot()),before,failure);assert.equal(cloud.downloads.length,0);assert.equal(cloud.reloads,0);
+  }
+});
+
+test('cloud recovery enforces both the current local PIN and the selected cloud copy PIN',async()=>{
+  const e=environment(),original=legacy(e);original.settings.appPin={enabled:true,pin:await e.context.hashString('1111'),question:'Test question',answer:await e.context.hashString('test answer')};e.data.set('KaasiData',JSON.stringify(original));await e.initialize();
+  const remote=copy(original);remote.settings.appPin.pin=await e.context.hashString('2222');const cloud=recoveryCloud(e,remote);
+  e.element('storageRecoveryPin').value='0000';await cloud.open();assert.equal(cloud.reads.length,0);
+  e.element('storageRecoveryPin').value='1111';await cloud.button('Restore From Cloud').onclick();assert.equal(cloud.reads.length,1);
+  e.element('storageCloudRecoveryPin').value='1111';await cloud.button('Download Cloud Backup').onclick();await cloud.button('Restore Cloud Backup').onclick();
+  assert.equal(cloud.downloads.length,0);assert.equal(cloud.reloads,0);assert.deepEqual(copy(await e.db.snapshot()),original);
+  e.element('storageCloudRecoveryPin').value='2222';await cloud.button('Download Cloud Backup').onclick();assert.equal(cloud.downloads.length,1);
+  await cloud.button('Restore Cloud Backup').onclick();assert.equal(cloud.reloads,1);assert.deepEqual(copy(await e.db.snapshot()),remote);
+});
+
+test('account changes, cloud updates, concurrent local saves and failed commits abort cloud recovery without replacing data',async()=>{
+  for(const failure of ['account','cloud','local','write']){
+    const e=environment();await e.initialize();const remote=e.defaults();remote.accounts[0].balance=500;const cloud=recoveryCloud(e,remote);await cloud.open();
+    let before=copy(await e.db.snapshot());
+    if(failure==='account')cloud.user={id:'another-user'};
+    if(failure==='cloud')cloud.row.updated_at='2026-10-24T11:00:00Z';
+    if(failure==='local'){const next=copy(before);next.accounts[0].balance=7777;const other=environment(e);await other.initialize();await other.db.commit(next);before=next;}
+    const put=IDBObjectStore.prototype.put;
+    if(failure==='write')IDBObjectStore.prototype.put=function(...args){if(this.name==='settings')throw new DOMException('Full disk','QuotaExceededError');return put.apply(this,args);};
+    try{await cloud.button('Restore Cloud Backup').onclick();}finally{IDBObjectStore.prototype.put=put;}
+    const check=environment(e);await check.initialize();assert.deepEqual(copy(await check.db.snapshot()),before,failure);assert.equal(cloud.reloads,0,failure);assert.deepEqual(cloud.row.data,remote);
+  }
+});
+
+test('leaving recovery while a cloud read is pending discards its response; unreadable local sources still allow cloud recovery',async()=>{
+  const e=environment();await e.initialize();const cloud=recoveryCloud(e);let finish,started;
+  const reading=new Promise(resolve=>started=resolve);cloud.beforeRead=()=>{started();return new Promise(resolve=>finish=resolve);};
+  await e.context.showStorageFailure(new Error('Integrity check failed.'));const opening=cloud.button('Restore From Cloud').onclick();await reading;
+  await cloud.button('Back').onclick();finish();await opening;assert.equal(e.element('storageTitle').textContent,'Your data needs attention');assert.equal(cloud.reloads,0);
+  cloud.beforeRead=null;e.db.recoverySources=async()=>{throw new Error('Unreadable local copy');};await cloud.open();
+  assert.equal(e.element('storageTitle').textContent,'Restore cloud backup?');assert.equal(cloud.reloads,0);
+});
+
+test('failed cloud-recovery status metadata never reverses or misreports a committed restore',async()=>{
+  const e=environment();await e.initialize();const remote=e.defaults();remote.settings.initialSetupDone=true;remote.accounts[0].balance=500;const cloud=recoveryCloud(e,remote);await cloud.open();
+  const put=IDBObjectStore.prototype.put;
+  IDBObjectStore.prototype.put=function(...args){if(this.name==='deviceSettings')throw new DOMException('Metadata unavailable','QuotaExceededError');return put.apply(this,args);};
+  try{await cloud.button('Restore Cloud Backup').onclick();}finally{IDBObjectStore.prototype.put=put;}
+  assert.equal(cloud.reloads,1);assert.deepEqual(copy(await e.db.snapshot()),remote);assert.deepEqual(cloud.row.data,remote);
+});
+
 test('blocked storage shows actionable guidance without offering an unusable restore or touching data',()=>{
   const e=environment();legacy(e);const before=JSON.stringify([...e.data]);let recoveryReads=0;
   e.db.recoverySources=()=>{recoveryReads++;return Promise.resolve([]);};
@@ -220,7 +324,7 @@ test('export remains available after persistence denial and download failures ca
   await click('Continue');await click('Export Existing Data');assert.match(e.element('storageStatus').textContent,/could not be started/);
   await click('Export Existing Data');assert.equal(attempts,2);
   assert.equal(e.element('storageTitle').textContent,'Persistent storage is not enabled');
-  await click('Continue with IndexedDB');assert.equal(await decision,'migrate');
+  await click('Continue With IndexedDB');assert.equal(await decision,'migrate');
 });
 
 test('concurrent saves within one tab reject a stale snapshot rather than combining inconsistent writes',async()=>{

@@ -30,7 +30,7 @@ if(process.env.KAASI_SYNC_QA_LONG_TEXT==='1'){
   fixture.transactions[1].description='LunchWithTheTeamAfterTheQuarterlyPlanningSession'.repeat(8);
 }
 const bootstrap=`<script>
-if(!localStorage.getItem('syncQaSeeded')){localStorage.setItem('KaasiData',${JSON.stringify(JSON.stringify(fixture))});localStorage.setItem('syncQaSeeded','true');}
+if(!localStorage.getItem('syncQaSeeded')){localStorage.setItem('KaasiData',${JSON.stringify(process.env.KAASI_STORAGE_RECOVERY_QA==='1'?'{invalid synthetic backup':JSON.stringify(fixture))});localStorage.setItem('syncQaSeeded','true');}
 navigator.storage.persist=async()=>true;
 window.supabase={createClient(){let row=${JSON.stringify({data:remote,updated_at:'2026-10-22T10:00:00Z'})};return {
 auth:{onAuthStateChange(){},getSession:async()=>({data:{session:{user:{id:'qa-sync-only',email:'qa@example.invalid'}}}})},

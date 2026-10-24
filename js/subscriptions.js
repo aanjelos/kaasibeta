@@ -246,7 +246,7 @@ const Subscriptions = (() => {
         });
       });
     const name=document.getElementById('subName'),results=document.getElementById('subServiceResults');
-    const matchMarkup=query=>SubscriptionServices.search(query).map(service=>`<button type="button" class="subscription-service-option" data-service-id="${service.id}">${SubscriptionServices.icon({name:service.name,serviceId:service.id})}<span>${escapeHTML(service.name)}</span></button>`).join('')+'<button type="button" class="subscription-service-option" data-service-id=""><i class="fas fa-font" aria-hidden="true"></i><span>Use a Custom Icon</span></button>';
+    const matchMarkup=query=>SubscriptionServices.search(query).map(service=>`<button type="button" class="subscription-service-option" data-service-id="${service.id}">${SubscriptionServices.icon({name:service.name,serviceId:service.id})}<span>${escapeHTML(service.name)}</span></button>`).join('')+'<button type="button" class="subscription-service-option" data-service-id=""><i class="fas fa-font" aria-hidden="true"></i><span>Use A Custom Icon</span></button>';
     const drawSuggestions=()=>{
       if(SubscriptionServices.match(name.value)||!SubscriptionServices.search(name.value).length){results.hidden=true;return;}
       results.hidden=false;
