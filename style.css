@@ -2214,8 +2214,8 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .owed-view-actions .btn { min-width: 0; padding-left: 8px; padding-right: 8px; gap: 6px; white-space: nowrap; }
 .owed-view-actions.subscriptions-only, #debtsReceivablesContainer.subscriptions-only { grid-template-columns: minmax(0, 1fr); }
 #addDebtBtn[hidden], #viewDebtsBtn[hidden], #addSubscriptionDashboardBtn[hidden], #receivablesDashboardSection[hidden], #subscriptionActiveSummary[hidden], #totalOwed[hidden] { display: none; }
-#recentTransactionsCard { --recent-card-padding: 1.75rem; }
-.upcoming-notice { margin: calc(-1 * var(--recent-card-padding)) calc(-1 * var(--recent-card-padding)) 1.25rem; padding: 0; background: var(--bg-tertiary); border-bottom: 1px solid var(--border-color); border-radius: var(--radius-lg, 12px) var(--radius-lg, 12px) 0 0; }
+#balanceOverviewCard { --notice-card-padding: 1.75rem; }
+.upcoming-notice { margin: calc(-1 * var(--notice-card-padding)) calc(-1 * var(--notice-card-padding)) 1.25rem; padding: 0; background: var(--bg-tertiary); border-bottom: 1px solid var(--border-color); border-radius: var(--radius-lg, 12px) var(--radius-lg, 12px) 0 0; }
 .upcoming-notice[hidden] { display: none; }
 .upcoming-notice { overflow: hidden; }
 .upcoming-notice-item { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto 10px; gap: 12px; align-items: center; width: 100%; min-height: 72px; padding: 12px 24px; text-align: left; }
@@ -2287,7 +2287,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
 #subscriptionsModal { z-index: 67; }
 #upcomingPaymentsModal, #subscriptionReminderModal { z-index: 66; }
 @media (max-width: 768px) {
-  #recentTransactionsCard { --recent-card-padding: 1.25rem; }
+  #balanceOverviewCard { --notice-card-padding: 1.25rem; }
 }
 @media (max-width: 639px) {
   .subscription-row { flex-wrap: wrap; gap: 10px; }
@@ -2304,7 +2304,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
   .upcoming-notice-more { padding-left: 20px; padding-right: 20px; }
 }
 @media (max-width: 480px) {
-  #recentTransactionsCard { --recent-card-padding: 1rem; }
+  #balanceOverviewCard { --notice-card-padding: 1rem; }
   .upcoming-notice-item { padding-left: 16px; padding-right: 16px; }
   .upcoming-notice-more { padding-left: 16px; padding-right: 16px; }
 }

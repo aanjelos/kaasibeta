@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.400n - 2026-10-24
+
+### 1. [Improvement] Earlier Payment Reminders and Mobile Dashboard Order
+
+Moved the existing upcoming-payments strip to the top of Balance Overview on desktop and mobile, retaining its three-entry preview, overflow link and hidden state when no payments are upcoming. Mobile keeps Add Transaction first, followed by Balance Overview with reminders, Recent Transactions, Credit Card, Debts/Receivables/Installments, Category Budgets and the yearly chart. Desktop columns and card order remain unchanged. Notice edges follow the Balance Overview card's padding at each breakpoint. Payment, recurrence and storage logic are unchanged.
+
 ## v6.399n - 2026-10-24
 
 ### 1. [Improvement] Independent Subscription Payments and Simple Date Corrections
