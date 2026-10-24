@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.399n - 2026-10-24
+
+### 1. [Improvement] Independent Subscription Payments and Simple Date Corrections
+
+Pay now creates a normal independent expense or unpaid CC purchase and advances the subscription's renewal date in the same save. New payments have no subscription link fields or paid-renewal history records. Already Recorded only advances the date, and Skip Next Renewal creates no historical marker. Removed handled-payment eligibility checks, Edit Date fallback actions and Reopen Renewal confirmations. Users can correct the date directly after an accidental entry, while deleting/editing financial records remains independent of the schedule. Temporary snoozes are cleared when paying, skipping, changing dates or deleting a schedule. Existing saved transactions, balances and legacy metadata are preserved; stale forms, repeated submissions, PIN locks and failed-save rollback remain protected.
+
 ## v6.398n - 2026-10-24
 
 ### 1. [Fix] Correcting Previously Handled Subscription Renewals

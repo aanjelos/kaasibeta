@@ -47,9 +47,6 @@ const Subscriptions = (() => {
   const find=id=>list().find(row=>row.id===id);
   const fingerprint=row=>JSON.stringify(row);
   const occurrence=(id,due)=>occurrences().find(row=>row.id===occurrenceId(id,due));
-  const handled=row=>row && ['paid','skipped'].includes(row.status);
-  const recordedPayment=row=>row?.status==='paid' && (row.kind==='cc'?state.creditCard.transactions:state.transactions)
-    .some(transaction=>transaction.id===row.transactionId||transaction.subscriptionOccurrenceId===row.id);
   const daysUntil=due=>Math.round((dateObject(due)-dateObject(getCurrentDateString()))/86400000);
   const formatDate=due=>dateObject(due).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
   function dueLabel(due) {
@@ -64,8 +61,6 @@ const Subscriptions = (() => {
   function assertCurrent(id,due,expected) {
     const sub=find(id);
     if(!sub || sub.status!=='active' || sub.nextDueDate!==due || (expected && fingerprint(sub)!==expected)) throw new Error('This subscription changed. Close this form and reopen it.');
-    const prior=occurrence(id,due);
-    if(handled(prior)) throw new Error('This renewal was already recorded. Edit its renewal date to reopen it or choose the next date.');
     return sub;
   }
   async function change(action) {
@@ -81,6 +76,9 @@ const Subscriptions = (() => {
     if(prior) Object.assign(prior,row);else state.subscriptionOccurrences.push(row);
     return row;
   }
+  function clearSnooze(id,due) {
+    if(state.subscriptionOccurrences)state.subscriptionOccurrences=occurrences().filter(row=>row.id!==occurrenceId(id,due)||row.status!=='snoozed');
+  }
   async function saveDefinition(values,id,expected) {
     const amount=parseAmountValue(values.amount),name=String(values.name || '').trim();
     if(!name || name.length>160) throw new Error('Enter a subscription name up to 160 characters.');
@@ -95,20 +93,15 @@ const Subscriptions = (() => {
     const category=getCcPurchaseCategory({category:values.category});
     if(values.method==='bank'&&!category) throw new Error('Choose a category for bank/cash expenses.');
     if(id && (!existing || fingerprint(existing)!==expected)) throw new Error('This subscription changed. Reopen the form.');
-    const prior=existing && occurrence(id,nextDueDate);
-    if(handled(prior)) {
-      if(recordedPayment(prior))throw new Error('A payment for this renewal is still recorded. Remove the incorrect transaction first, or choose another renewal date.');
-      if(!values.reopenRenewal)throw Object.assign(new Error('Reopen this previously handled renewal?'),{code:'KAASI_REOPEN_RENEWAL'});
-    }
     const serviceId=values.serviceId && (values.serviceId==='custom'||SubscriptionServices.services.some(row=>row.id===values.serviceId)||existing?.serviceId===values.serviceId)?values.serviceId:SubscriptionServices.match(name)?.id||'';
     const definition={...(existing || {}),id:id||generateId(),name,amount,method:values.method,
       account:values.method==='bank'?values.account:'',category,frequency:values.frequency,nextDueDate,
       anchorDay:unchangedDate?existing.anchorDay:anchorDay,
-      ...(handled(prior)?{renewalRevision:(existing.renewalRevision||0)+1}:{}),
+      ...(existing&&!unchangedDate?{renewalRevision:(existing.renewalRevision||0)+1}:{}),
       serviceId,icon:Object.hasOwn(SubscriptionServices.generics,values.icon)||existing?.icon===values.icon?values.icon:'letter',status:existing?.status||'active',timestamp:existing?.timestamp||Date.now()};
     await change(()=>{
       state.subscriptions ||= [];
-      if(handled(prior))state.subscriptionOccurrences=occurrences().filter(row=>row.id!==prior.id);
+      if(existing&&!unchangedDate){clearSnooze(id,existing.nextDueDate);clearSnooze(id,nextDueDate);}
       if(existing) Object.assign(existing,definition);else state.subscriptions.push(definition);
     });
     return definition.id;
@@ -119,44 +112,34 @@ const Subscriptions = (() => {
       const next=nextDate(sub,due);
       await change(()=>{
         assertCurrent(id,due,expected);
-        upsertOccurrence(sub,due,{status:'paid',recordedExternally:true,kind:sub.method,amount:sub.amount,date:getCurrentDateString(),handledAt:Date.now(),snoozedUntil:0});
+        clearSnooze(id,due);
         sub.nextDueDate=next;
       });
       return;
     }
-    const link=String(values.link || '');
-    let transaction,amount,date,account,category;
-    if(link) {
-      transaction=(sub.method==='cc'?state.creditCard.transactions:state.transactions).find(row=>row.id===link);
-      if(!transaction || (sub.method==='bank' && (transaction.type!=='expense'||transaction.account!==sub.account)) || transaction.subscriptionOccurrenceId || occurrences().some(row=>row.transactionId===link && row.kind===sub.method)) throw new Error('Choose an unlinked expense or CC purchase from the correct account.');
-      amount=transaction.amount;date=transaction.date;
-    } else {
-      amount=parseAmountValue(values.amount);date=values.date;
-      if(!Number.isFinite(amount)||amount<=0||!validDate(date)) throw new Error('Enter a valid amount and payment date.');
-      category=getCcPurchaseCategory({category:values.category});
-      if(sub.method==='bank') {
-        account=state.accounts.find(row=>row.id===values.account && !row.hidden);
-        if(!account||!category) throw new Error('Choose an account and category.');
-        if(account.balance<amount) throw new Error(`Insufficient funds in ${account.name}.`);
-      }
+    let account;
+    const amount=parseAmountValue(values.amount),date=values.date;
+    if(!Number.isFinite(amount)||amount<=0||!validDate(date)) throw new Error('Enter a valid amount and payment date.');
+    const category=getCcPurchaseCategory({category:values.category});
+    if(sub.method==='bank') {
+      account=state.accounts.find(row=>row.id===values.account && !row.hidden);
+      if(!account||!category) throw new Error('Choose an account and category.');
+      if(account.balance<amount) throw new Error(`Insufficient funds in ${account.name}.`);
     }
-    const next=nextDate(sub,due),key=occurrenceId(id,due);
+    const next=nextDate(sub,due);
     await change(()=>{
       assertCurrent(id,due,expected);
-      if(!transaction) {
-        transaction={id:generateId(),amount,description:sub.name,date,timestamp:Date.now()};
-        if(sub.method==='cc') {
-          state.settings.enableCreditCard=true;
-          transaction.paidAmount=0;transaction.paidOff=false;
-          if(category) transaction.category=category;
-          state.creditCard.transactions.push(transaction);
-        } else {
-          Object.assign(transaction,{type:'expense',account:account.id,category});
-          account.balance=roundToTwoDecimals(account.balance-amount);state.transactions.push(transaction);
-        }
+      const transaction={id:generateId(),amount,description:sub.name,date,timestamp:Date.now()};
+      if(sub.method==='cc') {
+        state.settings.enableCreditCard=true;
+        transaction.paidAmount=0;transaction.paidOff=false;
+        if(category) transaction.category=category;
+        state.creditCard.transactions.push(transaction);
+      } else {
+        Object.assign(transaction,{type:'expense',account:account.id,category});
+        account.balance=roundToTwoDecimals(account.balance-amount);state.transactions.push(transaction);
       }
-      transaction.subscriptionId=id;transaction.subscriptionOccurrenceId=key;
-      upsertOccurrence(sub,due,{status:'paid',recordedExternally:false,transactionId:transaction.id,kind:sub.method,amount,date,handledAt:Date.now(),snoozedUntil:0});
+      clearSnooze(id,due);
       sub.nextDueDate=next;
     });
   }
@@ -165,8 +148,8 @@ const Subscriptions = (() => {
     if(!['snooze','skip'].includes(action)) throw new Error('Choose a supported reminder action.');
     await change(()=>{
       assertCurrent(id,due,expected);
-      upsertOccurrence(sub,due,action==='snooze'?{status:'snoozed',snoozedUntil:Date.now()+6*3600000}:{status:'skipped',handledAt:Date.now(),snoozedUntil:0});
-      if(action!=='snooze') sub.nextDueDate=nextDate(sub,due);
+      if(action==='snooze')upsertOccurrence(sub,due,{status:'snoozed',snoozedUntil:Date.now()+6*3600000});
+      else {clearSnooze(id,due);sub.nextDueDate=nextDate(sub,due);}
     });
   }
   async function setStatus(id,status,expected) {
@@ -177,10 +160,13 @@ const Subscriptions = (() => {
   async function deleteDefinition(id,expected) {
     const sub=find(id);
     if(!sub||fingerprint(sub)!==expected)throw new Error('This subscription changed. Reopen its options.');
-    await change(()=>{state.subscriptions=state.subscriptions.filter(row=>row.id!==id);});
+    await change(()=>{
+      state.subscriptions=state.subscriptions.filter(row=>row.id!==id);
+      if(state.subscriptionOccurrences)state.subscriptionOccurrences=occurrences().filter(row=>row.subscriptionId!==id||row.status!=='snoozed');
+    });
   }
   function upcoming() {
-    const subscriptions=list().filter(row=>row.status==='active' && !handled(occurrence(row.id,row.nextDueDate)) && daysUntil(row.nextDueDate)<=7).map(sub=>({kind:'subscription',id:sub.id,name:sub.name,due:sub.nextDueDate,amount:sub.amount,sub}));
+    const subscriptions=list().filter(row=>row.status==='active' && daysUntil(row.nextDueDate)<=7).map(sub=>({kind:'subscription',id:sub.id,name:sub.name,due:sub.nextDueDate,amount:sub.amount,sub}));
     const debts=(state.debts||[]).filter(row=>row.remainingAmount>0 && validDate(row.dueDate) && daysUntil(row.dueDate)<=7)
       .map(row=>({kind:'debt',id:row.id,name:row.who,due:row.dueDate,amount:row.remainingAmount}));
     return [...subscriptions,...debts].sort((a,b)=>a.due.localeCompare(b.due)||a.name.localeCompare(b.name));
@@ -201,7 +187,7 @@ const Subscriptions = (() => {
     rows=rows.filter(sub=>sub.name.toLowerCase().includes(search.toLowerCase())).sort((a,b)=>a.nextDueDate.localeCompare(b.nextDueDate));
     host.innerHTML=rows.length?rows.map(sub=>{
       const snoozed=occurrence(sub.id,sub.nextDueDate)?.snoozedUntil>Date.now();
-      return `<article class="subscription-row">${SubscriptionServices.icon(sub)}<div class="subscription-row-copy"><strong>${escapeHTML(sub.name)}</strong><span class="${daysUntil(sub.nextDueDate)<0?'text-expense':''}">${sub.status==='active'?escapeHTML(dueLabel(sub.nextDueDate)):'Paused'} · ${escapeHTML(formatDate(sub.nextDueDate))}</span><small>${escapeHTML(frequencies[sub.frequency])}${snoozed?' · Reminder snoozed':''}</small></div><div class="subscription-row-actions"><strong class="tabular-nums">${formatCurrency(sub.amount)}</strong><div>${sub.status==='active'?`<button class="btn btn-primary" data-sub-action="paid" data-sub-id="${escapeHTML(sub.id)}">${handled(occurrence(sub.id,sub.nextDueDate))?'Edit Date':'Pay'}</button>`:''}<button class="btn btn-secondary" data-sub-action="manage" data-sub-id="${escapeHTML(sub.id)}" aria-label="Manage ${escapeHTML(sub.name)}"><i class="fas fa-ellipsis-h" aria-hidden="true"></i></button></div></div></article>`;
+      return `<article class="subscription-row">${SubscriptionServices.icon(sub)}<div class="subscription-row-copy"><strong>${escapeHTML(sub.name)}</strong><span class="${daysUntil(sub.nextDueDate)<0?'text-expense':''}">${sub.status==='active'?escapeHTML(dueLabel(sub.nextDueDate)):'Paused'} · ${escapeHTML(formatDate(sub.nextDueDate))}</span><small>${escapeHTML(frequencies[sub.frequency])}${snoozed?' · Reminder snoozed':''}</small></div><div class="subscription-row-actions"><strong class="tabular-nums">${formatCurrency(sub.amount)}</strong><div>${sub.status==='active'?`<button class="btn btn-primary" data-sub-action="paid" data-sub-id="${escapeHTML(sub.id)}">Pay</button>`:''}<button class="btn btn-secondary" data-sub-action="manage" data-sub-id="${escapeHTML(sub.id)}" aria-label="Manage ${escapeHTML(sub.name)}"><i class="fas fa-ellipsis-h" aria-hidden="true"></i></button></div></div></article>`;
     }).join(''):`<div class="subscription-empty"><i class="far fa-calendar-check" aria-hidden="true"></i><p>${search?'No matching subscriptions.':filter==='paused'?'No paused subscriptions.':'No subscriptions here yet.'}</p>${filter!=='paused'?'<button class="btn btn-primary" data-sub-action="add">Add Subscription</button>':''}</div>`;
   }
   function renderDashboardEntry() {
@@ -261,11 +247,7 @@ const Subscriptions = (() => {
         event.preventDefault();await perform(async()=>{
           const form=new FormData(event.target),values=Object.fromEntries(['name','amount','frequency','nextDueDate','method','account','category','serviceId','icon'].map(key=>[key,form.get(key)]));
           if(values.nextDueDate===sub.nextDueDate)values.anchorDay=sub.anchorDay;
-          const save=async reopenRenewal=>{await saveDefinition({...values,reopenRenewal},id,expected);closeModal('formModal');openManager();showNotification('Subscription saved.','success');};
-          try {await save(false);} catch(error) {
-            if(error.code!=='KAASI_REOPEN_RENEWAL')throw error;
-            showConfirmationModal('Reopen Renewal?',`Make ${escapeHTML(formatDate(values.nextDueDate))} payable again? This clears its previous renewal confirmation. Existing financial records will stay unchanged.`,'Reopen Renewal','Cancel',()=>perform(()=>save(true)),undefined,'btn-primary');
-          }
+          await saveDefinition(values,id,expected);closeModal('formModal');openManager();showNotification('Subscription saved.','success');
         });
       });
     const name=document.getElementById('subName'),results=document.getElementById('subServiceResults');
@@ -332,11 +314,6 @@ const Subscriptions = (() => {
     if(isAppLocked())return;
     const sub=find(id);if(!sub||sub.status!=='active')return;
     const expected=fingerprint(sub),due=sub.nextDueDate;
-    if(handled(occurrence(id,due))) {
-      openEditor(id);
-      showNotification(recordedPayment(occurrence(id,due))?'This renewal has a recorded payment. Choose the next renewal date, or remove the incorrect transaction first.':'Save the renewal date to confirm reopening this renewal.','info');
-      return;
-    }
     openFormModal('Pay Subscription',`
       <p class="subscription-payment-heading">${SubscriptionServices.icon(sub)}<span>${escapeHTML(sub.name)}<small>Renewal: ${escapeHTML(formatDate(due))}</small></span></p>
       <label class="subscription-field">Entry<select id="subPaymentMode" name="mode"><option value="new">${sub.method==='cc'?'Add CC Charge':'Add Expense'}</option><option value="existing">Already Recorded</option></select></label>
@@ -380,7 +357,7 @@ const Subscriptions = (() => {
     try {if(isAppLocked())return;await action();}
     catch(error){if(!error.kaasiSaveFailure)showNotification(error.message||'The subscription could not be updated.','error');}
   }
-  const dueSubscriptions=()=>list().filter(sub=>sub.status==='active'&&!handled(occurrence(sub.id,sub.nextDueDate))&&daysUntil(sub.nextDueDate)<=0&&!(occurrence(sub.id,sub.nextDueDate)?.snoozedUntil>Date.now()));
+  const dueSubscriptions=()=>list().filter(sub=>sub.status==='active'&&daysUntil(sub.nextDueDate)<=0&&!(occurrence(sub.id,sub.nextDueDate)?.snoozedUntil>Date.now()));
   function renderReminder(due=dueSubscriptions()) {
     document.getElementById('subscriptionReminderList').innerHTML=due.map(sub=>`<article class="subscription-row">${SubscriptionServices.icon(sub)}<div class="subscription-row-copy"><strong>${escapeHTML(sub.name)}</strong><span>${escapeHTML(dueLabel(sub.nextDueDate))}</span><small>${formatCurrency(sub.amount)}</small></div><div class="subscription-row-actions subscription-reminder-actions"><button class="btn btn-primary" data-sub-action="paid" data-sub-id="${escapeHTML(sub.id)}">Pay</button><button class="btn btn-secondary" data-sub-action="snooze" data-sub-id="${escapeHTML(sub.id)}">Remind Me Later</button><button class="btn btn-secondary" data-sub-action="manage" data-sub-id="${escapeHTML(sub.id)}" aria-label="Manage ${escapeHTML(sub.name)}"><i class="fas fa-ellipsis-h" aria-hidden="true"></i></button></div></article>`).join('')||'<p class="subscription-empty">All caught up for now.</p>';
   }

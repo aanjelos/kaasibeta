@@ -32,7 +32,7 @@ test('saving schedules never deducts funds; confirmed bank payment and renewal c
   const e=env(),id=await e.api.saveDefinition(definition());
   assert.equal(e.run('state.accounts[0].balance'),1000);assert.equal(e.run('state.transactions.length'),0);
   await e.api.record(id,'2026-10-24',payment());
-  assert.equal(e.saved().accounts[0].balance,900);assert.equal(e.saved().transactions[0].subscriptionId,id);
+  assert.equal(e.saved().accounts[0].balance,900);assert.equal(e.saved().transactions[0].subscriptionId,undefined);assert.equal(e.saved().transactions[0].subscriptionOccurrenceId,undefined);assert.equal(e.saved().subscriptionOccurrences,undefined);
   assert.equal(e.saved().subscriptions[0].nextDueDate,'2026-11-24');
   await assert.rejects(e.api.record(id,'2026-10-24',payment()),/changed|handled/);
   assert.equal(e.saved().transactions.length,1);
@@ -42,14 +42,14 @@ test('CC renewals create uncategorized purchases without deducting bank money or
   await e.api.record(id,'2026-10-24',payment({category:''}));
   assert.equal(e.saved().accounts[0].balance,1000);assert.equal(e.saved().transactions.length,0);
   const purchase=e.saved().creditCard.transactions[0];assert.equal(purchase.paidOff,false);assert.equal(purchase.paidAmount,0);assert.equal(purchase.category,undefined);
+  assert.equal(purchase.subscriptionId,undefined);assert.equal(purchase.subscriptionOccurrenceId,undefined);assert.equal(e.saved().subscriptionOccurrences,undefined);
   assert.equal(e.saved().settings.enableCreditCard,true);
 });
-test('linking existing expense advances renewal without another expense or deduction',async()=>{
+test('paying a snoozed renewal clears only its reminder and creates an independent expense',async()=>{
   const e=env(),id=await e.api.saveDefinition(definition());
-  e.run('state.transactions.push({id:"existing",type:"expense",account:"cash",category:"Other",amount:100,date:"2026-10-23",description:"Netflix"});');
-  await e.api.record(id,'2026-10-24',{link:'existing'});
-  assert.equal(e.saved().transactions.length,1);assert.equal(e.saved().accounts[0].balance,1000);
-  const id2=await e.api.saveDefinition(definition());await assert.rejects(e.api.record(id2,'2026-10-24',{link:'existing'}),/unlinked/);
+  await e.api.resolve(id,'2026-10-24','snooze');await e.api.record(id,'2026-10-24',payment());
+  assert.equal(e.saved().transactions.length,1);assert.equal(e.saved().accounts[0].balance,900);assert.equal(e.saved().subscriptionOccurrences.length,0);
+  assert.equal(e.saved().transactions[0].subscriptionId,undefined);
 });
 test('snoozing leaves due date intact; skipping advances without any financial record',async()=>{
   const e=env(),id=await e.api.saveDefinition(definition());const before=Date.now();
@@ -88,7 +88,7 @@ test('due area includes seven-day subscriptions and debts, excludes paused/settl
   e.run('state.debts=[{id:"d1",who:"Friend",dueDate:"2026-10-23",remainingAmount:50},{id:"d2",who:"Paid",dueDate:"2026-10-24",remainingAmount:0}];');
   assert.equal(e.api.upcoming().length,2);
   await e.api.record(id,'2026-10-31',payment());e.run('state.transactions=[];');
-  assert.equal(e.api.upcoming().length,1);assert.equal(e.saved().subscriptionOccurrences[0].status,'paid');
+  assert.equal(e.api.upcoming().length,1);assert.equal(e.saved().subscriptionOccurrences,undefined);
 });
 test('service search keeps related Google subscriptions distinct and unknown brands use local fallbacks',()=>{
   const {run}=env();assert.equal(run('SubscriptionServices.search("chat gpt")[0].id'),'openai');
@@ -213,31 +213,29 @@ test('already-recorded renewals advance bank and CC schedules without linking or
     e.run('state.transactions.push({id:"independent",type:"expense",account:"cash",category:"Other",amount:100,date:"2026-10-24",description:"Already paid"});');await e.c.saveData();
     const before=e.saved();await e.api.record(id,'2026-10-24',{alreadyRecorded:true});const after=e.saved();
     assert.deepEqual(after.transactions,before.transactions);assert.deepEqual(after.creditCard,before.creditCard);assert.deepEqual(after.accounts,before.accounts);
-    assert.equal(after.subscriptions[0].nextDueDate,'2026-11-24');assert.equal(after.subscriptionOccurrences[0].recordedExternally,true);assert.equal(after.subscriptionOccurrences[0].transactionId,undefined);
-    assert.equal(e.c.prepareImportedData(after).subscriptionOccurrences[0].recordedExternally,true);
+    assert.equal(after.subscriptions[0].nextDueDate,'2026-11-24');assert.equal(after.subscriptionOccurrences,undefined);
+    assert.equal(e.c.prepareImportedData(after).subscriptionOccurrences,undefined);
     await assert.rejects(e.api.record(id,'2026-10-24',{alreadyRecorded:true}),/changed|recorded/);
   }
 });
 
-test('reopening an accidentally paid renewal requires confirmation after removing its expense and preserves financial data',async()=>{
+test('an accidental payment can be deleted and its date reset without reopening or changing financial data',async()=>{
   const e=env(),id=await e.api.saveDefinition(definition());await e.api.record(id,'2026-10-24',payment());
   e.run('state.transactions=[];state.accounts[0].balance=1000;');await e.c.saveData();
   const sub=e.saved().subscriptions[0],values={...sub,amount:'100',nextDueDate:'2026-10-24'};
-  const before=e.saved();await assert.rejects(e.api.saveDefinition(values,id,JSON.stringify(sub)),error=>error.code==='KAASI_REOPEN_RENEWAL');assert.deepEqual(e.saved(),before);
-  await e.api.saveDefinition({...values,reopenRenewal:true},id,JSON.stringify(sub));
-  assert.equal(e.saved().subscriptionOccurrences.length,0);assert.equal(e.saved().subscriptions[0].renewalRevision,1);assert.deepEqual(e.saved().transactions,before.transactions);assert.deepEqual(e.saved().accounts,before.accounts);
+  const before=e.saved();await e.api.saveDefinition(values,id,JSON.stringify(sub));
+  assert.equal(e.saved().subscriptionOccurrences,undefined);assert.equal(e.saved().subscriptions[0].renewalRevision,1);assert.deepEqual(e.saved().transactions,before.transactions);assert.deepEqual(e.saved().accounts,before.accounts);
   e.run('appPreferences.setItem("kaasi_subscription_prompt_seen",JSON.stringify({date:"2026-10-24",tokens:[Subscriptions.occurrenceId(state.subscriptions[0].id,"2026-10-24")+":0"]}));');
   e.api.scheduleReminder();await e.tick();assert.equal(e.el('subscriptionReminderModal').style.display,'block');e.el('subscriptionReminderModal').style.display='none';
   assert.equal(e.api.upcoming().length,1);await e.api.record(id,'2026-10-24',payment());assert.equal(e.saved().transactions.length,1);assert.equal(e.saved().accounts[0].balance,900);
 });
 
-test('a renewal with an existing payment cannot be reopened; legacy mismatches are excluded from reminders and route to date correction',async()=>{
+test('legacy linked payments and handled markers are preserved without constraining schedule edits or payments',async()=>{
   const e=env(),id=await e.api.saveDefinition(definition());await e.api.record(id,'2026-10-24',payment());
-  const sub=e.saved().subscriptions[0];await assert.rejects(e.api.saveDefinition({...sub,amount:'100',nextDueDate:'2026-10-24',reopenRenewal:true},id,JSON.stringify(sub)),/still recorded/);
-  e.run('state.subscriptions[0].nextDueDate="2026-10-24";');await e.c.saveData();
-  assert.equal(e.api.upcoming().length,0);let title;e.c.openFormModal=value=>{title=value;};e.api.openPayment(id);assert.equal(title,'Edit Subscription');
-  e.api.render();assert.match(e.el('subscriptionList').innerHTML,/Edit Date/);
-  e.api.scheduleReminder();await e.tick();assert.notEqual(e.el('subscriptionReminderModal').style.display,'block');
+  e.run('state.transactions[0].subscriptionId=state.subscriptions[0].id;state.transactions[0].subscriptionOccurrenceId=Subscriptions.occurrenceId(state.subscriptions[0].id,"2026-10-24");state.subscriptionOccurrences=[{id:state.transactions[0].subscriptionOccurrenceId,subscriptionId:state.subscriptions[0].id,dueDate:"2026-10-24",status:"paid",transactionId:state.transactions[0].id,amount:100,date:"2026-10-24",kind:"bank"}];');await e.c.saveData();
+  const previous=e.saved(),sub=previous.subscriptions[0];await e.api.saveDefinition({...sub,amount:'100',nextDueDate:'2026-10-24'},id,JSON.stringify(sub));
+  assert.equal(e.api.upcoming().length,1);let title;e.c.openFormModal=value=>{title=value;};e.api.openPayment(id);assert.equal(title,'Pay Subscription');
+  await e.api.record(id,'2026-10-24',payment());assert.deepEqual(e.saved().transactions[0],previous.transactions[0]);assert.deepEqual(e.saved().subscriptionOccurrences,previous.subscriptionOccurrences);assert.equal(e.saved().transactions[1].subscriptionId,undefined);
 });
 
 test('new subscriptions due today stay independently payable, use Pay actions, and do not create handled records on save',async()=>{
@@ -245,14 +243,14 @@ test('new subscriptions due today stay independently payable, use Pay actions, a
   assert.equal(e.saved().subscriptionOccurrences,undefined);assert.equal(e.api.upcoming().length,2);e.api.render();
   assert.match(e.el('subscriptionList').innerHTML,/>Pay<\/button>/);assert.doesNotMatch(e.el('subscriptionList').innerHTML,/>Charged<|>Paid</);
   await e.api.record(first,'2026-10-24',payment());await e.api.record(second,'2026-10-24',payment());
-  assert.equal(e.saved().transactions.length,1);assert.equal(e.saved().creditCard.transactions.length,1);assert.equal(e.saved().subscriptionOccurrences.length,2);
+  assert.equal(e.saved().transactions.length,1);assert.equal(e.saved().creditCard.transactions.length,1);assert.equal(e.saved().subscriptionOccurrences,undefined);
 });
 
-test('failed already-recorded and reopened-renewal saves restore schedules and history atomically',async()=>{
+test('failed already-recorded and date-correction saves restore schedules and reminder state atomically',async()=>{
   const first=env(),firstId=await first.api.saveDefinition(definition()),before=first.saved();first.fail();
   await assert.rejects(first.api.record(firstId,'2026-10-24',{alreadyRecorded:true}),/Failed save/);assert.equal(first.run('JSON.stringify(state)'),JSON.stringify(before));
   const e=env(),id=await e.api.saveDefinition(definition());await e.api.resolve(id,'2026-10-24','skip');const sub=e.saved().subscriptions[0],previous=e.saved();e.fail();
-  await assert.rejects(e.api.saveDefinition({...sub,amount:'100',nextDueDate:'2026-10-24',reopenRenewal:true},id,JSON.stringify(sub)),/Failed save/);
+  await assert.rejects(e.api.saveDefinition({...sub,amount:'100',nextDueDate:'2026-10-24'},id,JSON.stringify(sub)),/Failed save/);
   assert.equal(e.run('JSON.stringify(state)'),JSON.stringify(previous));
 });
 test('logo frames are selected from artwork contrast instead of the app theme',()=>{
@@ -262,13 +260,14 @@ test('logo frames are selected from artwork contrast instead of the app theme',(
   assert.doesNotMatch(e.run('SubscriptionServices.icon({name:"ChatGPT",serviceId:"openai"})'),/subscription-icon-light/);
   assert.equal(e.run('SUBSCRIPTION_LIGHT_LOGOS.every(id=>SUBSCRIPTION_LOGOS.includes(id))'),true);
 });
-test('deleting a schedule retains its expenses, CC purchases, balances and occurrence history',async()=>{
+test('deleting a schedule retains independent expenses, CC purchases and balances and clears its temporary snooze',async()=>{
   const e=env(),id=await e.api.saveDefinition(definition());await e.api.record(id,'2026-10-24',payment());
   const ccId=await e.api.saveDefinition(definition({method:'cc'}));await e.api.record(ccId,'2026-10-24',payment());
+  await e.api.resolve(id,e.saved().subscriptions[0].nextDueDate,'snooze');
   const before=e.saved();await assert.rejects(e.api.deleteDefinition(id,'stale'),/changed/);
   await e.api.deleteDefinition(id,JSON.stringify(before.subscriptions[0]));await e.api.deleteDefinition(ccId,JSON.stringify(e.saved().subscriptions[0]));
-  assert.equal(e.saved().subscriptions.length,0);assert.deepEqual(e.saved().transactions,before.transactions);assert.deepEqual(e.saved().creditCard,before.creditCard);assert.deepEqual(e.saved().accounts,before.accounts);assert.deepEqual(e.saved().subscriptionOccurrences,before.subscriptionOccurrences);
-  assert.equal(e.c.prepareImportedData(e.saved()).subscriptionOccurrences.length,2);
+  assert.equal(e.saved().subscriptions.length,0);assert.deepEqual(e.saved().transactions,before.transactions);assert.deepEqual(e.saved().creditCard,before.creditCard);assert.deepEqual(e.saved().accounts,before.accounts);assert.deepEqual(e.saved().subscriptionOccurrences,[]);
+  assert.equal(e.c.prepareImportedData(e.saved()).subscriptionOccurrences.length,0);
 });
 test('subscription fields survive the existing public web import, save and JSON export path',{skip:!fs.existsSync(path.join(root,'../kaasiapp/js/globals.js'))},async()=>{
   const e=env();await e.api.saveDefinition(definition());await e.api.record(e.saved().subscriptions[0].id,'2026-10-24',payment());
