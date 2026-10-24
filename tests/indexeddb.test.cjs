@@ -24,7 +24,7 @@ function environment({ factory = new IDBFactory(), data = new Map(), testVersion
   context.window=context;
   for (const name of ['globals','import-validation','storage','storage-ui']) {
     let source=fs.readFileSync(path.join(root,'js',`${name}.js`),'utf8');
-    if(name==='storage'&&testVersion)source=source.replace('const VERSION = 1;',`const VERSION = ${testVersion};`);
+    if(name==='storage'&&testVersion)source=source.replace('const VERSION = 2;',`const VERSION = ${testVersion};`);
     vm.runInContext(source,context,{filename:name+'.js'});
   }
   const run=source=>vm.runInContext(source,context);
@@ -43,7 +43,7 @@ function legacy(e) {
 }
 
 async function rawStore(e,store,key) {
-  const db=await new Promise((resolve,reject)=>{const req=e.factory.open('kaasi-finances',1);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});
+  const db=await new Promise((resolve,reject)=>{const req=e.factory.open('kaasi-finances');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});
   try {return await new Promise((resolve,reject)=>{const tx=db.transaction(store);const req=tx.objectStore(store).get(key);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
   finally {db.close();}
 }
@@ -234,7 +234,7 @@ test('concurrent saves within one tab reject a stale snapshot rather than combin
 
 test('integrity failure preserves the damaged copy and supports explicit recovery from a valid backup',async()=>{
   const e=environment();const original=legacy(e);await e.initialize();
-  const connection=await new Promise(resolve=>{const req=e.factory.open('kaasi-finances',1);req.onsuccess=()=>resolve(req.result);});
+  const connection=await new Promise(resolve=>{const req=e.factory.open('kaasi-finances');req.onsuccess=()=>resolve(req.result);});
   await new Promise((resolve,reject)=>{
     const tx=connection.transaction('accounts','readwrite');
     const req=tx.objectStore('accounts').openCursor();req.onsuccess=()=>{const row=req.result;if(row){if(row.value.id==='cash')row.update({...row.value,value:{...row.value.value,balance:99}});else row.continue();}};
@@ -254,7 +254,7 @@ test('PIN recovery exports require the correct PIN for the selected saved copy',
 
 test('unknown future database formats are rejected without clearing records',async()=>{
   const e=environment();legacy(e);await e.initialize();
-  const connection=await new Promise(resolve=>{const req=e.factory.open('kaasi-finances',1);req.onsuccess=()=>resolve(req.result);});
+  const connection=await new Promise(resolve=>{const req=e.factory.open('kaasi-finances');req.onsuccess=()=>resolve(req.result);});
   await new Promise(resolve=>{const tx=connection.transaction('datasets','readwrite');const req=tx.objectStore('datasets').get('local');req.onsuccess=()=>tx.objectStore('datasets').put({...req.result,formatVersion:99});tx.oncomplete=resolve;});connection.close();
   const reopen=environment(e);await assert.rejects(reopen.initialize(),/newer version/);
   assert.equal((await rawStore(e,'datasets','local')).formatVersion,99);
@@ -363,9 +363,35 @@ test('repeated replacements retain one previous dataset instead of an accumulati
 
 test('a blocked schema upgrade reports recovery instead of waiting silently or deleting the database',async()=>{
   const e=environment();await e.initialize();
-  const foreign=await new Promise(resolve=>{const req=e.factory.open('kaasi-finances',1);req.onsuccess=()=>resolve(req.result);});
+  const foreign=await new Promise(resolve=>{const req=e.factory.open('kaasi-finances');req.onsuccess=()=>resolve(req.result);});
   foreign.onversionchange=()=>{}; // Represents an older tab that refuses to close.
-  const upgrade=environment({...e,testVersion:2});
+  const upgrade=environment({...e,testVersion:3});
   await assert.rejects(upgrade.initialize(),/Close other Kaasi/);
   foreign.close();
+});
+
+for(const transferred of [false,true])test(`version-one database upgrade preserves ${transferred?'transferred subscription fields':'legacy snapshots'} before the next save`,async()=>{
+  const e=environment(),value=e.defaults();value.settings.initialSetupDone=true;
+  value.futureData={preserve:'yes'};const generation='original_generation';
+  if(transferred){value.subscriptions=[{id:'transferred',name:'Spotify',amount:100,method:'cc',frequency:'monthly',status:'active',nextDueDate:'2026-10-24',anchorDay:24}];value.subscriptionOccurrences=[];}
+  const groups=['accounts','transactions','ccTransactions','debts','receivables','installments','budgets','categories'];
+  const base=copy(value),hash=await e.db.digest(value);
+  const connection=await new Promise((resolve,reject)=>{const opening=e.factory.open('kaasi-finances',1);
+    opening.onupgradeneeded=()=>{
+      const db=opening.result;db.createObjectStore('datasets',{keyPath:'id'});db.createObjectStore('settings',{keyPath:['dataset','generation']});
+      db.createObjectStore('recovery',{keyPath:'id'});db.createObjectStore('deviceSettings',{keyPath:'key'});
+      groups.forEach(group=>{const store=db.createObjectStore(group,{keyPath:['dataset','generation','id']});store.createIndex('generation',['dataset','generation']);});
+    };opening.onsuccess=()=>resolve(opening.result);opening.onerror=()=>reject(opening.error);});
+  await new Promise((resolve,reject)=>{const tx=connection.transaction(['datasets','settings',...groups],'readwrite');
+    groups.forEach(group=>{const rows=group==='ccTransactions'?base.creditCard.transactions:base[group];
+      rows.forEach((item,position)=>tx.objectStore(group).put({dataset:'local',generation,id:group==='categories'?String(position):item.id,position,value:item}));
+      if(group==='ccTransactions')delete base.creditCard.transactions;else delete base[group];});
+    tx.objectStore('settings').put({dataset:'local',generation,value:base});
+    tx.objectStore('datasets').put({id:'local',formatVersion:1,generation,revision:1,hash,legacyRaw:null,migrated:true});
+    tx.oncomplete=resolve;tx.onabort=()=>reject(tx.error);});connection.close();
+  assert.deepEqual(copy(await e.initialize()),value);assert.deepEqual(copy(await e.db.snapshot()),value);
+  const next=copy(value);next.subscriptions=[{id:'sub1',name:'Netflix',amount:100,nextDueDate:'2026-10-24',frequency:'monthly',anchorDay:24,method:'bank',account:'cash',category:'Other',status:'active',unknownAndroidField:{keep:true}}];
+  next.subscriptionOccurrences=[];await e.db.commit(next);
+  assert.deepEqual(copy(await e.db.snapshot()),next);
+  const row=await rawStore(e,'subscriptions',['local',generation,'sub1']);assert.equal(row.value.unknownAndroidField.keep,true);
 });

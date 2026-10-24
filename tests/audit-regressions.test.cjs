@@ -110,7 +110,7 @@ function runtime() {
     },
     async replace(value,expected=revision){if(expected!==revision)throw new Error('Revision changed');return this.commit(value);},
     async snapshot(){return this.current;}};
-  for (const file of ['globals', 'import-validation', 'animations', 'data-sync', 'cloud-sync', 'math-tool', 'settings', 'charts', 'ui', 'features', 'security', 'app']) {
+  for (const file of ['globals', 'import-validation', 'animations', 'data-sync', 'cloud-sync', 'math-tool', 'settings', 'charts', 'ui', 'features', 'subscription-assets', 'subscription-services', 'subscriptions', 'security', 'app']) {
     vm.runInContext(fs.readFileSync(path.join(root, 'js', `${file}.js`), 'utf8'), context, { filename: `${file}.js` });
   }
   const run = source => vm.runInContext(source, context);

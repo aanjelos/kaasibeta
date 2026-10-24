@@ -1,11 +1,12 @@
 /** Local database boundary. Financial records never depend on the auth SDK's storage. */
 const KaasiStorage = (() => {
   const NAME = "kaasi-finances";
-  const VERSION = 1;
+  const VERSION = 2;
   const DATASET = "local";
   const LEGACY = "KaasiData";
   const MARKER = "kaasi_indexeddb_migrated";
-  const groups = ["accounts", "transactions", "ccTransactions", "debts", "receivables", "installments", "budgets", "categories"];
+  const optionalGroups = ["subscriptions", "subscriptionOccurrences"];
+  const groups = ["accounts", "transactions", "ccTransactions", "debts", "receivables", "installments", "budgets", "categories", ...optionalGroups];
   const stores = ["datasets", "settings", "deviceSettings", "recovery", ...groups];
   const ownKeys = new Set(["preferredSyncMethod", "pendingCloudRestore", "skipRestoreWarning", "lastLocalDataModification", "lastLocalCloudSync", "lastSyncedCloudUpdatedAt", "kaasi_synced_state_hash", "lastSuccessfulBackupDate", "lastSuccessfulCloudBackupDate"]);
   let db, mode, revision = 0, current, root, legacyRaw = null, stale = false;
@@ -51,7 +52,7 @@ const KaasiStorage = (() => {
     const base = clone(value);
     const result = {};
     groups.forEach(group => {
-      const values = group === "ccTransactions" ? base.creditCard.transactions : base[group];
+      const values = group === "ccTransactions" ? base.creditCard.transactions : optionalGroups.includes(group) ? (base[group] || []) : base[group];
       if (!Array.isArray(values)) throw new Error(`Invalid ${group} collection.`);
       const seen = new Set();
       result[group] = values.map((item, position) => {
@@ -63,7 +64,7 @@ const KaasiStorage = (() => {
       if (group === "ccTransactions") delete base.creditCard.transactions;
       else delete base[group];
     });
-    result.settings = { dataset: DATASET, generation, value: base };
+    result.settings = { dataset: DATASET, generation, value: base, collections: optionalGroups.filter(group => Object.prototype.hasOwnProperty.call(value, group)) };
     return result;
   }
   async function readGeneration(generation) {
@@ -73,6 +74,7 @@ const KaasiStorage = (() => {
     if (!base) throw new Error("Saved dataset is incomplete. No data has been replaced.");
     const value = clone(base.value);
     groups.forEach((group, index) => {
+      if (optionalGroups.includes(group) && !base.collections?.includes(group)) return;
       const values = rows[index].sort((a, b) => a.position - b.position).map(row => row.value);
       if (group === "ccTransactions") value.creditCard.transactions = values;
       else value[group] = values;
@@ -289,6 +291,7 @@ const KaasiStorage = (() => {
     if (!base) throw new Error("The saved dataset is incomplete.");
     const value = clone(base.value);
     groups.forEach((group, index) => {
+      if (optionalGroups.includes(group) && !base.collections?.includes(group)) return;
       const values = rows[index].sort((a, b) => a.position - b.position).map(row => row.value);
       if (group === "ccTransactions") value.creditCard.transactions = values; else value[group] = values;
     });

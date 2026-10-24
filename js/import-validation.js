@@ -153,6 +153,36 @@ function prepareImportedData(input) {
       text(settings.appPin.question, "security question");
     }
   }
+  // Optional additions: preserve absent fields in legacy backups and retain
+  // unknown compatible properties inside schedules/renewal records.
+  if ('subscriptions' in candidate) {
+    if(!Array.isArray(candidate.subscriptions))fail('subscriptions must be a list');
+    records(candidate.subscriptions,'subscriptions',sub=>{
+      text(sub.name,'subscription name');number(sub,'amount');
+      if(sub.amount<=0)fail('subscription amount must be positive');
+      if(!['bank','cc'].includes(sub.method)||!['daily','weekly','monthly','quarterly','annually'].includes(sub.frequency)||!['active','paused','cancelled'].includes(sub.status))fail('unsupported subscription format');
+      date(sub.nextDueDate,'subscription renewal date');
+      number(sub,'anchorDay',Number(sub.nextDueDate.slice(8)),1,true);
+      if(sub.anchorDay>31)fail('subscription anchor day');
+      if(sub.account)identifier(sub.account,'subscription account');
+      if(sub.category)text(sub.category,'subscription category');
+      if(sub.serviceId)identifier(sub.serviceId,'subscription service');
+      if(sub.icon)identifier(sub.icon,'subscription icon');
+    });
+  }
+  if ('subscriptionOccurrences' in candidate) {
+    if(!Array.isArray(candidate.subscriptionOccurrences))fail('subscription renewals must be a list');
+    records(candidate.subscriptionOccurrences,'subscription renewals',row=>{
+      identifier(row.subscriptionId,'subscription renewal reference');date(row.dueDate,'subscription occurrence date');
+      if(!['paid','skipped','snoozed'].includes(row.status))fail('unsupported renewal status');
+      if(row.status==='paid') {
+        identifier(row.transactionId,'renewal transaction reference');number(row,'amount');date(row.date,'renewal payment date');
+        if(!['bank','cc'].includes(row.kind))fail('renewal transaction kind');
+      }
+      if(row.snoozedUntil!==undefined)number(row,'snoozedUntil');
+      if(row.handledAt!==undefined)number(row,'handledAt');
+    });
+  }
   settings.initialSetupDone = true;
   return candidate;
 }

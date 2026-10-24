@@ -205,14 +205,16 @@ function cloudSyncDifferences(local, cloud) {
       fields: fields.length ? fields : [{ name: "Value", local: safe(a), cloud: safe(b) }] });
   };
   const collections = [["Accounts", "accounts"], ["Transactions", "transactions"], ["Credit card", "ccTransactions"],
-    ["Debts", "debts"], ["Receivables", "receivables"], ["Installments", "installments"], ["Budgets", "budgets"]];
+    ["Debts", "debts"], ["Receivables", "receivables"], ["Installments", "installments"], ["Budgets", "budgets"],
+    ["Subscriptions", "subscriptions"], ["Renewals", "subscriptionOccurrences"]];
   for (const [area, key] of collections) {
-    const a = key === "ccTransactions" ? local.creditCard.transactions : local[key];
-    const b = key === "ccTransactions" ? cloud.creditCard.transactions : cloud[key];
+    const a = key === "ccTransactions" ? local.creditCard.transactions : (local[key] || []);
+    const b = key === "ccTransactions" ? cloud.creditCard.transactions : (cloud[key] || []);
     const left = new Map(a.map(row => [row.id, row])), right = new Map(b.map(row => [row.id, row]));
     for (const id of new Set([...left.keys(), ...right.keys()])) {
       const row = left.get(id) || right.get(id);
-      compare(area, `${row.date || row.dateGiven || row.dueDate || ""} ${row.description || row.name || id}`.trim(), left.get(id), right.get(id));
+      const subscriptionName=key==='subscriptionOccurrences' ? [...(local.subscriptions||[]),...(cloud.subscriptions||[])].find(sub=>sub.id===row.subscriptionId)?.name : '';
+      compare(area, `${row.date || row.dateGiven || row.dueDate || row.nextDueDate || ""} ${row.description || row.name || subscriptionName || id}`.trim(), left.get(id), right.get(id));
     }
     if (a.length === b.length && a.every(row => right.has(row.id))) compare(area, "Record order", a.map(row => row.id), b.map(row => row.id));
   }
@@ -234,6 +236,7 @@ function renderCloudSyncReview(page = 0) {
   $("#cloudSyncChangedCount").textContent = String(changes.filter(c => c.kind === "Different values").length);
   $("#cloudSyncSummary").setAttribute("aria-label", `${changes.length} differences`);
   const labels = { amount: "Amount", balance: "Balance", paidAmount: "Amount paid", paidOff: "Fully paid", originalAmount: "Original amount", remainingAmount: "Remaining amount", originalFullAmount: "Original total", monthlyAmount: "Monthly amount", limit: "Limit", type: "Type", date: "Date", description: "Description", account: "Account", category: "Category", name: "Name", ccPurchaseId: "Linked card purchase", timestamp: "Recorded time", hidden: "Hidden", totalMonths: "Total months", monthsLeft: "Months remaining", startDate: "Start date", dueDate: "Due date", dateGiven: "Date lent" };
+  Object.assign(labels,{nextDueDate:'Next renewal',frequency:'Frequency',method:'Payment method',status:'Status',anchorDay:'Renewal day',serviceId:'Service',icon:'Icon',subscriptionId:'Subscription',subscriptionOccurrenceId:'Renewal',transactionId:'Recorded entry',kind:'Payment method',snoozedUntil:'Remind after',handledAt:'Recorded time'});
   const money = new Set(["amount", "balance", "paidAmount", "originalAmount", "remainingAmount", "originalFullAmount", "monthlyAmount", "limit"]);
   const display = (value, key) => value === undefined ? "Absent" : money.has(key) && typeof value === "number" ? formatCurrency(value).replace(/^LKR\s*/, "")
     : typeof value === "boolean" ? value ? "Yes" : "No" : typeof value === "string" ? value : JSON.stringify(value, null, 2);

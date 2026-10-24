@@ -14,6 +14,14 @@ if(process.env.KAASI_CC_QA==='1'){
 }
 fixture.transactions=[{id:'qa_groceries',type:'expense',amount:2000,account:'cash',category:'Groceries',description:'Groceries',date:'2026-10-22',timestamp:1},
   {id:'qa_lunch',type:'expense',amount:500,account:'cash',category:'Food & Dining',description:'Lunch',date:'2026-10-22',timestamp:2}];
+if(process.env.KAASI_SUBS_QA==='1'){
+  fixture.subscriptions=[
+    {id:'qa_spotify',name:'Personal Spotify',amount:299,method:'bank',account:'cash',category:'Other',frequency:'monthly',nextDueDate:'2026-10-24',anchorDay:24,status:'active',serviceId:'spotify',icon:'letter'},
+    {id:'qa_chatgpt',name:'Work ChatGPT',amount:6500,method:'cc',account:'',category:'Other',frequency:'monthly',nextDueDate:'2026-10-27',anchorDay:27,status:'active',serviceId:'openai',icon:'letter'},
+    {id:'qa_pickme',name:'PickMe renewal for my girlfriend',amount:399,method:'bank',account:'cash',category:'Other',frequency:'monthly',nextDueDate:'2026-10-30',anchorDay:30,status:'active',serviceId:'pickmepass',icon:'letter'},
+    {id:'qa_gym',name:'Gym membership',amount:2000,method:'bank',account:'cash',category:'Other',frequency:'monthly',nextDueDate:'2026-10-31',anchorDay:31,status:'active',serviceId:'custom',icon:'gym'}
+  ];fixture.subscriptionOccurrences=[];
+}
 const remote=JSON.parse(JSON.stringify(fixture));remote.accounts[0].balance=4300;remote.transactions[0].amount=1500;
 remote.transactions[1]={...remote.transactions[1],id:'qa_taxi',amount:200,description:'Taxi',category:'Transportation'};
 if(process.env.KAASI_SYNC_QA_LONG_TEXT==='1'){

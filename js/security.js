@@ -60,6 +60,7 @@ function showPinLockScreen() {
 
 function onAppUnlocked() {
   window.kaasiAppLocked = false;
+  if (typeof Subscriptions !== "undefined") Subscriptions.scheduleReminder();
   requestStartupStorageProtection();
   const appContent = document.getElementById("app-content");
   if (appContent) { appContent.inert = false; appContent.removeAttribute("aria-hidden"); }

@@ -721,6 +721,9 @@ async function renameCategory(buttonElement) {
     state.creditCard.transactions.forEach(item => {
       if (item.category === originalName) item.category = newName;
     });
+    (state.subscriptions || []).forEach(item => {
+      if (item.category === originalName) item.category = newName;
+    });
     if (state.settings.defaultTransferFeeCategory === originalName) {
       state.settings.defaultTransferFeeCategory = newName;
     }
@@ -812,6 +815,9 @@ async function deleteCategory(categoryName) {
     state.categories = state.categories.filter((cat) => cat !== categoryName);
     state.creditCard.transactions.forEach(item => {
       if (item.category === categoryName) delete item.category;
+    });
+    (state.subscriptions || []).forEach(item => {
+      if (item.category === categoryName) item.category = '';
     });
     
     // Cascade to budgets

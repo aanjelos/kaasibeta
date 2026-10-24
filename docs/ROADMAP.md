@@ -70,17 +70,12 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Behaviour**: Compare transaction type, account, amount, date and normalised description. Present the matching entry with options to go back or save anyway; legitimate repeated purchases must remain possible. Exclude the edited record itself, and treat transfers and automatically generated payment records explicitly to avoid false warnings.
 - **Scope**: Advisory duplicate detection, not automatic deletion, merging or blocking. Define the matching window and apply equivalent rules on web and Android before implementation.
 
-### 18. Subscriptions and Recurring Payment Reminders
-- **Concept**: Save subscription name, expected amount, account/payment method, next renewal date and recurrence (weekly, monthly, quarterly or annually), with pause/cancel controls.
-- **Entry**: Start with manual creation and an optional Save as Subscription action on an existing transaction. Historical pattern detection is a separate future enhancement; do not automatically create subscriptions from guesses.
-- **Behaviour**: On the renewal date, ask whether the subscription was paid when the app is next open; missed dates remain eligible as overdue reminders. A Paid confirmation creates the appropriate transaction after confirming amount, account and payment date, or links an already-recorded transaction. Bank/cash payments create expenses; credit-card charges create purchases, not settlement payments. No deductions or transactions occur without confirmation. Use stable renewal-occurrence identifiers and an atomic save to prevent repeated confirmations from recording the same occurrence twice.
-- **Reminder actions**: Offer Paid, Ask Later (12 hours or one day), and Manage/Cancel Subscription. Snoozing changes the reminder time, not the underlying renewal date or recurrence anchor. Cancellation prevents future renewal reminders without deleting recorded financial history. Group due reminders to avoid repeated popups for each subscription; do not reopen a snoozed reminder on every focus. Support skipping a renewal without logging spending. Preserve the intended recurrence anchor for short months and leap years.
-- **Compatibility**: Store schedules locally for offline use and include them in JSON/cloud backups. Web and Android MUST preserve compatible fields and record types they do not display or edit when importing, saving, syncing and exporting. Reject formats that cannot be preserved safely before replacing data; never silently drop unsupported information. Validate safe structure without discarding unknown compatible fields. Plan schema/version handling with Android before rollout.
+### 18. Subscription Suggestions From History
+- **Concept**: Suggest recurring services from historical transactions for explicit review. Manual schedules and Save as Subscription are implemented; pattern detection remains future work. Never create a schedule or charge from a guess.
 
-### 19. Unified Upcoming Payments Area
-- **Concept**: A compact dashboard area for subscription renewals and dated debt/installment obligations due within seven calendar days, including items due today or overdue.
-- **Presentation**: Use one grouped summary with expandable details, dates, amounts and relevant actions rather than separate banners for every obligation. Distinguish expected costs from recorded transactions; avoid counting the same obligation twice.
-- **Behaviour**: Recalculate on launch, focus and local date changes. Completed, cancelled, paused or settled obligations must not continue appearing. In-app reminders work offline; notifications while the app is closed require a separately designed platform-specific notification feature.
+### 19. Dated Installment Reminders and Closed-App Notifications
+- **Concept**: Extend the existing Upcoming Payments bar to installments once plans have explicit, reliable due-date rules. Do not infer deadlines from months remaining alone. Subscription and dated-debt notices are implemented.
+- **Platform work**: Android subscription management and closed-app notifications need their own implementation. Preserve the shared JSON collections when older clients save or sync data; notification delivery must not create financial records.
 
 ---
 

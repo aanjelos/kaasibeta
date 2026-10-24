@@ -2,6 +2,26 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.393n - 2026-10-24
+
+### 1. [Feature] Subscription Schedules and Confirmed Renewals
+
+Added a dedicated Subscriptions manager with search, active/due/archived filters, and daily, weekly, monthly, quarterly or yearly schedules. Each schedule stores its name, amount, payment method, account, category and next renewal date. Users can enter the next due date directly or enter the last paid date to calculate it. Existing expense and CC purchase details offer Save as Subscription with prefilled values. Saving a schedule does not record spending or deduct funds.
+
+Due and overdue subscriptions appear in a grouped in-app reminder with a one-tap Remind Me Later action that snoozes for six hours. Users can confirm a payment, link an existing expense/purchase, skip a renewal, edit, pause or cancel. Bank/cash confirmation creates an expense and deducts its account; credit-card confirmation creates an unpaid purchase and makes the CC section visible. Linking an existing entry creates no second charge. Stable occurrence IDs and the existing atomic save boundary keep the financial record, balance and next date consistent. Short months and leap years retain the intended renewal day. Recorded history survives cancellation and deletion of a linked transaction.
+
+### 2. [Feature] Upcoming Payments Bar
+
+Attached a compact notice bar to the top of Recent Transactions. It groups active subscription renewals and outstanding dated debts due within seven calendar days, including overdue items, with a review window for dates, amounts and actions. Counts refresh after changes, on focus and across local date changes. Reminders run while Kaasi is open; no background operating-system notifications or automatic payments are scheduled.
+
+### 3. [Improvement] Local Service Artwork and Personal Names
+
+Added a searchable service catalogue, bundled offline logos, generic subscription icons and an initial fallback. Brand matching recognises whole keywords within longer names such as Work ChatGPT and PickMe renewal for my girlfriend without replacing personal labels. Local entries include PickMe Pass, Uber One and Sri Lankan telecom services. Related products retain distinct service identifiers while sharing artwork where appropriate, including one Adobe logo file for its product family. All assets and provenance are organized in img/subscriptions; no name or logo lookup is sent to an external service at runtime.
+
+### 4. [Storage] Subscription Collections and Backup Compatibility
+
+Upgraded the local IndexedDB schema from 1 to 2 with subscriptions and subscriptionOccurrences object stores. The upgrade preserves existing snapshot contents and hashes, including compatible subscription fields already carried by an older build. Schedules and renewal records use the existing whole-dataset JSON/cloud backup format and participate in cloud comparison; no Supabase schema change is required. Missing optional collections in older backups remain valid, unknown compatible fields are preserved, and malformed new records are rejected before replacement. Category renames update schedule defaults; eligible category deletion clears them without changing prior payments.
+
 ## v6.392n - 2026-10-23
 
 ### 1. [Copy] Consolidated Creator Credit

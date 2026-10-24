@@ -2,7 +2,7 @@
 
 ## Storage ownership
 
-The financial database is `kaasi-finances`, schema version `1`. Database, application, and backup-format versions are independent. Browser origins remain separate: beta, public, and localhost installations do not share data. No Supabase schema change is required.
+The financial database is `kaasi-finances`, schema version `2`. Database, application, and backup-format versions are independent. Browser origins remain separate: beta, public, and localhost installations do not share data. No Supabase schema change is required.
 
 `js/storage.js` owns database access. `js/storage-ui.js` owns upgrade and recovery screens. Feature handlers keep their existing in-memory `state`, but await `saveData()` before reporting success or resetting forms.
 
@@ -14,11 +14,14 @@ Supabase authentication remains managed by the SDK in its existing localStorage 
 | --- | --- | --- |
 | `datasets` | `id` | Active generation, local revision, format version, SHA-256 digest, migration state, and legacy source identity. Reserved `staging` and `reset` entries coordinate replacement and explicit deletion. |
 | `accounts`, `transactions`, `ccTransactions`, `debts`, `receivables`, `installments`, `budgets`, `categories` | `[dataset, generation, id]` | Original record in `value`, plus its array `position`. Category keys use positions so names and order are preserved. |
+| `subscriptions`, `subscriptionOccurrences` | `[dataset, generation, id]` | Optional schedule and renewal records, including unknown compatible fields. Created by schema version 2. |
 | `settings` | `[dataset, generation]` | Remaining top-level data, settings, hidden categories, CC configuration, and unrecognized compatible fields. |
 | `deviceSettings` | `key` | Device preferences, backup status, and modification metadata. SDK authentication tokens are excluded. |
 | `recovery` | `id` | Frozen migration source and the previous replaced dataset. An incomplete recovery generation is retained when it cannot be reconstructed into a snapshot. |
 
 Collection stores have a generation index. Transaction stores also index dates; ordinary transactions index account/date, category/date, and CC purchase references. Existing domain IDs, balances, monetary representation, dates, and array ordering are retained. Removing a CC purchase does not remove its recorded payment expenses or references.
+
+Schema 2 adds stores without rewriting the active generation or changing its digest. A settings-row `collections` list records which optional collections were present, so reconstructing an older snapshot does not insert empty arrays or change hashes. Compatible subscription fields retained inside a schema-1 settings row remain readable and move into dedicated stores on the next successful save. This is a database upgrade, not another localStorage migration. See [Subscription Schedules](SUBSCRIPTIONS.md).
 
 ## Startup and migration
 

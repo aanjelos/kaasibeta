@@ -221,8 +221,8 @@ function handleKeyboardShortcuts(event) {
       } else {
         const modalsToClose = [
           "confirmationModal",
+          "formModal", "subscriptionReminderModal", "upcomingPaymentsModal", "subscriptionsModal",
           "cloudSyncModal",
-          "formModal",
           "transactionDetailModal",
           "ccHistoryModal",
           "cashCounterModal",
@@ -650,7 +650,7 @@ function openModalHelper(modalId) {
 
 window.addEventListener("popstate", (event) => {
   const modalsToClose = [
-    "confirmationModal", "formModal", "transactionDetailModal", "ccTransactionDetailModal", "ccHistoryModal", "cashCounterModal",
+    "confirmationModal", "formModal", "subscriptionReminderModal", "upcomingPaymentsModal", "subscriptionsModal", "transactionDetailModal", "ccTransactionDetailModal", "ccHistoryModal", "cashCounterModal",
     "debtsViewModal", "receivablesViewModal", "transferMoneyModal",
     "monthlyViewModal", "settingsModal", "cloudSyncModal", "donateModal", "shortcutsHelpModal", "securityQuestionModal", "initialSetupModal", "editBudgetModal"
   ];

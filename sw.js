@@ -1,11 +1,13 @@
-const BUILD = "v6.392n";
+const BUILD = "v6.393n";
+importScripts(`./js/subscription-assets.js?v=${BUILD}`);
 const CACHE_NAME = `kaasi-cache-${BUILD}`;
 const STATIC_ASSETS = [
   "./",
   "./index.html",
   `./style.css?v=${BUILD}`,
   `./tailwind.css?v=${BUILD}`,
-  ...["globals", "import-validation", "storage", "storage-ui", "data-sync", "cloud-sync", "math-tool", "settings", "charts", "ui", "features", "animations", "security", "app"].map(name => `./js/${name}.js?v=${BUILD}`),
+  ...["globals", "import-validation", "storage", "storage-ui", "data-sync", "cloud-sync", "math-tool", "settings", "charts", "ui", "features", "animations", "subscription-assets", "subscription-services", "subscriptions", "security", "app"].map(name => `./js/${name}.js?v=${BUILD}`),
+  ...SUBSCRIPTION_LOGOS.map(id => `./img/subscriptions/${id}.svg`),
   "./img/LogoIcon.svg",
   "./img/LogoIcon_Maskable.svg",
   "./img/FullLogo.svg",
