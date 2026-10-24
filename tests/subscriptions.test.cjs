@@ -1,7 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const {webcrypto}=require('node:crypto');const root=path.resolve(__dirname,'..');
 function env(){
-  const elements=new Map(),preferences=new Map();const el=id=>{if(!elements.has(id))elements.set(id,{style:{},hidden:true,innerHTML:'',value:'',getClientRects:()=>[{}]});return elements.get(id);};
+  const elements=new Map(),preferences=new Map();const el=id=>{if(!elements.has(id))elements.set(id,{style:{},hidden:true,innerHTML:'',value:'',getClientRects:()=>[{}],querySelector:()=>null,querySelectorAll:()=>[]});return elements.get(id);};
   let timer;const c={console,crypto:webcrypto,TextEncoder,document:{getElementById:el,querySelector:selector=>el(selector),querySelectorAll:()=>[],addEventListener(){},visibilityState:'visible'},addEventListener(){},setTimeout:action=>{timer=action;},clearTimeout(){},
     supabase:{createClient:()=>null},isAppLocked:()=>false,storageOperationPending:false,KaasiStorage:{mode:'indexeddb'},renderDashboard(){},showNotification(){},getCurrentDateString:()=> '2026-10-24',
     appPreferences:{getItem:k=>preferences.get(k),setItem:(k,v)=>preferences.set(k,v),removeItem:k=>preferences.delete(k),flush:async()=>{}},getComputedStyle:()=>({display:'none'}),openModalHelper:id=>{el(id).style.display='block';},
@@ -144,10 +144,17 @@ test('past-date calculation skips missed periods, supports six-month renewals, a
 });
 test('generic icon changes refresh the preview and editor uses the normal text input with no date-mode selector',()=>{
   const e=env();let html;e.c.openFormModal=(title,content)=>{html=content;};
-  e.api.openEditor();assert.match(html,/input type="text" id="subName"/);assert.doesNotMatch(html,/Start From|subDateMode/);
+  e.api.openEditor();assert.match(html,/input type="text" id="subName"/);assert.doesNotMatch(html,/Start From|subDateMode|subChangeService|Find Service/);assert.match(html,/Bi-Annual/);
   e.el('subName').value='Gym membership';e.el('subIcon').value='gym';e.el('subIcon').onchange();assert.match(e.el('subIconPreview').innerHTML,/fa-dumbbell/);
-  e.el('subName').value='Work ChatGPT';e.el('subName').oninput();assert.match(e.el('subIconPreview').innerHTML,/openai.svg/);
+  e.el('subName').value='Work ChatGPT';e.el('subName').oninput();assert.match(e.el('subIconPreview').innerHTML,/openai.svg/);assert.equal(e.el('subServiceResults').hidden,true);
   e.el('subIcon').value='internet';e.el('subIcon').onchange();assert.match(e.el('subIconPreview').innerHTML,/fa-wifi/);assert.doesNotMatch(e.el('subIconPreview').innerHTML,/<img/);
+});
+test('dashboard notices show three identifiable payments at most, with accurate overflow and no writes',async()=>{
+  const e=env();for(let i=0;i<4;i++)await e.api.saveDefinition(definition({name:i===0?'Personal Spotify <test>':'Subscription '+i,nextDueDate:'2026-10-'+(24+i),serviceId:i===0?'spotify':'custom'}));
+  const before=JSON.stringify(e.saved());e.api.renderNotice();const html=e.el('upcomingPaymentsNotice').innerHTML;
+  assert.equal((html.match(/class="upcoming-notice-item"/g)||[]).length,3);assert.match(html,/spotify.svg/);assert.match(html,/Personal Spotify &lt;test&gt;/);assert.match(html,/Due today/);assert.match(html,/Due tomorrow/);assert.match(html,/Due in 2 days/);assert.match(html,/100\.00/);assert.match(html,/and 1 more…/);assert.doesNotMatch(html,/Subscription 3/);assert.equal(JSON.stringify(e.saved()),before);
+  e.run('state.subscriptions=state.subscriptions.slice(0,1);');e.api.renderNotice();assert.doesNotMatch(e.el('upcomingPaymentsNotice').innerHTML,/more…/);
+  e.run('state.subscriptions=[];');e.api.renderNotice();assert.equal(e.el('upcomingPaymentsNotice').hidden,true);
 });
 test('subscription navigation remains accessible when debt and installment widgets are hidden',()=>{
   const e=env();e.run('state.settings.hideDebts=true;state.settings.hideInstallments=true;');e.api.render();
@@ -155,6 +162,32 @@ test('subscription navigation remains accessible when debt and installment widge
   assert.equal(e.el('receivablesDashboardSection').hidden,true);assert.equal(e.el('addDebtBtn').hidden,true);assert.equal(e.el('addSubscriptionDashboardBtn').hidden,false);
   e.run('state.settings.hideDebts=false;');e.api.render();assert.equal(e.el('oweSectionLabel').textContent,'I Owe');assert.equal(e.el('receivablesDashboardSection').hidden,false);assert.equal(e.el('addDebtBtn').hidden,false);
   assert.equal(e.run('state.transactions.length'),0);assert.equal(e.run('state.accounts[0].balance'),1000);
+});
+test('payment choices separate new expenses from existing entries, and category defaults respect saved choices and removal',async()=>{
+  const e=env(),id=await e.api.saveDefinition(definition());let html;e.c.openFormModal=(title,content)=>{html=content;};
+  e.run('state.subscriptions[0].category="";');e.api.openPayment(id);
+  assert.match(html,/<option value="new">Add Expense<\/option><option value="existing">Already Recorded<\/option>/);
+  assert.match(html,/value="Subscriptions &amp; Memberships" selected/);assert.doesNotMatch(html,/Already recorded:/);
+  e.run('state.subscriptions[0].category="Groceries";');e.api.openPayment(id);assert.match(html,/value="Groceries" selected/);
+  e.run('state.subscriptions[0].category="";state.categories=state.categories.filter(c=>c!=="Subscriptions & Memberships");');e.api.openPayment(id);
+  assert.match(html,/<option value="" selected disabled>---- Select Category ----<\/option>/);
+  const controls=[{},{}];e.el('subNewPaymentFields').querySelectorAll=()=>controls;e.el('subPaymentMode').value='existing';e.el('subPaymentMode').onchange({target:{value:'existing'}});
+  assert.equal(e.el('subNewPaymentFields').hidden,true);assert.ok(controls.every(c=>c.disabled));assert.equal(e.el('subRecordedFields').hidden,false);
+});
+test('logo frames are selected from artwork contrast instead of the app theme',()=>{
+  const {chooseFrame}=require('./subscription-logo-contrast.cjs');
+  assert.equal(chooseFrame(Uint8Array.from([0,0,0,255])).frame,'light');assert.equal(chooseFrame(Uint8Array.from([255,255,255,255])).frame,'dark');
+  const e=env();assert.match(e.run('SubscriptionServices.icon({name:"Adobe",serviceId:"adobephotoshop"})'),/subscription-icon-light/);
+  assert.doesNotMatch(e.run('SubscriptionServices.icon({name:"ChatGPT",serviceId:"openai"})'),/subscription-icon-light/);
+  assert.equal(e.run('SUBSCRIPTION_LIGHT_LOGOS.every(id=>SUBSCRIPTION_LOGOS.includes(id))'),true);
+});
+test('deleting a schedule retains its expenses, CC purchases, balances and occurrence history',async()=>{
+  const e=env(),id=await e.api.saveDefinition(definition());await e.api.record(id,'2026-10-24',payment());
+  const ccId=await e.api.saveDefinition(definition({method:'cc'}));await e.api.record(ccId,'2026-10-24',payment());
+  const before=e.saved();await assert.rejects(e.api.deleteDefinition(id,'stale'),/changed/);
+  await e.api.deleteDefinition(id,JSON.stringify(before.subscriptions[0]));await e.api.deleteDefinition(ccId,JSON.stringify(e.saved().subscriptions[0]));
+  assert.equal(e.saved().subscriptions.length,0);assert.deepEqual(e.saved().transactions,before.transactions);assert.deepEqual(e.saved().creditCard,before.creditCard);assert.deepEqual(e.saved().accounts,before.accounts);assert.deepEqual(e.saved().subscriptionOccurrences,before.subscriptionOccurrences);
+  assert.equal(e.c.prepareImportedData(e.saved()).subscriptionOccurrences.length,2);
 });
 test('subscription fields survive the existing public web import, save and JSON export path',{skip:!fs.existsSync(path.join(root,'../kaasiapp/js/globals.js'))},async()=>{
   const e=env();await e.api.saveDefinition(definition());await e.api.record(e.saved().subscriptions[0].id,'2026-10-24',payment());

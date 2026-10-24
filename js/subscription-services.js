@@ -75,7 +75,8 @@ const SubscriptionServices = (() => {
     const service=services.find(row=>row.id===subscription.serviceId) || (!subscription.serviceId && subscription.icon!=='custom' && match(subscription.name));
     const generic=generics[subscription.icon] || generics.letter;
     const initial=Array.from(subscription.name?.trim() || "S")[0].toUpperCase();
-    return `<span class="subscription-icon"><span class="subscription-icon-fallback">${generic===generics.letter ? escapeHTML(initial) : `<i class="fas fa-${generic[1]}" aria-hidden="true"></i>`}</span>${service && SUBSCRIPTION_LOGOS.includes(service.logoId) ? `<img src="img/subscriptions/${service.logoId}.svg" alt="" loading="lazy" data-subscription-logo>` : ""}</span>`;
+    const light=service && SUBSCRIPTION_LIGHT_LOGOS.includes(service.logoId);
+    return `<span class="subscription-icon${light?' subscription-icon-light':''}"><span class="subscription-icon-fallback">${generic===generics.letter ? escapeHTML(initial) : `<i class="fas fa-${generic[1]}" aria-hidden="true"></i>`}</span>${service && SUBSCRIPTION_LOGOS.includes(service.logoId) ? `<img src="img/subscriptions/${service.logoId}.svg" alt="" loading="lazy" data-subscription-logo>` : ""}</span>`;
   }
   return {services,generics,search,match,icon};
 })();

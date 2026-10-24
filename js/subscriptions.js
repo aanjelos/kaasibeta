@@ -4,7 +4,13 @@ const Subscriptions = (() => {
   const list=()=>state.subscriptions || [];
   const occurrences=()=>state.subscriptionOccurrences || [];
   const dateObject=value=>new Date(`${value}T00:00:00Z`);
-  const frequencies={daily:'Daily',weekly:'Weekly',monthly:'Monthly',quarterly:'Quarterly',semiannually:'Every 6 Months',annually:'Annual'};
+  const frequencies={daily:'Daily',weekly:'Weekly',monthly:'Monthly',quarterly:'Quarterly',semiannually:'Bi-Annual',annually:'Annual'};
+  const defaultCategory=()=>state.categories.find(category=>category.toLowerCase()==='subscriptions & memberships')||'';
+  const paymentCategory=sub=>getCcPurchaseCategory(sub)||defaultCategory();
+  const categoryOptions=(selected,optional=false)=>{
+    const valid=getCcPurchaseCategory({category:selected});
+    return `<option value=""${valid?'':' selected'}${optional?'':' disabled'}>---- Select Category ----</option>`+ccPurchaseCategoryOptions(valid,false).replace('<option value="">Select Category</option>','');
+  };
   function validDate(value) {
     return typeof value==='string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(dateObject(value).getTime()) && dateObject(value).toISOString().slice(0,10)===value;
   }
@@ -149,6 +155,11 @@ const Subscriptions = (() => {
     if(!sub||fingerprint(sub)!==expected||!['active','paused','cancelled'].includes(status)) throw new Error('This subscription changed. Reopen its options.');
     await change(()=>{sub.status=status;});
   }
+  async function deleteDefinition(id,expected) {
+    const sub=find(id);
+    if(!sub||fingerprint(sub)!==expected)throw new Error('This subscription changed. Reopen its options.');
+    await change(()=>{state.subscriptions=state.subscriptions.filter(row=>row.id!==id);});
+  }
   function upcoming() {
     const subscriptions=list().filter(row=>row.status==='active' && daysUntil(row.nextDueDate)<=7).map(sub=>({kind:'subscription',id:sub.id,name:sub.name,due:sub.nextDueDate,amount:sub.amount,sub}));
     const debts=(state.debts||[]).filter(row=>row.remainingAmount>0 && validDate(row.dueDate) && daysUntil(row.dueDate)<=7)
@@ -159,8 +170,7 @@ const Subscriptions = (() => {
     const bar=document.getElementById('upcomingPaymentsNotice');if(!bar)return;
     const items=upcoming();bar.hidden=items.length===0;
     if(!items.length){bar.innerHTML='';return;}
-    const overdue=items.filter(row=>daysUntil(row.due)<0).length;
-    bar.innerHTML=`<button type="button" data-sub-action="upcoming"><i class="far fa-calendar-alt" aria-hidden="true"></i><span><strong>${items.length} ${items.length===1?'payment':'payments'} due soon${overdue?` · ${overdue} overdue`:''}</strong></span><span class="subscription-notice-link">View <i class="fas fa-chevron-right" aria-hidden="true"></i></span></button>`;
+    bar.innerHTML=items.slice(0,3).map(item=>`<button type="button" class="upcoming-notice-item" data-sub-action="upcoming">${item.sub?SubscriptionServices.icon(item.sub):'<span class="subscription-icon"><i class="fas fa-hand-holding-usd" aria-hidden="true"></i></span>'}<span class="upcoming-notice-copy"><strong>${escapeHTML(item.name)}</strong><small class="${daysUntil(item.due)<0?'text-expense':''}">${item.kind==='debt'?'Debt · ':''}${escapeHTML(dueLabel(item.due))}</small></span><span class="upcoming-notice-amount">${formatCurrency(item.amount)}</span><i class="fas fa-chevron-right upcoming-notice-chevron" aria-hidden="true"></i></button>`).join('')+(items.length>3?`<button type="button" class="upcoming-notice-more" data-sub-action="upcoming">and ${items.length-3} more…</button>`:'');
   }
   function render() {
     renderNotice();
@@ -168,12 +178,12 @@ const Subscriptions = (() => {
     if(document.getElementById('upcomingPaymentsModal')?.style.display==='block')renderUpcoming();
     if(document.getElementById('subscriptionReminderModal')?.style.display==='block')renderReminder();
     const host=document.getElementById('subscriptionList');if(!host)return;
-    let rows=list().filter(sub=>filter==='due'?sub.status==='active'&&daysUntil(sub.nextDueDate)<=7:filter==='archived'?sub.status!=='active':sub.status==='active');
+    let rows=list().filter(sub=>filter==='due'?sub.status==='active'&&daysUntil(sub.nextDueDate)<=7:filter==='paused'?sub.status!=='active':sub.status==='active');
     rows=rows.filter(sub=>sub.name.toLowerCase().includes(search.toLowerCase())).sort((a,b)=>a.nextDueDate.localeCompare(b.nextDueDate));
     host.innerHTML=rows.length?rows.map(sub=>{
       const snoozed=occurrence(sub.id,sub.nextDueDate)?.snoozedUntil>Date.now();
-      return `<article class="subscription-row">${SubscriptionServices.icon(sub)}<div class="subscription-row-copy"><strong>${escapeHTML(sub.name)}</strong><span class="${daysUntil(sub.nextDueDate)<0?'text-expense':''}">${sub.status==='active'?escapeHTML(dueLabel(sub.nextDueDate)):escapeHTML(sub.status==='paused'?'Paused':'Cancelled')} · ${escapeHTML(formatDate(sub.nextDueDate))}</span><small>${escapeHTML(frequencies[sub.frequency])}${snoozed?' · Reminder snoozed':''}</small></div><div class="subscription-row-actions"><strong class="tabular-nums">${formatCurrency(sub.amount)}</strong><div>${sub.status==='active'?`<button class="btn btn-primary" data-sub-action="paid" data-sub-id="${escapeHTML(sub.id)}">${sub.method==='cc'?'Charged':'Paid'}</button>`:''}<button class="btn btn-secondary" data-sub-action="manage" data-sub-id="${escapeHTML(sub.id)}" aria-label="Manage ${escapeHTML(sub.name)}"><i class="fas fa-ellipsis-h" aria-hidden="true"></i></button></div></div></article>`;
-    }).join(''):`<div class="subscription-empty"><i class="far fa-calendar-check" aria-hidden="true"></i><p>${search?'No matching subscriptions.':filter==='archived'?'No paused or cancelled subscriptions.':'No subscriptions here yet.'}</p>${filter!=='archived'?'<button class="btn btn-primary" data-sub-action="add">Add Subscription</button>':''}</div>`;
+      return `<article class="subscription-row">${SubscriptionServices.icon(sub)}<div class="subscription-row-copy"><strong>${escapeHTML(sub.name)}</strong><span class="${daysUntil(sub.nextDueDate)<0?'text-expense':''}">${sub.status==='active'?escapeHTML(dueLabel(sub.nextDueDate)):'Paused'} · ${escapeHTML(formatDate(sub.nextDueDate))}</span><small>${escapeHTML(frequencies[sub.frequency])}${snoozed?' · Reminder snoozed':''}</small></div><div class="subscription-row-actions"><strong class="tabular-nums">${formatCurrency(sub.amount)}</strong><div>${sub.status==='active'?`<button class="btn btn-primary" data-sub-action="paid" data-sub-id="${escapeHTML(sub.id)}">${sub.method==='cc'?'Charged':'Paid'}</button>`:''}<button class="btn btn-secondary" data-sub-action="manage" data-sub-id="${escapeHTML(sub.id)}" aria-label="Manage ${escapeHTML(sub.name)}"><i class="fas fa-ellipsis-h" aria-hidden="true"></i></button></div></div></article>`;
+    }).join(''):`<div class="subscription-empty"><i class="far fa-calendar-check" aria-hidden="true"></i><p>${search?'No matching subscriptions.':filter==='paused'?'No paused subscriptions.':'No subscriptions here yet.'}</p>${filter!=='paused'?'<button class="btn btn-primary" data-sub-action="add">Add Subscription</button>':''}</div>`;
   }
   function renderDashboardEntry() {
     const hidden=!!state.settings?.hideDebts;
@@ -211,7 +221,7 @@ const Subscriptions = (() => {
   }
   function openEditor(id,seed={}) {
     if(isAppLocked())return;
-    const existing=find(id),sub=existing||{name:'',amount:'',method:'bank',account:state.accounts.find(a=>!a.hidden)?.id||'',category:'',frequency:'monthly',nextDueDate:getCurrentDateString(),icon:'letter',serviceId:'',...seed};
+    const existing=find(id),sub=existing||{name:'',amount:'',method:'bank',account:state.accounts.find(a=>!a.hidden)?.id||'',category:defaultCategory(),frequency:'monthly',nextDueDate:getCurrentDateString(),icon:'letter',serviceId:'',...seed};
     const expected=existing?fingerprint(existing):null;
     const options=state.accounts.filter(a=>!a.hidden||a.id===sub.account).map(a=>`<option value="${escapeHTML(a.id)}"${a.id===sub.account?' selected':''}>${escapeHTML(a.name)}</option>`).join('');
     const selectedService=SubscriptionServices.services.find(service=>service.id===sub.serviceId);
@@ -220,14 +230,14 @@ const Subscriptions = (() => {
       <label class="subscription-field">Subscription Name<input type="text" id="subName" name="name" value="${escapeHTML(sub.name)}" placeholder="e.g., Spotify or Gym Membership" autocomplete="off" maxlength="160" required></label>
       <input type="hidden" id="subServiceId" name="serviceId" value="${escapeHTML(sub.serviceId)}">
       <div id="subBrandArea" class="subscription-brand-area"><div id="subServiceChoice" class="subscription-service-choice"><span id="subIconPreview">${SubscriptionServices.icon(sub)}</span><span id="subServiceLabel"${selectedService?'':' hidden'}>${escapeHTML(selectedService?.name||'')}</span>
-      <select name="icon" id="subIcon" aria-label="Subscription Icon"${selectedService?' hidden':''}>${sub.icon&&!Object.hasOwn(SubscriptionServices.generics,sub.icon)?`<option value="${escapeHTML(sub.icon)}" selected>Custom Icon</option>`:''}${Object.entries(SubscriptionServices.generics).map(([key,[name]])=>`<option value="${key}"${key===sub.icon?' selected':''}>${name}</option>`).join('')}</select><button type="button" class="btn btn-secondary" id="subChangeService" aria-label="Change Icon"><i class="fas fa-pen" aria-hidden="true"></i><span>Change</span></button></div>
+      <select name="icon" id="subIcon" aria-label="Subscription Icon"${selectedService?' hidden':''}>${sub.icon&&!Object.hasOwn(SubscriptionServices.generics,sub.icon)?`<option value="${escapeHTML(sub.icon)}" selected>Custom Icon</option>`:''}${Object.entries(SubscriptionServices.generics).map(([key,[name]])=>`<option value="${key}"${key===sub.icon?' selected':''}>${name}</option>`).join('')}</select></div>
       <div id="subServiceResults" class="subscription-service-results" role="region" aria-label="Service suggestions" hidden></div></div>
       <div class="subscription-form-grid"><label class="subscription-field">Amount (LKR)<div class="relative flex items-center w-full"><input class="calc-amount pr-8" type="text" inputmode="decimal" name="amount" value="${escapeHTML(String(sub.amount))}" required><button type="button" class="calc-toggle-btn absolute right-2" aria-label="Toggle Calculator"><i class="fas fa-calculator" aria-hidden="true"></i></button></div></label>
       <label class="subscription-field">Frequency<select name="frequency">${Object.entries(frequencies).map(([key,label])=>`<option value="${key}"${sub.frequency===key?' selected':''}>${label}</option>`).join('')}</select></label></div>
       <label class="subscription-field">Last Paid / Next Due Date<input type="date" id="subDate" name="nextDueDate" value="${escapeHTML(sub.nextDueDate)}" required><small id="subNextDatePreview" class="subscription-date-preview" hidden></small></label>
       <label class="subscription-field">Payment Method<select name="method" id="subMethod"><option value="bank">Bank / Cash</option><option value="cc"${sub.method==='cc'?' selected':''}>Credit Card</option></select></label>
       <label class="subscription-field" id="subAccountGroup">Account<select name="account" id="subAccount">${options}</select></label>
-      <label class="subscription-field">Category<select name="category" id="subCategory">${ccPurchaseCategoryOptions(sub.category,sub.method==='cc')}</select></label>
+      <label class="subscription-field">Category<select name="category" id="subCategory">${categoryOptions(sub.category,sub.method==='cc')}</select></label>
       <button class="btn btn-primary w-full" type="submit"><i class="fas fa-save" aria-hidden="true"></i> Save Subscription</button></div>`,async event=>{
         event.preventDefault();await perform(async()=>{
           const form=new FormData(event.target),values=Object.fromEntries(['name','amount','frequency','nextDueDate','method','account','category','serviceId','icon'].map(key=>[key,form.get(key)]));
@@ -236,14 +246,11 @@ const Subscriptions = (() => {
         });
       });
     const name=document.getElementById('subName'),results=document.getElementById('subServiceResults');
-    let browsingIcons=false;
     const matchMarkup=query=>SubscriptionServices.search(query).map(service=>`<button type="button" class="subscription-service-option" data-service-id="${service.id}">${SubscriptionServices.icon({name:service.name,serviceId:service.id})}<span>${escapeHTML(service.name)}</span></button>`).join('')+'<button type="button" class="subscription-service-option" data-service-id=""><i class="fas fa-font" aria-hidden="true"></i><span>Use a Custom Icon</span></button>';
-    const drawSuggestions=(browse=false)=>{
-      browsingIcons=browse;
-      if(!browse&&!SubscriptionServices.search(name.value).length){results.hidden=true;return;}
+    const drawSuggestions=()=>{
+      if(SubscriptionServices.match(name.value)||!SubscriptionServices.search(name.value).length){results.hidden=true;return;}
       results.hidden=false;
-      results.innerHTML=(browse?'<input type="search" id="subFindService" aria-label="Find Service" placeholder="Find a service…" autocomplete="off">':'')+`<div id="subServiceMatches">${matchMarkup(browse?'':name.value)}</div>`;
-      if(browse){const input=document.getElementById('subFindService');input.oninput=()=>{document.getElementById('subServiceMatches').innerHTML=matchMarkup(input.value);};input.focus();}
+      results.innerHTML=matchMarkup(name.value);
     };
     const showServiceChoice=()=>{
       const serviceId=document.getElementById('subServiceId').value,service=SubscriptionServices.services.find(row=>row.id===serviceId);
@@ -256,13 +263,13 @@ const Subscriptions = (() => {
       document.getElementById('subServiceId').value=service?.id||'';
       showServiceChoice();
       drawSuggestions();
-    };document.getElementById('subChangeService').onclick=()=>drawSuggestions(true);
+    };
     results.onclick=event=>{
       const button=event.target.closest('[data-service-id]');if(!button)return;
       const service=SubscriptionServices.services.find(row=>row.id===button.dataset.serviceId);
       document.getElementById('subServiceId').value=service?.id||'custom';
       // Choosing artwork must preserve personal labels such as Work ChatGPT.
-      if(service && (!name.value.trim()||!browsingIcons&&SubscriptionServices.match(name.value)?.id!==service.id))name.value=service.name;
+      if(service && SubscriptionServices.match(name.value)?.id!==service.id)name.value=service.name;
       results.hidden=true;
       showServiceChoice();
     };
@@ -270,6 +277,7 @@ const Subscriptions = (() => {
       const cc=document.getElementById('subMethod').value==='cc';
       document.getElementById('subAccountGroup').hidden=cc;document.getElementById('subAccount').required=!cc;
       document.getElementById('subCategory').required=!cc;
+      if(document.getElementById('subCategory').options?.[0])document.getElementById('subCategory').options[0].disabled=!cc;
     };
     document.getElementById('subMethod').onchange=updateMethod;updateMethod();
     document.getElementById('subIcon').onchange=()=>{document.getElementById('subServiceId').value='custom';results.hidden=true;showServiceChoice();};
@@ -295,28 +303,48 @@ const Subscriptions = (() => {
     const sub=find(id);if(!sub||sub.status!=='active')return;
     const expected=fingerprint(sub),due=sub.nextDueDate;
     const candidates=(sub.method==='cc'?state.creditCard.transactions:state.transactions.filter(t=>t.type==='expense'&&t.account===sub.account))
-      .filter(t=>!t.subscriptionOccurrenceId&&!occurrences().some(o=>o.transactionId===t.id&&o.kind===sub.method)).slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,100);
+      .filter(t=>!t.subscriptionOccurrenceId&&!occurrences().some(o=>o.transactionId===t.id&&o.kind===sub.method)).slice().sort((a,b)=>b.date.localeCompare(a.date));
+    let visibleCount=5;
     openFormModal(sub.method==='cc'?'Record Subscription Charge':'Record Subscription Payment',`
       <p class="subscription-payment-heading">${SubscriptionServices.icon(sub)}<span>${escapeHTML(sub.name)}<small>Renewal: ${escapeHTML(formatDate(due))}</small></span></p>
-      <label class="subscription-field">Entry<select id="subPaymentLink" name="link"><option value="">Record New ${sub.method==='cc'?'CC Purchase':'Expense'}</option>${candidates.map(t=>`<option value="${escapeHTML(t.id)}">Already recorded: ${escapeHTML(t.date)} · ${escapeHTML(t.description)} · ${formatCurrency(t.amount)}</option>`).join('')}</select></label>
+      <label class="subscription-field">Entry<select id="subPaymentMode" name="mode"><option value="new">${sub.method==='cc'?'Add CC Charge':'Add Expense'}</option><option value="existing">Already Recorded</option></select></label>
+      <div id="subRecordedFields" class="subscription-recorded-fields" hidden><label class="subscription-field">Find ${sub.method==='cc'?'CC Charge':'Expense'}<input type="search" id="subRecordedSearch" placeholder="Search description, date or amount" autocomplete="off"></label><fieldset id="subRecordedList" class="subscription-recorded-list"><legend class="sr-only">Choose a recorded entry</legend></fieldset><button type="button" class="btn btn-secondary w-full" id="subRecordedMore" hidden>Show More</button></div>
       <div id="subNewPaymentFields" class="subscription-fields">
       <label class="subscription-field">Amount (LKR)<div class="relative flex items-center w-full"><input class="calc-amount pr-8" type="text" inputmode="decimal" name="amount" value="${sub.amount.toFixed(2)}" required><button type="button" class="calc-toggle-btn absolute right-2" aria-label="Toggle Calculator"><i class="fas fa-calculator" aria-hidden="true"></i></button></div></label>
       ${sub.method==='bank'?`<label class="subscription-field">Account<select name="account" required>${state.accounts.filter(a=>!a.hidden).map(a=>`<option value="${escapeHTML(a.id)}"${a.id===sub.account?' selected':''}>${escapeHTML(a.name)} (${formatCurrency(a.balance)})</option>`).join('')}</select></label>`:''}
-      <label class="subscription-field">Category${sub.method==='cc'?' (Optional)':''}<select name="category" ${sub.method==='bank'?'required':''}>${ccPurchaseCategoryOptions(getCcPurchaseCategory(sub),sub.method==='cc')}</select></label>
+      <label class="subscription-field">Category${sub.method==='cc'?' (Optional)':''}<select name="category" id="subPaymentCategory" ${sub.method==='bank'?'required':''}>${categoryOptions(paymentCategory(sub),sub.method==='cc')}</select></label>
       <label class="subscription-field">Payment Date<input type="date" name="date" value="${getCurrentDateString()}" required></label>
-      </div>${sub.method==='cc'?'<p class="subscription-payment-note">Added to your card balance. Settle it later in View &amp; Pay.</p>':''}<button type="submit" class="btn btn-primary w-full">Record ${sub.method==='cc'?'Charge':'Payment'}</button>`,async event=>{
+      </div>${sub.method==='cc'?'<p id="subCardPaymentNote" class="subscription-payment-note">Added to your card balance. Settle it later in View &amp; Pay.</p>':''}<button type="submit" id="subPaymentSubmit" class="btn btn-primary w-full">${sub.method==='cc'?'Add CC Charge':'Add Expense'}</button>`,async event=>{
         event.preventDefault();await perform(async()=>{
           const form=new FormData(event.target);
-          await record(id,due,{link:form.get('link'),amount:form.get('amount'),account:form.get('account'),category:form.get('category'),date:form.get('date')},expected);
+          const linking=form.get('mode')==='existing';
+          if(linking&&!form.get('link'))throw new Error('Choose the entry you already recorded.');
+          await record(id,due,{link:linking?form.get('link'):'',amount:form.get('amount'),account:form.get('account'),category:form.get('category'),date:form.get('date')},expected);
           closeModal('formModal');
           render();
-          refreshMonthlyViewIfRelevant(getCurrentDateString());showNotification(sub.method==='cc'?'Subscription charge recorded.':'Subscription payment recorded.','success');
+          refreshMonthlyViewIfRelevant(getCurrentDateString());showNotification(linking?'Recorded entry linked.':sub.method==='cc'?'Subscription charge recorded.':'Subscription payment recorded.','success');
         });
       });
-    document.getElementById('subPaymentLink').onchange=event=>{
-      const linked=!!event.target.value,fields=document.getElementById('subNewPaymentFields');fields.hidden=linked;
-      fields.querySelectorAll('input,select').forEach(input=>{input.disabled=linked;});
+    const renderRecorded=()=>{
+      const host=document.getElementById('subRecordedList'),selected=host.querySelector('input:checked')?.value;
+      const query=document.getElementById('subRecordedSearch').value.trim().toLowerCase();
+      const matches=candidates.filter(t=>`${t.description} ${t.date} ${formatDate(t.date)} ${t.amount} ${t.amount.toFixed(2)} ${formatCurrency(t.amount)}`.toLowerCase().includes(query));
+      host.innerHTML='<legend class="sr-only">Choose a recorded entry</legend>'+matches.slice(0,visibleCount).map(t=>`<label class="subscription-recorded-option"><input type="radio" name="link" value="${escapeHTML(t.id)}"${t.id===selected?' checked':''}><span><strong>${escapeHTML(t.description)}</strong><small>${escapeHTML(formatDate(t.date))} · ${formatCurrency(t.amount)}</small></span></label>`).join('')+(matches.length?'':'<p class="subscription-payment-note">No matching recorded entries.</p>');
+      const existing=document.getElementById('subPaymentMode').value==='existing';
+      host.querySelectorAll('input').forEach(input=>{input.disabled=!existing;});
+      document.getElementById('subRecordedMore').hidden=matches.length<=visibleCount;
     };
+    document.getElementById('subRecordedSearch').oninput=()=>{visibleCount=5;renderRecorded();};
+    document.getElementById('subRecordedMore').onclick=()=>{visibleCount+=5;renderRecorded();};
+    document.getElementById('subPaymentMode').onchange=event=>{
+      const linked=event.target.value==='existing',fields=document.getElementById('subNewPaymentFields');fields.hidden=linked;
+      fields.querySelectorAll('input,select').forEach(input=>{input.disabled=linked;});
+      document.getElementById('subRecordedFields').hidden=!linked;
+      document.getElementById('subPaymentSubmit').textContent=linked?'Link Recorded Entry':sub.method==='cc'?'Add CC Charge':'Add Expense';
+      const note=document.getElementById('subCardPaymentNote');if(note)note.hidden=linked;
+      renderRecorded();
+    };
+    renderRecorded();
   }
   function openOptions(id) {
     if(isAppLocked())return;
@@ -324,15 +352,14 @@ const Subscriptions = (() => {
     const expected=fingerprint(sub),due=sub.nextDueDate;
     openFormModal('Manage Subscription',`<p class="subscription-payment-heading">${SubscriptionServices.icon(sub)}<span>${escapeHTML(sub.name)}</span></p><div class="subscription-option-list">
       <button type="button" class="btn btn-secondary" id="subEdit">Edit Subscription</button>
-      ${sub.status==='active'?'<button type="button" class="btn btn-secondary" id="subLater">Remind Me Later</button><button type="button" class="btn btn-secondary" id="subSkip">Skip This Renewal</button><button type="button" class="btn btn-secondary" id="subPause">Pause Subscription</button>':'<button type="button" class="btn btn-primary" id="subResume">Resume Subscription</button>'}
-      ${sub.status!=='cancelled'?'<button type="button" class="btn btn-secondary text-expense" id="subCancel">Cancel Subscription</button>':''}</div>`,event=>event.preventDefault());
+      ${sub.status==='active'?'<button type="button" class="btn btn-secondary" id="subSkip">Skip Next Renewal</button><button type="button" class="btn btn-secondary" id="subPause">Pause Subscription</button>':'<button type="button" class="btn btn-primary" id="subResume">Resume Subscription</button>'}
+      <button type="button" class="btn btn-secondary text-expense" id="subDelete">Delete Subscription</button></div>`,event=>event.preventDefault());
     document.getElementById('subEdit').onclick=()=>openEditor(id);
     const bind=(element,action)=>{const button=document.getElementById(element);if(button)button.onclick=()=>perform(async()=>{await action();closeModal('formModal');render();});};
-    bind('subLater',()=>resolve(id,due,'snooze',expected));
     const confirmAction=(title,message,action)=>showConfirmationModal(title,message,'Confirm','Cancel',()=>perform(async()=>{await action();closeModal('formModal');render();}));
-    const skip=document.getElementById('subSkip');if(skip)skip.onclick=()=>confirmAction('Skip This Renewal?',`Skip ${escapeHTML(formatDate(due))} without recording a payment?`,()=>resolve(id,due,'skip',expected));
+    const skip=document.getElementById('subSkip');if(skip)skip.onclick=()=>confirmAction('Skip Next Renewal?',`Skip ${escapeHTML(formatDate(due))} without recording a payment?`,()=>resolve(id,due,'skip',expected));
     bind('subPause',()=>setStatus(id,'paused',expected));bind('subResume',()=>setStatus(id,'active',expected));
-    const cancel=document.getElementById('subCancel');if(cancel)cancel.onclick=()=>confirmAction('Cancel Subscription?',`Stop future reminders for ${escapeHTML(sub.name)}? Recorded payments will be kept.`,()=>setStatus(id,'cancelled',expected));
+    document.getElementById('subDelete').onclick=()=>confirmAction('Delete Subscription?',`Delete ${escapeHTML(sub.name)} and stop its reminders? Past transactions will be kept.`,()=>deleteDefinition(id,expected));
   }
   async function perform(action) {
     try {if(isAppLocked())return;await action();}
@@ -377,6 +404,6 @@ const Subscriptions = (() => {
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){renderNotice();scheduleReminder();}});
   // Recalculate calendar-day boundaries while the app stays open; never auto-charge.
   window.setInterval?.(()=>{if(document.visibilityState==='visible'&&!isAppLocked()){renderNotice();scheduleReminder();}},60000);
-  return {validDate,nextDate,firstUpcomingDate,occurrenceId,upcoming,saveDefinition,record,resolve,setStatus,render,renderNotice,openManager,openEditor,openPayment,scheduleReminder,
+  return {validDate,nextDate,firstUpcomingDate,occurrenceId,upcoming,saveDefinition,record,resolve,setStatus,deleteDefinition,render,renderNotice,openManager,openEditor,openPayment,scheduleReminder,
     onSearch:value=>{search=value;render();},onFilter:value=>{filter=value;render();}};
 })();

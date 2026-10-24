@@ -2,6 +2,24 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.395n - 2026-10-24
+
+### 1. [Improvement] Identifiable Upcoming Payments and Simpler Artwork Controls
+
+The notice area attached to Recent Transactions now displays the earliest three payments individually, with each service logo or debt icon, full name, relative due date and amount. Additional items use an and X more link to the existing complete upcoming-payments view. Removed the redundant Change artwork button and its separate picker; editing the subscription name still updates matching services and offers the custom-icon choice. Renamed the six-month interval to Bi-Annual between Quarterly and Annual. Stored recurrence values, financial records and backup formats are unchanged.
+
+### 2. [Improvement] Simple Payment Modes and Category Defaults
+
+Payment entry offers Add Expense (Add CC Charge for cards) or Already Recorded. The latter reveals a searchable selection of five existing entries at a time, with Show More for older records; linking never creates another expense or deduction. Saved category choices take precedence; otherwise the form selects Subscriptions & Memberships when available or the standard Select Category placeholder when absent. New subscription definitions use the same category default, and CC categories remain optional.
+
+### 3. [Improvement] Contrasting Local Logo Frames
+
+Logo frames use a light or dark background chosen from the rendered artwork's pixel contrast, independent of the app theme. Bundled metadata makes this work offline without runtime image analysis or external requests. Added a development-only analysis utility for regenerating choices when the artwork library changes; SVG files are unchanged.
+
+### 4. [Improvement] Paused Subscriptions and Schedule Deletion
+
+Renamed Archived to Paused. Management offers Edit, Skip Next Renewal, Pause/Resume and Delete; Remind Me Later is available only on renewal alerts. Deleting removes the schedule after confirmation while retaining all financial entries, account balances and renewal-history references. Legacy cancelled schedules appear as inactive entries in Paused and can be resumed or explicitly deleted. Backup validation continues accepting their existing stored status.
+
 ## v6.394n - 2026-10-24
 
 ### 1. [Improvement] Integrated Subscription Navigation and Consistent Forms
