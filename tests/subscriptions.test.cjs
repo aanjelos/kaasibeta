@@ -102,7 +102,7 @@ test('brand matching finds whole keywords within personal names and shares Adobe
   for(const [name,id] of [['Work ChatGPT','openai'],['Personal ChatGPT','openai'],['PickMe renewal for my girlfriend','pickmepass'],['Annual Uber One membership','uberone'],['Work Photoshop','adobe'],['Creative Cloud for work','adobe'],['Personal Lightroom Mobile','lightroommobile'],['Work Adobe Lightroom Mobile','lightroommobile'],['Work Lightroom','adobe'],['Freepik for work','magnific'],['Personal Magnific AI','magnific'],['Family Google Play Pass','googleplaypass'],['Lyfta Pro','lyfta']])assert.equal(e.run('SubscriptionServices.match('+JSON.stringify(name)+')?.id'),id);
   assert.equal(e.run('SubscriptionServices.match("Boxing club")'),null);
   assert.equal(e.run('SubscriptionServices.match("Spotify Netflix")'),null);
-  assert.ok(e.run('SubscriptionServices.icon({name:"Photoshop",serviceId:"adobephotoshop"})').includes('/adobe.svg'));
+  assert.ok(e.run('SubscriptionServices.icon({name:"Photoshop",serviceId:"adobe"})').includes('/adobe.svg'));
   assert.ok(!e.run('SubscriptionServices.icon({name:"Work ChatGPT",serviceId:"custom",icon:"gym"})').includes('<img'));
   await e.api.saveDefinition(definition({name:'Work ChatGPT',serviceId:''}));assert.equal(e.saved().subscriptions[0].serviceId,'openai');
   await e.api.saveDefinition(definition({name:'Personal ChatGPT',serviceId:'custom',icon:'gym'}));assert.equal(e.saved().subscriptions[1].serviceId,'custom');
@@ -127,20 +127,21 @@ test('every listed service has real local artwork and provenance, with no orphan
   for(const file of files)assert.ok(worker.assets.includes('./img/subscriptions/'+file));
 });
 
-test('removed catalogue choices stay absent while consolidated legacy IDs and saved financial data remain intact',async()=>{
+test('removed catalogue choices stay absent while current service IDs and saved financial data remain intact',async()=>{
   const e=env();
   for(const id of ['applearcade','pocketcasts','nebula','curiositystream','sketch','spline','linear','pcloud','sync','1password','bitwarden','dashlane','expressvpn','mullvad','digitalocean','linode','vultr','hetzner','heroku','render','railway','postman','sentry','datadog','newrelic','brevo','kit','brilliant','datacamp','codecademy','frontendmasters','peloton','tradingview','ynab'])assert.equal(e.run('SubscriptionServices.services.some(service=>service.id==='+JSON.stringify(id)+')'),false);
   assert.equal(e.run('SubscriptionServices.services.filter(service=>service.id.startsWith("adobe")).length'),1);
-  for(const id of ['adobecreativecloud','adobephotoshop','adobeillustrator','adobelightroom','adobepremierepro','adobeacrobatreader','adobefirefly'])assert.equal(e.run('SubscriptionServices.get('+JSON.stringify(id)+').id'),'adobe');
-  assert.match(e.run('SubscriptionServices.icon({name:"Old Freepik",serviceId:"freepik"})'),/magnific.webp/);
+  assert.equal(e.run('SubscriptionServices.get("adobe").id'),'adobe');
+  assert.equal(e.run('SubscriptionServices.get("adobephotoshop")'),undefined);
+  assert.match(e.run('SubscriptionServices.icon({name:"Work Freepik",serviceId:"magnific"})'),/magnific.webp/);
   assert.match(e.run('SubscriptionServices.icon({name:"Lightroom Mobile",serviceId:"lightroommobile"})'),/lightroommobile.webp/);
   await e.api.saveDefinition(definition());
-  e.run('state.subscriptions[0].serviceId="adobephotoshop";state.subscriptions[0].futureField={keep:true};');await e.c.saveData();
+  e.run('state.subscriptions[0].serviceId="adobe";state.subscriptions[0].futureField={keep:true};');await e.c.saveData();
   const before=e.saved(),copy=e.c.prepareImportedData(before),sub=before.subscriptions[0];
   assert.deepEqual(JSON.parse(JSON.stringify(copy.subscriptions)),before.subscriptions);
   e.run('SubscriptionServices.icon(state.subscriptions[0]);');assert.deepEqual(e.saved(),before);
   await e.api.saveDefinition({...sub,amount:'100'},sub.id,JSON.stringify(sub));
-  assert.equal(e.saved().subscriptions[0].serviceId,'adobephotoshop');assert.equal(e.saved().subscriptions[0].futureField.keep,true);
+  assert.equal(e.saved().subscriptions[0].serviceId,'adobe');assert.equal(e.saved().subscriptions[0].futureField.keep,true);
   assert.deepEqual(e.saved().accounts,before.accounts);assert.deepEqual(e.saved().transactions,before.transactions);
 });
 test('due reminders are grouped, not repeated on focus, and respect snooze, locks and open forms',async()=>{
@@ -256,7 +257,7 @@ test('failed already-recorded and date-correction saves restore schedules and re
 test('logo frames are selected from artwork contrast instead of the app theme',()=>{
   const {chooseFrame}=require('./subscription-logo-contrast.cjs');
   assert.equal(chooseFrame(Uint8Array.from([0,0,0,255])).frame,'light');assert.equal(chooseFrame(Uint8Array.from([255,255,255,255])).frame,'dark');
-  const e=env();assert.match(e.run('SubscriptionServices.icon({name:"Adobe",serviceId:"adobephotoshop"})'),/subscription-icon-light/);
+  const e=env();assert.match(e.run('SubscriptionServices.icon({name:"Adobe",serviceId:"adobe"})'),/subscription-icon-light/);
   assert.doesNotMatch(e.run('SubscriptionServices.icon({name:"ChatGPT",serviceId:"openai"})'),/subscription-icon-light/);
   assert.equal(e.run('SUBSCRIPTION_LIGHT_LOGOS.every(id=>SUBSCRIPTION_LOGOS.includes(id))'),true);
 });

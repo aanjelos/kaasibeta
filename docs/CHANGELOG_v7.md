@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.402n - 2026-10-24
+
+### 1. [Cleanup] Remove Obsolete Subscription Service-ID Mapping
+
+Removed the compatibility map for earlier experimental Adobe product IDs and the former Freepik ID. Service lookup now uses current catalogue IDs directly. Product-name aliases still match personal labels to Adobe or Magnific artwork. Updated catalogue tests and documentation; modal layouts and financial data handling are unchanged.
+
 ## v6.401n - 2026-10-24
 
 ### 1. [Improvement] Reminders Below Transaction Entry

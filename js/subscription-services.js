@@ -49,11 +49,9 @@ const SubscriptionServices = (() => {
     phone:["Phone plan","mobile-alt"], insurance:["Insurance","shield-alt"], learning:["Education","graduation-cap"],
     news:["Newspaper","newspaper"], home:["Home services","home"], cloud:["Cloud storage","cloud"],
     music:["Music","music"], video:["Video","film"], software:["Software","laptop-code"] };
-  // Legacy IDs remain readable without changing the user's saved JSON.
-  const legacyIds={adobecreativecloud:'adobe',adobephotoshop:'adobe',adobeillustrator:'adobe',adobelightroom:'adobe',adobepremierepro:'adobe',adobeacrobatreader:'adobe',adobefirefly:'adobe',freepik:'magnific'};
   const sharedLogos={uberone:'uber'};
   const services = rows.map(([name,id,aliases=""]) => ({name,id,logoId:sharedLogos[id]||id,aliases:aliases.split("|").filter(Boolean)}));
-  const get=id=>services.find(service=>service.id===(legacyIds[id]||id));
+  const get=id=>services.find(service=>service.id===id);
   const normalize = value => String(value||'').toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
   function match(value) {
     const phrase=` ${normalize(value)} `;
