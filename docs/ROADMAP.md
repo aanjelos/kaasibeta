@@ -77,15 +77,27 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Concept**: Extend the existing Upcoming Payments bar to installments once plans have explicit, reliable due-date rules. Do not infer deadlines from months remaining alone. Subscription and dated-debt notices are implemented.
 - **Platform work**: Android subscription management and closed-app notifications need their own implementation. Preserve the shared JSON collections when older clients save or sync data; notification delivery must not create financial records.
 
+### 20. Buy Now, Pay Later (BNPL) Tracking
+- **Concept**: Support purchases paid through providers such as Koko, Mintpay and Payzy, with installment schedules, due dates, recorded payments and outstanding balances.
+- **Planning**: Confirm provider-specific schedules and rules before implementation. Include due installments in Upcoming Payments and define expense/account treatment to avoid double-counting purchases and repayments. Start with manual tracking; provider integrations or automatic payments require separate agreement.
+
 ---
 
 ## ✨ UI / UX Polish
+
+### 1. Internal Modal Refinements, Especially on Mobile
+- **Priority**: Next UI refinement round; start with subscription-related windows and check other internal dialogs for consistency.
+- **Scope**: Improve sizing, spacing, typography, field hierarchy, scrolling, close controls and action-button placement at narrow mobile widths, including when the keyboard is open. Keep primary actions reachable and avoid clipped content or horizontal overflow. Preserve existing payment and storage behaviour.
 
 ### 2. Segmented Control Buttons for Transaction Type
 - **Concept**: Replace the standard `<select>` dropdown for Transaction Type (`Income` | `Expense` | `Transfer`) in the Add/Edit modal with prominent segmented toggle buttons for faster, one-tap selection.
 
 ### 3. Mobile Floating Action Button (FAB)
 - **Concept**: Add an optional floating `+` button in the bottom-right corner visible on mobile viewports for instant 1-tap transaction entry.
+
+### 4. Visible Mobile Sync Button
+- **Concept**: Move Sync out of the mobile menu into a directly accessible header control, so users do not need to open the menu to sync.
+- **Behaviour**: Retain current status flashes and manual Sync behaviour, with a clear touch target and accessible label. Preserve the existing cloud/local mode behaviour without crowding the mobile header.
 
 ---
 
