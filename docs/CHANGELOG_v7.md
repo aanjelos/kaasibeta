@@ -2,6 +2,20 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.398n - 2026-10-24
+
+### 1. [Fix] Correcting Previously Handled Subscription Renewals
+
+Editing a renewal date back to a paid/skipped occurrence now offers Reopen Renewal confirmation when no linked payment remains, rather than saving a date that later fails as already handled. Reopening clears that occurrence's confirmation and refreshes its reminder token without changing financial entries or balances. A remaining linked payment blocks reopening with actionable guidance. Existing mismatched dates offer Edit Date in management and are excluded from upcoming/due alerts. Newly added schedules due today remain payable and create no payment history until confirmed.
+
+### 2. [Improvement] Simplified Payment Actions and Already Recorded Flow
+
+Renamed subscription action buttons to Pay in management, upcoming payments and reminder dialogs. Management now filters only Active/Paused. Already Recorded no longer requires selecting or linking a transaction: Update Renewal advances the schedule and saves an external confirmation without creating an expense, CC purchase or deduction. Existing linked history is preserved. Backup validation accepts explicitly marked external confirmations without a transaction reference; the JSON format remains portable, although older beta validators may reject that new optional record shape.
+
+### 3. [Improvement] Clear Name Editing and Responsive Notices
+
+Moved the logo beside the subscription name input and removed the duplicate canonical brand label, making the saved name/capitalization unambiguous. The icon control opens custom choices, retaining explicit custom artwork during name edits. Left-aligned the and X more link with the logos. Corrected notice offsets to match Recent Transactions card padding at desktop, tablet and narrow mobile breakpoints.
+
 ## v6.397n - 2026-10-24
 
 ### 1. [Feature] Cloud Backup Recovery During Startup Failure

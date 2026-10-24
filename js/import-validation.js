@@ -160,6 +160,7 @@ function prepareImportedData(input) {
     records(candidate.subscriptions,'subscriptions',sub=>{
       text(sub.name,'subscription name');number(sub,'amount');
       if(sub.amount<=0)fail('subscription amount must be positive');
+      if(sub.renewalRevision!==undefined && (!Number.isSafeInteger(sub.renewalRevision)||sub.renewalRevision<0))fail('invalid subscription renewal revision');
       if(!['bank','cc'].includes(sub.method)||!['daily','weekly','monthly','quarterly','semiannually','annually'].includes(sub.frequency)||!['active','paused','cancelled'].includes(sub.status))fail('unsupported subscription format');
       date(sub.nextDueDate,'subscription renewal date');
       number(sub,'anchorDay',Number(sub.nextDueDate.slice(8)),1,true);
@@ -176,9 +177,11 @@ function prepareImportedData(input) {
       identifier(row.subscriptionId,'subscription renewal reference');date(row.dueDate,'subscription occurrence date');
       if(!['paid','skipped','snoozed'].includes(row.status))fail('unsupported renewal status');
       if(row.status==='paid') {
-        identifier(row.transactionId,'renewal transaction reference');number(row,'amount');date(row.date,'renewal payment date');
+        if(row.recordedExternally!==true || row.transactionId!==undefined)identifier(row.transactionId,'renewal transaction reference');
+        number(row,'amount');date(row.date,'renewal payment date');
         if(!['bank','cc'].includes(row.kind))fail('renewal transaction kind');
       }
+      if(row.recordedExternally!==undefined && typeof row.recordedExternally!=='boolean')fail('invalid external renewal confirmation');
       if(row.snoozedUntil!==undefined)number(row,'snoozedUntil');
       if(row.handledAt!==undefined)number(row,'handledAt');
     });

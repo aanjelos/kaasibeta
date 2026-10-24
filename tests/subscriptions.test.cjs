@@ -9,7 +9,7 @@ function env(){
   c.window=c;vm.createContext(c);
   for(const file of ['globals','import-validation','math-tool','features','subscription-assets','subscription-services','subscriptions'])vm.runInContext(fs.readFileSync(path.join(root,'js',file+'.js'),'utf8'),c);
   const run=s=>vm.runInContext(s,c);run('state=getDefaultState();state.settings.initialSetupDone=true;state.accounts[0].balance=1000;');
-  c.renderDashboard=()=>{};c.isAppLocked=()=>false;
+  c.renderDashboard=()=>{};c.isAppLocked=()=>false;c.showNotification=()=>{};
   let saved=run('JSON.stringify(state)'),fail=false;
   c.saveData=async()=>{if(fail){run('state=JSON.parse('+JSON.stringify(saved)+')');throw new Error('Failed save');}saved=run('JSON.stringify(state)');};
   return {c,run,el,api:run('Subscriptions'),tick:async()=>{await timer();},fail:()=>{fail=true;},saved:()=>JSON.parse(saved)};
@@ -175,7 +175,9 @@ test('generic icon changes refresh the preview and editor uses the normal text i
   const e=env();let html;e.c.openFormModal=(title,content)=>{html=content;};
   e.api.openEditor();assert.match(html,/input type="text" id="subName"/);assert.doesNotMatch(html,/Start From|subDateMode|subChangeService|Find Service/);assert.match(html,/Bi-Annual/);
   e.el('subName').value='Gym membership';e.el('subIcon').value='gym';e.el('subIcon').onchange();assert.match(e.el('subIconPreview').innerHTML,/fa-dumbbell/);
-  e.el('subName').value='Work ChatGPT';e.el('subName').oninput();assert.match(e.el('subIconPreview').innerHTML,/openai.svg/);assert.equal(e.el('subServiceResults').hidden,true);
+  e.el('subName').value='Work ChatGPT';e.el('subName').oninput();assert.match(e.el('subIconPreview').innerHTML,/fa-dumbbell/);
+  e.el('subIcon').value='auto';e.el('subIcon').onchange();assert.match(e.el('subIconPreview').innerHTML,/openai.svg/);assert.equal(e.el('subServiceResults').hidden,true);
+  assert.doesNotMatch(html,/subServiceLabel/);assert.match(html,/subscription-name-control/);assert.match(html,/Choose Subscription Icon/);
   e.el('subIcon').value='internet';e.el('subIcon').onchange();assert.match(e.el('subIconPreview').innerHTML,/fa-wifi/);assert.doesNotMatch(e.el('subIconPreview').innerHTML,/<img/);
 });
 test('dashboard notices show three identifiable payments at most, with accurate overflow and no writes',async()=>{
@@ -192,7 +194,7 @@ test('subscription navigation remains accessible when debt and installment widge
   e.run('state.settings.hideDebts=false;');e.api.render();assert.equal(e.el('oweSectionLabel').textContent,'I Owe');assert.equal(e.el('receivablesDashboardSection').hidden,false);assert.equal(e.el('addDebtBtn').hidden,false);
   assert.equal(e.run('state.transactions.length'),0);assert.equal(e.run('state.accounts[0].balance'),1000);
 });
-test('payment choices separate new expenses from existing entries, and category defaults respect saved choices and removal',async()=>{
+test('payment choices simplify already-recorded confirmation, and category defaults respect saved choices and removal',async()=>{
   const e=env(),id=await e.api.saveDefinition(definition());let html;e.c.openFormModal=(title,content)=>{html=content;};
   e.run('state.subscriptions[0].category="";');e.api.openPayment(id);
   assert.match(html,/<option value="new">Add Expense<\/option><option value="existing">Already Recorded<\/option>/);
@@ -201,7 +203,57 @@ test('payment choices separate new expenses from existing entries, and category 
   e.run('state.subscriptions[0].category="";state.categories=state.categories.filter(c=>c!=="Subscriptions & Memberships");');e.api.openPayment(id);
   assert.match(html,/<option value="" selected disabled>---- Select Category ----<\/option>/);
   const controls=[{},{}];e.el('subNewPaymentFields').querySelectorAll=()=>controls;e.el('subPaymentMode').value='existing';e.el('subPaymentMode').onchange({target:{value:'existing'}});
-  assert.equal(e.el('subNewPaymentFields').hidden,true);assert.ok(controls.every(c=>c.disabled));assert.equal(e.el('subRecordedFields').hidden,false);
+  assert.equal(e.el('subNewPaymentFields').hidden,true);assert.ok(controls.every(c=>c.disabled));assert.equal(e.el('subPaymentSubmit').textContent,'Update Renewal');
+  assert.doesNotMatch(html,/Find Expense|subRecordedList|Link Recorded Entry/);
+});
+
+test('already-recorded renewals advance bank and CC schedules without linking or changing financial records',async()=>{
+  for(const method of ['bank','cc']){
+    const e=env(),id=await e.api.saveDefinition(definition({method}));
+    e.run('state.transactions.push({id:"independent",type:"expense",account:"cash",category:"Other",amount:100,date:"2026-10-24",description:"Already paid"});');await e.c.saveData();
+    const before=e.saved();await e.api.record(id,'2026-10-24',{alreadyRecorded:true});const after=e.saved();
+    assert.deepEqual(after.transactions,before.transactions);assert.deepEqual(after.creditCard,before.creditCard);assert.deepEqual(after.accounts,before.accounts);
+    assert.equal(after.subscriptions[0].nextDueDate,'2026-11-24');assert.equal(after.subscriptionOccurrences[0].recordedExternally,true);assert.equal(after.subscriptionOccurrences[0].transactionId,undefined);
+    assert.equal(e.c.prepareImportedData(after).subscriptionOccurrences[0].recordedExternally,true);
+    await assert.rejects(e.api.record(id,'2026-10-24',{alreadyRecorded:true}),/changed|recorded/);
+  }
+});
+
+test('reopening an accidentally paid renewal requires confirmation after removing its expense and preserves financial data',async()=>{
+  const e=env(),id=await e.api.saveDefinition(definition());await e.api.record(id,'2026-10-24',payment());
+  e.run('state.transactions=[];state.accounts[0].balance=1000;');await e.c.saveData();
+  const sub=e.saved().subscriptions[0],values={...sub,amount:'100',nextDueDate:'2026-10-24'};
+  const before=e.saved();await assert.rejects(e.api.saveDefinition(values,id,JSON.stringify(sub)),error=>error.code==='KAASI_REOPEN_RENEWAL');assert.deepEqual(e.saved(),before);
+  await e.api.saveDefinition({...values,reopenRenewal:true},id,JSON.stringify(sub));
+  assert.equal(e.saved().subscriptionOccurrences.length,0);assert.equal(e.saved().subscriptions[0].renewalRevision,1);assert.deepEqual(e.saved().transactions,before.transactions);assert.deepEqual(e.saved().accounts,before.accounts);
+  e.run('appPreferences.setItem("kaasi_subscription_prompt_seen",JSON.stringify({date:"2026-10-24",tokens:[Subscriptions.occurrenceId(state.subscriptions[0].id,"2026-10-24")+":0"]}));');
+  e.api.scheduleReminder();await e.tick();assert.equal(e.el('subscriptionReminderModal').style.display,'block');e.el('subscriptionReminderModal').style.display='none';
+  assert.equal(e.api.upcoming().length,1);await e.api.record(id,'2026-10-24',payment());assert.equal(e.saved().transactions.length,1);assert.equal(e.saved().accounts[0].balance,900);
+});
+
+test('a renewal with an existing payment cannot be reopened; legacy mismatches are excluded from reminders and route to date correction',async()=>{
+  const e=env(),id=await e.api.saveDefinition(definition());await e.api.record(id,'2026-10-24',payment());
+  const sub=e.saved().subscriptions[0];await assert.rejects(e.api.saveDefinition({...sub,amount:'100',nextDueDate:'2026-10-24',reopenRenewal:true},id,JSON.stringify(sub)),/still recorded/);
+  e.run('state.subscriptions[0].nextDueDate="2026-10-24";');await e.c.saveData();
+  assert.equal(e.api.upcoming().length,0);let title;e.c.openFormModal=value=>{title=value;};e.api.openPayment(id);assert.equal(title,'Edit Subscription');
+  e.api.render();assert.match(e.el('subscriptionList').innerHTML,/Edit Date/);
+  e.api.scheduleReminder();await e.tick();assert.notEqual(e.el('subscriptionReminderModal').style.display,'block');
+});
+
+test('new subscriptions due today stay independently payable, use Pay actions, and do not create handled records on save',async()=>{
+  const e=env(),first=await e.api.saveDefinition(definition()),second=await e.api.saveDefinition(definition({name:'Envato',method:'cc'}));
+  assert.equal(e.saved().subscriptionOccurrences,undefined);assert.equal(e.api.upcoming().length,2);e.api.render();
+  assert.match(e.el('subscriptionList').innerHTML,/>Pay<\/button>/);assert.doesNotMatch(e.el('subscriptionList').innerHTML,/>Charged<|>Paid</);
+  await e.api.record(first,'2026-10-24',payment());await e.api.record(second,'2026-10-24',payment());
+  assert.equal(e.saved().transactions.length,1);assert.equal(e.saved().creditCard.transactions.length,1);assert.equal(e.saved().subscriptionOccurrences.length,2);
+});
+
+test('failed already-recorded and reopened-renewal saves restore schedules and history atomically',async()=>{
+  const first=env(),firstId=await first.api.saveDefinition(definition()),before=first.saved();first.fail();
+  await assert.rejects(first.api.record(firstId,'2026-10-24',{alreadyRecorded:true}),/Failed save/);assert.equal(first.run('JSON.stringify(state)'),JSON.stringify(before));
+  const e=env(),id=await e.api.saveDefinition(definition());await e.api.resolve(id,'2026-10-24','skip');const sub=e.saved().subscriptions[0],previous=e.saved();e.fail();
+  await assert.rejects(e.api.saveDefinition({...sub,amount:'100',nextDueDate:'2026-10-24',reopenRenewal:true},id,JSON.stringify(sub)),/Failed save/);
+  assert.equal(e.run('JSON.stringify(state)'),JSON.stringify(previous));
 });
 test('logo frames are selected from artwork contrast instead of the app theme',()=>{
   const {chooseFrame}=require('./subscription-logo-contrast.cjs');
@@ -220,6 +272,7 @@ test('deleting a schedule retains its expenses, CC purchases, balances and occur
 });
 test('subscription fields survive the existing public web import, save and JSON export path',{skip:!fs.existsSync(path.join(root,'../kaasiapp/js/globals.js'))},async()=>{
   const e=env();await e.api.saveDefinition(definition());await e.api.record(e.saved().subscriptions[0].id,'2026-10-24',payment());
+  const external=await e.api.saveDefinition(definition({name:'Already recorded elsewhere'}));await e.api.record(external,'2026-10-24',{alreadyRecorded:true});
   const backup=e.saved();backup.subscriptions[0].androidFuture={preserve:true};
   const data=new Map(),legacy={console:{log(){},warn(){},error(){}},window:{addEventListener(){},supabase:{createClient:()=>null}},localStorage:{setItem:(key,value)=>data.set(key,value),getItem:key=>data.get(key)||null},input:backup};
   vm.createContext(legacy);vm.runInContext(fs.readFileSync(path.join(root,'../kaasiapp/js/globals.js'),'utf8'),legacy);
