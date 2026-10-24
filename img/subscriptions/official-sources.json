@@ -1,0 +1,248 @@
+[
+  {
+    "id": "calm",
+    "source": "https://www.calm.com/apple-icon.png",
+    "site": "https://www.calm.com/",
+    "file": "calm.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 3798
+  },
+  {
+    "id": "dialog",
+    "source": "https://s3.ap-southeast-1.amazonaws.com/dlg.dialog.lk/android-icon-72x72.ico",
+    "site": "https://www.dialog.lk/",
+    "file": "dialog.webp",
+    "library": "Official website",
+    "sourceWidth": 72,
+    "sourceHeight": 72,
+    "bytes": 2394
+  },
+  {
+    "id": "dialogviu",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/56/14/0a/56140a1a-5d57-31da-7b6c-a452cb880c62/AppIcon-0-0-1x_U007emarketing-0-11-0-85-220.png/512x512bb.jpg",
+    "site": "https://www.dialog.lk/dialog-television/dialog-play-app/package",
+    "file": "dialogviu.webp",
+    "library": "Official App Store listing",
+    "sourceWidth": 512,
+    "sourceHeight": 512,
+    "bytes": 1416
+  },
+  {
+    "id": "disneyplus",
+    "source": "https://static-assets.bamgrid.com/product/disneyplus/favicons/mask-icon-aurora.86b2f302cf50180b25ddd8835041b1c3.svg",
+    "site": "https://www.disneyplus.com/",
+    "file": "disneyplus.webp",
+    "library": "Official website",
+    "sourceWidth": 934,
+    "sourceHeight": 934,
+    "bytes": 2412
+  },
+  {
+    "id": "eset",
+    "source": "https://web-assets.eset.com/typo3conf/ext/eset_base/Resources/Public/img/device/apple-touch-icon.png",
+    "site": "https://www.eset.com/",
+    "file": "eset.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 3682
+  },
+  {
+    "id": "financialtimes",
+    "source": "https://images.ft.com/v3/image/raw/ftlogo-v1%3Abrand-ft-logo-square-coloured?source=page-kit&format=png&width=180&height=180",
+    "site": "https://www.ft.com/",
+    "file": "financialtimes.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 1066
+  },
+  {
+    "id": "flaticon",
+    "source": "https://www.flaticon.com/favicon.ico",
+    "site": "https://www.flaticon.com/",
+    "file": "flaticon.webp",
+    "library": "Official website",
+    "sourceWidth": 256,
+    "sourceHeight": 227,
+    "bytes": 3462
+  },
+  {
+    "id": "freshbooks",
+    "source": "https://www.freshbooks.com/favicon.ico",
+    "site": "https://www.freshbooks.com/",
+    "file": "freshbooks.webp",
+    "library": "Official website",
+    "sourceWidth": 96,
+    "sourceHeight": 96,
+    "bytes": 1366
+  },
+  {
+    "id": "googleone",
+    "source": "https://one.google.com/about/public/favicon-32x32.png",
+    "site": "https://one.google.com/about/",
+    "file": "googleone.webp",
+    "library": "Official website",
+    "sourceWidth": 32,
+    "sourceHeight": 32,
+    "bytes": 2290
+  },
+  {
+    "id": "googleplaypass",
+    "source": "https://www.gstatic.com/android/market_images/web/play_pass_signup_page_logo.png",
+    "site": "https://play.google.com/about/play-pass/",
+    "file": "googleplaypass.webp",
+    "library": "Official website",
+    "sourceWidth": 342,
+    "sourceHeight": 50,
+    "extract": {
+      "left": 0,
+      "top": 0,
+      "width": 48,
+      "height": 50
+    },
+    "bytes": 1952
+  },
+  {
+    "id": "hulu",
+    "source": "https://press.hulu.com/wp-content/uploads/sites/34/2024/12/cropped-cropped-favicon.ico_-180x180.png",
+    "site": "https://www.hulu.com/",
+    "file": "hulu.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 554
+  },
+  {
+    "id": "hutch",
+    "source": "https://bunny-wp-pullzone-3on7dlrmy0.b-cdn.net/wp-content/uploads/2024/01/favnew.jpeg",
+    "site": "https://hutch.lk/",
+    "file": "hutch.webp",
+    "library": "Official website",
+    "sourceWidth": 32,
+    "sourceHeight": 32,
+    "bytes": 1104
+  },
+  {
+    "id": "lightroommobile",
+    "source": "https://www.adobe.com/cc-shared/assets/img/product-icons/svg/lightroom-64.svg",
+    "site": "https://www.adobe.com/products/photoshop-lightroom/mobile.html",
+    "file": "lightroommobile.webp",
+    "library": "Official website",
+    "sourceWidth": 64,
+    "sourceHeight": 64,
+    "bytes": 910
+  },
+  {
+    "id": "lyfta",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/26/a5/ce/26a5cef9-1445-1b00-f8a8-5bb18ff328d5/ic_lyfta-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg",
+    "site": "https://lyfta.app/",
+    "file": "lyfta.webp",
+    "library": "Official App Store listing",
+    "sourceWidth": 512,
+    "sourceHeight": 512,
+    "bytes": 1662
+  },
+  {
+    "id": "magnific",
+    "source": "https://media.magnific.com/magnific-favicons/apple-touch-icon.png?w=180&v=2",
+    "site": "https://magnific.com/",
+    "file": "magnific.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 946
+  },
+  {
+    "id": "microsoftonedrive",
+    "source": "https://www.microsoft.com/content/dam/microsoft/bade/images/icons/en-us/m365-app-icons-fy26/OneDrive-Icon-FY26.svg",
+    "site": "https://www.microsoft.com/en-us/microsoft-365/onedrive/online-cloud-storage",
+    "file": "microsoftonedrive.webp",
+    "library": "Official website",
+    "sourceWidth": 48,
+    "sourceHeight": 48,
+    "bytes": 1744
+  },
+  {
+    "id": "mondaydotcom",
+    "source": "https://cdn.prod.website-files.com/656da6fea306219773d04208/65af6bd6e742d497b5f23f69_645898132bbaac20f1963919_256x256.png",
+    "site": "https://monday.com/",
+    "file": "mondaydotcom.webp",
+    "library": "Official website",
+    "sourceWidth": 256,
+    "sourceHeight": 256,
+    "bytes": 1350
+  },
+  {
+    "id": "myfitnesspal",
+    "source": "https://www.myfitnesspal.com/favicons/apple-touch-icon.png?v=1",
+    "site": "https://www.myfitnesspal.com/",
+    "file": "myfitnesspal.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 1182
+  },
+  {
+    "id": "nintendoswitch",
+    "source": "https://assets.nintendo.com/image/upload/ncom/icons/fav-icons/apple-touch-icon.png",
+    "site": "https://www.nintendo.com/us/online/",
+    "file": "nintendoswitch.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 1196
+  },
+  {
+    "id": "peotv",
+    "source": "https://www.slt.lk/sites/default/files/downloads/muliple_downloads/files/logo-block-PeoTV_0.jpg",
+    "site": "https://www.slt.lk/en/node/1595",
+    "file": "peotv.webp",
+    "library": "Official website",
+    "sourceWidth": 160,
+    "sourceHeight": 39,
+    "bytes": 1368
+  },
+  {
+    "id": "reuters",
+    "source": "https://www.reuters.com/favicon.ico",
+    "site": "https://www.reuters.com/",
+    "file": "reuters.webp",
+    "library": "Official website",
+    "sourceWidth": 32,
+    "sourceHeight": 33,
+    "bytes": 7200
+  },
+  {
+    "id": "sltmobitel",
+    "source": "https://www.sltmobitel.lk/favicon.webp",
+    "site": "https://www.sltmobitel.lk/",
+    "file": "sltmobitel.webp",
+    "library": "Official website",
+    "sourceWidth": 900,
+    "sourceHeight": 900,
+    "bytes": 1688
+  },
+  {
+    "id": "theeconomist",
+    "source": "https://www.economist.com/favicon.ico",
+    "site": "https://www.economist.com/",
+    "file": "theeconomist.webp",
+    "library": "Official website",
+    "sourceWidth": 32,
+    "sourceHeight": 32,
+    "bytes": 962
+  },
+  {
+    "id": "xbox",
+    "source": "https://www.xbox.com/favicon.ico",
+    "site": "https://www.xbox.com/en-US/xbox-game-pass",
+    "file": "xbox.webp",
+    "library": "Official website",
+    "sourceWidth": 256,
+    "sourceHeight": 256,
+    "bytes": 5902
+  }
+]

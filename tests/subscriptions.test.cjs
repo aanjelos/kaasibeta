@@ -99,7 +99,7 @@ test('service search keeps related Google subscriptions distinct and unknown bra
 });
 test('brand matching finds whole keywords within personal names and shares Adobe artwork',async()=>{
   const e=env();
-  for(const [name,id] of [['Work ChatGPT','openai'],['Personal ChatGPT','openai'],['PickMe renewal for my girlfriend','pickmepass'],['Annual Uber One membership','uberone'],['Work Photoshop','adobephotoshop'],['Creative Cloud for work','adobecreativecloud']])assert.equal(e.run('SubscriptionServices.match('+JSON.stringify(name)+')?.id'),id);
+  for(const [name,id] of [['Work ChatGPT','openai'],['Personal ChatGPT','openai'],['PickMe renewal for my girlfriend','pickmepass'],['Annual Uber One membership','uberone'],['Work Photoshop','adobe'],['Creative Cloud for work','adobe'],['Personal Lightroom Mobile','lightroommobile'],['Work Adobe Lightroom Mobile','lightroommobile'],['Work Lightroom','adobe'],['Freepik for work','magnific'],['Personal Magnific AI','magnific'],['Family Google Play Pass','googleplaypass'],['Lyfta Pro','lyfta']])assert.equal(e.run('SubscriptionServices.match('+JSON.stringify(name)+')?.id'),id);
   assert.equal(e.run('SubscriptionServices.match("Boxing club")'),null);
   assert.equal(e.run('SubscriptionServices.match("Spotify Netflix")'),null);
   assert.ok(e.run('SubscriptionServices.icon({name:"Photoshop",serviceId:"adobephotoshop"})').includes('/adobe.svg'));
@@ -107,12 +107,41 @@ test('brand matching finds whole keywords within personal names and shares Adobe
   await e.api.saveDefinition(definition({name:'Work ChatGPT',serviceId:''}));assert.equal(e.saved().subscriptions[0].serviceId,'openai');
   await e.api.saveDefinition(definition({name:'Personal ChatGPT',serviceId:'custom',icon:'gym'}));assert.equal(e.saved().subscriptions[1].serviceId,'custom');
 });
-test('every bundled SVG is safe, unique by filename and present in the offline manifest',()=>{
-  const e=env(),files=fs.readdirSync(path.join(root,'img/subscriptions')).filter(name=>name.endsWith('.svg'));
+test('every listed service has real local artwork and provenance, with no orphan images and complete offline coverage',()=>{
+  const e=env(),files=fs.readdirSync(path.join(root,'img/subscriptions')).filter(name=>/\.(svg|webp)$/.test(name));
   const bundled=JSON.parse(e.run('JSON.stringify(SUBSCRIPTION_LOGOS)'));
-  assert.deepEqual(files.sort(),bundled.map(id=>id+'.svg').sort());
-  for(const name of files){const svg=fs.readFileSync(path.join(root,'img/subscriptions',name),'utf8');assert.match(svg,/<svg[\s>]/);assert.doesNotMatch(svg,/<script|<foreignObject|\son\w+=|(?:href|src)=["'](?:https?:|data:|javascript:)/i);}
-  assert.match(fs.readFileSync(path.join(root,'sw.js'),'utf8'),/SUBSCRIPTION_LOGOS\.map/);
+  const raster=JSON.parse(e.run('JSON.stringify(SUBSCRIPTION_LOGO_FILES)'));
+  assert.deepEqual(files.sort(),bundled.map(id=>raster[id]||id+'.svg').sort());
+  assert.equal(bundled.length,130);assert.equal(new Set(bundled).size,bundled.length);
+  for(const name of files.filter(file=>file.endsWith('.svg'))){const svg=fs.readFileSync(path.join(root,'img/subscriptions',name),'utf8');assert.match(svg,/<svg[\s>]/);assert.doesNotMatch(svg,/<script|<foreignObject|\son\w+=|(?:href|src)=["'](?:https?:|data:|javascript:)/i);}
+  const sources=JSON.parse(fs.readFileSync(path.join(root,'img/subscriptions/sources.json'),'utf8'));
+  assert.equal(sources.length,130);
+  for(const id of bundled){const source=sources.find(row=>row.id===id);assert.ok(source?.source);assert.equal(source.file,raster[id]||id+'.svg');assert.equal(source.bytes,fs.statSync(path.join(root,'img/subscriptions',source.file)).size);}
+  assert.doesNotMatch(sources.find(row=>row.id==='hulu').source,/disney|bamgrid/);
+  assert.match(sources.find(row=>row.id==='peotv').source,/slt\.lk\/.*logo-block-PeoTV/);
+  const services=JSON.parse(e.run('JSON.stringify(SubscriptionServices.services)'));
+  for(const service of services){const html=e.run('SubscriptionServices.icon('+JSON.stringify({serviceId:service.id,name:service.name})+')');assert.match(html,/<img src="img\/subscriptions\/[a-z0-9]+\.(svg|webp)"/);}
+  const worker={importScripts(){},self:{addEventListener(){}}};vm.createContext(worker);
+  vm.runInContext(fs.readFileSync(path.join(root,'js/subscription-assets.js'),'utf8'),worker);
+  vm.runInContext(fs.readFileSync(path.join(root,'sw.js'),'utf8')+';this.assets=STATIC_ASSETS;',worker);
+  for(const file of files)assert.ok(worker.assets.includes('./img/subscriptions/'+file));
+});
+
+test('removed catalogue choices stay absent while consolidated legacy IDs and saved financial data remain intact',async()=>{
+  const e=env();
+  for(const id of ['applearcade','pocketcasts','nebula','curiositystream','sketch','spline','linear','pcloud','sync','1password','bitwarden','dashlane','expressvpn','mullvad','digitalocean','linode','vultr','hetzner','heroku','render','railway','postman','sentry','datadog','newrelic','brevo','kit','brilliant','datacamp','codecademy','frontendmasters','peloton','tradingview','ynab'])assert.equal(e.run('SubscriptionServices.services.some(service=>service.id==='+JSON.stringify(id)+')'),false);
+  assert.equal(e.run('SubscriptionServices.services.filter(service=>service.id.startsWith("adobe")).length'),1);
+  for(const id of ['adobecreativecloud','adobephotoshop','adobeillustrator','adobelightroom','adobepremierepro','adobeacrobatreader','adobefirefly'])assert.equal(e.run('SubscriptionServices.get('+JSON.stringify(id)+').id'),'adobe');
+  assert.match(e.run('SubscriptionServices.icon({name:"Old Freepik",serviceId:"freepik"})'),/magnific.webp/);
+  assert.match(e.run('SubscriptionServices.icon({name:"Lightroom Mobile",serviceId:"lightroommobile"})'),/lightroommobile.webp/);
+  await e.api.saveDefinition(definition());
+  e.run('state.subscriptions[0].serviceId="adobephotoshop";state.subscriptions[0].futureField={keep:true};');await e.c.saveData();
+  const before=e.saved(),copy=e.c.prepareImportedData(before),sub=before.subscriptions[0];
+  assert.deepEqual(JSON.parse(JSON.stringify(copy.subscriptions)),before.subscriptions);
+  e.run('SubscriptionServices.icon(state.subscriptions[0]);');assert.deepEqual(e.saved(),before);
+  await e.api.saveDefinition({...sub,amount:'100'},sub.id,JSON.stringify(sub));
+  assert.equal(e.saved().subscriptions[0].serviceId,'adobephotoshop');assert.equal(e.saved().subscriptions[0].futureField.keep,true);
+  assert.deepEqual(e.saved().accounts,before.accounts);assert.deepEqual(e.saved().transactions,before.transactions);
 });
 test('due reminders are grouped, not repeated on focus, and respect snooze, locks and open forms',async()=>{
   const e=env(),id=await e.api.saveDefinition(definition());await e.api.saveDefinition(definition({name:'Overdue',nextDueDate:'2026-10-23'}));

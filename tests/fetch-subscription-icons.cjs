@@ -6,11 +6,17 @@ const c={document:{addEventListener(){}}};vm.createContext(c);
 vm.runInContext(fs.readFileSync(path.join(root,'js/subscription-services.js'),'utf8')+';this.services=SubscriptionServices.services;',c);
 (async()=>{
   const dir=path.join(root,'img/subscriptions');fs.mkdirSync(dir,{recursive:true});
-  const meta=await fetch('https://raw.githubusercontent.com/simple-icons/simple-icons/develop/data/simple-icons.json').then(r=>r.json());
+  const offline=process.argv.includes('--offline');
+  const existing=new Map(['sources.json','official-sources.json'].flatMap(file=>fs.existsSync(path.join(dir,file))?JSON.parse(fs.readFileSync(path.join(dir,file),'utf8')):[]).map(row=>[row.id,row]));
+  const meta=offline?[]:await fetch('https://raw.githubusercontent.com/simple-icons/simple-icons/develop/data/simple-icons.json').then(r=>r.json());
   const slug=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\+/g,'plus').replace(/\./g,'dot').replace(/&/g,'and').replace(/[^a-z0-9]/g,'');
   const services=[...new Map(c.services.map(service=>[service.logoId,{...service,id:service.logoId}])).values()];
   const sources=[];let index=0;
   async function worker(){while(index<services.length){const service=services[index++];
+    // Preserve reviewed official artwork and existing SVGs; refresh deliberately in the official-source utility.
+    const saved=existing.get(service.id),file=saved?.file||service.id+'.svg';
+    if(saved&&fs.existsSync(path.join(dir,file))){sources.push({...saved,id:service.id,name:service.name,file,bytes:fs.statSync(path.join(dir,file)).size});continue;}
+    if(offline)throw new Error(`Missing local logo/provenance for ${service.name}`);
     let url=`https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/${service.id}.svg`;
     let response=await fetch(url),kind='Simple Icons';
     if(!response.ok){url=`https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/${service.id}.svg`;response=await fetch(url);kind='Simple Icons';}
@@ -32,6 +38,6 @@ vm.runInContext(fs.readFileSync(path.join(root,'js/subscription-services.js'),'u
   }}
   await Promise.all(Array.from({length:6},worker));
   fs.writeFileSync(path.join(dir,'sources.json'),JSON.stringify(sources.sort((a,b)=>a.id.localeCompare(b.id)),null,2)+'\n');
-  for(const [name,url] of [['SIMPLE_ICONS_LICENSE.txt','https://raw.githubusercontent.com/simple-icons/simple-icons/develop/LICENSE.md'],['SIMPLE_ICONS_DISCLAIMER.txt','https://raw.githubusercontent.com/simple-icons/simple-icons/develop/DISCLAIMER.md'],['LOBE_ICONS_LICENSE.txt','https://raw.githubusercontent.com/lobehub/lobe-icons/master/LICENSE'],['FONT_AWESOME_LICENSE.txt','https://raw.githubusercontent.com/FortAwesome/Font-Awesome/5.15.4/LICENSE.txt']]){const r=await fetch(url);if(r.ok)fs.writeFileSync(path.join(dir,name),await r.text());}
+  if(!offline)for(const [name,url] of [['SIMPLE_ICONS_LICENSE.txt','https://raw.githubusercontent.com/simple-icons/simple-icons/develop/LICENSE.md'],['SIMPLE_ICONS_DISCLAIMER.txt','https://raw.githubusercontent.com/simple-icons/simple-icons/develop/DISCLAIMER.md'],['LOBE_ICONS_LICENSE.txt','https://raw.githubusercontent.com/lobehub/lobe-icons/master/LICENSE'],['FONT_AWESOME_LICENSE.txt','https://raw.githubusercontent.com/FortAwesome/Font-Awesome/5.15.4/LICENSE.txt']]){const r=await fetch(url);if(r.ok)fs.writeFileSync(path.join(dir,name),await r.text());}
   console.log(JSON.stringify({available:sources.filter(s=>s.bytes).length,missing:sources.filter(s=>!s.bytes).map(s=>s.name),bytes:sources.reduce((n,s)=>n+(s.bytes||0),0)}));
 })().catch(e=>{console.error(e.message);process.exitCode=1;});

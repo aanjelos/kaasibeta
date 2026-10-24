@@ -2,6 +2,16 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.396n - 2026-10-24
+
+### 1. [Improvement] Curated Subscription Catalogue and Shared Adobe Identity
+
+Removed the requested service suggestions and consolidated seven Adobe product choices into one Adobe entry. Product keywords still match within personal subscription names. Added Lightroom Mobile with distinct Lr artwork, Google Play Pass and Lyfta. Freepik and Magnific share the Magnific identity and artwork. Legacy Adobe product IDs and freepik resolve to the current logos without rewriting saved names, identifiers, unknown fields or financial history; removing a catalogue choice never deletes an existing subscription.
+
+### 2. [Improvement] Complete Offline Logo Coverage and Asset Cleanup
+
+All 130 listed services now have bundled brand artwork. Filled 24 missing/new logo slots with optimized 96px WebP files from reviewed official websites and app listings, retaining per-file provenance and existing library licences. Corrected unrelated Hulu/PEO TV favicon results with verified brand sources. Removed 28 unused SVG files and their stale source records. The shared filename manifest supports SVG/WebP in both the UI and offline service-worker cache, with contrast-based frames retained. Custom subscriptions still support initials and generic icons. Database schema, backup format and cloud sync are unchanged.
+
 ## v6.395n - 2026-10-24
 
 ### 1. [Improvement] Identifiable Upcoming Payments and Simpler Artwork Controls

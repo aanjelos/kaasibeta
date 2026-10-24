@@ -224,7 +224,7 @@ const Subscriptions = (() => {
     const existing=find(id),sub=existing||{name:'',amount:'',method:'bank',account:state.accounts.find(a=>!a.hidden)?.id||'',category:defaultCategory(),frequency:'monthly',nextDueDate:getCurrentDateString(),icon:'letter',serviceId:'',...seed};
     const expected=existing?fingerprint(existing):null;
     const options=state.accounts.filter(a=>!a.hidden||a.id===sub.account).map(a=>`<option value="${escapeHTML(a.id)}"${a.id===sub.account?' selected':''}>${escapeHTML(a.name)}</option>`).join('');
-    const selectedService=SubscriptionServices.services.find(service=>service.id===sub.serviceId);
+    const selectedService=SubscriptionServices.get(sub.serviceId);
     openFormModal(existing?'Edit Subscription':'Add Subscription',`
       <div class="subscription-editor">
       <label class="subscription-field">Subscription Name<input type="text" id="subName" name="name" value="${escapeHTML(sub.name)}" placeholder="e.g., Spotify or Gym Membership" autocomplete="off" maxlength="160" required></label>
@@ -253,7 +253,7 @@ const Subscriptions = (() => {
       results.innerHTML=matchMarkup(name.value);
     };
     const showServiceChoice=()=>{
-      const serviceId=document.getElementById('subServiceId').value,service=SubscriptionServices.services.find(row=>row.id===serviceId);
+      const serviceId=document.getElementById('subServiceId').value,service=SubscriptionServices.get(serviceId);
       const icon=document.getElementById('subIcon');icon.hidden=!!service;
       const label=document.getElementById('subServiceLabel');label.hidden=!service;label.textContent=service?.name||'';
       document.getElementById('subIconPreview').innerHTML=SubscriptionServices.icon({name:name.value,serviceId:serviceId||'custom',icon:icon.value});

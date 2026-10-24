@@ -1,18 +1,11 @@
 [
   {
-    "id": "1password",
-    "name": "1Password",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/1password.svg",
-    "brandSource": "https://1password.com/press",
-    "library": "Simple Icons",
-    "bytes": 974
-  },
-  {
     "id": "adobe",
-    "name": "Adobe Firefly",
+    "name": "Adobe",
     "source": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/adobe.svg",
     "library": "Lobe Icons",
-    "bytes": 279
+    "bytes": 279,
+    "file": "adobe.svg"
   },
   {
     "id": "airtel",
@@ -20,22 +13,16 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/airtel.svg",
     "brandSource": "https://www.airtel.in/logo-tune",
     "library": "Simple Icons",
-    "bytes": 1139
+    "bytes": 1139,
+    "file": "airtel.svg"
   },
   {
     "id": "amazonprime",
     "name": "Amazon Prime",
     "source": "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/amazonprime.svg",
     "library": "Simple Icons",
-    "bytes": 7181
-  },
-  {
-    "id": "applearcade",
-    "name": "Apple Arcade",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/applearcade.svg",
-    "brandSource": "https://www.apple.com/apple-arcade",
-    "library": "Simple Icons",
-    "bytes": 1053
+    "bytes": 7181,
+    "file": "amazonprime.svg"
   },
   {
     "id": "applemusic",
@@ -43,7 +30,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/applemusic.svg",
     "brandSource": "https://www.apple.com/itunes/marketing-on-music/identity-guidelines.html#apple-music-icon",
     "library": "Simple Icons",
-    "bytes": 1750
+    "bytes": 1750,
+    "file": "applemusic.svg"
   },
   {
     "id": "appletv",
@@ -51,7 +39,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/appletv.svg",
     "brandSource": "https://en.wikipedia.org/wiki/File:Apple_TV_(logo).svg",
     "library": "Simple Icons",
-    "bytes": 939
+    "bytes": 939,
+    "file": "appletv.svg"
   },
   {
     "id": "artstation",
@@ -59,7 +48,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/artstation.svg",
     "brandSource": "https://www.artstation.com/about/logo",
     "library": "Simple Icons",
-    "bytes": 394
+    "bytes": 394,
+    "file": "artstation.svg"
   },
   {
     "id": "asana",
@@ -67,7 +57,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/asana.svg",
     "brandSource": "https://asana.com/brand",
     "library": "Simple Icons",
-    "bytes": 456
+    "bytes": 456,
+    "file": "asana.svg"
   },
   {
     "id": "audible",
@@ -75,7 +66,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/audible.svg",
     "brandSource": "https://commons.wikimedia.org/wiki/File:Audible_logo.svg",
     "library": "Simple Icons",
-    "bytes": 656
+    "bytes": 656,
+    "file": "audible.svg"
   },
   {
     "id": "behance",
@@ -83,7 +75,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/behance.svg",
     "brandSource": "https://www.behance.net",
     "library": "Simple Icons",
-    "bytes": 1608
+    "bytes": 1608,
+    "file": "behance.svg"
   },
   {
     "id": "bitdefender",
@@ -91,15 +84,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/bitdefender.svg",
     "brandSource": "https://brand.bitdefender.com",
     "library": "Simple Icons",
-    "bytes": 580
-  },
-  {
-    "id": "bitwarden",
-    "name": "Bitwarden",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/bitwarden.svg",
-    "brandSource": "https://bitwarden.com/brand",
-    "library": "Simple Icons",
-    "bytes": 727
+    "bytes": 580,
+    "file": "bitdefender.svg"
   },
   {
     "id": "box",
@@ -107,22 +93,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/box.svg",
     "brandSource": "https://www.box.com/en-gb/about-us/press",
     "library": "Simple Icons",
-    "bytes": 1050
-  },
-  {
-    "id": "brevo",
-    "name": "Brevo",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/brevo.svg",
-    "brandSource": "https://www.brevo.com",
-    "library": "Simple Icons",
-    "bytes": 620
-  },
-  {
-    "name": "Brilliant",
-    "id": "brilliant",
-    "logoId": "brilliant",
-    "aliases": [],
-    "available": false
+    "bytes": 1050,
+    "file": "box.svg"
   },
   {
     "id": "buffer",
@@ -130,7 +102,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/buffer.svg",
     "brandSource": "https://buffer.com",
     "library": "Simple Icons",
-    "bytes": 312
+    "bytes": 312,
+    "file": "buffer.svg"
   },
   {
     "id": "calendly",
@@ -138,21 +111,27 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/calendly.svg",
     "brandSource": "https://calendly.com/newsroom",
     "library": "Simple Icons",
-    "bytes": 1905
+    "bytes": 1905,
+    "file": "calendly.svg"
   },
   {
-    "name": "Calm",
     "id": "calm",
-    "logoId": "calm",
-    "aliases": [],
-    "available": false
+    "source": "https://www.calm.com/apple-icon.png",
+    "site": "https://www.calm.com/",
+    "file": "calm.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 3798,
+    "name": "Calm"
   },
   {
     "id": "canva",
     "name": "Canva",
     "source": "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/canva.svg",
     "library": "Simple Icons",
-    "bytes": 2771
+    "bytes": 2771,
+    "file": "canva.svg"
   },
   {
     "id": "claude",
@@ -160,7 +139,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/claude.svg",
     "brandSource": "https://claude.ai",
     "library": "Simple Icons",
-    "bytes": 1936
+    "bytes": 1936,
+    "file": "claude.svg"
   },
   {
     "id": "clickup",
@@ -168,7 +148,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/clickup.svg",
     "brandSource": "https://clickup.com/brand",
     "library": "Simple Icons",
-    "bytes": 355
+    "bytes": 355,
+    "file": "clickup.svg"
   },
   {
     "id": "cloudflare",
@@ -176,15 +157,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/cloudflare.svg",
     "brandSource": "https://www.cloudflare.com/logo/",
     "library": "Simple Icons",
-    "bytes": 1193
-  },
-  {
-    "id": "codecademy",
-    "name": "Codecademy",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/codecademy.svg",
-    "brandSource": "https://www.codecademy.com",
-    "library": "Simple Icons",
-    "bytes": 1105
+    "bytes": 1193,
+    "file": "cloudflare.svg"
   },
   {
     "id": "coursera",
@@ -192,7 +166,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/coursera.svg",
     "brandSource": "https://about.coursera.org/press",
     "library": "Simple Icons",
-    "bytes": 691
+    "bytes": 691,
+    "file": "coursera.svg"
   },
   {
     "id": "crunchyroll",
@@ -200,14 +175,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/crunchyroll.svg",
     "brandSource": "https://www.crunchyroll.com",
     "library": "Simple Icons",
-    "bytes": 527
-  },
-  {
-    "name": "Curiosity Stream",
-    "id": "curiositystream",
-    "logoId": "curiositystream",
-    "aliases": [],
-    "available": false
+    "bytes": 527,
+    "file": "crunchyroll.svg"
   },
   {
     "id": "cursor",
@@ -215,31 +184,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/cursor.svg",
     "brandSource": "https://cursor.com/brand",
     "library": "Simple Icons",
-    "bytes": 469
-  },
-  {
-    "id": "dashlane",
-    "name": "Dashlane",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/dashlane.svg",
-    "brandSource": "https://brandfolder.com/dashlane/brandkitpartners",
-    "library": "Simple Icons",
-    "bytes": 1152
-  },
-  {
-    "id": "datacamp",
-    "name": "DataCamp",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/datacamp.svg",
-    "brandSource": "https://www.datacamp.com",
-    "library": "Simple Icons",
-    "bytes": 436
-  },
-  {
-    "id": "datadog",
-    "name": "Datadog",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/datadog.svg",
-    "brandSource": "https://www.datadoghq.com/about/resources",
-    "library": "Simple Icons",
-    "bytes": 3013
+    "bytes": 469,
+    "file": "cursor.svg"
   },
   {
     "id": "deezer",
@@ -247,36 +193,30 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/deezer.svg",
     "brandSource": "https://deezerbrand.com/document/37#/-/logo",
     "library": "Simple Icons",
-    "bytes": 1213
+    "bytes": 1213,
+    "file": "deezer.svg"
   },
   {
-    "name": "Dialog",
     "id": "dialog",
-    "logoId": "dialog",
-    "aliases": [
-      "dialog viu",
-      "dialog television",
-      "dialog tv",
-      "dialog home broadband"
-    ],
-    "available": false
+    "source": "https://s3.ap-southeast-1.amazonaws.com/dlg.dialog.lk/android-icon-72x72.ico",
+    "site": "https://www.dialog.lk/",
+    "file": "dialog.webp",
+    "library": "Official website",
+    "sourceWidth": 72,
+    "sourceHeight": 72,
+    "bytes": 2394,
+    "name": "Dialog"
   },
   {
-    "name": "Dialog Viu",
     "id": "dialogviu",
-    "logoId": "dialogviu",
-    "aliases": [
-      "viu"
-    ],
-    "available": false
-  },
-  {
-    "id": "digitalocean",
-    "name": "DigitalOcean",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/digitalocean.svg",
-    "brandSource": "https://www.digitalocean.com/press/",
-    "library": "Simple Icons",
-    "bytes": 446
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/56/14/0a/56140a1a-5d57-31da-7b6c-a452cb880c62/AppIcon-0-0-1x_U007emarketing-0-11-0-85-220.png/512x512bb.jpg",
+    "site": "https://www.dialog.lk/dialog-television/dialog-play-app/package",
+    "file": "dialogviu.webp",
+    "library": "Official App Store listing",
+    "sourceWidth": 512,
+    "sourceHeight": 512,
+    "bytes": 1416,
+    "name": "Dialog Viu"
   },
   {
     "id": "discord",
@@ -284,14 +224,19 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/discord.svg",
     "brandSource": "https://discord.com/branding",
     "library": "Simple Icons",
-    "bytes": 1389
+    "bytes": 1389,
+    "file": "discord.svg"
   },
   {
-    "name": "Disney+",
     "id": "disneyplus",
-    "logoId": "disneyplus",
-    "aliases": [],
-    "available": false
+    "source": "https://static-assets.bamgrid.com/product/disneyplus/favicons/mask-icon-aurora.86b2f302cf50180b25ddd8835041b1c3.svg",
+    "site": "https://www.disneyplus.com/",
+    "file": "disneyplus.webp",
+    "library": "Official website",
+    "sourceWidth": 934,
+    "sourceHeight": 934,
+    "bytes": 2412,
+    "name": "Disney+"
   },
   {
     "id": "docker",
@@ -299,7 +244,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/docker.svg",
     "brandSource": "https://www.docker.com/company/newsroom/media-resources",
     "library": "Simple Icons",
-    "bytes": 1780
+    "bytes": 1780,
+    "file": "docker.svg"
   },
   {
     "id": "dribbble",
@@ -307,7 +253,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/dribbble.svg",
     "brandSource": "https://dribbble.com/branding",
     "library": "Simple Icons",
-    "bytes": 999
+    "bytes": 999,
+    "file": "dribbble.svg"
   },
   {
     "id": "dropbox",
@@ -315,7 +262,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/dropbox.svg",
     "brandSource": "https://www.dropbox.com/branding",
     "library": "Simple Icons",
-    "bytes": 351
+    "bytes": 351,
+    "file": "dropbox.svg"
   },
   {
     "id": "duolingo",
@@ -323,7 +271,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/duolingo.svg",
     "brandSource": "https://design.duolingo.com",
     "library": "Simple Icons",
-    "bytes": 3009
+    "bytes": 3009,
+    "file": "duolingo.svg"
   },
   {
     "id": "ea",
@@ -331,7 +280,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/ea.svg",
     "brandSource": "https://www.ea.com",
     "library": "Simple Icons",
-    "bytes": 324
+    "bytes": 324,
+    "file": "ea.svg"
   },
   {
     "id": "envato",
@@ -339,14 +289,19 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/envato.svg",
     "brandSource": "https://envato.com",
     "library": "Simple Icons",
-    "bytes": 793
+    "bytes": 793,
+    "file": "envato.svg"
   },
   {
-    "name": "ESET",
     "id": "eset",
-    "logoId": "eset",
-    "aliases": [],
-    "available": false
+    "source": "https://web-assets.eset.com/typo3conf/ext/eset_base/Resources/Public/img/device/apple-touch-icon.png",
+    "site": "https://www.eset.com/",
+    "file": "eset.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 3682,
+    "name": "ESET"
   },
   {
     "id": "evernote",
@@ -354,15 +309,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/evernote.svg",
     "brandSource": "https://evernote.com/about-us",
     "library": "Simple Icons",
-    "bytes": 1491
-  },
-  {
-    "id": "expressvpn",
-    "name": "ExpressVPN",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/expressvpn.svg",
-    "brandSource": "https://www.expressvpn.com/press",
-    "library": "Simple Icons",
-    "bytes": 496
+    "bytes": 1491,
+    "file": "evernote.svg"
   },
   {
     "id": "figma",
@@ -370,14 +318,19 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/figma.svg",
     "brandSource": "https://www.figma.com/using-the-figma-brand/",
     "library": "Simple Icons",
-    "bytes": 1108
+    "bytes": 1108,
+    "file": "figma.svg"
   },
   {
-    "name": "Financial Times",
     "id": "financialtimes",
-    "logoId": "financialtimes",
-    "aliases": [],
-    "available": false
+    "source": "https://images.ft.com/v3/image/raw/ftlogo-v1%3Abrand-ft-logo-square-coloured?source=page-kit&format=png&width=180&height=180",
+    "site": "https://www.ft.com/",
+    "file": "financialtimes.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 1066,
+    "name": "Financial Times"
   },
   {
     "id": "firebase",
@@ -385,7 +338,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/firebase.svg",
     "brandSource": "https://firebase.google.com/brand-guidelines",
     "library": "Simple Icons",
-    "bytes": 1942
+    "bytes": 1942,
+    "file": "firebase.svg"
   },
   {
     "id": "fitbit",
@@ -393,14 +347,19 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/fitbit.svg",
     "brandSource": "https://www.fitbit.com/uk/home",
     "library": "Simple Icons",
-    "bytes": 1790
+    "bytes": 1790,
+    "file": "fitbit.svg"
   },
   {
-    "name": "Flaticon",
     "id": "flaticon",
-    "logoId": "flaticon",
-    "aliases": [],
-    "available": false
+    "source": "https://www.flaticon.com/favicon.ico",
+    "site": "https://www.flaticon.com/",
+    "file": "flaticon.webp",
+    "library": "Official website",
+    "sourceWidth": 256,
+    "sourceHeight": 227,
+    "bytes": 3462,
+    "name": "Flaticon"
   },
   {
     "id": "framer",
@@ -408,29 +367,19 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/framer.svg",
     "brandSource": "https://framer.com",
     "library": "Simple Icons",
-    "bytes": 161
+    "bytes": 161,
+    "file": "framer.svg"
   },
   {
-    "id": "freepik",
-    "name": "Freepik",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/freepik.svg",
-    "brandSource": "https://commons.wikimedia.org/wiki/File:Freepik.svg",
-    "library": "Simple Icons",
-    "bytes": 1589
-  },
-  {
-    "name": "FreshBooks",
     "id": "freshbooks",
-    "logoId": "freshbooks",
-    "aliases": [],
-    "available": false
-  },
-  {
-    "name": "Frontend Masters",
-    "id": "frontendmasters",
-    "logoId": "frontendmasters",
-    "aliases": [],
-    "available": false
+    "source": "https://www.freshbooks.com/favicon.ico",
+    "site": "https://www.freshbooks.com/",
+    "file": "freshbooks.webp",
+    "library": "Official website",
+    "sourceWidth": 96,
+    "sourceHeight": 96,
+    "bytes": 1366,
+    "name": "FreshBooks"
   },
   {
     "id": "github",
@@ -438,7 +387,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/github.svg",
     "brandSource": "https://github.com/logos",
     "library": "Simple Icons",
-    "bytes": 837
+    "bytes": 837,
+    "file": "github.svg"
   },
   {
     "id": "githubcopilot",
@@ -449,7 +399,8 @@
       "type": "MIT"
     },
     "library": "Simple Icons",
-    "bytes": 1759
+    "bytes": 1759,
+    "file": "githubcopilot.svg"
   },
   {
     "id": "gitlab",
@@ -457,7 +408,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/gitlab.svg",
     "brandSource": "https://about.gitlab.com/press/press-kit/",
     "library": "Simple Icons",
-    "bytes": 588
+    "bytes": 588,
+    "file": "gitlab.svg"
   },
   {
     "id": "godaddy",
@@ -465,7 +417,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/godaddy.svg",
     "brandSource": "https://aboutus.godaddy.net/newsroom/media-resources/",
     "library": "Simple Icons",
-    "bytes": 1164
+    "bytes": 1164,
+    "file": "godaddy.svg"
   },
   {
     "id": "googlegemini",
@@ -473,23 +426,44 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/googlegemini.svg",
     "brandSource": "https://gemini.google.com",
     "library": "Simple Icons",
-    "bytes": 416
+    "bytes": 416,
+    "file": "googlegemini.svg"
   },
   {
-    "name": "Google One",
     "id": "googleone",
-    "logoId": "googleone",
-    "aliases": [
-      "google storage"
-    ],
-    "available": false
+    "source": "https://one.google.com/about/public/favicon-32x32.png",
+    "site": "https://one.google.com/about/",
+    "file": "googleone.webp",
+    "library": "Official website",
+    "sourceWidth": 32,
+    "sourceHeight": 32,
+    "bytes": 2290,
+    "name": "Google One"
+  },
+  {
+    "id": "googleplaypass",
+    "source": "https://www.gstatic.com/android/market_images/web/play_pass_signup_page_logo.png",
+    "site": "https://play.google.com/about/play-pass/",
+    "file": "googleplaypass.webp",
+    "library": "Official website",
+    "sourceWidth": 342,
+    "sourceHeight": 50,
+    "extract": {
+      "left": 0,
+      "top": 0,
+      "width": 48,
+      "height": 50
+    },
+    "bytes": 1952,
+    "name": "Google Play Pass"
   },
   {
     "id": "googleworkspace",
     "name": "Google Workspace",
     "source": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/google.svg",
     "library": "Lobe Icons",
-    "bytes": 900
+    "bytes": 900,
+    "file": "googleworkspace.svg"
   },
   {
     "id": "grammarly",
@@ -497,7 +471,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/grammarly.svg",
     "brandSource": "https://www.grammarly.com/media-assets",
     "library": "Simple Icons",
-    "bytes": 631
+    "bytes": 631,
+    "file": "grammarly.svg"
   },
   {
     "id": "hbo",
@@ -505,7 +480,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/hbo.svg",
     "brandSource": "https://www.hbo.com",
     "library": "Simple Icons",
-    "bytes": 792
+    "bytes": 792,
+    "file": "hbo.svg"
   },
   {
     "id": "headspace",
@@ -513,22 +489,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/headspace.svg",
     "brandSource": "https://www.headspace.com/press-and-media",
     "library": "Simple Icons",
-    "bytes": 461
-  },
-  {
-    "id": "heroku",
-    "name": "Heroku",
-    "source": "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/heroku.svg",
-    "library": "Simple Icons",
-    "bytes": 689
-  },
-  {
-    "id": "hetzner",
-    "name": "Hetzner",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/hetzner.svg",
-    "brandSource": "https://www.hetzner.com",
-    "library": "Simple Icons",
-    "bytes": 425
+    "bytes": 461,
+    "file": "headspace.svg"
   },
   {
     "id": "hootsuite",
@@ -536,7 +498,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/hootsuite.svg",
     "brandSource": "https://hootsuite.widencollective.com/portals/bafpk5oo/bafpk5oo/MediaKitAssets/c/b9e3a7bb-aca7-48d7-90ed-cff5898aafd0",
     "library": "Simple Icons",
-    "bytes": 1451
+    "bytes": 1451,
+    "file": "hootsuite.svg"
   },
   {
     "id": "hostinger",
@@ -544,7 +507,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/hostinger.svg",
     "brandSource": "https://www.hostinger.com/newsroom",
     "library": "Simple Icons",
-    "bytes": 366
+    "bytes": 366,
+    "file": "hostinger.svg"
   },
   {
     "id": "hubspot",
@@ -552,21 +516,30 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/hubspot.svg",
     "brandSource": "https://www.hubspot.com/style-guide",
     "library": "Simple Icons",
-    "bytes": 678
+    "bytes": 678,
+    "file": "hubspot.svg"
   },
   {
-    "name": "Hulu",
     "id": "hulu",
-    "logoId": "hulu",
-    "aliases": [],
-    "available": false
+    "source": "https://press.hulu.com/wp-content/uploads/sites/34/2024/12/cropped-cropped-favicon.ico_-180x180.png",
+    "site": "https://www.hulu.com/",
+    "file": "hulu.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 554,
+    "name": "Hulu"
   },
   {
-    "name": "Hutch",
     "id": "hutch",
-    "logoId": "hutch",
-    "aliases": [],
-    "available": false
+    "source": "https://bunny-wp-pullzone-3on7dlrmy0.b-cdn.net/wp-content/uploads/2024/01/favnew.jpeg",
+    "site": "https://hutch.lk/",
+    "file": "hutch.webp",
+    "library": "Official website",
+    "sourceWidth": 32,
+    "sourceHeight": 32,
+    "bytes": 1104,
+    "name": "Hutch"
   },
   {
     "id": "icloud",
@@ -574,7 +547,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/icloud.svg",
     "brandSource": "https://commons.wikimedia.org/wiki/File:ICloud_logo.svg",
     "library": "Simple Icons",
-    "bytes": 406
+    "bytes": 406,
+    "file": "icloud.svg"
   },
   {
     "id": "icons8",
@@ -582,7 +556,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/icons8.svg",
     "brandSource": "https://icons8.com",
     "library": "Simple Icons",
-    "bytes": 277
+    "bytes": 277,
+    "file": "icons8.svg"
   },
   {
     "id": "jetbrains",
@@ -590,15 +565,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/jetbrains.svg",
     "brandSource": "https://www.jetbrains.com/company/brand/logos/",
     "library": "Simple Icons",
-    "bytes": 703
-  },
-  {
-    "id": "kit",
-    "name": "ConvertKit",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/kit.svg",
-    "brandSource": "https://kit.co",
-    "library": "Simple Icons",
-    "bytes": 739
+    "bytes": 703,
+    "file": "jetbrains.svg"
   },
   {
     "id": "lastpass",
@@ -606,22 +574,19 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/lastpass.svg",
     "brandSource": "https://lastpass.com/press-room/",
     "library": "Simple Icons",
-    "bytes": 639
+    "bytes": 639,
+    "file": "lastpass.svg"
   },
   {
-    "id": "linear",
-    "name": "Linear",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/linear.svg",
-    "brandSource": "https://linear.app",
-    "library": "Simple Icons",
-    "bytes": 468
-  },
-  {
-    "name": "Linode",
-    "id": "linode",
-    "logoId": "linode",
-    "aliases": [],
-    "available": false
+    "id": "lightroommobile",
+    "source": "https://www.adobe.com/cc-shared/assets/img/product-icons/svg/lightroom-64.svg",
+    "site": "https://www.adobe.com/products/photoshop-lightroom/mobile.html",
+    "file": "lightroommobile.webp",
+    "library": "Official website",
+    "sourceWidth": 64,
+    "sourceHeight": 64,
+    "bytes": 910,
+    "name": "Lightroom Mobile"
   },
   {
     "id": "loom",
@@ -629,7 +594,30 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/loom.svg",
     "brandSource": "https://www.loom.com/press",
     "library": "Simple Icons",
-    "bytes": 540
+    "bytes": 540,
+    "file": "loom.svg"
+  },
+  {
+    "id": "lyfta",
+    "source": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/26/a5/ce/26a5cef9-1445-1b00-f8a8-5bb18ff328d5/ic_lyfta-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg",
+    "site": "https://lyfta.app/",
+    "file": "lyfta.webp",
+    "library": "Official App Store listing",
+    "sourceWidth": 512,
+    "sourceHeight": 512,
+    "bytes": 1662,
+    "name": "Lyfta"
+  },
+  {
+    "id": "magnific",
+    "source": "https://media.magnific.com/magnific-favicons/apple-touch-icon.png?w=180&v=2",
+    "site": "https://magnific.com/",
+    "file": "magnific.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 946,
+    "name": "Magnific (Freepik)"
   },
   {
     "id": "mailchimp",
@@ -637,7 +625,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/mailchimp.svg",
     "brandSource": "https://mailchimp.com/about/brand-assets",
     "library": "Simple Icons",
-    "bytes": 4193
+    "bytes": 4193,
+    "file": "mailchimp.svg"
   },
   {
     "id": "malwarebytes",
@@ -645,7 +634,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/malwarebytes.svg",
     "brandSource": "https://www.malwarebytes.com",
     "library": "Simple Icons",
-    "bytes": 909
+    "bytes": 909,
+    "file": "malwarebytes.svg"
   },
   {
     "id": "medium",
@@ -653,7 +643,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/medium.svg",
     "brandSource": "https://medium.design/logos-and-brand-guidelines-f1a01a733592",
     "library": "Simple Icons",
-    "bytes": 994
+    "bytes": 994,
+    "file": "medium.svg"
   },
   {
     "id": "mega",
@@ -661,35 +652,46 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/mega.svg",
     "brandSource": "https://mega.io/media",
     "library": "Simple Icons",
-    "bytes": 578
+    "bytes": 578,
+    "file": "mega.svg"
   },
   {
     "id": "microsoft",
     "name": "Microsoft 365",
     "source": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/microsoft.svg",
     "library": "Lobe Icons",
-    "bytes": 379
+    "bytes": 379,
+    "file": "microsoft.svg"
   },
   {
-    "name": "OneDrive",
     "id": "microsoftonedrive",
-    "logoId": "microsoftonedrive",
-    "aliases": [],
-    "available": false
+    "source": "https://www.microsoft.com/content/dam/microsoft/bade/images/icons/en-us/m365-app-icons-fy26/OneDrive-Icon-FY26.svg",
+    "site": "https://www.microsoft.com/en-us/microsoft-365/onedrive/online-cloud-storage",
+    "file": "microsoftonedrive.webp",
+    "library": "Official website",
+    "sourceWidth": 48,
+    "sourceHeight": 48,
+    "bytes": 1744,
+    "name": "OneDrive"
   },
   {
     "id": "midjourney",
     "name": "Midjourney",
     "source": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/midjourney.svg",
     "library": "Lobe Icons",
-    "bytes": 4012
+    "bytes": 4012,
+    "file": "midjourney.svg"
   },
   {
-    "name": "Monday.com",
     "id": "mondaydotcom",
-    "logoId": "mondaydotcom",
-    "aliases": [],
-    "available": false
+    "source": "https://cdn.prod.website-files.com/656da6fea306219773d04208/65af6bd6e742d497b5f23f69_645898132bbaac20f1963919_256x256.png",
+    "site": "https://monday.com/",
+    "file": "mondaydotcom.webp",
+    "library": "Official website",
+    "sourceWidth": 256,
+    "sourceHeight": 256,
+    "bytes": 1350,
+    "name": "Monday.com"
   },
   {
     "id": "mubi",
@@ -697,22 +699,19 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/mubi.svg",
     "brandSource": "https://mubi.com",
     "library": "Simple Icons",
-    "bytes": 986
+    "bytes": 986,
+    "file": "mubi.svg"
   },
   {
-    "id": "mullvad",
-    "name": "Mullvad",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/mullvad.svg",
-    "brandSource": "https://mullvad.net/press#logos",
-    "library": "Simple Icons",
-    "bytes": 1796
-  },
-  {
-    "name": "MyFitnessPal",
     "id": "myfitnesspal",
-    "logoId": "myfitnesspal",
-    "aliases": [],
-    "available": false
+    "source": "https://www.myfitnesspal.com/favicons/apple-touch-icon.png?v=1",
+    "site": "https://www.myfitnesspal.com/",
+    "file": "myfitnesspal.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 1182,
+    "name": "MyFitnessPal"
   },
   {
     "id": "namecheap",
@@ -720,15 +719,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/namecheap.svg",
     "brandSource": "https://www.namecheap.com",
     "library": "Simple Icons",
-    "bytes": 704
-  },
-  {
-    "id": "nebula",
-    "name": "Nebula",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/nebula.svg",
-    "brandSource": "https://nebula.tv",
-    "library": "Simple Icons",
-    "bytes": 253
+    "bytes": 704,
+    "file": "namecheap.svg"
   },
   {
     "id": "netflix",
@@ -736,7 +728,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/netflix.svg",
     "brandSource": "https://brand.netflix.com/en/assets/logos",
     "library": "Simple Icons",
-    "bytes": 291
+    "bytes": 291,
+    "file": "netflix.svg"
   },
   {
     "id": "netlify",
@@ -744,15 +737,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/netlify.svg",
     "brandSource": "https://www.netlify.com/press/",
     "library": "Simple Icons",
-    "bytes": 671
-  },
-  {
-    "id": "newrelic",
-    "name": "New Relic",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/newrelic.svg",
-    "brandSource": "https://newrelic.com/about/media-assets",
-    "library": "Simple Icons",
-    "bytes": 304
+    "bytes": 671,
+    "file": "netlify.svg"
   },
   {
     "id": "newyorktimes",
@@ -760,14 +746,19 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/newyorktimes.svg",
     "brandSource": "https://www.nytimes.com",
     "library": "Simple Icons",
-    "bytes": 1155
+    "bytes": 1155,
+    "file": "newyorktimes.svg"
   },
   {
-    "name": "Nintendo Switch Online",
     "id": "nintendoswitch",
-    "logoId": "nintendoswitch",
-    "aliases": [],
-    "available": false
+    "source": "https://assets.nintendo.com/image/upload/ncom/icons/fav-icons/apple-touch-icon.png",
+    "site": "https://www.nintendo.com/us/online/",
+    "file": "nintendoswitch.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 1196,
+    "name": "Nintendo Switch Online"
   },
   {
     "id": "nordvpn",
@@ -775,7 +766,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/nordvpn.svg",
     "brandSource": "https://nordvpn.com/press-area/",
     "library": "Simple Icons",
-    "bytes": 371
+    "bytes": 371,
+    "file": "nordvpn.svg"
   },
   {
     "id": "norton",
@@ -783,7 +775,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/norton.svg",
     "brandSource": "https://us.norton.com",
     "library": "Simple Icons",
-    "bytes": 585
+    "bytes": 585,
+    "file": "norton.svg"
   },
   {
     "id": "notion",
@@ -791,7 +784,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/notion.svg",
     "brandSource": "https://www.notion.so",
     "library": "Simple Icons",
-    "bytes": 993
+    "bytes": 993,
+    "file": "notion.svg"
   },
   {
     "id": "nvidia",
@@ -799,14 +793,16 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/nvidia.svg",
     "brandSource": "https://www.nvidia.com/en-us",
     "library": "Simple Icons",
-    "bytes": 896
+    "bytes": 896,
+    "file": "nvidia.svg"
   },
   {
     "id": "openai",
     "name": "ChatGPT",
     "source": "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/openai.svg",
     "library": "Simple Icons",
-    "bytes": 1585
+    "bytes": 1585,
+    "file": "openai.svg"
   },
   {
     "id": "paramountplus",
@@ -814,7 +810,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/paramountplus.svg",
     "brandSource": "https://www.paramount.com/brand/paramount-plus",
     "library": "Simple Icons",
-    "bytes": 2441
+    "bytes": 2441,
+    "file": "paramountplus.svg"
   },
   {
     "id": "patreon",
@@ -822,32 +819,19 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/patreon.svg",
     "brandSource": "https://www.patreon.com/brand",
     "library": "Simple Icons",
-    "bytes": 384
+    "bytes": 384,
+    "file": "patreon.svg"
   },
   {
-    "name": "pCloud",
-    "id": "pcloud",
-    "logoId": "pcloud",
-    "aliases": [],
-    "available": false
-  },
-  {
-    "id": "peloton",
-    "name": "Peloton",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/peloton.svg",
-    "brandSource": "https://press.onepeloton.com/#logos",
-    "library": "Simple Icons",
-    "bytes": 796
-  },
-  {
-    "name": "PEO TV",
     "id": "peotv",
-    "logoId": "peotv",
-    "aliases": [
-      "peo tv",
-      "peotv"
-    ],
-    "available": false
+    "source": "https://www.slt.lk/sites/default/files/downloads/muliple_downloads/files/logo-block-PeoTV_0.jpg",
+    "site": "https://www.slt.lk/en/node/1595",
+    "file": "peotv.webp",
+    "library": "Official website",
+    "sourceWidth": 160,
+    "sourceHeight": 39,
+    "bytes": 1368,
+    "name": "PEO TV"
   },
   {
     "id": "perplexity",
@@ -855,14 +839,16 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/perplexity.svg",
     "brandSource": "https://www.perplexity.ai",
     "library": "Simple Icons",
-    "bytes": 633
+    "bytes": 633,
+    "file": "perplexity.svg"
   },
   {
     "id": "pickmepass",
     "name": "PickMe Pass",
     "source": "https://pickme.lk/wp-content/themes/pickme-theme-child/images/main-logo.svg",
     "library": "PickMe official website",
-    "bytes": 4879
+    "bytes": 4879,
+    "file": "pickmepass.svg"
   },
   {
     "id": "playstation",
@@ -870,7 +856,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/playstation.svg",
     "brandSource": "https://www.playstation.com/en-us/",
     "library": "Simple Icons",
-    "bytes": 796
+    "bytes": 796,
+    "file": "playstation.svg"
   },
   {
     "id": "plex",
@@ -878,23 +865,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/plex.svg",
     "brandSource": "https://brand.plex.tv",
     "library": "Simple Icons",
-    "bytes": 1196
-  },
-  {
-    "id": "pocketcasts",
-    "name": "Pocket Casts",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/pocketcasts.svg",
-    "brandSource": "https://blog.pocketcasts.com/press/",
-    "library": "Simple Icons",
-    "bytes": 605
-  },
-  {
-    "id": "postman",
-    "name": "Postman",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/postman.svg",
-    "brandSource": "https://www.getpostman.com/resources/media-assets/",
-    "library": "Simple Icons",
-    "bytes": 1383
+    "bytes": 1196,
+    "file": "plex.svg"
   },
   {
     "id": "proton",
@@ -902,7 +874,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/proton.svg",
     "brandSource": "https://proton.me/media/kit",
     "library": "Simple Icons",
-    "bytes": 543
+    "bytes": 543,
+    "file": "proton.svg"
   },
   {
     "id": "quickbooks",
@@ -910,45 +883,27 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/quickbooks.svg",
     "brandSource": "https://design.intuit.com/quickbooks/brand",
     "library": "Simple Icons",
-    "bytes": 677
+    "bytes": 677,
+    "file": "quickbooks.svg"
   },
   {
-    "id": "railway",
-    "name": "Railway",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/railway.svg",
-    "brandSource": "https://railway.app",
-    "library": "Simple Icons",
-    "bytes": 788
-  },
-  {
-    "id": "render",
-    "name": "Render",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/render.svg",
-    "brandSource": "https://render.com",
-    "library": "Simple Icons",
-    "bytes": 396
-  },
-  {
-    "name": "Reuters",
     "id": "reuters",
-    "logoId": "reuters",
-    "aliases": [],
-    "available": false
+    "source": "https://www.reuters.com/favicon.ico",
+    "site": "https://www.reuters.com/",
+    "file": "reuters.webp",
+    "library": "Official website",
+    "sourceWidth": 32,
+    "sourceHeight": 33,
+    "bytes": 7200,
+    "name": "Reuters"
   },
   {
     "id": "salesforce",
     "name": "Salesforce",
     "source": "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/salesforce.svg",
     "library": "Simple Icons",
-    "bytes": 559
-  },
-  {
-    "id": "sentry",
-    "name": "Sentry",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/sentry.svg",
-    "brandSource": "https://sentry.io/branding/",
-    "library": "Simple Icons",
-    "bytes": 701
+    "bytes": 559,
+    "file": "salesforce.svg"
   },
   {
     "id": "shopify",
@@ -956,22 +911,16 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/shopify.svg",
     "brandSource": "https://www.shopify.com/brand-assets",
     "library": "Simple Icons",
-    "bytes": 1249
+    "bytes": 1249,
+    "file": "shopify.svg"
   },
   {
     "id": "shutterstock",
     "name": "Shutterstock",
     "source": "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/shutterstock.svg",
     "library": "Simple Icons",
-    "bytes": 335
-  },
-  {
-    "id": "sketch",
-    "name": "Sketch",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/sketch.svg",
-    "brandSource": "https://www.sketch.com/about-us/#press",
-    "library": "Simple Icons",
-    "bytes": 419
+    "bytes": 335,
+    "file": "shutterstock.svg"
   },
   {
     "id": "skillshare",
@@ -979,27 +928,27 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/skillshare.svg",
     "brandSource": "https://www.skillshare.com",
     "library": "Simple Icons",
-    "bytes": 2098
+    "bytes": 2098,
+    "file": "skillshare.svg"
   },
   {
     "id": "slack",
     "name": "Slack",
     "source": "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/slack.svg",
     "library": "Simple Icons",
-    "bytes": 1138
+    "bytes": 1138,
+    "file": "slack.svg"
   },
   {
-    "name": "SLT-MOBITEL",
     "id": "sltmobitel",
-    "logoId": "sltmobitel",
-    "aliases": [
-      "slt",
-      "mobitel",
-      "slt fibre",
-      "slt fiber",
-      "slt broadband"
-    ],
-    "available": false
+    "source": "https://www.sltmobitel.lk/favicon.webp",
+    "site": "https://www.sltmobitel.lk/",
+    "file": "sltmobitel.webp",
+    "library": "Official website",
+    "sourceWidth": 900,
+    "sourceHeight": 900,
+    "bytes": 1688,
+    "name": "SLT-MOBITEL"
   },
   {
     "id": "soundcloud",
@@ -1007,14 +956,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/soundcloud.svg",
     "brandSource": "https://press.soundcloud.com",
     "library": "Simple Icons",
-    "bytes": 1193
-  },
-  {
-    "name": "Spline",
-    "id": "spline",
-    "logoId": "spline",
-    "aliases": [],
-    "available": false
+    "bytes": 1193,
+    "file": "soundcloud.svg"
   },
   {
     "id": "spotify",
@@ -1022,7 +965,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/spotify.svg",
     "brandSource": "https://developer.spotify.com/documentation/general/design-and-branding/#using-our-logo",
     "library": "Simple Icons",
-    "bytes": 712
+    "bytes": 712,
+    "file": "spotify.svg"
   },
   {
     "id": "squarespace",
@@ -1030,7 +974,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/squarespace.svg",
     "brandSource": "https://www.squarespace.com/logo-guidelines",
     "library": "Simple Icons",
-    "bytes": 1022
+    "bytes": 1022,
+    "file": "squarespace.svg"
   },
   {
     "id": "strava",
@@ -1038,7 +983,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/strava.svg",
     "brandSource": "https://itunes.apple.com/us/app/strava-running-and-cycling-gps/id426826309",
     "library": "Simple Icons",
-    "bytes": 244
+    "bytes": 244,
+    "file": "strava.svg"
   },
   {
     "id": "substack",
@@ -1046,7 +992,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/substack.svg",
     "brandSource": "https://on.substack.com",
     "library": "Simple Icons",
-    "bytes": 238
+    "bytes": 238,
+    "file": "substack.svg"
   },
   {
     "id": "supabase",
@@ -1054,7 +1001,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/supabase.svg",
     "brandSource": "https://github.com/supabase/supabase/blob/4031a7549f5d46da7bc79c01d56be4177dc7c114/packages/common/assets/images/supabase-logo-wordmark--light.svg",
     "library": "Simple Icons",
-    "bytes": 318
+    "bytes": 318,
+    "file": "supabase.svg"
   },
   {
     "id": "surfshark",
@@ -1062,21 +1010,19 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/surfshark.svg",
     "brandSource": "https://surfshark.com/press/assets",
     "library": "Simple Icons",
-    "bytes": 814
+    "bytes": 814,
+    "file": "surfshark.svg"
   },
   {
-    "id": "sync",
-    "name": "Sync.com",
-    "source": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/sync.svg",
-    "library": "Lobe Icons",
-    "bytes": 1038
-  },
-  {
-    "name": "The Economist",
     "id": "theeconomist",
-    "logoId": "theeconomist",
-    "aliases": [],
-    "available": false
+    "source": "https://www.economist.com/favicon.ico",
+    "site": "https://www.economist.com/",
+    "file": "theeconomist.webp",
+    "library": "Official website",
+    "sourceWidth": 32,
+    "sourceHeight": 32,
+    "bytes": 962,
+    "name": "The Economist"
   },
   {
     "id": "theguardian",
@@ -1084,7 +1030,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/theguardian.svg",
     "brandSource": "https://www.theguardian.com/international",
     "library": "Simple Icons",
-    "bytes": 2977
+    "bytes": 2977,
+    "file": "theguardian.svg"
   },
   {
     "id": "thewashingtonpost",
@@ -1092,7 +1039,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/thewashingtonpost.svg",
     "brandSource": "https://www.washingtonpost.com/brand-studio/archive/",
     "library": "Simple Icons",
-    "bytes": 1061
+    "bytes": 1061,
+    "file": "thewashingtonpost.svg"
   },
   {
     "id": "ticktick",
@@ -1100,7 +1048,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/ticktick.svg",
     "brandSource": "https://ticktick.com",
     "library": "Simple Icons",
-    "bytes": 381
+    "bytes": 381,
+    "file": "ticktick.svg"
   },
   {
     "id": "tidal",
@@ -1108,7 +1057,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/tidal.svg",
     "brandSource": "https://tidal.com/press",
     "library": "Simple Icons",
-    "bytes": 320
+    "bytes": 320,
+    "file": "tidal.svg"
   },
   {
     "id": "todoist",
@@ -1116,15 +1066,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/todoist.svg",
     "brandSource": "https://doist.com/press",
     "library": "Simple Icons",
-    "bytes": 879
-  },
-  {
-    "id": "tradingview",
-    "name": "TradingView",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/tradingview.svg",
-    "brandSource": "https://www.tradingview.com/media-kit",
-    "library": "Simple Icons",
-    "bytes": 361
+    "bytes": 879,
+    "file": "todoist.svg"
   },
   {
     "id": "trello",
@@ -1132,7 +1075,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/trello.svg",
     "brandSource": "https://atlassian.design/resources/logo-library",
     "library": "Simple Icons",
-    "bytes": 484
+    "bytes": 484,
+    "file": "trello.svg"
   },
   {
     "id": "twitch",
@@ -1140,7 +1084,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/twitch.svg",
     "brandSource": "https://brand.twitch.tv",
     "library": "Simple Icons",
-    "bytes": 307
+    "bytes": 307,
+    "file": "twitch.svg"
   },
   {
     "id": "uber",
@@ -1148,7 +1093,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/uber.svg",
     "brandSource": "https://assets.uber.com/d/k4nuxdZ8MC7E/logos/collection/151",
     "library": "Simple Icons",
-    "bytes": 948
+    "bytes": 948,
+    "file": "uber.svg"
   },
   {
     "id": "ubisoft",
@@ -1156,7 +1102,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/ubisoft.svg",
     "brandSource": "https://www.ubisoft.com/en-US/company/overview.aspx",
     "library": "Simple Icons",
-    "bytes": 1037
+    "bytes": 1037,
+    "file": "ubisoft.svg"
   },
   {
     "id": "udemy",
@@ -1164,7 +1111,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/udemy.svg",
     "brandSource": "https://udemy.com",
     "library": "Simple Icons",
-    "bytes": 392
+    "bytes": 392,
+    "file": "udemy.svg"
   },
   {
     "id": "vercel",
@@ -1172,7 +1120,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/vercel.svg",
     "brandSource": "https://vercel.com/geist/brands",
     "library": "Simple Icons",
-    "bytes": 147
+    "bytes": 147,
+    "file": "vercel.svg"
   },
   {
     "id": "vimeo",
@@ -1180,15 +1129,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/vimeo.svg",
     "brandSource": "https://press.vimeo.com/brand-guidelines",
     "library": "Simple Icons",
-    "bytes": 712
-  },
-  {
-    "id": "vultr",
-    "name": "Vultr",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/vultr.svg",
-    "brandSource": "https://www.vultr.com/company/brand-assets",
-    "library": "Simple Icons",
-    "bytes": 508
+    "bytes": 712,
+    "file": "vimeo.svg"
   },
   {
     "id": "webflow",
@@ -1196,7 +1138,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/webflow.svg",
     "brandSource": "https://brand-at.webflow.io/resources#logos",
     "library": "Simple Icons",
-    "bytes": 309
+    "bytes": 309,
+    "file": "webflow.svg"
   },
   {
     "id": "wix",
@@ -1204,7 +1147,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/wix.svg",
     "brandSource": "https://www.wix.com/about/design-assets",
     "library": "Simple Icons",
-    "bytes": 808
+    "bytes": 808,
+    "file": "wix.svg"
   },
   {
     "id": "woocommerce",
@@ -1212,7 +1156,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/woocommerce.svg",
     "brandSource": "https://woocommerce.com/style-guide",
     "library": "Simple Icons",
-    "bytes": 3589
+    "bytes": 3589,
+    "file": "woocommerce.svg"
   },
   {
     "id": "wordpress",
@@ -1220,14 +1165,19 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/wordpress.svg",
     "brandSource": "https://wordpress.org/about/logos",
     "library": "Simple Icons",
-    "bytes": 1074
+    "bytes": 1074,
+    "file": "wordpress.svg"
   },
   {
-    "name": "Xbox Game Pass",
     "id": "xbox",
-    "logoId": "xbox",
-    "aliases": [],
-    "available": false
+    "source": "https://www.xbox.com/favicon.ico",
+    "site": "https://www.xbox.com/en-US/xbox-game-pass",
+    "file": "xbox.webp",
+    "library": "Official website",
+    "sourceWidth": 256,
+    "sourceHeight": 256,
+    "bytes": 5902,
+    "name": "Xbox Game Pass"
   },
   {
     "id": "xero",
@@ -1235,14 +1185,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/xero.svg",
     "brandSource": "https://www.xero.com/uk/about/media/downloads",
     "library": "Simple Icons",
-    "bytes": 1813
-  },
-  {
-    "name": "YNAB",
-    "id": "ynab",
-    "logoId": "ynab",
-    "aliases": [],
-    "available": false
+    "bytes": 1813,
+    "file": "xero.svg"
   },
   {
     "id": "youtube",
@@ -1250,7 +1194,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/youtube.svg",
     "brandSource": "https://www.youtube.com/howyoutubeworks/resources/brand-resources/#logos-icons-and-colors",
     "library": "Simple Icons",
-    "bytes": 474
+    "bytes": 474,
+    "file": "youtube.svg"
   },
   {
     "id": "zoho",
@@ -1258,7 +1203,8 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/zoho.svg",
     "brandSource": "https://www.zoho.com/branding",
     "library": "Simple Icons",
-    "bytes": 2651
+    "bytes": 2651,
+    "file": "zoho.svg"
   },
   {
     "id": "zoom",
@@ -1266,6 +1212,7 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/zoom.svg",
     "brandSource": "https://brand.zoom.us/media-library/",
     "library": "Simple Icons",
-    "bytes": 852
+    "bytes": 852,
+    "file": "zoom.svg"
   }
 ]

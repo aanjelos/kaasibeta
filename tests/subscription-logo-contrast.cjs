@@ -15,9 +15,9 @@ function chooseFrame(pixels){
 module.exports={chooseFrame};
 if(require.main===module)(async()=>{
   const sharp=require(process.argv[2]||'sharp'),dir=path.join(__dirname,'../img/subscriptions'),light=[],results={};
-  for(const file of fs.readdirSync(dir).filter(name=>name.endsWith('.svg'))){
+  for(const file of fs.readdirSync(dir).filter(name=>/\.(svg|webp)$/.test(name))){
     const data=await sharp(path.join(dir,file)).resize(48,48,{fit:'contain',background:{r:0,g:0,b:0,alpha:0}}).ensureAlpha().raw().toBuffer();
-    const result=chooseFrame(data),id=path.basename(file,'.svg');results[id]=result;if(result.frame==='light')light.push(id);
+    const result=chooseFrame(data),id=path.parse(file).name;results[id]=result;if(result.frame==='light')light.push(id);
   }
   console.log(JSON.stringify({light,results}));
 })().catch(error=>{console.error(error);process.exitCode=1;});
