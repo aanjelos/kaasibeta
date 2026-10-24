@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.401n - 2026-10-24
+
+### 1. [Improvement] Reminders Below Transaction Entry
+
+Moved the upcoming-payments strip to the bottom of Add Transaction on desktop and mobile. It leaves desktop Balance Overview and transaction-entry controls at fixed positions as reminders appear or disappear, while retaining the mobile sequence of transaction entry, reminders and balances. The strip uses the card's bottom corners and disappears without leaving an empty section when nothing is upcoming. Narrow containers place amounts beneath the name/date so full subscription names remain readable in the desktop sidebar and small mobile screens. Three-entry previews, overflow navigation and payment behaviour are unchanged.
+
 ## v6.400n - 2026-10-24
 
 ### 1. [Improvement] Earlier Payment Reminders and Mobile Dashboard Order

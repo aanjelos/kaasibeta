@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.400n" />
+    <meta name="application-version" content="v6.401n" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -51,8 +51,8 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v6.400n" />
-    <link rel="stylesheet" href="tailwind.css?v=v6.400n" />
+    <link rel="stylesheet" href="style.css?v=v6.401n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.401n" />
 
     <script
       async
@@ -291,7 +291,7 @@
           class="grid grid-cols-1 lg:grid-cols-3 gap-6 main-content-grid"
         >
           <div class="contents lg:block lg:col-span-1 lg:space-y-6">
-            <div class="card order-1 lg:order-none">
+            <div class="card order-1 lg:order-none" id="addTransactionCard">
               <h2
                 class="text-xl font-semibold mb-4 border-b border-gray-600 pb-2"
               >
@@ -378,6 +378,7 @@
                   <i class="fas fa-save"></i> Add Transaction
                 </button>
               </form>
+              <div id="upcomingPaymentsNotice" class="upcoming-notice" hidden></div>
             </div>
 
             <div class="card order-6 lg:order-none hidden" id="categoryBudgetsDashboardCard">
@@ -473,7 +474,6 @@
 
           <div class="contents lg:block lg:col-span-2 lg:space-y-6">
             <div class="card order-2 lg:order-none" id="balanceOverviewCard">
-              <div id="upcomingPaymentsNotice" class="upcoming-notice" hidden></div>
               <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold">Balance Overview</h2>
               </div>
@@ -2111,23 +2111,23 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v6.400n" defer></script>
-    <script src="js/import-validation.js?v=v6.400n" defer></script>
-    <script src="js/storage.js?v=v6.400n" defer></script>
-    <script src="js/storage-ui.js?v=v6.400n" defer></script>
-    <script src="js/animations.js?v=v6.400n" defer></script>
-    <script src="js/data-sync.js?v=v6.400n" defer></script>
-    <script src="js/cloud-sync.js?v=v6.400n" defer></script>
-    <script src="js/math-tool.js?v=v6.400n" defer></script>
-    <script src="js/settings.js?v=v6.400n" defer></script>
-    <script src="js/charts.js?v=v6.400n" defer></script>
-    <script src="js/ui.js?v=v6.400n" defer></script>
-    <script src="js/features.js?v=v6.400n" defer></script>
-    <script src="js/subscription-assets.js?v=v6.400n" defer></script>
-    <script src="js/subscription-services.js?v=v6.400n" defer></script>
-    <script src="js/subscriptions.js?v=v6.400n" defer></script>
-    <script src="js/security.js?v=v6.400n" defer></script>
-    <script src="js/app.js?v=v6.400n" defer></script>
+    <script src="js/globals.js?v=v6.401n" defer></script>
+    <script src="js/import-validation.js?v=v6.401n" defer></script>
+    <script src="js/storage.js?v=v6.401n" defer></script>
+    <script src="js/storage-ui.js?v=v6.401n" defer></script>
+    <script src="js/animations.js?v=v6.401n" defer></script>
+    <script src="js/data-sync.js?v=v6.401n" defer></script>
+    <script src="js/cloud-sync.js?v=v6.401n" defer></script>
+    <script src="js/math-tool.js?v=v6.401n" defer></script>
+    <script src="js/settings.js?v=v6.401n" defer></script>
+    <script src="js/charts.js?v=v6.401n" defer></script>
+    <script src="js/ui.js?v=v6.401n" defer></script>
+    <script src="js/features.js?v=v6.401n" defer></script>
+    <script src="js/subscription-assets.js?v=v6.401n" defer></script>
+    <script src="js/subscription-services.js?v=v6.401n" defer></script>
+    <script src="js/subscriptions.js?v=v6.401n" defer></script>
+    <script src="js/security.js?v=v6.401n" defer></script>
+    <script src="js/app.js?v=v6.401n" defer></script>
   </body>
 </html>
 
