@@ -4,7 +4,7 @@ const Subscriptions = (() => {
   const list=()=>state.subscriptions || [];
   const occurrences=()=>state.subscriptionOccurrences || [];
   const dateObject=value=>new Date(`${value}T00:00:00Z`);
-  const frequencies={daily:'Daily',weekly:'Weekly',monthly:'Monthly',quarterly:'Quarterly',annually:'Yearly'};
+  const frequencies={daily:'Daily',weekly:'Weekly',monthly:'Monthly',quarterly:'Quarterly',semiannually:'Every 6 Months',annually:'Annual'};
   function validDate(value) {
     return typeof value==='string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(dateObject(value).getTime()) && dateObject(value).toISOString().slice(0,10)===value;
   }
@@ -12,7 +12,7 @@ const Subscriptions = (() => {
     const date=dateObject(due);
     if(subscription.frequency==='daily'||subscription.frequency==='weekly') date.setUTCDate(date.getUTCDate()+(subscription.frequency==='daily'?1:7));
     else {
-      const step={monthly:1,quarterly:3,annually:12}[subscription.frequency];
+      const step={monthly:1,quarterly:3,semiannually:6,annually:12}[subscription.frequency];
       if(!step) throw new Error('Choose a supported renewal frequency.');
       const month=date.getUTCMonth()+step,year=date.getUTCFullYear();
       date.setUTCDate(1);date.setUTCMonth(month);
@@ -22,6 +22,20 @@ const Subscriptions = (() => {
     const result=date.toISOString().slice(0,10);
     if(!validDate(result))throw new Error('Choose a renewal date within the supported calendar range.');
     return result;
+  }
+  function firstUpcomingDate(due,frequency,anchorDay=Number(due.slice(8)),today=getCurrentDateString()) {
+    if(due>=today)return due;
+    const start=dateObject(due),target=dateObject(today),period={daily:1,weekly:7}[frequency];
+    if(period){start.setUTCDate(start.getUTCDate()+Math.ceil((target-start)/86400000/period)*period);return start.toISOString().slice(0,10);}
+    const step={monthly:1,quarterly:3,semiannually:6,annually:12}[frequency];
+    if(!step)throw new Error('Choose a supported renewal frequency.');
+    const months=(target.getUTCFullYear()-start.getUTCFullYear())*12+target.getUTCMonth()-start.getUTCMonth();
+    const count=Math.max(1,Math.floor(months/step));
+    start.setUTCDate(1);start.setUTCMonth(start.getUTCMonth()+count*step);
+    const end=new Date(start);end.setUTCMonth(end.getUTCMonth()+1);end.setUTCDate(0);
+    start.setUTCDate(Math.min(anchorDay,end.getUTCDate()));
+    const result=start.toISOString().slice(0,10);
+    return result<today?nextDate({frequency,anchorDay,nextDueDate:result}):result;
   }
   const occurrenceId=(id,due)=>`${id}_${due.replace(/-/g,'')}`;
   const find=id=>list().find(row=>row.id===id);
@@ -62,19 +76,20 @@ const Subscriptions = (() => {
     const amount=parseAmountValue(values.amount),name=String(values.name || '').trim();
     if(!name || name.length>160) throw new Error('Enter a subscription name up to 160 characters.');
     if(!Number.isFinite(amount)||amount<=0) throw new Error('Enter a valid subscription amount.');
-    if(!validDate(values.nextDueDate)||!Object.hasOwn(frequencies,values.frequency)||values.dateMode&&!['next','lastPaid'].includes(values.dateMode)) throw new Error('Choose a renewal date and frequency.');
-    const anchorDay=values.dateMode==='lastPaid'?Number(values.nextDueDate.slice(8)):values.anchorDay;
-    const nextDueDate=values.dateMode==='lastPaid'?nextDate({frequency:values.frequency,nextDueDate:values.nextDueDate,anchorDay}):values.nextDueDate;
+    if(!validDate(values.nextDueDate)||!Object.hasOwn(frequencies,values.frequency)) throw new Error('Choose a renewal date and frequency.');
+    const existing=id?find(id):null;
+    const anchorDay=Number.isInteger(values.anchorDay)&&values.anchorDay>=1&&values.anchorDay<=31?values.anchorDay:Number(values.nextDueDate.slice(8));
+    const unchangedDate=existing && existing.nextDueDate===values.nextDueDate && existing.frequency===values.frequency;
+    const nextDueDate=unchangedDate?existing.nextDueDate:firstUpcomingDate(values.nextDueDate,values.frequency,anchorDay);
     if(!['bank','cc'].includes(values.method)) throw new Error('Choose a payment method.');
     if(values.method==='bank' && !state.accounts.some(a=>a.id===values.account && !a.hidden)) throw new Error('Choose an available account.');
     const category=getCcPurchaseCategory({category:values.category});
     if(values.method==='bank'&&!category) throw new Error('Choose a category for bank/cash expenses.');
-    const existing=id?find(id):null;
     if(id && (!existing || fingerprint(existing)!==expected)) throw new Error('This subscription changed. Reopen the form.');
     const serviceId=values.serviceId && (values.serviceId==='custom'||SubscriptionServices.services.some(row=>row.id===values.serviceId)||existing?.serviceId===values.serviceId)?values.serviceId:SubscriptionServices.match(name)?.id||'';
     const definition={...(existing || {}),id:id||generateId(),name,amount,method:values.method,
       account:values.method==='bank'?values.account:'',category,frequency:values.frequency,nextDueDate,
-      anchorDay:existing && existing.nextDueDate===nextDueDate && existing.frequency===values.frequency ? existing.anchorDay : Number.isInteger(anchorDay)&&anchorDay>=1&&anchorDay<=31 ? anchorDay : Number(nextDueDate.slice(8)),
+      anchorDay:unchangedDate?existing.anchorDay:anchorDay,
       serviceId,icon:Object.hasOwn(SubscriptionServices.generics,values.icon)||existing?.icon===values.icon?values.icon:'letter',status:existing?.status||'active',timestamp:existing?.timestamp||Date.now()};
     await change(()=>{
       state.subscriptions ||= [];
@@ -149,6 +164,7 @@ const Subscriptions = (() => {
   }
   function render() {
     renderNotice();
+    renderDashboardEntry();
     if(document.getElementById('upcomingPaymentsModal')?.style.display==='block')renderUpcoming();
     if(document.getElementById('subscriptionReminderModal')?.style.display==='block')renderReminder();
     const host=document.getElementById('subscriptionList');if(!host)return;
@@ -156,18 +172,38 @@ const Subscriptions = (() => {
     rows=rows.filter(sub=>sub.name.toLowerCase().includes(search.toLowerCase())).sort((a,b)=>a.nextDueDate.localeCompare(b.nextDueDate));
     host.innerHTML=rows.length?rows.map(sub=>{
       const snoozed=occurrence(sub.id,sub.nextDueDate)?.snoozedUntil>Date.now();
-      return `<article class="subscription-row">${SubscriptionServices.icon(sub)}<div class="subscription-row-copy"><strong>${escapeHTML(sub.name)}</strong><span class="${daysUntil(sub.nextDueDate)<0?'text-expense':''}">${sub.status==='active'?escapeHTML(dueLabel(sub.nextDueDate)):escapeHTML(sub.status==='paused'?'Paused':'Cancelled')} · ${escapeHTML(formatDate(sub.nextDueDate))}</span><small>${escapeHTML(frequencies[sub.frequency])}${snoozed?' · Reminder snoozed':''}</small></div><div class="subscription-row-actions"><strong class="tabular-nums">${formatCurrency(sub.amount)}</strong><div>${sub.status==='active'?`<button class="btn btn-primary" data-sub-action="paid" data-sub-id="${escapeHTML(sub.id)}">Paid</button>`:''}<button class="btn btn-secondary" data-sub-action="manage" data-sub-id="${escapeHTML(sub.id)}" aria-label="Manage ${escapeHTML(sub.name)}"><i class="fas fa-ellipsis-h" aria-hidden="true"></i></button></div></div></article>`;
+      return `<article class="subscription-row">${SubscriptionServices.icon(sub)}<div class="subscription-row-copy"><strong>${escapeHTML(sub.name)}</strong><span class="${daysUntil(sub.nextDueDate)<0?'text-expense':''}">${sub.status==='active'?escapeHTML(dueLabel(sub.nextDueDate)):escapeHTML(sub.status==='paused'?'Paused':'Cancelled')} · ${escapeHTML(formatDate(sub.nextDueDate))}</span><small>${escapeHTML(frequencies[sub.frequency])}${snoozed?' · Reminder snoozed':''}</small></div><div class="subscription-row-actions"><strong class="tabular-nums">${formatCurrency(sub.amount)}</strong><div>${sub.status==='active'?`<button class="btn btn-primary" data-sub-action="paid" data-sub-id="${escapeHTML(sub.id)}">${sub.method==='cc'?'Charged':'Paid'}</button>`:''}<button class="btn btn-secondary" data-sub-action="manage" data-sub-id="${escapeHTML(sub.id)}" aria-label="Manage ${escapeHTML(sub.name)}"><i class="fas fa-ellipsis-h" aria-hidden="true"></i></button></div></div></article>`;
     }).join(''):`<div class="subscription-empty"><i class="far fa-calendar-check" aria-hidden="true"></i><p>${search?'No matching subscriptions.':filter==='archived'?'No paused or cancelled subscriptions.':'No subscriptions here yet.'}</p>${filter!=='archived'?'<button class="btn btn-primary" data-sub-action="add">Add Subscription</button>':''}</div>`;
+  }
+  function renderDashboardEntry() {
+    const hidden=!!state.settings?.hideDebts;
+    const label=document.getElementById('oweSectionLabel');if(!label)return;
+    label.textContent=hidden?'Subscriptions':'I Owe';
+    document.getElementById('totalOwed').hidden=hidden;
+    const summary=document.getElementById('subscriptionActiveSummary');summary.hidden=!hidden;
+    summary.textContent=`${list().filter(sub=>sub.status==='active').length} active`;
+    document.getElementById('receivablesDashboardSection').hidden=hidden;
+    document.getElementById('addDebtBtn').hidden=hidden;
+    document.getElementById('viewDebtsBtn').hidden=hidden;
+    document.getElementById('addSubscriptionDashboardBtn').hidden=!hidden;
+    document.getElementById('owedViewActions').classList?.toggle('subscriptions-only',hidden);
+    const container=document.getElementById('debtsReceivablesContainer');
+    container.classList?.toggle('subscriptions-only',hidden);
+    if(hidden){
+      container.style.display='grid';document.getElementById('debtsInstallmentsCard').style.display='block';
+      const title=document.getElementById('debtsInstallmentsTitle');title.style.display='block';
+      title.textContent=state.settings.hideInstallments?'Subscriptions':'Subscriptions & Installments';
+    }
   }
   function openManager(view='active') {
     if(isAppLocked())return;
     filter=view;search='';document.getElementById('subscriptionSearch').value='';
     document.getElementById('subscriptionFilter').value=view;
-    render();openModalHelper('subscriptionsModal');
+    render();if(document.getElementById('subscriptionsModal').style.display!=='block')openModalHelper('subscriptionsModal');
   }
   function renderUpcoming() {
     const host=document.getElementById('upcomingPaymentList');
-    host.innerHTML=upcoming().map(item=>`<article class="subscription-row">${item.sub?SubscriptionServices.icon(item.sub):'<span class="subscription-icon"><i class="fas fa-hand-holding-usd" aria-hidden="true"></i></span>'}<div class="subscription-row-copy"><strong>${escapeHTML(item.name)}</strong><span class="${daysUntil(item.due)<0?'text-expense':''}">${escapeHTML(dueLabel(item.due))}</span><small>${item.kind==='debt'?'Debt':escapeHTML(item.sub.frequency)}</small></div><div class="subscription-row-actions"><strong>${formatCurrency(item.amount)}</strong><button class="btn btn-primary" ${item.kind==='debt'?`data-record-action="payDebt" data-record-id="${escapeHTML(item.id)}"`:`data-sub-action="paid" data-sub-id="${escapeHTML(item.id)}"`}>${item.kind==='debt'?'Pay':'Review'}</button></div></article>`).join('')||'<p class="subscription-empty">Nothing due within seven days.</p>';
+    host.innerHTML=upcoming().map(item=>`<article class="subscription-row">${item.sub?SubscriptionServices.icon(item.sub):'<span class="subscription-icon"><i class="fas fa-hand-holding-usd" aria-hidden="true"></i></span>'}<div class="subscription-row-copy"><strong>${escapeHTML(item.name)}</strong><span class="${daysUntil(item.due)<0?'text-expense':''}">${escapeHTML(dueLabel(item.due))}</span><small>${item.kind==='debt'?'Debt':escapeHTML(frequencies[item.sub.frequency])}</small></div><div class="subscription-row-actions"><strong>${formatCurrency(item.amount)}</strong><button class="btn btn-primary" ${item.kind==='debt'?`data-record-action="payDebt" data-record-id="${escapeHTML(item.id)}"`:`data-sub-action="paid" data-sub-id="${escapeHTML(item.id)}"`}>${item.kind==='debt'?'Pay':'Review'}</button></div></article>`).join('')||'<p class="subscription-empty">Nothing due within seven days.</p>';
   }
   function openUpcoming() {
     if(isAppLocked())return;
@@ -178,50 +214,57 @@ const Subscriptions = (() => {
     const existing=find(id),sub=existing||{name:'',amount:'',method:'bank',account:state.accounts.find(a=>!a.hidden)?.id||'',category:'',frequency:'monthly',nextDueDate:getCurrentDateString(),icon:'letter',serviceId:'',...seed};
     const expected=existing?fingerprint(existing):null;
     const options=state.accounts.filter(a=>!a.hidden||a.id===sub.account).map(a=>`<option value="${escapeHTML(a.id)}"${a.id===sub.account?' selected':''}>${escapeHTML(a.name)}</option>`).join('');
+    const selectedService=SubscriptionServices.services.find(service=>service.id===sub.serviceId);
     openFormModal(existing?'Edit Subscription':'Add Subscription',`
-      <label class="subscription-field">Subscription Name<input id="subName" name="name" value="${escapeHTML(sub.name)}" autocomplete="off" maxlength="160" required></label>
+      <div class="subscription-editor">
+      <label class="subscription-field">Subscription Name<input type="text" id="subName" name="name" value="${escapeHTML(sub.name)}" placeholder="e.g., Spotify or Gym Membership" autocomplete="off" maxlength="160" required></label>
       <input type="hidden" id="subServiceId" name="serviceId" value="${escapeHTML(sub.serviceId)}">
-      <div id="subServiceChoice" class="subscription-service-choice">${SubscriptionServices.icon(sub)}<span>${escapeHTML(SubscriptionServices.services.find(s=>s.id===sub.serviceId)?.name || 'Custom subscription')}</span><button type="button" class="btn btn-secondary" id="subChangeService">Choose Service</button></div>
-      <div id="subServiceResults" class="subscription-service-results" role="region" aria-label="Service suggestions" hidden></div>
-      <label class="subscription-field" id="subIconGroup"${SubscriptionServices.services.some(service=>service.id===sub.serviceId)?' hidden':''}>Custom Icon<select name="icon" id="subIcon">${sub.icon&&!Object.hasOwn(SubscriptionServices.generics,sub.icon)?`<option value="${escapeHTML(sub.icon)}" selected>Custom Icon</option>`:''}${Object.entries(SubscriptionServices.generics).map(([key,[name]])=>`<option value="${key}"${key===sub.icon?' selected':''}>${name}</option>`).join('')}</select></label>
+      <div id="subBrandArea" class="subscription-brand-area"><div id="subServiceChoice" class="subscription-service-choice"><span id="subIconPreview">${SubscriptionServices.icon(sub)}</span><span id="subServiceLabel"${selectedService?'':' hidden'}>${escapeHTML(selectedService?.name||'')}</span>
+      <select name="icon" id="subIcon" aria-label="Subscription Icon"${selectedService?' hidden':''}>${sub.icon&&!Object.hasOwn(SubscriptionServices.generics,sub.icon)?`<option value="${escapeHTML(sub.icon)}" selected>Custom Icon</option>`:''}${Object.entries(SubscriptionServices.generics).map(([key,[name]])=>`<option value="${key}"${key===sub.icon?' selected':''}>${name}</option>`).join('')}</select><button type="button" class="btn btn-secondary" id="subChangeService" aria-label="Change Icon"><i class="fas fa-pen" aria-hidden="true"></i><span>Change</span></button></div>
+      <div id="subServiceResults" class="subscription-service-results" role="region" aria-label="Service suggestions" hidden></div></div>
       <div class="subscription-form-grid"><label class="subscription-field">Amount (LKR)<div class="relative flex items-center w-full"><input class="calc-amount pr-8" type="text" inputmode="decimal" name="amount" value="${escapeHTML(String(sub.amount))}" required><button type="button" class="calc-toggle-btn absolute right-2" aria-label="Toggle Calculator"><i class="fas fa-calculator" aria-hidden="true"></i></button></div></label>
       <label class="subscription-field">Frequency<select name="frequency">${Object.entries(frequencies).map(([key,label])=>`<option value="${key}"${sub.frequency===key?' selected':''}>${label}</option>`).join('')}</select></label></div>
-      <div class="subscription-form-grid"><label class="subscription-field">Start From<select name="dateMode" id="subDateMode"><option value="next">Next Due Date</option><option value="lastPaid">Last Paid Date</option></select></label>
-      <label class="subscription-field"><span id="subDateLabel">Next Due Date</span><input type="date" name="nextDueDate" value="${escapeHTML(sub.nextDueDate)}" required></label></div>
+      <label class="subscription-field">Last Paid / Next Due Date<input type="date" id="subDate" name="nextDueDate" value="${escapeHTML(sub.nextDueDate)}" required><small id="subNextDatePreview" class="subscription-date-preview" hidden></small></label>
       <label class="subscription-field">Payment Method<select name="method" id="subMethod"><option value="bank">Bank / Cash</option><option value="cc"${sub.method==='cc'?' selected':''}>Credit Card</option></select></label>
       <label class="subscription-field" id="subAccountGroup">Account<select name="account" id="subAccount">${options}</select></label>
       <label class="subscription-field">Category<select name="category" id="subCategory">${ccPurchaseCategoryOptions(sub.category,sub.method==='cc')}</select></label>
-      <button class="btn btn-primary w-full" type="submit">Save Subscription</button>`,async event=>{
+      <button class="btn btn-primary w-full" type="submit"><i class="fas fa-save" aria-hidden="true"></i> Save Subscription</button></div>`,async event=>{
         event.preventDefault();await perform(async()=>{
-          const form=new FormData(event.target),values=Object.fromEntries(['name','amount','frequency','nextDueDate','dateMode','method','account','category','serviceId','icon'].map(key=>[key,form.get(key)]));
-          if(values.nextDueDate===sub.nextDueDate&&values.frequency===sub.frequency)values.anchorDay=sub.anchorDay;
+          const form=new FormData(event.target),values=Object.fromEntries(['name','amount','frequency','nextDueDate','method','account','category','serviceId','icon'].map(key=>[key,form.get(key)]));
+          if(values.nextDueDate===sub.nextDueDate)values.anchorDay=sub.anchorDay;
           await saveDefinition(values,id,expected);closeModal('formModal');openManager();showNotification('Subscription saved.','success');
         });
       });
     const name=document.getElementById('subName'),results=document.getElementById('subServiceResults');
-    const drawSuggestions=()=>{
+    let browsingIcons=false;
+    const matchMarkup=query=>SubscriptionServices.search(query).map(service=>`<button type="button" class="subscription-service-option" data-service-id="${service.id}">${SubscriptionServices.icon({name:service.name,serviceId:service.id})}<span>${escapeHTML(service.name)}</span></button>`).join('')+'<button type="button" class="subscription-service-option" data-service-id=""><i class="fas fa-font" aria-hidden="true"></i><span>Use a Custom Icon</span></button>';
+    const drawSuggestions=(browse=false)=>{
+      browsingIcons=browse;
+      if(!browse&&!SubscriptionServices.search(name.value).length){results.hidden=true;return;}
       results.hidden=false;
-      results.innerHTML=SubscriptionServices.search(name.value).map(service=>`<button type="button" class="subscription-service-option" data-service-id="${service.id}">${SubscriptionServices.icon({name:service.name,serviceId:service.id})}<span>${escapeHTML(service.name)}</span></button>`).join('')+`<button type="button" class="subscription-service-option" data-service-id=""><i class="fas fa-plus" aria-hidden="true"></i><span>Use ${escapeHTML(name.value.trim()||'a custom subscription')}</span></button>`;
+      results.innerHTML=(browse?'<input type="search" id="subFindService" aria-label="Find Service" placeholder="Find a service…" autocomplete="off">':'')+`<div id="subServiceMatches">${matchMarkup(browse?'':name.value)}</div>`;
+      if(browse){const input=document.getElementById('subFindService');input.oninput=()=>{document.getElementById('subServiceMatches').innerHTML=matchMarkup(input.value);};input.focus();}
     };
-    const showServiceChoice=service=>{
-      document.getElementById('subIconGroup').hidden=!!service;
-      document.getElementById('subServiceChoice').innerHTML=`${SubscriptionServices.icon({name:name.value,serviceId:service?.id||'custom'})}<span>${escapeHTML(service?.name||'Custom subscription')}</span><button type="button" class="btn btn-secondary" id="subChangeService">Change</button>`;
-      document.getElementById('subChangeService').onclick=drawSuggestions;
+    const showServiceChoice=()=>{
+      const serviceId=document.getElementById('subServiceId').value,service=SubscriptionServices.services.find(row=>row.id===serviceId);
+      const icon=document.getElementById('subIcon');icon.hidden=!!service;
+      const label=document.getElementById('subServiceLabel');label.hidden=!service;label.textContent=service?.name||'';
+      document.getElementById('subIconPreview').innerHTML=SubscriptionServices.icon({name:name.value,serviceId:serviceId||'custom',icon:icon.value});
     };
     name.oninput=()=>{
       const service=SubscriptionServices.match(name.value);
       document.getElementById('subServiceId').value=service?.id||'';
-      showServiceChoice(service);
+      showServiceChoice();
       drawSuggestions();
-    };document.getElementById('subChangeService').onclick=drawSuggestions;
+    };document.getElementById('subChangeService').onclick=()=>drawSuggestions(true);
     results.onclick=event=>{
       const button=event.target.closest('[data-service-id]');if(!button)return;
       const service=SubscriptionServices.services.find(row=>row.id===button.dataset.serviceId);
       document.getElementById('subServiceId').value=service?.id||'custom';
       // Choosing artwork must preserve personal labels such as Work ChatGPT.
-      if(service && SubscriptionServices.match(name.value)?.id!==service.id)name.value=service.name;
+      if(service && (!name.value.trim()||!browsingIcons&&SubscriptionServices.match(name.value)?.id!==service.id))name.value=service.name;
       results.hidden=true;
-      showServiceChoice(service);
+      showServiceChoice();
     };
     const updateMethod=()=>{
       const cc=document.getElementById('subMethod').value==='cc';
@@ -229,7 +272,15 @@ const Subscriptions = (() => {
       document.getElementById('subCategory').required=!cc;
     };
     document.getElementById('subMethod').onchange=updateMethod;updateMethod();
-    document.getElementById('subDateMode').onchange=event=>{document.getElementById('subDateLabel').textContent=event.target.value==='lastPaid'?'Last Paid Date':'Next Due Date';};
+    document.getElementById('subIcon').onchange=()=>{document.getElementById('subServiceId').value='custom';results.hidden=true;showServiceChoice();};
+    const updateDatePreview=()=>{
+      const date=document.getElementById('subDate').value,frequency=document.querySelector('#dynamicForm [name="frequency"]').value,preview=document.getElementById('subNextDatePreview');
+      const keepOverdue=existing&&date===existing.nextDueDate&&frequency===existing.frequency;
+      preview.hidden=!validDate(date)||date>=getCurrentDateString()||keepOverdue;
+      if(!preview.hidden)preview.textContent=`Next renewal: ${formatDate(firstUpcomingDate(date,frequency,date===sub.nextDueDate?sub.anchorDay||Number(date.slice(8)):Number(date.slice(8))))}`;
+    };
+    document.getElementById('subDate').onchange=updateDatePreview;
+    document.querySelector('#dynamicForm [name="frequency"]').onchange=updateDatePreview;updateDatePreview();
   }
   function fromTransaction(kind,id) {
     if(isAppLocked())return;
@@ -245,7 +296,7 @@ const Subscriptions = (() => {
     const expected=fingerprint(sub),due=sub.nextDueDate;
     const candidates=(sub.method==='cc'?state.creditCard.transactions:state.transactions.filter(t=>t.type==='expense'&&t.account===sub.account))
       .filter(t=>!t.subscriptionOccurrenceId&&!occurrences().some(o=>o.transactionId===t.id&&o.kind===sub.method)).slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,100);
-    openFormModal(`Record ${sub.name}`,`
+    openFormModal(sub.method==='cc'?'Record Subscription Charge':'Record Subscription Payment',`
       <p class="subscription-payment-heading">${SubscriptionServices.icon(sub)}<span>${escapeHTML(sub.name)}<small>Renewal: ${escapeHTML(formatDate(due))}</small></span></p>
       <label class="subscription-field">Entry<select id="subPaymentLink" name="link"><option value="">Record New ${sub.method==='cc'?'CC Purchase':'Expense'}</option>${candidates.map(t=>`<option value="${escapeHTML(t.id)}">Already recorded: ${escapeHTML(t.date)} · ${escapeHTML(t.description)} · ${formatCurrency(t.amount)}</option>`).join('')}</select></label>
       <div id="subNewPaymentFields" class="subscription-fields">
@@ -253,13 +304,13 @@ const Subscriptions = (() => {
       ${sub.method==='bank'?`<label class="subscription-field">Account<select name="account" required>${state.accounts.filter(a=>!a.hidden).map(a=>`<option value="${escapeHTML(a.id)}"${a.id===sub.account?' selected':''}>${escapeHTML(a.name)} (${formatCurrency(a.balance)})</option>`).join('')}</select></label>`:''}
       <label class="subscription-field">Category${sub.method==='cc'?' (Optional)':''}<select name="category" ${sub.method==='bank'?'required':''}>${ccPurchaseCategoryOptions(getCcPurchaseCategory(sub),sub.method==='cc')}</select></label>
       <label class="subscription-field">Payment Date<input type="date" name="date" value="${getCurrentDateString()}" required></label>
-      </div><button type="submit" class="btn btn-primary w-full">Record ${sub.method==='cc'?'CC Purchase':'Payment'}</button>`,async event=>{
+      </div>${sub.method==='cc'?'<p class="subscription-payment-note">Added to your card balance. Settle it later in View &amp; Pay.</p>':''}<button type="submit" class="btn btn-primary w-full">Record ${sub.method==='cc'?'Charge':'Payment'}</button>`,async event=>{
         event.preventDefault();await perform(async()=>{
           const form=new FormData(event.target);
           await record(id,due,{link:form.get('link'),amount:form.get('amount'),account:form.get('account'),category:form.get('category'),date:form.get('date')},expected);
           closeModal('formModal');
           render();
-          refreshMonthlyViewIfRelevant(getCurrentDateString());showNotification('Subscription payment recorded.','success');
+          refreshMonthlyViewIfRelevant(getCurrentDateString());showNotification(sub.method==='cc'?'Subscription charge recorded.':'Subscription payment recorded.','success');
         });
       });
     document.getElementById('subPaymentLink').onchange=event=>{
@@ -289,7 +340,7 @@ const Subscriptions = (() => {
   }
   const dueSubscriptions=()=>list().filter(sub=>sub.status==='active'&&daysUntil(sub.nextDueDate)<=0&&!(occurrence(sub.id,sub.nextDueDate)?.snoozedUntil>Date.now()));
   function renderReminder(due=dueSubscriptions()) {
-    document.getElementById('subscriptionReminderList').innerHTML=due.map(sub=>`<article class="subscription-row">${SubscriptionServices.icon(sub)}<div class="subscription-row-copy"><strong>${escapeHTML(sub.name)}</strong><span>${escapeHTML(dueLabel(sub.nextDueDate))}</span><small>${formatCurrency(sub.amount)}</small></div><div class="subscription-row-actions subscription-reminder-actions"><button class="btn btn-primary" data-sub-action="paid" data-sub-id="${escapeHTML(sub.id)}">Paid</button><button class="btn btn-secondary" data-sub-action="snooze" data-sub-id="${escapeHTML(sub.id)}">Remind Me Later</button><button class="btn btn-secondary" data-sub-action="manage" data-sub-id="${escapeHTML(sub.id)}" aria-label="Manage ${escapeHTML(sub.name)}"><i class="fas fa-ellipsis-h" aria-hidden="true"></i></button></div></article>`).join('')||'<p class="subscription-empty">All caught up for now.</p>';
+    document.getElementById('subscriptionReminderList').innerHTML=due.map(sub=>`<article class="subscription-row">${SubscriptionServices.icon(sub)}<div class="subscription-row-copy"><strong>${escapeHTML(sub.name)}</strong><span>${escapeHTML(dueLabel(sub.nextDueDate))}</span><small>${formatCurrency(sub.amount)}</small></div><div class="subscription-row-actions subscription-reminder-actions"><button class="btn btn-primary" data-sub-action="paid" data-sub-id="${escapeHTML(sub.id)}">${sub.method==='cc'?'Charged':'Paid'}</button><button class="btn btn-secondary" data-sub-action="snooze" data-sub-id="${escapeHTML(sub.id)}">Remind Me Later</button><button class="btn btn-secondary" data-sub-action="manage" data-sub-id="${escapeHTML(sub.id)}" aria-label="Manage ${escapeHTML(sub.name)}"><i class="fas fa-ellipsis-h" aria-hidden="true"></i></button></div></article>`).join('')||'<p class="subscription-empty">All caught up for now.</p>';
   }
   async function reminder() {
     if(isAppLocked()||!state.settings?.initialSetupDone||document.visibilityState==='hidden'||busy||storageOperationPending)return;
@@ -314,6 +365,8 @@ const Subscriptions = (() => {
     clearTimeout(reminderTimer);reminderTimer=setTimeout(()=>perform(reminder),1800);
   }
   document.addEventListener('click',event=>{
+    const results=document.getElementById('subServiceResults');
+    if(results && event.target.id!=='subName' && !event.target.closest('#subBrandArea'))results.hidden=true;
     const button=event.target.closest('[data-sub-action]');if(!button||isAppLocked())return;
     event.preventDefault();
     const action=button.dataset.subAction,id=button.dataset.subId;
@@ -324,6 +377,6 @@ const Subscriptions = (() => {
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){renderNotice();scheduleReminder();}});
   // Recalculate calendar-day boundaries while the app stays open; never auto-charge.
   window.setInterval?.(()=>{if(document.visibilityState==='visible'&&!isAppLocked()){renderNotice();scheduleReminder();}},60000);
-  return {validDate,nextDate,occurrenceId,upcoming,saveDefinition,record,resolve,setStatus,render,renderNotice,openManager,openEditor,openPayment,scheduleReminder,
+  return {validDate,nextDate,firstUpcomingDate,occurrenceId,upcoming,saveDefinition,record,resolve,setStatus,render,renderNotice,openManager,openEditor,openPayment,scheduleReminder,
     onSearch:value=>{search=value;render();},onFilter:value=>{filter=value;render();}};
 })();

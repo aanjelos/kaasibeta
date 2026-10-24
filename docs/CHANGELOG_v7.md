@@ -2,6 +2,20 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.394n - 2026-10-24
+
+### 1. [Improvement] Integrated Subscription Navigation and Consistent Forms
+
+Moved Subscriptions into the I Owe view row beside Debts, retaining the two-row alignment with Owes Me. When debt widgets are hidden, subscription controls remain accessible in the same dashboard area. The manager now reserves its header for the title and close control; Add New sits with search and status filtering below. Refined mobile widths, typography, spacing and form controls to match existing transaction forms. The name field explicitly uses the standard text-input styling. Generic icon selections update the preview immediately, and the searchable artwork picker preserves personal names when choosing a different icon.
+
+### 2. [Improvement] Single Renewal Date and Six-Month Frequency
+
+Removed Start From and its date-mode selector. A single Last Paid / Next Due Date field treats a past date as a recurrence reference and advances to the first renewal on or after today, retaining month-end anchors and creating no past expenses. Today/future dates are used directly. Editing unrelated fields leaves an existing overdue renewal intact. A preview shows the calculated next renewal for past reference dates. Renamed Yearly to Annual and added the biannual interval labelled Every 6 Months, stored as semiannually in compatible JSON backups. Existing schedules are not rewritten, and the database schema remains version 2.
+
+### 3. [Clarification] Card Charge Versus Card Settlement
+
+Credit-card subscription rows use Charged instead of Paid. Confirmation records an unpaid CC purchase and explains that settlement happens through View & Pay. Bank balances and logged spending change only through the existing card-payment workflow, whose category defaults continue to come from the purchase. Recording or linking a subscription charge does not settle the card or duplicate an expense.
+
 ## v6.393n - 2026-10-24
 
 ### 1. [Feature] Subscription Schedules and Confirmed Renewals

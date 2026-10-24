@@ -2210,22 +2210,24 @@ footer a[href^="https://kaasi.com.lk"]:hover
   .cc-payment-history-main .cc-direct-pay { grid-column: 2; grid-row: 1 / span 2; }
   #ccHistoryListContainer { max-height: 48vh; padding-right: 0; }
 }
-.subscription-dashboard-entry { display: flex; justify-content: flex-end; margin: -8px 0 18px; }
+.owed-view-actions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.owed-view-actions .btn { min-width: 0; padding-left: 8px; padding-right: 8px; gap: 6px; white-space: nowrap; }
+.owed-view-actions.subscriptions-only, #debtsReceivablesContainer.subscriptions-only { grid-template-columns: minmax(0, 1fr); }
+#addDebtBtn[hidden], #viewDebtsBtn[hidden], #addSubscriptionDashboardBtn[hidden], #receivablesDashboardSection[hidden], #subscriptionActiveSummary[hidden], #totalOwed[hidden] { display: none; }
 .upcoming-notice { margin: -1.75rem -1.75rem 1.25rem; padding: 0; background: var(--bg-tertiary); border-bottom: 1px solid var(--border-color); border-radius: var(--radius-lg, 12px) var(--radius-lg, 12px) 0 0; }
 .upcoming-notice[hidden] { display: none; }
 .upcoming-notice > button { display: flex; gap: 12px; align-items: center; width: 100%; min-height: 52px; padding: 12px 24px; text-align: left; font-size: .85rem; }
 .upcoming-notice > button > i { color: var(--accent-primary); }
 .subscription-notice-link { margin-left: auto; white-space: nowrap; color: var(--accent-primary); }
-.subscriptions-content { max-width: 700px; }
-.subscriptions-content h2 { font-size: 1.4rem; font-weight: 700; padding-right: 28px; }
-.subscription-manager-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 28px 22px 0; }
+.subscriptions-content { max-width: 720px; }
+.subscriptions-content h2 { font-size: 1.25rem; font-weight: 600; padding-right: 28px; }
+.subscription-manager-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
 .subscription-manager-heading h2 { padding-right: 0; }
-.subscription-manager-heading > div { min-width: 0; }
-.subscription-manager-heading > .btn { flex-shrink: 0; }
-.subscription-manager-heading p { margin-top: 5px; font-size: .85rem; color: var(--text-secondary); }
-.subscription-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; margin-bottom: 12px; }
-.subscription-toolbar input, .subscription-toolbar select { min-width: 0; width: 100%; min-height: 44px; }
-.subscription-list { max-height: 56vh; overflow-y: auto; margin: 12px 0; }
+.subscription-manager-heading .modal-close { position: static; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; flex-shrink: 0; font-size: 1.75rem; }
+.subscription-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) 150px auto; gap: 10px; margin: 20px 0 8px; }
+.subscription-toolbar input, .subscription-toolbar select, .subscription-toolbar .btn { min-width: 0; width: 100%; min-height: 44px; height: 44px; }
+.subscription-toolbar .btn { padding: 10px 16px; font-size: .875rem; white-space: nowrap; }
+.subscription-list { max-height: 56vh; overflow-y: auto; margin: 8px 0; padding-right: 8px; }
 .subscription-row { display: flex; align-items: center; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--border-color); }
 .subscription-row:last-child { border-bottom: 0; }
 .subscription-icon { position: relative; display: inline-flex; flex: 0 0 40px; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; background: #323232; color: #fff; font-weight: 700; overflow: hidden; }
@@ -2233,7 +2235,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .subscription-icon img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 8px; background: #323232; }
 .subscription-icon img[hidden] { display: none; }
 .subscription-row-copy { flex: 1; min-width: 0; }
-.subscription-row-copy > strong { display: block; overflow-wrap: anywhere; line-height: 1.4; }
+.subscription-row-copy > strong { display: block; font-size: .9375rem; font-weight: 600; overflow-wrap: anywhere; line-height: 1.4; }
 .subscription-row-copy > span { display: block; color: var(--text-secondary); font-size: .8rem; margin-top: 5px; }
 .subscription-row-copy > small { display: block; color: var(--text-secondary); font-size: .75rem; margin-top: 3px; text-transform: capitalize; }
 .subscription-row-actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
@@ -2244,20 +2246,30 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .subscription-empty { padding: 35px 12px; text-align: center; color: var(--text-secondary); }
 .subscription-empty > i { font-size: 2rem; margin-bottom: 12px; color: var(--accent-primary); }
 .subscription-empty .btn { margin-top: 16px; }
-.subscription-field { display: block; font-size: .85rem; font-weight: 500; min-width: 0; }
+.subscription-editor { display: grid; gap: 16px; }
+.subscription-field { display: block; font-size: .875rem; font-weight: 500; min-width: 0; }
 .subscription-field > input, .subscription-field > select, .subscription-field > div { display: block; width: 100%; margin-top: 6px; }
 .subscription-field input, .subscription-field select { width: 100%; min-height: 44px; }
+.subscription-editor input, .subscription-editor select { font-family: inherit; font-weight: 400; }
 .subscription-field .calc-toggle-btn { color: var(--text-secondary); min-width: 28px; }
 .subscription-field > .relative { display: flex; }
 .subscription-form-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
-.subscription-service-choice, .subscription-payment-heading { display: flex; align-items: center; gap: 10px; }
-.subscription-service-choice > span:not(.subscription-icon) { flex: 1; font-size: .85rem; color: var(--text-secondary); }
-.subscription-service-choice .btn { padding: 8px 10px; font-size: .8rem; min-height: 40px; }
-.subscription-service-results { border: 1px solid var(--border-color); background: var(--bg-secondary); border-radius: 10px; overflow: auto; max-height: 240px; }
-.subscription-service-results[hidden], .subscription-field[hidden], .subscription-fields[hidden] { display: none; }
+.subscription-brand-area { position: relative; }
+.subscription-service-choice { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+#subServiceLabel { font-size: .875rem; font-weight: 500; overflow-wrap: anywhere; }
+#subIconPreview { display: flex; align-items: center; }
+.subscription-service-choice select { min-width: 0; }
+.subscription-service-choice .btn { padding: 8px 12px; font-size: .875rem; min-height: 44px; }
+.subscription-service-choice .btn i { display: none; }
+.subscription-service-results { position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 2; border: 1px solid var(--border-light); background: var(--bg-secondary); border-radius: var(--radius-md); box-shadow: 0 8px 24px var(--shadow-color); overflow: auto; max-height: 240px; }
+#subFindService { position: sticky; top: 0; z-index: 1; border-width: 0 0 1px; border-radius: 0; }
+.subscription-service-results[hidden], .subscription-service-choice [hidden], .subscription-field[hidden], .subscription-fields[hidden], .subscription-date-preview[hidden] { display: none; }
 .subscription-service-option { display: flex; gap: 12px; align-items: center; min-height: 52px; width: 100%; padding: 8px 12px; text-align: left; }
 .subscription-service-option:hover, .subscription-service-option:focus-visible { background: var(--bg-tertiary); }
 .subscription-option-list { display: grid; gap: 10px; }
+.subscription-date-preview { display: block; margin-top: 6px; color: var(--text-secondary); font-size: .75rem; font-weight: 400; }
+.subscription-payment-heading { display: flex; align-items: center; gap: 12px; }
+.subscription-payment-note { color: var(--text-secondary); font-size: .8125rem; line-height: 1.5; }
 .subscription-payment-heading > span:last-child { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 .subscription-payment-heading small { display: block; font-weight: 400; color: var(--text-secondary); margin-top: 5px; }
 .subscription-fields > label + label { margin-top: 16px; }
@@ -2271,9 +2283,18 @@ footer a[href^="https://kaasi.com.lk"]:hover
   .subscription-row-copy { flex-basis: calc(100% - 50px); }
   .subscription-row-actions { flex-direction: row; flex-basis: 100%; align-items: center; justify-content: space-between; padding-left: 50px; }
   .subscription-reminder-actions { padding-left: 0; justify-content: flex-start; }
-  .subscription-manager-heading { gap: 8px; margin-right: 36px; }
-  .subscription-manager-heading p { display: none; }
-  .subscription-toolbar { grid-template-columns: minmax(0, 1fr); }
+  .subscription-toolbar { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .subscription-toolbar input { grid-column: 1 / -1; }
   .subscription-form-grid { gap: 10px; }
   .upcoming-notice > button { padding: 12px 20px; }
+}
+@media (max-width: 479px) {
+  .subscription-form-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .owed-view-actions .btn { font-size: .8125rem; }
+  .owed-view-actions [data-sub-action="open"] i { display: none; }
+}
+@media (max-width: 359px) {
+  .subscription-service-choice .btn { width: 44px; padding: 8px; }
+  .subscription-service-choice .btn span { display: none; }
+  .subscription-service-choice .btn i { display: inline; }
 }

@@ -2,7 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const {webcrypto}=require('node:crypto');const root=path.resolve(__dirname,'..');
 function env(){
   const elements=new Map(),preferences=new Map();const el=id=>{if(!elements.has(id))elements.set(id,{style:{},hidden:true,innerHTML:'',value:'',getClientRects:()=>[{}]});return elements.get(id);};
-  let timer;const c={console,crypto:webcrypto,TextEncoder,document:{getElementById:el,querySelectorAll:()=>[],addEventListener(){},visibilityState:'visible'},addEventListener(){},setTimeout:action=>{timer=action;},clearTimeout(){},
+  let timer;const c={console,crypto:webcrypto,TextEncoder,document:{getElementById:el,querySelector:selector=>el(selector),querySelectorAll:()=>[],addEventListener(){},visibilityState:'visible'},addEventListener(){},setTimeout:action=>{timer=action;},clearTimeout(){},
     supabase:{createClient:()=>null},isAppLocked:()=>false,storageOperationPending:false,KaasiStorage:{mode:'indexeddb'},renderDashboard(){},showNotification(){},getCurrentDateString:()=> '2026-10-24',
     appPreferences:{getItem:k=>preferences.get(k),setItem:(k,v)=>preferences.set(k,v),removeItem:k=>preferences.delete(k),flush:async()=>{}},getComputedStyle:()=>({display:'none'}),openModalHelper:id=>{el(id).style.display='block';},
     closeModal:id=>{el(id).style.display='none';}};
@@ -25,6 +25,8 @@ test('recurrence preserves monthly/quarterly/leap-year anchors instead of drifti
   assert.equal(api.nextDate({frequency:'annually',nextDueDate:'2027-02-28',anchorDay:29}),'2028-02-29');
   assert.equal(api.nextDate({frequency:'weekly',nextDueDate:'2026-12-28'}),'2027-01-04');
   assert.equal(api.nextDate({frequency:'daily',nextDueDate:'2026-12-31'}),'2027-01-01');
+  assert.equal(api.nextDate({frequency:'semiannually',nextDueDate:'2026-08-31',anchorDay:31}),'2027-02-28');
+  assert.equal(api.nextDate({frequency:'semiannually',nextDueDate:'2027-02-28',anchorDay:31}),'2027-08-31');
 });
 test('saving schedules never deducts funds; confirmed bank payment and renewal commit together',async()=>{
   const e=env(),id=await e.api.saveDefinition(definition());
@@ -114,6 +116,7 @@ test('every bundled SVG is safe, unique by filename and present in the offline m
 });
 test('due reminders are grouped, not repeated on focus, and respect snooze, locks and open forms',async()=>{
   const e=env(),id=await e.api.saveDefinition(definition());await e.api.saveDefinition(definition({name:'Overdue',nextDueDate:'2026-10-23'}));
+  e.run('state.subscriptions[1].nextDueDate="2026-10-23";');await e.c.saveData();
   e.api.scheduleReminder();await e.tick();assert.match(e.el('subscriptionReminderList').innerHTML,/Netflix/);assert.match(e.el('subscriptionReminderList').innerHTML,/Overdue/);
   e.el('subscriptionReminderModal').style.display='none';e.api.scheduleReminder();await e.tick();assert.equal(e.el('subscriptionReminderModal').style.display,'none');
   await e.api.resolve(id,'2026-10-24','snooze');e.api.scheduleReminder();await e.tick();assert.equal(e.el('subscriptionReminderModal').style.display,'none');
@@ -122,12 +125,36 @@ test('due reminders are grouped, not repeated on focus, and respect snooze, lock
   e.el('subscriptionReminderModal').style.display='none';e.c.isAppLocked=()=>true;e.api.scheduleReminder();await e.tick();assert.equal(e.el('subscriptionReminderModal').style.display,'none');
   e.c.isAppLocked=()=>false;e.c.document.querySelectorAll=()=>[{}];e.c.getComputedStyle=()=>({display:'block'});e.api.scheduleReminder();await e.tick();assert.equal(e.el('subscriptionReminderModal').style.display,'none');
 });
-test('last-paid entry calculates the next date without creating a past charge and preserves month-end anchors',async()=>{
-  const e=env();await e.api.saveDefinition(definition({dateMode:'lastPaid',nextDueDate:'2026-01-31'}));
-  assert.equal(e.saved().subscriptions[0].nextDueDate,'2026-02-28');assert.equal(e.saved().subscriptions[0].anchorDay,31);
+test('one date field advances old reference dates to the next renewal without creating past charges',async()=>{
+  const e=env();await e.api.saveDefinition(definition({nextDueDate:'2026-01-31'}));
+  assert.equal(e.saved().subscriptions[0].nextDueDate,'2026-10-31');assert.equal(e.saved().subscriptions[0].anchorDay,31);
   assert.equal(e.saved().transactions.length,0);assert.equal(e.saved().accounts[0].balance,1000);
-  await e.api.saveDefinition(definition({frequency:'daily',dateMode:'lastPaid',nextDueDate:'2026-10-23'}));assert.equal(e.saved().subscriptions[1].nextDueDate,'2026-10-24');
+  await e.api.saveDefinition(definition({frequency:'daily',nextDueDate:'2026-10-23'}));assert.equal(e.saved().subscriptions[1].nextDueDate,'2026-10-24');
   const backup=e.c.prepareImportedData(e.saved());assert.equal(backup.subscriptions[1].frequency,'daily');
+});
+test('past-date calculation skips missed periods, supports six-month renewals, and preserves existing overdue schedules',async()=>{
+  const e=env();assert.equal(e.api.firstUpcomingDate('2026-01-31','semiannually',31),'2027-01-31');
+  assert.equal(e.api.firstUpcomingDate('2024-02-29','annually',29),'2027-02-28');
+  assert.equal(e.api.firstUpcomingDate('2026-10-01','weekly',1),'2026-10-29');
+  assert.equal(e.api.firstUpcomingDate('2026-10-24','monthly',24),'2026-10-24');
+  const id=await e.api.saveDefinition(definition({frequency:'semiannually'}));e.run('state.subscriptions[0].nextDueDate="2026-09-24";');await e.c.saveData();
+  const old=e.saved().subscriptions[0];await e.api.saveDefinition({...old,name:'Renamed',amount:'100'},id,JSON.stringify(old));
+  assert.equal(e.saved().subscriptions[0].nextDueDate,'2026-09-24');assert.equal(e.saved().transactions.length,0);
+  assert.equal(e.c.prepareImportedData(e.saved()).subscriptions[0].frequency,'semiannually');
+});
+test('generic icon changes refresh the preview and editor uses the normal text input with no date-mode selector',()=>{
+  const e=env();let html;e.c.openFormModal=(title,content)=>{html=content;};
+  e.api.openEditor();assert.match(html,/input type="text" id="subName"/);assert.doesNotMatch(html,/Start From|subDateMode/);
+  e.el('subName').value='Gym membership';e.el('subIcon').value='gym';e.el('subIcon').onchange();assert.match(e.el('subIconPreview').innerHTML,/fa-dumbbell/);
+  e.el('subName').value='Work ChatGPT';e.el('subName').oninput();assert.match(e.el('subIconPreview').innerHTML,/openai.svg/);
+  e.el('subIcon').value='internet';e.el('subIcon').onchange();assert.match(e.el('subIconPreview').innerHTML,/fa-wifi/);assert.doesNotMatch(e.el('subIconPreview').innerHTML,/<img/);
+});
+test('subscription navigation remains accessible when debt and installment widgets are hidden',()=>{
+  const e=env();e.run('state.settings.hideDebts=true;state.settings.hideInstallments=true;');e.api.render();
+  assert.equal(e.el('debtsInstallmentsCard').style.display,'block');assert.equal(e.el('oweSectionLabel').textContent,'Subscriptions');
+  assert.equal(e.el('receivablesDashboardSection').hidden,true);assert.equal(e.el('addDebtBtn').hidden,true);assert.equal(e.el('addSubscriptionDashboardBtn').hidden,false);
+  e.run('state.settings.hideDebts=false;');e.api.render();assert.equal(e.el('oweSectionLabel').textContent,'I Owe');assert.equal(e.el('receivablesDashboardSection').hidden,false);assert.equal(e.el('addDebtBtn').hidden,false);
+  assert.equal(e.run('state.transactions.length'),0);assert.equal(e.run('state.accounts[0].balance'),1000);
 });
 test('subscription fields survive the existing public web import, save and JSON export path',{skip:!fs.existsSync(path.join(root,'../kaasiapp/js/globals.js'))},async()=>{
   const e=env();await e.api.saveDefinition(definition());await e.api.record(e.saved().subscriptions[0].id,'2026-10-24',payment());

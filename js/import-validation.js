@@ -160,7 +160,7 @@ function prepareImportedData(input) {
     records(candidate.subscriptions,'subscriptions',sub=>{
       text(sub.name,'subscription name');number(sub,'amount');
       if(sub.amount<=0)fail('subscription amount must be positive');
-      if(!['bank','cc'].includes(sub.method)||!['daily','weekly','monthly','quarterly','annually'].includes(sub.frequency)||!['active','paused','cancelled'].includes(sub.status))fail('unsupported subscription format');
+      if(!['bank','cc'].includes(sub.method)||!['daily','weekly','monthly','quarterly','semiannually','annually'].includes(sub.frequency)||!['active','paused','cancelled'].includes(sub.status))fail('unsupported subscription format');
       date(sub.nextDueDate,'subscription renewal date');
       number(sub,'anchorDay',Number(sub.nextDueDate.slice(8)),1,true);
       if(sub.anchorDay>31)fail('subscription anchor day');
