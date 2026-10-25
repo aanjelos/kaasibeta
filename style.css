@@ -1009,6 +1009,24 @@ button.link-style {
   font-size: 0.8rem;
 }
 
+/* Expand list actions into the existing whitespace without moving the icons.
+   Adjacent buttons have a 12px gap; each claims only its nearest 6px. */
+.edit-btn-container button[data-record-action="editTransaction"],
+.edit-btn-container button[data-record-action="deleteTransaction"] {
+  position: relative;
+}
+.edit-btn-container button[data-record-action="editTransaction"]::before,
+.edit-btn-container button[data-record-action="deleteTransaction"]::before {
+  content: "";
+  position: absolute;
+  inset: -12px -6px;
+}
+.edit-btn-container button[data-record-action="editTransaction"]:focus-visible,
+.edit-btn-container button[data-record-action="deleteTransaction"]:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 3px;
+}
+
 .spending-indicator {
   font-size: 0.8rem;
   margin-left: 0.3rem;

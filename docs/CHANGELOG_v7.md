@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.406n - 2026-10-25
+
+### 1. [UX] Larger Transaction Action Hit Areas
+
+Expanded the invisible Edit and Delete click targets in Recent Transactions and All Transactions without changing icon size, row padding or spacing. Horizontal targets meet halfway across the existing button gap without overlapping. Existing event handling routes these clicks directly to the action instead of opening transaction details; keyboard focus indicators remain visible.
+
 ## v6.405n - 2026-10-25
 
 ### 1. [UI] Simplify Transaction Details
