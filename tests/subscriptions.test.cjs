@@ -8,6 +8,8 @@ function env(){
     closeModal:id=>{el(id).style.display='none';}};
   c.window=c;vm.createContext(c);
   for(const file of ['globals','import-validation','math-tool','features','subscription-assets','subscription-services','subscriptions'])vm.runInContext(fs.readFileSync(path.join(root,'js',file+'.js'),'utf8'),c);
+  // globals defines this helper; freeze the fixture date after loading it.
+  c.getCurrentDateString=()=> '2026-10-24';
   const run=s=>vm.runInContext(s,c);run('state=getDefaultState();state.settings.initialSetupDone=true;state.accounts[0].balance=1000;');
   c.renderDashboard=()=>{};c.isAppLocked=()=>false;c.showNotification=()=>{};
   let saved=run('JSON.stringify(state)'),fail=false;

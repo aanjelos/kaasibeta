@@ -2210,7 +2210,29 @@ footer a[href^="https://kaasi.com.lk"]:hover
   .cc-payment-history-main .cc-direct-pay { grid-column: 2; grid-row: 1 / span 2; }
   #ccHistoryListContainer { max-height: 48vh; padding-right: 0; }
 }
+.mobile-dashboard-sync { min-width: 48px; min-height: 48px; margin-right: 8px; }
+.mobile-dashboard-sync[hidden] { display: none; }
+#balanceOverviewCard { container-type: inline-size; }
+.dashboard-summary-grid { display: grid; grid-template-columns: minmax(0, 1fr); }
+#dashboardTopCardsContainer > *, #accountCardsContainer > * { min-width: 0; }
+#totalBalance, #totalPotentialBalance, #accountCardsContainer .balance-val { white-space: nowrap; }
+@container (max-width: 299px) {
+  #accountCardsContainer { grid-template-columns: minmax(0, 1fr); }
+}
+@container (min-width: 400px) {
+  .dashboard-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dashboard-summary-grid[data-visible-cards="1"] { grid-template-columns: minmax(0, 1fr); }
+  .dashboard-summary-grid[data-visible-cards="3"] > :last-child { grid-column: 1 / -1; }
+}
+@container (min-width: 680px) {
+  .dashboard-summary-grid[data-visible-cards="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dashboard-summary-grid[data-visible-cards="3"] > :last-child { grid-column: auto; }
+}
 .owed-view-actions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+@media (max-width: 767px) {
+  .owed-view-actions { grid-template-columns: minmax(0, 1fr); }
+  .owed-view-actions .btn { min-height: 44px; }
+}
 .owed-view-actions .btn { min-width: 0; padding-left: 8px; padding-right: 8px; gap: 6px; white-space: nowrap; }
 .owed-view-actions.subscriptions-only, #debtsReceivablesContainer.subscriptions-only { grid-template-columns: minmax(0, 1fr); }
 #addDebtBtn[hidden], #viewDebtsBtn[hidden], #addSubscriptionDashboardBtn[hidden], #receivablesDashboardSection[hidden], #subscriptionActiveSummary[hidden], #totalOwed[hidden] { display: none; }

@@ -804,6 +804,17 @@ function updateHeaderShortcutButtons() {
   const dropBackupBtn = $("#dropBackupBtn"), dropRestoreBtn = $("#dropRestoreBtn");
   const dropBackupText = $("#dropBackupText"), dropRestoreText = $("#dropRestoreText");
   const syncBtn = $("#syncCloudBtn"), menuIcon = $("#mobileMenuIcon");
+  const mobileSyncBtn = $("#mobileSyncBtn");
+  if (mobileSyncBtn) {
+    mobileSyncBtn.hidden = !isCloud;
+    mobileSyncBtn.onclick = syncCloudData;
+    mobileSyncBtn.disabled = cloudSyncBusy;
+    mobileSyncBtn.setAttribute("aria-label", cloudSyncBusy ? "Syncing…" : "Sync");
+  }
+  if (dropBackupBtn?.parentElement) {
+    dropBackupBtn.parentElement.hidden = isCloud;
+    dropBackupBtn.parentElement.classList.toggle("hidden", isCloud);
+  }
   const status = window.currentCloudSyncStatus || "unknown";
   const descriptions = {
     local_newer: "Sync — local changes ready to upload",
@@ -813,7 +824,7 @@ function updateHeaderShortcutButtons() {
     synced: "Sync — already synced",
     unknown: "Sync — check cloud status"
   };
-  for (const element of [backupBtn, restoreBtn, dropBackupBtn, dropRestoreBtn, syncBtn, menuIcon]) {
+  for (const element of [backupBtn, restoreBtn, dropBackupBtn, dropRestoreBtn, syncBtn, menuIcon, mobileSyncBtn]) {
     element?.classList.remove("pulse-orange", "pulse-green", "pulse-sync-conflict");
   }
   restoreBtn.hidden = isCloud;
@@ -823,6 +834,7 @@ function updateHeaderShortcutButtons() {
   if (dropBackupBtn) dropBackupBtn.innerHTML = isCloud ? '<i class="fas fa-sync-alt fa-lg"></i>' : '<i class="fas fa-floppy-disk fa-lg"></i>';
   if (isCloud) {
     const text = cloudSyncBusy ? "Syncing…" : descriptions[status] || descriptions.unknown;
+    mobileSyncBtn?.setAttribute("aria-label", text);
     backupBtn.dataset.tooltip = `${text} (Ctrl+S)`;
     backupBtn.setAttribute("aria-keyshortcuts", "Control+S");
     backupBtn.setAttribute("aria-label", text);
@@ -833,7 +845,7 @@ function updateHeaderShortcutButtons() {
     if (!cloudSyncBusy) {
       const pulse = status === "local_newer" ? "pulse-orange" : status === "cloud_newer" ? "pulse-green"
         : status === "conflict" || status === "review" ? "pulse-sync-conflict" : null;
-      if (pulse) for (const element of [backupBtn, dropBackupBtn, menuIcon]) element?.classList.add(pulse);
+      if (pulse) for (const element of [backupBtn, mobileSyncBtn]) element?.classList.add(pulse);
     }
   } else {
     backupBtn.disabled = false;

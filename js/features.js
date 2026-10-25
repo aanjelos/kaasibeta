@@ -4027,14 +4027,8 @@ function renderDashboard() {
       }
     }
 
-    // Adjust grid columns
-    if (visibleCards === 1) {
-      topCardsContainer.className = "grid grid-cols-1 gap-4 mb-4";
-    } else if (visibleCards === 2) {
-      topCardsContainer.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4";
-    } else {
-      topCardsContainer.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-4";
-    }
+    topCardsContainer.className = "dashboard-summary-grid gap-4 mb-4";
+    topCardsContainer.dataset.visibleCards = String(visibleCards);
   }
 
   const debtsInstallmentsCard = $("#debtsInstallmentsCard");
@@ -4250,6 +4244,7 @@ function renderYearlyAndQuickStats() {
     // Yearly totals
     if (
       tDateForPeriodChecks >= startOfYear &&
+      tDateForPeriodChecks <= todayEnd &&
       tDateForPeriodChecks.getFullYear() === currentYear
     ) {
       if (t.type === "income") yearlyEarned += t.amount;
@@ -4289,7 +4284,7 @@ function renderYearlyAndQuickStats() {
     }
   });
 
-  $("#yearlyTotals").innerHTML = `<span class="whitespace-nowrap">Yearly: Earned ${formatCurrency(
+  $("#yearlyTotals").innerHTML = `<span class="whitespace-nowrap">YTD: Earned ${formatCurrency(
     yearlyEarned
   )}</span> / <span class="whitespace-nowrap">Spent ${formatCurrency(yearlySpent)}</span>`;
 

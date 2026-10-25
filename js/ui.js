@@ -1082,6 +1082,38 @@ function setupMobileDropdown() {
 }
 
 
+// Fit complete monetary values after animated updates and container resizing.
+document.addEventListener("DOMContentLoaded", () => {
+  const card = document.getElementById("balanceOverviewCard");
+  if (!card) return;
+  let pending = false;
+  const fit = () => {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => {
+      pending = false;
+      card.querySelectorAll("#totalBalance, #totalPotentialBalance, .balance-val").forEach(el => {
+        if (!el.clientWidth) return;
+        el.style.removeProperty("font-size");
+        el.style.removeProperty("white-space");
+        el.style.removeProperty("overflow-wrap");
+        const base = Number.parseFloat(getComputedStyle(el).fontSize);
+        if (el.scrollWidth > el.clientWidth) {
+          el.style.fontSize = `${Math.max(12, base * el.clientWidth / el.scrollWidth * 0.97)}px`;
+          if (el.scrollWidth > el.clientWidth) {
+            el.style.whiteSpace = "normal";
+            el.style.overflowWrap = "anywhere";
+          }
+        }
+      });
+    });
+  };
+  new MutationObserver(fit).observe(card, { childList: true, subtree: true, characterData: true });
+  new ResizeObserver(fit).observe(card);
+  document.fonts?.ready.then(fit);
+  fit();
+});
+
 function toggleCategoryVisibilityInModal(
   selectElement,
   categoryGroupId,

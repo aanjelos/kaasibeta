@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.403n - 2026-10-25
+
+### 1. [Improvement] Responsive Dashboard Controls and Balances
+
+Cloud mode now provides a directly accessible mobile header Sync button with existing status flashes and busy-state handling. Local mode retains import/export in the menu. Mobile debt and subscription actions stack with larger touch targets. Balance amounts fit their available width after value animations and resizing, and summary tiles respond to card width, filling the final row in two-column layouts. Calendar-year totals now exclude future-dated entries and use the YTD label. Removed the completed mobile Sync item from the roadmap.
+
 ## v6.402n - 2026-10-24
 
 ### 1. [Cleanup] Remove Obsolete Subscription Service-ID Mapping

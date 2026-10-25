@@ -851,12 +851,37 @@ test('single cloud shortcut uses upload/download/conflict colours and local shor
     r.element('#syncCloudBtn').classList.add('pulse-orange','pulse-green','pulse-sync-conflict');
     r.context.currentCloudSyncStatus=status;r.context.updateHeaderShortcutButtons();
     assert.equal(r.element('#headerBackupBtn').classList.contains(colour),true);
+    assert.equal(r.element('#mobileSyncBtn').classList.contains(colour),true);
+    assert.equal(r.element('#mobileSyncBtn').hidden,false);
+    assert.equal(r.element('#mobileSyncBtn').onclick,r.context.syncCloudData);
+    assert.equal(r.element('#mobileMenuIcon').classList.contains(colour),false);
     for(const pulse of ['pulse-orange','pulse-green','pulse-sync-conflict']) assert.equal(r.element('#syncCloudBtn').classList.contains(pulse),false);
     assert.match(r.element('#headerBackupBtn').dataset.tooltip,/Ctrl\+S/);
     assert.equal(r.element('#headerRestoreBtn').hidden,true);assert.equal(r.element('#headerBackupBtn').onclick,r.context.syncCloudData);
   }
   r.element('#shortcutCloud').checked=false;r.context.updateHeaderShortcutButtons();
   assert.equal(r.element('#headerRestoreBtn').hidden,false);assert.equal(r.element('#headerBackupBtn').onclick,r.context.exportData);
+  assert.equal(r.element('#mobileSyncBtn').hidden,true);
+});
+
+test('YTD totals include this year through today and exclude future and prior-year entries',()=>{
+  const r=runtime();
+  const year=new Date().getFullYear();
+  const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
+  const futureDate=`${tomorrow.getFullYear()}-${String(tomorrow.getMonth()+1).padStart(2,'0')}-${String(tomorrow.getDate()).padStart(2,'0')}`;
+  r.run(`state.transactions=[
+    {type:'income',amount:100,date:'${year}-01-01'},
+    {type:'expense',amount:25,category:'Other',date:'${year}-01-01'},
+    {type:'income',amount:900,date:'${year+1}-01-01'},
+    {type:'income',amount:800,date:'${futureDate}'},
+    {type:'expense',amount:700,category:'Other',date:'${year-1}-12-31'}
+  ];`);
+  r.context.renderYearlyAndQuickStats();
+  const output=r.element('#yearlyTotals').innerHTML;
+  assert.match(output,/YTD: Earned/);
+  assert.match(output,/100\.00/);
+  assert.match(output,/25\.00/);
+  assert.doesNotMatch(output,/900\.00|800\.00|700\.00/);
 });
 
 test('cloud backup times use calendar-relative days and readable local times',()=>{

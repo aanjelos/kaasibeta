@@ -95,10 +95,6 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 3. Mobile Floating Action Button (FAB)
 - **Concept**: Add an optional floating `+` button in the bottom-right corner visible on mobile viewports for instant 1-tap transaction entry.
 
-### 4. Visible Mobile Sync Button
-- **Concept**: Move Sync out of the mobile menu into a directly accessible header control, so users do not need to open the menu to sync.
-- **Behaviour**: Retain current status flashes and manual Sync behaviour, with a clear touch target and accessible label. Preserve the existing cloud/local mode behaviour without crowding the mobile header.
-
 ---
 
 ## 🛠️ Technical Debt & Code Organization
