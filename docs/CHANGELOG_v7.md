@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.405n - 2026-10-25
+
+### 1. [UI] Simplify Transaction Details
+
+Removed Save As Subscription from regular expense and credit-card detail dialogs. Subscriptions remain available through Manage Subscriptions → Add New; existing financial records and subscriptions are unchanged.
+
 ## v6.404n - 2026-10-25
 
 ### 1. [UI] Icon-Only Mobile Sync Control

@@ -763,7 +763,6 @@ function openTransactionDetailModal(transactionId, skipHistory = false) {
         <i class="fas fa-trash mr-2"></i> Delete
       </button>
     </div>
-    ${transaction.type==='expense'?`<button type="button" class="btn btn-secondary w-full mt-3" data-sub-action="from-expense" data-sub-id="${escapeHTML(transaction.id)}"><i class="far fa-calendar-alt mr-2" aria-hidden="true"></i> Save As Subscription</button>`:''}
   `;
 
   const contentContainer = $("#transactionDetailContent");
@@ -847,7 +846,6 @@ function openCcTransactionDetailModal(transactionId, skipHistory = false) {
         </button>
       </div>
     </div>
-    <button type="button" class="btn btn-secondary w-full mt-3" data-sub-action="from-cc" data-sub-id="${escapeHTML(transaction.id)}"><i class="far fa-calendar-alt mr-2" aria-hidden="true"></i> Save As Subscription</button>
   `;
 
   const contentContainer = $("#ccTransactionDetailContent");
