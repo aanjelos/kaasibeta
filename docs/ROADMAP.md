@@ -95,6 +95,11 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 3. Mobile Floating Action Button (FAB)
 - **Concept**: Add an optional floating `+` button in the bottom-right corner visible on mobile viewports for instant 1-tap transaction entry.
 
+### 4. Settings Workspace and Save-Changes UX
+- **Concept**: Rework the growing Settings modal into an in-app full-screen settings workspace without introducing a separate HTML page. Use section navigation on the left and the selected settings on the right on desktop; provide a compact, accessible section selector on mobile.
+- **Save behaviour**: Review the current per-section Save actions, make pending/saved states clear, and define how closing or switching sections handles unsaved edits before implementation. Preserve intentional immediate actions and existing validation; do not silently discard changes.
+- **Scope**: Keep account/category management, data controls and security settings easy to find. Allow room for category icon/colour controls without crowding each row. Final layout and save interaction require design agreement before coding.
+
 ---
 
 ## 🛠️ Technical Debt & Code Organization
