@@ -997,6 +997,55 @@ button.link-style {
   border-bottom: none;
 }
 
+.currency-wrap { white-space: normal; overflow-wrap: normal; word-break: normal; }
+.currency-digit-group { white-space: nowrap; overflow-wrap: normal; word-break: normal; }
+.budget-list-heading { flex-wrap: wrap; }
+.budget-list-heading > select { max-width: 100%; }
+#cashCounterForm > .grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr) minmax(0, 1fr); }
+#cashCounterForm .grid > * { min-width: 0; overflow-wrap: anywhere; }
+#cashCounterForm input { width: 100%; min-width: 0; }
+#cashCounterTotal, #cashCounterComparison { overflow-wrap: anywhere; }
+
+/* Keep financial summaries and user-entered text inside their own panels. */
+.main-content-grid > *, .monthly-view-content-grid > *,
+.monthly-view-summary-grid > *, #debtsReceivablesContainer > * { min-width: 0; }
+.monthly-view-summary-card, #transactionDetailContent, #ccTransactionDetailContent {
+  min-width: 0; overflow-wrap: anywhere;
+}
+#transactionDetailContent .justify-between, #ccTransactionDetailContent .justify-between {
+  gap: 8px 16px; align-items: flex-start;
+}
+#transactionDetailContent .justify-between > span:first-child,
+#ccTransactionDetailContent .justify-between > span:first-child { flex-shrink: 0; }
+#transactionDetailContent .justify-between > span:last-child,
+#ccTransactionDetailContent .justify-between > span:last-child { min-width: 0; text-align: right; }
+#monthlyDetailPieChartCanvas { max-width: 100%; }
+#yearlyTotals, #quickStats { min-width: 0; overflow-wrap: anywhere; }
+#yearlyTotals .whitespace-nowrap, #quickStats .whitespace-nowrap { white-space: normal; }
+#debtsReceivablesContainer h3 { flex-wrap: wrap; gap: 4px 12px; }
+#totalOwed, #totalOwedToMe, #subscriptionActiveSummary, #totalInstallmentsLeft {
+  min-width: 0; max-width: 100%; overflow-wrap: anywhere; margin-left: auto; text-align: right;
+}
+#recentTransactionsList > .transaction-list-item-layout { flex-wrap: wrap; gap: 6px 0; }
+#recentTransactionsList > .transaction-list-item-layout > div:first-child {
+  min-width: 0; flex-basis: 120px;
+}
+#recentTransactionsList > .transaction-list-item-layout > span {
+  min-width: 0; max-width: 100%; margin-left: auto; white-space: normal; overflow-wrap: anywhere; text-align: right;
+}
+.monthly-view-transaction-item:not(.cc-history-row) { flex-wrap: wrap; row-gap: 6px; }
+.monthly-view-transaction-item:not(.cc-history-row) > div { min-width: 0; max-width: 100%; }
+.monthly-view-transaction-item:not(.cc-history-row) .tabular-nums,
+.monthly-view-category-list .tabular-nums { white-space: normal; overflow-wrap: anywhere; min-width: 0; }
+.monthly-view-category-list li { gap: 8px; }
+.monthly-view-category-list li > :first-child { min-width: 0; }
+.monthly-view-day-header { flex-wrap: wrap; gap: 6px 12px; }
+.monthly-view-day-header .tabular-nums { white-space: normal; overflow-wrap: anywhere; min-width: 0; }
+.subscription-row { flex-wrap: wrap; }
+.subscription-row-actions { min-width: 0; max-width: 100%; margin-left: auto; }
+.subscription-row-actions > strong { white-space: normal; overflow-wrap: anywhere; text-align: right; }
+.upcoming-notice-amount { min-width: 0; overflow-wrap: anywhere; white-space: normal; }
+
 .cc-balance-summary { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 16px; }
 .cc-balance-summary > span { flex: 1 0 max-content; min-width: 0; max-width: 100%; }
 .cc-balance-available { margin-left: auto; text-align: right; }
@@ -2274,7 +2323,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .upcoming-notice-copy strong { display: block; font-size: .875rem; font-weight: 600; overflow-wrap: anywhere; }
 .upcoming-notice-copy small { display: block; margin-top: 3px; font-size: .75rem; color: var(--text-secondary); }
 .upcoming-notice-copy small.text-expense { color: var(--expense-color); }
-.upcoming-notice-amount { font-size: .875rem; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.upcoming-notice-amount { font-size: .875rem; font-weight: 600; white-space: normal; overflow-wrap: anywhere; min-width: 0; font-variant-numeric: tabular-nums; }
 .upcoming-notice-chevron { color: var(--text-secondary); font-size: .625rem; }
 .upcoming-notice-more { display: block; width: 100%; padding: 10px 24px; border-top: 1px solid var(--border-color); color: var(--accent-primary); font-size: .8125rem; text-align: left; }
 .subscriptions-content { max-width: 720px; }
@@ -2298,7 +2347,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .subscription-row-copy > span { display: block; color: var(--text-secondary); font-size: .8rem; margin-top: 5px; }
 .subscription-row-copy > small { display: block; color: var(--text-secondary); font-size: .75rem; margin-top: 3px; text-transform: capitalize; }
 .subscription-row-actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
-.subscription-row-actions > strong { font-size: .9rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.subscription-row-actions > strong { font-size: .9rem; white-space: normal; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 .subscription-row-actions > div { display: flex; gap: 6px; }
 .subscription-reminder-actions { flex-direction: row; flex-wrap: wrap; align-items: center; }
 .subscription-row-actions .btn { min-height: 40px; padding: 8px 12px; font-size: .8rem; white-space: nowrap; }

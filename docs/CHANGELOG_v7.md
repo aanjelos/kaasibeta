@@ -2,6 +2,16 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.409n - 2026-10-25
+
+### 1. [UI] Contain Long Names and Large Financial Values
+
+Added responsive wrapping and minimum-width constraints to transaction details, recent/monthly transaction rows, calendar-year and quick-stat totals, monthly summary cards, debt headings, subscription actions and reminders. Monthly chart canvases stay within their panels. Budget sorting controls wrap below the heading when needed, and Cash Counter columns can shrink without spilling outside the modal.
+
+### 2. [UI] Wrap Currency Values at Thousands Separators
+
+Rendered LKR amounts gain optional line breaks after commas while each digit group and its decimals stay together. Formatting is applied only to displayed DOM text, including animated and newly rendered values; textContent, editable inputs, financial state, exports and backups retain the original values.
+
 ## v6.408n - 2026-10-25
 
 ### 1. [UI] Responsive Credit-Card Balance Summary

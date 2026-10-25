@@ -1082,6 +1082,71 @@ function setupMobileDropdown() {
 }
 
 
+// Add optional breaks after thousands separators without changing textContent.
+// Keep this in the DOM presentation layer: JSON, inputs and exports stay plain text.
+document.addEventListener("DOMContentLoaded", () => {
+  const pending = new Set();
+  let scheduled = false;
+  const excluded = "script, style, textarea, input, select, option, [contenteditable], .currency-wrap";
+  const formatText = node => {
+    if (!node.parentElement || node.parentElement.closest(excluded)) return;
+    const text = node.nodeValue;
+    const pattern = /[+-]?LKR[\s\u00a0]+-?\d{1,3}(?:,\d{3})+(?:\.\d{2})?/g;
+    const matches = Array.from(text.matchAll(pattern));
+    if (!matches.length) return;
+    const fragment = document.createDocumentFragment();
+    let position = 0;
+    matches.forEach(match => {
+      fragment.append(document.createTextNode(text.slice(position, match.index)));
+      const amount = document.createElement("span");
+      amount.className = "currency-wrap";
+      const groups = match[0].split(",");
+      groups.forEach((group, index) => {
+        const chunk = document.createElement("span");
+        chunk.className = "currency-digit-group";
+        chunk.textContent = group + (index < groups.length - 1 ? "," : "");
+        amount.append(chunk);
+        if (index < groups.length - 1) amount.append(document.createElement("wbr"));
+      });
+      fragment.append(amount);
+      position = match.index + match[0].length;
+    });
+    fragment.append(document.createTextNode(text.slice(position)));
+    node.replaceWith(fragment);
+  };
+  const observer = new MutationObserver(records => {
+    records.forEach(record => {
+      if (record.type === "characterData") pending.add(record.target);
+      else record.addedNodes.forEach(node => pending.add(node));
+    });
+    queue();
+  });
+  const options = { childList: true, subtree: true, characterData: true };
+  function queue() {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(() => {
+      scheduled = false;
+      observer.disconnect();
+      pending.forEach(root => {
+        if (!root.isConnected) return;
+        if (root.nodeType === Node.TEXT_NODE) formatText(root);
+        else {
+          const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+          const texts = [];
+          while (walker.nextNode()) texts.push(walker.currentNode);
+          texts.forEach(formatText);
+        }
+      });
+      pending.clear();
+      observer.observe(document.body, options);
+    });
+  }
+  pending.add(document.body);
+  observer.observe(document.body, options);
+  queue();
+});
+
 // Fit complete monetary values after animated updates and container resizing.
 document.addEventListener("DOMContentLoaded", () => {
   const card = document.getElementById("balanceOverviewCard");
