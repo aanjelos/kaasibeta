@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.407n - 2026-10-25
+
+### 1. [UI] Restore Mobile Subscriptions Icon
+
+Removed the obsolete narrow-screen rule that hid the Subscriptions button icon. The icon now remains visible beside its label in the stacked mobile dashboard actions.
+
 ## v6.406n - 2026-10-25
 
 ### 1. [UX] Larger Transaction Action Hit Areas

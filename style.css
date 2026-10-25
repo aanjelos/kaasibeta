@@ -2354,7 +2354,6 @@ footer a[href^="https://kaasi.com.lk"]:hover
 @media (max-width: 479px) {
   .subscription-form-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .owed-view-actions .btn { font-size: .8125rem; }
-  .owed-view-actions [data-sub-action="open"] i { display: none; }
 }
 @container upcoming-notice (max-width: 320px) {
   .upcoming-notice-item { grid-template-columns: 32px minmax(0, 1fr); gap: 4px 10px; padding: 12px 16px; }
