@@ -997,6 +997,11 @@ button.link-style {
   border-bottom: none;
 }
 
+.cc-balance-summary { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 16px; }
+.cc-balance-summary > span { flex: 1 0 max-content; min-width: 0; max-width: 100%; }
+.cc-balance-available { margin-left: auto; text-align: right; }
+#ccLimit, #ccAvailable { display: block; overflow-wrap: anywhere; }
+
 .edit-btn-container {
   display: inline-flex;
   align-items: center;

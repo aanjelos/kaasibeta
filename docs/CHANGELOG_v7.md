@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.408n - 2026-10-25
+
+### 1. [UI] Responsive Credit-Card Balance Summary
+
+Right-aligned Available and placed each credit-card summary label above its amount. Limit and Available share a row when space permits and wrap into separate rows when their amounts need more room. Exceptionally long values can wrap within the card instead of overlapping or overflowing.
+
 ## v6.407n - 2026-10-25
 
 ### 1. [UI] Restore Mobile Subscriptions Icon
