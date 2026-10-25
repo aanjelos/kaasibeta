@@ -2210,7 +2210,10 @@ footer a[href^="https://kaasi.com.lk"]:hover
   .cc-payment-history-main .cc-direct-pay { grid-column: 2; grid-row: 1 / span 2; }
   #ccHistoryListContainer { max-height: 48vh; padding-right: 0; }
 }
-.mobile-dashboard-sync { min-width: 48px; min-height: 48px; margin-right: 8px; }
+.mobile-dashboard-sync { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; margin-right: 8px; padding: 0; border: 0; background: transparent; box-shadow: none; color: var(--text-secondary); font-size: 24px; cursor: pointer; }
+.mobile-dashboard-sync:hover { color: var(--text-primary); }
+.mobile-dashboard-sync:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; border-radius: 4px; }
+.mobile-dashboard-sync:disabled { cursor: wait; opacity: .6; }
 .mobile-dashboard-sync[hidden] { display: none; }
 #balanceOverviewCard { container-type: inline-size; }
 .dashboard-summary-grid { display: grid; grid-template-columns: minmax(0, 1fr); }

@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.404n - 2026-10-25
+
+### 1. [UI] Icon-Only Mobile Sync Control
+
+Removed the background, border and shadow from mobile header Sync to match the adjacent menu icon. Retained its 48px touch target, keyboard focus indicator, busy state and sync-status flashes. Desktop controls are unchanged.
+
 ## v6.403n - 2026-10-25
 
 ### 1. [Improvement] Responsive Dashboard Controls and Balances

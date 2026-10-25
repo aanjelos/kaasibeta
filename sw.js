@@ -1,4 +1,4 @@
-const BUILD = "v6.403n";
+const BUILD = "v6.404n";
 importScripts(`./js/subscription-assets.js?v=${BUILD}`);
 const CACHE_NAME = `kaasi-cache-${BUILD}`;
 const STATIC_ASSETS = [
