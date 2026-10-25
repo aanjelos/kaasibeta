@@ -41,8 +41,12 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 9. Reset Safety Net: Automatic Data Backup Prompt
 - **Concept**: Automatically trigger a JSON export download immediately before execution of the "Delete All Data" wipe, giving the user a recovery file in case they made a mistake.
 
-### 10. Custom Icon and Color Tags for Categories
-- **Concept**: Allow users to associate a custom FontAwesome icon and color code to each category in Settings to dramatically improve the scannability of transaction lists, budget cards, and visual charts.
+### 10. Coloured Category Icons
+- **Sequence**: Implement after the mobile module/modal refinement round and the Settings workspace redesign. Review a small mobile/desktop visual preview before applying icons throughout the app. Web only for now.
+- **Appearance**: Use a consistent library of coloured SVG icons directly before transaction descriptions on the existing row background. No tile, frame, separate background or category colour picker. Keep transaction amount colours and chart sector colours unchanged; check light/dark theme contrast and narrow-screen text space.
+- **Management**: Give default categories preset icons. Offer a searchable icon picker for custom categories and changing existing icons in Settings; show presets during setup without requiring an extra selection step.
+- **Storage**: Store a category-name-to-icon-ID mapping alongside category settings. Transactions retain their existing category field without per-transaction icon IDs. Bundle selected SVG assets locally; include only the small mapping in local/cloud JSON backups. Older backups use defaults. Renames retain icon assignments; hiding retains them; deletion follows existing transaction reassignment behaviour with an appropriate fallback.
+- **Display**: Apply icons to Recent Transactions and monthly transaction lists, and show the assigned icon with the category name and amount in the selected chart sector's information display.
 
 ### 11. Recent Activity Section
 - **Concept**: A dedicated module or dashboard section to view the most recent actions taken in the app, such as recently added, edited, or deleted transactions, as well as transfers.
@@ -86,7 +90,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ## ✨ UI / UX Polish
 
 ### 1. Internal Modal Refinements, Especially on Mobile
-- **Priority**: Next UI refinement round; start with subscription-related windows and check other internal dialogs for consistency.
+- **Priority**: Next round, with user-provided mobile requirements to follow. Complete before the Settings workspace redesign, then implement category icons afterward.
 - **Scope**: Improve sizing, spacing, typography, field hierarchy, scrolling, close controls and action-button placement at narrow mobile widths, including when the keyboard is open. Keep primary actions reachable and avoid clipped content or horizontal overflow. Preserve existing payment and storage behaviour.
 
 ### 2. Segmented Control Buttons for Transaction Type
@@ -98,7 +102,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 4. Settings Workspace and Save-Changes UX
 - **Concept**: Rework the growing Settings modal into an in-app full-screen settings workspace without introducing a separate HTML page. Use section navigation on the left and the selected settings on the right on desktop; provide a compact, accessible section selector on mobile.
 - **Save behaviour**: Review the current per-section Save actions, make pending/saved states clear, and define how closing or switching sections handles unsaved edits before implementation. Preserve intentional immediate actions and existing validation; do not silently discard changes.
-- **Scope**: Keep account/category management, data controls and security settings easy to find. Allow room for category icon/colour controls without crowding each row. Final layout and save interaction require design agreement before coding.
+- **Scope**: Keep account/category management, data controls and security settings easy to find. Allow room for category icon controls without crowding each row; category colour controls are not planned. Follow mobile module/modal refinements and precede category icons. Final layout and save interaction require design agreement before coding.
 
 ---
 
