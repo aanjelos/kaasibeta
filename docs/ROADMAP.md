@@ -42,6 +42,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Concept**: Automatically trigger a JSON export download immediately before execution of the "Delete All Data" wipe, giving the user a recovery file in case they made a mistake.
 
 ### 10. Coloured Category Icons
+- **Library decision**: Use Fluent Emoji Flat as the preferred coloured SVG library. Check coverage against all default categories and choose clear broader symbols where exact matches are unavailable. Keep one consistent library rather than mixing it with Fluent UI Colour; confirm the appearance in real transaction rows before implementation.
 - **Sequence**: Implement after the mobile module/modal refinement round and the Settings workspace redesign. Review a small mobile/desktop visual preview before applying icons throughout the app. Web only for now.
 - **Appearance**: Use a consistent library of coloured SVG icons directly before transaction descriptions on the existing row background. No tile, frame, separate background or category colour picker. Keep transaction amount colours and chart sector colours unchanged; check light/dark theme contrast and narrow-screen text space.
 - **Management**: Give default categories preset icons. Offer a searchable icon picker for custom categories and changing existing icons in Settings; show presets during setup without requiring an extra selection step.
