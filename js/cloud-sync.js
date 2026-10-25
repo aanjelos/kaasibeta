@@ -137,6 +137,7 @@ function setCloudSyncBusy(busy) {
   cloudSyncBusy = busy;
   window.cloudBackupInProgress = busy;
   const button = $("#syncCloudBtn");
+  button?.setAttribute("aria-busy", String(busy));
   if (button) { button.disabled = busy; button.innerHTML = busy ? '<i class="fas fa-spinner fa-spin mr-2"></i>Syncing…' : '<i class="fas fa-sync-alt mr-2"></i>Sync'; }
   updateHeaderShortcutButtons();
 }

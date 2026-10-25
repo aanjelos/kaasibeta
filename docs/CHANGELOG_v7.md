@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.410n - 2026-10-25
+
+### 1. [UX] Immediate Sync Progress Feedback
+
+Desktop and mobile dashboard Sync icons now spin throughout the existing busy state, starting before local snapshot/hash work or network requests. Controls expose their busy state to assistive technology and remain disabled against repeated taps. The Settings progress indicator and existing success/failure notifications remain in place; icons reset when Sync finishes or stops for copy review.
+
 ## v6.409n - 2026-10-25
 
 ### 1. [UI] Contain Long Names and Large Financial Values

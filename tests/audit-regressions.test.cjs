@@ -859,6 +859,15 @@ test('single cloud shortcut uses upload/download/conflict colours and local shor
     assert.match(r.element('#headerBackupBtn').dataset.tooltip,/Ctrl\+S/);
     assert.equal(r.element('#headerRestoreBtn').hidden,true);assert.equal(r.element('#headerBackupBtn').onclick,r.context.syncCloudData);
   }
+  r.run('cloudSyncBusy=true');r.context.updateHeaderShortcutButtons();
+  assert.match(r.element('#headerBackupBtn').innerHTML,/fa-spin/);
+  assert.match(r.element('#mobileSyncBtn').innerHTML,/fa-spin/);
+  assert.equal(r.element('#mobileSyncBtn').getAttribute('aria-busy'),'true');
+  assert.equal(r.element('#headerBackupBtn').disabled,true);
+  r.run('cloudSyncBusy=false');r.context.updateHeaderShortcutButtons();
+  assert.doesNotMatch(r.element('#headerBackupBtn').innerHTML,/fa-spin/);
+  assert.doesNotMatch(r.element('#mobileSyncBtn').innerHTML,/fa-spin/);
+  assert.equal(r.element('#mobileSyncBtn').getAttribute('aria-busy'),'false');
   r.element('#shortcutCloud').checked=false;r.context.updateHeaderShortcutButtons();
   assert.equal(r.element('#headerRestoreBtn').hidden,false);assert.equal(r.element('#headerBackupBtn').onclick,r.context.exportData);
   assert.equal(r.element('#mobileSyncBtn').hidden,true);

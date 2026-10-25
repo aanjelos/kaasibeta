@@ -809,6 +809,8 @@ function updateHeaderShortcutButtons() {
     mobileSyncBtn.hidden = !isCloud;
     mobileSyncBtn.onclick = syncCloudData;
     mobileSyncBtn.disabled = cloudSyncBusy;
+    mobileSyncBtn.innerHTML = `<i class="fas fa-sync-alt${isCloud && cloudSyncBusy ? " fa-spin" : ""}" aria-hidden="true"></i>`;
+    mobileSyncBtn.setAttribute("aria-busy", String(isCloud && cloudSyncBusy));
     mobileSyncBtn.setAttribute("aria-label", cloudSyncBusy ? "Syncing…" : "Sync");
   }
   if (dropBackupBtn?.parentElement) {
@@ -830,7 +832,8 @@ function updateHeaderShortcutButtons() {
   restoreBtn.hidden = isCloud;
   restoreBtn.classList.toggle("hidden", isCloud);
   if (dropRestoreBtn?.parentElement) { dropRestoreBtn.parentElement.hidden = isCloud; dropRestoreBtn.parentElement.classList.toggle("hidden", isCloud); }
-  backupBtn.innerHTML = isCloud ? '<i class="fas fa-sync-alt fa-lg"></i>' : '<i class="fas fa-floppy-disk fa-lg"></i>';
+  backupBtn.innerHTML = isCloud ? `<i class="fas fa-sync-alt fa-lg${cloudSyncBusy ? " fa-spin" : ""}" aria-hidden="true"></i>` : '<i class="fas fa-floppy-disk fa-lg"></i>';
+  backupBtn.setAttribute("aria-busy", String(isCloud && cloudSyncBusy));
   if (dropBackupBtn) dropBackupBtn.innerHTML = isCloud ? '<i class="fas fa-sync-alt fa-lg"></i>' : '<i class="fas fa-floppy-disk fa-lg"></i>';
   if (isCloud) {
     const text = cloudSyncBusy ? "Syncing…" : descriptions[status] || descriptions.unknown;
