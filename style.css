@@ -2344,6 +2344,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .subscription-row-copy { flex: 1; min-width: 0; }
 .subscription-row-copy > strong { display: block; font-size: .9375rem; font-weight: 600; overflow-wrap: anywhere; line-height: 1.4; }
 .subscription-row-copy > span { display: block; color: var(--text-secondary); font-size: .8rem; margin-top: 5px; }
+.subscription-row-copy > span.text-expense { color: var(--expense-color); }
 .subscription-row-copy > small { display: block; color: var(--text-secondary); font-size: .75rem; margin-top: 3px; text-transform: capitalize; }
 .subscription-row-actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
 .subscription-row-actions > strong { font-size: .9rem; white-space: normal; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }

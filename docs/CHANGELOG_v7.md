@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.417n - 2026-10-26
+
+### 1. [Fix] Overdue Timing Colour in Subscription Lists
+
+Fixed a more-specific secondary-text style overriding the overdue colour in subscription lists. Overdue timing lines now use the expense red consistently with dashboard reminders; names and amounts retain their existing colours.
+
 ## v6.416n - 2026-10-26
 
 ### 1. [Fix] Retain Overdue Renewals When Adding a Past Payment Date
