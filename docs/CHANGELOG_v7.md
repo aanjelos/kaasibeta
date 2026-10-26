@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.420n - 2026-10-26
+
+### 1. [UI] Top-Aligned App Update Notice
+
+Moved the app update notice to the top centre of the viewport, with mobile safe-area spacing. The notice remains fixed while scrolling and retains its existing width constraints and update action.
+
 ## v6.419n - 2026-10-26
 
 ### 1. [Fix] App Update Activation and Failure Feedback
