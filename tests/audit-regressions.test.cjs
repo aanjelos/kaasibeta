@@ -1076,6 +1076,16 @@ test('modal backdrop dismisses only clicks that start and end on the backdrop', 
   assert.equal(r.context.isModalBackdropClick({target:modal,detail:0},modal),true);
 });
 
+test('amount inputs retain two decimal places without changing parsed financial values', () => {
+  const r=runtime();
+  for(const [original, expected] of [['2379.50','2379.50'],['1.50','1.50'],['1.00','1.00'],['1.5','1.50'],['1','1'],['1/2','0.50'],['1.50+0.50','2.00'],['1+1','2'],['1,234.50','1234.50']]) {
+    const input=new Element();input.value=original;
+    r.context.processCalculation(input);
+    assert.equal(input.value,expected,original);
+    assert.equal(r.context.parseAmountValue(input.value),r.context.parseAmountValue(original));
+  }
+});
+
 test('calculator leaves drafts unchanged on blur and evaluates explicitly on Tab, Enter, or equals', () => {
   const r=runtime();const input=new Element();input.classList.add('calc-amount');input.value='10+5';
   r.documentEvents.get('focusout').forEach(fn=>fn({target:input}));assert.equal(input.value,'10+5');

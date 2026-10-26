@@ -59,11 +59,17 @@ function evaluateMathExpression(inputStr) {
   return null;
 }
 
+function formatAmountInputResult(result, originalValue) {
+  // Preserve decimal intent (including .00); keep plain whole numbers plain.
+  return String(originalValue).includes(".") || !Number.isInteger(result)
+    ? result.toFixed(2) : String(result);
+}
+
 function processCalculation(inputEl) {
   const result = evaluateMathExpression(inputEl.value);
   if (result !== null) {
     const wasExpression = /[+*/()×÷=]|\d\s*-/.test(inputEl.value);
-    inputEl.value = result;
+    inputEl.value = formatAmountInputResult(result, inputEl.value);
     if (wasExpression && typeof trackEvent === "function") trackEvent("used_inline_calculator", "Feature Usage");
     return wasExpression;
   }
@@ -88,7 +94,7 @@ document.addEventListener("submit", (event) => {
       input.focus();
       return;
     }
-    input.value = result;
+    input.value = formatAmountInputResult(result, input.value);
   }
 }, true);
 

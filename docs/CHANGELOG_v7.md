@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.411n - 2026-10-26
+
+### 1. [Fix] Preserve Decimal Zeros in Amount Fields
+
+Shared calculator-field evaluation and submit validation now retain two decimal places when an amount contains a decimal point or produces a fractional result. Values such as 2379.50, 1.50 and 1.00 no longer lose trailing zeros; plain whole-number entries remain whole numbers. Financial parsing and stored numeric values are unchanged.
+
 ## v6.410n - 2026-10-25
 
 ### 1. [UX] Immediate Sync Progress Feedback
