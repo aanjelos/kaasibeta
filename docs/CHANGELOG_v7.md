@@ -2,6 +2,16 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.414n - 2026-10-26
+
+### 1. [Feature] Passes and Fansly Catalogue Entries
+
+Added Passes and Fansly with bundled, optimized logos. Passes uses normal search matching. OnlyFans and Fansly can appear from “fan” onward, while “fa” still excludes both; OnlyFans also retains its “only” prefix. Existing saved subscriptions remain unchanged.
+
+### 2. [UI] Muted Subscription Empty-State Icons
+
+Subscription empty-state icons now use low-contrast grey rather than orange, matching the visual treatment of existing empty transaction lists and charts.
+
 ## v6.413n - 2026-10-26
 
 ### 1. [UX] Require an Explicit Prefix for OnlyFans Suggestions

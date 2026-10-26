@@ -2351,7 +2351,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .subscription-reminder-actions { flex-direction: row; flex-wrap: wrap; align-items: center; }
 .subscription-row-actions .btn { min-height: 40px; padding: 8px 12px; font-size: .8rem; white-space: nowrap; }
 .subscription-empty { padding: 35px 12px; text-align: center; color: var(--text-secondary); }
-.subscription-empty > i { font-size: 2rem; margin-bottom: 12px; color: var(--accent-primary); }
+.subscription-empty > i { font-size: 2rem; margin-bottom: 12px; color: var(--text-secondary); opacity: .4; }
 .subscription-empty .btn { margin-top: 16px; }
 .subscription-editor { display: grid; gap: 16px; }
 .subscription-field { display: block; font-size: .875rem; font-weight: 500; min-width: 0; }

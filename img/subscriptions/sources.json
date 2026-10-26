@@ -384,6 +384,17 @@
     "file": "facebook.svg"
   },
   {
+    "id": "fansly",
+    "source": "https://fansly.com/assets/images/icons/apple-touch-icon.png?v=12",
+    "site": "https://fansly.com/",
+    "file": "fansly.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 1802,
+    "name": "Fansly"
+  },
+  {
     "id": "figma",
     "name": "Figma",
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/figma.svg",
@@ -983,6 +994,17 @@
     "library": "Simple Icons",
     "bytes": 2441,
     "file": "paramountplus.svg"
+  },
+  {
+    "id": "passes",
+    "source": "https://www.passes.com/assets/favicon/favicon-white-32x32.png",
+    "site": "https://www.passes.com/",
+    "file": "passes.webp",
+    "library": "Official website",
+    "sourceWidth": 32,
+    "sourceHeight": 32,
+    "bytes": 1086,
+    "name": "Passes"
   },
   {
     "id": "patreon",

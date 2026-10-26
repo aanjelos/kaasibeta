@@ -7,7 +7,7 @@ const SubscriptionServices = (() => {
     ["Disney+","disneyplus","disney plus|disneyplus"],["HBO Max","hbo"],["Hulu","hulu"],["Paramount+","paramountplus"],
     ["Crunchyroll","crunchyroll"],["Twitch","twitch"],["Plex","plex"],["MUBI","mubi"],["Vimeo","vimeo"],
     ["Deezer","deezer"],["Tidal","tidal"],["SoundCloud","soundcloud"],["Audible","audible"],
-    ["Patreon","patreon"],
+    ["Patreon","patreon"],["Passes","passes"],["Fansly","fansly"],
     ["ChatGPT","openai","openai|chat gpt|chatgpt plus|chatgpt pro"],["Claude","claude","anthropic"],
     ["Gemini","googlegemini","google gemini|google ai"],["Google One","googleone","google storage"],
     ["Perplexity","perplexity"],["Midjourney","midjourney","mid journey"],["DeepSeek","deepseek","deep seek"],["Grok","grok","xai|x ai"],["Cursor","cursor"],["GitHub Copilot","githubcopilot"],
@@ -69,7 +69,8 @@ const SubscriptionServices = (() => {
     const q=normalize(query);
     const detected=match(query);
     // Require an intentional brand prefix before suggesting this service.
-    const candidates=services.filter(service=>service.id!=='onlyfans'||q.split(' ').some(word=>word.startsWith('only')));
+    const words=q.split(' '),fanSearch=words.some(word=>word.startsWith('fan'));
+    const candidates=services.filter(service=>service.id==='onlyfans'?(fanSearch||words.some(word=>word.startsWith('only'))):service.id==='fansly'?fanSearch:true);
     if(!q)return candidates.slice(0,12);
     const scoreTerm=(term,isName)=>{
       const text=normalize(term);if(!text)return 0;

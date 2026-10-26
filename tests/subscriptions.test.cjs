@@ -106,8 +106,10 @@ test('brand matching finds whole keywords within personal names and shares Adobe
   assert.equal(e.run('SubscriptionServices.search("ea")[0].id'),'ea');
   assert.equal(e.run('SubscriptionServices.search("ea").some(s=>["adobe","uberone"].includes(s.id))'),false);
   assert.equal(e.run('SubscriptionServices.search("ea").some(s=>s.id==="namecheap")'),true);
-  for(const query of ['', 'fa', 'fan', 'fans', 'on', 'onl', 'lonely'])assert.equal(e.run('SubscriptionServices.search('+JSON.stringify(query)+').some(s=>s.id==="onlyfans")'),false,query);
-  for(const query of ['Only','onlyf','OnlyFans','only fans','Personal OnlyFans'])assert.equal(e.run('SubscriptionServices.search('+JSON.stringify(query)+').some(s=>s.id==="onlyfans")'),true,query);
+  for(const query of ['', 'fa', 'on', 'onl', 'lonely'])assert.equal(e.run('SubscriptionServices.search('+JSON.stringify(query)+').some(s=>["onlyfans","fansly"].includes(s.id))'),false,query);
+  for(const query of ['Only','onlyf','OnlyFans','only fans','Personal OnlyFans','fan','fans','FAN'])assert.equal(e.run('SubscriptionServices.search('+JSON.stringify(query)+').some(s=>s.id==="onlyfans")'),true,query);
+  for(const query of ['fan','fans','fansl','Fansly'])assert.equal(e.run('SubscriptionServices.search('+JSON.stringify(query)+').some(s=>s.id==="fansly")'),true,query);
+  assert.equal(e.run('SubscriptionServices.search("pass")[0].id'),'passes');
   assert.equal(e.run('SubscriptionServices.search("fa")[0].id'),'facebook');
   assert.equal(e.run('SubscriptionServices.match("Personal OnlyFans").id'),'onlyfans');
   for(const [name,id] of [['Work DeepSeek','deepseek'],['Personal YouTube Music','youtubemusic'],['Amazon Prime','amazonprime'],['Snapchat Plus','snapchat'],['Work WhatsApp Business','whatsapp'],['Instagram Verified','instagram'],['Google Health','fitbit'],['Fitbit Premium','fitbit'],['AutoCAD','autodesk'],['Minecraft Realms Plus','minecraft'],['LinkedIn Premium','linkedin'],['Telegram Premium','telegram'],['AWS','aws'],['QuillBot','quillbot']])assert.equal(e.run('SubscriptionServices.match('+JSON.stringify(name)+')?.id'),id,name);
@@ -124,10 +126,10 @@ test('every listed service has real local artwork and provenance, with no orphan
   const bundled=JSON.parse(e.run('JSON.stringify(SUBSCRIPTION_LOGOS)'));
   const raster=JSON.parse(e.run('JSON.stringify(SUBSCRIPTION_LOGO_FILES)'));
   assert.deepEqual(files.sort(),bundled.map(id=>raster[id]||id+'.svg').sort());
-  assert.equal(bundled.length,154);assert.equal(new Set(bundled).size,bundled.length);
+  assert.equal(bundled.length,156);assert.equal(new Set(bundled).size,bundled.length);
   for(const name of files.filter(file=>file.endsWith('.svg'))){const svg=fs.readFileSync(path.join(root,'img/subscriptions',name),'utf8');assert.match(svg,/<svg[\s>]/);assert.doesNotMatch(svg,/<script|<foreignObject|\son\w+=|(?:href|src)=["'](?:https?:|data:|javascript:)/i);}
   const sources=JSON.parse(fs.readFileSync(path.join(root,'img/subscriptions/sources.json'),'utf8'));
-  assert.equal(sources.length,154);
+  assert.equal(sources.length,156);
   for(const id of bundled){const source=sources.find(row=>row.id===id);assert.ok(source?.source);assert.equal(source.file,raster[id]||id+'.svg');assert.equal(source.bytes,fs.statSync(path.join(root,'img/subscriptions',source.file)).size);}
   assert.doesNotMatch(sources.find(row=>row.id==='hulu').source,/disney|bamgrid/);
   assert.equal(e.run('SubscriptionServices.get("peotv").logoId'),'sltmobitel');

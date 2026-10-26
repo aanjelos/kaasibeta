@@ -90,6 +90,16 @@
     "bytes": 3682
   },
   {
+    "id": "fansly",
+    "source": "https://fansly.com/assets/images/icons/apple-touch-icon.png?v=12",
+    "site": "https://fansly.com/",
+    "file": "fansly.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 1802
+  },
+  {
     "id": "financialtimes",
     "source": "https://images.ft.com/v3/image/raw/ftlogo-v1%3Abrand-ft-logo-square-coloured?source=page-kit&format=png&width=180&height=180",
     "site": "https://www.ft.com/",
@@ -306,6 +316,16 @@
     "sourceWidth": 24,
     "sourceHeight": 24,
     "bytes": 1758
+  },
+  {
+    "id": "passes",
+    "source": "https://www.passes.com/assets/favicon/favicon-white-32x32.png",
+    "site": "https://www.passes.com/",
+    "file": "passes.webp",
+    "library": "Official website",
+    "sourceWidth": 32,
+    "sourceHeight": 32,
+    "bytes": 1086
   },
   {
     "id": "peotv",
