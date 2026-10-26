@@ -100,6 +100,10 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 3. Mobile Floating Action Button (FAB)
 - **Concept**: Add an optional floating `+` button in the bottom-right corner visible on mobile viewports for instant 1-tap transaction entry.
 
+### 4. Settings Workspace UI/UX Refinements
+- **Status**: The functional workspace shipped in v6.421n; further visual and interaction refinements remain planned.
+- **Next step**: Review the user's next round of feedback across desktop and mobile, including spacing, typography, grouping and editing flows. Preserve existing settings, save behaviour, financial logic and shared subscription data.
+
 ---
 
 ## 🛠️ Technical Debt & Code Organization
