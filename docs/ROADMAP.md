@@ -78,13 +78,20 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 18. Subscription Suggestions From History
 - **Concept**: Suggest recurring services from historical transactions for explicit review. Manual schedules and Save as Subscription are implemented; pattern detection remains future work. Never create a schedule or charge from a guess.
 
-### 19. Dated Installment Reminders and Closed-App Notifications
+### 19. Dated Installment Reminders
 - **Concept**: Extend the existing Upcoming Payments bar to installments once plans have explicit, reliable due-date rules. Do not infer deadlines from months remaining alone. Subscription and dated-debt notices are implemented.
-- **Platform work**: Android subscription management and closed-app notifications need their own implementation. Preserve the shared JSON collections when older clients save or sync data; notification delivery must not create financial records.
+- **Scope**: Closed-app browser/PWA notifications are planned separately below. Notification delivery must not create financial records. Android remains outside the current web implementation scope.
 
 ### 20. Buy Now, Pay Later (BNPL) Tracking
 - **Concept**: Support purchases paid through providers such as Koko, Mintpay and Payzy, with installment schedules, due dates, recorded payments and outstanding balances.
 - **Planning**: Confirm provider-specific schedules and rules before implementation. Include due installments in Upcoming Payments and define expense/account treatment to avoid double-counting purchases and repayments. Start with manual tracking; provider integrations or automatic payments require separate agreement.
+
+### 21. Optional Browser and PWA Notifications
+- **Timing**: Plan after the Settings workspace revamp. No notification implementation or backend changes are authorised by this roadmap entry.
+- **Daily entry reminder**: Optional evening reminder around 8:30–9:00 PM in the user's local timezone when no transaction has been recorded that day. Use neutral wording, allow the time to be configured, and limit it to once per day. Confirm what counts as a recorded entry, including backdated and subscription-generated entries.
+- **Payment reminders**: Default to seven days and one day before dated subscription/debt payments. No additional due-day notification by default; retain the existing in-app due-day flow. Skip paused/deleted subscriptions and settled debts, deduplicate each due-date milestone, and group reminders rather than sending one notification per payment. Short recurrence periods must not generate a stream of overlapping advance reminders.
+- **Controls and privacy**: Explicit opt-in from Settings, separate daily/payment toggles, quiet hours, generic lock-screen wording by default and an option to disable notifications. Avoid duplicating notifications across installations, suppress redundant foreground alerts and discard stale missed reminders rather than delivering a backlog.
+- **Feasibility**: Notification permission alone cannot schedule reliable closed-app alarms. Evaluate server-triggered Web Push and platform support; periodic background sync is not a precise timer. Define offline/no-cloud behaviour, timezone changes, revoked permission and delayed delivery before implementation. Prefer checking local IndexedDB state when a push arrives; do not upload transaction contents just to send reminders. Any minimal server-side scheduling metadata and push subscriptions require an explicit design decision.
 
 ---
 
