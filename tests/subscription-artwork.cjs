@@ -1,7 +1,7 @@
 // Asset maintenance only: remove a known solid app-tile backdrop from its edges.
 // Connected removal preserves enclosed light details within the actual brand mark.
 const fs=require('node:fs'),path=require('node:path');
-const treatments={hulu:{background:0},magnific:{background:0},dialogviu:{background:255},mondaydotcom:{background:255},epidemicsound:{background:255,whiteMark:true}};
+const treatments={fansly:{background:24},hulu:{background:0},magnific:{background:0},dialogviu:{background:255},mondaydotcom:{background:255},epidemicsound:{background:255,whiteMark:true}};
 async function transparentArtwork(sharp,buffer,id){
   const treatment=treatments[id];if(!treatment)return buffer;
   const {data,info}=await sharp(buffer).ensureAlpha().raw().toBuffer({resolveWithObject:true});

@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.415n - 2026-10-26
+
+### 1. [Fix] Transparent Fansly Logo
+
+Removed the dark square baked into the Fansly artwork while preserving the blue symbol. Added the background treatment to the asset maintenance pipeline so future refreshes retain transparency.
+
 ## v6.414n - 2026-10-26
 
 ### 1. [Feature] Passes and Fansly Catalogue Entries
