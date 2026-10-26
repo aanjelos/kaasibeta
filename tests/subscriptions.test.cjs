@@ -106,6 +106,10 @@ test('brand matching finds whole keywords within personal names and shares Adobe
   assert.equal(e.run('SubscriptionServices.search("ea")[0].id'),'ea');
   assert.equal(e.run('SubscriptionServices.search("ea").some(s=>["adobe","uberone"].includes(s.id))'),false);
   assert.equal(e.run('SubscriptionServices.search("ea").some(s=>s.id==="namecheap")'),true);
+  for(const query of ['', 'fa', 'fan', 'fans', 'on', 'onl', 'lonely'])assert.equal(e.run('SubscriptionServices.search('+JSON.stringify(query)+').some(s=>s.id==="onlyfans")'),false,query);
+  for(const query of ['Only','onlyf','OnlyFans','only fans','Personal OnlyFans'])assert.equal(e.run('SubscriptionServices.search('+JSON.stringify(query)+').some(s=>s.id==="onlyfans")'),true,query);
+  assert.equal(e.run('SubscriptionServices.search("fa")[0].id'),'facebook');
+  assert.equal(e.run('SubscriptionServices.match("Personal OnlyFans").id'),'onlyfans');
   for(const [name,id] of [['Work DeepSeek','deepseek'],['Personal YouTube Music','youtubemusic'],['Amazon Prime','amazonprime'],['Snapchat Plus','snapchat'],['Work WhatsApp Business','whatsapp'],['Instagram Verified','instagram'],['Google Health','fitbit'],['Fitbit Premium','fitbit'],['AutoCAD','autodesk'],['Minecraft Realms Plus','minecraft'],['LinkedIn Premium','linkedin'],['Telegram Premium','telegram'],['AWS','aws'],['QuillBot','quillbot']])assert.equal(e.run('SubscriptionServices.match('+JSON.stringify(name)+')?.id'),id,name);
   for(const [name,id] of [['Work ChatGPT','openai'],['Personal ChatGPT','openai'],['PickMe renewal for my girlfriend','pickmepass'],['Annual Uber One membership','uberone'],['Work Photoshop','adobe'],['Creative Cloud for work','adobe'],['Personal Lightroom Mobile','lightroommobile'],['Work Adobe Lightroom Mobile','lightroommobile'],['Work Lightroom','lightroommobile'],['Freepik for work','magnific'],['Personal Magnific AI','magnific'],['Family Google Play Pass','googleplaypass'],['Lyfta Pro','lyfta']])assert.equal(e.run('SubscriptionServices.match('+JSON.stringify(name)+')?.id'),id);
   assert.equal(e.run('SubscriptionServices.match("Boxing club")'),null);

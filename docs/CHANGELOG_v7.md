@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.413n - 2026-10-26
+
+### 1. [UX] Require an Explicit Prefix for OnlyFans Suggestions
+
+OnlyFans appears in service search suggestions only after a search word begins with “only”, case-insensitively. Short or incidental fragments such as “fa”, “fans” and “onl” no longer surface it; Facebook remains available through “fa”. Existing subscriptions and full-name logo recognition are unchanged.
+
 ## v6.412n - 2026-10-26
 
 ### 1. [UX] Subscription Search Keyboard Controls and Visible Icon Selection

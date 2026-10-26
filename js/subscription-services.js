@@ -68,7 +68,9 @@ const SubscriptionServices = (() => {
   function search(query) {
     const q=normalize(query);
     const detected=match(query);
-    if(!q)return services.slice(0,12);
+    // Require an intentional brand prefix before suggesting this service.
+    const candidates=services.filter(service=>service.id!=='onlyfans'||q.split(' ').some(word=>word.startsWith('only')));
+    if(!q)return candidates.slice(0,12);
     const scoreTerm=(term,isName)=>{
       const text=normalize(term);if(!text)return 0;
       if(text===q)return isName?1000:950;
@@ -79,7 +81,7 @@ const SubscriptionServices = (() => {
       if(text.includes(q) && (isName||q.length>=3))return isName?300:100;
       return 0;
     };
-    return services.map((service,index)=>({service,index,score:Math.max(scoreTerm(service.name,true),...service.aliases.map(alias=>scoreTerm(alias,false)),service===detected?850:0)}))
+    return candidates.map((service,index)=>({service,index,score:Math.max(scoreTerm(service.name,true),...service.aliases.map(alias=>scoreTerm(alias,false)),service===detected?850:0)}))
       .filter(row=>row.score>0).sort((a,b)=>b.score-a.score||a.index-b.index).slice(0,12).map(row=>row.service);
   }
   function icon(subscription) {
