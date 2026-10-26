@@ -221,7 +221,7 @@ function handleKeyboardShortcuts(event) {
       } else {
         const modalsToClose = [
           "confirmationModal",
-          "formModal", "subscriptionReminderModal", "upcomingPaymentsModal", "subscriptionsModal",
+          "formModal", "settingsAddCategoryModal", "settingsAddBudgetModal", "subscriptionReminderModal", "upcomingPaymentsModal", "subscriptionsModal",
           "cloudSyncModal",
           "transactionDetailModal",
           "ccHistoryModal",
@@ -239,7 +239,8 @@ function handleKeyboardShortcuts(event) {
           const modal = $(`#${modalId}`);
           if (modal && modal.style.display === "block") {
             event.preventDefault();
-            closeModal(modalId);
+            if (modalId === "settingsModal" && typeof SettingsWorkspace !== "undefined") SettingsWorkspace.back();
+            else closeModal(modalId);
             console.log(`Shortcut: Escape pressed, closing modal ${modalId}`);
             modalClosed = true;
             break;
@@ -387,6 +388,8 @@ function setupAppearanceListeners() {
   if (themeDarkBtn && themeLightBtn) {
     const updateThemeUI = () => {
       const theme = getDeviceTheme();
+      themeDarkBtn.setAttribute("aria-pressed", String(theme === "dark"));
+      themeLightBtn.setAttribute("aria-pressed", String(theme === "light"));
       if (theme === "dark") {
         themeDarkBtn.classList.add("border-accent-primary");
         themeDarkBtn.classList.remove("border-transparent");
@@ -635,7 +638,8 @@ function openModalHelper(modalId) {
     }
     currentOpenModals.push(modalId);
     
-    history.pushState({ modalOpen: true, modalId, openModals: currentOpenModals }, null, "");
+    history.pushState({ ...history.state, modalOpen: true, modalId, openModals: currentOpenModals,
+      ...(modalId === "settingsModal" ? { settingsSection: null, settingsDepth: 0 } : {}) }, null, "");
 
     setTimeout(() => {
       if (!["settingsModal", "initialSetupModal", "donateModal", "shortcutsHelpModal", "monthlyViewModal"].includes(modalId)) {
@@ -652,7 +656,7 @@ window.addEventListener("popstate", (event) => {
   const modalsToClose = [
     "confirmationModal", "formModal", "subscriptionReminderModal", "upcomingPaymentsModal", "subscriptionsModal", "transactionDetailModal", "ccTransactionDetailModal", "ccHistoryModal", "cashCounterModal",
     "debtsViewModal", "receivablesViewModal", "transferMoneyModal",
-    "monthlyViewModal", "settingsModal", "cloudSyncModal", "donateModal", "shortcutsHelpModal", "securityQuestionModal", "initialSetupModal", "editBudgetModal"
+    "monthlyViewModal", "settingsModal", "settingsAddCategoryModal", "settingsAddBudgetModal", "cloudSyncModal", "donateModal", "shortcutsHelpModal", "securityQuestionModal", "initialSetupModal", "editBudgetModal"
   ];
   
   const targetOpenModals = (event.state && event.state.openModals) ? event.state.openModals : [];
@@ -677,11 +681,35 @@ window.addEventListener("popstate", (event) => {
       }
     }
   });
+  if (typeof SettingsWorkspace !== "undefined") SettingsWorkspace.restore(event.state);
   updateBodyScrollState();
 });
 
 function closeModal(modalId) {
   const modal = $(`#${modalId}`);
+  const wasOpen = modal?.style.display === "block";
+  if (modalId === "settingsModal" && typeof SettingsWorkspace !== "undefined") {
+    SettingsWorkspace.releaseSubscriptions();
+    const depth = history.state?.settingsDepth || 0;
+    const stack = history.state?.openModals || [];
+    const index = stack.indexOf("settingsModal");
+    if (wasOpen && index >= 0) {
+      // Imports/reset can close Settings while a confirmation is above it.
+      // Remove that whole branch, then let callers open the next screen safely.
+      stack.slice(index).forEach(id => { const item = $(`#${id}`); if (item) item.style.display = "none"; });
+      if (stack.includes("formModal")) {
+        $("#dynamicForm").innerHTML = "";
+        $("#dynamicForm").onsubmit = null;
+        $("#dynamicForm").oninput = null;
+      }
+      cancelDeleteAllData();
+      updateBodyScrollState();
+      return new Promise(resolve => {
+        window.addEventListener("popstate", resolve, { once: true });
+        history.go(-(depth + stack.length - index));
+      });
+    }
+  }
   if (modal) {
     modal.style.display = "none";
     updateBodyScrollState();
@@ -697,7 +725,7 @@ function closeModal(modalId) {
   }
   
   // Clean up history state if closed manually
-  if (history.state && history.state.modalOpen) {
+  if (wasOpen && history.state && history.state.modalOpen) {
     history.back();
   }
 }
@@ -825,12 +853,14 @@ function showConfirmationModal(
 let activeSettingsTab = null;
 
 const settingsTabsConfig = [
-  { label: "Accounts", targetPanelId: "settingsAccountsPanel" },
-  { label: "Categories", targetPanelId: "settingsCategoriesPanel" },
-  { label: "Budgets", targetPanelId: "settingsBudgetsPanel" },
-  { label: "Data", targetPanelId: "settingsDataManagementPanel" },
-  { label: "Appearance", targetPanelId: "settingsAppearancePanel" },
-  { label: "Security", targetPanelId: "settingsSecurityPanel" }
+  { label: "Accounts", targetPanelId: "settingsAccountsPanel", group: "Money", icon: "wallet", hint: "Balances, transfer fees & credit card", description: "Manage your balances and payment preferences." },
+  { label: "Categories", targetPanelId: "settingsCategoriesPanel", group: "Money", icon: "tags", hint: "Organize expenses & hidden categories", description: "Manage categories and how hidden categories are used." },
+  { label: "Budgets", targetPanelId: "settingsBudgetsPanel", group: "Money", icon: "chart-pie", hint: "Monthly limits & budget sorting", description: "Set spending limits and organize your budgets." },
+  { label: "Subscriptions", targetPanelId: "settingsSubscriptionsPanel", group: "Money", icon: "calendar-check", hint: "Active subscriptions & paused renewals", description: "Manage your recurring payments and reminders." },
+  { label: "Appearance", targetPanelId: "settingsAppearancePanel", group: "App", icon: "palette", hint: "Theme, calculator & dashboard", description: "Choose your theme and what appears on the dashboard." },
+  { label: "Data & Backups", targetPanelId: "settingsDataManagementPanel", group: "App", icon: "cloud", hint: "Sync, files, storage & reminders", description: "Manage backups and saved data on this device." },
+  { label: "Security", targetPanelId: "settingsSecurityPanel", group: "App", icon: "shield-alt", hint: "PIN lock & security question", description: "Manage your app PIN and security question." },
+  { label: "About & Support", targetPanelId: "settingsAboutPanel", group: "Information", icon: "info-circle", hint: "About Kaasi & getting in touch", description: "About Kaasi and how to get in touch." }
 ];
 
 
@@ -977,14 +1007,14 @@ function triggerDataImport() {
       setTimeout(() => {
         const dataTabButton = Array.from(
           $$("#settingsTabsContainer button")
-        ).find((btn) => btn.textContent === "Data");
+        ).find((btn) => btn.dataset.tabTarget === "#settingsDataManagementPanel");
         if (dataTabButton) dataTabButton.click();
         importInput.click();
       }, 100);
     } else if (settingsModal) {
       const dataTabButton = Array.from(
         $$("#settingsTabsContainer button")
-      ).find((btn) => btn.textContent === "Data");
+      ).find((btn) => btn.dataset.tabTarget === "#settingsDataManagementPanel");
       if (dataTabButton) dataTabButton.click();
       importInput.click();
     } else {

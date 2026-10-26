@@ -91,7 +91,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ## ✨ UI / UX Polish
 
 ### 1. Internal Modal Refinements, Especially on Mobile
-- **Priority**: Next round, with user-provided mobile requirements to follow. Complete before the Settings workspace redesign, then implement category icons afterward.
+- **Priority**: Follow up on remaining mobile editor and keyboard-layout issues after the dashboard and Settings refinements. Review any further user-reported issues before category icons.
 - **Scope**: Improve sizing, spacing, typography, field hierarchy, scrolling, close controls and action-button placement at narrow mobile widths, including when the keyboard is open. Keep primary actions reachable and avoid clipped content or horizontal overflow. Preserve existing payment and storage behaviour.
 
 ### 2. Segmented Control Buttons for Transaction Type
@@ -99,11 +99,6 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ### 3. Mobile Floating Action Button (FAB)
 - **Concept**: Add an optional floating `+` button in the bottom-right corner visible on mobile viewports for instant 1-tap transaction entry.
-
-### 4. Settings Workspace and Save-Changes UX
-- **Concept**: Rework the growing Settings modal into an in-app full-screen settings workspace without introducing a separate HTML page. Use section navigation on the left and the selected settings on the right on desktop; provide a compact, accessible section selector on mobile.
-- **Save behaviour**: Review the current per-section Save actions, make pending/saved states clear, and define how closing or switching sections handles unsaved edits before implementation. Preserve intentional immediate actions and existing validation; do not silently discard changes.
-- **Scope**: Keep account/category management, data controls and security settings easy to find. Allow room for category icon controls without crowding each row; category colour controls are not planned. Follow mobile module/modal refinements and precede category icons. Final layout and save interaction require design agreement before coding.
 
 ---
 

@@ -79,7 +79,7 @@ function importData(event) {
               "Data imported and sanitized successfully. Application refreshed.",
               "success"
             );
-            closeModal("settingsModal");
+            await closeModal("settingsModal");
           } else {
             throw new Error(
               "Invalid data structure in imported file. Ensure it's a Kaasi backup."
@@ -251,7 +251,7 @@ function completeDeletion() {
     ensureDefaultAccounts();
     ensureDefaultCategories();
     initializeUI(true);
-    closeModal("settingsModal");
+    await closeModal("settingsModal");
     showNotification("All data deleted and logged out.", "success");
     if (typeof openInitialSetupWizard === "function") {
       openInitialSetupWizard();

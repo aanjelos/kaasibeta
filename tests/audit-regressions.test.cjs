@@ -47,7 +47,7 @@ class Element {
   remove() {}
 }
 
-function runtime() {
+function runtime(mobile = false) {
   const elements = new Map();
   const element = selector => {
     if (!elements.has(selector)) elements.set(selector, new Element());
@@ -84,7 +84,7 @@ function runtime() {
     setTimeout: callback => { timers.push(callback); return timers.length; }, clearTimeout() {},
     requestAnimationFrame: () => 1, cancelAnimationFrame() {},
     addEventListener: register(windowEvents), removeEventListener() {},
-    matchMedia: () => ({ matches: false }), scrollTo() {}, focus() {},
+    matchMedia: () => ({ matches: mobile }), scrollTo() {}, focus() {},
     supabase: { createClient: () => null },
     storageOperationPending: false, storageStartupReady: true,
     appPreferences: { ...localStorage, flush: async () => {} },
@@ -110,10 +110,11 @@ function runtime() {
     },
     async replace(value,expected=revision){if(expected!==revision)throw new Error('Revision changed');return this.commit(value);},
     async snapshot(){return this.current;}};
-  for (const file of ['globals', 'import-validation', 'animations', 'data-sync', 'cloud-sync', 'math-tool', 'settings', 'charts', 'ui', 'features', 'subscription-assets', 'subscription-services', 'subscriptions', 'security', 'app']) {
+  for (const file of ['globals', 'import-validation', 'animations', 'data-sync', 'cloud-sync', 'math-tool', 'settings', 'charts', 'ui', 'settings-workspace', 'features', 'subscription-assets', 'subscription-services', 'subscriptions', 'security', 'app']) {
     vm.runInContext(fs.readFileSync(path.join(root, 'js', `${file}.js`), 'utf8'), context, { filename: `${file}.js` });
   }
   const run = source => vm.runInContext(source, context);
+  element('#settingsTabsContainer').dataset.workspaceReady='true';
   const notices = []; context.showNotification = (...args) => notices.push(args);
   for (const name of ['renderDashboard', 'populateDropdowns', 'updateHeaderShortcutButtons']) context[name] = () => {};
   run('state=getDefaultState();state.settings.initialSetupDone=true;state.accounts[0].balance=1000;lastPersistedStateJson=JSON.stringify(state);');
@@ -179,6 +180,82 @@ test('overview chart uses six mobile months and twelve desktop months without re
   assert.equal(chart.data.labels.length,12);assert.equal(series.data,points);
   assert.equal(chart.data.datasets[1],series);assert.equal(points.at(-1),123);
   assert.match(r.element('#dashboardChartTitle').textContent,/Last 12 Months/);
+});
+
+test('settings sections push navigation only and preserve the existing financial state', () => {
+  const r=runtime(true), c=r.context;
+  const workspace=r.run('SettingsWorkspace');
+  c.history.state={modalOpen:true,modalId:'settingsModal',openModals:['settingsModal'],settingsDepth:0};
+  c.history.pushState=value=>{c.history.state=value;};
+  const before=r.storage.get('KaasiData');
+  c.renderSettingsForm=()=>{throw Error('Section navigation must retain current forms and drafts');};
+  workspace.navigate('settingsAccountsPanel');
+  assert.equal(c.history.state.settingsSection,'settingsAccountsPanel');
+  assert.equal(c.history.state.settingsDepth,1);
+  workspace.navigate('settingsBudgetsPanel');
+  assert.equal(c.history.state.settingsDepth,2);
+  assert.equal(r.element('#settingsWorkspaceTitle').textContent,'Budgets');
+  workspace.navigate('settingsBudgetsPanel');
+  assert.equal(c.history.state.settingsDepth,2,'reselecting a section does not add history');
+  assert.equal(r.storage.get('KaasiData'),before);
+});
+
+test('Back returns to the settings hub and closing skips its section history', () => {
+  const r=runtime(true),c=r.context,workspace=r.run('SettingsWorkspace');
+  let backs=0,skipped=0;c.history.back=()=>backs++;c.history.go=value=>{skipped=value;};
+  c.history.state={modalOpen:true,openModals:['settingsModal'],settingsDepth:2,settingsSection:'settingsBudgetsPanel'};
+  workspace.back();assert.equal(skipped,-2);assert.equal(backs,0);
+  workspace.restore({openModals:['settingsModal'],settingsDepth:0,settingsSection:null});
+  assert.equal(r.element('#settingsModal').dataset.settingsView,'hub');
+  r.element('#settingsModal').style.display='block';
+  c.cancelDeleteAllData=()=>{};
+  c.closeModal('settingsModal');
+  assert.equal(skipped,-3);assert.equal(r.element('#settingsModal').style.display,'none');
+});
+
+test('nested modal history retains its settings section on Back', () => {
+  const r=runtime(),c=r.context;
+  c.history.state={modalOpen:true,openModals:['settingsModal'],settingsSection:'settingsBudgetsPanel',settingsDepth:1};
+  c.history.pushState=value=>{c.history.state=value;};
+  c.openModalHelper('formModal');
+  assert.equal(c.history.state.settingsSection,'settingsBudgetsPanel');
+  assert.equal(c.history.state.settingsDepth,1);
+  assert.deepEqual(Array.from(c.history.state.openModals),['settingsModal','formModal']);
+  const previous={modalOpen:true,openModals:['settingsModal'],settingsSection:'settingsBudgetsPanel',settingsDepth:1};
+  r.windowEvents.get('popstate').forEach(fn=>fn({state:previous}));
+  assert.equal(r.element('#formModal').style.display,'none');
+  assert.equal(r.element('#settingsModal').style.display,'block');
+  assert.equal(r.element('#settingsWorkspaceTitle').textContent,'Budgets');
+});
+
+test('closing Settings after an import removes nested confirmation history before the next screen opens', async () => {
+  const r=runtime(),c=r.context;let skipped=0,extraBacks=0;
+  c.cancelDeleteAllData=()=>{};
+  c.history.state={modalOpen:true,openModals:['settingsModal','confirmationModal'],settingsDepth:2};
+  c.history.go=offset=>{skipped=offset;};c.history.back=()=>extraBacks++;
+  r.element('#settingsModal').style.display='block';r.element('#confirmationModal').style.display='block';
+  const closing=c.closeModal('settingsModal');
+  assert.equal(skipped,-4);assert.equal(r.element('#confirmationModal').style.display,'none');
+  c.closeModal('confirmationModal');assert.equal(extraBacks,0,'a completed confirmation cannot pop history twice');
+  let completed=false;closing.then(()=>{completed=true;});await Promise.resolve();assert.equal(completed,false);
+  c.history.state={openModals:[]};r.windowEvents.get('popstate').forEach(fn=>fn({state:c.history.state}));
+  await closing;assert.equal(completed,true);
+});
+
+test('hidden category advanced rules expand on the first click', () => {
+  const r=runtime(),container=r.element('#advancedRulesContainer');
+  container.classList.add('hidden');
+  r.context.toggleAdvancedRules();
+  assert.equal(container.style.display,'block');assert.equal(container.classList.contains('hidden'),false);
+  r.context.toggleAdvancedRules();assert.equal(container.style.display,'none');
+});
+
+test('restoring Settings history after reload initializes its controls without pushing a new modal', () => {
+  const r=runtime(),c=r.context;let options;
+  delete r.element('#settingsTabsContainer').dataset.workspaceReady;
+  c.openSettingsModal=value=>{options=value;r.element('#settingsTabsContainer').dataset.workspaceReady='true';};
+  r.run('SettingsWorkspace').restore({openModals:['settingsModal'],settingsSection:'settingsAccountsPanel'});
+  assert.equal(options.restore,true);assert.equal(r.element('#settingsWorkspaceTitle').textContent,'Accounts');
 });
 
 test('storage protection retains its backup reminder on reopen and ignores an outdated permission check', async () => {

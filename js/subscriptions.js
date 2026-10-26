@@ -203,9 +203,11 @@ const Subscriptions = (() => {
   }
   function openManager(view='active') {
     if(isAppLocked())return;
+    const inSettings=typeof SettingsWorkspace!=='undefined' && SettingsWorkspace.ownsSubscriptions();
+    if(!inSettings && typeof SettingsWorkspace!=='undefined')SettingsWorkspace.releaseSubscriptions();
     filter=view==='paused'?'paused':'active';search='';document.getElementById('subscriptionSearch').value='';
     document.getElementById('subscriptionFilter').value=filter;
-    render();if(document.getElementById('subscriptionsModal').style.display!=='block')openModalHelper('subscriptionsModal');
+    render();if(!inSettings && document.getElementById('subscriptionsModal').style.display!=='block')openModalHelper('subscriptionsModal');
   }
   function renderUpcoming() {
     const host=document.getElementById('upcomingPaymentList');

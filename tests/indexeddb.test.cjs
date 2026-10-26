@@ -12,6 +12,7 @@ function environment({ factory = new IDBFactory(), data = new Map(), testVersion
   const elements = new Map();
   const element = id => {
     if (!elements.has(id)) elements.set(id, { style:{}, hidden:true, children:[], textContent:'',
+      setAttribute(name,value){(this.attributes||={})[name]=String(value);},
       appendChild(child){this.children.push(child);},replaceChildren(){this.children=[];},classList:{add(){},remove(){},contains(){return false;}} });
     return elements.get(id);
   };

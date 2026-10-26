@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.420n" />
+    <meta name="application-version" content="v6.421n" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -51,8 +51,9 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v6.420n" />
-    <link rel="stylesheet" href="tailwind.css?v=v6.420n" />
+    <link rel="stylesheet" href="style.css?v=v6.421n" />
+    <link rel="stylesheet" href="settings-workspace.css?v=v6.421n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.421n" />
 
     <script
       async
@@ -768,19 +769,24 @@
         </div>
       </div>
 
-      <div id="settingsModal" class="modal" role="dialog" aria-modal="true">
-        <div class="modal-content max-w-xl">
-          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('settingsModal')"
-            >&times;</span
-          >
-          <h2 class="text-2xl font-semibold mb-1 text-center">Settings</h2>
-          <div id="settingsTabNav" class="border-b border-gray-600 mb-0">
-            <ul
-              class="flex flex-nowrap overflow-x-auto hide-scrollbar edge-fade px-4 w-max max-w-full mx-auto -mb-px text-sm font-medium text-center"
-              id="settingsTabsContainer"
-            ></ul>
-          </div>
-          <div id="settingsTabContent" class="pt-6">
+      <div id="settingsModal" class="modal settings-workspace" role="dialog" aria-modal="true" aria-labelledby="settingsWorkspaceTitle">
+        <div class="modal-content settings-shell">
+          <aside class="settings-sidebar">
+            <img src="img/FullLogo.svg" alt="Kaasi" class="settings-brand" />
+            <h2>Settings</h2>
+            <nav id="settingsTabNav" aria-label="Settings sections"><ul id="settingsTabsContainer"></ul></nav>
+            <button type="button" class="settings-dashboard-link" onclick="closeModal('settingsModal')"><i class="fas fa-chevron-left" aria-hidden="true"></i> Back to Dashboard</button>
+            <p class="settings-sidebar-foot">Earn well.<br><strong>Spend responsibly.</strong></p>
+          </aside>
+          <div class="settings-main">
+            <header class="settings-topbar">
+              <button id="settingsBackBtn" type="button" onclick="SettingsWorkspace.back()"><i class="fas fa-chevron-left" aria-hidden="true"></i><span>Dashboard</span></button>
+              <span class="settings-breadcrumb">Kaasi <span>/</span> Settings</span>
+              <button type="button" class="settings-close" aria-label="Close Settings" onclick="closeModal('settingsModal')">&times;</button>
+            </header>
+            <div id="settingsMobileHub"></div>
+            <div class="settings-section-heading"><div><h2 id="settingsWorkspaceTitle">Settings</h2><p id="settingsWorkspaceDescription"></p></div><i id="settingsWorkspaceIcon" aria-hidden="true"></i></div>
+          <div id="settingsTabContent">
             <div
               id="settingsAccountsPanel"
               class="settings-tab-panel space-y-6 hidden"
@@ -790,13 +796,14 @@
                 style="background-color: var(--bg-tertiary)"
               >
                 <h3 class="text-lg font-semibold mb-3">
-                  Manage Account Names & Balances
+                  Account Names &amp; Balances
                 </h3>
                 <form id="manageAccountsForm" class="space-y-3">
+                  <div class="settings-account-columns"><span></span><span>Account Name</span><span>Balance (LKR)</span></div>
                   <div id="accountManagementList" class="space-y-3"></div>
+                  <div class="settings-account-footer">
                   <p class="text-xs text-gray-300 mt-2">
-                    Note: 'Cash' account name cannot be changed. Balances and
-                    other names can be updated.
+                    Cash keeps its name. Other account names and balances can be edited.
                   </p>
                   <button
                     type="submit"
@@ -804,13 +811,14 @@
                   >
                     Save Account Changes
                   </button>
+                  </div>
                 </form>
               </div>
               <div
                 class="card !p-4"
                 style="background-color: var(--bg-tertiary)"
               >
-                <h3 class="text-lg font-semibold mb-3">Transfer Settings</h3>
+                <h3 class="text-lg font-semibold mb-3">Transfers</h3>
                 <form id="settingsTransferFeeForm" class="space-y-3">
                   <div>
                     <label
@@ -847,6 +855,7 @@
                 style="background-color: var(--bg-tertiary)"
               >
                 <h3 class="text-lg font-semibold mb-3">Credit Card Settings</h3>
+                <p class="text-sm text-gray-300 mb-4">Track Credit Card purchases and payments separately.</p>
                 <form id="settingsCcLimitForm" class="space-y-3 mb-4">
                   <div>
                     <label
@@ -909,7 +918,7 @@
                   Hidden Category Rules
                 </h3>
                 <p class="text-xs text-gray-300 mb-4">
-                  Define what happens when a category is marked as "Hidden" (using the <i class="fas fa-eye-slash mx-1"></i> icon below).
+                  Choose how hidden categories appear in charts, reports and totals.
                 </p>
                 <div class="space-y-3" id="hiddenCategoryRulesContainer">
                   <!-- Primary Rules -->
@@ -980,7 +989,7 @@
                 style="background-color: var(--bg-tertiary)"
               >
                 <h3 class="text-lg font-semibold mb-3">
-                  Manage Expense Categories
+                  Expense Categories
                 </h3>
                 <form id="addCategoryForm" class="flex gap-2 mb-3">
                   <input
@@ -995,6 +1004,7 @@
                   </button>
                 </form>
                 <ul id="categorySettingsList" class="space-y-2"></ul>
+                <div class="settings-list-footer"><button type="button" class="btn btn-primary" onclick="openModalHelper('settingsAddCategoryModal')"><i class="fas fa-plus" aria-hidden="true"></i> Add Category</button></div>
               </div>
             </div>
             
@@ -1006,7 +1016,7 @@
                 class="card !p-4"
                 style="background-color: var(--bg-tertiary)"
               >
-                <h3 class="text-lg font-semibold mb-3">Add Budget</h3>
+                <h2 id="settingsAddBudgetTitle" class="text-lg font-semibold mb-3">Add Budget</h2>
                 <form id="addBudgetForm" class="space-y-4">
                   <div>
                     <label class="block text-sm font-medium mb-1">Select Categories</label>
@@ -1047,6 +1057,7 @@
                 <div id="activeBudgetsList" class="space-y-3">
                   <p class="text-xs text-gray-300">No active budgets.</p>
                 </div>
+                <div class="settings-list-footer"><p class="text-xs text-gray-400">Spending resets each calendar month.</p><button type="button" class="btn btn-primary" onclick="openModalHelper('settingsAddBudgetModal')"><i class="fas fa-plus" aria-hidden="true"></i> Add Budget</button></div>
               </div>
             </div>
 
@@ -1126,7 +1137,7 @@
                 style="background-color: var(--bg-tertiary)"
               >
                 <h3 class="text-lg font-semibold mb-3">
-                  Local Data Management
+                  Local Backups
                 </h3>
 
                 <div class="flex flex-col sm:flex-row gap-3">
@@ -1176,7 +1187,7 @@
               <!-- 4. Backup Reminders -->
               <div class="card !p-4" style="background-color: var(--bg-tertiary)">
                 <h3 class="text-lg font-semibold mb-3">Backup Reminders</h3>
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="settings-reminder-row flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <label for="settingsBackupReminderFreq" class="block text-sm font-medium text-gray-300">Local Export Reminder</label>
                     <p class="text-xs text-gray-300 mt-1">Alerts you to save an offline backup file if you haven't exported one recently.</p>
@@ -1244,12 +1255,12 @@
                 <h3 class="text-lg font-semibold mb-3">Theme</h3>
                 <div class="flex gap-4">
                   <button id="themeDarkBtn" class="flex-1 btn btn-secondary flex flex-col items-center justify-center p-4 rounded-lg border-2 border-transparent transition-colors">
-                    <i class="fas fa-moon text-2xl mb-2"></i>
-                    <span class="font-medium">Dark Mode</span>
+                    <span class="settings-theme-thumb" aria-hidden="true"></span>
+                    <span class="settings-theme-label">Dark Mode <i class="fas fa-check" aria-hidden="true"></i></span>
                   </button>
                   <button id="themeLightBtn" class="flex-1 btn btn-secondary flex flex-col items-center justify-center p-4 rounded-lg border-2 border-transparent transition-colors">
-                    <i class="fas fa-sun text-2xl mb-2 text-yellow-500"></i>
-                    <span class="font-medium">Light Mode</span>
+                    <span class="settings-theme-thumb settings-theme-light" aria-hidden="true"></span>
+                    <span class="settings-theme-label">Light Mode <i class="fas fa-check" aria-hidden="true"></i></span>
                   </button>
                 </div>
               </div>
@@ -1446,8 +1457,8 @@
               </div>
             </div>
             <!-- END: SECURITY PANEL -->
-
-          </div>
+            <div id="settingsSubscriptionsPanel" class="settings-tab-panel hidden"><div id="settingsSubscriptionHost"></div></div>
+            <div id="settingsAboutPanel" class="settings-tab-panel hidden">
           <div
             id="settingsAboutSection"
             class="mt-8 pt-6 border-t border-gray-600 text-xs text-gray-300 space-y-2 text-center"
@@ -1475,7 +1486,7 @@
             <div class="max-w-lg mx-auto">
               <p>
                 Make sure to back up the data from time to time. You will receive
-                automatic reminders based on your chosen interval in the Data settings.
+                automatic reminders based on your chosen interval in Data &amp; Backups.
               </p>
             </div>
             <p class="font-semibold mt-2">Earn Well And Spend Responsibly!</p>
@@ -1501,6 +1512,11 @@
           </div>
         </div>
       </div>
+
+      </div></div></div>
+
+      <div id="settingsAddCategoryModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsAddCategoryTitle"><div class="modal-content settings-editor-content"><button type="button" class="modal-close" aria-label="Close modal" onclick="closeModal('settingsAddCategoryModal')">&times;</button><h2 id="settingsAddCategoryTitle">Add Category</h2><div id="settingsAddCategoryHost"></div></div></div>
+      <div id="settingsAddBudgetModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsAddBudgetTitle"><div class="modal-content settings-editor-content"><button type="button" class="modal-close" aria-label="Close modal" onclick="closeModal('settingsAddBudgetModal')">&times;</button><div id="settingsAddBudgetHost"></div></div></div>
 
       <div id="initialSetupModal" class="modal z-[60]">
         <div class="modal-content max-w-2xl">
@@ -2112,23 +2128,24 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v6.420n" defer></script>
-    <script src="js/import-validation.js?v=v6.420n" defer></script>
-    <script src="js/storage.js?v=v6.420n" defer></script>
-    <script src="js/storage-ui.js?v=v6.420n" defer></script>
-    <script src="js/animations.js?v=v6.420n" defer></script>
-    <script src="js/data-sync.js?v=v6.420n" defer></script>
-    <script src="js/cloud-sync.js?v=v6.420n" defer></script>
-    <script src="js/math-tool.js?v=v6.420n" defer></script>
-    <script src="js/settings.js?v=v6.420n" defer></script>
-    <script src="js/charts.js?v=v6.420n" defer></script>
-    <script src="js/ui.js?v=v6.420n" defer></script>
-    <script src="js/features.js?v=v6.420n" defer></script>
-    <script src="js/subscription-assets.js?v=v6.420n" defer></script>
-    <script src="js/subscription-services.js?v=v6.420n" defer></script>
-    <script src="js/subscriptions.js?v=v6.420n" defer></script>
-    <script src="js/security.js?v=v6.420n" defer></script>
-    <script src="js/app.js?v=v6.420n" defer></script>
+    <script src="js/globals.js?v=v6.421n" defer></script>
+    <script src="js/import-validation.js?v=v6.421n" defer></script>
+    <script src="js/storage.js?v=v6.421n" defer></script>
+    <script src="js/storage-ui.js?v=v6.421n" defer></script>
+    <script src="js/animations.js?v=v6.421n" defer></script>
+    <script src="js/data-sync.js?v=v6.421n" defer></script>
+    <script src="js/cloud-sync.js?v=v6.421n" defer></script>
+    <script src="js/math-tool.js?v=v6.421n" defer></script>
+    <script src="js/settings.js?v=v6.421n" defer></script>
+    <script src="js/charts.js?v=v6.421n" defer></script>
+    <script src="js/ui.js?v=v6.421n" defer></script>
+    <script src="js/settings-workspace.js?v=v6.421n" defer></script>
+    <script src="js/features.js?v=v6.421n" defer></script>
+    <script src="js/subscription-assets.js?v=v6.421n" defer></script>
+    <script src="js/subscription-services.js?v=v6.421n" defer></script>
+    <script src="js/subscriptions.js?v=v6.421n" defer></script>
+    <script src="js/security.js?v=v6.421n" defer></script>
+    <script src="js/app.js?v=v6.421n" defer></script>
   </body>
 </html>
 

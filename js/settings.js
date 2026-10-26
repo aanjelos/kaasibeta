@@ -2,7 +2,7 @@
  * settings.js
  * Manages the settings modal, user preferences, account management, and category rules.
  */
-function openSettingsModal() {
+function openSettingsModal({ restore = false } = {}) {
   renderSettingsForm();
   setupSettingsTabs();
   setupAppearanceListeners();
@@ -19,7 +19,7 @@ function openSettingsModal() {
     )} (${KaasiStorage.mode === "indexeddb" ? "IndexedDB" : "localStorage"})`;
   }
 
-  openModalHelper("settingsModal");
+  if (!restore) openModalHelper("settingsModal");
   cancelDeleteAllData();
   displayAppVersion();
   refreshStorageProtection();
@@ -123,6 +123,7 @@ function renderSettingsForm() {
       // Hide/Show Button
       const hideButton = document.createElement("button");
       hideButton.type = "button";
+      hideButton.setAttribute("aria-label", `${acc.hidden ? "Show" : "Hide"} ${acc.name}`);
       hideButton.className = "btn-icon-hide justify-self-center";
       hideButton.dataset.accountId = acc.id;
       hideButton.innerHTML = `<i class="fas ${
@@ -136,6 +137,7 @@ function renderSettingsForm() {
       const nameInput = document.createElement("input");
       nameInput.type = "text";
       nameInput.name = `accountName_${acc.id}`;
+      nameInput.setAttribute("aria-label", `${acc.name} account name`);
       nameInput.value = acc.name;
       nameInput.dataset.accountId = acc.id;
       nameInput.className = "text-sm rounded placeholder-gray-400";
@@ -146,12 +148,17 @@ function renderSettingsForm() {
         nameInput.readOnly = true;
         nameInput.classList.add("text-gray-400", "cursor-not-allowed");
       }
-      accRow.appendChild(nameInput);
+      const nameField = document.createElement("label");
+      nameField.className = "settings-account-name";
+      nameField.innerHTML = '<span class="settings-mobile-field-label">Account Name</span>';
+      nameField.appendChild(nameInput);
+      accRow.appendChild(nameField);
 
       // Balance Input
       const balanceInput = document.createElement("input");
       balanceInput.type = "number";
       balanceInput.name = `accountBalance_${acc.id}`;
+      balanceInput.setAttribute("aria-label", `${acc.name} balance`);
       balanceInput.value = acc.balance.toFixed(2);
       balanceInput.step = "0.01";
       balanceInput.dataset.accountId = acc.id;
@@ -160,7 +167,11 @@ function renderSettingsForm() {
       balanceInput.style.backgroundColor = "var(--bg-secondary)";
       balanceInput.style.borderColor = "var(--border-color)";
       balanceInput.style.color = "var(--text-primary)";
-      accRow.appendChild(balanceInput);
+      const balanceField = document.createElement("label");
+      balanceField.className = "settings-account-balance";
+      balanceField.innerHTML = '<span class="settings-mobile-field-label">Balance (LKR)</span>';
+      balanceField.appendChild(balanceInput);
+      accRow.appendChild(balanceField);
 
       accountManagementList.appendChild(accRow);
     });
@@ -601,45 +612,23 @@ function renderSettingsForm() {
 
 function renderCategorySettingsList() {
   const categoryList = $("#categorySettingsList");
-  if (!categoryList) {
-    console.error("#categorySettingsList element not found.");
-    return;
-  }
+  if (!categoryList) return;
   categoryList.innerHTML = "";
-
-  const sortedCategories = [...state.categories].sort((a, b) =>
-    a.localeCompare(b)
-  );
-
-  sortedCategories.forEach((cat) => {
+  [...state.categories].sort((a, b) => a.localeCompare(b)).forEach(cat => {
     const li = document.createElement("li");
-
-    li.className = "flex justify-between items-center px-3 py-1.5 rounded";
-    li.style.backgroundColor = "var(--bg-secondary)";
-    li.style.borderColor = "var(--border-color)";
-    li.style.borderWidth = "1px";
-
-    const inputElementHTML = `<input type="text" value="${escapeHTML(cat)}" data-original-name="${escapeHTML(cat)}" class="bg-transparent border-none focus:ring-0 focus:outline-none p-0 flex-grow mr-2 text-sm">`;
-
-    const buttonsDiv = document.createElement("div");
-    buttonsDiv.className = "flex items-center gap-x-3";
-
-    const isHidden = state.hiddenCategories?.includes(cat);
-    const eyeIconClass = isHidden ? "fa-eye-slash text-gray-500" : "fa-eye text-accent-primary";
-    const eyeTooltip = isHidden ? "Hidden Category (Click to make visible)" : "Visible Category (Click to hide)";
-    
-    const toggleBtn = `<button class="focus:outline-none hover:scale-110 transition-transform flex items-center justify-center w-6 h-6" onclick="toggleHiddenCategory(this.getAttribute('data-cat'))" data-cat="${escapeHTML(cat)}" data-tooltip="${escapeHTML(eyeTooltip)}"><i class="fas ${eyeIconClass}"></i></button>`;
-
-    const saveButtonHTML = `<button class="btn btn-primary btn-sm !py-1 !px-3 text-xs font-medium" onclick="renameCategory(this)">Save</button>`;
-    const deleteButtonHTML = `<button class="text-gray-400 hover:text-expense focus:outline-none w-6 h-6 flex items-center justify-center" onclick="deleteCategory(this.getAttribute('data-cat'))" data-cat="${escapeHTML(cat)}" data-tooltip="Delete Category"><i class="fas fa-times"></i></button>`;
-
-    li.innerHTML = inputElementHTML;
-    buttonsDiv.innerHTML = toggleBtn + saveButtonHTML + deleteButtonHTML;
-    li.appendChild(buttonsDiv);
-
+    li.className = "settings-category-row";
+    const hidden = state.hiddenCategories?.includes(cat);
+    li.innerHTML = `
+      <div class="settings-category-summary"><strong>${escapeHTML(cat)}</strong>${hidden ? '<span class="settings-category-badge">Hidden</span>' : ''}<button type="button" class="settings-row-icon" aria-label="Edit ${escapeHTML(cat)}" aria-expanded="false" onclick="SettingsWorkspace.editCategory(this)"><i class="fas fa-pen" aria-hidden="true"></i></button></div>
+      <div class="settings-category-editor" hidden>
+        <label class="settings-field-label">Category Name<input type="text" aria-label="Category name" value="${escapeHTML(cat)}" data-original-name="${escapeHTML(cat)}"></label>
+        <div class="settings-category-options"><button type="button" class="btn btn-secondary" onclick="toggleHiddenCategory(this.getAttribute('data-cat'))" data-cat="${escapeHTML(cat)}"><i class="fas ${hidden ? 'fa-eye' : 'fa-eye-slash'}" aria-hidden="true"></i> ${hidden ? 'Show' : 'Hide'}</button><button type="button" class="btn btn-secondary text-expense" onclick="deleteCategory(this.getAttribute('data-cat'))" data-cat="${escapeHTML(cat)}"><i class="fas fa-trash-alt" aria-hidden="true"></i> Delete</button></div>
+        <div class="settings-editor-actions"><button type="button" class="btn btn-secondary" onclick="SettingsWorkspace.editCategory(this, false)">Cancel</button><button type="button" class="btn btn-primary" onclick="renameCategory(this)">Save</button></div>
+      </div>`;
     categoryList.appendChild(li);
   });
 }
+
 
 async function toggleHiddenCategory(categoryName) {
   if (!Array.isArray(state.hiddenCategories)) {
@@ -662,7 +651,8 @@ async function toggleHiddenCategory(categoryName) {
 function toggleAdvancedRules() {
   const container = document.getElementById('advancedRulesContainer');
   const icon = document.getElementById('advancedRulesIcon');
-  if (container.style.display === 'none') {
+  if (container.classList.contains('hidden') || container.style.display === 'none') {
+    container.classList.remove('hidden');
     container.style.display = 'block';
     icon.classList.remove('fa-chevron-down');
     icon.classList.add('fa-chevron-up');
@@ -788,6 +778,7 @@ async function addCategory(event) {
   renderCategorySettingsList();
   input.value = "";
   showNotification(`Category "${newCategoryName}" added.`, "success");
+  if ($("#settingsAddCategoryModal")?.style.display === "block") closeModal("settingsAddCategoryModal");
 }
 
 async function deleteCategory(categoryName) {
@@ -958,115 +949,13 @@ async function handleManageAccountsSubmit(event) {
 }
 
 function setupSettingsTabs() {
-  const tabsContainer = document.getElementById("settingsTabsContainer");
-  const tabContentContainer = document.getElementById("settingsTabContent");
-
-  if (!tabsContainer || !tabContentContainer) {
-    console.error("Settings tab containers not found!");
-    return;
-  }
-
-  tabsContainer.innerHTML = "";
-  activeSettingsTab = null;
-
-  settingsTabsConfig.forEach((tabConfig, index) => {
-    const li = document.createElement("li");
-    li.className = "flex-shrink-0";
-
-    const button = document.createElement("button");
-    button.className =
-      "settings-tab-button inline-block p-3 border-b-2 rounded-t-lg whitespace-nowrap";
-    button.textContent = tabConfig.label;
-    button.dataset.tabTarget = `#${tabConfig.targetPanelId}`;
-
-    button.addEventListener("click", () => {
-      switchSettingsTab(button, tabConfig.targetPanelId);
-    });
-
-    li.appendChild(button);
-    tabsContainer.appendChild(li);
-
-    if (index === 0) {
-      switchSettingsTab(button, tabConfig.targetPanelId);
-    } else {
-      const panel = document.getElementById(tabConfig.targetPanelId);
-      if (panel) {
-        panel.classList.add("hidden");
-      }
-    }
-  });
-
-  // Dynamic Scroll Fade Logic
-  const updateTabScrollFade = () => {
-    // Only apply on mobile/small screens if desired, but scrollWidth check handles desktop naturally
-    if (tabsContainer.scrollWidth <= tabsContainer.clientWidth) {
-      tabsContainer.style.maskImage = 'none';
-      tabsContainer.style.webkitMaskImage = 'none';
-      return;
-    }
-    
-    const isAtStart = tabsContainer.scrollLeft <= 0;
-    const isAtEnd = Math.ceil(tabsContainer.scrollLeft) >= (tabsContainer.scrollWidth - tabsContainer.clientWidth) - 1;
-    
-    if (isAtStart && !isAtEnd) {
-      tabsContainer.style.maskImage = 'linear-gradient(to right, black 85%, transparent 100%)';
-      tabsContainer.style.webkitMaskImage = 'linear-gradient(to right, black 85%, transparent 100%)';
-    } else if (!isAtStart && isAtEnd) {
-      tabsContainer.style.maskImage = 'linear-gradient(to right, transparent 0%, black 15%, black 100%)';
-      tabsContainer.style.webkitMaskImage = 'linear-gradient(to right, transparent 0%, black 15%, black 100%)';
-    } else if (!isAtStart && !isAtEnd) {
-      tabsContainer.style.maskImage = 'linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)';
-      tabsContainer.style.webkitMaskImage = 'linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%)';
-    } else {
-      tabsContainer.style.maskImage = 'none';
-      tabsContainer.style.webkitMaskImage = 'none';
-    }
-  };
-
-  tabsContainer.addEventListener('scroll', updateTabScrollFade, { passive: true });
-  window.addEventListener('resize', updateTabScrollFade, { passive: true });
-  
-  // Need to run it once it's visible, so we hook into the modal open or a short timeout
-  setTimeout(updateTabScrollFade, 50);
+  SettingsWorkspace.setup();
 }
 
 function switchSettingsTab(clickedButton, targetPanelId) {
-  const tabContentContainer = document.getElementById("settingsTabContent");
-  if (!tabContentContainer) return;
-
-  if (activeSettingsTab && activeSettingsTab.button !== clickedButton) {
-    activeSettingsTab.button.classList.remove("active");
-
-    const oldPanelSelector = activeSettingsTab.button.dataset.tabTarget;
-    if (oldPanelSelector) {
-      const oldPanel = tabContentContainer.querySelector(oldPanelSelector);
-      if (oldPanel) {
-        oldPanel.classList.add("hidden");
-      }
-    }
-  }
-
-  clickedButton.classList.add("active");
-  
-  if (typeof updateTabIndicator === 'function') {
-    updateTabIndicator('settingsTabsContainer');
-  }
-  
-  // Scroll the active tab into view (centered)
-  setTimeout(() => {
-    clickedButton.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-  }, 10);
-
-  const targetPanel = document.getElementById(targetPanelId);
-  if (targetPanel) {
-    targetPanel.classList.remove("hidden");
-  } else {
-    console.warn(`Target panel with ID '${targetPanelId}' not found.`);
-  }
-
-  activeSettingsTab = { button: clickedButton, panelId: targetPanelId };
-  if (targetPanel?.querySelector("#requestPersistenceBtn")) refreshStorageProtection();
+  SettingsWorkspace.navigate(targetPanelId);
 }
+
 
 
 // --- CATEGORY BUDGETS SETTINGS LOGIC ---
@@ -1171,6 +1060,8 @@ function buildBudgetCategoryCheckboxes(containerId, selectedCategories = [], cur
 function renderBudgetsSettingsList() {
   const container = $("#activeBudgetsList");
   if (!container) return;
+  const sortSelect = $("#budgetSortOrderSelect");
+  if (sortSelect) sortSelect.value = state.settings?.budgetSortOrder || "added";
 
   if (!state.budgets || state.budgets.length === 0) {
     container.innerHTML = `<p class="text-xs text-gray-400">No active budgets.</p>`;
@@ -1183,27 +1074,26 @@ function renderBudgetsSettingsList() {
     container.innerHTML = "";
     sortedBudgets.forEach((budget) => {
       const div = document.createElement("div");
-      div.className = "flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-black/20 rounded-md border border-gray-600 gap-3";
+      div.className = "settings-budget-row";
       div.dataset.budgetId = budget.id;
       
       const catList = budget.categories.join(", ");
+      const month = getCurrentDateString().slice(0, 7);
+      const spent = state.transactions.filter(item => item.type === "expense" && item.date.startsWith(month) && budget.categories.includes(item.category)).reduce((sum, item) => sum + item.amount, 0);
+      const percent = budget.limit > 0 ? spent / budget.limit * 100 : (spent > 0 ? 100 : 0);
     
     div.innerHTML = `
-      <div class="flex-grow min-w-0">
-        <div class="flex items-center justify-between sm:justify-start gap-2 mb-1">
-          <h4 class="font-medium text-gray-200 truncate">${escapeHTML(budget.name)}</h4>
-          <span class="text-sm font-semibold text-accent-500 whitespace-nowrap">${formatCurrency(budget.limit)}</span>
-        </div>
-        <p class="text-xs text-gray-400 line-clamp-2" data-tooltip="${escapeHTML(catList)}">Categories: ${escapeHTML(catList) || 'None'}</p>
-      </div>
-      <div class="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
-        <button type="button" class="btn btn-icon btn-sm" data-record-action="editBudget" data-record-id="${escapeHTML(budget.id)}" data-tooltip="Edit Budget">
-          <i class="fas fa-edit"></i>
+      <div class="settings-budget-heading"><h4>${escapeHTML(budget.name)}</h4><div class="settings-budget-actions">
+        <button type="button" class="settings-row-icon" aria-label="Edit ${escapeHTML(budget.name)}" data-record-action="editBudget" data-record-id="${escapeHTML(budget.id)}" data-tooltip="Edit Budget">
+          <i class="fas fa-pen" aria-hidden="true"></i>
         </button>
-        <button type="button" class="btn btn-icon-danger btn-sm" data-record-action="deleteBudget" data-record-id="${escapeHTML(budget.id)}" data-tooltip="Delete Budget">
-          <i class="fas fa-trash-alt"></i>
+        <button type="button" class="settings-row-icon" aria-label="Delete ${escapeHTML(budget.name)}" data-record-action="deleteBudget" data-record-id="${escapeHTML(budget.id)}" data-tooltip="Delete Budget">
+          <i class="fas fa-trash-alt" aria-hidden="true"></i>
         </button>
-      </div>
+      </div></div>
+      ${catList === budget.name ? '' : `<p class="settings-budget-categories">${escapeHTML(catList) || 'No categories assigned'}</p>`}
+      <p class="settings-budget-spending ${percent > 100 ? 'text-expense' : ''}">${formatCurrency(spent)} of ${formatCurrency(budget.limit)} spent</p>
+      <div class="settings-budget-track" role="meter" aria-label="${escapeHTML(budget.name)} spending" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(percent, 100)}" aria-valuetext="${percent.toFixed(1)}% of budget"><span style="width:${Math.min(percent, 100)}%;background:var(--${percent > 100 ? 'expense-color' : percent > 70 ? 'accent-primary' : 'income-color'})"></span></div>
     `;
       container.appendChild(div);
     });
@@ -1261,6 +1151,7 @@ async function handleAddBudgetSubmit(event) {
   if (typeof renderCategoryBudgets === "function") renderCategoryBudgets();
   
   showNotification(`Budget "${nameInput}" created successfully.`, "success");
+  if ($("#settingsAddBudgetModal")?.style.display === "block") closeModal("settingsAddBudgetModal");
 }
 
 function openEditBudgetModal(budgetId) {

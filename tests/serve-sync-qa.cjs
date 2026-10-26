@@ -50,7 +50,7 @@ if(method!=='read')row=payload;return{data:fields==='updated_at'?{updated_at:row
 new vm.Script(bootstrap.slice(8,-9));
 http.createServer((req,res)=>{
   let name=new URL(req.url,'http://127.0.0.1').pathname;if(name==='/')name='/index.html';
-  if(!(/^\/(index\.html|style\.css|tailwind\.css|manifest\.json)$/.test(name)||/^\/(js|img|fonts)\/[a-zA-Z0-9_./-]+$/.test(name))||name.split('/').includes('..')){res.writeHead(404).end();return;}
+  if(!(/^\/(index\.html|style\.css|settings-workspace\.css|tailwind\.css|manifest\.json)$/.test(name)||/^\/(js|img|fonts)\/[a-zA-Z0-9_./-]+$/.test(name))||name.split('/').includes('..')){res.writeHead(404).end();return;}
   try{
     let body=fs.readFileSync(path.join(root,name));
     if(name==='/index.html')body=body.toString().replace('<script src="js/globals.js',bootstrap+'<script src="js/globals.js');

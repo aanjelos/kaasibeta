@@ -2,6 +2,24 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.421n - 2026-10-27
+
+### 1. [UI] Responsive Settings Workspace
+
+Replaced the tabbed Settings dialog with an in-app full-screen workspace. Desktop uses grouped sidebar navigation; phones use a grouped menu and a dedicated screen for each section. Existing settings controls, immediate-save toggles, explicit form saves, validation and stored data are retained. Supporting text uses 12px, with larger labels and controls and theme-aware contrast. Account fields stack on narrow phones so names and balances have room to display.
+
+### 2. [UX] Category and Budget Management
+
+Categories appear as compact rows; their row editor exposes the existing rename, hide/show and delete actions. Adding categories and budgets opens the original forms in dedicated dialogs. Hidden-category rules remain available below the category list, with more space between labels and switches; advanced rules now expand on the first click. Budget rows show monthly spending against the limit, with edit/delete actions and all existing sorting choices retained.
+
+### 3. [UI] Data, Subscriptions and About Sections
+
+Reorganized Data & Backups into cloud, local file, storage, shortcut, reminder and deletion cards. Retained Smart Schedule, the storage-protection request and slide-to-delete safeguard; storage usage has no implied quota meter. The Subscriptions section shares the existing manager, records and Active/Paused filter with the dashboard, with workspace-specific spacing. About & Support retains the existing credits, contact details, personal logo, version and backup information. PIN, security-question and recovery behaviour is unchanged.
+
+### 4. [Fix] Settings and Nested-Dialog Navigation
+
+Settings section navigation participates in browser Back/Forward history. Back returns through nested dialogs and sections before closing Settings; backdrop taps dismiss the top dialog. Closing Settings after restore removes its nested navigation branch before proceeding, preventing stale confirmation screens or extra Back steps. File restore and data-reset flows wait for that navigation to complete. Calculator fields, transfer-fee settings and financial handlers remain unchanged.
+
 ## v6.420n - 2026-10-26
 
 ### 1. [UI] Top-Aligned App Update Notice
