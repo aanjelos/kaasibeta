@@ -1062,6 +1062,49 @@ window.executePreloaderSequence = function() {
 // --- PWA Offline Support & Install Logic ---
 let deferredPrompt;
 
+async function applyKaasiUpdate(reg, button) {
+  if (button.disabled) return;
+  if (storageOperationPending) return showNotification("Wait for your save to finish before updating.", "info");
+  button.disabled = true;
+  button.textContent = "Updating…";
+  let cleanup = () => {};
+  try {
+    await appPreferences.flush();
+    if (storageOperationPending) {
+      showNotification("Wait for your save to finish before updating.", "info");
+      return;
+    }
+    // Another tab may have activated the worker while preferences were flushing.
+    const worker = reg.waiting;
+    if (!worker) { location.reload(); return; }
+    await new Promise((resolve, reject) => {
+      const controllerChanged = () => resolve();
+      const stateChanged = () => {
+        if (worker.state === "activated") resolve();
+        else if (worker.state === "redundant") reject(new Error("Update was replaced before activation."));
+      };
+      const timeout = setTimeout(() => reject(new Error("Update activation timed out.")), 15000);
+      cleanup = () => {
+        clearTimeout(timeout);
+        navigator.serviceWorker.removeEventListener("controllerchange", controllerChanged);
+        worker.removeEventListener("statechange", stateChanged);
+      };
+      navigator.serviceWorker.addEventListener("controllerchange", controllerChanged);
+      worker.addEventListener("statechange", stateChanged);
+      worker.postMessage("KAASI_APPLY_UPDATE");
+      stateChanged();
+    });
+    location.reload();
+  } catch (error) {
+    console.error("Kaasi update could not be applied.", error);
+    showNotification("The update could not finish. Please close other Kaasi tabs, then refresh and retry.", "error");
+  } finally {
+    cleanup();
+    button.disabled = false;
+    button.textContent = "Update Kaasi";
+  }
+}
+
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("sw.js").then((reg) => {
@@ -1075,12 +1118,7 @@ if ("serviceWorker" in navigator) {
         label.textContent = "A new version is ready.";
         const button = document.createElement("button");
         button.type = "button"; button.className = "btn btn-secondary"; button.textContent = "Update Kaasi";
-        button.onclick = async () => {
-          if (storageOperationPending) return showNotification("Wait for your save to finish before updating.", "info");
-          await appPreferences.flush();
-          navigator.serviceWorker.addEventListener("controllerchange", () => location.reload(), { once: true });
-          reg.waiting.postMessage("KAASI_APPLY_UPDATE");
-        };
+        button.onclick = () => applyKaasiUpdate(reg, button);
         notice.append(label, button);
         document.body.appendChild(notice);
       };

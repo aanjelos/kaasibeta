@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.419n - 2026-10-26
+
+### 1. [Fix] App Update Activation and Failure Feedback
+
+The Update Kaasi action now disables repeated taps and shows an updating state while applying a waiting service worker. It handles activation by another tab during preference writes, listens for both worker activation and controller changes, and removes temporary listeners after completion. Preference-write, messaging, superseded-worker and activation-timeout failures now show an actionable retry message instead of an unhandled error. Pending financial writes still block updates; activation does not modify financial records or cloud backups.
+
 ## v6.418n - 2026-10-26
 
 ### 1. [UI] Mobile Monthly Transactions and Subscription Management
