@@ -1157,15 +1157,19 @@ document.addEventListener("DOMContentLoaded", () => {
     pending = true;
     requestAnimationFrame(() => {
       pending = false;
-      card.querySelectorAll("#totalBalance, #totalPotentialBalance, .balance-val").forEach(el => {
+      card.querySelectorAll("#totalBalance, #totalPotentialBalance, .balance-val, .overview-stat strong").forEach(el => {
         if (!el.clientWidth) return;
         el.style.removeProperty("font-size");
         el.style.removeProperty("white-space");
         el.style.removeProperty("overflow-wrap");
+        // Measure a single line, including the display-only comma groups.
+        // Otherwise their legal wrapping hides the overflow before fitting runs.
+        el.classList.add("fit-currency-line");
         const base = Number.parseFloat(getComputedStyle(el).fontSize);
         if (el.scrollWidth > el.clientWidth) {
           el.style.fontSize = `${Math.max(12, base * el.clientWidth / el.scrollWidth * 0.97)}px`;
           if (el.scrollWidth > el.clientWidth) {
+            el.classList.remove("fit-currency-line");
             el.style.whiteSpace = "normal";
             el.style.overflowWrap = "anywhere";
           }

@@ -484,7 +484,7 @@ function renderInstallmentList() {
     `;
 
     const buttonsHtml = `
-        <div class="edit-btn-container flex items-center justify-end gap-x-4">
+        <div class="edit-btn-container installment-actions flex items-center justify-end gap-x-4">
             ${
               i.monthsLeft > 0
                 ? `
@@ -3743,14 +3743,14 @@ function payInstallmentMonth(installmentId) {
       <i class="fas fa-exclamation-triangle mr-1"></i>
       <strong>Note:</strong> This action only updates the installment status. No financial transaction will be recorded, and no account balances will be affected by this step. Remember to record the actual payment manually.
     </p>
-    <div class="flex justify-end gap-3 mt-4">
+    <div class="installment-confirm-actions flex justify-end gap-3 mt-4">
       <button type="button" id="cancelInstallmentConfirmBtn" class="btn btn-secondary">Cancel</button>
-      <button type="button" id="confirmInstallmentPayBtn" class="btn btn-primary">Confirm & Update Status</button>
+      <button type="button" id="confirmInstallmentPayBtn" class="btn btn-primary">Update Status</button>
     </div>
   `;
 
   openFormModal(
-    `Confirm Installment Update: ${installment.description}`,
+    "Confirm Installment Update",
     confirmationMessageHtml,
     null
   );
@@ -4282,17 +4282,17 @@ function renderYearlyAndQuickStats() {
     }
   });
 
-  $("#yearlyTotals").innerHTML = `<span class="whitespace-nowrap">YTD: Earned ${formatCurrency(
+  $("#yearlyTotals").innerHTML = `<span class="overview-stat"><span>YTD Earned</span><strong>${formatCurrency(
     yearlyEarned
-  )}</span> / <span class="whitespace-nowrap">Spent ${formatCurrency(yearlySpent)}</span>`;
+  )}</strong></span><span class="overview-stat"><span>YTD Spent</span><strong>${formatCurrency(yearlySpent)}</strong></span>`;
 
   const quickStatsEl = $("#quickStats");
   // Update text to "Past 7 Days"
-  quickStatsEl.innerHTML = `<span class="whitespace-nowrap">Today: ${formatCurrency(
+  quickStatsEl.innerHTML = `<span class="overview-stat"><span>Today</span><strong>${formatCurrency(
     todaySpent
-  )} <span id="todaySpendingIndicator"></span></span> | <span class="whitespace-nowrap">Past 7 Days: ${formatCurrency(
+  )} <span id="todaySpendingIndicator"></span></strong></span><span class="overview-stat"><span>Past 7 Days</span><strong>${formatCurrency(
     current7DaysSpent
-  )} <span id="weekSpendingIndicator"></span></span>`; // ID "weekSpendingIndicator" is kept for now, but refers to 7-day period
+  )} <span id="weekSpendingIndicator"></span></strong></span>`;
 
   const todayIndicator = $("#todaySpendingIndicator");
   if (todaySpent > yesterdaySpent && yesterdaySpent >= 0) {

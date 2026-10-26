@@ -999,6 +999,72 @@ button.link-style {
 
 .currency-wrap { white-space: normal; overflow-wrap: normal; word-break: normal; }
 .currency-digit-group { white-space: nowrap; overflow-wrap: normal; word-break: normal; }
+.fit-currency-line, .fit-currency-line .currency-wrap { white-space: nowrap; }
+.fit-currency-line wbr, #global-tooltip .currency-wrap wbr { display: none; }
+/* Financial controls keep their value entry without native stepper arrows. */
+input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+#yearlyTotals, #quickStats { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.overview-stat { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 3px 6px; min-width: 0; }
+.overview-stat > span:first-child { color: var(--text-secondary); }
+.overview-stat strong { font-weight: 500; min-width: 0; max-width: 100%; }
+.overview-stat strong > span[id] { display: inline-block; white-space: nowrap; }
+[data-budget-id] .budget-title { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
+[data-budget-id] .budget-status { white-space: normal; text-align: right; overflow-wrap: normal; }
+[data-budget-id] > div:first-child { flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+[data-budget-id] .budget-status { margin-left: auto; max-width: 100%; }
+#global-tooltip { max-width: calc(100vw - 24px); width: max-content; white-space: normal; overflow-wrap: normal; }
+#global-tooltip .currency-wrap { white-space: nowrap; }
+#installmentList .installment-actions button { min-width: 44px; min-height: 44px; margin: 0; padding: 10px; }
+#installmentList .installment-actions { gap: 0; }
+#appUpdateNotice { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 80; display: flex; align-items: center; justify-content: space-between; gap: 12px; width: max-content; max-width: calc(100vw - 32px); padding: 12px 16px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); box-shadow: 0 4px 20px var(--shadow-color); font-size: .875rem; }
+#appUpdateNotice .btn { flex-shrink: 0; }
+#formModal h2 { padding-right: 28px; overflow-wrap: anywhere; }
+
+@media (max-width: 639px) {
+  #monthlyViewModal .monthly-view-summary-grid { display: flex; flex-direction: column; gap: 0; background: var(--bg-tertiary); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 20px; }
+  #monthlyViewModal .monthly-view-summary-card { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; padding: 10px 12px; border-radius: 0; box-shadow: none; text-align: right; border-bottom: 1px solid var(--border-color); }
+  #monthlyViewModal .monthly-view-summary-card:last-child { border-bottom: 0; }
+  #monthlyViewModal .monthly-view-summary-card p { margin: 0; font-size: .8125rem; }
+  #monthlyViewModal .monthly-view-summary-card p:last-child { font-size: 1rem; margin-left: auto; }
+  #monthlyViewModal .monthly-search-controls { flex-direction: row; gap: 8px; }
+  #monthlyViewModal .monthly-search-controls > div:first-child { min-width: 0; }
+  #monthlyViewModal .monthly-search-controls > div:last-child { width: auto; }
+  #monthlyViewModal .monthly-search-controls input { min-width: 0; width: 100%; font-size: .8125rem; }
+  #monthlyViewModal #toggleAdvancedFiltersBtn { min-height: 44px; padding: 10px 12px; }
+  #monthlyViewModal #toggleAdvancedFiltersBtn .filter-text { display: none; }
+  #monthlyViewModal #toggleAdvancedFiltersBtn .filter-icon { margin: 0; }
+  #monthlyViewModal #clearMonthlySearchBtn:disabled { display: none; }
+  #monthlyViewModal .monthly-view-day-header { padding: 10px 12px; gap: 4px; }
+  #monthlyViewModal .monthly-view-day-header > div { margin-top: 0; }
+  #monthlyViewModal .monthly-view-day-header .tabular-nums { font-size: .8125rem; }
+  #monthlyViewModal .monthly-view-transaction-item { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; padding: 12px !important; }
+  #monthlyViewModal .monthly-view-transaction-item > div:first-child { margin: 0; }
+  #monthlyViewModal .monthly-view-transaction-item > div:first-child p { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
+  #monthlyViewModal .monthly-view-transaction-item > div:first-child p:first-child,
+  #recentTransactionsList .transaction-list-item-layout > div:first-child p:first-child { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; white-space: normal; overflow-wrap: anywhere; }
+  #monthlyViewModal .monthly-view-transaction-item > div:last-child { justify-content: flex-end; }
+  #balanceOverviewCard > div:last-child { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  #yearlyTotals, #quickStats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; }
+  .overview-stat { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+  .overview-stat strong { font-size: .75rem; }
+  #debtsInstallmentsCard #totalInstallmentsLeft { margin-left: 0; text-align: left; }
+  .installment-confirm-actions { display: flex; flex-direction: column-reverse; }
+  .installment-confirm-actions .btn { width: 100%; min-height: 44px; }
+  #installmentList .border-t { flex-wrap: wrap; gap: 6px; padding-top: 0; }
+  #installmentList .border-t > span { min-width: 0; white-space: normal; flex: 1 1 100px; padding-top: 10px; }
+  #installmentList .border-t .installment-actions { padding-top: 6px; margin-left: auto; }
+  #receivablesViewModal .transaction-list-item-layout > div:first-child,
+  #debtsViewModal .transaction-list-item-layout > div:first-child { flex-wrap: wrap; gap: 6px; }
+  #receivablesViewModal .transaction-list-item-layout > div:first-child > div,
+  #debtsViewModal .transaction-list-item-layout > div:first-child > div { flex-basis: 100%; min-width: 0; }
+  #receivablesViewModal .transaction-list-item-layout > div:first-child > span,
+  #debtsViewModal .transaction-list-item-layout > div:first-child > span { margin-left: auto; max-width: 100%; }
+  [data-budget-id] > div:first-child { flex-direction: column; align-items: flex-start; }
+  [data-budget-id] .budget-status { margin-left: 0; text-align: left; font-size: .75rem; }
+}
 .budget-list-heading { flex-wrap: wrap; }
 .budget-list-heading > select { max-width: 100%; }
 #cashCounterForm > .grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr) minmax(0, 1fr); }
@@ -2390,7 +2456,16 @@ footer a[href^="https://kaasi.com.lk"]:hover
 @media (max-width: 639px) {
   .subscription-row { flex-wrap: wrap; gap: 10px; }
   .subscription-row-copy { flex-basis: calc(100% - 50px); }
-  .subscription-row-actions { flex-direction: row; flex-basis: 100%; align-items: center; justify-content: space-between; padding-left: 50px; }
+  .subscription-row-actions { flex-direction: row; flex-basis: 100%; align-items: center; justify-content: space-between; padding-left: 0; gap: 12px; }
+  .subscription-row-actions .btn { min-height: 44px; }
+  .subscription-row-actions > strong { text-align: left; }
+  .subscription-row { padding: 14px 0; gap: 8px 10px; }
+  #subscriptionList .subscription-row { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px; align-items: start; }
+  #subscriptionList .subscription-icon { width: 36px; height: 36px; }
+  #subscriptionList .subscription-row-copy { flex-basis: auto; }
+  #subscriptionList .subscription-row-actions { flex-direction: column; flex-basis: auto; align-items: flex-end; gap: 10px; max-width: 110px; }
+  #subscriptionList .subscription-row-actions > strong { text-align: right; font-size: .8125rem; }
+  #subscriptionList .subscription-row-copy > strong { font-size: .875rem; }
   .subscription-reminder-actions { padding-left: 0; justify-content: flex-start; }
   .subscription-toolbar { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .subscription-toolbar input { grid-column: 1 / -1; }

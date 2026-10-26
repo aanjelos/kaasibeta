@@ -165,6 +165,22 @@ test('dashboard chart preserves series and points for edits and skips unchanged 
   assert.equal(chart.data.datasets.length,2);assert.equal(creations,1);
 });
 
+test('overview chart uses six mobile months and twelve desktop months without replacing its series', () => {
+  const r=runtime(); let mobile=true;
+  r.context.window.matchMedia=()=>({matches:mobile});
+  r.element('#monthlyOverviewChart').getContext=()=>({});
+  r.context.Chart=class {constructor(ctx,config){this.data=config.data;this.options=config.options;}update(){}};
+  r.run('state.transactions=[{type:"expense",amount:123,date:getCurrentDateString(),category:"Other"}];');
+  r.context.renderMonthlyOverviewChart();
+  const chart=r.run('monthlyOverviewChartInstance'),series=chart.data.datasets[1],points=series.data;
+  assert.equal(chart.data.labels.length,6);assert.equal(points.at(-1),123);
+  assert.match(r.element('#dashboardChartTitle').textContent,/Last 6 Months/);
+  mobile=false;r.context.renderMonthlyOverviewChart();
+  assert.equal(chart.data.labels.length,12);assert.equal(series.data,points);
+  assert.equal(chart.data.datasets[1],series);assert.equal(points.at(-1),123);
+  assert.match(r.element('#dashboardChartTitle').textContent,/Last 12 Months/);
+});
+
 test('storage protection retains its backup reminder on reopen and ignores an outdated permission check', async () => {
   const r = runtime(); const c = r.context;
   for (const name of ['renderSettingsForm','setupSettingsTabs','setupAppearanceListeners','renderBudgetsSettingsList','buildBudgetCategoryCheckboxes','openModalHelper','cancelDeleteAllData','displayAppVersion']) c[name] = () => {};
@@ -887,7 +903,7 @@ test('YTD totals include this year through today and exclude future and prior-ye
   ];`);
   r.context.renderYearlyAndQuickStats();
   const output=r.element('#yearlyTotals').innerHTML;
-  assert.match(output,/YTD: Earned/);
+  assert.match(output,/YTD Earned/);
   assert.match(output,/100\.00/);
   assert.match(output,/25\.00/);
   assert.doesNotMatch(output,/900\.00|800\.00|700\.00/);

@@ -368,6 +368,11 @@ function generateMonthlyPdfReport() {
 
 
 
+// Recalculate the rolling window only when crossing the mobile breakpoint.
+window.matchMedia("(max-width: 639px)").addEventListener?.("change", () => {
+  if (monthlyOverviewChartInstance) renderMonthlyOverviewChart();
+});
+
 function renderMonthlyOverviewChart() {
   if (typeof Chart === "undefined") {
     console.warn("Chart.js is not loaded. Cannot render monthly overview chart.");
@@ -464,8 +469,9 @@ function renderMonthlyOverviewChart() {
 
     // --- LOGIC FOR YEARLY (INCOME VS EXPENSE) VIEW ---
   } else {
+    const monthCount = window.matchMedia("(max-width: 639px)").matches ? 6 : 12;
     if (chartTitleEl)
-      chartTitleEl.textContent = "Monthly Income vs Expenses (Last 12 Months)";
+      chartTitleEl.textContent = `Monthly Income vs Expenses (Last ${monthCount} Months)`;
     if (toggleBtnIcon) {
       toggleBtnIcon.className = "fas fa-chart-line fa-lg";
       toggleBtn.dataset.tooltip = "Switch to Daily Expense View";
@@ -476,7 +482,7 @@ function renderMonthlyOverviewChart() {
     const expenseData = [];
     const now = new Date();
 
-    for (let i = 11; i >= 0; i--) {
+    for (let i = monthCount - 1; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const year = date.getFullYear();
       const month = date.getMonth();

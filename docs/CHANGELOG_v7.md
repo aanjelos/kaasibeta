@@ -2,6 +2,20 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.418n - 2026-10-26
+
+### 1. [UI] Mobile Monthly Transactions and Subscription Management
+
+Replaced the mobile monthly view's three large summary cards with compact total rows and placed Filters beside search. Transaction amounts consistently occupy a separate row on phones; descriptions show up to two lines, with full text retained in transaction details. Subscription management uses compact icon/name/amount/action columns, retaining its existing dashboard entry and shared subscription data.
+
+### 2. [UI] Responsive Financial Summaries and Installment Controls
+
+Organized YTD earnings/spending and Today/Past 7 Days into labelled mobile summary cells. Receivable/debt amounts receive a separate row at narrow widths; budget names and status text wrap without clipping. Budget tooltips keep currency values together within viewport bounds. Installment totals align left on phones, action buttons have adjacent 44px touch targets, and the confirmation uses full-width mobile actions. Removed native number steppers from numeric inputs on desktop and mobile without changing their validation or calculations.
+
+### 3. [UI] Responsive Chart Window and App Update Notice
+
+The rolling income/expense chart shows six months below 640px and twelve months on larger screens, updating its title and existing chart instance when the breakpoint changes. Replaced the unpositioned footer update button with a fixed, labelled update notice and prevented duplicate notices. Applying an update retains the existing pending-save guard and preference flush.
+
 ## v6.417n - 2026-10-26
 
 ### 1. [Fix] Overdue Timing Colour in Subscription Lists

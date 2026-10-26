@@ -1067,7 +1067,12 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").then((reg) => {
       console.log("Service Worker registered successfully.", reg);
       const offerUpdate = () => {
-        if (!reg.waiting) return;
+        if (!reg.waiting || document.getElementById("appUpdateNotice")) return;
+        const notice = document.createElement("div");
+        notice.id = "appUpdateNotice";
+        notice.setAttribute("role", "status");
+        const label = document.createElement("span");
+        label.textContent = "A new version is ready.";
         const button = document.createElement("button");
         button.type = "button"; button.className = "btn btn-secondary"; button.textContent = "Update Kaasi";
         button.onclick = async () => {
@@ -1076,7 +1081,8 @@ if ("serviceWorker" in navigator) {
           navigator.serviceWorker.addEventListener("controllerchange", () => location.reload(), { once: true });
           reg.waiting.postMessage("KAASI_APPLY_UPDATE");
         };
-        document.querySelector("footer")?.appendChild(button);
+        notice.append(label, button);
+        document.body.appendChild(notice);
       };
       offerUpdate();
       reg.addEventListener("updatefound", () => reg.installing?.addEventListener("statechange", offerUpdate));
