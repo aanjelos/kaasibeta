@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.416n - 2026-10-26
+
+### 1. [Fix] Retain Overdue Renewals When Adding a Past Payment Date
+
+A past Last Paid / Next Due Date now advances by exactly one selected billing period rather than skipping missed renewals until the present. The resulting renewal can remain overdue and appears in existing reminders. Today and future dates remain direct due dates. The form preview shows the calculated renewal and its due/overdue status. The same rule applies to daily, weekly, monthly, quarterly, bi-annual and annual schedules, retaining month-end/leap-year anchors. Editing unrelated fields preserves existing due dates; adding a schedule never creates past charges or changes account balances.
+
 ## v6.415n - 2026-10-26
 
 ### 1. [Fix] Transparent Fansly Logo

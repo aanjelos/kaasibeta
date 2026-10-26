@@ -184,26 +184,51 @@ test('due reminders are grouped, not repeated on focus, and respect snooze, lock
   e.el('subscriptionReminderModal').style.display='none';e.c.isAppLocked=()=>true;e.api.scheduleReminder();await e.tick();assert.equal(e.el('subscriptionReminderModal').style.display,'none');
   e.c.isAppLocked=()=>false;e.c.document.querySelectorAll=()=>[{}];e.c.getComputedStyle=()=>({display:'block'});e.api.scheduleReminder();await e.tick();assert.equal(e.el('subscriptionReminderModal').style.display,'none');
 });
-test('one date field advances old reference dates to the next renewal without creating past charges',async()=>{
+test('past payment dates advance one period and remain overdue without creating past charges',async()=>{
   const e=env();await e.api.saveDefinition(definition({nextDueDate:'2026-01-31'}));
-  assert.equal(e.saved().subscriptions[0].nextDueDate,'2026-10-31');assert.equal(e.saved().subscriptions[0].anchorDay,31);
+  assert.equal(e.saved().subscriptions[0].nextDueDate,'2026-02-28');assert.equal(e.saved().subscriptions[0].anchorDay,31);
   assert.equal(e.saved().transactions.length,0);assert.equal(e.saved().accounts[0].balance,1000);
   await e.api.saveDefinition(definition({frequency:'daily',nextDueDate:'2026-10-23'}));assert.equal(e.saved().subscriptions[1].nextDueDate,'2026-10-24');
   const backup=e.c.prepareImportedData(e.saved());assert.equal(backup.subscriptions[1].frequency,'daily');
 });
-test('past-date calculation skips missed periods, supports six-month renewals, and preserves existing overdue schedules',async()=>{
-  const e=env();assert.equal(e.api.firstUpcomingDate('2026-01-31','semiannually',31),'2027-01-31');
-  assert.equal(e.api.firstUpcomingDate('2024-02-29','annually',29),'2027-02-28');
-  assert.equal(e.api.firstUpcomingDate('2026-10-01','weekly',1),'2026-10-29');
+test('past-date calculation retains missed renewals across frequencies and preserves existing overdue schedules',async()=>{
+  const e=env();assert.equal(e.api.firstUpcomingDate('2026-01-31','semiannually',31),'2026-07-31');
+  assert.equal(e.api.firstUpcomingDate('2024-02-29','annually',29),'2025-02-28');
+  assert.equal(e.api.firstUpcomingDate('2026-10-01','weekly',1),'2026-10-08');
+  assert.equal(e.api.firstUpcomingDate('2026-09-08','monthly',8),'2026-10-08');
+  assert.equal(e.api.firstUpcomingDate('2026-10-08','monthly',8),'2026-11-08');
+  assert.equal(e.api.firstUpcomingDate('2026-01-31','quarterly',31),'2026-04-30');
+  assert.equal(e.api.firstUpcomingDate('2026-10-01','daily',1),'2026-10-02');
+  assert.equal(e.api.firstUpcomingDate('2026-11-08','monthly',8),'2026-11-08');
   assert.equal(e.api.firstUpcomingDate('2026-10-24','monthly',24),'2026-10-24');
   const id=await e.api.saveDefinition(definition({frequency:'semiannually'}));e.run('state.subscriptions[0].nextDueDate="2026-09-24";');await e.c.saveData();
   const old=e.saved().subscriptions[0];await e.api.saveDefinition({...old,name:'Renamed',amount:'100'},id,JSON.stringify(old));
   assert.equal(e.saved().subscriptions[0].nextDueDate,'2026-09-24');assert.equal(e.saved().transactions.length,0);
   assert.equal(e.c.prepareImportedData(e.saved()).subscriptions[0].frequency,'semiannually');
 });
+test('saved last-paid schedules stay overdue in reminders and can be skipped or paused',async()=>{
+  const e=env();
+  for(const [frequency,date,expected] of [['daily','2026-10-01','2026-10-02'],['weekly','2026-10-01','2026-10-08'],['monthly','2026-09-08','2026-10-08'],['quarterly','2026-01-31','2026-04-30'],['semiannually','2026-01-31','2026-07-31'],['annually','2024-02-29','2025-02-28']]){
+    const id=await e.api.saveDefinition(definition({name:frequency,frequency,nextDueDate:date}));
+    const sub=e.saved().subscriptions.find(s=>s.id===id);assert.equal(sub.nextDueDate,expected);
+    assert.ok(e.api.upcoming().some(row=>row.id===id&&row.due===expected));
+  }
+  assert.equal(e.saved().transactions.length,0);assert.equal(e.saved().accounts[0].balance,1000);
+  const monthly=e.saved().subscriptions.find(s=>s.frequency==='monthly');
+  await e.api.resolve(monthly.id,monthly.nextDueDate,'skip');
+  assert.equal(e.saved().subscriptions.find(s=>s.id===monthly.id).nextDueDate,'2026-11-08');
+  assert.equal(e.saved().transactions.length,0);
+  await e.api.setStatus(monthly.id,'paused',JSON.stringify(e.saved().subscriptions.find(s=>s.id===monthly.id)));
+  assert.ok(!e.api.upcoming().some(row=>row.id===monthly.id));
+});
+
 test('generic icon changes refresh the preview and editor uses the normal text input with no date-mode selector',()=>{
   const e=env();let html;e.c.openFormModal=(title,content)=>{html=content;};
   e.api.openEditor();assert.match(html,/input type="text" id="subName"/);assert.doesNotMatch(html,/Start From|subDateMode|subChangeService|Find Service/);assert.match(html,/Bi-Annual/);
+  e.el('#dynamicForm [name="frequency"]').value='monthly';
+  e.el('subDate').value='2026-09-08';e.el('subDate').onchange();
+  assert.equal(Boolean(e.el('subNextDatePreview').hidden),false);assert.match(e.el('subNextDatePreview').textContent,/16 days overdue/);
+  e.el('subDate').value='2026-10-08';e.el('subDate').onchange();assert.match(e.el('subNextDatePreview').textContent,/Due in 15 days/);
   e.el('subName').value='Gym membership';e.el('subIcon').value='gym';e.el('subIcon').onchange();assert.match(e.el('subIconPreview').innerHTML,/fa-dumbbell/);
   e.el('subName').value='Work ChatGPT';e.el('subName').oninput();assert.match(e.el('subIconPreview').innerHTML,/fa-dumbbell/);
   e.el('subIcon').value='auto';e.el('subIcon').onchange();assert.match(e.el('subIconPreview').innerHTML,/openai.svg/);assert.equal(e.el('subServiceResults').hidden,true);

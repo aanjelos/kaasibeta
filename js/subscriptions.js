@@ -31,17 +31,8 @@ const Subscriptions = (() => {
   }
   function firstUpcomingDate(due,frequency,anchorDay=Number(due.slice(8)),today=getCurrentDateString()) {
     if(due>=today)return due;
-    const start=dateObject(due),target=dateObject(today),period={daily:1,weekly:7}[frequency];
-    if(period){start.setUTCDate(start.getUTCDate()+Math.ceil((target-start)/86400000/period)*period);return start.toISOString().slice(0,10);}
-    const step={monthly:1,quarterly:3,semiannually:6,annually:12}[frequency];
-    if(!step)throw new Error('Choose a supported renewal frequency.');
-    const months=(target.getUTCFullYear()-start.getUTCFullYear())*12+target.getUTCMonth()-start.getUTCMonth();
-    const count=Math.max(1,Math.floor(months/step));
-    start.setUTCDate(1);start.setUTCMonth(start.getUTCMonth()+count*step);
-    const end=new Date(start);end.setUTCMonth(end.getUTCMonth()+1);end.setUTCDate(0);
-    start.setUTCDate(Math.min(anchorDay,end.getUTCDate()));
-    const result=start.toISOString().slice(0,10);
-    return result<today?nextDate({frequency,anchorDay,nextDueDate:result}):result;
+    // A past reference is the last paid date, not permission to skip missed renewals.
+    return nextDate({frequency,anchorDay,nextDueDate:due});
   }
   const occurrenceId=(id,due)=>`${id}_${due.replace(/-/g,'')}`;
   const find=id=>list().find(row=>row.id===id);
@@ -310,7 +301,7 @@ const Subscriptions = (() => {
       const date=document.getElementById('subDate').value,frequency=document.querySelector('#dynamicForm [name="frequency"]').value,preview=document.getElementById('subNextDatePreview');
       const keepOverdue=existing&&date===existing.nextDueDate&&frequency===existing.frequency;
       preview.hidden=!validDate(date)||date>=getCurrentDateString()||keepOverdue;
-      if(!preview.hidden)preview.textContent=`Next renewal: ${formatDate(firstUpcomingDate(date,frequency,date===sub.nextDueDate?sub.anchorDay||Number(date.slice(8)):Number(date.slice(8))))}`;
+      if(!preview.hidden){const renewal=firstUpcomingDate(date,frequency,date===sub.nextDueDate?sub.anchorDay||Number(date.slice(8)):Number(date.slice(8)));preview.textContent=`Renewal: ${formatDate(renewal)} · ${dueLabel(renewal)}`;}
     };
     document.getElementById('subDate').onchange=updateDatePreview;
     document.querySelector('#dynamicForm [name="frequency"]').onchange=updateDatePreview;updateDatePreview();
