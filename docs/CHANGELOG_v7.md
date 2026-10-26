@@ -2,6 +2,20 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.412n - 2026-10-26
+
+### 1. [UX] Subscription Search Keyboard Controls and Visible Icon Selection
+
+Lightroom searches now match Lightroom Mobile instead of the generic Adobe entry. Service suggestions support Up/Down navigation, highlighted selection, Enter to choose the highlighted or first result, and Escape/Tab dismissal without accidentally saving the form. The icon selector is always visible below the subscription name; the adjacent logo is a preview rather than a hidden picker trigger. Search prioritises exact names and prefixes over substrings, with short alias fragments filtered out so EA Play leads searches for “ea”. Existing saved subscriptions and payment behaviour are unchanged.
+
+### 2. [Feature] Expanded Subscription Catalogue and Dark Logo Frames
+
+Added 25 services with bundled logos and keyword aliases, bringing the catalogue to 155 entries. YouTube Music has its own choice, and Google Health Premium reuses the existing Fitbit service ID to preserve saved references. Existing requested services are reused rather than duplicated. All frames now use the same dark background; Adobe uses red, LinkedIn and Salesforce use blue, Microsoft uses its four-colour symbol, and Trello, Canva, Slack and Google use coloured variants. PEO TV shares SLT-MOBITEL artwork. Replaced several long wordmarks with compact official-site symbols; genuinely monochrome brands retain their appropriate marks. New raster assets are resized to 96px WebP, source records are retained, replaced files are removed, and the artwork manifest lists every bundled file.
+
+### 3. [UX] Transparent Subscription Marks and On-Demand Artwork
+
+Removed the solid tile backgrounds from Hulu, Magnific, Dialog Viu, Monday.com and Epidemic Sound; Nintendo Switch uses a transparent symbol. Meta-family catalogue labels are simplified to Meta, Facebook, Instagram and WhatsApp while retaining subscription-related aliases. Logo images are no longer precached during service-worker installation: lazy image requests fetch individual versioned files only when displayed and cache them for offline reuse. Previously unseen logos require connectivity on first display. No external logo service is contacted by the app.
+
 ## v6.411n - 2026-10-26
 
 ### 1. [Fix] Preserve Decimal Zeros in Amount Fields

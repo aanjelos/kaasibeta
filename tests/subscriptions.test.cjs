@@ -1,7 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const {webcrypto}=require('node:crypto');const root=path.resolve(__dirname,'..');
 function env(){
-  const elements=new Map(),preferences=new Map();const el=id=>{if(!elements.has(id))elements.set(id,{style:{},hidden:true,innerHTML:'',value:'',getClientRects:()=>[{}],querySelector:()=>null,querySelectorAll:()=>[]});return elements.get(id);};
+  const elements=new Map(),preferences=new Map();const el=id=>{if(!elements.has(id))elements.set(id,{style:{},attributes:{},setAttribute(k,v){this.attributes[k]=String(v);},removeAttribute(k){delete this.attributes[k];},hidden:true,innerHTML:'',value:'',getClientRects:()=>[{}],querySelector:()=>null,querySelectorAll:()=>[]});return elements.get(id);};
   let timer;const c={console,crypto:webcrypto,TextEncoder,document:{getElementById:el,querySelector:selector=>el(selector),querySelectorAll:()=>[],addEventListener(){},visibilityState:'visible'},addEventListener(){},setTimeout:action=>{timer=action;},clearTimeout(){},
     supabase:{createClient:()=>null},isAppLocked:()=>false,storageOperationPending:false,KaasiStorage:{mode:'indexeddb'},renderDashboard(){},showNotification(){},getCurrentDateString:()=> '2026-10-24',
     appPreferences:{getItem:k=>preferences.get(k),setItem:(k,v)=>preferences.set(k,v),removeItem:k=>preferences.delete(k),flush:async()=>{}},getComputedStyle:()=>({display:'none'}),openModalHelper:id=>{el(id).style.display='block';},
@@ -101,7 +101,13 @@ test('service search keeps related Google subscriptions distinct and unknown bra
 });
 test('brand matching finds whole keywords within personal names and shares Adobe artwork',async()=>{
   const e=env();
-  for(const [name,id] of [['Work ChatGPT','openai'],['Personal ChatGPT','openai'],['PickMe renewal for my girlfriend','pickmepass'],['Annual Uber One membership','uberone'],['Work Photoshop','adobe'],['Creative Cloud for work','adobe'],['Personal Lightroom Mobile','lightroommobile'],['Work Adobe Lightroom Mobile','lightroommobile'],['Work Lightroom','adobe'],['Freepik for work','magnific'],['Personal Magnific AI','magnific'],['Family Google Play Pass','googleplaypass'],['Lyfta Pro','lyfta']])assert.equal(e.run('SubscriptionServices.match('+JSON.stringify(name)+')?.id'),id);
+  assert.equal(e.run('SubscriptionServices.search("light")[0].id'),'lightroommobile');
+  assert.equal(e.run('SubscriptionServices.search("lightroom").some(s=>s.id==="adobe")'),false);
+  assert.equal(e.run('SubscriptionServices.search("ea")[0].id'),'ea');
+  assert.equal(e.run('SubscriptionServices.search("ea").some(s=>["adobe","uberone"].includes(s.id))'),false);
+  assert.equal(e.run('SubscriptionServices.search("ea").some(s=>s.id==="namecheap")'),true);
+  for(const [name,id] of [['Work DeepSeek','deepseek'],['Personal YouTube Music','youtubemusic'],['Amazon Prime','amazonprime'],['Snapchat Plus','snapchat'],['Work WhatsApp Business','whatsapp'],['Instagram Verified','instagram'],['Google Health','fitbit'],['Fitbit Premium','fitbit'],['AutoCAD','autodesk'],['Minecraft Realms Plus','minecraft'],['LinkedIn Premium','linkedin'],['Telegram Premium','telegram'],['AWS','aws'],['QuillBot','quillbot']])assert.equal(e.run('SubscriptionServices.match('+JSON.stringify(name)+')?.id'),id,name);
+  for(const [name,id] of [['Work ChatGPT','openai'],['Personal ChatGPT','openai'],['PickMe renewal for my girlfriend','pickmepass'],['Annual Uber One membership','uberone'],['Work Photoshop','adobe'],['Creative Cloud for work','adobe'],['Personal Lightroom Mobile','lightroommobile'],['Work Adobe Lightroom Mobile','lightroommobile'],['Work Lightroom','lightroommobile'],['Freepik for work','magnific'],['Personal Magnific AI','magnific'],['Family Google Play Pass','googleplaypass'],['Lyfta Pro','lyfta']])assert.equal(e.run('SubscriptionServices.match('+JSON.stringify(name)+')?.id'),id);
   assert.equal(e.run('SubscriptionServices.match("Boxing club")'),null);
   assert.equal(e.run('SubscriptionServices.match("Spotify Netflix")'),null);
   assert.ok(e.run('SubscriptionServices.icon({name:"Photoshop",serviceId:"adobe"})').includes('/adobe.svg'));
@@ -114,19 +120,34 @@ test('every listed service has real local artwork and provenance, with no orphan
   const bundled=JSON.parse(e.run('JSON.stringify(SUBSCRIPTION_LOGOS)'));
   const raster=JSON.parse(e.run('JSON.stringify(SUBSCRIPTION_LOGO_FILES)'));
   assert.deepEqual(files.sort(),bundled.map(id=>raster[id]||id+'.svg').sort());
-  assert.equal(bundled.length,130);assert.equal(new Set(bundled).size,bundled.length);
+  assert.equal(bundled.length,154);assert.equal(new Set(bundled).size,bundled.length);
   for(const name of files.filter(file=>file.endsWith('.svg'))){const svg=fs.readFileSync(path.join(root,'img/subscriptions',name),'utf8');assert.match(svg,/<svg[\s>]/);assert.doesNotMatch(svg,/<script|<foreignObject|\son\w+=|(?:href|src)=["'](?:https?:|data:|javascript:)/i);}
   const sources=JSON.parse(fs.readFileSync(path.join(root,'img/subscriptions/sources.json'),'utf8'));
-  assert.equal(sources.length,130);
+  assert.equal(sources.length,154);
   for(const id of bundled){const source=sources.find(row=>row.id===id);assert.ok(source?.source);assert.equal(source.file,raster[id]||id+'.svg');assert.equal(source.bytes,fs.statSync(path.join(root,'img/subscriptions',source.file)).size);}
   assert.doesNotMatch(sources.find(row=>row.id==='hulu').source,/disney|bamgrid/);
-  assert.match(sources.find(row=>row.id==='peotv').source,/slt\.lk\/.*logo-block-PeoTV/);
+  assert.equal(e.run('SubscriptionServices.get("peotv").logoId'),'sltmobitel');
+  assert.match(e.run('SubscriptionServices.icon({name:"PEO TV",serviceId:"peotv"})'),/sltmobitel.webp/);
   const services=JSON.parse(e.run('JSON.stringify(SubscriptionServices.services)'));
-  for(const service of services){const html=e.run('SubscriptionServices.icon('+JSON.stringify({serviceId:service.id,name:service.name})+')');assert.match(html,/<img src="img\/subscriptions\/[a-z0-9]+\.(svg|webp)"/);}
+  for(const service of services){const html=e.run('SubscriptionServices.icon('+JSON.stringify({serviceId:service.id,name:service.name})+')');assert.match(html,/<img src="img\/subscriptions\/[a-z0-9]+\.(svg|webp)\?v=[^"]+"/);assert.match(html,/loading="lazy"/);}
   const worker={importScripts(){},self:{addEventListener(){}}};vm.createContext(worker);
   vm.runInContext(fs.readFileSync(path.join(root,'js/subscription-assets.js'),'utf8'),worker);
   vm.runInContext(fs.readFileSync(path.join(root,'sw.js'),'utf8')+';this.assets=STATIC_ASSETS;',worker);
-  for(const file of files)assert.ok(worker.assets.includes('./img/subscriptions/'+file));
+  for(const file of files)assert.ok(!worker.assets.includes('./img/subscriptions/'+file),'Logos must not download during installation');
+});
+
+test('service worker fetches logos on demand and reuses the cached response',async()=>{
+  const handlers=new Map(),stored=new Map();let downloads=0,installed;
+  const response={ok:true,clone(){return this;}};
+  const cache={match:async request=>stored.get(request.url),put:async(request,value)=>stored.set(request.url,value),addAll:async assets=>{installed=assets;}};
+  const context={URL,importScripts(){},self:{location:{origin:'https://beta.example'},addEventListener:(name,handler)=>handlers.set(name,handler)},caches:{open:async()=>cache},fetch:async()=>{downloads++;return response;}};
+  vm.runInNewContext(fs.readFileSync(path.join(root,'sw.js'),'utf8'),context);
+  let waiting;handlers.get('install')({waitUntil:p=>waiting=p});await waiting;
+  assert.ok(installed.every(url=>!url.includes('img/subscriptions/')));
+  const request={method:'GET',url:'https://beta.example/img/subscriptions/adobe.svg?v=test',destination:'image'};
+  const load=async()=>{let result;handlers.get('fetch')({request,respondWith:p=>result=p});return result;};
+  assert.equal(await load(),response);assert.equal(downloads,1);
+  assert.equal(await load(),response);assert.equal(downloads,1);
 });
 
 test('removed catalogue choices stay absent while current service IDs and saved financial data remain intact',async()=>{
@@ -180,7 +201,7 @@ test('generic icon changes refresh the preview and editor uses the normal text i
   e.el('subName').value='Gym membership';e.el('subIcon').value='gym';e.el('subIcon').onchange();assert.match(e.el('subIconPreview').innerHTML,/fa-dumbbell/);
   e.el('subName').value='Work ChatGPT';e.el('subName').oninput();assert.match(e.el('subIconPreview').innerHTML,/fa-dumbbell/);
   e.el('subIcon').value='auto';e.el('subIcon').onchange();assert.match(e.el('subIconPreview').innerHTML,/openai.svg/);assert.equal(e.el('subServiceResults').hidden,true);
-  assert.doesNotMatch(html,/subServiceLabel/);assert.match(html,/subscription-name-control/);assert.match(html,/Choose Subscription Icon/);
+  assert.doesNotMatch(html,/subServiceLabel/);assert.match(html,/subscription-name-control/);assert.match(html,/aria-label="Subscription Icon"/);assert.doesNotMatch(html,/id="subCustomIconField"[^>]*hidden/);
   e.el('subIcon').value='internet';e.el('subIcon').onchange();assert.match(e.el('subIconPreview').innerHTML,/fa-wifi/);assert.doesNotMatch(e.el('subIconPreview').innerHTML,/<img/);
 });
 test('dashboard notices show three identifiable payments at most, with accurate overflow and no writes',async()=>{
@@ -256,12 +277,10 @@ test('failed already-recorded and date-correction saves restore schedules and re
   await assert.rejects(e.api.saveDefinition({...sub,amount:'100',nextDueDate:'2026-10-24'},id,JSON.stringify(sub)),/Failed save/);
   assert.equal(e.run('JSON.stringify(state)'),JSON.stringify(previous));
 });
-test('logo frames are selected from artwork contrast instead of the app theme',()=>{
-  const {chooseFrame}=require('./subscription-logo-contrast.cjs');
-  assert.equal(chooseFrame(Uint8Array.from([0,0,0,255])).frame,'light');assert.equal(chooseFrame(Uint8Array.from([255,255,255,255])).frame,'dark');
-  const e=env();assert.match(e.run('SubscriptionServices.icon({name:"Adobe",serviceId:"adobe"})'),/subscription-icon-light/);
-  assert.doesNotMatch(e.run('SubscriptionServices.icon({name:"ChatGPT",serviceId:"openai"})'),/subscription-icon-light/);
-  assert.equal(e.run('SUBSCRIPTION_LIGHT_LOGOS.every(id=>SUBSCRIPTION_LOGOS.includes(id))'),true);
+test('all services use dark frames and Adobe uses explicit red artwork',()=>{
+  const e=env();
+  for(const id of e.run('SubscriptionServices.services.map(s=>s.id)'))assert.doesNotMatch(e.run('SubscriptionServices.icon({name:"Service",serviceId:'+JSON.stringify(id)+'})'),/subscription-icon-light/);
+  assert.match(fs.readFileSync(path.join(root,'img/subscriptions/adobe.svg'),'utf8'),/fill="#FF0000"/);
 });
 test('deleting a schedule retains independent expenses, CC purchases and balances and clears its temporary snooze',async()=>{
   const e=env(),id=await e.api.saveDefinition(definition());await e.api.record(id,'2026-10-24',payment());

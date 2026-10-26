@@ -1,4 +1,4 @@
-const BUILD = "v6.411n";
+const BUILD = "v6.412n";
 importScripts(`./js/subscription-assets.js?v=${BUILD}`);
 const CACHE_NAME = `kaasi-cache-${BUILD}`;
 const STATIC_ASSETS = [
@@ -7,7 +7,6 @@ const STATIC_ASSETS = [
   `./style.css?v=${BUILD}`,
   `./tailwind.css?v=${BUILD}`,
   ...["globals", "import-validation", "storage", "storage-ui", "data-sync", "cloud-sync", "math-tool", "settings", "charts", "ui", "features", "animations", "subscription-assets", "subscription-services", "subscriptions", "security", "app"].map(name => `./js/${name}.js?v=${BUILD}`),
-  ...SUBSCRIPTION_LOGOS.map(id => `./img/subscriptions/${SUBSCRIPTION_LOGO_FILES[id]||id+'.svg'}`),
   "./img/LogoIcon.svg",
   "./img/LogoIcon_Maskable.svg",
   "./img/FullLogo.svg",
@@ -71,6 +70,17 @@ self.addEventListener("fetch", (event) => {
   if (!event.request.url.startsWith("http")) return;
 
   const url = new URL(event.request.url);
+  if (url.origin === self.location.origin && url.pathname.includes('/img/subscriptions/')) {
+    // Logos are fetched only when displayed, then retained for offline reuse.
+    event.respondWith(caches.open(CACHE_NAME).then(async cache => {
+      const cached = await cache.match(event.request);
+      if (cached) return cached;
+      const response = await fetch(event.request);
+      if (response.ok) await cache.put(event.request, response.clone());
+      return response;
+    }));
+    return;
+  }
   if (url.origin === self.location.origin && event.request.mode === "navigate") {
     event.respondWith(caches.open(CACHE_NAME).then(async cache => {
       return (await cache.match("./index.html")) || fetch(event.request);

@@ -1,7 +1,9 @@
 // Asset-only maintenance tool. Public artwork is downloaded, rasterized and bundled locally.
 // Never runs in the client; page content is parsed as data, never executed.
 const fs=require('node:fs'),path=require('node:path');
-const sites={disneyplus:'https://www.disneyplus.com/',hulu:'https://www.hulu.com/',googleone:'https://one.google.com/about/',
+const {transparentArtwork,treatments}=require('./subscription-artwork.cjs');
+const sites={microsoft:'https://www.microsoft.com/',trello:'https://trello.com/',slack:'https://slack.com/',googleworkspace:'https://workspace.google.com/',canva:'https://www.canva.com/',amazonprime:'https://www.primevideo.com/',theguardian:'https://www.theguardian.com/',zoom:'https://www.zoom.com/',zoho:'https://www.zoho.com/',wix:'https://www.wix.com/',woocommerce:'https://woocommerce.com/',bumble:'https://bumble.com/',epidemicsound:'https://www.epidemicsound.com/',flo:'https://flo.health/',iflix:'https://www.iflix.com/',linkedin:'https://www.linkedin.com/',minecraft:'https://www.minecraft.net/',quillbot:'https://quillbot.com/',
+  disneyplus:'https://www.disneyplus.com/',hulu:'https://www.hulu.com/',googleone:'https://one.google.com/about/',
   lightroommobile:'https://www.adobe.com/products/photoshop-lightroom/mobile.html',magnific:'https://magnific.com/',
   dialog:'https://www.dialog.lk/',sltmobitel:'https://www.sltmobitel.lk/',peotv:'https://www.slt.lk/en/node/1595',hutch:'https://hutch.lk/',dialogviu:'https://www.dialog.lk/dialog-television/dialog-play-app/package',
   flaticon:'https://www.flaticon.com/',mondaydotcom:'https://monday.com/',microsoftonedrive:'https://www.microsoft.com/en-us/microsoft-365/onedrive/online-cloud-storage',
@@ -9,7 +11,7 @@ const sites={disneyplus:'https://www.disneyplus.com/',hulu:'https://www.hulu.com
   googleplaypass:'https://play.google.com/about/play-pass/',myfitnesspal:'https://www.myfitnesspal.com/',lyfta:'https://lyfta.app/',calm:'https://www.calm.com/',
   financialtimes:'https://www.ft.com/',theeconomist:'https://www.economist.com/',reuters:'https://www.reuters.com/',freshbooks:'https://www.freshbooks.com/'};
 const dir=path.resolve(__dirname,'../img/subscriptions');
-const overrides={lightroommobile:'https://www.adobe.com/cc-shared/assets/img/product-icons/svg/lightroom-64.svg',
+const overrides={nintendoswitch:'https://cdn.jsdelivr.net/npm/simple-icons@13.21.0/icons/nintendoswitch.svg',googleworkspace:'https://www.gstatic.com/images/branding/googleg/2x/googleg_standard_color_128dp.png',disneyplus:'https://static-assets.bamgrid.com/product/disneyplus/favicons/mask-icon-aurora.86b2f302cf50180b25ddd8835041b1c3.svg',iflix:'https://upload.wikimedia.org/wikipedia/commons/7/77/Iflix_vector_logo.svg',linkedin:'https://raw.githubusercontent.com/FortAwesome/Font-Awesome/5.15.4/svgs/brands/linkedin.svg',lightroommobile:'https://www.adobe.com/cc-shared/assets/img/product-icons/svg/lightroom-64.svg',
   hulu:'https://press.hulu.com/wp-content/uploads/sites/34/2024/12/cropped-cropped-favicon.ico_-180x180.png',
   dialogviu:'https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/56/14/0a/56140a1a-5d57-31da-7b6c-a452cb880c62/AppIcon-0-0-1x_U007emarketing-0-11-0-85-220.png/512x512bb.jpg',
   peotv:'https://www.slt.lk/sites/default/files/downloads/muliple_downloads/files/logo-block-PeoTV_0.jpg',
@@ -39,12 +41,12 @@ async function main(){
     for(const source of candidates){try{
       const response=await get(source),buffer=Buffer.from(await response.arrayBuffer());if(buffer.length>8*1024*1024)throw new Error('Artwork is too large.');
       const text=buffer.toString('utf8');if(/<svg[\s>]/.test(text)&&/<script|<foreignObject|\son\w+=|(?:href|src)=["'](?:https?:|data:|javascript:)/i.test(text))throw new Error('Unsafe SVG.');
-      const input=buffer.subarray(0,4).equals(Buffer.from([0,0,1,0]))?icoImage(buffer):buffer;
+      const input=id==='nintendoswitch'?Buffer.from(text.replace('<svg ','<svg fill="#E60012" ')):id==='disneyplus'?Buffer.from(text.replace(/fill="#[0-9a-f]+"/gi,'fill="#FFFFFF"')):id==='linkedin'?Buffer.from(text.replace('<svg ','<svg fill="#0A66C2" ')):buffer.subarray(0,4).equals(Buffer.from([0,0,1,0]))?icoImage(buffer):buffer;
       const artwork=()=>input.data?sharp(input.data,{raw:input.raw}):sharp(input);
       const metadata=await artwork().metadata();
       const extract=id==='googleplaypass'?{left:0,top:0,width:48,height:50}:undefined;
       const pipeline=artwork();if(extract)pipeline.extract(extract);
-      const image=await pipeline.resize(96,96,{fit:'contain',background:{r:0,g:0,b:0,alpha:0}}).webp({quality:90}).toBuffer();
+      const image=await transparentArtwork(sharp,await pipeline.resize(96,96,{fit:'contain',background:{r:0,g:0,b:0,alpha:0}}).webp({quality:90}).toBuffer(),id);
       fs.writeFileSync(path.join(dir,id+'.webp'),image);records.push({id,source,site,file:id+'.webp',library:['lyfta','dialogviu'].includes(id)?'Official App Store listing':'Official website',sourceWidth:metadata.width,sourceHeight:metadata.height,...(extract?{extract}:{}),bytes:image.length});saved=true;break;
     }catch(e){error=e.message;}}
     if(!saved)records.push({id,site,missing:true,error});

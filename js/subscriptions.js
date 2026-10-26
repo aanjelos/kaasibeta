@@ -233,10 +233,10 @@ const Subscriptions = (() => {
     openFormModal(existing?'Edit Subscription':'Add Subscription',`
       <div class="subscription-editor">
       <div id="subBrandArea" class="subscription-brand-area"><label class="subscription-field" for="subName">Subscription Name</label>
-      <div class="subscription-name-control"><button type="button" id="subIconButton" aria-label="Choose Subscription Icon" aria-expanded="false"><span id="subIconPreview">${SubscriptionServices.icon(sub)}</span></button><input type="text" id="subName" name="name" value="${escapeHTML(sub.name)}" placeholder="e.g., Spotify or Gym Membership" autocomplete="off" maxlength="160" required></div>
+      <div class="subscription-name-control"><span id="subIconButton" aria-hidden="true"><span id="subIconPreview">${SubscriptionServices.icon(sub)}</span></span><input type="text" id="subName" name="name" value="${escapeHTML(sub.name)}" placeholder="e.g., Spotify or Gym Membership" autocomplete="off" maxlength="160" role="combobox" aria-autocomplete="list" aria-controls="subServiceResults" aria-expanded="false" required></div>
       <input type="hidden" id="subServiceId" name="serviceId" value="${escapeHTML(sub.serviceId)}">
-      <label id="subCustomIconField" class="subscription-field subscription-custom-icon"${sub.serviceId==='custom'?'':' hidden'}>Icon<select name="icon" id="subIcon" aria-label="Subscription Icon"><option value="auto" id="subAutoIcon"${selectedService?' selected':' hidden'}>Service Logo</option>${sub.icon&&!Object.hasOwn(SubscriptionServices.generics,sub.icon)?`<option value="${escapeHTML(sub.icon)}" selected>Custom Icon</option>`:''}${Object.entries(SubscriptionServices.generics).map(([key,[name]])=>`<option value="${key}"${!selectedService&&key===sub.icon?' selected':''}>${name}</option>`).join('')}</select></label>
-      <div id="subServiceResults" class="subscription-service-results" role="region" aria-label="Service suggestions" hidden></div></div>
+      <div id="subServiceResults" class="subscription-service-results" role="listbox" aria-label="Service suggestions" hidden></div></div>
+      <label id="subCustomIconField" class="subscription-field subscription-custom-icon">Icon<select name="icon" id="subIcon" aria-label="Subscription Icon"><option value="auto" id="subAutoIcon"${selectedService?' selected':' hidden'}>Service Logo</option>${sub.icon&&!Object.hasOwn(SubscriptionServices.generics,sub.icon)?`<option value="${escapeHTML(sub.icon)}" selected>Custom Icon</option>`:''}${Object.entries(SubscriptionServices.generics).map(([key,[name]])=>`<option value="${key}"${!selectedService&&key===sub.icon?' selected':''}>${name}</option>`).join('')}</select></label>
       <div class="subscription-form-grid"><label class="subscription-field">Amount (LKR)<div class="relative flex items-center w-full"><input class="calc-amount pr-8" type="text" inputmode="decimal" name="amount" value="${escapeHTML(String(sub.amount))}" required><button type="button" class="calc-toggle-btn absolute right-2" aria-label="Toggle Calculator"><i class="fas fa-calculator" aria-hidden="true"></i></button></div></label>
       <label class="subscription-field">Frequency<select name="frequency">${Object.entries(frequencies).map(([key,label])=>`<option value="${key}"${sub.frequency===key?' selected':''}>${label}</option>`).join('')}</select></label></div>
       <label class="subscription-field">Last Paid / Next Due Date<input type="date" id="subDate" name="nextDueDate" value="${escapeHTML(sub.nextDueDate)}" required><small id="subNextDatePreview" class="subscription-date-preview" hidden></small></label>
@@ -251,18 +251,19 @@ const Subscriptions = (() => {
         });
       });
     const name=document.getElementById('subName'),results=document.getElementById('subServiceResults');
-    let customIcon=sub.serviceId==='custom',pickerOpen=customIcon;
+    let customIcon=sub.serviceId==='custom',activeSuggestion=-1;
+    const hideSuggestions=()=>{results.hidden=true;name.setAttribute('aria-expanded','false');name.removeAttribute('aria-activedescendant');activeSuggestion=-1;};
     const matchMarkup=query=>SubscriptionServices.search(query).map(service=>`<button type="button" class="subscription-service-option" data-service-id="${service.id}">${SubscriptionServices.icon({name:service.name,serviceId:service.id})}<span>${escapeHTML(service.name)}</span></button>`).join('')+'<button type="button" class="subscription-service-option" data-service-id=""><i class="fas fa-font" aria-hidden="true"></i><span>Use A Custom Icon</span></button>';
     const drawSuggestions=()=>{
-      if(SubscriptionServices.match(name.value)||!SubscriptionServices.search(name.value).length){results.hidden=true;return;}
+      if(SubscriptionServices.match(name.value)||!SubscriptionServices.search(name.value).length){hideSuggestions();return;}
       results.hidden=false;
       results.innerHTML=matchMarkup(name.value);
+      activeSuggestion=-1;name.setAttribute('aria-expanded','true');name.removeAttribute('aria-activedescendant');
+      results.querySelectorAll('[data-service-id]').forEach((button,index)=>{button.id=`subSuggestion-${index}`;button.setAttribute('role','option');button.setAttribute('aria-selected','false');});
     };
     const showServiceChoice=()=>{
       const serviceId=document.getElementById('subServiceId').value,service=SubscriptionServices.get(serviceId);
       const icon=document.getElementById('subIcon'),match=SubscriptionServices.match(name.value);
-      const field=document.getElementById('subCustomIconField');field.hidden=!pickerOpen;
-      document.getElementById('subIconButton').setAttribute?.('aria-expanded',String(!field.hidden));
       document.getElementById('subAutoIcon').hidden=!match;
       if(service)icon.value='auto';else if(icon.value==='auto')icon.value='letter';
       document.getElementById('subIconPreview').innerHTML=SubscriptionServices.icon({name:name.value,serviceId:serviceId||'custom',icon:icon.value});
@@ -276,11 +277,11 @@ const Subscriptions = (() => {
     results.onclick=event=>{
       const button=event.target.closest('[data-service-id]');if(!button)return;
       const service=SubscriptionServices.services.find(row=>row.id===button.dataset.serviceId);
-      customIcon=!service;pickerOpen=!service;
+      customIcon=!service;
       document.getElementById('subServiceId').value=service?.id||'custom';
       // Choosing artwork must preserve personal labels such as Work ChatGPT.
       if(service && SubscriptionServices.match(name.value)?.id!==service.id)name.value=service.name;
-      results.hidden=true;
+      hideSuggestions();
       showServiceChoice();
     };
     const updateMethod=()=>{
@@ -290,8 +291,20 @@ const Subscriptions = (() => {
       if(document.getElementById('subCategory').options?.[0])document.getElementById('subCategory').options[0].disabled=!cc;
     };
     document.getElementById('subMethod').onchange=updateMethod;updateMethod();
-    document.getElementById('subIconButton').onclick=()=>{pickerOpen=!pickerOpen;showServiceChoice();};
-    document.getElementById('subIcon').onchange=()=>{customIcon=document.getElementById('subIcon').value!=='auto';document.getElementById('subServiceId').value=customIcon?'custom':SubscriptionServices.match(name.value)?.id||'';results.hidden=true;showServiceChoice();};
+    name.onkeydown=event=>{
+      if(event.isComposing)return;
+      if(event.key==='Escape'){if(!results.hidden){event.preventDefault();event.stopPropagation();hideSuggestions();}return;}
+      if(results.hidden)return;
+      const buttons=Array.from(results.querySelectorAll('[data-service-id]'));if(!buttons.length)return;
+      if(event.key==='ArrowDown'||event.key==='ArrowUp'){
+        event.preventDefault();activeSuggestion=activeSuggestion<0?(event.key==='ArrowDown'?0:buttons.length-1):(activeSuggestion+(event.key==='ArrowDown'?1:-1)+buttons.length)%buttons.length;
+        buttons.forEach((button,index)=>button.setAttribute('aria-selected',String(index===activeSuggestion)));
+        name.setAttribute('aria-activedescendant',buttons[activeSuggestion].id);buttons[activeSuggestion].scrollIntoView({block:'nearest'});
+      }else if(event.key==='Enter'){
+        event.preventDefault();event.stopPropagation();buttons[Math.max(0,activeSuggestion)].click();
+      }else if(event.key==='Tab')hideSuggestions();
+    };
+    document.getElementById('subIcon').onchange=()=>{customIcon=document.getElementById('subIcon').value!=='auto';document.getElementById('subServiceId').value=customIcon?'custom':SubscriptionServices.match(name.value)?.id||'';hideSuggestions();showServiceChoice();};
     showServiceChoice();
     const updateDatePreview=()=>{
       const date=document.getElementById('subDate').value,frequency=document.querySelector('#dynamicForm [name="frequency"]').value,preview=document.getElementById('subNextDatePreview');
@@ -385,7 +398,7 @@ const Subscriptions = (() => {
   }
   document.addEventListener('click',event=>{
     const results=document.getElementById('subServiceResults');
-    if(results && event.target.id!=='subName' && !event.target.closest('#subBrandArea'))results.hidden=true;
+    if(results && event.target.id!=='subName' && !event.target.closest('#subBrandArea')){results.hidden=true;const name=document.getElementById('subName');name?.setAttribute('aria-expanded','false');name?.removeAttribute('aria-activedescendant');}
     const button=event.target.closest('[data-sub-action]');if(!button||isAppLocked())return;
     event.preventDefault();
     const action=button.dataset.subAction,id=button.dataset.subId;

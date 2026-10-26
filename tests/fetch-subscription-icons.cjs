@@ -33,7 +33,7 @@ vm.runInContext(fs.readFileSync(path.join(root,'js/subscription-services.js'),'u
     if(!/<svg[\s>]/.test(svg)||/<script|<foreignObject|\son\w+=|(?:href|src)=["'](?:https?:|data:|javascript:)/i.test(svg)){sources.push({...service,available:false});continue;}
     const entry=meta.find(row=>slug(row.title)===service.id);
     if(kind==='Simple Icons'||kind==='Font Awesome')svg=svg.replace('<svg ',`<svg fill="#${kind==='Font Awesome'?'FF0000':entry?.hex==='000000'?'FFFFFF':entry?.hex||'FFFFFF'}" `);
-    svg=svg.replace(/fill=["'](?:#000(?:000)?|black)["']/gi,'fill="#FFFFFF"').replace(/>\s+</g,'><').trim();fs.writeFileSync(path.join(dir,service.id+'.svg'),svg);
+    svg=svg.replace(/fill=["'](?:#000(?:000)?|black|currentColor)["']/gi,`fill="${service.id==='adobe'?'#FF0000':'#FFFFFF'}"`).replace(/>\s+</g,'><').trim();fs.writeFileSync(path.join(dir,service.id+'.svg'),svg);
     sources.push({id:service.id,name:service.name,source:url,brandSource:entry?.source,license:entry?.license,library:kind,bytes:Buffer.byteLength(svg)});
   }}
   await Promise.all(Array.from({length:6},worker));

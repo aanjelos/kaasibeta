@@ -4,7 +4,7 @@
     "name": "Adobe",
     "source": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/adobe.svg",
     "library": "Lobe Icons",
-    "bytes": 279,
+    "bytes": 275,
     "file": "adobe.svg"
   },
   {
@@ -18,11 +18,14 @@
   },
   {
     "id": "amazonprime",
-    "name": "Amazon Prime",
-    "source": "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/amazonprime.svg",
-    "library": "Simple Icons",
-    "bytes": 7181,
-    "file": "amazonprime.svg"
+    "source": "https://m.media-amazon.com/images/G/01/digital/video/DVUI/favicons/apple-touch-icon-57x57.png",
+    "site": "https://www.primevideo.com/",
+    "file": "amazonprime.webp",
+    "library": "Official website",
+    "sourceWidth": 57,
+    "sourceHeight": 57,
+    "bytes": 1998,
+    "name": "Amazon Prime"
   },
   {
     "id": "applemusic",
@@ -70,6 +73,23 @@
     "file": "audible.svg"
   },
   {
+    "id": "autodesk",
+    "name": "Autodesk",
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/autodesk.svg",
+    "brandSource": "https://brand.autodesk.com/brand-system/logo",
+    "library": "Simple Icons",
+    "bytes": 318,
+    "file": "autodesk.svg"
+  },
+  {
+    "id": "aws",
+    "name": "Amazon Web Services",
+    "source": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/aws.svg",
+    "library": "Lobe Icons",
+    "bytes": 3230,
+    "file": "aws.svg"
+  },
+  {
     "id": "behance",
     "name": "Behance",
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/behance.svg",
@@ -93,7 +113,7 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/box.svg",
     "brandSource": "https://www.box.com/en-gb/about-us/press",
     "library": "Simple Icons",
-    "bytes": 1050,
+    "bytes": 1051,
     "file": "box.svg"
   },
   {
@@ -102,8 +122,19 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/buffer.svg",
     "brandSource": "https://buffer.com",
     "library": "Simple Icons",
-    "bytes": 312,
+    "bytes": 313,
     "file": "buffer.svg"
+  },
+  {
+    "id": "bumble",
+    "source": "https://bumble.com/bumble-brand-assets/favicon/apple-touch-icon.png",
+    "site": "https://bumble.com/",
+    "file": "bumble.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 1930,
+    "name": "Bumble"
   },
   {
     "id": "calendly",
@@ -127,11 +158,22 @@
   },
   {
     "id": "canva",
-    "name": "Canva",
-    "source": "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/canva.svg",
-    "library": "Simple Icons",
-    "bytes": 2771,
-    "file": "canva.svg"
+    "source": "https://static.canva.com/domain-assets/canva/static/images/android-192x192-2.png",
+    "site": "https://www.canva.com/",
+    "file": "canva.webp",
+    "library": "Official website",
+    "sourceWidth": 193,
+    "sourceHeight": 192,
+    "bytes": 3570,
+    "name": "Canva"
+  },
+  {
+    "id": "capcut",
+    "name": "CapCut",
+    "source": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/capcut.svg",
+    "library": "Lobe Icons",
+    "bytes": 525,
+    "file": "capcut.svg"
   },
   {
     "id": "claude",
@@ -166,7 +208,7 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/coursera.svg",
     "brandSource": "https://about.coursera.org/press",
     "library": "Simple Icons",
-    "bytes": 691,
+    "bytes": 692,
     "file": "coursera.svg"
   },
   {
@@ -186,6 +228,15 @@
     "library": "Simple Icons",
     "bytes": 469,
     "file": "cursor.svg"
+  },
+  {
+    "id": "deepseek",
+    "name": "DeepSeek",
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/deepseek.svg",
+    "brandSource": "https://www.deepseek.com",
+    "library": "Simple Icons",
+    "bytes": 2101,
+    "file": "deepseek.svg"
   },
   {
     "id": "deezer",
@@ -215,7 +266,7 @@
     "library": "Official App Store listing",
     "sourceWidth": 512,
     "sourceHeight": 512,
-    "bytes": 1416,
+    "bytes": 1676,
     "name": "Dialog Viu"
   },
   {
@@ -235,7 +286,7 @@
     "library": "Official website",
     "sourceWidth": 934,
     "sourceHeight": 934,
-    "bytes": 2412,
+    "bytes": 1438,
     "name": "Disney+"
   },
   {
@@ -293,6 +344,17 @@
     "file": "envato.svg"
   },
   {
+    "id": "epidemicsound",
+    "source": "https://www.epidemicsound.com/staticfiles/public-pages/icon.ico",
+    "site": "https://www.epidemicsound.com/",
+    "file": "epidemicsound.webp",
+    "library": "Official website",
+    "sourceWidth": 128,
+    "sourceHeight": 128,
+    "bytes": 372,
+    "name": "Epidemic Sound"
+  },
+  {
     "id": "eset",
     "source": "https://web-assets.eset.com/typo3conf/ext/eset_base/Resources/Public/img/device/apple-touch-icon.png",
     "site": "https://www.eset.com/",
@@ -311,6 +373,15 @@
     "library": "Simple Icons",
     "bytes": 1491,
     "file": "evernote.svg"
+  },
+  {
+    "id": "facebook",
+    "name": "Facebook",
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/facebook.svg",
+    "brandSource": "https://about.meta.com/brand/resources/facebook/logo",
+    "library": "Simple Icons",
+    "bytes": 557,
+    "file": "facebook.svg"
   },
   {
     "id": "figma",
@@ -343,12 +414,19 @@
   },
   {
     "id": "fitbit",
-    "name": "Fitbit",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/fitbit.svg",
-    "brandSource": "https://www.fitbit.com/uk/home",
-    "library": "Simple Icons",
-    "bytes": 1790,
-    "file": "fitbit.svg"
+    "site": "https://developers.google.com/health/promote",
+    "source": "https://developers.google.com/static/health/resources/Google_Health.zip",
+    "file": "fitbit.webp",
+    "library": "Official Google Health brand assets",
+    "variant": "Original multicolour heart symbol isolated from the official wordmark, transparent padding trimmed and resized to 96px",
+    "extract": {
+      "left": 0,
+      "top": 0,
+      "width": 212,
+      "height": 212
+    },
+    "name": "Google Health Premium (Fitbit)",
+    "bytes": 3514
   },
   {
     "id": "flaticon",
@@ -362,12 +440,23 @@
     "name": "Flaticon"
   },
   {
+    "id": "flo",
+    "source": "https://flo.health/images/icons/icon-72x72.png",
+    "site": "https://flo.health/",
+    "file": "flo.webp",
+    "library": "Official website",
+    "sourceWidth": 72,
+    "sourceHeight": 72,
+    "bytes": 1078,
+    "name": "Flo Premium"
+  },
+  {
     "id": "framer",
     "name": "Framer",
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/framer.svg",
     "brandSource": "https://framer.com",
     "library": "Simple Icons",
-    "bytes": 161,
+    "bytes": 162,
     "file": "framer.svg"
   },
   {
@@ -387,7 +476,7 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/github.svg",
     "brandSource": "https://github.com/logos",
     "library": "Simple Icons",
-    "bytes": 837,
+    "bytes": 838,
     "file": "github.svg"
   },
   {
@@ -459,11 +548,14 @@
   },
   {
     "id": "googleworkspace",
-    "name": "Google Workspace",
-    "source": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/google.svg",
-    "library": "Lobe Icons",
-    "bytes": 900,
-    "file": "googleworkspace.svg"
+    "source": "https://www.gstatic.com/images/branding/googleg/2x/googleg_standard_color_128dp.png",
+    "site": "https://workspace.google.com/",
+    "file": "googleworkspace.webp",
+    "library": "Official website",
+    "sourceWidth": 256,
+    "sourceHeight": 256,
+    "bytes": 4034,
+    "name": "Google Workspace"
   },
   {
     "id": "grammarly",
@@ -473,6 +565,14 @@
     "library": "Simple Icons",
     "bytes": 631,
     "file": "grammarly.svg"
+  },
+  {
+    "id": "grok",
+    "name": "Grok",
+    "source": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/grok.svg",
+    "library": "Lobe Icons",
+    "bytes": 752,
+    "file": "grok.svg"
   },
   {
     "id": "hbo",
@@ -527,7 +627,7 @@
     "library": "Official website",
     "sourceWidth": 180,
     "sourceHeight": 180,
-    "bytes": 554,
+    "bytes": 676,
     "name": "Hulu"
   },
   {
@@ -560,6 +660,26 @@
     "file": "icons8.svg"
   },
   {
+    "id": "iflix",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/7/77/Iflix_vector_logo.svg",
+    "site": "https://www.iflix.com/",
+    "file": "iflix.webp",
+    "library": "Official website",
+    "sourceWidth": 652,
+    "sourceHeight": 652,
+    "bytes": 2156,
+    "name": "iflix"
+  },
+  {
+    "id": "instagram",
+    "name": "Instagram",
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/instagram.svg",
+    "brandSource": "https://about.meta.com/brand/resources/instagram",
+    "library": "Simple Icons",
+    "bytes": 2116,
+    "file": "instagram.svg"
+  },
+  {
     "id": "jetbrains",
     "name": "JetBrains",
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/jetbrains.svg",
@@ -589,6 +709,26 @@
     "name": "Lightroom Mobile"
   },
   {
+    "id": "linkedin",
+    "source": "https://raw.githubusercontent.com/FortAwesome/Font-Awesome/5.15.4/svgs/brands/linkedin.svg",
+    "site": "https://www.linkedin.com/",
+    "file": "linkedin.webp",
+    "library": "Official website",
+    "sourceWidth": 448,
+    "sourceHeight": 512,
+    "bytes": 1190,
+    "name": "LinkedIn Premium"
+  },
+  {
+    "id": "linktree",
+    "name": "Linktree",
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/linktree.svg",
+    "brandSource": "https://linktr.ee",
+    "library": "Simple Icons",
+    "bytes": 420,
+    "file": "linktree.svg"
+  },
+  {
     "id": "loom",
     "name": "Loom",
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/loom.svg",
@@ -616,7 +756,7 @@
     "library": "Official website",
     "sourceWidth": 180,
     "sourceHeight": 180,
-    "bytes": 946,
+    "bytes": 1054,
     "name": "Magnific (Freepik)"
   },
   {
@@ -634,7 +774,7 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/malwarebytes.svg",
     "brandSource": "https://www.malwarebytes.com",
     "library": "Simple Icons",
-    "bytes": 909,
+    "bytes": 910,
     "file": "malwarebytes.svg"
   },
   {
@@ -656,12 +796,23 @@
     "file": "mega.svg"
   },
   {
+    "id": "meta",
+    "name": "Meta",
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/meta.svg",
+    "brandSource": "https://www.meta.com",
+    "library": "Simple Icons",
+    "bytes": 1339,
+    "file": "meta.svg"
+  },
+  {
     "id": "microsoft",
+    "site": "https://www.microsoft.com/",
+    "source": "https://info.microsoft.com/rs/157-GQE-382/images/EN-CNTNT-SlideDeck-SRGCM10296.pdf",
+    "file": "microsoft.svg",
+    "library": "Microsoft four-colour symbol",
+    "variant": "Compact vector using the four original Microsoft symbol colours",
     "name": "Microsoft 365",
-    "source": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/microsoft.svg",
-    "library": "Lobe Icons",
-    "bytes": 379,
-    "file": "microsoft.svg"
+    "bytes": 257
   },
   {
     "id": "microsoftonedrive",
@@ -679,8 +830,19 @@
     "name": "Midjourney",
     "source": "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/midjourney.svg",
     "library": "Lobe Icons",
-    "bytes": 4012,
+    "bytes": 4008,
     "file": "midjourney.svg"
+  },
+  {
+    "id": "minecraft",
+    "source": "https://www.minecraft.net/etc.clientlibs/minecraftnet/clientlibs/clientlib-site/resources/android-icon-192x192.png",
+    "site": "https://www.minecraft.net/",
+    "file": "minecraft.webp",
+    "library": "Official website",
+    "sourceWidth": 192,
+    "sourceHeight": 192,
+    "bytes": 760,
+    "name": "Minecraft Realms"
   },
   {
     "id": "mondaydotcom",
@@ -690,7 +852,7 @@
     "library": "Official website",
     "sourceWidth": 256,
     "sourceHeight": 256,
-    "bytes": 1350,
+    "bytes": 1780,
     "name": "Monday.com"
   },
   {
@@ -751,13 +913,13 @@
   },
   {
     "id": "nintendoswitch",
-    "source": "https://assets.nintendo.com/image/upload/ncom/icons/fav-icons/apple-touch-icon.png",
+    "source": "https://cdn.jsdelivr.net/npm/simple-icons@13.21.0/icons/nintendoswitch.svg",
     "site": "https://www.nintendo.com/us/online/",
     "file": "nintendoswitch.webp",
     "library": "Official website",
-    "sourceWidth": 180,
-    "sourceHeight": 180,
-    "bytes": 1196,
+    "sourceWidth": 24,
+    "sourceHeight": 24,
+    "bytes": 1758,
     "name": "Nintendo Switch Online"
   },
   {
@@ -797,6 +959,15 @@
     "file": "nvidia.svg"
   },
   {
+    "id": "onlyfans",
+    "name": "OnlyFans",
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/onlyfans.svg",
+    "brandSource": "https://onlyfans.com/brand",
+    "library": "Simple Icons",
+    "bytes": 570,
+    "file": "onlyfans.svg"
+  },
+  {
     "id": "openai",
     "name": "ChatGPT",
     "source": "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/openai.svg",
@@ -823,17 +994,6 @@
     "file": "patreon.svg"
   },
   {
-    "id": "peotv",
-    "source": "https://www.slt.lk/sites/default/files/downloads/muliple_downloads/files/logo-block-PeoTV_0.jpg",
-    "site": "https://www.slt.lk/en/node/1595",
-    "file": "peotv.webp",
-    "library": "Official website",
-    "sourceWidth": 160,
-    "sourceHeight": 39,
-    "bytes": 1368,
-    "name": "PEO TV"
-  },
-  {
     "id": "perplexity",
     "name": "Perplexity",
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/perplexity.svg",
@@ -849,6 +1009,15 @@
     "library": "PickMe official website",
     "bytes": 4879,
     "file": "pickmepass.svg"
+  },
+  {
+    "id": "picsart",
+    "name": "Picsart",
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/picsart.svg",
+    "brandSource": "https://picsart.com",
+    "library": "Simple Icons",
+    "bytes": 656,
+    "file": "picsart.svg"
   },
   {
     "id": "playstation",
@@ -887,6 +1056,26 @@
     "file": "quickbooks.svg"
   },
   {
+    "id": "quillbot",
+    "source": "https://quillbot.com/rebrand/apple-touch-icon.png",
+    "site": "https://quillbot.com/",
+    "file": "quillbot.webp",
+    "library": "Official website",
+    "sourceWidth": 180,
+    "sourceHeight": 180,
+    "bytes": 898,
+    "name": "QuillBot"
+  },
+  {
+    "id": "replit",
+    "name": "Replit",
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/replit.svg",
+    "brandSource": "https://repl.it",
+    "library": "Simple Icons",
+    "bytes": 341,
+    "file": "replit.svg"
+  },
+  {
     "id": "reuters",
     "source": "https://www.reuters.com/favicon.ico",
     "site": "https://www.reuters.com/",
@@ -902,7 +1091,7 @@
     "name": "Salesforce",
     "source": "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/salesforce.svg",
     "library": "Simple Icons",
-    "bytes": 559,
+    "bytes": 560,
     "file": "salesforce.svg"
   },
   {
@@ -933,11 +1122,14 @@
   },
   {
     "id": "slack",
-    "name": "Slack",
-    "source": "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/slack.svg",
-    "library": "Simple Icons",
-    "bytes": 1138,
-    "file": "slack.svg"
+    "source": "https://a.slack-edge.com/9cc0056/img/icons/favicon-32.png",
+    "site": "https://slack.com/",
+    "file": "slack.webp",
+    "library": "Official website",
+    "sourceWidth": 35,
+    "sourceHeight": 34,
+    "bytes": 3986,
+    "name": "Slack"
   },
   {
     "id": "sltmobitel",
@@ -948,7 +1140,16 @@
     "sourceWidth": 900,
     "sourceHeight": 900,
     "bytes": 1688,
-    "name": "SLT-MOBITEL"
+    "name": "PEO TV"
+  },
+  {
+    "id": "snapchat",
+    "name": "Snapchat+",
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/snapchat.svg",
+    "brandSource": "https://www.snapchat.com/brand-guidelines",
+    "library": "Simple Icons",
+    "bytes": 1493,
+    "file": "snapchat.svg"
   },
   {
     "id": "soundcloud",
@@ -1014,6 +1215,15 @@
     "file": "surfshark.svg"
   },
   {
+    "id": "telegram",
+    "name": "Telegram Premium",
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/telegram.svg",
+    "brandSource": "https://telegram.org/tour/screenshots",
+    "library": "Simple Icons",
+    "bytes": 757,
+    "file": "telegram.svg"
+  },
+  {
     "id": "theeconomist",
     "source": "https://www.economist.com/favicon.ico",
     "site": "https://www.economist.com/",
@@ -1026,12 +1236,14 @@
   },
   {
     "id": "theguardian",
-    "name": "The Guardian",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/theguardian.svg",
-    "brandSource": "https://www.theguardian.com/international",
-    "library": "Simple Icons",
-    "bytes": 2977,
-    "file": "theguardian.svg"
+    "source": "https://assets.guim.co.uk/static/frontend/icons/homescreen/apple-touch-icon.svg",
+    "site": "https://www.theguardian.com/",
+    "file": "theguardian.webp",
+    "library": "Official website",
+    "sourceWidth": 56,
+    "sourceHeight": 56,
+    "bytes": 1394,
+    "name": "The Guardian"
   },
   {
     "id": "thewashingtonpost",
@@ -1039,7 +1251,7 @@
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/thewashingtonpost.svg",
     "brandSource": "https://www.washingtonpost.com/brand-studio/archive/",
     "library": "Simple Icons",
-    "bytes": 1061,
+    "bytes": 1062,
     "file": "thewashingtonpost.svg"
   },
   {
@@ -1061,6 +1273,15 @@
     "file": "tidal.svg"
   },
   {
+    "id": "tinder",
+    "name": "Tinder",
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/tinder.svg",
+    "brandSource": "https://www.gotinder.com/press",
+    "library": "Simple Icons",
+    "bytes": 573,
+    "file": "tinder.svg"
+  },
+  {
     "id": "todoist",
     "name": "Todoist",
     "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/todoist.svg",
@@ -1071,12 +1292,14 @@
   },
   {
     "id": "trello",
-    "name": "Trello",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/trello.svg",
-    "brandSource": "https://atlassian.design/resources/logo-library",
-    "library": "Simple Icons",
-    "bytes": 484,
-    "file": "trello.svg"
+    "source": "https://www.trello.com/favicon.ico",
+    "site": "https://trello.com/",
+    "file": "trello.webp",
+    "library": "Official website",
+    "sourceWidth": 256,
+    "sourceHeight": 256,
+    "bytes": 1410,
+    "name": "Trello"
   },
   {
     "id": "twitch",
@@ -1142,22 +1365,35 @@
     "file": "webflow.svg"
   },
   {
-    "id": "wix",
-    "name": "Wix",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/wix.svg",
-    "brandSource": "https://www.wix.com/about/design-assets",
+    "id": "whatsapp",
+    "name": "WhatsApp",
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/whatsapp.svg",
+    "brandSource": "https://about.meta.com/brand/resources/whatsapp/whatsapp-brand",
     "library": "Simple Icons",
-    "bytes": 808,
-    "file": "wix.svg"
+    "bytes": 1231,
+    "file": "whatsapp.svg"
+  },
+  {
+    "id": "wix",
+    "source": "https://www.wix.com/favicon.ico",
+    "site": "https://www.wix.com/",
+    "file": "wix.webp",
+    "library": "Official website",
+    "sourceWidth": 192,
+    "sourceHeight": 192,
+    "bytes": 1126,
+    "name": "Wix"
   },
   {
     "id": "woocommerce",
-    "name": "WooCommerce",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/woocommerce.svg",
-    "brandSource": "https://woocommerce.com/style-guide",
-    "library": "Simple Icons",
-    "bytes": 3589,
-    "file": "woocommerce.svg"
+    "source": "https://woocommerce.com/wp-content/uploads/2024/12/cropped-logo-w-favicon.png?w=192",
+    "site": "https://woocommerce.com/",
+    "file": "woocommerce.webp",
+    "library": "Official website",
+    "sourceWidth": 192,
+    "sourceHeight": 192,
+    "bytes": 2814,
+    "name": "WooCommerce"
   },
   {
     "id": "wordpress",
@@ -1167,6 +1403,15 @@
     "library": "Simple Icons",
     "bytes": 1074,
     "file": "wordpress.svg"
+  },
+  {
+    "id": "x",
+    "name": "X Premium",
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/x.svg",
+    "brandSource": "https://x.com",
+    "library": "Simple Icons",
+    "bytes": 314,
+    "file": "x.svg"
   },
   {
     "id": "xbox",
@@ -1198,21 +1443,34 @@
     "file": "youtube.svg"
   },
   {
-    "id": "zoho",
-    "name": "Zoho",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/zoho.svg",
-    "brandSource": "https://www.zoho.com/branding",
+    "id": "youtubemusic",
+    "name": "YouTube Music",
+    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/youtubemusic.svg",
+    "brandSource": "https://partnermarketinghub.withgoogle.com/#/brands",
     "library": "Simple Icons",
-    "bytes": 2651,
-    "file": "zoho.svg"
+    "bytes": 464,
+    "file": "youtubemusic.svg"
+  },
+  {
+    "id": "zoho",
+    "source": "https://www.zohowebstatic.com/sites/zweb/images/favicon.ico",
+    "site": "https://www.zoho.com/",
+    "file": "zoho.webp",
+    "library": "Official website",
+    "sourceWidth": 48,
+    "sourceHeight": 48,
+    "bytes": 2846,
+    "name": "Zoho"
   },
   {
     "id": "zoom",
-    "name": "Zoom",
-    "source": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/zoom.svg",
-    "brandSource": "https://brand.zoom.us/media-library/",
-    "library": "Simple Icons",
-    "bytes": 852,
-    "file": "zoom.svg"
+    "source": "https://st1.zoom.us/homepage/20261022-1234/primary/favicon.ico",
+    "site": "https://www.zoom.com/",
+    "file": "zoom.webp",
+    "library": "Official website",
+    "sourceWidth": 32,
+    "sourceHeight": 32,
+    "bytes": 3190,
+    "name": "Zoom"
   }
 ]
