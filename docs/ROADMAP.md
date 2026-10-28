@@ -25,7 +25,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ### 5. Historical Budget Progress in PDF Export
 - **Concept**: Include the user's set monthly budget goals and their progress against them within the generated PDF reports.
-- **Implementation Idea**: This will require coming up with a reliable way to save historical snapshots of category budget limits at the end of each month, rather than just the current active budgets.
+- **Implementation Idea**: Use the budget definitions saved for the selected report month, including category assignments and limits, to show budget versus actual spending consistently with the in-app monthly view. Depends on Per-Month Historical Budget Storage & Persistence; do not apply today's limits retroactively to old reports or invent missing historical budgets.
 
 ### 6. "Safe to Spend" Metric
 - **Concept**: A prominent dashboard number that takes your current balance, subtracts pending bills, subtracts savings goals, and tells you the actual amount of money you can safely spend without ruining your budget.
@@ -69,6 +69,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 16. Per-Month Historical Budget Storage & Persistence
 - **Concept**: Save category budget limits on a per-month basis instead of having a single static budget that resets every month. This allows users to accurately review historical budget targets vs. actual spending for past months.
 - **Implementation Note**: IndexedDB storage is now available. Add a versioned schema upgrade and backup compatibility for historical budget records; the migration itself did not implement budget history. Coordinate this feature with Historical Budget Progress in PDF Export.
+- **Planning**: Carry the previous month's budgets forward as editable starting values. Preserve past months when current limits, names or category assignments change; define how edits within a month affect that month's saved budget. Handle users returning after several months without relying on the app being open at month-end. Calculate actual spending from transactions rather than saving duplicate totals. Historical data must round-trip through local/cloud backups; months predating this feature should clearly have no recorded budget unless explicitly supplied by the user.
 
 ### 17. Possible Duplicate Entry Warning
 - **Concept**: Warn before saving a manually entered transaction that closely matches a recent entry, helping prevent accidental double entry.
@@ -85,6 +86,10 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 20. Buy Now, Pay Later (BNPL) Tracking
 - **Concept**: Support purchases paid through providers such as Koko, Mintpay and Payzy, with installment schedules, due dates, recorded payments and outstanding balances.
 - **Planning**: Confirm provider-specific schedules and rules before implementation. Include due installments in Upcoming Payments and define expense/account treatment to avoid double-counting purchases and repayments. Start with manual tracking; provider integrations or automatic payments require separate agreement.
+
+### 21. Start-of-Month Budget Reminder
+- **Scope**: Review and refine the existing monthly budget tip so users can review or adjust the new month's budgets on their first eligible visit, including when they do not open Kaasi on the first day.
+- **Behaviour**: Keep the reminder brief and dismissible, with a direct route to budget management. Store dismissal state on the device, outside cloud sync. Coordinate with monthly budget carry-forward and history; decide reminder timing and repeat behaviour before implementation.
 
 ---
 
@@ -108,10 +113,11 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## 🛠️ Technical Debt & Code Organization
 
-### 1. Automatic Background Cloud Backups
-- **Concept**: Solve the "I forgot to click backup" issue by running silent, timed backups.
-- **Implementation Idea**: Add a background interval timer (e.g., every 5-10 minutes) that checks if the local state has un-synced changes (`local_newer`) and the device is online. If true, trigger a silent `executeBackupToSupabase()` upsert. Additionally, automatically restore from the cloud on launch if a newer cloud state is detected and local storage is clean.
-- **Prerequisite**: Add server-enforced cloud revision checks and explicit conflict handling before enabling unattended uploads or restores. Local IndexedDB revision checks protect local writes; they do not prevent one device from overwriting another device's cloud backup. Realtime synchronization remains a separate future project. Manual cloud backups remain the current behavior.
+### 1. Explore Simulated Real-time Cloud Sync
+- **Status**: Future exploration, not an approved implementation. Discuss the user's proposed approach before choosing behaviour or timing. Manual Sync remains the current behaviour.
+- **Concept**: Explore making sync feel immediate through lightweight checks while Kaasi is open and on launch/focus, without requiring a realtime connection. Consolidates the earlier automatic background backup idea.
+- **Planning**: Assess metadata-only checks, change hashes, polling frequency, Supabase usage and offline/reconnection behaviour. Fetch the full dataset only when needed. Keep device-only reminder state excluded from comparisons.
+- **Safety**: Build on the existing conditional cloud writes and conflict review. Never automatically choose a winner when both copies changed, lose offline edits, resurrect deleted records or overwrite an actively edited form. Decide whether safe one-sided changes can sync automatically and how to communicate status before implementation. Background or closed-app execution must not be assumed.
 
 ### 2. UUIDs for New Financial Records
 - **Concept**: Replace the timestamp/random-fragment financial record ID generator with UUIDs for new records. This portion of the former storage migration item is still pending.
