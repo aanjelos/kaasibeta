@@ -269,7 +269,12 @@
 @media (max-width: 480px) {
   #settingsModal .settings-panel-body, #settingsModal .settings-panel-head { padding: 16px; }
   .settings-category-summary .settings-row-icon { min-width: 32px; }
-  #settingsModal .settings-cloud-identity { flex-wrap: wrap; gap: 10px; }
+  #settingsModal .settings-cloud-identity { flex-wrap: nowrap; gap: 10px; }
+  #settingsModal .settings-cloud-copy { flex: 1; }
+  #settingsModal .settings-cloud-symbol { flex-shrink: 0; }
+  #settingsModal .settings-cloud-copy strong { font-size: 14px; }
+  #settingsModal .settings-cloud-identity #googleLogoutBtn { width: 44px; min-width: 44px; height: 44px; padding: 0; margin-left: 0; border: 0; }
+  #settingsModal .settings-signout-label { display:none; }
 }
 @media (max-width: 760px) {
   #settingsCategoriesPanel .settings-list-header .settings-list-footer { flex-basis: 100%; }

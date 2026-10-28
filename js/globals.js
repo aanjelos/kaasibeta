@@ -543,7 +543,7 @@ function handleSetupImport(event) {
         await applyImportedData(importedData);
         closeModal("initialSetupModal");
         showNotification(
-          "Data imported and sanitized successfully from setup wizard!",
+          "Backup imported. Automatic sync is paused.",
           "success"
         );
       } else {

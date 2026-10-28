@@ -797,6 +797,7 @@ function initializeUI(isRefresh = false) {
  * Updates the header backup/restore buttons to reflect the selected shortcut target.
  */
 function updateHeaderShortcutButtons() {
+  if(typeof updateSyncPauseControls==='function')updateSyncPauseControls();
   const backupBtn = $("#headerBackupBtn"), restoreBtn = $("#headerRestoreBtn");
   const cloudRadio = $("#shortcutCloud");
   if (!backupBtn || !restoreBtn || !cloudRadio) return;
@@ -806,7 +807,8 @@ function updateHeaderShortcutButtons() {
   const syncBtn = $("#syncCloudBtn"), menuIcon = $("#mobileMenuIcon");
   const mobileSyncBtn = $("#mobileSyncBtn");
   const desktopSyncBtn = $('#headerCloudSyncBtn');
-  const syncMarkup = `<i class="fas fa-sync-alt${cloudSyncBusy ? ' fa-spin' : ''}" aria-hidden="true"></i>`;
+  const pausedConflict=automaticSyncPaused() && window.currentCloudSyncStatus==='conflict';
+  const syncMarkup = `<i class="fas ${pausedConflict ? 'fa-exclamation-triangle sync-paused-warning' : 'fa-sync-alt'}${cloudSyncBusy ? ' fa-spin' : ''}" aria-hidden="true"></i>`;
   const lastSynced = Number(appPreferences.getItem('lastLocalCloudSync'));
   const syncHint = `${cloudSyncStatusText()}${lastSynced ? ` · Last synced: ${formatCloudBackupTime(new Date(lastSynced).toISOString())}` : ''} (Ctrl+S)`;
   if (mobileSyncBtn) {
@@ -856,7 +858,7 @@ function updateHeaderShortcutButtons() {
   backupBtn.setAttribute("aria-busy", String(isCloud && cloudSyncBusy));
   if (dropBackupBtn) dropBackupBtn.innerHTML = isCloud ? '<i class="fas fa-sync-alt fa-lg"></i>' : '<i class="fas fa-floppy-disk fa-lg"></i>';
   if (isCloud) {
-    const text = cloudSyncBusy ? "Syncing…" : descriptions[status] || descriptions.unknown;
+    const text = cloudSyncBusy ? "Syncing…" : automaticSyncPaused() ? (pausedConflict ? 'Sync Paused — Both copies changed; open Data & Backups' : 'Sync Paused — Open Data & Backups') : descriptions[status] || descriptions.unknown;
     mobileSyncBtn?.setAttribute("aria-label", text);
     backupBtn.dataset.tooltip = `${text} (Ctrl+S)`;
     backupBtn.setAttribute("aria-keyshortcuts", "Control+S");
@@ -865,7 +867,7 @@ function updateHeaderShortcutButtons() {
     backupBtn.onclick = syncCloudData;
     if (dropBackupBtn) dropBackupBtn.disabled = cloudSyncBusy;
     if (dropBackupText) dropBackupText.textContent = text;
-    if (!cloudSyncBusy) {
+    if (!cloudSyncBusy && !automaticSyncPaused()) {
       const pulse = status === "local_newer" ? "pulse-orange" : status === "cloud_newer" ? "pulse-green"
         : status === "conflict" || status === "review" ? "pulse-sync-conflict" : null;
       if (pulse) for (const element of [backupBtn, mobileSyncBtn, desktopSyncBtn]) element?.classList.add(pulse);

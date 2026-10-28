@@ -45,6 +45,8 @@ const SettingsWorkspace = (() => {
     identity.querySelector("div").appendChild(email);
     cloud.insertBefore(identity, cloud.firstChild);
     identity.appendChild(document.getElementById("googleLogoutBtn"));
+    const signOut=document.getElementById('googleLogoutBtn');
+    signOut.innerHTML='<i class="fas fa-sign-out-alt" aria-hidden="true"></i><span class="settings-signout-label">Sign Out</span>';
     cloud.appendChild(document.getElementById("lastCloudBackupTime"));
     const ccForm = document.getElementById('settingsCcLimitForm');
     const ccToggle = document.getElementById('toggleCcSection').closest('.flex.items-center.justify-between');

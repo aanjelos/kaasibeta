@@ -191,15 +191,18 @@ function prepareImportedData(input) {
   return candidate;
 }
 
-async function applyImportedData(input, expectedRevision = KaasiStorage.revision) {
+async function applyImportedData(input, expectedRevision = KaasiStorage.revision, options = {}) {
   if (isAppLocked()) throw new Error("Unlock the app before importing data.");
   if (storageOperationPending) throw new Error("Wait for the current save before importing.");
+  const localImport=options.source!=='cloud';
+  if(localImport && typeof cloudSyncBusy!=='undefined' && cloudSyncBusy)throw new Error('Sync is running. Wait for it to finish before importing.');
   const candidate = portableKaasiData(sanitizeAndMergeImportedData(input));
   const previousState = JSON.parse(lastPersistedStateJson);
   const previousSyncStatus = window.currentCloudSyncStatus;
   storageOperationPending = true;
   let activated = false;
   try {
+    if(localImport && typeof persistSyncPause==='function')await persistSyncPause();
     await KaasiStorage.replace(candidate, expectedRevision);
     activated = true;
     state = candidate;
@@ -222,6 +225,7 @@ async function applyImportedData(input, expectedRevision = KaasiStorage.revision
     throw error;
   } finally {
     storageOperationPending = false;
+    if(typeof updateHeaderShortcutButtons==='function')updateHeaderShortcutButtons();
     if (activated && typeof scheduleAutomaticCloudSync === 'function') scheduleAutomaticCloudSync();
   }
 }

@@ -113,7 +113,8 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## 🛠️ Technical Debt & Code Organization
 
-### 1. Safe Cross-device Data Merging
+### 1. Safe Cross-device Data Merging (Deferred)
+- **Product decision**: Keep whole-copy sync, explicit replacement decisions and pause/import safeguards for now. Merging is deferred, not the next committed implementation.
 - **Status**: Future design work. Automatic whole-copy sync is implemented; both-changed copies still require manual review. Validate automatic sync across actual browsers/devices before expanding its scope.
 - **Deletion handling**: Keep compact deletion markers containing collection, record ID and change revision so stale devices cannot resurrect removed entries. Deletion wins against an unchanged record; deletion versus an independently edited record requires an explicit resolution policy. Do not expire markers just because they are old; define acknowledgement or resync rules for long-offline devices first.
 - **Financial integrity**: Define record revisions, device identity and a shared merge baseline. Preserve linked effects across transactions, transfers, CC payments, debts, receivables and account balances; combining lists or taking the newest balance is insufficient. Handle retries without duplicating financial effects.

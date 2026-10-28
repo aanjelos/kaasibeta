@@ -133,7 +133,7 @@ const KaasiStorage = (() => {
     const rows = await request(tx.objectStore("deviceSettings").getAll()); await done;
     preferences.clear(); rows.forEach(row => preferences.set(row.key, row.value));
   }
-  async function activate(value, { source = "import", expected = revision, raw = legacyRaw } = {}) {
+  async function activate(value, { source = "import", expected = revision, raw = legacyRaw, pauseSync = false } = {}) {
     const generation = crypto.randomUUID();
     const hash = await digest(value); const records = flatten(value, generation);
     const old = await readRoot();
@@ -155,7 +155,7 @@ const KaasiStorage = (() => {
     const verified = await readGeneration(generation);
     if (await digest(verified) !== hash) throw new Error("Storage verification failed. Your previous data remains active.");
     if (localStorage.getItem(LEGACY) !== raw) throw conflict("An older Kaasi window changed the original data during migration. Close other windows and retry. Both copies are preserved.");
-    const activation = transaction(["datasets", "recovery"], true); const activated = finished(activation);
+    const activation = transaction(["datasets", "recovery", "deviceSettings"], true); const activated = finished(activation);
     let next;
     try {
     const active = await request(activation.objectStore("datasets").get(DATASET));
@@ -165,9 +165,11 @@ const KaasiStorage = (() => {
       recoveryGeneration: source === "recovery" && !current ? old?.generation : old?.recoveryGeneration };
     activation.objectStore("datasets").put(next); activation.objectStore("datasets").delete("staging");
     activation.objectStore("datasets").delete("reset");
+    if(pauseSync)activation.objectStore('deviceSettings').put({key:'kaasi_auto_sync_paused',value:'true'});
     await activated;
     } catch (error) { return abortFailure(activation, activated, error); }
     root = next; revision = next.revision; current = clone(verified); mode = "indexeddb"; legacyRaw = raw;
+    if(pauseSync)preferences.set('kaasi_auto_sync_paused','true');
     try { localStorage.setItem(MARKER, "true"); } catch (_) { /* Database metadata remains authoritative. */ }
     notify();
     await cleanup();
@@ -367,14 +369,14 @@ const KaasiStorage = (() => {
     } catch (_) { /* An unreadable source is never reset. */ }
     return sources.filter(item => item.value && typeof item.value === "object" && Array.isArray(item.value.accounts));
   }
-  async function recover(value, expected = revision) {
+  async function recover(value, expected = revision, {pauseSync = false} = {}) {
     await open();
     root = await readRoot();
     if ((root?.revision || 0) !== expected) throw conflict("Saved data changed while recovery was open. Reload before restoring.");
     current = undefined;
     if (root) { try { current = await readGeneration(root.generation); } catch (_) { /* Preserve the incomplete generation below. */ } }
     legacyRaw = localStorage.getItem(LEGACY);
-    await activate(value, { source: "recovery", expected, raw: legacyRaw });
+    await activate(value, { source: "recovery", expected, raw: legacyRaw, pauseSync });
     stale = false;
   }
   const prefs = {

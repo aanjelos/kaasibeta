@@ -7,6 +7,56 @@ let cloudSyncBusy = false;
 let cloudSyncActivity = 0;
 let cloudSyncFeedback = '';
 const automaticCloudReviewsSeen = new Set();
+function automaticSyncPaused() { return appPreferences.getItem('kaasi_auto_sync_paused') === 'true'; }
+async function persistSyncPause() {
+  appPreferences.setItem('kaasi_auto_sync_paused','true');
+  clearTimeout(automaticCloudSyncTimer);
+  await appPreferences.flush();
+  updateHeaderShortcutButtons();
+}
+async function pauseAutomaticSync() {
+  if (cloudSyncBusy || storageOperationPending) { showNotification('Wait for the current operation to finish.', 'info'); return; }
+  await persistSyncPause();
+}
+function openCloudSyncSettings() {
+  if (isAppLocked()) return;
+  if ($('#settingsModal')?.style.display !== 'block') openSettingsModal();
+  SettingsWorkspace.navigate('settingsDataManagementPanel');
+  $('#cloudBackupLoggedIn')?.scrollIntoView?.({block:'center',behavior:'smooth'});
+}
+async function finishSyncResume(context) {
+  if (!context.resume) return;
+  appPreferences.removeItem('kaasi_auto_sync_paused');
+  await appPreferences.flush();
+}
+function updateSyncPauseControls() {
+  const paused=automaticSyncPaused();
+  const actions={pauseAutomaticSyncBtn:pauseAutomaticSync,resumeAutomaticSyncBtn:()=>syncCloudData({resume:true}),reviewPausedCopiesBtn:()=>syncCloudData({reviewOnly:true}),manualCloudUploadBtn:()=>manualCloudTransfer('local'),manualCloudRestoreBtn:()=>manualCloudTransfer('cloud')};
+  for(const [id,action] of Object.entries(actions)){const button=document.getElementById(id);if(button){button.onclick=action;button.disabled=cloudSyncBusy||storageOperationPending;}}
+  const pause=document.getElementById('pauseAutomaticSyncBtn');if(pause){pause.hidden=paused;pause.style.display=paused?'none':'';}
+  const controls=document.getElementById('pausedCloudActions');if(controls)controls.hidden=!paused;
+  const sync=$('#syncCloudBtn');if(sync?.parentElement){sync.parentElement.hidden=paused;sync.parentElement.style.display=paused?'none':'';}
+  const review=document.getElementById('reviewPausedCopiesBtn');if(review)review.style.display=paused && window.currentCloudSyncStatus==='conflict'?'':'none';
+  const hint=document.getElementById('automaticSyncDescription');
+  if(hint)hint.textContent=paused ? 'Uploads and downloads are paused on this device.' : 'Changes sync automatically when you’re online.';
+  const warning=document.getElementById('pausedSyncWarning');
+  if(warning){warning.hidden=!paused||!['conflict','local_newer','cloud_newer'].includes(window.currentCloudSyncStatus);warning.textContent=window.currentCloudSyncStatus==='conflict' ? 'This device and the cloud have different changes. Review copies before replacing either.' : window.currentCloudSyncStatus==='local_newer' ? 'This device has changes that have not been uploaded.' : window.currentCloudSyncStatus==='cloud_newer' ? 'A newer cloud copy is available. Your device has not been replaced.' : '';}
+}
+async function manualCloudTransfer(which) {
+  if (cloudSyncBusy || storageOperationPending || isAppLocked()) return;
+  setCloudSyncBusy(true);
+  try {
+    const userId=supabaseUser?.id;cloudSyncAssertUser(userId);
+    const revision=KaasiStorage.revision,local=portableKaasiData(await KaasiStorage.snapshot());
+    const row=await readCloudSyncRow(userId,which==='cloud');
+    if(which==='cloud'&&!row)throw new Error('There is no cloud copy to restore.');
+    const context={userId,revision,local,hash:await KaasiStorage.digest(local),updatedAt:row?.updated_at??null,automatic:false};
+    if(which==='cloud')context.cloud=portableKaasiData(prepareImportedData(row.data));
+    await assertCloudSyncLocal(context);cloudSyncReview=context;
+  } catch(error){showNotification(error.message,'error');return;}
+  finally{setCloudSyncBusy(false);}
+  chooseCloudSyncCopy(which);
+}
 
 function cloudSyncDownloadSafe(context) {
   return document.visibilityState !== 'hidden' && !storageOperationPending &&
@@ -19,13 +69,14 @@ function cloudSyncDownloadSafe(context) {
 function cloudSyncStatusText() {
   if (!supabaseUser) return '';
   if (cloudSyncBusy) return 'Syncing…';
-  if (!navigator.onLine) return 'Saved on This Device · Offline';
+  if (automaticSyncPaused()) return 'Sync Paused';
+  if (!navigator.onLine) return 'Offline';
   const status = window.currentCloudSyncStatus;
   if (status === 'review' || status === 'conflict') return 'Review Changes';
-  if (cloudSyncFeedback) return cloudSyncFeedback;
+  if (cloudSyncFeedback) return 'Sync Pending';
   if (status === 'local_newer') return 'Waiting to Sync';
-  if (status === 'cloud_newer') return 'Cloud Update Pending';
-  return status === 'synced' ? 'Up to Date' : 'Checking Sync';
+  if (status === 'cloud_newer') return 'Update Pending';
+  return status === 'synced' ? 'Up to Date' : 'Checking…';
 }
 
 function cloudSyncBaselineKey(userId) { return `kaasi_cloud_sync_baseline_${userId}`; }
@@ -163,7 +214,8 @@ async function uploadCloudSync(context) {
     : error.message || "Upload failed. Your local copy is unchanged.");
   if (typeof data.updated_at !== "string" || !Number.isFinite(Date.parse(data.updated_at))) throw new Error("The cloud response could not be verified. Check Sync again before replacing either copy.");
   await recordCloudSync(context.userId, context.local, data.updated_at, true);
-  if (!context.automatic) showNotification(window.currentCloudSyncStatus === "local_newer"
+  await finishSyncResume(context);
+  if (!context.automatic) showNotification(context.resume ? 'Automatic sync resumed.' : window.currentCloudSyncStatus === "local_newer"
     ? "Cloud copy updated. Changes made during upload still need syncing." : "Sync complete. This device's copy was uploaded.", "success");
 }
 async function downloadCloudSync(context) {
@@ -177,12 +229,13 @@ async function downloadCloudSync(context) {
   const content = context.automatic ? document.getElementById('app-content') : null;
   const wasInert = content?.inert;
   if (content) content.inert = true;
-  try { await applyImportedData(context.cloud, context.revision); }
+  try { await applyImportedData(context.cloud, context.revision, {source:'cloud'}); }
   finally { if (content) content.inert = wasInert || isAppLocked(); }
   // applyImportedData normalizes legacy optional defaults; baseline matches what was actually saved.
   await recordCloudSync(context.userId, KaasiStorage.current, context.updatedAt, false);
+  await finishSyncResume(context);
   if (state.settings.initialSetupDone && $("#initialSetupModal")?.style.display === "block") closeModal("initialSetupModal");
-  if (!context.automatic) showNotification("Sync complete. The cloud copy was applied.", "success");
+  if (!context.automatic) showNotification(context.resume ? 'Automatic sync resumed.' : "Sync complete. The cloud copy was applied.", "success");
 }
 function setCloudSyncBusy(busy) {
   cloudSyncBusy = busy;
@@ -194,6 +247,9 @@ function setCloudSyncBusy(busy) {
 }
 async function syncCloudData(options = {}) {
   const automatic = options.automatic === true;
+  const resume = options.resume === true;
+  if (!automatic && !resume && !options.reviewOnly && automaticSyncPaused()) { openCloudSyncSettings(); return; }
+  if (automatic && automaticSyncPaused()) return;
   if (isAppLocked() || storageOperationPending || cloudSyncBusy) return;
   if (automatic && !automaticCloudSyncEnabled()) return;
   if (!supabaseUser || !supabaseClient) { showNotification("Sign in to sync with the cloud.", "info"); return; }
@@ -211,10 +267,17 @@ async function syncCloudData(options = {}) {
     const local = portableKaasiData(saved);
     const hash = await KaasiStorage.digest(local);
     const remote = await readCloudSyncRow(userId);
-    const context = { userId, revision, local, hash, automatic, activity, updatedAt: remote?.updated_at ?? null };
+    if(options.reviewOnly && !remote)throw new Error('There is no cloud copy to compare. Use Upload to Cloud if you want to create one.');
+    const context = { userId, revision, local, hash, automatic, resume, activity, updatedAt: remote?.updated_at ?? null };
     await assertCloudSyncLocal(context);
     cloudSyncRemote = { userId, exists: !!remote, updatedAt: context.updatedAt };
     let direction = cloudSyncDirection(hash, baseline, cloudSyncRemote);
+    if ((resume || options.reviewOnly) && remote) direction='review';
+    if (resume && !remote) {
+      cloudSyncReview=context;
+      // Confirmation is opened after releasing the busy state below.
+      return;
+    }
     const owner = appPreferences.getItem('kaasi_cloud_data_owner');
     if (automatic && owner !== userId && remote) direction = 'review';
     window.currentCloudSyncStatus = direction;
@@ -244,7 +307,8 @@ async function syncCloudData(options = {}) {
     await assertCloudSyncLocal(context);
     if (KaasiStorage.canonical(local) === KaasiStorage.canonical(context.cloud)) {
       await recordCloudSync(userId, local, context.updatedAt, false);
-      if (!automatic) showNotification("Already synced. Both copies contain the same data.", "success");
+      await finishSyncResume(context);
+      if (!automatic) showNotification(resume ? 'Automatic sync resumed.' : "Already synced. Both copies contain the same data.", "success");
     } else if (direction === "cloud_newer") {
       await downloadCloudSync(context);
     } else {
@@ -265,6 +329,7 @@ async function syncCloudData(options = {}) {
     if (automatic) automaticCloudSyncFailures = Math.min(automaticCloudSyncFailures + 1, 4);
   } finally {
     setCloudSyncBusy(false);
+    if(resume && cloudSyncReview?.resume && cloudSyncReview.updatedAt===null)chooseCloudSyncCopy('local');
     if (automatic && !cloudSyncFeedback) automaticCloudSyncFailures = 0;
     if (window.currentCloudSyncStatus === 'local_newer') scheduleAutomaticCloudSync();
   }
@@ -471,6 +536,7 @@ function scheduleAutomaticCloudSync(delay = 3000) {
 async function runAutomaticCloudSync(allowHidden = false) {
   if (!automaticCloudSyncEnabled() || !navigator.onLine || cloudSyncBusy || storageOperationPending ||
     (!allowHidden && document.visibilityState === 'hidden')) return;
+  if(automaticSyncPaused()){automaticCloudSyncLastCheck=Date.now();await refreshCloudSyncStatus();return;}
   if (cloudSyncReview) {
     if ($('#cloudSyncModal')?.style.display === 'block') return;
     cloudSyncReview = null;

@@ -285,7 +285,7 @@ document.getElementById("storageRecoveryInput").onchange = async event => {
     const actions = storageScreen("Restore saved data?", "This replaces the active dataset with the selected backup. Existing readable data is kept as a recovery copy. Close other Kaasi windows first.");
     storageButton(actions, "Restore Backup", async () => {
       storageOperationPending = true;
-      try { await KaasiStorage.recover(candidate, expected); storageOperationPending = false; location.reload(); }
+      try { await KaasiStorage.recover(candidate, expected, {pauseSync:true}); storageOperationPending = false; location.reload(); }
       finally { storageOperationPending = false; }
     });
     storageButton(actions, "Cancel", () => showStorageFailure(new Error("Recovery cancelled.")));

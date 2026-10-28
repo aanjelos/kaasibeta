@@ -212,6 +212,13 @@ test('account and expense changes commit together; synchronous write failures ab
   assert.deepEqual(copy(await e.db.snapshot()),before);
   await e.db.commit(next);assert.deepEqual(copy(await e.db.snapshot()),next);
 });
+test('local recovery commits the automatic-sync pause with the restored dataset',async()=>{
+  const e=environment();await e.initialize();const restored=copy(await e.db.snapshot());restored.accounts[0].balance=321;
+  await e.db.recover(restored,e.db.revision,{pauseSync:true});
+  assert.equal((await e.db.snapshot()).accounts[0].balance,321);
+  assert.equal(e.run('appPreferences.getItem("kaasi_auto_sync_paused")'),'true');
+  assert.equal((await rawStore(e,'deviceSettings','kaasi_auto_sync_paused')).value,'true');
+});
 
 test('aborted migration can restart without losing or duplicating records',async()=>{
   const e=environment();const original=legacy(e);const put=IDBObjectStore.prototype.put;

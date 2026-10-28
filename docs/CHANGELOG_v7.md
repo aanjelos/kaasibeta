@@ -2,6 +2,17 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.437n - 2026-10-29
+
+### Device-specific Sync Pause and Import Protection
+
+- Add Pause and Resume controls within Cloud Backup. Paused mode provides explicit Upload to Cloud and Restore from Cloud actions with replacement confirmation; both leave automatic transfers paused.
+- Pause automatic sync before local-file imports and atomically with local-file recovery. Reject imports during a cloud transfer. Import notifications identify the paused state, which persists on the device and is excluded from backups.
+- Require comparison before resuming with differing copies, even when only local data changed. Close/cancel leaves sync paused; only a successful explicit replacement or an equal-copy check resumes transfers.
+- Continue metadata-only checks while paused and show a warning and Review Copies action when both datasets changed. Dashboard Sync Paused opens Data & Backups instead of transferring data. Keep status text on one line at a readable mobile size.
+- Defer record-level merging. Supabase schemas, policies and public-client data formats are unchanged.
+- Keep the mobile Sign Out action in the cloud account row as an accessible icon button instead of a detached second row.
+
 ## v6.436n - 2026-10-28
 
 ### Audit Reliability and Privacy Fixes

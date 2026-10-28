@@ -1075,6 +1075,65 @@ function enableAutomaticSync(r) {
   r.context.uiInitialized=true;r.context.document.visibilityState='visible';
 }
 
+test('paused sync persists a device-only setting and polls metadata without transferring data',async()=>{
+  const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();enableAutomaticSync(r);
+  await r.context.pauseAutomaticSync();await r.run('state.accounts[0].balance=800;saveData();');
+  cloud.row.data.accounts[0].balance=700;cloud.row.updated_at='2026-10-22T00:00:00Z';
+  await r.context.runAutomaticCloudSync();
+  assert.equal(r.storage.get('kaasi_auto_sync_paused'),'true');assert.equal(r.context.cloudSyncStatusText(),'Sync Paused');
+  assert.ok(cloud.calls.every(c=>c.type==='read'&&c.fields==='updated_at'));
+  assert.equal(r.run('state.accounts[0].balance'),800);assert.equal(cloud.row.data.accounts[0].balance,700);
+  r.context.updateSyncPauseControls();
+  assert.match(r.element('#pausedSyncWarning').textContent,/different changes/);
+  assert.equal(r.run('portableKaasiData(state).kaasi_auto_sync_paused'),undefined);
+});
+
+test('local import pauses before replacement and cannot overlap a running transfer',async()=>{
+  const r=runtime();r.context.initializeUI=()=>{};
+  const candidate=JSON.parse(r.storage.get('KaasiData'));candidate.accounts[0].balance=300;
+  r.run('cloudSyncBusy=true');await assert.rejects(r.context.applyImportedData(candidate),/Sync is running/);
+  assert.equal(r.run('state.accounts[0].balance'),1000);r.run('cloudSyncBusy=false');
+  const replace=r.context.KaasiStorage.replace.bind(r.context.KaasiStorage);
+  r.context.KaasiStorage.replace=async(...args)=>{assert.equal(r.storage.get('kaasi_auto_sync_paused'),'true');return replace(...args);};
+  await r.context.applyImportedData(candidate);assert.equal(r.run('state.accounts[0].balance'),300);
+  assert.equal(r.context.automaticSyncPaused(),true);
+});
+
+test('resume compares differing copies even when the cloud baseline has not changed',async()=>{
+  const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();enableAutomaticSync(r);
+  await r.context.pauseAutomaticSync();await r.run('state.accounts[0].balance=800;saveData();');
+  await r.context.syncCloudData({resume:true});assert.equal(r.element('#cloudSyncModal').style.display,'block');
+  assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);assert.equal(r.context.automaticSyncPaused(),true);
+  r.context.chooseCloudSyncCopy('local');assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);
+  await cloud.confirm();assert.equal(cloud.row.data.accounts[0].balance,800);assert.equal(r.context.automaticSyncPaused(),false);
+});
+
+test('manual cloud upload and restore confirm replacement and keep automatic sync paused',async()=>{
+  for(const which of ['local','cloud']){
+    const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+    const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();enableAutomaticSync(r);
+    await r.context.pauseAutomaticSync();await r.run('state.accounts[0].balance=800;saveData();');
+    await r.context.manualCloudTransfer(which);assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);
+    assert.equal(r.run('state.accounts[0].balance'),800);
+    await r.context.runAutomaticCloudSync(); // Metadata checks must not invalidate the pending confirmation.
+    await cloud.confirm();assert.equal(r.context.automaticSyncPaused(),true);
+    assert.equal(which==='local'?cloud.row.data.accounts[0].balance:r.run('state.accounts[0].balance'),which==='local'?800:1000);
+  }
+});
+
+test('resume equal copies clears the pause without uploading and empty-cloud resume requires confirmation',async()=>{
+  for(const empty of [false,true]){
+    const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+    const cloud=syncCloud(r,empty?null:{data:original,updated_at:'2026-10-21T00:00:00Z'});enableAutomaticSync(r);
+    await r.context.pauseAutomaticSync();await r.context.syncCloudData({resume:true});
+    assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);
+    if(empty){assert.equal(r.context.automaticSyncPaused(),true);await cloud.confirm();}
+    assert.equal(r.context.automaticSyncPaused(),false);
+  }
+});
+
 test('rejected account edits never leak into memory or a later financial save',async()=>{
   const r=runtime();r.context.renderSettingsForm=()=>{};
   const accounts=JSON.parse(r.run('JSON.stringify(state.accounts)')),values={};

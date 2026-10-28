@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.436n" />
+    <meta name="application-version" content="v6.437n" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -51,9 +51,9 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" integrity="sha384-UagCvVPT5XXA0Hx+nJYUAGBFseHT9zBgpJMSebsAxl9lciTwbT+39j5VfRjdP5Tp" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v6.436n" />
-    <link rel="stylesheet" href="settings-workspace.css?v=v6.436n" />
-    <link rel="stylesheet" href="tailwind.css?v=v6.436n" />
+    <link rel="stylesheet" href="style.css?v=v6.437n" />
+    <link rel="stylesheet" href="settings-workspace.css?v=v6.437n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.437n" />
 
     <script
       async
@@ -1120,13 +1120,23 @@
                     >
                   </p>
                   <p id="lastCloudBackupTime" class="text-xs text-gray-300 -mt-2">Last backed up: Checking…</p>
+                  <div class="cloud-auto-control">
+                    <div><strong>Automatic Sync</strong><p id="automaticSyncDescription">Changes sync automatically when you’re online.</p></div>
+                    <button id="pauseAutomaticSyncBtn" type="button" class="btn btn-secondary"><i class="fas fa-pause" aria-hidden="true"></i> Pause</button>
+                  </div>
+                  <div id="pausedCloudActions" class="cloud-paused-actions" hidden>
+                    <p id="pausedSyncWarning" class="cloud-paused-hint"></p>
+                    <button id="reviewPausedCopiesBtn" type="button" class="btn btn-secondary">Review Copies</button>
+                    <div class="cloud-manual-actions"><button id="manualCloudUploadBtn" type="button" class="btn btn-secondary"><i class="fas fa-cloud-upload-alt" aria-hidden="true"></i> Upload to Cloud</button><button id="manualCloudRestoreBtn" type="button" class="btn btn-secondary"><i class="fas fa-cloud-download-alt" aria-hidden="true"></i> Restore from Cloud</button></div>
+                    <button id="resumeAutomaticSyncBtn" type="button" class="btn btn-primary"><i class="fas fa-play" aria-hidden="true"></i> Resume Automatic Sync</button>
+                  </div>
                   <div class="flex flex-col sm:flex-row gap-3">
                     <button id="syncCloudBtn" class="btn btn-primary flex-1" type="button" data-tooltip="Sync (Ctrl+S)" aria-keyshortcuts="Control+S">
                       <i class="fas fa-sync-alt mr-2"></i> Sync
                     </button>
                   </div>
 
-                  <button id="googleLogoutBtn" class="btn btn-secondary w-full">
+                  <button id="googleLogoutBtn" class="btn btn-secondary w-full" aria-label="Sign Out" title="Sign Out">
                     <i class="fas fa-sign-out-alt mr-1"></i> Sign Out
                   </button>
                 </div>
@@ -2129,24 +2139,24 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v6.436n" defer></script>
-    <script src="js/import-validation.js?v=v6.436n" defer></script>
-    <script src="js/storage.js?v=v6.436n" defer></script>
-    <script src="js/storage-ui.js?v=v6.436n" defer></script>
-    <script src="js/animations.js?v=v6.436n" defer></script>
-    <script src="js/data-sync.js?v=v6.436n" defer></script>
-    <script src="js/cloud-sync.js?v=v6.436n" defer></script>
-    <script src="js/math-tool.js?v=v6.436n" defer></script>
-    <script src="js/settings.js?v=v6.436n" defer></script>
-    <script src="js/charts.js?v=v6.436n" defer></script>
-    <script src="js/ui.js?v=v6.436n" defer></script>
-    <script src="js/settings-workspace.js?v=v6.436n" defer></script>
-    <script src="js/features.js?v=v6.436n" defer></script>
-    <script src="js/subscription-assets.js?v=v6.436n" defer></script>
-    <script src="js/subscription-services.js?v=v6.436n" defer></script>
-    <script src="js/subscriptions.js?v=v6.436n" defer></script>
-    <script src="js/security.js?v=v6.436n" defer></script>
-    <script src="js/app.js?v=v6.436n" defer></script>
+    <script src="js/globals.js?v=v6.437n" defer></script>
+    <script src="js/import-validation.js?v=v6.437n" defer></script>
+    <script src="js/storage.js?v=v6.437n" defer></script>
+    <script src="js/storage-ui.js?v=v6.437n" defer></script>
+    <script src="js/animations.js?v=v6.437n" defer></script>
+    <script src="js/data-sync.js?v=v6.437n" defer></script>
+    <script src="js/cloud-sync.js?v=v6.437n" defer></script>
+    <script src="js/math-tool.js?v=v6.437n" defer></script>
+    <script src="js/settings.js?v=v6.437n" defer></script>
+    <script src="js/charts.js?v=v6.437n" defer></script>
+    <script src="js/ui.js?v=v6.437n" defer></script>
+    <script src="js/settings-workspace.js?v=v6.437n" defer></script>
+    <script src="js/features.js?v=v6.437n" defer></script>
+    <script src="js/subscription-assets.js?v=v6.437n" defer></script>
+    <script src="js/subscription-services.js?v=v6.437n" defer></script>
+    <script src="js/subscriptions.js?v=v6.437n" defer></script>
+    <script src="js/security.js?v=v6.437n" defer></script>
+    <script src="js/app.js?v=v6.437n" defer></script>
   </body>
 </html>
 

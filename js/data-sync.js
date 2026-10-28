@@ -76,7 +76,7 @@ function importData(event) {
 
               await applyImportedData(importedData, expectedRevision);
             showNotification(
-              "Data imported and sanitized successfully. Application refreshed.",
+              "Backup imported. Automatic sync is paused.",
               "success"
             );
             await closeModal("settingsModal");
