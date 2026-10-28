@@ -222,5 +222,6 @@ async function applyImportedData(input, expectedRevision = KaasiStorage.revision
     throw error;
   } finally {
     storageOperationPending = false;
+    if (activated && typeof scheduleAutomaticCloudSync === 'function') scheduleAutomaticCloudSync();
   }
 }

@@ -113,11 +113,12 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## 🛠️ Technical Debt & Code Organization
 
-### 1. Explore Simulated Real-time Cloud Sync
-- **Status**: Future exploration, not an approved implementation. Discuss the user's proposed approach before choosing behaviour or timing. Manual Sync remains the current behaviour.
-- **Concept**: Explore making sync feel immediate through lightweight checks while Kaasi is open and on launch/focus, without requiring a realtime connection. Consolidates the earlier automatic background backup idea.
-- **Planning**: Assess metadata-only checks, change hashes, polling frequency, Supabase usage and offline/reconnection behaviour. Fetch the full dataset only when needed. Keep device-only reminder state excluded from comparisons.
-- **Safety**: Build on the existing conditional cloud writes and conflict review. Never automatically choose a winner when both copies changed, lose offline edits, resurrect deleted records or overwrite an actively edited form. Decide whether safe one-sided changes can sync automatically and how to communicate status before implementation. Background or closed-app execution must not be assumed.
+### 1. Safe Cross-device Data Merging
+- **Status**: Future design work. Automatic whole-copy sync is implemented; both-changed copies still require manual review. Validate automatic sync across actual browsers/devices before expanding its scope.
+- **Deletion handling**: Keep compact deletion markers containing collection, record ID and change revision so stale devices cannot resurrect removed entries. Deletion wins against an unchanged record; deletion versus an independently edited record requires an explicit resolution policy. Do not expire markers just because they are old; define acknowledgement or resync rules for long-offline devices first.
+- **Financial integrity**: Define record revisions, device identity and a shared merge baseline. Preserve linked effects across transactions, transfers, CC payments, debts, receivables and account balances; combining lists or taking the newest balance is insufficient. Handle retries without duplicating financial effects.
+- **Compatibility**: Plan schema/JSON upgrades, backup round-tripping and restrictions for older clients that do not understand merging or deletion markers. Preserve unknown fields and retain recovery before replacing data. Never enable merging silently for incompatible clients.
+- **Acceptance**: Test independent offline edits, delete-versus-edit, repeated merges, stale-device reconnection, category changes, linked financial records and interrupted sync before release. No automatic merging is enabled yet.
 
 ### 2. UUIDs for New Financial Records
 - **Concept**: Replace the timestamp/random-fragment financial record ID generator with UUIDs for new records. This portion of the former storage migration item is still pending.

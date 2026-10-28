@@ -60,6 +60,7 @@ function showPinLockScreen() {
 
 function onAppUnlocked() {
   window.kaasiAppLocked = false;
+  if (typeof scheduleAutomaticCloudSync === 'function') scheduleAutomaticCloudSync(1000);
   if (typeof Subscriptions !== "undefined") Subscriptions.scheduleReminder();
   requestStartupStorageProtection();
   const appContent = document.getElementById("app-content");

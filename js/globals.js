@@ -652,6 +652,7 @@ async function saveData(nextState = state) {
   window.currentCloudSyncStatus = syncedHash && generateDataHash(serialized) === syncedHash ? "synced" : "local_newer";
   if (typeof updateLocalCloudSyncStatus === "function") await updateLocalCloudSyncStatus();
   if (typeof updateHeaderShortcutButtons === "function") updateHeaderShortcutButtons();
+  if (typeof scheduleAutomaticCloudSync === 'function') scheduleAutomaticCloudSync();
   return true;
 }
 

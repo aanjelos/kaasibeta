@@ -2,6 +2,15 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.433n - 2026-10-28
+
+### Automatic Cloud Sync
+
+- Sync signed-in IndexedDB users after saved changes with a three-second debounce, on launch/unlock, focus and reconnection, and with thirty-second checks while visible. Unchanged checks transfer metadata only; offline edits stay saved locally for the next attempt.
+- Retain manual Sync and conflict review. Automatic checks never select between conflicting copies or open an unsolicited review dialog; the header displays Review Changes instead.
+- Show quiet sync status beside dashboard Sync icons, with no success toasts for automatic transfers. Retry failed requests with backoff and a request timeout; attempt pending uploads when switching away without relying on background execution.
+- Defer automatic downloads around open dialogs and unfinished dashboard inputs, recheck local/cloud revisions before replacement, and prevent new input during the short atomic apply step. Existing recovery snapshots and conditional cloud writes remain in use.
+
 ## v6.432n - 2026-10-28
 
 ### Device-only Subscription Reminders

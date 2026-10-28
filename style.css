@@ -2574,3 +2574,16 @@ footer a[href^="https://kaasi.com.lk"]:hover
   .upcoming-notice-chevron { display: none; }
   .upcoming-notice-more { padding-left: 16px; padding-right: 16px; }
 }
+.dashboard-sync-status {
+  align-self: center;
+  margin-right: 10px;
+  color: var(--text-secondary, #a3a3a3);
+  font-size: 12px;
+  line-height: 1.4;
+  max-width: 150px;
+  text-align: right;
+  overflow-wrap: normal;
+}
+@media (max-width: 760px) {
+  #mobileSyncStatus { max-width: 88px; margin-right: 0; font-size: 11px; }
+}

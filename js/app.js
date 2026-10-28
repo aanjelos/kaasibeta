@@ -818,6 +818,10 @@ function updateHeaderShortcutButtons() {
     dropBackupBtn.parentElement.classList.toggle("hidden", isCloud);
   }
   const status = window.currentCloudSyncStatus || "unknown";
+  for (const id of ['desktopSyncStatus','mobileSyncStatus']) {
+    const label = document.getElementById(id);
+    if (label) { label.hidden = !isCloud; label.textContent = isCloud ? cloudSyncStatusText() : ''; }
+  }
   const descriptions = {
     local_newer: "Sync — local changes ready to upload",
     cloud_newer: "Sync — cloud changes ready to download",

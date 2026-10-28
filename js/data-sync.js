@@ -533,6 +533,7 @@ async function initializeSupabase() {
 
 function updateSupabaseUI(user) {
   resetCloudSyncAccount(user);
+  scheduleAutomaticCloudSync(1000);
   const loggedOutView = $("#cloudBackupLoggedOut");
   const loggedInView = $("#cloudBackupLoggedIn");
   const userEmailEl = $("#userEmail");
