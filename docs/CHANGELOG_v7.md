@@ -2,6 +2,14 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.427n - 2026-10-28
+
+### Settings Follow-up Refinements
+
+- Saving an unchanged category name closes inline editing without writing data.
+- Tightened credit card toggle spacing and made Add Category full-width on mobile.
+- Renamed the cloud shortcut option to Cloud Sync and moved the mobile version label below the Settings menu.
+
 ## v6.426n - 2026-10-28
 
 ### Settings Usability Refinements

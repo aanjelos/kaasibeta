@@ -679,7 +679,10 @@ async function renameCategory(buttonElement) {
     inputElement.value = originalName;
     return;
   }
-  if (newName === originalName) return;
+  if (newName === originalName) {
+    SettingsWorkspace.editCategory(buttonElement, false);
+    return;
+  }
   if (
     state.categories.some(
       (cat) =>

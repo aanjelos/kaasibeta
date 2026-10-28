@@ -247,7 +247,8 @@
 #settingsModal button[onclick*='toggleAdvancedRules'] { background: transparent; padding: 14px 0; border-top: 1px solid var(--border-color); }
 #settingsModal #advancedRulesContainer .settings-control-row { padding: 14px 0; }
 #settingsModal #advancedRulesContainer .settings-control-row:last-child { padding-bottom: 0; }
-#settingsModal #settingsCcLimitForm { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+#settingsModal #settingsCcLimitForm { margin-top: 12px; padding-top: 16px; border-top: 1px solid var(--border-color); }
+#settingsModal .settings-cc-toggle { padding-bottom: 0; }
 #settingsModal #toggleCcSection { margin: 0; }
 #settingsModal .settings-cloud-identity #googleLogoutBtn { margin-left: auto; align-self: center; flex-shrink: 0; padding: 8px 12px; }
 #settingsModal #shortcutLocal.active, #settingsModal #shortcutCloud.active, #settingsModal .shortcut-btn.active { color: #fff; }
@@ -269,4 +270,9 @@
   #settingsModal .settings-panel-body, #settingsModal .settings-panel-head { padding: 16px; }
   .settings-category-summary .settings-row-icon { min-width: 32px; }
   #settingsModal .settings-cloud-identity { flex-wrap: wrap; gap: 10px; }
+}
+@media (max-width: 760px) {
+  #settingsCategoriesPanel .settings-list-header .settings-list-footer { flex-basis: 100%; }
+  #settingsCategoriesPanel .settings-list-header .settings-list-footer .btn { width: 100%; }
+  .settings-mobile-version { text-align: center; font-size: 12px; padding-top: 8px; }
 }

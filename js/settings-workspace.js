@@ -34,6 +34,7 @@ const SettingsWorkspace = (() => {
     const ccForm = document.getElementById('settingsCcLimitForm');
     const ccToggle = document.getElementById('toggleCcSection').closest('.flex.items-center.justify-between');
     ccToggle.classList.remove('border-t', 'border-gray-600', 'pt-3');
+    ccToggle.classList.add('settings-cc-toggle');
     ccForm.before(ccToggle);
     for (const panel of [categoryPanel, document.getElementById('settingsBudgetsPanel')]) {
       const footer = panel.querySelector('.settings-list-footer');
@@ -41,10 +42,6 @@ const SettingsWorkspace = (() => {
     }
     const version = document.getElementById('appVersionSettings');
     document.querySelector('.settings-dashboard-link').before(version);
-    const mobileVersion = document.createElement('p');
-    mobileVersion.className = 'settings-mobile-version';
-    mobileVersion.textContent = `Version: ${document.querySelector('meta[name="application-version"]').content}`;
-    document.getElementById('settingsAboutSection').appendChild(mobileVersion);
 
     document.querySelectorAll("#settingsTabContent > .settings-tab-panel > .card").forEach(card => {
       const title = card.querySelector(":scope > h3, :scope > .budget-list-heading");
@@ -173,6 +170,10 @@ const SettingsWorkspace = (() => {
         nav.appendChild(navGroup);
         hub.appendChild(mobileGroup);
       }
+      const mobileVersion = document.createElement('p');
+      mobileVersion.className = 'settings-mobile-version';
+      mobileVersion.textContent = `Version: ${document.querySelector('meta[name="application-version"]').content}`;
+      hub.appendChild(mobileVersion);
       nav.dataset.workspaceReady = "true";
     }
     selected = null;
