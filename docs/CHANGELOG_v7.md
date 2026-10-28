@@ -2,6 +2,13 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.440n - 2026-10-29
+
+### Consistent Branded Checkboxes
+
+- Apply the existing orange checkbox treatment to visible native checkboxes, including single/bulk credit-card payment and debt-payment expense options. Retain checked state, label activation, keyboard focus and disabled behaviour.
+- Preserve existing custom category checkboxes and Settings switches. Use native checkbox rendering in forced-colour accessibility mode.
+
 ## v6.439n - 2026-10-29
 
 ### Offline Dashboard Indicator
