@@ -793,6 +793,7 @@ function closeModal(modalId) {
   const modal = $(`#${modalId}`);
   const wasOpen = modal?.style.display === "block";
   if (modalId === "settingsModal" && typeof SettingsWorkspace !== "undefined") {
+    SettingsWorkspace.stopMotion?.();
     SettingsWorkspace.releaseSubscriptions();
     const depth = history.state?.settingsDepth || 0;
     const stack = history.state?.openModals || [];

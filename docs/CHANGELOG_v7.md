@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.431n - 2026-10-28
+
+### Settings Transition Scope
+
+Restricted mobile slides to navigation between Settings views. Removed the delayed outgoing animation from Back and cancel active section animations when Settings closes or reopens, preventing stale transitions when returning from the dashboard.
+
 ## v6.430n - 2026-10-28
 
 ### Focus Visibility and Settings Motion

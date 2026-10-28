@@ -5,18 +5,17 @@ const SettingsWorkspace = (() => {
   let subscriptionHome = null;
   let subscriptionControls = [];
   let navigationAnimations = [];
-  let goingBack = false;
+  function stopMotion() { navigationAnimations.forEach(animation=>animation.cancel()); navigationAnimations=[]; }
   function motionAllowed() { return mobile.matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
-  function animateView(back = false, leaving = false) {
-    navigationAnimations.forEach(animation => animation.cancel());
-    navigationAnimations = [];
+  function animateView(back = false) {
+    stopMotion();
     if (!motionAllowed()) return [];
     const targets = selected ? [document.querySelector('.settings-section-heading'), document.getElementById('settingsTabContent')] : [document.getElementById('settingsMobileHub')];
     for (const target of targets) {
       if (!target?.animate) continue;
       const offset = back ? -18 : 18;
-      const frames = leaving ? [{opacity:1,transform:'translateX(0)'},{opacity:0,transform:'translateX(18px)'}] : [{opacity:0,transform:`translateX(${offset}px)`},{opacity:1,transform:'translateX(0)'}];
-      navigationAnimations.push(target.animate(frames,{duration:leaving?110:190,easing:'cubic-bezier(.2,.7,.2,1)'}));
+      const frames = [{opacity:0,transform:`translateX(${offset}px)`},{opacity:1,transform:'translateX(0)'}];
+      navigationAnimations.push(target.animate(frames,{duration:190,easing:'cubic-bezier(.2,.7,.2,1)'}));
     }
     return navigationAnimations;
   }
@@ -116,7 +115,7 @@ const SettingsWorkspace = (() => {
     return modal()?.style.display === "block" && selected === "settingsSubscriptionsPanel";
   }
 
-  function show(panelId, scroll = true) {
+  function show(panelId, scroll = true, animate = false) {
     const previous = selected;
     const section = find(panelId) || (!mobile.matches ? settingsTabsConfig[0] : null);
     selected = section?.targetPanelId || null;
@@ -143,7 +142,7 @@ const SettingsWorkspace = (() => {
       const pane = document.querySelector("#settingsModal .settings-main");
       if (pane) pane.scrollTop = 0;
     }
-    if (previous !== selected) animateView(!selected);
+    if (animate && previous !== selected) animateView(!selected);
   }
 
   function navigate(panelId) {
@@ -151,7 +150,7 @@ const SettingsWorkspace = (() => {
     if (history.state?.openModals?.includes("settingsModal")) {
       history.pushState({ ...history.state, settingsSection: panelId, settingsDepth: (history.state.settingsDepth || 0) + 1 }, "", "");
     }
-    show(panelId);
+    show(panelId, true, true);
     if (mobile.matches) {
       const heading=document.getElementById('settingsWorkspaceTitle');
       heading.setAttribute('tabindex','-1');heading.focus({preventScroll:true});
@@ -159,6 +158,7 @@ const SettingsWorkspace = (() => {
   }
 
   function setup() {
+    stopMotion();
     preparePresentation();
     const nav = document.getElementById("settingsTabsContainer");
     const hub = document.getElementById("settingsMobileHub");
@@ -216,21 +216,14 @@ const SettingsWorkspace = (() => {
       // A browser Forward/Back entry can outlive a page reload.
       if (!document.getElementById("settingsTabsContainer").dataset.workspaceReady) openSettingsModal({ restore: true });
       const previous = selected;
-      show(state.settingsSection || null, false);
+      show(state.settingsSection || null, false, modal()?.style.display==='block' && previous!==null);
       if (mobile.matches && !selected && previous) document.querySelector(`#settingsMobileHub [data-section="${previous}"]`)?.focus({preventScroll:true});
     }
-    else { releaseSubscriptions(); selected = null; }
+    else { stopMotion(); releaseSubscriptions(); selected = null; }
   }
 
-  async function back() {
-    if (goingBack) return;
-    if (mobile.matches && selected && motionAllowed()) {
-      goingBack = true;
-      const previous=selected;
-      try { await Promise.all(animateView(true,true).map(animation=>animation.finished.catch(()=>{}))); }
-      finally { goingBack=false; }
-      if (modal()?.style.display!=='block'||selected!==previous)return;
-    }
+  function back() {
+    stopMotion();
     if (mobile.matches && history.state?.settingsDepth > 0) history.go(-history.state.settingsDepth);
     else if (history.state?.settingsDepth > 0) history.back();
     else closeModal("settingsModal");
@@ -239,5 +232,5 @@ const SettingsWorkspace = (() => {
   mobile.addEventListener?.("change", () => {
     if (modal()?.style.display === "block") show(history.state?.settingsSection || null);
   });
-  return { setup, navigate, restore, back, releaseSubscriptions, ownsSubscriptions, editCategory };
+  return { setup, navigate, restore, back, stopMotion, releaseSubscriptions, ownsSubscriptions, editCategory };
 })();
