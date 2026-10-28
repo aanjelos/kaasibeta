@@ -2436,6 +2436,37 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .subscription-row-actions > strong { font-size: .9rem; white-space: normal; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 .subscription-row-actions > div { display: flex; gap: 6px; }
 .subscription-reminder-actions { flex-direction: row; flex-wrap: wrap; align-items: center; }
+.payment-list-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 10px 12px; padding: 16px 0; border-bottom: 1px solid var(--border-color); }
+.payment-list-row:last-child { border-bottom: 0; }
+.payment-list-copy { min-width: 0; }
+.payment-list-copy > strong { display: block; font-size: .9375rem; line-height: 1.35; overflow-wrap: anywhere; }
+.payment-list-copy > span { display: block; margin-top: 5px; font-size: .8rem; color: var(--text-secondary); }
+.payment-list-copy > span.text-expense { color: var(--expense-color); }
+.payment-list-type { display: inline-block; color: var(--text-secondary); white-space: nowrap; }
+.payment-list-primary { display: flex; align-items: center; justify-content: flex-end; gap: 14px; min-width: 0; }
+.payment-list-primary strong { font-size: .875rem; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.payment-list-primary .btn { min-width: 48px; min-height: 40px; padding: 8px 12px; flex: none; }
+.reminder-options { grid-column: 2 / -1; min-width: 0; }
+.reminder-options summary { list-style: none; display: inline-flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: .8rem; cursor: pointer; min-height: 32px; }
+.reminder-options summary::-webkit-details-marker { display: none; }
+.reminder-options summary:hover { color: var(--accent-primary); }
+.reminder-options summary:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 3px; border-radius: 3px; }
+.reminder-options[open] summary i { transform: rotate(180deg); }
+.reminder-options-actions { display: grid; margin-top: 6px; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; background: var(--bg-tertiary); }
+.reminder-options-actions button { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 10px 12px; text-align: left; font-size: .8125rem; border-bottom: 1px solid var(--border-color); }
+.reminder-options-actions button:last-child { border-bottom: 0; }
+.reminder-options-actions button:hover, .reminder-options-actions button:focus-visible { background: rgba(var(--accent-primary-rgb), .1); }
+.reminder-options-actions i { width: 16px; text-align: center; color: var(--text-secondary); }
+.reminder-options-actions small { margin-left: auto; color: var(--text-secondary); font-size: .75rem; }
+@media (max-width: 639px) {
+  .payment-list-row { grid-template-columns: 36px minmax(0, 1fr) auto; gap: 8px 10px; padding: 14px 0; align-items: start; }
+  .payment-list-row .subscription-icon { width: 36px; height: 36px; }
+  .payment-list-copy > strong { font-size: .875rem; }
+  .payment-list-primary { flex-direction: column; align-items: flex-end; gap: 8px; max-width: 120px; }
+  .payment-list-primary .btn { min-height: 44px; }
+  .reminder-options { grid-column: 2 / -1; }
+  .reminder-options-actions button { flex-wrap: wrap; }
+}
 .subscription-row-actions .btn { min-height: 40px; padding: 8px 12px; font-size: .8rem; white-space: nowrap; }
 .subscription-empty { padding: 35px 12px; text-align: center; color: var(--text-secondary); }
 .subscription-empty > i { font-size: 2rem; margin-bottom: 12px; color: var(--text-secondary); opacity: .4; }

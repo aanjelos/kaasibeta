@@ -2,6 +2,14 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.424n - 2026-10-28
+
+### Payment Reminder and Upcoming Payment Layouts
+
+- Reorganized reminder and upcoming payment rows to keep payment details and Pay actions together across desktop and mobile.
+- Grouped reminder choices and subscription management in an expandable menu for each renewal.
+- Updated debt and receivable payment icons while retaining their action colours, labels and touch targets.
+
 ## v6.423n - 2026-10-28
 
 ### Subscription and Payment Controls

@@ -258,7 +258,7 @@ function renderDebtList() {
             <span>Due: ${new Date(d.dueDate).toLocaleDateString()}</span>
             <div class="edit-btn-container">
               <button class="accent-text" aria-label="Edit debt" data-tooltip="Edit" data-record-action="editDebt" data-record-id="${escapeHTML(d.id)}"><i class="fas fa-edit" aria-hidden="true"></i></button>
-              <button class="text-expense" aria-label="Pay debt" data-tooltip="Pay" data-record-action="payDebt" data-record-id="${escapeHTML(d.id)}"><i class="fas fa-arrow-up" aria-hidden="true"></i></button>
+              <button class="text-expense" aria-label="Pay debt" data-tooltip="Pay" data-record-action="payDebt" data-record-id="${escapeHTML(d.id)}"><i class="fas fa-money-bill-transfer" aria-hidden="true"></i></button>
               <button class="text-gray-500 hover:text-expense" aria-label="Delete debt" data-record-action="deleteDebt" data-record-id="${escapeHTML(d.id)}" data-tooltip="Delete"><i class="fas fa-times" aria-hidden="true"></i></button>
             </div>
           </div>
@@ -408,7 +408,7 @@ function renderReceivableList() {
             <span>Given: ${new Date(r.dateGiven).toLocaleDateString()}</span>
             <div class="edit-btn-container">
               <button class="accent-text" aria-label="Edit receivable" data-tooltip="Edit" data-record-action="editReceivable" data-record-id="${escapeHTML(r.id)}"><i class="fas fa-edit" aria-hidden="true"></i></button>
-              <button class="text-income" aria-label="Receive payment" data-tooltip="Receive" data-record-action="receivePayment" data-record-id="${escapeHTML(r.id)}"><i class="fas fa-arrow-down" aria-hidden="true"></i></button>
+              <button class="text-income" aria-label="Receive payment" data-tooltip="Receive" data-record-action="receivePayment" data-record-id="${escapeHTML(r.id)}"><i class="fas fa-hand-holding-dollar" aria-hidden="true"></i></button>
               <button class="text-gray-500 hover:text-expense" aria-label="Delete receivable" data-record-action="deleteReceivable" data-record-id="${escapeHTML(r.id)}" data-tooltip="Delete"><i class="fas fa-times" aria-hidden="true"></i></button>
             </div>
           </div>
