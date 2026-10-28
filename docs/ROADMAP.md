@@ -103,7 +103,6 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 4. Settings Workspace UI/UX Refinements
 - **Status**: The functional workspace shipped in v6.421n; further visual and interaction refinements remain planned.
 - **Next step**: Review the user's next round of feedback across desktop and mobile, including spacing, typography, grouping and editing flows. Preserve existing settings, save behaviour, financial logic and shared subscription data.
-- **Keyboard navigation and shortcuts**: Review logical Tab/Shift+Tab order through the sidebar, section controls and editors; exclude hidden controls and keep focus indicators clear. Support appropriate arrow-key navigation in section menus and existing keyboard shortcuts without interfering with typing. Review Enter/Space activation, Escape/Back behaviour, focus containment in dialogs and focus restoration when a dialog closes or the user returns to the settings menu. Document any added shortcuts in the existing shortcut help.
 
 ---
 

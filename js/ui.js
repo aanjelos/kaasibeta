@@ -27,6 +27,9 @@ function openShortcutsHelpModal() {
     { key: "Ctrl + E", action: "Export Local File." },
     { key: "Ctrl + I", action: "Import Local File." },
     { key: "← / →", action: "Navigate Month Tabs in All Transactions." },
+    { key: "Tab / Shift + Tab", action: "Move through controls in the open dialog." },
+    { key: "↑ / ↓ / Home / End", action: "Move through Settings sections; Enter opens the focused section." },
+    { key: "Escape", action: "Cancel category rename, close the top dialog, or close Settings." },
   ];
 
   contentList.innerHTML = ""; // Clear previous list
@@ -85,6 +88,10 @@ function handleKeyboardShortcuts(event) {
   const debtsModalVisible = $("#debtsViewModal")?.style.display === "block";
   const receivablesModalVisible =
     $("#receivablesViewModal")?.style.display === "block";
+  if (settingsModalVisible && event.key !== 'Escape') {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase()==='s') event.preventDefault();
+    return;
+  }
 
   // Dedicated actions are independent of the selected Dashboard button mode.
   if (event.ctrlKey && !event.altKey && !event.metaKey && !event.shiftKey) {
@@ -221,7 +228,7 @@ function handleKeyboardShortcuts(event) {
       } else {
         const modalsToClose = [
           "confirmationModal",
-          "formModal", "settingsAddCategoryModal", "settingsAddBudgetModal", "subscriptionReminderModal", "upcomingPaymentsModal", "subscriptionsModal",
+          "formModal", "editBudgetModal", "settingsAddCategoryModal", "settingsAddBudgetModal", "subscriptionReminderModal", "upcomingPaymentsModal", "subscriptionsModal",
           "cloudSyncModal",
           "transactionDetailModal",
           "ccHistoryModal",
@@ -626,9 +633,55 @@ if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
 }
 
+const modalFocusOrigins = new Map();
+const mobileModalFocus = () => window.matchMedia('(max-width: 760px), (pointer: coarse)').matches;
+function visibleModalControls(modal) {
+  return [...modal.querySelectorAll('button, a[href], input:not([type="hidden"]), select, textarea, summary, [tabindex]')].filter(el => !el.disabled && el.tabIndex >= 0 && el.getClientRects?.().length && !el.closest('[hidden], .hidden, [inert]'));
+}
+function topVisibleModal() {
+  return [...document.querySelectorAll('.modal')].filter(el => el.style.display === 'block').sort((a,b) => (Number(getComputedStyle(a).zIndex)||0)-(Number(getComputedStyle(b).zIndex)||0)).pop();
+}
+function focusModalStart(modal) {
+  if (modal.style.display !== 'block') return;
+  const container = modal.querySelector('.modal-content') || modal;
+  container.setAttribute('tabindex', '-1');
+  const field = !mobileModalFocus() && !['settingsModal','initialSetupModal','donateModal','shortcutsHelpModal','monthlyViewModal'].includes(modal.id) && visibleModalControls(modal).find(el => el.matches('input:not([type="checkbox"]):not([type="radio"]):not([readonly]), select, textarea'));
+  (field || container).focus({preventScroll:true});
+}
+function restoreModalFocus(id) {
+  const origin = modalFocusOrigins.get(id);
+  modalFocusOrigins.delete(id);
+  const top = topVisibleModal();
+  if (origin?.isConnected && origin.getClientRects?.().length && (!top || top.contains(origin))) {
+    // Returning to a text field must not reopen the phone keyboard.
+    if (!mobileModalFocus() || !origin.matches('input,select,textarea')) origin.focus({preventScroll:true});
+    else if (top) focusModalStart(top);
+  } else if (top) focusModalStart(top);
+}
+document.addEventListener('keydown', event => {
+  const modal = topVisibleModal();
+  if (!modal || isAppLocked()) return;
+  const input = event.target.closest?.('.settings-category-row.is-editing input');
+  if (input && ['Enter','Escape'].includes(event.key)) {
+    event.preventDefault();event.stopImmediatePropagation();
+    const row=input.closest('li');
+    if(event.key==='Enter')renameCategory(row.querySelector('[aria-label="Save Rename"]'));
+    else SettingsWorkspace.editCategory(row.querySelector('[aria-label="Cancel Rename"]'),false);
+    return;
+  }
+  if (event.key==='Tab') {
+    const controls=visibleModalControls(modal),first=controls[0],last=controls.at(-1);
+    if(!first){event.preventDefault();focusModalStart(modal);return;}
+    if(event.shiftKey && (!modal.contains(document.activeElement)||document.activeElement===first||!controls.includes(document.activeElement))){event.preventDefault();last.focus();}
+    else if(!event.shiftKey && (!controls.includes(document.activeElement)||document.activeElement===last)){event.preventDefault();first.focus();}
+  }
+  if(['Enter',' '].includes(event.key)&&event.target.matches('[role="button"]:not(button):not(input)')){event.preventDefault();event.target.click();}
+},true);
+
 function openModalHelper(modalId) {
   const modal = $(`#${modalId}`);
   if (modal && modal.style.display !== "block") {
+    modalFocusOrigins.set(modalId, document.activeElement);
     modal.style.display = "block";
     updateBodyScrollState();
     
@@ -642,12 +695,7 @@ function openModalHelper(modalId) {
       ...(modalId === "settingsModal" ? { settingsSection: null, settingsDepth: 0 } : {}) }, null, "");
 
     setTimeout(() => {
-      if (!["settingsModal", "initialSetupModal", "donateModal", "shortcutsHelpModal", "monthlyViewModal"].includes(modalId)) {
-        const firstInput = modal.querySelector('input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([readonly]), select, textarea');
-        if (firstInput) {
-          firstInput.focus();
-        }
-      }
+      if (topVisibleModal() === modal && !modal.contains(document.activeElement)) focusModalStart(modal);
     }, 50);
   }
 }
@@ -678,6 +726,7 @@ window.addEventListener("popstate", (event) => {
         }
         if (id === "settingsModal") cancelDeleteAllData();
         if (id === "ccHistoryModal") document.body.renderCcHistoryList = null;
+        restoreModalFocus(id);
       }
     }
   });
@@ -705,7 +754,7 @@ function closeModal(modalId) {
       cancelDeleteAllData();
       updateBodyScrollState();
       return new Promise(resolve => {
-        window.addEventListener("popstate", resolve, { once: true });
+        window.addEventListener("popstate", () => { restoreModalFocus('settingsModal'); resolve(); }, { once: true });
         history.go(-(depth + stack.length - index));
       });
     }
@@ -728,6 +777,7 @@ function closeModal(modalId) {
   if (wasOpen && history.state && history.state.modalOpen) {
     history.back();
   }
+  if (wasOpen) restoreModalFocus(modalId);
 }
 
 function openFormModal(title, formHtml, submitHandler) {
@@ -743,10 +793,7 @@ function openFormModal(title, formHtml, submitHandler) {
   form.innerHTML = formHtml;
   form.onsubmit = submitHandler;
   openModalHelper("formModal");
-  const firstInput = form.querySelector(
-    'input:not([type="hidden"]), select, textarea'
-  );
-  if (firstInput) firstInput.focus();
+  focusModalStart(document.getElementById('formModal'));
 }
 
 let modalPointerDownTarget = null;

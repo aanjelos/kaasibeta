@@ -123,6 +123,27 @@ function runtime(mobile = false) {
   return { context, run, element, documentEvents, windowEvents, storage, localStorage, notices, timers };
 }
 
+test('opening a phone dialog focuses its container while desktop forms retain field focus', () => {
+  for (const mobile of [true,false]) {
+    const r=runtime(mobile),modal=r.element('#formModal'),container=new Element(),input=new Element();
+    modal.id='formModal';modal.style.display='block';
+    input.tabIndex=0;input.closest=()=>null;input.matches=()=>true;
+    modal.querySelector=()=>container;modal.querySelectorAll=()=>[input];
+    r.context.focusModalStart(modal);
+    assert.equal(!!container.focused,mobile);
+    assert.equal(!!input.focused,!mobile);
+  }
+});
+
+test('dialog tab controls exclude disabled, hidden and negative-tabindex elements', () => {
+  const r=runtime(),modal=new Element();
+  const controls=Array.from({length:4},()=>new Element());
+  controls.forEach(el=>{el.tabIndex=0;el.closest=()=>null;});
+  controls[1].disabled=true;controls[2].tabIndex=-1;controls[3].closest=()=>({});
+  modal.querySelectorAll=()=>controls;
+  assert.deepEqual([...r.context.visibleModalControls(modal)],[controls[0]]);
+});
+
 test('all application scripts parse', () => {
   for (const name of fs.readdirSync(path.join(root, 'js')).filter(name => name.endsWith('.js'))) {
     new vm.Script(fs.readFileSync(path.join(root, 'js', name), 'utf8'), { filename: name });

@@ -2,6 +2,15 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.428n - 2026-10-28
+
+### Keyboard Navigation and Mobile Dialog Focus
+
+- Phone dialogs initially focus their container so opening a form does not automatically raise the keyboard. Desktop form autofocus and intentional field editing remain available.
+- Tab and Shift+Tab wrap through visible controls in the top dialog; closing a dialog restores focus to its opener where available.
+- Added Settings section navigation using Up/Down/Home/End, keyboard activation of custom button controls, and Enter/Escape handling for inline category rename.
+- Prevented dashboard shortcuts from firing behind Settings and documented navigation keys in shortcut help.
+
 ## v6.427n - 2026-10-28
 
 ### Settings Follow-up Refinements

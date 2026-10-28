@@ -79,7 +79,7 @@ const SettingsWorkspace = (() => {
     input.hidden = !open;
     row.querySelector('.settings-category-save-actions').hidden = !open;
     if (open) input.focus();
-    else input.value = input.dataset.originalName;
+    else { input.value = input.dataset.originalName; row.querySelector('[aria-label^="Rename "]').focus(); }
   }
 
   function releaseSubscriptions() {
@@ -134,6 +134,10 @@ const SettingsWorkspace = (() => {
       history.pushState({ ...history.state, settingsSection: panelId, settingsDepth: (history.state.settingsDepth || 0) + 1 }, "", "");
     }
     show(panelId);
+    if (mobile.matches) {
+      const heading=document.getElementById('settingsWorkspaceTitle');
+      heading.setAttribute('tabindex','-1');heading.focus({preventScroll:true});
+    }
   }
 
   function setup() {
@@ -163,6 +167,7 @@ const SettingsWorkspace = (() => {
           const row = document.createElement("button");
           row.type = "button";
           row.className = "settings-hub-row";
+          row.dataset.section = section.targetPanelId;
           row.innerHTML = `<i class="fas fa-${section.icon}" aria-hidden="true"></i><span><strong>${section.label}</strong><small>${section.hint}</small></span><i class="fas fa-chevron-right" aria-hidden="true"></i>`;
           row.onclick = () => navigate(section.targetPanelId);
           list.appendChild(row);
@@ -175,6 +180,14 @@ const SettingsWorkspace = (() => {
       mobileVersion.textContent = `Version: ${document.querySelector('meta[name="application-version"]').content}`;
       hub.appendChild(mobileVersion);
       nav.dataset.workspaceReady = "true";
+      for (const host of [nav, hub]) host.addEventListener('keydown', event => {
+        const buttons=[...host.querySelectorAll('button')];
+        const index=buttons.indexOf(event.target);
+        if(index<0 || event.altKey || event.ctrlKey || event.metaKey || !['ArrowUp','ArrowDown','Home','End'].includes(event.key))return;
+        event.preventDefault();
+        const next=event.key==='Home'?0:event.key==='End'?buttons.length-1:(index+(event.key==='ArrowUp'?-1:1)+buttons.length)%buttons.length;
+        buttons[next].focus();
+      });
     }
     selected = null;
     show(null);
@@ -184,7 +197,9 @@ const SettingsWorkspace = (() => {
     if (state?.openModals?.includes("settingsModal")) {
       // A browser Forward/Back entry can outlive a page reload.
       if (!document.getElementById("settingsTabsContainer").dataset.workspaceReady) openSettingsModal({ restore: true });
+      const previous = selected;
       show(state.settingsSection || null, false);
+      if (mobile.matches && !selected && previous) document.querySelector(`#settingsMobileHub [data-section="${previous}"]`)?.focus({preventScroll:true});
     }
     else { releaseSubscriptions(); selected = null; }
   }
