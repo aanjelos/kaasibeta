@@ -1,6 +1,7 @@
 /** Offline subscription schedules and explicit renewal recording. No automatic charges. */
 const Subscriptions = (() => {
   let busy=false, filter='active', search='', reminderTimer;
+  const sessionReminderTokens=new Set();
   const list=()=>state.subscriptions || [];
   const occurrences=()=>state.subscriptionOccurrences || [];
   const dateObject=value=>new Date(`${value}T00:00:00Z`);
@@ -100,11 +101,13 @@ const Subscriptions = (() => {
   async function record(id,due,values,expected) {
     const sub=assertCurrent(id,due,expected);
     if(values.alreadyRecorded===true) {
-      const next=nextDate(sub,due);
+      const reset=values.resetRenewal===true && daysUntil(due)<0;
+      const paidDate=getCurrentDateString(),anchorDay=Number(paidDate.slice(8));
+      const next=reset?nextDate({...sub,anchorDay},paidDate):nextDate(sub,due);
       await change(()=>{
         assertCurrent(id,due,expected);
         clearSnooze(id,due);
-        sub.nextDueDate=next;
+        sub.nextDueDate=next;if(reset)sub.anchorDay=anchorDay;
       });
       return;
     }
@@ -117,7 +120,9 @@ const Subscriptions = (() => {
       if(!account||!category) throw new Error('Choose an account and category.');
       if(account.balance<amount) throw new Error(`Insufficient funds in ${account.name}.`);
     }
-    const next=nextDate(sub,due);
+    const reset=values.resetRenewal===true && daysUntil(due)<0;
+    const anchorDay=Number(date.slice(8));
+    const next=reset?nextDate({...sub,anchorDay},date):nextDate(sub,due);
     await change(()=>{
       assertCurrent(id,due,expected);
       const transaction={id:generateId(),amount,description:sub.name,date,timestamp:Date.now()};
@@ -131,7 +136,7 @@ const Subscriptions = (() => {
         account.balance=roundToTwoDecimals(account.balance-amount);state.transactions.push(transaction);
       }
       clearSnooze(id,due);
-      sub.nextDueDate=next;
+      sub.nextDueDate=next;if(reset)sub.anchorDay=anchorDay;
     });
   }
   async function resolve(id,due,action,expected) {
@@ -328,10 +333,11 @@ const Subscriptions = (() => {
       ${sub.method==='bank'?`<label class="subscription-field">Account<select name="account" required>${state.accounts.filter(a=>!a.hidden).map(a=>`<option value="${escapeHTML(a.id)}"${a.id===sub.account?' selected':''}>${escapeHTML(a.name)} (${formatCurrency(a.balance)})</option>`).join('')}</select></label>`:''}
       <label class="subscription-field">Category${sub.method==='cc'?' (Optional)':''}<select name="category" id="subPaymentCategory" ${sub.method==='bank'?'required':''}>${categoryOptions(paymentCategory(sub),sub.method==='cc')}</select></label>
       <label class="subscription-field">Payment Date<input type="date" name="date" value="${getCurrentDateString()}" required></label>
-      </div>${sub.method==='cc'?'<p id="subCardPaymentNote" class="subscription-payment-note">Added to your card balance. Settle it later in View &amp; Pay.</p>':''}<button type="submit" id="subPaymentSubmit" class="btn btn-primary w-full">${sub.method==='cc'?'Add CC Charge':'Add Expense'}</button>`,async event=>{
+      </div>${daysUntil(due)<0?'<label class="subscription-renewal-reset"><input type="checkbox" name="resetRenewal"> Set future renewal dates from the payment date</label>':''}${sub.method==='cc'?'<p id="subCardPaymentNote" class="subscription-payment-note">Added to your card balance. Settle it later in View &amp; Pay.</p>':''}<button type="submit" id="subPaymentSubmit" class="btn btn-primary w-full">${sub.method==='cc'?'Add CC Charge':'Add Expense'}</button>`,async event=>{
         event.preventDefault();await perform(async()=>{
           const form=new FormData(event.target),alreadyRecorded=form.get('mode')==='existing';
-          await record(id,due,alreadyRecorded?{alreadyRecorded:true}:{amount:form.get('amount'),account:form.get('account'),category:form.get('category'),date:form.get('date')},expected);
+          const resetRenewal=form.has('resetRenewal');
+          await record(id,due,alreadyRecorded?{alreadyRecorded:true,resetRenewal}:{amount:form.get('amount'),account:form.get('account'),category:form.get('category'),date:form.get('date'),resetRenewal},expected);
           closeModal('formModal');render();
           refreshMonthlyViewIfRelevant(getCurrentDateString());
           showNotification(alreadyRecorded?'Renewal updated.':sub.method==='cc'?'Subscription charge recorded.':'Subscription payment recorded.','success');
@@ -371,18 +377,10 @@ const Subscriptions = (() => {
     if(isAppLocked()||!state.settings?.initialSetupDone||document.visibilityState==='hidden'||busy||storageOperationPending)return;
     if([...document.querySelectorAll('.modal')].some(modal=>getComputedStyle(modal).display!=='none'))return;
     if(document.activeElement?.matches?.('input,select,textarea'))return;
-    let seen;
-    try{seen=JSON.parse(appPreferences.getItem('kaasi_subscription_prompt_seen'));}catch(_){/* Older prompt marker. */}
-    const today=getCurrentDateString(),tokens=new Set(seen?.date===today&&Array.isArray(seen.tokens)?seen.tokens:[]);
     const token=sub=>`${occurrenceId(sub.id,sub.nextDueDate)}:${occurrence(sub.id,sub.nextDueDate)?.snoozedUntil||0}${sub.renewalRevision?':'+sub.renewalRevision:''}`;
-    const due=dueSubscriptions().filter(sub=>!tokens.has(token(sub)));
+    const due=dueSubscriptions().filter(sub=>!sessionReminderTokens.has(token(sub)));
     if(!due.length)return;
-    const previous=appPreferences.getItem('kaasi_subscription_prompt_seen');
-    due.forEach(sub=>tokens.add(token(sub)));
-    appPreferences.setItem('kaasi_subscription_prompt_seen',JSON.stringify({date:today,tokens:[...tokens]}));await appPreferences.flush();
-    if(isAppLocked()||[...document.querySelectorAll('.modal')].some(modal=>getComputedStyle(modal).display!=='none')||document.activeElement?.matches?.('input,select,textarea')){
-      if(previous)appPreferences.setItem('kaasi_subscription_prompt_seen',previous);else appPreferences.removeItem('kaasi_subscription_prompt_seen');return;
-    }
+    due.forEach(sub=>sessionReminderTokens.add(token(sub)));
     renderReminder(dueSubscriptions());
     openModalHelper('subscriptionReminderModal');
   }

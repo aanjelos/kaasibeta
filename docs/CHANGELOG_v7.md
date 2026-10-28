@@ -2,6 +2,16 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.422n - 2026-10-28
+
+### Dashboard and Payment Refinements
+
+- Display budget names and status on separate lines and show six recent transactions without an inner scroll area.
+- Align mobile credit card summaries with monthly summaries and truncate lengthy transaction descriptions in lists.
+- Use accessible icon buttons with larger touch targets for debt and receivable actions.
+- Show dismissed subscription reminders again on the next app launch; the six-hour reminder remains available.
+- Allow overdue subscription payments to reset the renewal schedule from the payment date.
+
 ## v6.421n - 2026-10-27
 
 ### 1. [UI] Responsive Settings Workspace

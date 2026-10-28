@@ -102,7 +102,7 @@ function renderRecentTransactions() {
         new Date(b.date).setHours(0, 0, 0, 0) -
           new Date(a.date).setHours(0, 0, 0, 0) || b.timestamp - a.timestamp
     )
-    .slice(0, 10);
+    .slice(0, 6);
 
   if (recent.length === 0) {
     list.innerHTML = '<div class="flex flex-col items-center justify-center py-8 text-gray-500"><i class="fas fa-receipt text-3xl mb-3 opacity-40"></i><p class="text-sm font-medium">No transactions yet</p></div>';
@@ -257,9 +257,9 @@ function renderDebtList() {
           <div class="flex justify-between items-center text-xs text-gray-500 mt-1">
             <span>Due: ${new Date(d.dueDate).toLocaleDateString()}</span>
             <div class="edit-btn-container">
-              <button class="link-style text-xs mr-2 accent-text hover:text-accent-hover" data-record-action="editDebt" data-record-id="${escapeHTML(d.id)}">Edit</button>
-              <button class="link-style text-xs mr-2 text-income hover:opacity-80" data-record-action="payDebt" data-record-id="${escapeHTML(d.id)}">Pay</button>
-              <button class="text-gray-500 hover:text-expense text-xs focus:outline-none" data-record-action="deleteDebt" data-record-id="${escapeHTML(d.id)}" data-tooltip="Delete"><i class="fas fa-times"></i></button>
+              <button class="accent-text" aria-label="Edit debt" data-tooltip="Edit" data-record-action="editDebt" data-record-id="${escapeHTML(d.id)}"><i class="fas fa-edit" aria-hidden="true"></i></button>
+              <button class="text-income" aria-label="Pay debt" data-tooltip="Pay" data-record-action="payDebt" data-record-id="${escapeHTML(d.id)}"><i class="fas fa-credit-card" aria-hidden="true"></i></button>
+              <button class="text-gray-500 hover:text-expense" aria-label="Delete debt" data-record-action="deleteDebt" data-record-id="${escapeHTML(d.id)}" data-tooltip="Delete"><i class="fas fa-times" aria-hidden="true"></i></button>
             </div>
           </div>
         `;
@@ -407,9 +407,9 @@ function renderReceivableList() {
           <div class="flex justify-between items-center text-xs text-gray-500 mt-1">
             <span>Given: ${new Date(r.dateGiven).toLocaleDateString()}</span>
             <div class="edit-btn-container">
-              <button class="link-style text-xs mr-2 accent-text hover:text-accent-hover" data-record-action="editReceivable" data-record-id="${escapeHTML(r.id)}">Edit</button>
-              <button class="link-style text-xs mr-2 text-income hover:opacity-80" data-record-action="receivePayment" data-record-id="${escapeHTML(r.id)}">Receive</button>
-              <button class="text-gray-500 hover:text-expense text-xs focus:outline-none" data-record-action="deleteReceivable" data-record-id="${escapeHTML(r.id)}" data-tooltip="Delete"><i class="fas fa-times"></i></button>
+              <button class="accent-text" aria-label="Edit receivable" data-tooltip="Edit" data-record-action="editReceivable" data-record-id="${escapeHTML(r.id)}"><i class="fas fa-edit" aria-hidden="true"></i></button>
+              <button class="text-income" aria-label="Receive payment" data-tooltip="Receive" data-record-action="receivePayment" data-record-id="${escapeHTML(r.id)}"><i class="fas fa-credit-card" aria-hidden="true"></i></button>
+              <button class="text-gray-500 hover:text-expense" aria-label="Delete receivable" data-record-action="deleteReceivable" data-record-id="${escapeHTML(r.id)}" data-tooltip="Delete"><i class="fas fa-times" aria-hidden="true"></i></button>
             </div>
           </div>
         `;

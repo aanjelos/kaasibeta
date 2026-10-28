@@ -191,6 +191,17 @@ test('past payment dates advance one period and remain overdue without creating 
   await e.api.saveDefinition(definition({frequency:'daily',nextDueDate:'2026-10-23'}));assert.equal(e.saved().subscriptions[1].nextDueDate,'2026-10-24');
   const backup=e.c.prepareImportedData(e.saved());assert.equal(backup.subscriptions[1].frequency,'daily');
 });
+test('overdue payments optionally reset the next renewal to the payment date',async()=>{
+  for(const reset of [false,true]){
+    const e=env(),id=await e.api.saveDefinition(definition());
+    e.run('state.subscriptions[0].nextDueDate="2026-09-10";state.subscriptions[0].anchorDay=10');
+    await e.api.record(id,'2026-09-10',{amount:'100',account:'cash',category:'Subscriptions & Memberships',date:'2026-10-24',resetRenewal:reset});
+    const sub=e.saved().subscriptions[0];
+    assert.equal(sub.nextDueDate,reset?'2026-11-24':'2026-10-10');
+    assert.equal(sub.anchorDay,reset?24:10);
+    assert.equal(e.saved().transactions.length,1);
+  }
+});
 test('past-date calculation retains missed renewals across frequencies and preserves existing overdue schedules',async()=>{
   const e=env();assert.equal(e.api.firstUpcomingDate('2026-01-31','semiannually',31),'2026-07-31');
   assert.equal(e.api.firstUpcomingDate('2024-02-29','annually',29),'2025-02-28');
