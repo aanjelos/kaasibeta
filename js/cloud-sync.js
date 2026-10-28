@@ -6,6 +6,7 @@ let cloudSyncRemoteSequence = 0;
 let cloudSyncBusy = false;
 let cloudSyncActivity = 0;
 let cloudSyncFeedback = '';
+const automaticCloudReviewsSeen = new Set();
 
 function cloudSyncDownloadSafe(context) {
   return document.visibilityState !== 'hidden' && !storageOperationPending &&
@@ -24,8 +25,7 @@ function cloudSyncStatusText() {
   if (cloudSyncFeedback) return cloudSyncFeedback;
   if (status === 'local_newer') return 'Waiting to Sync';
   if (status === 'cloud_newer') return 'Cloud Update Pending';
-  const synced = Number(appPreferences.getItem('lastLocalCloudSync'));
-  return status === 'synced' ? (synced ? `Synced at ${new Date(synced).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}` : 'Synced') : 'Checking Sync';
+  return status === 'synced' ? 'Up to Date' : 'Checking Sync';
 }
 
 function cloudSyncBaselineKey(userId) { return `kaasi_cloud_sync_baseline_${userId}`; }
@@ -215,10 +215,9 @@ async function syncCloudData(options = {}) {
     window.currentCloudSyncStatus = direction;
     if (direction === "synced") { if (!automatic) showNotification("Already synced.", "success"); return; }
     if (direction === "local_newer") { await uploadCloudSync(context); return; }
-    // Automatic checks never open review or disturb a draft. Manual Sync can review immediately.
-    if (automatic && (direction === 'review' || direction === 'conflict')) {
-      window.currentCloudSyncStatus = direction; return;
-    }
+    // Prompt once per cloud revision, after the active form/dialog is finished.
+    const reviewKey = `${userId}:${context.updatedAt}`;
+    if (automatic && (direction === 'review' || direction === 'conflict') && automaticCloudReviewsSeen.has(reviewKey)) return;
     if (automatic && !cloudSyncDownloadSafe(context)) return;
     const full = await readCloudSyncRow(userId, true);
     if (!full || full.updated_at !== context.updatedAt) throw new Error("The cloud copy changed. Start Sync again.");
@@ -232,6 +231,11 @@ async function syncCloudData(options = {}) {
     } else {
       window.currentCloudSyncStatus = direction;
       cloudSyncReview = context;
+      if (automatic) {
+        if (!cloudSyncDownloadSafe(context)) { cloudSyncReview = null; return; }
+        automaticCloudReviewsSeen.add(reviewKey);
+        context.automatic = false; // Choosing a copy is an explicit manual action.
+      }
       renderCloudSyncReview();
       openModalHelper("cloudSyncModal");
     }
@@ -469,6 +473,9 @@ document.addEventListener('visibilitychange', () => {
 });
 document.addEventListener('input', () => { ++cloudSyncActivity; }, true);
 document.addEventListener('change', () => { ++cloudSyncActivity; }, true);
+document.addEventListener('click', () => {
+  if (['conflict','review'].includes(window.currentCloudSyncStatus)) scheduleAutomaticCloudSync(250);
+});
 window.setInterval?.(() => {
   if (Date.now() - automaticCloudSyncLastCheck >= Math.max(30000, 5000 * 2 ** automaticCloudSyncFailures)) void runAutomaticCloudSync();
 }, 30000);

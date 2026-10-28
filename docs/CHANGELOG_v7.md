@@ -2,6 +2,14 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.434n - 2026-10-28
+
+### Sync Controls and Conflict Prompts
+
+- Replace the desktop cloud shortcut with a compact clickable gray status followed by a sync icon before All Transactions. Match the smaller icon on mobile and group it beside the hamburger menu. Keep local file actions unchanged.
+- Show Up to Date when copies match; keep the last successful sync time in the hover tooltip using relative dates and 12-hour AM/PM time. Retain rotating icons while syncing and visible keyboard focus with a generous click target.
+- Open conflict comparison automatically once per cloud revision per session, deferring around active forms and dialogs. Dismissed comparisons remain available through Sync without repeatedly reopening; new cloud revisions can prompt again. No copy is replaced without an explicit choice.
+
 ## v6.433n - 2026-10-28
 
 ### Automatic Cloud Sync

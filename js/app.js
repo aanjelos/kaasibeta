@@ -805,13 +805,27 @@ function updateHeaderShortcutButtons() {
   const dropBackupText = $("#dropBackupText"), dropRestoreText = $("#dropRestoreText");
   const syncBtn = $("#syncCloudBtn"), menuIcon = $("#mobileMenuIcon");
   const mobileSyncBtn = $("#mobileSyncBtn");
+  const desktopSyncBtn = $('#headerCloudSyncBtn');
+  const syncMarkup = `<i class="fas fa-sync-alt${cloudSyncBusy ? ' fa-spin' : ''}" aria-hidden="true"></i>`;
+  const lastSynced = Number(appPreferences.getItem('lastLocalCloudSync'));
+  const syncHint = `${cloudSyncStatusText()}${lastSynced ? ` · Last synced: ${formatCloudBackupTime(new Date(lastSynced).toISOString())}` : ''} (Ctrl+S)`;
   if (mobileSyncBtn) {
     mobileSyncBtn.hidden = !isCloud;
     mobileSyncBtn.onclick = syncCloudData;
     mobileSyncBtn.disabled = cloudSyncBusy;
-    mobileSyncBtn.innerHTML = `<i class="fas fa-sync-alt${isCloud && cloudSyncBusy ? " fa-spin" : ""}" aria-hidden="true"></i>`;
+    mobileSyncBtn.innerHTML = `<span id="mobileSyncStatus" class="dashboard-sync-status" role="status" aria-live="polite"></span>${syncMarkup}`;
     mobileSyncBtn.setAttribute("aria-busy", String(isCloud && cloudSyncBusy));
     mobileSyncBtn.setAttribute("aria-label", cloudSyncBusy ? "Syncing…" : "Sync");
+    mobileSyncBtn.title = syncHint;
+  }
+  if (desktopSyncBtn) {
+    desktopSyncBtn.hidden = !isCloud;
+    desktopSyncBtn.disabled = cloudSyncBusy;
+    desktopSyncBtn.onclick = syncCloudData;
+    desktopSyncBtn.innerHTML = `<span id="desktopSyncStatus" class="dashboard-sync-status" role="status" aria-live="polite"></span>${syncMarkup}`;
+    desktopSyncBtn.setAttribute('aria-busy',String(cloudSyncBusy));
+    desktopSyncBtn.setAttribute('aria-label',cloudSyncBusy ? 'Syncing…' : cloudSyncStatusText());
+    desktopSyncBtn.title = syncHint;
   }
   if (dropBackupBtn?.parentElement) {
     dropBackupBtn.parentElement.hidden = isCloud;
@@ -830,10 +844,12 @@ function updateHeaderShortcutButtons() {
     synced: "Sync — already synced",
     unknown: "Sync — check cloud status"
   };
-  for (const element of [backupBtn, restoreBtn, dropBackupBtn, dropRestoreBtn, syncBtn, menuIcon, mobileSyncBtn]) {
+  for (const element of [backupBtn, restoreBtn, dropBackupBtn, dropRestoreBtn, syncBtn, menuIcon, mobileSyncBtn, desktopSyncBtn]) {
     element?.classList.remove("pulse-orange", "pulse-green", "pulse-sync-conflict");
   }
   restoreBtn.hidden = isCloud;
+  backupBtn.hidden = isCloud;
+  backupBtn.classList.toggle('hidden',isCloud);
   restoreBtn.classList.toggle("hidden", isCloud);
   if (dropRestoreBtn?.parentElement) { dropRestoreBtn.parentElement.hidden = isCloud; dropRestoreBtn.parentElement.classList.toggle("hidden", isCloud); }
   backupBtn.innerHTML = isCloud ? `<i class="fas fa-sync-alt fa-lg${cloudSyncBusy ? " fa-spin" : ""}" aria-hidden="true"></i>` : '<i class="fas fa-floppy-disk fa-lg"></i>';
@@ -852,7 +868,7 @@ function updateHeaderShortcutButtons() {
     if (!cloudSyncBusy) {
       const pulse = status === "local_newer" ? "pulse-orange" : status === "cloud_newer" ? "pulse-green"
         : status === "conflict" || status === "review" ? "pulse-sync-conflict" : null;
-      if (pulse) for (const element of [backupBtn, mobileSyncBtn]) element?.classList.add(pulse);
+      if (pulse) for (const element of [backupBtn, mobileSyncBtn, desktopSyncBtn]) element?.classList.add(pulse);
     }
   } else {
     backupBtn.disabled = false;

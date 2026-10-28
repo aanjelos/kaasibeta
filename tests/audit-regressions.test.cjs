@@ -1106,7 +1106,7 @@ test('offline edits survive and reconnection uploads without a refresh',async()=
   await r.timers.at(-1)();assert.equal(cloud.row.data.accounts[0].balance,800);
 });
 
-test('automatic both-changed and missing-baseline cases never overwrite or open review',async()=>{
+test('automatic both-changed and missing-baseline cases prompt once without overwriting',async()=>{
   for(const baseline of [true,false]) {
     const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
     const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});
@@ -1115,8 +1115,10 @@ test('automatic both-changed and missing-baseline cases never overwrite or open 
     cloud.row.data.accounts[0].balance=700;cloud.row.updated_at='2026-10-22T00:00:00Z';
     await r.context.runAutomaticCloudSync();
     assert.equal(r.run('state.accounts[0].balance'),800);assert.equal(cloud.row.data.accounts[0].balance,700);
-    assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);assert.notEqual(r.element('#cloudSyncModal').style.display,'block');
+    assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);assert.equal(r.element('#cloudSyncModal').style.display,'block');
     assert.equal(r.context.cloudSyncStatusText(),'Review Changes');
+    r.element('#cloudSyncModal').style.display='none';
+    await r.context.runAutomaticCloudSync();assert.equal(r.element('#cloudSyncModal').style.display,'none');
     await r.context.syncCloudData();assert.equal(r.element('#cloudSyncModal').style.display,'block');
   }
 });
@@ -1134,6 +1136,26 @@ test('automatic downloads defer for drafts, open modals, hidden tabs and input d
     r.element('#description').value='';r.context.document.querySelectorAll=()=>[];r.context.document.visibilityState='visible';cloud.beforeRead=null;
     await r.context.runAutomaticCloudSync();assert.equal(r.run('state.accounts[0].balance'),700);
   }
+});
+
+test('automatic conflict review waits for drafts, then can prompt again for a new cloud revision',async()=>{
+  const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();enableAutomaticSync(r);
+  await r.run('state.accounts[0].balance=800;saveData();');
+  cloud.row.data.accounts[0].balance=700;cloud.row.updated_at='2026-10-22T00:00:00Z';
+  r.element('#description').value='Still typing';
+  await r.context.runAutomaticCloudSync();assert.notEqual(r.element('#cloudSyncModal').style.display,'block');
+  r.element('#description').value='';await r.context.runAutomaticCloudSync();assert.equal(r.element('#cloudSyncModal').style.display,'block');
+  r.element('#cloudSyncModal').style.display='none';await r.context.runAutomaticCloudSync();assert.equal(r.element('#cloudSyncModal').style.display,'none');
+  cloud.row.updated_at='2026-10-23T00:00:00Z';await r.context.runAutomaticCloudSync();assert.equal(r.element('#cloudSyncModal').style.display,'block');
+});
+
+test('unchanged copies show Up to Date even if the last successful sync was yesterday',async()=>{
+  const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();enableAutomaticSync(r);
+  r.storage.set('lastLocalCloudSync',String(Date.now()-86400000));
+  await r.context.runAutomaticCloudSync();assert.equal(r.context.cloudSyncStatusText(),'Up to Date');
+  r.context.navigator.onLine=false;assert.match(r.context.cloudSyncStatusText(),/Offline/);
 });
 
 test('automatic failure keeps saved edits, backs off and successfully retries',async()=>{

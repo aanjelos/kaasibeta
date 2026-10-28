@@ -2576,7 +2576,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
 }
 .dashboard-sync-status {
   align-self: center;
-  margin-right: 10px;
+  margin-right: 0;
   color: var(--text-secondary, #a3a3a3);
   font-size: 12px;
   line-height: 1.4;
@@ -2584,6 +2584,19 @@ footer a[href^="https://kaasi.com.lk"]:hover
   text-align: right;
   overflow-wrap: normal;
 }
+.dashboard-cloud-sync {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  min-height: 44px; padding: 4px 10px; margin-right: 10px;
+  border: 0; background: transparent; box-shadow: none;
+  color: var(--text-secondary, #a3a3a3); font: inherit; cursor: pointer;
+}
+.dashboard-cloud-sync[hidden] { display: none; }
+.dashboard-cloud-sync > i { font-size: 13px; flex-shrink: 0; }
+.dashboard-cloud-sync:hover { color: var(--text-primary); }
+.dashboard-cloud-sync:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 1px; border-radius: 5px; }
+.dashboard-cloud-sync:disabled { cursor: wait; }
+#mobileSyncBtn.dashboard-cloud-sync { width: auto; height: auto; min-height: 44px; padding: 4px; margin-right: 0; gap: 6px; font-size: 12px; }
+#mobileSyncBtn .dashboard-sync-status { max-width: 90px; text-align: left; }
 @media (max-width: 760px) {
   #mobileSyncStatus { max-width: 88px; margin-right: 0; font-size: 11px; }
 }

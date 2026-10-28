@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.433n" />
+    <meta name="application-version" content="v6.434n" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -51,9 +51,9 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v6.433n" />
-    <link rel="stylesheet" href="settings-workspace.css?v=v6.433n" />
-    <link rel="stylesheet" href="tailwind.css?v=v6.433n" />
+    <link rel="stylesheet" href="style.css?v=v6.434n" />
+    <link rel="stylesheet" href="settings-workspace.css?v=v6.434n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.434n" />
 
     <script
       async
@@ -201,6 +201,7 @@
             </a>
           </div>
           <div class="hidden md:flex items-stretch">
+            <button id="headerCloudSyncBtn" class="dashboard-cloud-sync" type="button" hidden aria-label="Sync" aria-keyshortcuts="Control+S"><span id="desktopSyncStatus" class="dashboard-sync-status" role="status" aria-live="polite"></span><i class="fas fa-sync-alt" aria-hidden="true"></i></button>
             <button
               id="monthlyViewBtn"
               data-analytics="open_monthly_view"
@@ -212,7 +213,6 @@
             </button>
 
             <!-- UPDATED HEADER SHORTCUT BUTTONS -->
-            <span id="desktopSyncStatus" class="dashboard-sync-status" role="status" aria-live="polite" hidden></span>
             <button
               id="headerBackupBtn"
               data-analytics="export_backup"
@@ -250,8 +250,7 @@
 
           <!-- Mobile Dropdown Toggle Button -->
           <div class="md:hidden flex items-center ml-auto relative z-40">
-             <span id="mobileSyncStatus" class="dashboard-sync-status" role="status" aria-live="polite" hidden></span>
-             <button id="mobileSyncBtn" class="mobile-dashboard-sync" hidden aria-label="Sync" type="button"><i class="fas fa-sync-alt"></i></button>
+             <button id="mobileSyncBtn" class="mobile-dashboard-sync dashboard-cloud-sync" hidden aria-label="Sync" type="button"><span id="mobileSyncStatus" class="dashboard-sync-status" role="status" aria-live="polite"></span><i class="fas fa-sync-alt" aria-hidden="true"></i></button>
              <button id="mobileMenuBtn" class="text-gray-300 hover:text-white transition-colors focus:outline-none w-12 h-12 flex items-center justify-center">
                <i class="fas fa-bars text-2xl transition-transform duration-300 ease-in-out" id="mobileMenuIcon"></i>
              </button>
@@ -2130,24 +2129,24 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v6.433n" defer></script>
-    <script src="js/import-validation.js?v=v6.433n" defer></script>
-    <script src="js/storage.js?v=v6.433n" defer></script>
-    <script src="js/storage-ui.js?v=v6.433n" defer></script>
-    <script src="js/animations.js?v=v6.433n" defer></script>
-    <script src="js/data-sync.js?v=v6.433n" defer></script>
-    <script src="js/cloud-sync.js?v=v6.433n" defer></script>
-    <script src="js/math-tool.js?v=v6.433n" defer></script>
-    <script src="js/settings.js?v=v6.433n" defer></script>
-    <script src="js/charts.js?v=v6.433n" defer></script>
-    <script src="js/ui.js?v=v6.433n" defer></script>
-    <script src="js/settings-workspace.js?v=v6.433n" defer></script>
-    <script src="js/features.js?v=v6.433n" defer></script>
-    <script src="js/subscription-assets.js?v=v6.433n" defer></script>
-    <script src="js/subscription-services.js?v=v6.433n" defer></script>
-    <script src="js/subscriptions.js?v=v6.433n" defer></script>
-    <script src="js/security.js?v=v6.433n" defer></script>
-    <script src="js/app.js?v=v6.433n" defer></script>
+    <script src="js/globals.js?v=v6.434n" defer></script>
+    <script src="js/import-validation.js?v=v6.434n" defer></script>
+    <script src="js/storage.js?v=v6.434n" defer></script>
+    <script src="js/storage-ui.js?v=v6.434n" defer></script>
+    <script src="js/animations.js?v=v6.434n" defer></script>
+    <script src="js/data-sync.js?v=v6.434n" defer></script>
+    <script src="js/cloud-sync.js?v=v6.434n" defer></script>
+    <script src="js/math-tool.js?v=v6.434n" defer></script>
+    <script src="js/settings.js?v=v6.434n" defer></script>
+    <script src="js/charts.js?v=v6.434n" defer></script>
+    <script src="js/ui.js?v=v6.434n" defer></script>
+    <script src="js/settings-workspace.js?v=v6.434n" defer></script>
+    <script src="js/features.js?v=v6.434n" defer></script>
+    <script src="js/subscription-assets.js?v=v6.434n" defer></script>
+    <script src="js/subscription-services.js?v=v6.434n" defer></script>
+    <script src="js/subscriptions.js?v=v6.434n" defer></script>
+    <script src="js/security.js?v=v6.434n" defer></script>
+    <script src="js/app.js?v=v6.434n" defer></script>
   </body>
 </html>
 
