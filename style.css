@@ -2436,6 +2436,30 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .subscription-row-actions > strong { font-size: .9rem; white-space: normal; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 .subscription-row-actions > div { display: flex; gap: 6px; }
 .subscription-reminder-actions { flex-direction: row; flex-wrap: wrap; align-items: center; }
+#subscriptionReminderModal .subscriptions-content { max-width: 520px; padding: 28px; }
+#subscriptionReminderList { max-height: 65vh; margin: 16px 0 0; padding-right: 4px; }
+.renewal-prompt-item { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--border-color); }
+.renewal-prompt-item:first-child { padding-top: 0; }
+.renewal-prompt-item:last-child { border-bottom: 0; padding-bottom: 0; }
+.renewal-prompt-amount { font-size: .9375rem; font-variant-numeric: tabular-nums; text-align: right; max-width: 160px; overflow-wrap: anywhere; }
+.renewal-prompt-buttons { grid-column: 1 / -1; display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; margin-top: 4px; }
+.renewal-prompt-buttons .btn { min-height: 44px; padding: 10px; font-size: .875rem; }
+.renewal-prompt-buttons .btn-secondary i { margin-right: 5px; }
+.renewal-prompt-secondary { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; margin-top: -6px; }
+.renewal-prompt-secondary button { min-height: 36px; font-size: .75rem; color: var(--text-secondary); text-align: left; }
+.renewal-prompt-secondary button:last-child { min-width: 44px; text-align: center; }
+.renewal-prompt-secondary button:hover { color: var(--accent-primary); }
+.renewal-prompt-secondary button:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; border-radius: 4px; }
+.payment-list-copy .payment-list-amount { margin-top: 6px; font-size: .875rem; font-variant-numeric: tabular-nums; }
+@media (max-width: 639px) {
+  #subscriptionReminderModal .subscriptions-content { padding: 22px; }
+  .renewal-prompt-item { grid-template-columns: 36px minmax(0, 1fr); gap: 10px; }
+  .renewal-prompt-item .subscription-icon { width: 36px; height: 36px; }
+  .renewal-prompt-amount { grid-column: 2; text-align: left; margin-top: -4px; max-width: 100%; }
+  .renewal-prompt-buttons { margin-top: 6px; }
+  .renewal-prompt-buttons .btn { font-size: .8125rem; }
+  #upcomingPaymentList .payment-list-row { align-items: center; padding: 12px 0; }
+}
 .payment-list-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 10px 12px; padding: 16px 0; border-bottom: 1px solid var(--border-color); }
 .payment-list-row:last-child { border-bottom: 0; }
 .payment-list-copy { min-width: 0; }

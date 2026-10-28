@@ -2,6 +2,14 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.425n - 2026-10-28
+
+### Subscription Payment Presentation
+
+- Reduced the renewal reminder dialog width and placed Pay and Remind Me Later directly below each subscription, with quieter dismissal and management controls.
+- Grouped each upcoming payment amount with its name and due status, keeping Pay aligned beside the details on small screens.
+- Dashboard payment notices open the matching payment form directly; the overflow link opens the full upcoming list.
+
 ## v6.424n - 2026-10-28
 
 ### Payment Reminder and Upcoming Payment Layouts
