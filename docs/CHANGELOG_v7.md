@@ -2,6 +2,17 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.436n - 2026-10-28
+
+### Audit Reliability and Privacy Fixes
+
+- Validate account edits on a draft and reject the whole submission before changing live account balances or names.
+- Require an explicit first-upload decision for an unassociated cloud identity. Track the local dataset's cloud association so switching back to a previously used account cannot silently upload another account's local changes.
+- Restrict service-worker app-shell navigation to the root and index entry routes. Standalone documents keep their own routing; optional CDN/font download failures no longer prevent a verified core worker installation.
+- Cancel timed-out cloud requests where the transport supports abort signals, while retaining fresh comparison and conditional writes to reconcile uncertain server completion.
+- Prune obsolete subscription reminder preferences, migrate current legacy choices once, and retain snoozes when a financial save fails.
+- Pin the Supabase SDK to the currently resolved 2.118.0 release and add browser integrity checks to the Supabase, Chart.js and jsPDF scripts. The existing visual PIN lock and recovery flow are unchanged.
+
 ## v6.435n - 2026-10-28
 
 ### Consistent App Refreshes

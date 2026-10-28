@@ -1075,6 +1075,42 @@ function enableAutomaticSync(r) {
   r.context.uiInitialized=true;r.context.document.visibilityState='visible';
 }
 
+test('rejected account edits never leak into memory or a later financial save',async()=>{
+  const r=runtime();r.context.renderSettingsForm=()=>{};
+  const accounts=JSON.parse(r.run('JSON.stringify(state.accounts)')),values={};
+  for(const account of accounts){values['accountName_'+account.id]=account.name;values['accountBalance_'+account.id]=String(account.balance);}
+  values.accountBalance_cash='900';values['accountName_'+accounts[1].id]='';
+  await r.context.handleManageAccountsSubmit({preventDefault(){},target:{values}});
+  assert.equal(r.run('state.accounts[0].balance'),1000);
+  await r.run('saveData()');assert.equal(JSON.parse(r.storage.get('KaasiData')).accounts[0].balance,1000);
+});
+
+test('a different empty cloud identity requires explicit association before automatic upload',async()=>{
+  const r=runtime();r.run('supabaseUser={id:"previous-user"}');
+  await r.context.recordCloudSync('previous-user',JSON.parse(r.storage.get('KaasiData')),'2026-10-21T00:00:00Z',false);
+  const cloud=syncCloud(r,null);enableAutomaticSync(r);
+  await r.context.runAutomaticCloudSync();assert.equal(cloud.calls.filter(c=>c.type==='insert').length,0);assert.equal(typeof cloud.confirm,'function');
+  await cloud.confirm();assert.equal(cloud.row.data.accounts[0].balance,1000);assert.equal(r.storage.get('kaasi_cloud_data_owner'),'sync-user');
+  cloud.calls.length=0;await r.context.runAutomaticCloudSync();assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);
+});
+
+test('returning to an earlier account cannot silently upload another account\'s local changes',async()=>{
+  const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();enableAutomaticSync(r);
+  r.storage.set('kaasi_cloud_data_owner','different-user');await r.run('state.accounts[0].balance=800;saveData();');
+  await r.context.runAutomaticCloudSync();assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);assert.equal(r.element('#cloudSyncModal').style.display,'block');
+});
+
+test('timed-out requests abort the supported transport and late success is reconciled without duplicate upload',async()=>{
+  const r=runtime();r.context.AbortController=AbortController;let signal;
+  const pending=r.context.cloudSyncRequest({abortSignal(value){signal=value;return this;},maybeSingle:()=>new Promise(()=>{})});
+  const rejected=assert.rejects(pending,/timed out/);r.timers.at(-1)();await rejected;assert.equal(signal.aborted,true);
+  const original=JSON.parse(r.storage.get('KaasiData'));const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();enableAutomaticSync(r);
+  await r.run('state.accounts[0].balance=800;saveData();');
+  cloud.row.data=JSON.parse(r.storage.get('KaasiData'));cloud.row.updated_at='2026-10-22T00:00:00Z';
+  await r.context.runAutomaticCloudSync();assert.equal(r.context.currentCloudSyncStatus,'synced');assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);
+});
+
 test('automatic saved edits upload silently; unchanged polling reads metadata only',async()=>{
   const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
   const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();enableAutomaticSync(r);

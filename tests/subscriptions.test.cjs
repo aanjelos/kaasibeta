@@ -4,7 +4,7 @@ function env(){
   const elements=new Map(),preferences=new Map();const el=id=>{if(!elements.has(id))elements.set(id,{style:{},attributes:{},setAttribute(k,v){this.attributes[k]=String(v);},removeAttribute(k){delete this.attributes[k];},hidden:true,innerHTML:'',value:'',getClientRects:()=>[{}],querySelector:()=>null,querySelectorAll:()=>[]});return elements.get(id);};
   let timer;const c={console,crypto:webcrypto,TextEncoder,document:{getElementById:el,querySelector:selector=>el(selector),querySelectorAll:()=>[],addEventListener(){},visibilityState:'visible'},addEventListener(){},setTimeout:action=>{timer=action;},clearTimeout(){},
     supabase:{createClient:()=>null},isAppLocked:()=>false,storageOperationPending:false,KaasiStorage:{mode:'indexeddb'},renderDashboard(){},showNotification(){},getCurrentDateString:()=> '2026-10-24',
-    appPreferences:{getItem:k=>preferences.get(k),setItem:(k,v)=>preferences.set(k,v),removeItem:k=>preferences.delete(k),flush:async()=>{}},getComputedStyle:()=>({display:'none'}),openModalHelper:id=>{el(id).style.display='block';},
+    appPreferences:{keys:()=>[...preferences.keys()],getItem:k=>preferences.get(k),setItem:(k,v)=>preferences.set(k,v),removeItem:k=>preferences.delete(k),flush:async()=>{}},getComputedStyle:()=>({display:'none'}),openModalHelper:id=>{el(id).style.display='block';},
     closeModal:id=>{el(id).style.display='none';}};
   c.window=c;vm.createContext(c);
   for(const file of ['globals','import-validation','math-tool','features','subscription-assets','subscription-services','subscriptions'])vm.runInContext(fs.readFileSync(path.join(root,'js',file+'.js'),'utf8'),c);
@@ -18,6 +18,15 @@ function env(){
 }
 const definition=overrides=>({name:'Netflix',amount:'100',method:'bank',account:'cash',category:'Other',frequency:'monthly',nextDueDate:'2026-10-24',serviceId:'netflix',icon:'letter',...overrides});
 const payment=overrides=>({amount:'100',date:'2026-10-24',account:'cash',category:'Other',...overrides});
+test('handled and deleted reminders are pruned while failed payments retain their snooze',async()=>{
+  const e=env(),id=await e.api.saveDefinition(definition()),key='kaasi_subscription_reminder_'+e.api.occurrenceId(id,'2026-10-24');
+  await e.api.resolve(id,'2026-10-24','snooze');assert.ok(e.preferences.has(key));
+  await e.api.record(id,'2026-10-24',payment());assert.equal(e.preferences.has(key),false);
+  await e.api.resolve(id,'2026-11-24','dismiss');await e.api.deleteDefinition(id,JSON.stringify(e.saved().subscriptions[0]));
+  assert.equal([...e.preferences.keys()].filter(key=>key.startsWith('kaasi_subscription_reminder_')).length,0);
+  const f=env(),fid=await f.api.saveDefinition(definition());await f.api.resolve(fid,'2026-10-24','snooze');const before=[...f.preferences];f.fail();
+  await assert.rejects(f.api.record(fid,'2026-10-24',payment()));assert.deepEqual([...f.preferences],before);
+});
 test('recurrence preserves monthly/quarterly/leap-year anchors instead of drifting',()=>{
   const {api}=env();
   assert.equal(api.nextDate({frequency:'monthly',nextDueDate:'2026-01-31',anchorDay:31}),'2026-02-28');

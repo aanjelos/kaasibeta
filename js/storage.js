@@ -378,6 +378,7 @@ const KaasiStorage = (() => {
     stale = false;
   }
   const prefs = {
+    keys() { return [...preferences.keys()]; },
     getItem(key) { return preferences.get(key) ?? null; },
     setItem(key, value) {
       const entry = String(value); preferences.set(key, entry);

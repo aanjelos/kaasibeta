@@ -2,6 +2,7 @@
 const Subscriptions = (() => {
   let busy=false, filter='active', search='', reminderTimer;
   const sessionReminderTokens=new Set();
+  const remindersToClear=new Set();
   const list=()=>state.subscriptions || [];
   const occurrences=()=>state.subscriptionOccurrences || [];
   const dateObject=value=>new Date(`${value}T00:00:00Z`);
@@ -39,12 +40,25 @@ const Subscriptions = (() => {
   const find=id=>list().find(row=>row.id===id);
   const fingerprint=row=>JSON.stringify(row);
   const reminderKey=(id,due)=>`kaasi_subscription_reminder_${occurrenceId(id,due)}`;
+  function pruneReminders() {
+    let migrated=[];
+    try { const saved=JSON.parse(appPreferences.getItem('kaasi_reminder_migrated_tokens') || '[]'); if(Array.isArray(saved))migrated=saved.filter(item=>typeof item==='string'); } catch (_) { /* Ignore invalid device-only metadata. */ }
+    const current = new Set(list().map(sub=>reminderKey(sub.id,sub.nextDueDate)));
+    // Remember only still-current legacy rows; these prevent stale snapshots reviving cleared snoozes.
+    const tokens = occurrences().filter(row=>row.status==='snoozed' && current.has(reminderKey(row.subscriptionId,row.dueDate))).map(row=>row.id);
+    for (const row of occurrences()) {
+      const key=reminderKey(row.subscriptionId,row.dueDate);
+      if(row.status==='snoozed' && current.has(key) && !migrated.includes(row.id) && appPreferences.getItem(key)==null) appPreferences.setItem(key,JSON.stringify(row));
+    }
+    for (const key of appPreferences.keys?.() || []) {
+      if(key.startsWith('kaasi_subscription_reminder_') && (!current.has(key) || appPreferences.getItem(key)==='null')) appPreferences.removeItem(key);
+    }
+    if(JSON.stringify(migrated)!==JSON.stringify(tokens))appPreferences.setItem('kaasi_reminder_migrated_tokens',JSON.stringify(tokens));
+  }
   function occurrence(id,due) {
+    pruneReminders();
     const key=reminderKey(id,due),saved=appPreferences.getItem(key);
     if(saved!==null && saved!==undefined){try{return JSON.parse(saved);}catch(_){return null;}}
-    // Retain this device's pre-update reminder choice. Imported reminders are stripped.
-    const prior=occurrences().find(row=>row.id===occurrenceId(id,due)&&row.status==='snoozed');
-    if(prior){appPreferences.setItem(key,JSON.stringify(prior));return prior;}
     return null;
   }
   const daysUntil=due=>Math.round((dateObject(due)-dateObject(getCurrentDateString()))/86400000);
@@ -65,13 +79,13 @@ const Subscriptions = (() => {
   }
   async function change(action) {
     assertOpen();busy=true;
-    try {action();await saveData();}
-    finally {busy=false;}
+    try {action();await saveData();for(const key of remindersToClear)appPreferences.removeItem(key);}
+    finally {remindersToClear.clear();busy=false;}
     renderDashboard();render();
   }
   function clearSnooze(id,due) {
-    // A null marker prevents an old local snapshot from reviving this reminder.
-    appPreferences.setItem(reminderKey(id,due),'null');
+    // Do not clear a device reminder until the financial operation commits successfully.
+    remindersToClear.add(reminderKey(id,due));
     if(state.subscriptionOccurrences)state.subscriptionOccurrences=occurrences().filter(row=>row.id!==occurrenceId(id,due)||row.status!=='snoozed');
   }
   async function saveDefinition(values,id,expected) {
@@ -182,6 +196,7 @@ const Subscriptions = (() => {
     bar.innerHTML=items.slice(0,3).map(item=>`<button type="button" class="upcoming-notice-item"  ${item.kind==='debt'?`data-record-action="payDebt" data-record-id="${escapeHTML(item.id)}"`:`data-sub-action="paid" data-sub-id="${escapeHTML(item.id)}"`}>${item.sub?SubscriptionServices.icon(item.sub):'<span class="subscription-icon"><i class="fas fa-hand-holding-usd" aria-hidden="true"></i></span>'}<span class="upcoming-notice-copy"><strong>${escapeHTML(item.name)}</strong><small class="${daysUntil(item.due)<0?'text-expense':''}">${item.kind==='debt'?'Debt · ':''}${escapeHTML(dueLabel(item.due))}</small></span><span class="upcoming-notice-amount">${formatCurrency(item.amount)}</span><i class="fas fa-chevron-right upcoming-notice-chevron" aria-hidden="true"></i></button>`).join('')+(items.length>3?`<button type="button" class="upcoming-notice-more" data-sub-action="upcoming">and ${items.length-3} more…</button>`:'');
   }
   function render() {
+    pruneReminders();
     renderNotice();
     renderDashboardEntry();
     if(document.getElementById('upcomingPaymentsModal')?.style.display==='block')renderUpcoming();

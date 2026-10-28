@@ -93,9 +93,11 @@ async function readCloudSyncRow(userId, full = false) {
 }
 async function cloudSyncRequest(query) {
   let timer;
+  const controller = typeof AbortController === 'function' ? new AbortController() : null;
+  if (controller && typeof query.abortSignal === 'function') query = query.abortSignal(controller.signal);
   try {
     return await Promise.race([query.maybeSingle(), new Promise((_, reject) => {
-      timer = setTimeout(() => reject(new Error('The cloud request timed out. Your local data is saved; Sync will retry.')), 20000);
+      timer = setTimeout(() => { reject(new Error('The cloud request timed out. Your local data is saved; Sync will retry.')); controller?.abort(); }, 20000);
     })]);
   } finally { clearTimeout(timer); }
 }
@@ -123,6 +125,7 @@ async function recordCloudSync(userId, snapshot, updatedAt, uploaded) {
   const hash = await KaasiStorage.digest(portableKaasiData(snapshot));
   cloudSyncAssertUser(userId);
   appPreferences.setItem(cloudSyncBaselineKey(userId), JSON.stringify({ userId, hash, updatedAt, portable: true }));
+  appPreferences.setItem('kaasi_cloud_data_owner', userId);
   // Keep legacy backup-reminder metadata usable, but never trust its unscoped hash as a sync baseline.
   appPreferences.setItem("lastSyncedCloudUpdatedAt", updatedAt);
   appPreferences.setItem("kaasi_synced_state_hash", generateDataHash(JSON.stringify(snapshot)));
@@ -211,8 +214,24 @@ async function syncCloudData(options = {}) {
     const context = { userId, revision, local, hash, automatic, activity, updatedAt: remote?.updated_at ?? null };
     await assertCloudSyncLocal(context);
     cloudSyncRemote = { userId, exists: !!remote, updatedAt: context.updatedAt };
-    const direction = cloudSyncDirection(hash, baseline, cloudSyncRemote);
+    let direction = cloudSyncDirection(hash, baseline, cloudSyncRemote);
+    const owner = appPreferences.getItem('kaasi_cloud_data_owner');
+    if (automatic && owner !== userId && remote) direction = 'review';
     window.currentCloudSyncStatus = direction;
+    if (automatic && !remote && (!baseline || owner !== userId)) {
+      window.currentCloudSyncStatus = 'review';
+      const key = `${userId}:initial-upload`;
+      if (!automaticCloudReviewsSeen.has(key) && cloudSyncDownloadSafe(context)) {
+        automaticCloudReviewsSeen.add(key);
+        showConfirmationModal('Start Cloud Sync?', `The cloud account <strong>${escapeHTML(supabaseUser.email || 'currently signed in')}</strong> has no saved copy. Upload the data currently on this device and enable automatic sync for this account?`, 'Upload This Device', 'Not Now', async () => {
+          if (cloudSyncBusy) return true;
+          setCloudSyncBusy(true);
+          try { await uploadCloudSync({...context,automatic:false}); }
+          finally { setCloudSyncBusy(false); }
+        });
+      }
+      return;
+    }
     if (direction === "synced") { if (!automatic) showNotification("Already synced.", "success"); return; }
     if (direction === "local_newer") { await uploadCloudSync(context); return; }
     // Prompt once per cloud revision, after the active form/dialog is finished.

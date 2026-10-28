@@ -828,8 +828,9 @@ async function handleManageAccountsSubmit(event) {
   const formData = new FormData(event.target);
   let changesMade = false;
   let errors = [];
+  const draftAccounts = state.accounts.map(account => ({...account}));
 
-  state.accounts.forEach((acc) => {
+  draftAccounts.forEach((acc) => {
     const newNameInput = formData.get(`accountName_${acc.id}`);
     const newBalanceInput = formData.get(`accountBalance_${acc.id}`);
 
@@ -890,6 +891,8 @@ async function handleManageAccountsSubmit(event) {
     }
   });
 
+  const names = draftAccounts.map(account => account.name.toLowerCase());
+  if (new Set(names).size !== names.length) errors.push('Account names must be unique.');
   if (errors.length > 0) {
     errors.forEach((err) => showNotification(err, "error", 6000));
     renderSettingsForm();
@@ -897,6 +900,7 @@ async function handleManageAccountsSubmit(event) {
   }
 
   if (changesMade) {
+    draftAccounts.forEach(draft => Object.assign(state.accounts.find(account => account.id === draft.id), draft));
     if (state.settings && !state.settings.initialSetupDone) {
       state.settings.initialSetupDone = true;
     }

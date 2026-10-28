@@ -1,4 +1,4 @@
-const BUILD = "v6.435n";
+const BUILD = "v6.436n";
 const CACHE_NAME = `kaasi-cache-${BUILD}`;
 const NAV_CACHE = 'kaasi-shell-navigation';
 const pendingShells = new Map();
@@ -76,7 +76,7 @@ const STATIC_ASSETS = [
   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-regular-400.woff2",
   "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js",
   "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
-  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"
 ];
 
 // Install Event: Cache initial static assets
@@ -86,7 +86,8 @@ self.addEventListener("install", (event) => {
       const manifest = await (await fresh(new URL('./app-shell.json',self.registration.scope).href)).json();
       if (manifest.version !== BUILD) throw new Error('App release is still publishing');
       await verifiedShell(manifest);
-      return cache.addAll(STATIC_ASSETS.filter(file => file !== './' && !Object.hasOwn(manifest.files,file)));
+      // Optional fonts/CDNs must not prevent a verified core release installing.
+      await Promise.allSettled(STATIC_ASSETS.filter(file => file !== './' && !Object.hasOwn(manifest.files,file)).map(file => cache.addAll([file])));
     })
   );
   // Existing windows finish their work before an update takes control.
@@ -143,7 +144,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
   if (url.origin === self.location.origin && event.request.mode === "navigate") {
-    event.respondWith(navigationShell());
+    const scope = new URL(self.registration.scope);
+    if (url.pathname === scope.pathname || url.pathname === new URL('./index.html',scope).pathname) event.respondWith(navigationShell());
     return;
   }
   if (url.origin === self.location.origin && (event.request.destination === "script" || event.request.destination === "style")) {

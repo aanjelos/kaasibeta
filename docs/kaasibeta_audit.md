@@ -1,5 +1,7 @@
 # Kaasibeta Codebase Audit Report
 
+> Historical report. These findings predate the current IndexedDB, sync and Settings implementations and must not be treated as an outstanding-issues list. Consult the v7 development changelog and current tests before acting on them.
+
 ## 1. Architecture & Design
 **Finding:** Monolithic JavaScript Files (`app.js` and `data-sync.js`)
 - **Severity:** Low (Given context)
