@@ -384,7 +384,7 @@ test('cloud backup keeps the existing JSON object shape and recognizes unchanged
   let payload;
   e.context.client={from:()=>{let write=false;return {insert(value){payload=value;write=true;return this;},select(){return this;},eq(){return this;},maybeSingle:async()=>({data:write?{updated_at:'2026-10-21T01:00:00Z'}:null,error:null})};}};e.run('supabaseClient=client;');
   await e.context.executeBackupToSupabase();
-  assert.equal(typeof payload.data,'object');assert.deepEqual(copy(payload.data),original);
+  assert.equal(typeof payload.data,'object');assert.deepEqual(copy(payload.data),copy(e.context.portableKaasiData(original)));
   assert.equal(e.context.currentCloudSyncStatus,'synced');
   assert.ok(!notices.some(([message])=>message.includes('still need backing up')));
   assert.equal(e.run('appPreferences.getItem("kaasi_synced_state_hash")'),e.context.generateDataHash(e.run('lastPersistedStateJson')));

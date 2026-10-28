@@ -14,7 +14,7 @@ function env(){
   c.renderDashboard=()=>{};c.isAppLocked=()=>false;c.showNotification=()=>{};
   let saved=run('JSON.stringify(state)'),fail=false;
   c.saveData=async()=>{if(fail){run('state=JSON.parse('+JSON.stringify(saved)+')');throw new Error('Failed save');}saved=run('JSON.stringify(state)');};
-  return {c,run,el,api:run('Subscriptions'),tick:async()=>{await timer();},fail:()=>{fail=true;},saved:()=>JSON.parse(saved)};
+  return {c,run,el,preferences,api:run('Subscriptions'),tick:async()=>{await timer();},fail:()=>{fail=true;},saved:()=>JSON.parse(saved)};
 }
 const definition=overrides=>({name:'Netflix',amount:'100',method:'bank',account:'cash',category:'Other',frequency:'monthly',nextDueDate:'2026-10-24',serviceId:'netflix',icon:'letter',...overrides});
 const payment=overrides=>({amount:'100',date:'2026-10-24',account:'cash',category:'Other',...overrides});
@@ -50,14 +50,15 @@ test('CC renewals create uncategorized purchases without deducting bank money or
 test('paying a snoozed renewal clears only its reminder and creates an independent expense',async()=>{
   const e=env(),id=await e.api.saveDefinition(definition());
   await e.api.resolve(id,'2026-10-24','snooze');await e.api.record(id,'2026-10-24',payment());
-  assert.equal(e.saved().transactions.length,1);assert.equal(e.saved().accounts[0].balance,900);assert.equal(e.saved().subscriptionOccurrences.length,0);
+  assert.equal(e.saved().transactions.length,1);assert.equal(e.saved().accounts[0].balance,900);assert.equal((e.saved().subscriptionOccurrences||[]).length,0);
   assert.equal(e.saved().transactions[0].subscriptionId,undefined);
 });
 test('snoozing leaves due date intact; skipping advances without any financial record',async()=>{
   const e=env(),id=await e.api.saveDefinition(definition());const before=Date.now();
   await e.api.resolve(id,'2026-10-24','snooze');
   assert.equal(e.saved().subscriptions[0].nextDueDate,'2026-10-24');
-  assert.ok(e.saved().subscriptionOccurrences[0].snoozedUntil>=before+6*3600000);
+  assert.ok(JSON.parse(e.preferences.get('kaasi_subscription_reminder_'+e.api.occurrenceId(id,'2026-10-24'))).snoozedUntil>=before+6*3600000);
+  assert.equal(e.saved().subscriptionOccurrences,undefined);
   await e.api.resolve(id,'2026-10-24','skip');assert.equal(e.saved().subscriptions[0].nextDueDate,'2026-11-24');
   assert.equal(e.saved().transactions.length,0);assert.equal(e.saved().accounts[0].balance,1000);
 });
@@ -179,7 +180,7 @@ test('due reminders are grouped, not repeated on focus, and respect snooze, lock
   e.api.scheduleReminder();await e.tick();assert.match(e.el('subscriptionReminderList').innerHTML,/Netflix/);assert.match(e.el('subscriptionReminderList').innerHTML,/Overdue/);
   e.el('subscriptionReminderModal').style.display='none';e.api.scheduleReminder();await e.tick();assert.equal(e.el('subscriptionReminderModal').style.display,'none');
   await e.api.resolve(id,'2026-10-24','snooze');e.api.scheduleReminder();await e.tick();assert.equal(e.el('subscriptionReminderModal').style.display,'none');
-  const snoozeUntil=e.saved().subscriptionOccurrences[0].snoozedUntil;e.c.Date=class extends Date{static now(){return snoozeUntil+1;}};
+  const snoozeUntil=JSON.parse(e.preferences.get('kaasi_subscription_reminder_'+e.api.occurrenceId(id,'2026-10-24'))).snoozedUntil;e.c.Date=class extends Date{static now(){return snoozeUntil+1;}};
   e.api.scheduleReminder();await e.tick();assert.equal(e.el('subscriptionReminderModal').style.display,'block');assert.match(e.el('subscriptionReminderList').innerHTML,/Netflix/);
   e.el('subscriptionReminderModal').style.display='none';e.c.isAppLocked=()=>true;e.api.scheduleReminder();await e.tick();assert.equal(e.el('subscriptionReminderModal').style.display,'none');
   e.c.isAppLocked=()=>false;e.c.document.querySelectorAll=()=>[{}];e.c.getComputedStyle=()=>({display:'block'});e.api.scheduleReminder();await e.tick();assert.equal(e.el('subscriptionReminderModal').style.display,'none');
@@ -191,15 +192,35 @@ test('past payment dates advance one period and remain overdue without creating 
   await e.api.saveDefinition(definition({frequency:'daily',nextDueDate:'2026-10-23'}));assert.equal(e.saved().subscriptions[1].nextDueDate,'2026-10-24');
   const backup=e.c.prepareImportedData(e.saved());assert.equal(backup.subscriptions[1].frequency,'daily');
 });
-test('dismissed reminders survive backup and only suppress the current renewal',async()=>{
+test('reminder-only actions do not save financial data or change portable hashes',async()=>{
+  const e=env(),id=await e.api.saveDefinition(definition()),before=JSON.stringify(e.saved());
+  e.fail(); // Device reminders must not call the financial save path.
+  await e.api.resolve(id,'2026-10-24','snooze');
+  await e.api.resolve(id,'2026-10-24','dismiss');
+  assert.equal(JSON.stringify(e.saved()),before);
+});
+
+test('portable copies strip old reminders and unused dismissal fields without mutating financial or unknown records',async()=>{
+  const e=env(),id=await e.api.saveDefinition(definition());
+  const value=e.saved();
+  value.subscriptionOccurrences=[{id:'old',status:'snoozed',snoozedUntil:123},{id:'payment',status:'paid',futureField:true,snoozedUntil:456,reminderDismissed:true}];
+  value.futureData={keep:true};value.settings.lastDismissedBudgetTipMonth='2026-10';
+  const clean=e.c.portableKaasiData(value);
+  assert.equal(clean.subscriptionOccurrences.length,1);assert.equal(clean.subscriptionOccurrences[0].futureField,true);
+  assert.equal(clean.subscriptionOccurrences[0].snoozedUntil,undefined);assert.equal(clean.subscriptionOccurrences[0].reminderDismissed,undefined);
+  assert.equal(clean.settings.lastDismissedBudgetTipMonth,undefined);assert.equal(clean.futureData.keep,true);
+  assert.equal(value.subscriptionOccurrences.length,2);assert.equal(value.settings.lastDismissedBudgetTipMonth,'2026-10');
+});
+
+test('dismissed reminders stay on this device and only suppress the current renewal',async()=>{
   const e=env(),id=await e.api.saveDefinition(definition());
   await e.api.resolve(id,'2026-10-24','dismiss');
-  assert.equal(e.saved().subscriptionOccurrences[0].reminderDismissed,true);
-  assert.equal(e.c.prepareImportedData(e.saved()).subscriptionOccurrences[0].reminderDismissed,true);
+  assert.equal(JSON.parse(e.preferences.get('kaasi_subscription_reminder_'+e.api.occurrenceId(id,'2026-10-24'))).reminderDismissed,true);
+  assert.equal(e.saved().subscriptionOccurrences,undefined);
   e.api.scheduleReminder();await e.tick();assert.notEqual(e.el('subscriptionReminderModal').style.display,'block');
   assert.ok(e.api.upcoming().some(row=>row.id===id));
   await e.api.record(id,'2026-10-24',{alreadyRecorded:true});
-  assert.equal(e.saved().subscriptionOccurrences.length,0);
+  assert.equal((e.saved().subscriptionOccurrences||[]).length,0);
   assert.equal(e.saved().subscriptions[0].nextDueDate,'2026-11-24');
 });
 test('overdue payments optionally reset the next renewal to the payment date',async()=>{
@@ -341,8 +362,8 @@ test('deleting a schedule retains independent expenses, CC purchases and balance
   await e.api.resolve(id,e.saved().subscriptions[0].nextDueDate,'snooze');
   const before=e.saved();await assert.rejects(e.api.deleteDefinition(id,'stale'),/changed/);
   await e.api.deleteDefinition(id,JSON.stringify(before.subscriptions[0]));await e.api.deleteDefinition(ccId,JSON.stringify(e.saved().subscriptions[0]));
-  assert.equal(e.saved().subscriptions.length,0);assert.deepEqual(e.saved().transactions,before.transactions);assert.deepEqual(e.saved().creditCard,before.creditCard);assert.deepEqual(e.saved().accounts,before.accounts);assert.deepEqual(e.saved().subscriptionOccurrences,[]);
-  assert.equal(e.c.prepareImportedData(e.saved()).subscriptionOccurrences.length,0);
+  assert.equal(e.saved().subscriptions.length,0);assert.deepEqual(e.saved().transactions,before.transactions);assert.deepEqual(e.saved().creditCard,before.creditCard);assert.deepEqual(e.saved().accounts,before.accounts);assert.equal((e.saved().subscriptionOccurrences||[]).length,0);
+  assert.equal((e.c.prepareImportedData(e.saved()).subscriptionOccurrences||[]).length,0);
 });
 test('subscription fields survive the existing public web import, save and JSON export path',{skip:!fs.existsSync(path.join(root,'../kaasiapp/js/globals.js'))},async()=>{
   const e=env();await e.api.saveDefinition(definition());await e.api.record(e.saved().subscriptions[0].id,'2026-10-24',payment());

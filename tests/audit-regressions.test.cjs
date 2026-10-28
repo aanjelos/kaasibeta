@@ -792,6 +792,29 @@ test('manual Sync with an unchanged baseline checks metadata only and never tran
   assert.equal(r.context.currentCloudSyncStatus,'synced');assert.ok(r.notices.some(([m])=>m==='Already synced.'));
 });
 
+test('old device reminder differences are ignored by review and sync without replacing either copy',async()=>{
+  const r=runtime();const local=JSON.parse(r.storage.get('KaasiData'));
+  const remote=JSON.parse(JSON.stringify(local));
+  remote.subscriptionOccurrences=[{id:'gym_20261011',subscriptionId:'gym',dueDate:'2026-10-11',status:'snoozed',snoozedUntil:1793206590337}];
+  remote.settings.lastDismissedBudgetTipMonth='2026-10';
+  assert.equal(r.context.cloudSyncDifferences(local,remote).length,0);
+  const cloud=syncCloud(r,{data:remote,updated_at:'2026-10-21T00:00:00Z'});
+  await r.context.syncCloudData();
+  assert.equal(r.context.currentCloudSyncStatus,'synced');
+  assert.equal(cloud.calls.filter(call=>call.type!=='read').length,0);
+});
+
+test('an unchanged older sync baseline upgrades locally and keeps metadata-only checks',async()=>{
+  const r=runtime();const local=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:local,updated_at:'2026-10-21T00:00:00Z'});
+  // KaasiStorage is a lexical global in the runtime, not a window property.
+  const hash=await r.run('KaasiStorage.digest(JSON.parse(lastPersistedStateJson))');
+  r.storage.set('kaasi_cloud_sync_baseline_sync-user',JSON.stringify({userId:'sync-user',hash,updatedAt:cloud.row.updated_at}));
+  await r.context.syncCloudData();
+  assert.equal(cloud.calls.length,1);assert.equal(cloud.calls[0].fields,'updated_at');
+  assert.equal(r.context.cloudSyncBaseline('sync-user').portable,true);
+});
+
 test('local-only changes use a conditional upload and return only metadata',async()=>{
   const r=runtime();const original=JSON.parse(r.storage.get('KaasiData'));
   const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();

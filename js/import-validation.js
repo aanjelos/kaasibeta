@@ -194,7 +194,7 @@ function prepareImportedData(input) {
 async function applyImportedData(input, expectedRevision = KaasiStorage.revision) {
   if (isAppLocked()) throw new Error("Unlock the app before importing data.");
   if (storageOperationPending) throw new Error("Wait for the current save before importing.");
-  const candidate = sanitizeAndMergeImportedData(input);
+  const candidate = portableKaasiData(sanitizeAndMergeImportedData(input));
   const previousState = JSON.parse(lastPersistedStateJson);
   const previousSyncStatus = window.currentCloudSyncStatus;
   storageOperationPending = true;

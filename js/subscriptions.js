@@ -38,7 +38,15 @@ const Subscriptions = (() => {
   const occurrenceId=(id,due)=>`${id}_${due.replace(/-/g,'')}`;
   const find=id=>list().find(row=>row.id===id);
   const fingerprint=row=>JSON.stringify(row);
-  const occurrence=(id,due)=>occurrences().find(row=>row.id===occurrenceId(id,due));
+  const reminderKey=(id,due)=>`kaasi_subscription_reminder_${occurrenceId(id,due)}`;
+  function occurrence(id,due) {
+    const key=reminderKey(id,due),saved=appPreferences.getItem(key);
+    if(saved!==null && saved!==undefined){try{return JSON.parse(saved);}catch(_){return null;}}
+    // Retain this device's pre-update reminder choice. Imported reminders are stripped.
+    const prior=occurrences().find(row=>row.id===occurrenceId(id,due)&&row.status==='snoozed');
+    if(prior){appPreferences.setItem(key,JSON.stringify(prior));return prior;}
+    return null;
+  }
   const daysUntil=due=>Math.round((dateObject(due)-dateObject(getCurrentDateString()))/86400000);
   const formatDate=due=>dateObject(due).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
   function dueLabel(due) {
@@ -61,14 +69,9 @@ const Subscriptions = (() => {
     finally {busy=false;}
     renderDashboard();render();
   }
-  function upsertOccurrence(sub,due,fields) {
-    state.subscriptionOccurrences ||= [];
-    const id=occurrenceId(sub.id,due), prior=occurrence(sub.id,due);
-    const row={id,subscriptionId:sub.id,dueDate:due,...(prior || {}),...fields};
-    if(prior) Object.assign(prior,row);else state.subscriptionOccurrences.push(row);
-    return row;
-  }
   function clearSnooze(id,due) {
+    // A null marker prevents an old local snapshot from reviving this reminder.
+    appPreferences.setItem(reminderKey(id,due),'null');
     if(state.subscriptionOccurrences)state.subscriptionOccurrences=occurrences().filter(row=>row.id!==occurrenceId(id,due)||row.status!=='snoozed');
   }
   async function saveDefinition(values,id,expected) {
@@ -142,11 +145,15 @@ const Subscriptions = (() => {
   async function resolve(id,due,action,expected) {
     const sub=assertCurrent(id,due,expected);
     if(!['snooze','dismiss','skip'].includes(action)) throw new Error('Choose a supported reminder action.');
+    if(action==='snooze'||action==='dismiss') {
+      assertOpen();
+      appPreferences.setItem(reminderKey(id,due),JSON.stringify({snoozedUntil:action==='snooze'?Date.now()+6*3600000:0,reminderDismissed:action==='dismiss'}));
+      await appPreferences.flush();
+      render();return;
+    }
     await change(()=>{
       assertCurrent(id,due,expected);
-      if(action==='snooze')upsertOccurrence(sub,due,{status:'snoozed',snoozedUntil:Date.now()+6*3600000,reminderDismissed:false});
-      else if(action==='dismiss')upsertOccurrence(sub,due,{status:'snoozed',snoozedUntil:0,reminderDismissed:true});
-      else {clearSnooze(id,due);sub.nextDueDate=nextDate(sub,due);}
+      clearSnooze(id,due);sub.nextDueDate=nextDate(sub,due);
     });
   }
   async function setStatus(id,status,expected) {

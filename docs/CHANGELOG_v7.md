@@ -2,6 +2,14 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.432n - 2026-10-28
+
+### Device-only Subscription Reminders
+
+- Store six-hour snoozes and renewal reminder dismissals in device preferences without changing financial records or marking cloud data as modified.
+- Exclude temporary reminders and the unused budget-tip dismissal setting from exported backups, cloud uploads, sync hashes and conflict comparisons. Ignore these fields in older imported backups while preserving payment history and unknown data.
+- Preserve existing local reminder choices and upgrade unchanged sync baselines without uploading the dataset.
+
 ## v6.431n - 2026-10-28
 
 ### Settings Transition Scope

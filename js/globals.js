@@ -597,11 +597,26 @@ function restoreStateSnapshot(current, saved) {
   return saved;
 }
 
+// Portable data excludes device-only prompt state; never mutate the saved source.
+function portableKaasiData(value) {
+  const copy = JSON.parse(JSON.stringify(value));
+  if (Array.isArray(copy.subscriptionOccurrences)) {
+    copy.subscriptionOccurrences = copy.subscriptionOccurrences.filter(row => row.status !== 'snoozed').map(row => {
+      delete row.snoozedUntil;
+      delete row.reminderDismissed;
+      return row;
+    });
+    if (!copy.subscriptionOccurrences.length) delete copy.subscriptionOccurrences;
+  }
+  if (copy.settings) delete copy.settings.lastDismissedBudgetTipMonth;
+  return copy;
+}
+
 function generateDataHash(str) {
   if (!str) return null;
   // Object-store reconstruction may change object-key order without changing data.
   if (typeof KaasiStorage !== "undefined" && KaasiStorage.canonical) {
-    try { str = KaasiStorage.canonical(JSON.parse(str)); } catch (_) { /* Non-JSON metadata retains its original representation. */ }
+    try { str = KaasiStorage.canonical(portableKaasiData(JSON.parse(str))); } catch (_) { /* Non-JSON metadata retains its original representation. */ }
   }
   let hash = 0;
   for (let i = 0, len = str.length; i < len; i++) {

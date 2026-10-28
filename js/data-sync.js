@@ -3,7 +3,7 @@
  * Handles data import/export, local storage persistence, and cloud synchronization (Supabase).
  */
 function downloadKaasiSnapshot(snapshot, prefix = "kaasi-backup") {
-  const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: "application/json" });
+  const blob = new Blob([JSON.stringify(portableKaasiData(snapshot), null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.download = `${prefix}-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.json`;
@@ -14,7 +14,7 @@ function downloadKaasiSnapshot(snapshot, prefix = "kaasi-backup") {
 async function exportData() {
   if (isAppLocked() || storageOperationPending) return;
   try {
-    const dataStr = JSON.stringify(await KaasiStorage.snapshot(), null, 2);
+    const dataStr = JSON.stringify(portableKaasiData(await KaasiStorage.snapshot()), null, 2);
     const dataBlob = new Blob([dataStr], {
       type: "application/json",
     });

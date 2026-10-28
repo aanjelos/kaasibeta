@@ -12,6 +12,16 @@ function cloudSyncBaseline(userId) {
     return value?.userId === userId && /^[a-f0-9]{64}$/.test(value.hash) && typeof value.updatedAt === "string" ? value : null;
   } catch (_) { return null; }
 }
+async function portableCloudBaseline(userId, snapshot) {
+  const baseline = cloudSyncBaseline(userId);
+  if (baseline && !baseline.portable && baseline.hash === await KaasiStorage.digest(snapshot)) {
+    const migrated = { ...baseline, portable: true, hash: await KaasiStorage.digest(portableKaasiData(snapshot)) };
+    if (JSON.stringify(cloudSyncBaseline(userId)) !== JSON.stringify(baseline)) return cloudSyncBaseline(userId);
+    appPreferences.setItem(cloudSyncBaselineKey(userId), JSON.stringify(migrated));
+    return migrated;
+  }
+  return baseline;
+}
 function cloudSyncDirection(localHash, baseline, remote) {
   if (!remote.exists) return "local_newer";
   if (!baseline) return "review";
@@ -39,10 +49,11 @@ async function updateLocalCloudSyncStatus() {
   const sequence = ++cloudSyncCheckSequence;
   if (!userId || !json) return;
   try {
-    const hash = await KaasiStorage.digest(JSON.parse(json));
+    const hash = await KaasiStorage.digest(portableKaasiData(JSON.parse(json)));
+    const baseline = await portableCloudBaseline(userId, JSON.parse(json));
     if (sequence !== cloudSyncCheckSequence || userId !== supabaseUser?.id || json !== lastPersistedStateJson) return;
     window.currentCloudSyncStatus = cloudSyncRemote?.userId === userId
-      ? cloudSyncDirection(hash, cloudSyncBaseline(userId), cloudSyncRemote) : "unknown";
+      ? cloudSyncDirection(hash, baseline, cloudSyncRemote) : "unknown";
     updateHeaderShortcutButtons();
   } catch (_) { window.currentCloudSyncStatus = "unknown"; updateHeaderShortcutButtons(); }
 }
@@ -78,9 +89,9 @@ async function refreshCloudSyncStatus() {
 }
 async function recordCloudSync(userId, snapshot, updatedAt, uploaded) {
   cloudSyncAssertUser(userId);
-  const hash = await KaasiStorage.digest(snapshot);
+  const hash = await KaasiStorage.digest(portableKaasiData(snapshot));
   cloudSyncAssertUser(userId);
-  appPreferences.setItem(cloudSyncBaselineKey(userId), JSON.stringify({ userId, hash, updatedAt }));
+  appPreferences.setItem(cloudSyncBaselineKey(userId), JSON.stringify({ userId, hash, updatedAt, portable: true }));
   // Keep legacy backup-reminder metadata usable, but never trust its unscoped hash as a sync baseline.
   appPreferences.setItem("lastSyncedCloudUpdatedAt", updatedAt);
   appPreferences.setItem("kaasi_synced_state_hash", generateDataHash(JSON.stringify(snapshot)));
@@ -98,7 +109,7 @@ async function assertCloudSyncLocal(context) {
     throw new Error("Local data changed. Start Sync again to compare the latest copies.");
   }
   const saved = await KaasiStorage.snapshot();
-  if (await KaasiStorage.digest(saved) !== context.hash || KaasiStorage.revision !== context.revision) {
+  if (await KaasiStorage.digest(portableKaasiData(saved)) !== context.hash || KaasiStorage.revision !== context.revision) {
     throw new Error("Local data changed in another window. Reload before syncing.");
   }
   cloudSyncAssertUser(context.userId);
@@ -151,18 +162,20 @@ async function syncCloudData() {
     const userId = supabaseUser.id;
     cloudSyncAssertUser(userId);
     const revision = KaasiStorage.revision;
-    const local = await KaasiStorage.snapshot();
+    const saved = await KaasiStorage.snapshot();
+    const baseline = await portableCloudBaseline(userId, saved);
+    const local = portableKaasiData(saved);
     const hash = await KaasiStorage.digest(local);
     const remote = await readCloudSyncRow(userId);
     const context = { userId, revision, local, hash, updatedAt: remote?.updated_at ?? null };
     await assertCloudSyncLocal(context);
     cloudSyncRemote = { userId, exists: !!remote, updatedAt: context.updatedAt };
-    const direction = cloudSyncDirection(hash, cloudSyncBaseline(userId), cloudSyncRemote);
+    const direction = cloudSyncDirection(hash, baseline, cloudSyncRemote);
     if (direction === "synced") { showNotification("Already synced.", "success"); return; }
     if (direction === "local_newer") { await uploadCloudSync(context); return; }
     const full = await readCloudSyncRow(userId, true);
     if (!full || full.updated_at !== context.updatedAt) throw new Error("The cloud copy changed. Start Sync again.");
-    context.cloud = prepareImportedData(full.data);
+    context.cloud = portableKaasiData(prepareImportedData(full.data));
     await assertCloudSyncLocal(context);
     if (KaasiStorage.canonical(local) === KaasiStorage.canonical(context.cloud)) {
       await recordCloudSync(userId, local, context.updatedAt, false);
@@ -183,6 +196,8 @@ async function syncCloudData() {
 
 /** Compare by record ID. Missing records are not classified as deletions. */
 function cloudSyncDifferences(local, cloud) {
+  local = portableKaasiData(local);
+  cloud = portableKaasiData(cloud);
   const changes = [];
   const equal = (a, b) => KaasiStorage.canonical(a) === KaasiStorage.canonical(b);
   const sensitive = key => /pin|password|answer|secret|token|recovery/i.test(key);
