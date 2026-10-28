@@ -18,7 +18,7 @@ const SettingsWorkspace = (() => {
     document.getElementById("settingsAddBudgetHost").appendChild(document.getElementById("addBudgetForm").closest(".card"));
 
     const dataPanel = document.getElementById("settingsDataManagementPanel");
-    for (const id of ["cloudBackupLoggedOut", "exportDataBtn", "storageSizeInfo", "shortcutLocal", "settingsBackupReminderFreq", "initiateDeleteBtn"]) {
+    for (const id of ["storageSizeInfo", "cloudBackupLoggedOut", "exportDataBtn", "shortcutLocal", "settingsBackupReminderFreq", "initiateDeleteBtn"]) {
       dataPanel.appendChild(document.getElementById(id).closest(".card"));
     }
     const cloud = document.getElementById("cloudBackupLoggedIn");
@@ -29,7 +29,22 @@ const SettingsWorkspace = (() => {
     identity.innerHTML = '<span class="settings-cloud-symbol"><i class="fas fa-cloud" aria-hidden="true"></i></span><div class="settings-cloud-copy"><strong>Connected to Cloud</strong></div>';
     identity.querySelector("div").appendChild(email);
     cloud.insertBefore(identity, cloud.firstChild);
-    cloud.insertBefore(document.getElementById("lastCloudBackupTime"), document.getElementById("googleLogoutBtn"));
+    identity.appendChild(document.getElementById("googleLogoutBtn"));
+    cloud.appendChild(document.getElementById("lastCloudBackupTime"));
+    const ccForm = document.getElementById('settingsCcLimitForm');
+    const ccToggle = document.getElementById('toggleCcSection').closest('.flex.items-center.justify-between');
+    ccToggle.classList.remove('border-t', 'border-gray-600', 'pt-3');
+    ccForm.before(ccToggle);
+    for (const panel of [categoryPanel, document.getElementById('settingsBudgetsPanel')]) {
+      const footer = panel.querySelector('.settings-list-footer');
+      if (footer) footer.closest('.card').prepend(footer);
+    }
+    const version = document.getElementById('appVersionSettings');
+    document.querySelector('.settings-dashboard-link').before(version);
+    const mobileVersion = document.createElement('p');
+    mobileVersion.className = 'settings-mobile-version';
+    mobileVersion.textContent = `Version: ${document.querySelector('meta[name="application-version"]').content}`;
+    document.getElementById('settingsAboutSection').appendChild(mobileVersion);
 
     document.querySelectorAll("#settingsTabContent > .settings-tab-panel > .card").forEach(card => {
       const title = card.querySelector(":scope > h3, :scope > .budget-list-heading");
@@ -47,15 +62,25 @@ const SettingsWorkspace = (() => {
       card.classList.add("settings-framed");
     });
     root.querySelectorAll(".settings-tab-panel .flex.items-center.justify-between").forEach(row => row.classList.add("settings-control-row"));
+    for (const panel of [categoryPanel, document.getElementById('settingsBudgetsPanel')]) {
+      const footer = panel.querySelector('.settings-list-footer');
+      const head = panel.querySelector('.settings-panel-head');
+      if (footer && head) {
+        head.classList.add('settings-list-header');
+        const budgetHeading = head.querySelector('.budget-list-heading');
+        if (budgetHeading) { budgetHeading.insertBefore(footer, budgetHeading.querySelector('select')); }
+        else head.appendChild(footer);
+      }
+    }
     root.dataset.presentationReady = "true";
   }
 
   function editCategory(button, open = true) {
     const row = button.closest("li");
-    const editor = row.querySelector(".settings-category-editor");
-    editor.hidden = !open;
-    row.querySelector(".settings-category-summary button").setAttribute("aria-expanded", String(open));
-    const input = editor.querySelector("input");
+    row.classList.toggle('is-editing', open);
+    const input = row.querySelector("input");
+    input.hidden = !open;
+    row.querySelector('.settings-category-save-actions').hidden = !open;
     if (open) input.focus();
     else input.value = input.dataset.originalName;
   }

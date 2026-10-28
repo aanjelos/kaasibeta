@@ -653,8 +653,9 @@ test('CC category edits only update purchase metadata and payment forms prefill 
 
 test('CC category deletion removes purchase defaults; categories remain optional on addition', async () => {
   const r=runtime();await seedCards(r);r.run('state.categories.push("Temporary");state.creditCard.transactions[0].category="Temporary";');
-  r.context.confirm=()=>true;r.context.renderCategorySettingsList=()=>{};r.context.renderCategoryBudgets=()=>{};
+  let confirmed;r.context.showConfirmationModal=(...args)=>{confirmed=args[4]();};r.context.renderCategorySettingsList=()=>{};r.context.renderCategoryBudgets=()=>{};
   await r.context.deleteCategory('Temporary');
+  await confirmed;
   assert.equal(r.run('state.creditCard.transactions[0].category'),undefined);
   const form={values:{ccAmount:'50',ccDescription:'No category',ccDate:'2026-10-23'},reset(){},querySelector(){return null;}};
   await r.context.handleCcTransactionSubmit({preventDefault(){},target:form});

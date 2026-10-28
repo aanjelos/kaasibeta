@@ -2,6 +2,15 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.426n - 2026-10-28
+
+### Settings Usability Refinements
+
+- Added inline category rename, visibility and deletion actions with an in-app deletion confirmation and existing usage checks.
+- Reorganized account, credit card, budget and backup controls; restored side-by-side mobile account fields and placed creation actions above lists.
+- Refined exclusion rules, security buttons, deletion cancellation, shortcut contrast and About typography; moved the version to the desktop sidebar.
+- Escape closes Settings instead of navigating through previously viewed sections. Confirmation amounts stay together on one line.
+
 ## v6.425n - 2026-10-28
 
 ### Subscription Payment Presentation

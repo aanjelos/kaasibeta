@@ -9,7 +9,7 @@
 .settings-sidebar > nav { min-height: 0; overflow-y: auto; flex: 1; }
 .settings-sidebar > img, .settings-sidebar > h2, .settings-sidebar > button, .settings-sidebar > p { flex-shrink: 0; }
 .settings-brand { width: 136px; height: auto; margin: 0 12px 30px; }
-.settings-sidebar > h2 { font-size: 21px; margin: 0 12px 24px; }
+.settings-sidebar > h2 { display: none; }
 #settingsTabsContainer { padding: 0; margin: 0; list-style: none; }
 .settings-nav-group { margin-bottom: 24px; }
 .settings-nav-group h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 1.4px; color: var(--text-secondary); margin: 0 12px 9px; font-weight: 500; }
@@ -130,7 +130,7 @@
 .settings-cloud-copy #userEmail { font-size: 12px; font-weight: 500; }
 #settingsModal #googleLogoutBtn { width: auto; align-self: flex-end; min-height: 40px; background: transparent; border-color: var(--border-color); }
 #settingsSubscriptionHost { padding: 22px 24px; border: 1px solid var(--border-color); border-radius: 11px; background: var(--bg-secondary); }
-#settingsModal #settingsAboutSection { margin: 0; padding: 28px; border: 1px solid var(--border-color); border-radius: 11px; background: var(--bg-secondary); text-align: left; font-size: 15px; line-height: 1.8; }
+#settingsModal #settingsAboutSection { margin: 0; padding: 24px; border: 1px solid var(--border-color); border-radius: 11px; background: var(--bg-secondary); text-align: left; font-size: 12px; line-height: 1.7; }
 #settingsAboutSection > p, #settingsAboutSection > div { margin-bottom: 16px; }
 #settingsAboutSection .max-w-lg, #settingsAboutSection .max-w-2xl { max-width: none; }
 #settingsAboutSection #personal-logo { width: 110px; max-width: 100%; height: auto; }
@@ -201,17 +201,72 @@
   #settingsSubscriptionHost .subscription-row { padding: 16px 0; }
 }
 @media (max-width: 480px) {
-  #settingsModal .settings-account-columns { display: none; }
+  #settingsModal .settings-account-columns { display: grid; }
   #manageAccountsForm > #accountManagementList { margin-top: 0; }
-  #settingsModal .account-row { grid-template-columns: 28px minmax(0, 1fr); gap: 12px; padding: 0 0 20px; margin-top: 20px; border-bottom: 1px solid var(--border-color); }
+  #settingsModal .account-row { grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1.15fr); gap: 6px; padding: 8px 0; margin-top: 4px; border-bottom: 0; }
   #settingsModal .account-row:first-child { margin-top: 0; }
   #settingsModal .account-row:last-child { border-bottom: 0; padding-bottom: 0; }
   .settings-account-name { grid-column: 2; grid-row: 1; }
-  .settings-account-balance { grid-column: 2; grid-row: 2; }
-  #settingsModal .account-row .btn-icon-hide { grid-column: 1; grid-row: 1; margin-top: 22px; align-self: start; }
-  .settings-mobile-field-label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 7px; }
-  #settingsModal .account-row input { font-size: 15px; }
+  .settings-account-balance { grid-column: 3; grid-row: 1; }
+  #settingsModal .account-row .btn-icon-hide { grid-column: 1; grid-row: 1; margin-top: 0; align-self: center; }
+  .settings-mobile-field-label { display: none; }
+  #settingsModal .account-row input { font-size: 13px; padding: 8px 6px; }
   #settingsModal .settings-category-options .btn { flex: 1; }
   #settingsModal .settings-editor-actions .btn { flex: 1; }
   .settings-list-footer > .btn { width: 100%; }
+}
+
+/* Compact settings lists and consistent action placement. */
+#appVersionSettings { padding: 12px; margin: 0; color: var(--text-secondary); font-size: 12px; }
+.settings-mobile-version { display: none; }
+@media (max-width: 760px) { .settings-mobile-version { display: block; color: var(--text-secondary); } }
+.settings-category-name { flex: 1; min-width: 0; }
+.settings-category-name strong { font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.settings-category-name small { display: block; font-size: 11px; color: var(--text-secondary); margin-top: 3px; }
+.settings-category-name input { width: 100%; }
+.settings-category-normal-actions, .settings-category-save-actions { display: flex; flex-shrink: 0; }
+.settings-category-save-actions[hidden], .settings-category-name input[hidden] { display: none; }
+.is-editing .settings-category-normal-actions, .is-editing .settings-category-name strong, .is-editing .settings-category-name small { display: none; }
+.settings-category-summary { gap: 8px; min-height: 56px; }
+.settings-category-summary .settings-row-icon { min-width: 36px; }
+#settingsModal .settings-list-footer { margin: 0; border: 0; border-bottom: 1px solid var(--border-color); padding: 0 0 16px; margin-bottom: 12px; }
+#settingsModal .settings-list-footer .btn { width: auto; }
+.settings-list-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+#settingsModal .settings-list-header .settings-list-footer { padding: 0; margin: 0; border: 0; }
+.settings-list-header .settings-list-footer p { display: none; }
+.settings-list-header .budget-list-heading { display: flex; flex-wrap: wrap; align-items: center !important; width: 100%; }
+.settings-list-header .budget-list-heading h3 { flex: 1; }
+.settings-list-header .budget-list-heading select { flex-basis: 100%; }
+#settingsModal .settings-list-header .settings-list-footer .btn { padding: 9px 12px; font-size: 13px; }
+#settingsModal .settings-list-header > h3 { font-size: 16px; }
+#settingsModal .settings-panel-body > .settings-list-footer + * { margin-top: 12px; }
+#settingsAddCategoryModal h2, #settingsAddBudgetModal h2, #settingsAddBudgetModal h3 { font-family: inherit; font-size: 21px; font-weight: 600; }
+#settingsAddCategoryModal input, #settingsAddBudgetModal input, #formModal input { font-family: inherit; }
+#formModal button[type='submit'], #settingsAddBudgetModal button[type='submit'] { min-height: 44px; font-family: inherit; font-size: 14px; font-weight: 500; }
+#settingsModal #advancedRulesContainer, #settingsModal .advanced-rules-content { background: transparent; padding: 0; }
+#settingsModal button[onclick*='toggleAdvancedRules'] { background: transparent; padding: 14px 0; border-top: 1px solid var(--border-color); }
+#settingsModal #advancedRulesContainer .settings-control-row { padding: 14px 0; }
+#settingsModal #advancedRulesContainer .settings-control-row:last-child { padding-bottom: 0; }
+#settingsModal #settingsCcLimitForm { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+#settingsModal #toggleCcSection { margin: 0; }
+#settingsModal .settings-cloud-identity #googleLogoutBtn { margin-left: auto; align-self: center; flex-shrink: 0; padding: 8px 12px; }
+#settingsModal #shortcutLocal.active, #settingsModal #shortcutCloud.active, #settingsModal .shortcut-btn.active { color: #fff; }
+#settingsModal input[name='shortcutTarget']:checked + div { color: #fff !important; }
+#settingsModal #cancelDeleteBtn { display: block; margin: 16px 0 0 auto; min-width: 100px; }
+#securityManagementOptions:not(.hidden) { display: grid; gap: 10px; }
+#settingsModal #securityManagementOptions .btn { margin: 0; padding: 12px 16px; min-height: 48px; border-radius: 7px; }
+#settingsModal #btnRemovePin { background: transparent; color: var(--expense-color); border: 1px solid var(--expense-color); }
+#settingsModal #settingsAboutSection p { font-size: 12px; }
+#settingsModal .settings-budget-row { padding: 14px 0 !important; }
+#settingsModal .settings-budget-heading { align-items: center; }
+#settingsModal .settings-budget-heading h4 { font-size: 14px; }
+#settingsModal .settings-budget-actions .settings-row-icon { min-width: 32px; min-height: 40px; }
+#settingsModal .settings-budget-spending { margin-top: 6px; font-size: 12px; }
+#settingsModal .settings-budget-track { margin-top: 8px; height: 4px; }
+#confirmationModal .currency-wrap { white-space: nowrap; display: inline-block; }
+#confirmationModal .currency-wrap wbr { display: none; }
+@media (max-width: 480px) {
+  #settingsModal .settings-panel-body, #settingsModal .settings-panel-head { padding: 16px; }
+  .settings-category-summary .settings-row-icon { min-width: 32px; }
+  #settingsModal .settings-cloud-identity { flex-wrap: wrap; gap: 10px; }
 }

@@ -619,12 +619,7 @@ function renderCategorySettingsList() {
     li.className = "settings-category-row";
     const hidden = state.hiddenCategories?.includes(cat);
     li.innerHTML = `
-      <div class="settings-category-summary"><strong>${escapeHTML(cat)}</strong>${hidden ? '<span class="settings-category-badge">Hidden</span>' : ''}<button type="button" class="settings-row-icon" aria-label="Edit ${escapeHTML(cat)}" aria-expanded="false" onclick="SettingsWorkspace.editCategory(this)"><i class="fas fa-pen" aria-hidden="true"></i></button></div>
-      <div class="settings-category-editor" hidden>
-        <label class="settings-field-label">Category Name<input type="text" aria-label="Category name" value="${escapeHTML(cat)}" data-original-name="${escapeHTML(cat)}"></label>
-        <div class="settings-category-options"><button type="button" class="btn btn-secondary" onclick="toggleHiddenCategory(this.getAttribute('data-cat'))" data-cat="${escapeHTML(cat)}"><i class="fas ${hidden ? 'fa-eye' : 'fa-eye-slash'}" aria-hidden="true"></i> ${hidden ? 'Show' : 'Hide'}</button><button type="button" class="btn btn-secondary text-expense" onclick="deleteCategory(this.getAttribute('data-cat'))" data-cat="${escapeHTML(cat)}"><i class="fas fa-trash-alt" aria-hidden="true"></i> Delete</button></div>
-        <div class="settings-editor-actions"><button type="button" class="btn btn-secondary" onclick="SettingsWorkspace.editCategory(this, false)">Cancel</button><button type="button" class="btn btn-primary" onclick="renameCategory(this)">Save</button></div>
-      </div>`;
+      <div class="settings-category-summary"><div class="settings-category-name"><strong>${escapeHTML(cat)}</strong>${hidden ? '<small>Hidden</small>' : ''}<input hidden type="text" aria-label="Category name" value="${escapeHTML(cat)}" data-original-name="${escapeHTML(cat)}"></div><div class="settings-category-normal-actions"><button type="button" class="settings-row-icon" aria-label="${hidden?'Show':'Hide'} ${escapeHTML(cat)}" onclick="toggleHiddenCategory(this.dataset.cat)" data-cat="${escapeHTML(cat)}"><i class="fas ${hidden?'fa-eye-slash':'fa-eye'}" aria-hidden="true"></i></button><button type="button" class="settings-row-icon" aria-label="Rename ${escapeHTML(cat)}" onclick="SettingsWorkspace.editCategory(this)"><i class="fas fa-pen" aria-hidden="true"></i></button><button type="button" class="settings-row-icon" aria-label="Delete ${escapeHTML(cat)}" onclick="deleteCategory(this.dataset.cat)" data-cat="${escapeHTML(cat)}"><i class="fas fa-trash-alt" aria-hidden="true"></i></button></div><div class="settings-category-save-actions" hidden><button class="settings-row-icon" type="button" aria-label="Cancel Rename" onclick="SettingsWorkspace.editCategory(this,false)"><i class="fas fa-times" aria-hidden="true"></i></button><button class="settings-row-icon accent-text" type="button" aria-label="Save Rename" onclick="renameCategory(this)"><i class="fas fa-check" aria-hidden="true"></i></button></div></div>`;
     categoryList.appendChild(li);
   });
 }
@@ -798,11 +793,8 @@ async function deleteCategory(categoryName) {
     showNotification(`Category "${categoryName}" not found.`, "error");
     return;
   }
-  if (
-    confirm(
-      `Are you sure you want to delete the category "${categoryName}"? This action cannot be undone if the category is not in use.`
-    )
-  ) {
+  showConfirmationModal('Delete Category?', `Delete "${escapeHTML(categoryName)}"? This cannot be undone.`, 'Delete Category', 'Cancel', async () => {
+    if (state.transactions.some(t => t.category === categoryName)) { showNotification('This category is now in use and cannot be deleted.', 'error'); return; }
     state.categories = state.categories.filter((cat) => cat !== categoryName);
     state.creditCard.transactions.forEach(item => {
       if (item.category === categoryName) delete item.category;
@@ -825,7 +817,7 @@ async function deleteCategory(categoryName) {
     if (typeof renderCategoryBudgets === "function") renderCategoryBudgets();
     showNotification(`Category "${categoryName}" deleted.`, "success");
     document.body.renderCcHistoryList?.();
-  }
+  });
 }
 
 async function handleManageAccountsSubmit(event) {

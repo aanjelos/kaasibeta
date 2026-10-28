@@ -239,7 +239,7 @@ function handleKeyboardShortcuts(event) {
           const modal = $(`#${modalId}`);
           if (modal && modal.style.display === "block") {
             event.preventDefault();
-            if (modalId === "settingsModal" && typeof SettingsWorkspace !== "undefined") SettingsWorkspace.back();
+            if (modalId === "settingsModal" && typeof SettingsWorkspace !== "undefined") closeModal('settingsModal');
             else closeModal(modalId);
             console.log(`Shortcut: Escape pressed, closing modal ${modalId}`);
             modalClosed = true;
