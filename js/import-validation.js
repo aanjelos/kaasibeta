@@ -183,6 +183,7 @@ function prepareImportedData(input) {
       }
       if(row.recordedExternally!==undefined && typeof row.recordedExternally!=='boolean')fail('invalid external renewal confirmation');
       if(row.snoozedUntil!==undefined)number(row,'snoozedUntil');
+      if(row.reminderDismissed!==undefined && typeof row.reminderDismissed!=='boolean')fail('invalid reminder preference');
       if(row.handledAt!==undefined)number(row,'handledAt');
     });
   }

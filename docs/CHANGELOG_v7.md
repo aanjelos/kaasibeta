@@ -2,6 +2,15 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.423n - 2026-10-28
+
+### Subscription and Payment Controls
+
+- Added an option to dismiss reminders for an individual subscription renewal until it is paid or skipped, while retaining the six-hour reminder option and upcoming notice.
+- Removed the redundant Close button from the reminder dialog.
+- Refined debt and receivable action spacing and replaced payment icons with direction and colour appropriate to each action.
+- Applied the Kaasi accent colour to the renewal-date checkbox.
+
 ## v6.422n - 2026-10-28
 
 ### Dashboard and Payment Refinements

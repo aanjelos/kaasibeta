@@ -141,10 +141,11 @@ const Subscriptions = (() => {
   }
   async function resolve(id,due,action,expected) {
     const sub=assertCurrent(id,due,expected);
-    if(!['snooze','skip'].includes(action)) throw new Error('Choose a supported reminder action.');
+    if(!['snooze','dismiss','skip'].includes(action)) throw new Error('Choose a supported reminder action.');
     await change(()=>{
       assertCurrent(id,due,expected);
-      if(action==='snooze')upsertOccurrence(sub,due,{status:'snoozed',snoozedUntil:Date.now()+6*3600000});
+      if(action==='snooze')upsertOccurrence(sub,due,{status:'snoozed',snoozedUntil:Date.now()+6*3600000,reminderDismissed:false});
+      else if(action==='dismiss')upsertOccurrence(sub,due,{status:'snoozed',snoozedUntil:0,reminderDismissed:true});
       else {clearSnooze(id,due);sub.nextDueDate=nextDate(sub,due);}
     });
   }
@@ -369,9 +370,9 @@ const Subscriptions = (() => {
     try {if(isAppLocked())return;await action();}
     catch(error){if(!error.kaasiSaveFailure)showNotification(error.message||'The subscription could not be updated.','error');}
   }
-  const dueSubscriptions=()=>list().filter(sub=>sub.status==='active'&&daysUntil(sub.nextDueDate)<=0&&!(occurrence(sub.id,sub.nextDueDate)?.snoozedUntil>Date.now()));
+  const dueSubscriptions=()=>list().filter(sub=>{const reminder=occurrence(sub.id,sub.nextDueDate);return sub.status==='active'&&daysUntil(sub.nextDueDate)<=0&&!reminder?.reminderDismissed&&!(reminder?.snoozedUntil>Date.now());});
   function renderReminder(due=dueSubscriptions()) {
-    document.getElementById('subscriptionReminderList').innerHTML=due.map(sub=>`<article class="subscription-row">${SubscriptionServices.icon(sub)}<div class="subscription-row-copy"><strong>${escapeHTML(sub.name)}</strong><span>${escapeHTML(dueLabel(sub.nextDueDate))}</span><small>${formatCurrency(sub.amount)}</small></div><div class="subscription-row-actions subscription-reminder-actions"><button class="btn btn-primary" data-sub-action="paid" data-sub-id="${escapeHTML(sub.id)}">Pay</button><button class="btn btn-secondary" data-sub-action="snooze" data-sub-id="${escapeHTML(sub.id)}">Remind Me Later</button><button class="btn btn-secondary" data-sub-action="manage" data-sub-id="${escapeHTML(sub.id)}" aria-label="Manage ${escapeHTML(sub.name)}"><i class="fas fa-ellipsis-h" aria-hidden="true"></i></button></div></article>`).join('')||'<p class="subscription-empty">All caught up for now.</p>';
+    document.getElementById('subscriptionReminderList').innerHTML=due.map(sub=>`<article class="subscription-row">${SubscriptionServices.icon(sub)}<div class="subscription-row-copy"><strong>${escapeHTML(sub.name)}</strong><span>${escapeHTML(dueLabel(sub.nextDueDate))}</span><small>${formatCurrency(sub.amount)}</small></div><div class="subscription-row-actions subscription-reminder-actions"><button class="btn btn-primary" data-sub-action="paid" data-sub-id="${escapeHTML(sub.id)}">Pay</button><button class="btn btn-secondary" data-sub-action="snooze" data-sub-id="${escapeHTML(sub.id)}">Remind Me Later</button><button class="btn btn-secondary" data-sub-action="dismiss" data-sub-id="${escapeHTML(sub.id)}">Don't Remind Again</button><button class="btn btn-secondary" data-sub-action="manage" data-sub-id="${escapeHTML(sub.id)}" aria-label="Manage ${escapeHTML(sub.name)}"><i class="fas fa-ellipsis-h" aria-hidden="true"></i></button></div></article>`).join('')||'<p class="subscription-empty">All caught up for now.</p>';
   }
   async function reminder() {
     if(isAppLocked()||!state.settings?.initialSetupDone||document.visibilityState==='hidden'||busy||storageOperationPending)return;
@@ -393,7 +394,7 @@ const Subscriptions = (() => {
     const button=event.target.closest('[data-sub-action]');if(!button||isAppLocked())return;
     event.preventDefault();
     const action=button.dataset.subAction,id=button.dataset.subId;
-    if(action==='snooze'){const sub=find(id);if(sub)perform(()=>resolve(id,sub.nextDueDate,'snooze',fingerprint(sub)));return;}
+    if(action==='snooze'||action==='dismiss'){const sub=find(id);if(sub)perform(()=>resolve(id,sub.nextDueDate,action,fingerprint(sub)));return;}
     if(action==='open')openManager();else if(action==='add')openEditor();else if(action==='paid')openPayment(id);else if(action==='manage')openOptions(id);else if(action==='upcoming')openUpcoming();else if(action==='from-expense')fromTransaction('bank',id);else if(action==='from-cc')fromTransaction('cc',id);
   });
   window.addEventListener('focus',()=>{renderNotice();scheduleReminder();});

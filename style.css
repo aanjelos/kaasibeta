@@ -1116,9 +1116,12 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; marg
 [data-budget-id] > div:first-child { flex-direction: column; align-items: flex-start; gap: 4px; }
 [data-budget-id] .budget-status { margin-left: 0; text-align: left; }
 #debtsViewModal .edit-btn-container, #receivablesViewModal .edit-btn-container { display: flex; gap: 0; }
-#debtsViewModal .edit-btn-container button, #receivablesViewModal .edit-btn-container button { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+#debtsViewModal .edit-btn-container button, #receivablesViewModal .edit-btn-container button { position: relative; min-width: 44px; height: 28px; display: inline-flex; align-items: center; justify-content: center; }
+#debtsViewModal .edit-btn-container button::after, #receivablesViewModal .edit-btn-container button::after { content: ''; position: absolute; inset: -8px 0; }
 .subscription-renewal-reset { display: flex; align-items: center; gap: 10px; margin: 14px 0; font-size: .875rem; }
-.subscription-renewal-reset input { flex: none; }
+.subscription-renewal-reset input { appearance: none; flex: none; width: 18px; height: 18px; border: 1px solid var(--border-light); border-radius: 4px; background: var(--bg-tertiary); cursor: pointer; }
+.subscription-renewal-reset input:checked { background: var(--accent-primary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8l3.2 3.2L13 4.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/15px no-repeat; border-color: var(--accent-primary); }
+.subscription-renewal-reset input:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
 @media (max-width: 639px) {
   #monthlyViewModal .monthly-view-transaction-item { display: flex; flex-wrap: nowrap; gap: 8px; }
   #monthlyViewModal .monthly-view-transaction-item > div:first-child { flex: 1 1 0; min-width: 0; }

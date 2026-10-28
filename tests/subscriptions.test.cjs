@@ -191,6 +191,17 @@ test('past payment dates advance one period and remain overdue without creating 
   await e.api.saveDefinition(definition({frequency:'daily',nextDueDate:'2026-10-23'}));assert.equal(e.saved().subscriptions[1].nextDueDate,'2026-10-24');
   const backup=e.c.prepareImportedData(e.saved());assert.equal(backup.subscriptions[1].frequency,'daily');
 });
+test('dismissed reminders survive backup and only suppress the current renewal',async()=>{
+  const e=env(),id=await e.api.saveDefinition(definition());
+  await e.api.resolve(id,'2026-10-24','dismiss');
+  assert.equal(e.saved().subscriptionOccurrences[0].reminderDismissed,true);
+  assert.equal(e.c.prepareImportedData(e.saved()).subscriptionOccurrences[0].reminderDismissed,true);
+  e.api.scheduleReminder();await e.tick();assert.notEqual(e.el('subscriptionReminderModal').style.display,'block');
+  assert.ok(e.api.upcoming().some(row=>row.id===id));
+  await e.api.record(id,'2026-10-24',{alreadyRecorded:true});
+  assert.equal(e.saved().subscriptionOccurrences.length,0);
+  assert.equal(e.saved().subscriptions[0].nextDueDate,'2026-11-24');
+});
 test('overdue payments optionally reset the next renewal to the payment date',async()=>{
   for(const reset of [false,true]){
     const e=env(),id=await e.api.saveDefinition(definition());
