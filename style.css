@@ -2611,4 +2611,11 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .cloud-manual-actions .btn { min-height:44px; font-size:13px; }
 .cloud-paused-hint { margin:0; }
 .sync-paused-warning { color:var(--accent-primary); }
+.sync-offline-pulse,
+.sync-offline-pulse:hover,
+.sync-offline-pulse .dashboard-sync-status,
+.sync-offline-pulse i { color: #ef4444 !important; }
+.sync-offline-pulse { animation: sync-offline-pulse 2s ease-in-out infinite; }
+@keyframes sync-offline-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { .sync-offline-pulse { animation: none; } }
 @media(max-width:480px){.cloud-manual-actions { grid-template-columns:1fr; }.cloud-auto-control { gap:12px; }}

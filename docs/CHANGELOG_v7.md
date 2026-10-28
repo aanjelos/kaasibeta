@@ -2,6 +2,13 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.439n - 2026-10-29
+
+### Offline Dashboard Indicator
+
+- Pulse the desktop and mobile dashboard cloud-sync indicators red while the browser reports an offline connection. Restore normal sync colours when connectivity returns; Settings controls and local-file users remain unchanged.
+- Use a steady red indicator when reduced motion is requested. Offline financial changes continue to save locally through the existing storage flow.
+
 ## v6.438n - 2026-10-29
 
 ### Settings Keyboard Navigation

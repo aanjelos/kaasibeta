@@ -1006,6 +1006,14 @@ test('single cloud shortcut uses upload/download/conflict colours and local shor
   assert.doesNotMatch(r.element('#headerBackupBtn').innerHTML,/fa-spin/);
   assert.doesNotMatch(r.element('#mobileSyncBtn').innerHTML,/fa-spin/);
   assert.equal(r.element('#mobileSyncBtn').getAttribute('aria-busy'),'false');
+  r.context.navigator.onLine=false;r.context.updateHeaderShortcutButtons();
+  for(const id of ['#mobileSyncBtn','#headerCloudSyncBtn']) {
+    assert.equal(r.element(id).classList.contains('sync-offline-pulse'),true);
+    assert.equal(r.element(id).classList.contains('pulse-sync-conflict'),false);
+  }
+  assert.equal(r.element('#syncCloudBtn').classList.contains('sync-offline-pulse'),false);
+  r.context.navigator.onLine=true;r.context.updateHeaderShortcutButtons();
+  for(const id of ['#mobileSyncBtn','#headerCloudSyncBtn'])assert.equal(r.element(id).classList.contains('sync-offline-pulse'),false);
   r.element('#shortcutCloud').checked=false;r.context.updateHeaderShortcutButtons();
   assert.equal(r.element('#headerRestoreBtn').hidden,false);assert.equal(r.element('#headerBackupBtn').onclick,r.context.exportData);
   assert.equal(r.element('#mobileSyncBtn').hidden,true);

@@ -807,6 +807,9 @@ function updateHeaderShortcutButtons() {
   const syncBtn = $("#syncCloudBtn"), menuIcon = $("#mobileMenuIcon");
   const mobileSyncBtn = $("#mobileSyncBtn");
   const desktopSyncBtn = $('#headerCloudSyncBtn');
+  for (const indicator of [mobileSyncBtn, desktopSyncBtn]) {
+    indicator?.classList.toggle('sync-offline-pulse', isCloud && !navigator.onLine);
+  }
   const pausedConflict=automaticSyncPaused() && window.currentCloudSyncStatus==='conflict';
   const syncMarkup = `<i class="fas ${pausedConflict ? 'fa-exclamation-triangle sync-paused-warning' : 'fa-sync-alt'}${cloudSyncBusy ? ' fa-spin' : ''}" aria-hidden="true"></i>`;
   const lastSynced = Number(appPreferences.getItem('lastLocalCloudSync'));
@@ -867,7 +870,7 @@ function updateHeaderShortcutButtons() {
     backupBtn.onclick = syncCloudData;
     if (dropBackupBtn) dropBackupBtn.disabled = cloudSyncBusy;
     if (dropBackupText) dropBackupText.textContent = text;
-    if (!cloudSyncBusy && !automaticSyncPaused()) {
+    if (navigator.onLine && !cloudSyncBusy && !automaticSyncPaused()) {
       const pulse = status === "local_newer" ? "pulse-orange" : status === "cloud_newer" ? "pulse-green"
         : status === "conflict" || status === "review" ? "pulse-sync-conflict" : null;
       if (pulse) for (const element of [backupBtn, mobileSyncBtn, desktopSyncBtn]) element?.classList.add(pulse);
