@@ -2,6 +2,13 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.438n - 2026-10-29
+
+### Settings Keyboard Navigation
+
+- Move focus from the desktop Settings sidebar into the displayed section's first available control with Tab. Shift+Tab from that control returns to the active sidebar section; nested dialogs retain their own focus handling.
+- Remove standard Tab, arrow/Home/End and Escape instructions from Keyboard Shortcuts. Retain Ctrl+S as Sync Now for an explicit sync check or retry.
+
 ## v6.437n - 2026-10-29
 
 ### Device-specific Sync Pause and Import Protection

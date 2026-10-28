@@ -42,6 +42,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Concept**: Automatically trigger a JSON export download immediately before execution of the "Delete All Data" wipe, giving the user a recovery file in case they made a mistake.
 
 ### 10. Coloured Category Icons
+- **Release target**: Defer until an update after the current v7 release. Prioritise release validation and remaining usability refinements first.
 - **Library decision**: Use Fluent Emoji Flat as the preferred coloured SVG library. Check coverage against all default categories and choose clear broader symbols where exact matches are unavailable. Keep one consistent library rather than mixing it with Fluent UI Colour; confirm the appearance in real transaction rows before implementation.
 - **Sequence**: Implement after the mobile module/modal refinement round and the Settings workspace redesign. Review a small mobile/desktop visual preview before applying icons throughout the app. Web only for now.
 - **Appearance**: Use a consistent library of coloured SVG icons directly before transaction descriptions on the existing row background. No tile, frame, separate background or category colour picker. Keep transaction amount colours and chart sector colours unchanged; check light/dark theme contrast and narrow-screen text space.
@@ -109,6 +110,9 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Status**: The functional workspace shipped in v6.421n; further visual and interaction refinements remain planned.
 - **Next step**: Review the user's next round of feedback across desktop and mobile, including spacing, typography, grouping and editing flows. Preserve existing settings, save behaviour, financial logic and shared subscription data.
 
+### 5. Keyboard Accessibility Follow-up
+- **Status**: App-wide keyboard navigation and mobile Settings transitions have received an implementation pass. Verify remaining focus visibility and navigation with populated installment lists, nested dialogs, Settings Back/Escape and Tab/Shift+Tab before closing this item.
+
 ---
 
 ## 🛠️ Technical Debt & Code Organization
@@ -128,6 +132,11 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 3. Public Release Validation for IndexedDB
 - **Scope**: Before promoting the beta storage changes, verify an authorized cloud backup/restore using a test account, production service-worker updates and offline launches, and the actual mobile/browser combinations in use.
 - **Acceptance**: Existing data survives upgrade and reload, exported backups restore correctly, PIN-protected access remains intact, and interrupted or failed operations retain recovery options. Automated database tests and localhost browser checks do not replace these environment-specific checks.
+
+### 4. Supabase Advisor Review
+- **Read-only findings (2026-10-29)**: Review three security warnings concerning `public.handle_updated_at()` search-path configuration and execution permissions, plus three authentication/RLS evaluation performance warnings on `public.user_data`. Determine actual impact before proposing any change; preserve compatibility with public and beta clients.
+- **Auth note**: The advisor also flags disabled leaked-password protection; check relevance to the app's sign-in methods and plan availability before treating this as actionable.
+- **Constraint**: No backend settings, policies, functions or user data were changed during the dashboard review. Any remediation requires a separate agreed change.
 
 ---
 

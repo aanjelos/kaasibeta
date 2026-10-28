@@ -23,13 +23,10 @@ function openShortcutsHelpModal() {
     { key: "D", action: "View All Debts." },
     { key: "R", action: "View All Receivables." },
     { key: "T", action: "Transfer Money." },
-    { key: "Ctrl + S", action: "Sync Cloud (Signed In)." },
+    { key: "Ctrl + S", action: "Sync Now (Signed In)." },
     { key: "Ctrl + E", action: "Export Local File." },
     { key: "Ctrl + I", action: "Import Local File." },
     { key: "← / →", action: "Navigate Month Tabs in All Transactions." },
-    { key: "Tab / Shift + Tab", action: "Move through controls in the open dialog." },
-    { key: "↑ / ↓ / Home / End", action: "Move through Settings sections; Enter opens the focused section." },
-    { key: "Escape", action: "Cancel category rename, close the top dialog, or close Settings." },
   ];
 
   contentList.innerHTML = ""; // Clear previous list
@@ -697,6 +694,18 @@ document.addEventListener('keydown', event => {
     return;
   }
   if (event.key==='Tab') {
+    if (modal.id === 'settingsModal') {
+      const panel = document.querySelector('#settingsTabContent > .settings-tab-panel:not(.hidden)');
+      const firstControl = panel && visibleModalControls(panel)[0];
+      const navigation = event.target.closest?.('#settingsTabsContainer button');
+      if (!event.shiftKey && navigation && firstControl) {
+        event.preventDefault(); firstControl.focus(); return;
+      }
+      if (event.shiftKey && event.target === firstControl) {
+        const current = document.querySelector('#settingsTabsContainer button[aria-current="page"]');
+        if (current?.getClientRects().length) { event.preventDefault(); current.focus(); return; }
+      }
+    }
     const controls=visibleModalControls(modal),first=controls[0],last=controls.at(-1);
     if(!first){event.preventDefault();focusModalStart(modal);return;}
     if(event.shiftKey && (!modal.contains(document.activeElement)||document.activeElement===first||!controls.includes(document.activeElement))){event.preventDefault();last.focus();}
