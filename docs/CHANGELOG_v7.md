@@ -2,6 +2,15 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.429n - 2026-10-28
+
+### App-wide Keyboard Access
+
+- Added keyboard activation to transaction details, credit card action drawers, debt/receivable groups, monthly day groups and budget transaction links.
+- Excluded collapsed list controls from keyboard navigation and added accessible names to icon-only actions and calculator buttons.
+- Extended visible focus indicators to the dashboard. The mobile menu supports Escape and focus containment; PIN entry retains focus within its controls.
+- Escape closes the top dialog, including credit card details, and dashboard shortcuts no longer open unrelated views behind dialogs.
+
 ## v6.428n - 2026-10-28
 
 ### Keyboard Navigation and Mobile Dialog Focus

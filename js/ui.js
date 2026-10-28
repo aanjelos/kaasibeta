@@ -92,6 +92,11 @@ function handleKeyboardShortcuts(event) {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase()==='s') event.preventDefault();
     return;
   }
+  const activeDialog=topVisibleModal();
+  if(activeDialog && event.key!=='Escape' && !(activeDialog.id==='monthlyViewModal' && ['s','S','ArrowLeft','ArrowRight'].includes(event.key) && !event.ctrlKey && !event.altKey && !event.metaKey)) {
+    if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s')event.preventDefault();
+    return;
+  }
 
   // Dedicated actions are independent of the selected Dashboard button mode.
   if (event.ctrlKey && !event.altKey && !event.metaKey && !event.shiftKey) {
@@ -213,6 +218,13 @@ function handleKeyboardShortcuts(event) {
     // --- END NEW ---
 
     case "Escape":
+      const topDialog = topVisibleModal();
+      if (topDialog && !['initialSetupModal','offlineSyncWarningModal'].includes(topDialog.id)) {
+        const search = $('#monthlySearchInput');
+        if (!(topDialog.id==='monthlyViewModal' && document.activeElement===search && search?.value)) {
+          event.preventDefault();closeModal(topDialog.id);break;
+        }
+      }
       const monthlySearchInput = $("#monthlySearchInput");
       if (
         monthlySearchInput &&
@@ -636,7 +648,11 @@ if ('scrollRestoration' in history) {
 const modalFocusOrigins = new Map();
 const mobileModalFocus = () => window.matchMedia('(max-width: 760px), (pointer: coarse)').matches;
 function visibleModalControls(modal) {
-  return [...modal.querySelectorAll('button, a[href], input:not([type="hidden"]), select, textarea, summary, [tabindex]')].filter(el => !el.disabled && el.tabIndex >= 0 && el.getClientRects?.().length && !el.closest('[hidden], .hidden, [inert]'));
+  return [...modal.querySelectorAll('button, a[href], input:not([type="hidden"]), select, textarea, summary, [tabindex]')].filter(el => {
+    if(el.disabled || el.tabIndex<0 || !el.getClientRects?.().length || el.closest('[hidden], .hidden, [inert]'))return false;
+    for(let parent=el.parentElement;parent&&parent!==modal;parent=parent.parentElement)if(parent.style.maxHeight==='0px')return false;
+    return true;
+  });
 }
 function topVisibleModal() {
   return [...document.querySelectorAll('.modal')].filter(el => el.style.display === 'block').sort((a,b) => (Number(getComputedStyle(a).zIndex)||0)-(Number(getComputedStyle(b).zIndex)||0)).pop();
@@ -659,8 +675,19 @@ function restoreModalFocus(id) {
   } else if (top) focusModalStart(top);
 }
 document.addEventListener('keydown', event => {
-  const modal = topVisibleModal();
-  if (!modal || isAppLocked()) return;
+  let modal = topVisibleModal();
+  const menu=document.getElementById('mobileDropdown');
+  if(!modal&&menu?.classList.contains('dropdown-open')) {
+    modal=menu;
+    if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();document.getElementById('mobileMenuBtn').click();return;}
+  }
+  if (isAppLocked()) {
+    const recovery=document.getElementById('securityQuestionModal');
+    modal=recovery?.style.display==='block'?recovery:document.getElementById('pinLockOverlay');
+    if(modal===recovery&&event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();closeModal(recovery.id);return;}
+  }
+  if(['Enter',' '].includes(event.key)&&event.target.matches?.('[role="button"]:not(button):not(input)')&&(!isAppLocked()||modal?.contains(event.target))){event.preventDefault();event.target.click();return;}
+  if (!modal) return;
   const input = event.target.closest?.('.settings-category-row.is-editing input');
   if (input && ['Enter','Escape'].includes(event.key)) {
     event.preventDefault();event.stopImmediatePropagation();
@@ -675,8 +702,36 @@ document.addEventListener('keydown', event => {
     if(event.shiftKey && (!modal.contains(document.activeElement)||document.activeElement===first||!controls.includes(document.activeElement))){event.preventDefault();last.focus();}
     else if(!event.shiftKey && (!controls.includes(document.activeElement)||document.activeElement===last)){event.preventDefault();first.focus();}
   }
-  if(['Enter',' '].includes(event.key)&&event.target.matches('[role="button"]:not(button):not(input)')){event.preventDefault();event.target.click();}
 },true);
+
+// Keep dynamically rebuilt lists operable without duplicating their click handlers.
+function enhanceKeyboardControls() {
+  const action = (el, label) => {
+    if(!el)return;
+    el.setAttribute('role','button');el.tabIndex=0;
+    if(label)el.setAttribute('aria-label',label);
+  };
+  document.querySelectorAll('#recentTransactionsList .transaction-list-item-layout > div:first-child, .monthly-view-transaction-item:not(.cc-history-row) > div:first-child').forEach(el=>action(el,`View transaction: ${el.textContent.trim()}`));
+  document.querySelectorAll('.monthly-view-day-header, #debtsViewModal .cursor-pointer, #receivablesViewModal .cursor-pointer').forEach(el=>{
+    if(el.tagName==='BUTTON'||el.querySelector('button'))return;
+    action(el);
+    const panel=el.nextElementSibling;
+    if(panel)el.setAttribute('aria-expanded',String(panel.style.maxHeight!=='0px'));
+  });
+  document.querySelectorAll('.cc-payment-history-main > .flex-grow').forEach(el=>action(el,`View purchase actions: ${el.textContent.trim()}`));
+  document.querySelectorAll('.budget-progress-container').forEach(el=>action(el,'View budget transactions'));
+  document.querySelectorAll('#mobileDropdown span[onclick]').forEach(el=>action(el));
+  document.querySelectorAll('.day-transactions-container, .cc-history-row > .overflow-hidden').forEach(panel=>{panel.inert=panel.style.maxHeight==='0px';});
+  document.querySelectorAll('.calc-toggle-btn').forEach(el=>{el.tabIndex=0;if(!el.hasAttribute('aria-label'))el.setAttribute('aria-label','Toggle Calculator');});
+  document.querySelectorAll('button[data-tooltip]').forEach(el=>{if(!el.textContent.trim()||!/[a-z0-9]/i.test(el.textContent)){if(!el.hasAttribute('aria-label'))el.setAttribute('aria-label',el.dataset.tooltip);}});
+}
+enhanceKeyboardControls();
+document.addEventListener('click',()=>requestAnimationFrame(enhanceKeyboardControls));
+let keyboardRefreshPending=false;
+if(typeof MutationObserver!=='undefined')new MutationObserver(()=>{
+  if(keyboardRefreshPending)return;keyboardRefreshPending=true;
+  requestAnimationFrame(()=>{keyboardRefreshPending=false;enhanceKeyboardControls();});
+}).observe(document.body,{childList:true,subtree:true});
 
 function openModalHelper(modalId) {
   const modal = $(`#${modalId}`);
@@ -1080,9 +1135,12 @@ function setupMobileDropdown() {
   if (!mobileMenuBtn || !mobileDropdown) return;
 
   let isOpen = false;
+  mobileMenuBtn.setAttribute('aria-controls','mobileDropdown');
+  mobileMenuBtn.setAttribute('aria-expanded','false');
 
   const toggleDropdown = () => {
     isOpen = !isOpen;
+    mobileMenuBtn.setAttribute('aria-expanded',String(isOpen));
     if (isOpen) {
       document.body.classList.add("overflow-hidden");
       mobileDropdown.classList.remove("opacity-0", "invisible");
@@ -1091,6 +1149,7 @@ function setupMobileDropdown() {
       mobileMenuOverlay.classList.add("opacity-100", "visible", "pointer-events-auto");
       mobileMenuIcon.classList.remove("fa-bars");
       mobileMenuIcon.classList.add("fa-times");
+      mobileDropdown.querySelector('button:not([disabled])')?.focus({preventScroll:true});
     } else {
       document.body.classList.remove("overflow-hidden");
       mobileDropdown.classList.remove("opacity-100", "visible", "dropdown-open");
@@ -1099,6 +1158,7 @@ function setupMobileDropdown() {
       mobileMenuOverlay.classList.add("opacity-0", "invisible");
       mobileMenuIcon.classList.remove("fa-times");
       mobileMenuIcon.classList.add("fa-bars");
+      mobileMenuBtn.focus({preventScroll:true});
     }
   };
 
