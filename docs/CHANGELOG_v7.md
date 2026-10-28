@@ -2,6 +2,14 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.435n - 2026-10-28
+
+### Consistent App Refreshes
+
+- Check a small release manifest on navigation and reuse the cached app shell when unchanged. Download changed releases once and verify HTML, JavaScript and CSS hashes before serving the new shell.
+- Serve versioned application assets only from their verified build cache, preventing an old HTML document from fetching newer code under an outdated version query. Retain the last working shell for offline or incomplete-deployment fallback.
+- Bypass HTTP caching for service-worker update checks. Existing installation prompts remain available; no financial databases or browser preferences are cleared.
+
 ## v6.434n - 2026-10-28
 
 ### Sync Controls and Conflict Prompts

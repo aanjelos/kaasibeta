@@ -1127,7 +1127,7 @@ async function applyKaasiUpdate(reg, button) {
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").then((reg) => {
+    navigator.serviceWorker.register("sw.js", { updateViaCache: 'none' }).then((reg) => {
       console.log("Service Worker registered successfully.", reg);
       const offerUpdate = () => {
         if (!reg.waiting || document.getElementById("appUpdateNotice")) return;
