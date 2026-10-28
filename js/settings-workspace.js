@@ -4,6 +4,22 @@ const SettingsWorkspace = (() => {
   let selected = null;
   let subscriptionHome = null;
   let subscriptionControls = [];
+  let navigationAnimations = [];
+  let goingBack = false;
+  function motionAllowed() { return mobile.matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  function animateView(back = false, leaving = false) {
+    navigationAnimations.forEach(animation => animation.cancel());
+    navigationAnimations = [];
+    if (!motionAllowed()) return [];
+    const targets = selected ? [document.querySelector('.settings-section-heading'), document.getElementById('settingsTabContent')] : [document.getElementById('settingsMobileHub')];
+    for (const target of targets) {
+      if (!target?.animate) continue;
+      const offset = back ? -18 : 18;
+      const frames = leaving ? [{opacity:1,transform:'translateX(0)'},{opacity:0,transform:'translateX(18px)'}] : [{opacity:0,transform:`translateX(${offset}px)`},{opacity:1,transform:'translateX(0)'}];
+      navigationAnimations.push(target.animate(frames,{duration:leaving?110:190,easing:'cubic-bezier(.2,.7,.2,1)'}));
+    }
+    return navigationAnimations;
+  }
   const modal = () => document.getElementById("settingsModal");
   const find = panel => settingsTabsConfig.find(section => section.targetPanelId === panel);
 
@@ -101,6 +117,7 @@ const SettingsWorkspace = (() => {
   }
 
   function show(panelId, scroll = true) {
+    const previous = selected;
     const section = find(panelId) || (!mobile.matches ? settingsTabsConfig[0] : null);
     selected = section?.targetPanelId || null;
     const root = modal();
@@ -126,6 +143,7 @@ const SettingsWorkspace = (() => {
       const pane = document.querySelector("#settingsModal .settings-main");
       if (pane) pane.scrollTop = 0;
     }
+    if (previous !== selected) animateView(!selected);
   }
 
   function navigate(panelId) {
@@ -204,7 +222,15 @@ const SettingsWorkspace = (() => {
     else { releaseSubscriptions(); selected = null; }
   }
 
-  function back() {
+  async function back() {
+    if (goingBack) return;
+    if (mobile.matches && selected && motionAllowed()) {
+      goingBack = true;
+      const previous=selected;
+      try { await Promise.all(animateView(true,true).map(animation=>animation.finished.catch(()=>{}))); }
+      finally { goingBack=false; }
+      if (modal()?.style.display!=='block'||selected!==previous)return;
+    }
     if (mobile.matches && history.state?.settingsDepth > 0) history.go(-history.state.settingsDepth);
     else if (history.state?.settingsDepth > 0) history.back();
     else closeModal("settingsModal");

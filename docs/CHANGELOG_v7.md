@@ -2,6 +2,13 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.430n - 2026-10-28
+
+### Focus Visibility and Settings Motion
+
+- Added inset focus outlines to debt and receivable accordion headers and highlighted the entry containing the focused action.
+- Added subtle forward and Back transitions to mobile Settings navigation, respecting reduced-motion preferences and preserving focus restoration.
+
 ## v6.429n - 2026-10-28
 
 ### App-wide Keyboard Access

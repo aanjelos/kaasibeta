@@ -1024,6 +1024,9 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; marg
 #formModal h2 { padding-right: 28px; overflow-wrap: anywhere; }
 .modal :is(button,a,input,select,textarea,summary,[role="button"]):focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 3px; }
 .modal-content:focus { outline: none; }
+#debtsViewModal [role="button"]:focus-visible, #receivablesViewModal [role="button"]:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: -3px; background-color: rgba(var(--accent-primary-rgb), .12) !important; }
+#debtsViewModal .transaction-list-item-layout:has(:focus-visible), #receivablesViewModal .transaction-list-item-layout:has(:focus-visible) { background: rgba(var(--accent-primary-rgb), .1); box-shadow: inset 3px 0 var(--accent-primary); }
+#debtsViewModal .edit-btn-container button:focus-visible, #receivablesViewModal .edit-btn-container button:focus-visible { outline-offset: -2px; border-radius: 4px; }
 :is(button,a,input,select,textarea,summary,[role="button"]):focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 3px; }
 
 @media (max-width: 639px) {
