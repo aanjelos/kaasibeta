@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.453n - 2026-10-30
+
+### Consistent Dashboard View Buttons
+
+- Share the same 44px minimum height and text size between All Transactions and View & Pay, retaining the existing secondary-button padding, border and icon spacing.
+
 ## v6.452n - 2026-10-30
 
 ### Transaction History Shortcut Placement

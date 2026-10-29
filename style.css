@@ -2330,7 +2330,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
 #ccSelectMultipleBtn::before { content: ""; position: absolute; left: -13px; top: 9px; bottom: 9px; width: 1px; background: var(--border-color, #555); pointer-events: none; }
 #ccSelectMultipleBtn[aria-pressed="true"] { color: var(--accent-color, #e67e22); border-color: currentColor; }
 #ccSelectMultipleBtn[hidden], .cc-payment-summary[hidden], .cc-payment-summary > span[hidden] { display: none; }
-.cc-history-entry { min-height: 44px; font-size: .85rem; white-space: nowrap; }
+.dashboard-view-action { min-height: 44px; font-size: .85rem; white-space: nowrap; }
 .cc-direct-pay { min-height: 44px; margin-left: 10px; padding: 8px 16px; white-space: nowrap; }
 .cc-select-control { flex-shrink: 0; display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; background: transparent; border: 0; }
 .cc-select-control:focus-visible { outline: 2px solid var(--accent-color, #e67e22); outline-offset: 2px; border-radius: 6px; }
