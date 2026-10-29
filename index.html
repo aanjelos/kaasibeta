@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.446n" />
+    <meta name="application-version" content="v6.447n" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -51,9 +51,9 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" integrity="sha384-UagCvVPT5XXA0Hx+nJYUAGBFseHT9zBgpJMSebsAxl9lciTwbT+39j5VfRjdP5Tp" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v6.446n" />
-    <link rel="stylesheet" href="settings-workspace.css?v=v6.446n" />
-    <link rel="stylesheet" href="tailwind.css?v=v6.446n" />
+    <link rel="stylesheet" href="style.css?v=v6.447n" />
+    <link rel="stylesheet" href="settings-workspace.css?v=v6.447n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.447n" />
 
     <script
       async
@@ -1472,6 +1472,60 @@
             </div>
             <!-- END: SECURITY PANEL -->
             <div id="settingsSubscriptionsPanel" class="settings-tab-panel hidden"><div id="settingsSubscriptionHost"></div></div>
+            <div id="settingsDonatePanel" class="settings-tab-panel hidden">
+              <div class="card settings-donate-card">
+        <h3>
+          Thank You for Supporting Kaasi!
+        </h3>
+        <p class="text-secondary">
+          Your donation helps keep Kaasi free and in active development. Since
+          the AI subscriptions used for development are quite expensive, and I
+          want to keep Kaasi free for everyone, your kind support is greatly
+          appreciated!
+        </p>
+        <div class="donate-bank-details-vertical mt-[1.6rem]">
+          <div class="donate-bank-block">
+            <div class="bank-title accent-text">HNB (Negombo)</div>
+            <div class="bank-pair">
+              <span class="bank-label">Number:</span>
+              <span class="bank-value">0240 2065 9091</span>
+              <button
+                class="copy-button"
+                data-copy-text="024020659091"
+                aria-label="Copy HNB Account Number"
+              >
+                <i class="far fa-copy"></i>
+              </button>
+            </div>
+            <div class="bank-pair">
+              <span class="bank-label">Name:</span>
+              <span class="bank-value">MALSW Goonaratne</span>
+            </div>
+          </div>
+          <div class="donate-bank-block">
+            <div class="bank-title accent-text">Commercial (Negombo 2)</div>
+            <div class="bank-pair">
+              <span class="bank-label">Number:</span>
+              <span class="bank-value">8009 650 486</span>
+              <button
+                class="copy-button"
+                data-copy-text="8009650486"
+                aria-label="Copy Commercial Account Number"
+              >
+                <i class="far fa-copy"></i>
+              </button>
+            </div>
+            <div class="bank-pair">
+              <span class="bank-label">Name:</span>
+              <span class="bank-value">MALSW Goonaratne</span>
+            </div>
+          </div>
+        </div>
+        <p class="text-sm text-secondary mt-[1.3rem]">
+          Every contribution makes a difference. ❤️
+        </p>
+              </div>
+            </div>
             <div id="settingsAboutPanel" class="settings-tab-panel hidden">
           <div
             id="settingsAboutSection"
@@ -2014,76 +2068,11 @@
         <div class="flex items-center gap-6 text-gray-300 text-sm">
 
           <button id="pwaInstallBtn" class="accent-text font-medium hidden" data-analytics="pwa_install_click"><i class="fas fa-download mr-1"></i> Install App</button>
-          <button id="footerDonateBtn">Donate</button>
           <a href="https://kaasi.com.lk" target="_blank">Main Website</a>
         </div>
       </div>
     </footer>
 
-    <!-- NEW DONATE MODAL -->
-    <div
-      id="donateModal"
-      class="modal" role="dialog" aria-modal="true"
-      tabindex="-1"
-    >
-      <div class="modal-content max-w-xl">
-        <span
-          class="modal-close" aria-label="Close modal" role="button" tabindex="0"
-          id="closeDonateModal"
-          >&times;</span
-        >
-        <h2 class="text-xl font-semibold mb-3 accent-text">
-          Thank You for Supporting Kaasi!
-        </h2>
-        <p class="mb-2 text-secondary text-[1.08rem]">
-          Your donation helps keep Kaasi free and in active development. Since
-          the AI subscriptions used for development are quite expensive, and I
-          want to keep Kaasi free for everyone, your kind support is greatly
-          appreciated!
-        </p>
-        <div class="donate-bank-details-vertical mt-[1.6rem]">
-          <div class="donate-bank-block">
-            <div class="bank-title accent-text">HNB (Negombo)</div>
-            <div class="bank-pair">
-              <span class="bank-label">Number:</span>
-              <span class="bank-value">0240 2065 9091</span>
-              <button
-                class="copy-button"
-                data-copy-text="024020659091"
-                aria-label="Copy HNB Account Number"
-              >
-                <i class="far fa-copy"></i>
-              </button>
-            </div>
-            <div class="bank-pair">
-              <span class="bank-label">Name:</span>
-              <span class="bank-value">MALSW Goonaratne</span>
-            </div>
-          </div>
-          <div class="donate-bank-block">
-            <div class="bank-title accent-text">Commercial (Negombo 2)</div>
-            <div class="bank-pair">
-              <span class="bank-label">Number:</span>
-              <span class="bank-value">8009 650 486</span>
-              <button
-                class="copy-button"
-                data-copy-text="8009650486"
-                aria-label="Copy Commercial Account Number"
-              >
-                <i class="far fa-copy"></i>
-              </button>
-            </div>
-            <div class="bank-pair">
-              <span class="bank-label">Name:</span>
-              <span class="bank-value">MALSW Goonaratne</span>
-            </div>
-          </div>
-        </div>
-        <p class="text-sm text-secondary mt-[1.3rem]">
-          Every contribution makes a difference. ❤️
-        </p>
-      </div>
-    </div>
 
     <!-- CLOUD SESSION EXPIRED MODAL -->
     <div
@@ -2142,24 +2131,24 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v6.446n" defer></script>
-    <script src="js/import-validation.js?v=v6.446n" defer></script>
-    <script src="js/storage.js?v=v6.446n" defer></script>
-    <script src="js/storage-ui.js?v=v6.446n" defer></script>
-    <script src="js/animations.js?v=v6.446n" defer></script>
-    <script src="js/data-sync.js?v=v6.446n" defer></script>
-    <script src="js/cloud-sync.js?v=v6.446n" defer></script>
-    <script src="js/math-tool.js?v=v6.446n" defer></script>
-    <script src="js/settings.js?v=v6.446n" defer></script>
-    <script src="js/charts.js?v=v6.446n" defer></script>
-    <script src="js/ui.js?v=v6.446n" defer></script>
-    <script src="js/settings-workspace.js?v=v6.446n" defer></script>
-    <script src="js/features.js?v=v6.446n" defer></script>
-    <script src="js/subscription-assets.js?v=v6.446n" defer></script>
-    <script src="js/subscription-services.js?v=v6.446n" defer></script>
-    <script src="js/subscriptions.js?v=v6.446n" defer></script>
-    <script src="js/security.js?v=v6.446n" defer></script>
-    <script src="js/app.js?v=v6.446n" defer></script>
+    <script src="js/globals.js?v=v6.447n" defer></script>
+    <script src="js/import-validation.js?v=v6.447n" defer></script>
+    <script src="js/storage.js?v=v6.447n" defer></script>
+    <script src="js/storage-ui.js?v=v6.447n" defer></script>
+    <script src="js/animations.js?v=v6.447n" defer></script>
+    <script src="js/data-sync.js?v=v6.447n" defer></script>
+    <script src="js/cloud-sync.js?v=v6.447n" defer></script>
+    <script src="js/math-tool.js?v=v6.447n" defer></script>
+    <script src="js/settings.js?v=v6.447n" defer></script>
+    <script src="js/charts.js?v=v6.447n" defer></script>
+    <script src="js/ui.js?v=v6.447n" defer></script>
+    <script src="js/settings-workspace.js?v=v6.447n" defer></script>
+    <script src="js/features.js?v=v6.447n" defer></script>
+    <script src="js/subscription-assets.js?v=v6.447n" defer></script>
+    <script src="js/subscription-services.js?v=v6.447n" defer></script>
+    <script src="js/subscriptions.js?v=v6.447n" defer></script>
+    <script src="js/security.js?v=v6.447n" defer></script>
+    <script src="js/app.js?v=v6.447n" defer></script>
   </body>
 </html>
 

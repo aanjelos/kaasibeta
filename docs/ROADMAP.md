@@ -55,6 +55,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Implementation Idea**: Will require building a new custom UI view to display a chronological list of activities, and ensuring new transaction types like 'transfers' are easily identifiable.
 
 ### 12. Fun Facts / All-Time Stats Dashboard
+- **Year-End Recap (around December)**: Explore an exportable, shareable yearly recap with transaction count, most-spent category and other non-sensitive highlights. Let users preview the export; exclude amounts, balances, account/person names, descriptions and exact dates by default. Keep this as a planned feature, separate from general all-time statistics.
 - **Concept**: A Spotify Wrapped-style "Fun Facts" or "Stats" page that highlights interesting all-time data points for the user to reflect on their financial journey.
 - **Implementation Idea**: Build a dedicated view that parses the entire `transactions` array to calculate and display fun metrics such as: Total transactions added, most common spending category, highest single expense of all time, highest earning month, highest spending day, etc. Could be implemented as a new tab in the Monthly Overview or a standalone widget.
 

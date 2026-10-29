@@ -987,7 +987,8 @@ const settingsTabsConfig = [
   { label: "Appearance", targetPanelId: "settingsAppearancePanel", group: "App", icon: "palette", hint: "Theme, calculator & dashboard", description: "Choose your theme and what appears on the dashboard." },
   { label: "Data & Backups", targetPanelId: "settingsDataManagementPanel", group: "App", icon: "cloud", hint: "Sync, files, storage & reminders", description: "Manage backups and saved data on this device." },
   { label: "Security", targetPanelId: "settingsSecurityPanel", group: "App", icon: "shield-alt", hint: "PIN lock & security question", description: "Manage your app PIN and security question." },
-  { label: "About & Support", targetPanelId: "settingsAboutPanel", group: "Information", icon: "info-circle", hint: "About Kaasi & getting in touch", description: "About Kaasi and how to get in touch." }
+  { label: "About & Support", targetPanelId: "settingsAboutPanel", group: "Information", icon: "info-circle", hint: "About Kaasi & getting in touch", description: "About Kaasi and how to get in touch." },
+  { label: "Donate", targetPanelId: "settingsDonatePanel", group: "Information", icon: "heart", hint: "Support Kaasi's development", description: "Help keep Kaasi free and in active development." }
 ];
 
 
@@ -996,23 +997,6 @@ const settingsTabsConfig = [
 
 let monthlySearchDebounceTimer; // Timer for debouncing search input
 
-// Donate Modal logic
-document
-  .getElementById("footerDonateBtn")
-  .addEventListener("click", function () {
-    openModalHelper("donateModal");
-  });
-document
-  .getElementById("closeDonateModal")
-  .addEventListener("click", function () {
-    document.getElementById("donateModal").style.display = "none";
-  });
-window.addEventListener("click", function (event) {
-  const modal = document.getElementById("donateModal");
-  if (isModalBackdropClick(event, modal)) {
-    modal.style.display = "none";
-  }
-});
 
 /* --------------------------------------------------- */
 /* --- INLINE AMOUNT CALCULATION & MATH TOOLBAR --- */

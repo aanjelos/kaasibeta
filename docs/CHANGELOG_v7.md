@@ -2,6 +2,14 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.447n - 2026-10-29
+
+### Installment Focus and Donation Settings
+
+- Highlight the installment card and focused pay, edit or delete action during keyboard navigation, using an inset orange outline that remains inside the card.
+- Move Donate from the dashboard footer into Settings under Information. Retain both bank accounts and copy-to-clipboard actions in a responsive Settings card.
+- Add a December year-end recap export to the roadmap, with private financial details excluded by default.
+
 ## v6.446n - 2026-10-29
 
 ### Streamlined Amount-field Tab Order

@@ -120,27 +120,12 @@ function initializeUI(isRefresh = false) {
   }
 
 
-  const donateModal = document.getElementById("donateModal");
-  const footerDonateBtn = document.getElementById("footerDonateBtn");
-  const closeDonateModalBtn = document.getElementById("closeDonateModal");
-
-  if (donateModal && footerDonateBtn && closeDonateModalBtn) {
+  const donatePanel = document.getElementById("settingsDonatePanel");
+  if (donatePanel) {
     if (bindOnce) {
-      footerDonateBtn.addEventListener("click", () => {
-        openModalHelper("donateModal");
-      });
-      closeDonateModalBtn.addEventListener("click", () => {
-        donateModal.style.display = "none";
-      });
-      // Close modal if user clicks on the background overlay
-      donateModal.addEventListener("click", (e) => {
-        if (isModalBackdropClick(e, donateModal)) {
-          donateModal.style.display = "none";
-        }
-      });
 
       // Handle copy to clipboard functionality for the new modal
-      const copyButtons = donateModal.querySelectorAll(".copy-button");
+      const copyButtons = donatePanel.querySelectorAll(".copy-button");
       copyButtons.forEach((button) => {
         button.addEventListener("click", () => {
           const textToCopy = button.dataset.copyText;
@@ -198,7 +183,7 @@ function initializeUI(isRefresh = false) {
     }
   } else {
     console.warn(
-      "One or more elements for the new donate modal were not found."
+      "Donation settings panel was not found."
     );
   }
 
