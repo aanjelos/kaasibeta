@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.451n - 2026-10-29
+
+### Compact Mobile Milestones
+
+- Display two milestone cards per row on typical phones with reduced padding, 32px icons and 14px titles. Retain a single column at widths of 340px or less for readability.
+
 ## v6.450n - 2026-10-29
 
 ### Milestone Presentation and Longer-term Goals
