@@ -8,8 +8,9 @@ const Milestones = (() => {
     ['first_debt','Keeping Track','Add your first debt.','hand-holding-usd','Getting Started',1,'debts'],
     ['first_receivable','Owed to You','Add your first receivable.','handshake','Getting Started',1,'receivables'],
     ['first_installment','One Step at a Time','Add your first installment plan.','calendar-check','Getting Started',1,'installments'],
-    ...[50,100,250,500,1000].map(n=>['records_'+n,n.toLocaleString()+' Records','Record '+n.toLocaleString()+' income or expense entries.','layer-group','Building a Habit',n,'records']),
+    ...[100,250,500,1000,2500,5000,10000].map(n=>['records_'+n,n.toLocaleString()+' Records','Record '+n.toLocaleString()+' income or expense entries.','layer-group','Building a Habit',n,'records']),
     ...[7,14,28].map((n,i)=>['days_'+n,['A Week Captured','Half a Month','A Month Captured'][i],'Record income or expenses on '+n+' distinct days in one calendar month.','calendar-alt','Building a Habit',n,'days']),
+    ...[3,6].map(n=>['months_'+n,n+' Months in View','Have recorded transactions spanning '+n+' calendar months.','history','Your Journey',n,'months']),
     ...[1,2,3,4,5].map(n=>['years_'+n,n===1?'A Year in View':n+' Years in View','Have recorded transactions spanning '+n+' calendar year'+(n===1?'':'s')+'.','history','Your Journey',n,'years']),
     ['first_budget','A Plan for Spending','Create your first budget.','chart-pie','Discover Kaasi',1,'budgets'],
     ['search_filters','Find Your Way','Use a transaction search filter.','filter','Discover Kaasi',1,'search_filters'],
@@ -20,13 +21,21 @@ const Milestones = (() => {
   ].map(([id,name,description,icon,group,target,metric])=>({id,name,description,icon,group,target,metric}));
   const known = new Set(definitions.map(d=>d.id));
   let pending = new Set(), timer, historical = {};
+  function anniversary(first,months) {
+    const offset=Number(first.slice(5,7))-1+months,y=Number(first.slice(0,4))+Math.floor(offset/12),m=offset%12+1;
+    const day=Math.min(Number(first.slice(8)),new Date(y,m,0).getDate());
+    return `${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  }
   function metrics(data) {
     const rows=(data.transactions||[]).filter(t=>['income','expense'].includes(t.type));
     const dates=[...new Set(rows.map(t=>t.date).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d||'')))].sort();
-    const months=new Map(); dates.forEach(d=>months.set(d.slice(0,7),(months.get(d.slice(0,7))||0)+1));
+    const monthDays=new Map(); dates.forEach(d=>monthDays.set(d.slice(0,7),(monthDays.get(d.slice(0,7))||0)+1));
     let years=0;
+    let months=0;
     if(dates.length) {
       const first=dates[0],last=dates[dates.length-1];
+      months=(Number(last.slice(0,4))-Number(first.slice(0,4)))*12+Number(last.slice(5,7))-Number(first.slice(5,7));
+      if(last<anniversary(first,months))months--;
       for(let n=1;n<=5;n++) {
         const y=Number(first.slice(0,4))+n,m=Number(first.slice(5,7)),day=Math.min(Number(first.slice(8)),new Date(y,m,0).getDate());
         if(last>=`${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`)years=n;
@@ -34,7 +43,7 @@ const Milestones = (() => {
     }
     return {records:rows.length,income:rows.filter(t=>t.type==='income').length,expense:rows.filter(t=>t.type==='expense').length,
       debts:(data.debts||[]).length,receivables:(data.receivables||[]).length,installments:(data.installments||[]).length,
-      budgets:(data.budgets||[]).length,days:Math.max(0,...months.values()),years,pin:data.settings?.appPin?.enabled?1:0};
+      budgets:(data.budgets||[]).length,days:Math.max(0,...monthDays.values()),years,months,pin:data.settings?.appPin?.enabled?1:0};
   }
   function evaluate(data, quiet=false, events=[]) {
     const counts=metrics(data), earned={...(data.achievements||{})}, unlocked=[];
@@ -58,11 +67,9 @@ const Milestones = (() => {
       const months=new Map();
       date=dates.find(day=>{const m=day.slice(0,7);months.set(m,(months.get(m)||0)+1);return months.get(m)===d.target;});
     }
-    if(d.metric==='years' && dates.length) {
-      const first=dates[0],y=Number(first.slice(0,4))+d.target,m=Number(first.slice(5,7));
-      const day=Math.min(Number(first.slice(8)),new Date(y,m,0).getDate());
-      const anniversary=`${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-      date=dates.find(day=>day>=anniversary);
+    if(['years','months'].includes(d.metric) && dates.length) {
+      const threshold=anniversary(dates[0],d.target*(d.metric==='years'?12:1));
+      date=dates.find(day=>day>=threshold);
     }
     if(['debts','receivables','installments'].includes(d.metric)) {
       const timestamps=(data[d.metric]||[]).map(r=>r.timestamp).filter(t=>Number.isFinite(t)&&t>0&&t<=Date.now()).sort((a,b)=>a-b);
@@ -111,10 +118,13 @@ const Milestones = (() => {
     host.innerHTML=[...new Set(definitions.map(d=>d.group))].map(group=>`<section class="milestone-group"><h3>${group}</h3><div class="milestone-grid">${definitions.filter(d=>d.group===group).map(d=>{
       const item=earned[d.id];
       const progress=Math.min(d.target,counts[d.metric]||0);
-      return `<article class="milestone-card ${item?'is-earned':''}"><i class="fas fa-${d.icon}" aria-hidden="true"></i><div><h4>${d.name}</h4><p>${d.description}</p><span class="milestone-status">${item?status(item):d.target>1?`${progress} / ${d.target}`:'Not Yet'}</span></div></article>`;
+      const measurable=['records','days','months','years'].includes(d.metric)&&d.id!=='first_record';
+      const target=d.metric==='years'?d.target*12:d.target, value=Math.min(target,d.metric==='years'?counts.months:progress);
+      const label=measurable?`${value.toLocaleString()} / ${target.toLocaleString()} ${['months','years'].includes(d.metric)?'months':d.metric==='days'?'days':'records'}`:'Not Yet';
+      return `<article class="milestone-card ${item?'is-earned':''}"><i class="fas fa-${d.icon}" aria-hidden="true"></i><h4>${d.name}</h4><p>${d.description}</p><div class="milestone-footer">${!item&&measurable?`<progress class="milestone-progress" max="${target}" value="${value}" aria-label="${d.name}">${label}</progress>`:''}<span class="milestone-status">${item?status(item):label}</span></div></article>`;
     }).join('')}</div></section>`).join('');
   }
-  function open() { render(); openModalHelper('milestonesModal'); }
+  function open() { openSettingsModal(); SettingsWorkspace.navigate('settingsMilestonesPanel'); }
   function forget(id) { delete historical[id]; }
-  return {definitions,metrics,evaluate,baseline,prepare,committed,track,open,known,forget,historicalDate,status};
+  return {definitions,metrics,evaluate,baseline,prepare,committed,track,open,known,forget,historicalDate,status,render};
 })();

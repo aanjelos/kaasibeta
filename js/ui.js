@@ -989,7 +989,7 @@ const settingsTabsConfig = [
   { label: "Security", targetPanelId: "settingsSecurityPanel", group: "App", icon: "shield-alt", hint: "PIN lock & security question", description: "Manage your app PIN and security question." },
   { label: "About & Support", targetPanelId: "settingsAboutPanel", group: "Information", icon: "info-circle", hint: "About Kaasi & getting in touch", description: "About Kaasi and how to get in touch." },
   { label: "Donate", targetPanelId: "settingsDonatePanel", group: "Information", icon: "heart", hint: "Support Kaasi's development", description: "Help keep Kaasi free and in active development." },
-  { label: "Extras", targetPanelId: "settingsExtrasPanel", group: "Information", icon: "star", hint: "Milestones & little extras", description: "A little encouragement for your financial journey." }
+  { label: "Milestones", targetPanelId: "settingsMilestonesPanel", group: "Extras", icon: "award", hint: "Celebrate your progress", description: "Small steps worth celebrating. Everyone's journey is different." }
 ];
 
 

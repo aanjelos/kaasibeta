@@ -2,6 +2,14 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.450n - 2026-10-29
+
+### Milestone Presentation and Longer-term Goals
+
+- Give Extras its own Settings navigation group with Milestones opening directly in the content panel, without an intermediate hub or popup.
+- Centre larger icons, titles and descriptions in vertical responsive cards. Add accessible progress bars to unearned measurable goals, retaining simple status labels for first-action awards and dates for earned awards.
+- Start record goals at 100 and extend them through 250, 500, 1,000, 2,500, 5,000 and 10,000. Add three- and six-calendar-month journey goals, including end-of-month date handling. Preserve existing saved achievement metadata.
+
 ## v6.449n - 2026-10-29
 
 ### Milestone Dates

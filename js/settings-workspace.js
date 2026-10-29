@@ -140,6 +140,7 @@ const SettingsWorkspace = (() => {
     if (selected === "settingsSubscriptionsPanel") borrowSubscriptions();
     else releaseSubscriptions();
     if (selected === "settingsDataManagementPanel") refreshStorageProtection();
+    if (selected === "settingsMilestonesPanel" && typeof Milestones !== 'undefined') Milestones.render();
     if (scroll) {
       const pane = document.querySelector("#settingsModal .settings-main");
       if (pane) pane.scrollTop = 0;
@@ -168,7 +169,7 @@ const SettingsWorkspace = (() => {
     if (!nav.dataset.workspaceReady) {
       nav.innerHTML = "";
       hub.innerHTML = '<h2>Settings</h2><p class="settings-hub-intro">Your money. Your preferences.</p>';
-      for (const group of ["Money", "App", "Information"]) {
+      for (const group of ["Money", "App", "Information", "Extras"]) {
         const navGroup = document.createElement("li");
         navGroup.className = "settings-nav-group";
         const mobileGroup = document.createElement("section");
