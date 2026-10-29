@@ -795,6 +795,56 @@ function syncCloud(r, initial) {
   return cloud;
 }
 
+test('Settings toggles persist locally but automatic checks wait for explicit Save or closing',async()=>{
+  const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();enableAutomaticSync(r);
+  r.element('#settingsModal').style.display='block';
+  await r.run('state.settings.hideCashCounter=true;saveData();');
+  assert.equal(JSON.parse(r.storage.get('KaasiData')).settings.hideCashCounter,true);
+  await r.context.runAutomaticCloudSync();await r.context.syncCloudData({automatic:true});
+  assert.equal(cloud.calls.length,0,'polling and direct automatic attempts must not bypass batching');
+  await r.run('state.settings.defaultTransferFee=42;saveData(state,{syncSettings:true});');
+  await r.context.runAutomaticCloudSync();
+  assert.equal(cloud.row.data.settings.defaultTransferFee,42);
+  assert.equal(cloud.row.data.settings.hideCashCounter,true);
+  cloud.calls.length=0;
+  await r.run('state.settings.hideCashCounter=false;saveData();');
+  await r.context.runAutomaticCloudSync();assert.equal(cloud.calls.length,0,'later toggles revoke the previous Save allowance');
+  r.element('#settingsModal').style.display='none';r.context.finishSettingsCloudSyncBatch();
+  await r.context.runAutomaticCloudSync();assert.equal(cloud.row.data.settings.hideCashCounter,false);
+});
+
+test('Settings close via button or browser history releases batching, section navigation does not',async()=>{
+  for(const route of ['button','history']) {
+    const r=runtime();r.run('supabaseUser={id:"batch-user"};supabaseClient={};');enableAutomaticSync(r);
+    r.context.cancelDeleteAllData=()=>{};
+    const pending=new Map();let id=0;r.context.setTimeout=(callback,delay)=>{pending.set(++id,{callback,delay});return id;};r.context.clearTimeout=key=>pending.delete(key);
+    r.element('#settingsModal').style.display='block';
+    await r.run('state.settings.hideCashCounter=true;saveData();');
+    assert.equal(pending.size,0);
+    r.run('SettingsWorkspace.navigate("settingsBudgetsPanel");');
+    assert.equal(pending.size,0);
+    if(route==='button')r.context.closeModal('settingsModal');
+    else for(const listener of r.windowEvents.get('popstate'))listener({state:{openModals:[]}});
+    assert.equal(r.element('#settingsModal').style.display,'none');
+    assert.equal(pending.size,1);
+    assert.equal([...pending.values()][0].delay,500);
+  }
+});
+
+test('Settings Save cannot bypass sync pause and failed saves cannot authorize upload',async()=>{
+  const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();enableAutomaticSync(r);
+  r.element('#settingsModal').style.display='block';
+  r.localStorage.failMain=true;
+  await assert.rejects(r.run('state.settings.defaultTransferFee=99;saveData(state,{syncSettings:true});'));
+  assert.equal(r.context.settingsCloudSyncDeferred(),true);
+  r.localStorage.failMain=false;r.storage.set('kaasi_auto_sync_paused','true');
+  await r.run('state.settings.defaultTransferFee=42;saveData(state,{syncSettings:true});');
+  await r.context.runAutomaticCloudSync();
+  assert.equal(cloud.calls.some(call=>call.type!=='read'),false);
+});
+
 test('manual Sync with an unchanged baseline checks metadata only and never transfers the dataset',async()=>{
   const r=runtime();const local=JSON.parse(r.storage.get('KaasiData'));
   const cloud=syncCloud(r,{data:local,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();

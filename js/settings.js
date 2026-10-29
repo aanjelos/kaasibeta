@@ -205,7 +205,7 @@ function renderSettingsForm() {
         return;
       }
       state.settings.defaultTransferFee = fee;
-      await saveData();
+      await saveData(state, {syncSettings:true});
       showNotification(`Default transfer fee set to ${formatCurrency(fee)}.`, "success");
     };
   }
@@ -235,7 +235,7 @@ function renderSettingsForm() {
         state.creditCard = { limit: 0, transactions: [] };
       }
       state.creditCard.limit = limit;
-      await saveData();
+      await saveData(state, {syncSettings:true});
       renderCreditCardSection();
       if ($("#ccHistoryModal").style.display === "block") openCcHistoryModal();
       showNotification(
@@ -467,7 +467,7 @@ function renderSettingsForm() {
         const pinHash = await hashString(pin);
         const answerHash = await hashString(a);
         state.settings.appPin = { enabled: true, pin: pinHash, question: q, answer: answerHash };
-        await saveData();
+        await saveData(state, {syncSettings:true});
         
         hideAllInlineForms();
         toggleAppPin.checked = true;
@@ -503,7 +503,7 @@ function renderSettingsForm() {
         if (newPin !== confirmPin) return showNotification("New PINs do not match.", "error");
         
         state.settings.appPin.pin = await hashString(newPin);
-        await saveData();
+        await saveData(state, {syncSettings:true});
         hideAllInlineForms();
         showNotification("PIN changed successfully.", "success");
       };
@@ -538,7 +538,7 @@ function renderSettingsForm() {
         
         state.settings.appPin.question = newQ;
         state.settings.appPin.answer = await hashString(newA);
-        await saveData();
+        await saveData(state, {syncSettings:true});
         if (inlineChangeQuestion) inlineChangeQuestion.classList.add("hidden");
         hideAllInlineForms();
         showNotification("Security Question updated.", "success");
@@ -565,7 +565,7 @@ function renderSettingsForm() {
         if (currentHash !== state.settings.appPin.pin) return showNotification("Incorrect current PIN.", "error");
         
         state.settings.appPin = { enabled: false };
-        await saveData();
+        await saveData(state, {syncSettings:true});
         hideAllInlineForms();
         toggleAppPin.checked = false;
         securityManagementOptions.classList.add("hidden");
@@ -730,7 +730,7 @@ async function renameCategory(buttonElement) {
       });
     }
 
-    await saveData();
+    await saveData(state, {syncSettings:true});
     populateDropdowns();
     renderCategorySettingsList();
     renderDashboard();
@@ -771,7 +771,7 @@ async function addCategory(event) {
   }
   state.categories.push(newCategoryName);
   state.categories.sort((a, b) => a.localeCompare(b));
-  await saveData();
+  await saveData(state, {syncSettings:true});
   populateDropdowns();
   renderCategorySettingsList();
   input.value = "";
@@ -904,7 +904,7 @@ async function handleManageAccountsSubmit(event) {
     if (state.settings && !state.settings.initialSetupDone) {
       state.settings.initialSetupDone = true;
     }
-    await saveData();
+    await saveData(state, {syncSettings:true});
     renderDashboard();
     populateDropdowns();
     renderSettingsForm();
@@ -1143,7 +1143,7 @@ async function handleAddBudgetSubmit(event) {
   if (!state.budgets) state.budgets = [];
   state.budgets.push(newBudget);
   
-  await saveData();
+  await saveData(state, {syncSettings:true});
   renderBudgetsSettingsList();
   $("#addBudgetForm").reset();
   buildBudgetCategoryCheckboxes("addBudgetCategoriesContainer");
@@ -1203,7 +1203,7 @@ async function handleEditBudgetSubmit(event) {
       limit: roundToTwoDecimals(limitInput),
       categories: selectedCategories
     };
-    await saveData();
+    await saveData(state, {syncSettings:true});
     renderBudgetsSettingsList();
     closeModal("editBudgetModal");
     if (typeof renderCategoryBudgets === "function") renderCategoryBudgets();

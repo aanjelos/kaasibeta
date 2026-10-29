@@ -6,6 +6,19 @@ let cloudSyncRemoteSequence = 0;
 let cloudSyncBusy = false;
 let cloudSyncActivity = 0;
 let cloudSyncFeedback = '';
+let settingsCloudSyncRevision = null;
+function settingsCloudSyncDeferred() {
+  return document.getElementById('settingsModal')?.style.display === 'block' &&
+    settingsCloudSyncRevision !== KaasiStorage.revision;
+}
+function noteCloudSyncSave(explicitSettingsSave) {
+  settingsCloudSyncRevision = explicitSettingsSave && document.getElementById('settingsModal')?.style.display === 'block'
+    ? KaasiStorage.revision : null;
+}
+function finishSettingsCloudSyncBatch() {
+  settingsCloudSyncRevision = null;
+  scheduleAutomaticCloudSync();
+}
 const automaticCloudReviewsSeen = new Set();
 function automaticSyncPaused() { return appPreferences.getItem('kaasi_auto_sync_paused') === 'true'; }
 async function persistSyncPause() {
@@ -258,6 +271,7 @@ async function syncCloudData(options = {}) {
   if (automatic && automaticSyncPaused()) return;
   if (isAppLocked() || storageOperationPending || cloudSyncBusy) return;
   if (automatic && !automaticCloudSyncEnabled()) return;
+  if (automatic && settingsCloudSyncDeferred()) return;
   if (!supabaseUser || !supabaseClient) { showNotification("Sign in to sync with the cloud.", "info"); return; }
   cloudSyncFeedback = '';
   setCloudSyncBusy(true);
@@ -535,12 +549,12 @@ function automaticCloudSyncEnabled() {
 }
 function scheduleAutomaticCloudSync(delay = 500) {
   clearTimeout(automaticCloudSyncTimer);
-  if (!automaticCloudSyncEnabled()) return;
+  if (!automaticCloudSyncEnabled() || settingsCloudSyncDeferred()) return;
   automaticCloudSyncTimer = setTimeout(() => runAutomaticCloudSync(), Math.max(delay, automaticCloudSyncFailures ? 5000 * 2 ** automaticCloudSyncFailures : 0));
 }
 async function runAutomaticCloudSync(allowHidden = false) {
   if (!automaticCloudSyncEnabled() || !navigator.onLine || cloudSyncBusy || storageOperationPending ||
-    (!allowHidden && document.visibilityState === 'hidden')) return;
+    settingsCloudSyncDeferred() || (!allowHidden && document.visibilityState === 'hidden')) return;
   if(automaticSyncPaused()){automaticCloudSyncLastCheck=Date.now();await refreshCloudSyncStatus();return;}
   if (cloudSyncReview) {
     if ($('#cloudSyncModal')?.style.display === 'block') return;

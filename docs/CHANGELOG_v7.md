@@ -2,6 +2,14 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.443n - 2026-10-29
+
+### Batch Settings Changes for Cloud Sync
+
+- Continue persisting Settings changes locally immediately, while deferring automatic cloud checks/transfers until Settings closes. Apply the same deferral to polling, focus, reconnection and switching away; local changes remain pending if the app closes before Settings does.
+- Allow successful explicit saves for accounts, transfer fees, CC limits, security forms, categories, budgets and subscription definitions to schedule automatic sync while Settings remains open. The whole-copy transfer includes all current saved changes. Later edits require a new explicit save or closing Settings.
+- Release the batch on Close, backdrop/Escape and browser Back exits, without releasing it on navigation between Settings sections. Failed validation/saves do not authorize transfers; manual cloud actions, pause and conflict safeguards retain their existing behaviour.
+
 ## v6.442n - 2026-10-29
 
 ### Quicker Automatic Sync Scheduling

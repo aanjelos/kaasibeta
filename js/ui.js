@@ -788,7 +788,7 @@ window.addEventListener("popstate", (event) => {
           $("#dynamicForm").onsubmit = null;
           $("#dynamicForm").oninput = null;
         }
-        if (id === "settingsModal") cancelDeleteAllData();
+        if (id === "settingsModal") { cancelDeleteAllData(); finishSettingsCloudSyncBatch(); }
         if (id === "ccHistoryModal") document.body.renderCcHistoryList = null;
         restoreModalFocus(id);
       }
@@ -811,6 +811,7 @@ function closeModal(modalId) {
       // Imports/reset can close Settings while a confirmation is above it.
       // Remove that whole branch, then let callers open the next screen safely.
       stack.slice(index).forEach(id => { const item = $(`#${id}`); if (item) item.style.display = "none"; });
+      finishSettingsCloudSyncBatch();
       if (stack.includes("formModal")) {
         $("#dynamicForm").innerHTML = "";
         $("#dynamicForm").onsubmit = null;
@@ -833,7 +834,7 @@ function closeModal(modalId) {
     $("#dynamicForm").onsubmit = null;
     $("#dynamicForm").oninput = null;
   }
-  if (modalId === "settingsModal") cancelDeleteAllData();
+  if (modalId === "settingsModal") { cancelDeleteAllData(); if (wasOpen) finishSettingsCloudSyncBatch(); }
   if (modalId === "ccHistoryModal") {
     document.body.renderCcHistoryList = null; // Cleanup
   }

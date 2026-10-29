@@ -627,7 +627,7 @@ function generateDataHash(str) {
   return hash.toString();
 }
 
-async function saveData(nextState = state) {
+async function saveData(nextState = state, options = {}) {
   if (storageOperationPending) throw new Error("A save is already in progress. Please wait.");
   storageOperationPending = true;
   let serialized;
@@ -648,6 +648,7 @@ async function saveData(nextState = state) {
   }
   state = nextState;
   lastPersistedStateJson = serialized;
+  if (typeof noteCloudSyncSave === 'function') noteCloudSyncSave(options.syncSettings === true);
   const syncedHash = appPreferences.getItem("kaasi_synced_state_hash");
   window.currentCloudSyncStatus = syncedHash && generateDataHash(serialized) === syncedHash ? "synced" : "local_newer";
   if (typeof updateLocalCloudSyncStatus === "function") await updateLocalCloudSyncStatus();

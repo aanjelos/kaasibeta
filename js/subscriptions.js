@@ -77,9 +77,9 @@ const Subscriptions = (() => {
     if(!sub || sub.status!=='active' || sub.nextDueDate!==due || (expected && fingerprint(sub)!==expected)) throw new Error('This subscription changed. Close this form and reopen it.');
     return sub;
   }
-  async function change(action) {
+  async function change(action, syncSettings = false) {
     assertOpen();busy=true;
-    try {action();await saveData();for(const key of remindersToClear)appPreferences.removeItem(key);}
+    try {action();await saveData(state,{syncSettings});for(const key of remindersToClear)appPreferences.removeItem(key);}
     finally {remindersToClear.clear();busy=false;}
     renderDashboard();render();
   }
@@ -112,7 +112,7 @@ const Subscriptions = (() => {
       state.subscriptions ||= [];
       if(existing&&!unchangedDate){clearSnooze(id,existing.nextDueDate);clearSnooze(id,nextDueDate);}
       if(existing) Object.assign(existing,definition);else state.subscriptions.push(definition);
-    });
+    },true);
     return definition.id;
   }
   async function record(id,due,values,expected) {
