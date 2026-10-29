@@ -797,6 +797,7 @@ function initializeUI(isRefresh = false) {
  * Updates the header backup/restore buttons to reflect the selected shortcut target.
  */
 function updateHeaderShortcutButtons() {
+  refreshKaasiUpdateNotice();
   if(typeof updateSyncPauseControls==='function')updateSyncPauseControls();
   const backupBtn = $("#headerBackupBtn"), restoreBtn = $("#headerRestoreBtn");
   const cloudRadio = $("#shortcutCloud");
@@ -1130,6 +1131,18 @@ async function applyKaasiUpdate(reg, button) {
   }
 }
 
+function kaasiUpdateNoticeSafe() {
+  return !isAppLocked() && !storageOperationPending && !cloudSyncBusy &&
+    ![...document.querySelectorAll('.modal')].some(modal=>modal.style.display==='block') &&
+    document.getElementById('storageScreen')?.hidden!==false &&
+    document.getElementById('cloudRestoreOverlay')?.hidden!==false &&
+    !['amount','description','ccAmount','ccDescription'].some(id=>document.getElementById(id)?.value?.trim()) &&
+    !document.activeElement?.matches?.('input,select,textarea,[contenteditable="true"]');
+}
+function refreshKaasiUpdateNotice() {
+  const notice=document.getElementById('appUpdateNotice');
+  if(notice)notice.hidden=!kaasiUpdateNoticeSafe();
+}
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("sw.js", { updateViaCache: 'none' }).then((reg) => {
@@ -1146,6 +1159,11 @@ if ("serviceWorker" in navigator) {
         button.onclick = () => applyKaasiUpdate(reg, button);
         notice.append(label, button);
         document.body.appendChild(notice);
+        const refresh=refreshKaasiUpdateNotice;
+        refresh();
+        for(const event of ['input','change','focusin','focusout','click','popstate'])window.addEventListener(event,()=>setTimeout(refresh,0));
+        const observer=new MutationObserver(refresh);
+        document.querySelectorAll('.modal, #pinLockOverlay, #storageScreen, #cloudRestoreOverlay').forEach(element=>observer.observe(element,{attributes:true,attributeFilter:['style','class','hidden']}));
       };
       offerUpdate();
       reg.addEventListener("updatefound", () => reg.installing?.addEventListener("statechange", offerUpdate));
@@ -1247,6 +1265,9 @@ function initializeGlobalTooltips() {
 
   function updateTooltipPosition() {
     if (!activeTarget) return;
+    const layer=sourceFloatingLayer(activeTarget);
+    if(layer===null){hideTooltip();return;}
+    tooltipEl.style.zIndex=String(layer);
 
     const rect = activeTarget.getBoundingClientRect();
     const tooltipText = activeTarget.getAttribute("data-tooltip");

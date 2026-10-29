@@ -2,6 +2,14 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.445n - 2026-10-29
+
+### Context-aware Floating Controls and Update Notice
+
+- Place the calculator and shared tooltip one level above their source dialog, below higher dialogs, while retaining body-level positioning to avoid clipping. Hide floating controls when another dialog opens or PIN/restore protection starts; ignore disconnected, hidden or inert sources.
+- Keep the update notice prominent on the dashboard but defer it during dialogs, unfinished transaction input, focused form controls, saves, sync and security/recovery screens. Re-evaluate visibility when interactions and protected-screen state change.
+- Preserve the existing toast notification layer and behaviour.
+
 ## v6.444n - 2026-10-29
 
 ### Visible Cloud Restore Lock

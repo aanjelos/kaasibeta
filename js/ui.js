@@ -654,6 +654,19 @@ function visibleModalControls(modal) {
 function topVisibleModal() {
   return [...document.querySelectorAll('.modal')].filter(el => el.style.display === 'block').sort((a,b) => (Number(getComputedStyle(a).zIndex)||0)-(Number(getComputedStyle(b).zIndex)||0)).pop();
 }
+function sourceFloatingLayer(target) {
+  const owner=target?.closest?.('.modal, #pinLockOverlay, #storageScreen');
+  if (!target?.isConnected || !target.getClientRects().length || target.closest('[inert]') ||
+      (isAppLocked() && owner?.id!=='pinLockOverlay' && owner?.id!=='securityQuestionModal')) return null;
+  const top=topVisibleModal();
+  if (top && top!==owner) return null;
+  return owner ? (Number(getComputedStyle(owner).zIndex)||50)+1 : 45;
+}
+function dismissSourceFloatingUI() {
+  mathToolbar.classList.remove('visible');activeCalcInput=null;
+  const tooltip=document.getElementById('global-tooltip');
+  tooltip?.classList.remove('visible');tooltip?.classList.add('hidden');
+}
 function focusModalStart(modal) {
   if (modal.style.display !== 'block') return;
   const container = modal.querySelector('.modal-content') || modal;
@@ -745,6 +758,7 @@ if(typeof MutationObserver!=='undefined')new MutationObserver(()=>{
 function openModalHelper(modalId) {
   const modal = $(`#${modalId}`);
   if (modal && modal.style.display !== "block") {
+    dismissSourceFloatingUI();
     modalFocusOrigins.set(modalId, document.activeElement);
     modal.style.display = "block";
     updateBodyScrollState();

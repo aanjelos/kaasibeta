@@ -1603,6 +1603,7 @@ test('calculator floats outside scrolling forms and clamps above/below within th
   const r=runtime();r.context.innerWidth=360;r.context.innerHeight=640;
   r.run('mathToolbar.getBoundingClientRect=()=>({width:232,height:50});');
   const input=new Element();r.context.calcTestInput=input;
+  input.isConnected=true;input.closest=()=>null;
   input.getBoundingClientRect=()=>({left:10,right:130,top:100,bottom:144});
   r.context.positionMathToolbar(input);
   assert.equal(r.run('mathToolbar.parentElement===document.body'),true);
@@ -1617,6 +1618,27 @@ test('calculator floats outside scrolling forms and clamps above/below within th
   r.context.positionMathToolbar(input);
   assert.equal(r.run('mathToolbar.style.left'),'28px');
   assert.equal(r.run('mathToolbar.style.top'),'226px');
+});
+
+test('floating controls follow their source dialog and hide behind another dialog or lock',()=>{
+  const r=runtime(),owner=new Element(),confirmation=new Element(),input=new Element();
+  owner.style.display='block';confirmation.style.display='none';input.isConnected=true;
+  input.closest=selector=>selector==='[inert]'?null:owner;
+  r.context.document.querySelectorAll=()=>[owner,confirmation];
+  r.context.getComputedStyle=element=>({zIndex:element===owner?'68':'70'});
+  assert.equal(r.context.sourceFloatingLayer(input),69);
+  confirmation.style.display='block';assert.equal(r.context.sourceFloatingLayer(input),null);
+  confirmation.style.display='none';r.context.kaasiAppLocked=true;
+  assert.equal(r.context.sourceFloatingLayer(input),null);
+});
+
+test('update notice defers around dialogs, draft fields and locks, and returns when safe',()=>{
+  const r=runtime(),modal=new Element();r.context.document.querySelectorAll=()=>[modal];
+  r.context.refreshKaasiUpdateNotice();assert.equal(r.element('#appUpdateNotice').hidden,false);
+  modal.style.display='block';r.context.refreshKaasiUpdateNotice();assert.equal(r.element('#appUpdateNotice').hidden,true);
+  modal.style.display='none';r.element('#description').value='Unfinished';r.context.refreshKaasiUpdateNotice();assert.equal(r.element('#appUpdateNotice').hidden,true);
+  r.element('#description').value='';r.context.kaasiAppLocked=true;r.context.refreshKaasiUpdateNotice();assert.equal(r.element('#appUpdateNotice').hidden,true);
+  r.context.kaasiAppLocked=false;r.context.refreshKaasiUpdateNotice();assert.equal(r.element('#appUpdateNotice').hidden,false);
 });
 
 test('failed bulk CC settlement restores the balance and all purchase payment states', async () => {

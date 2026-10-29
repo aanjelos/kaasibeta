@@ -25,6 +25,7 @@ function showPinLockScreen() {
   const pinLockOverlay = document.getElementById("pinLockOverlay");
   if (!pinLockOverlay) return;
   window.kaasiAppLocked = true;
+  if(typeof dismissSourceFloatingUI==='function')dismissSourceFloatingUI();
   const appContent = document.getElementById("app-content");
   if (appContent) { appContent.inert = true; appContent.setAttribute("aria-hidden", "true"); }
   const footer = document.querySelector("footer");

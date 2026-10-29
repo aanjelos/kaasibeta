@@ -99,6 +99,9 @@ document.addEventListener("submit", (event) => {
 }, true);
 
 function positionMathToolbar(inputEl) {
+  const layer=sourceFloatingLayer(inputEl);
+  if(layer===null){mathToolbar.classList.remove('visible');return false;}
+  mathToolbar.style.zIndex=String(layer);
   // Keep the shared toolbar outside modal scroll/overflow containers.
   if (mathToolbar.parentElement !== document.body) document.body.appendChild(mathToolbar);
   const viewport = window.visualViewport;
@@ -119,12 +122,13 @@ function positionMathToolbar(inputEl) {
   mathToolbar.style.right = 'auto';
   mathToolbar.style.top = `${y}px`;
   mathToolbar.style.marginTop = '0';
+  return true;
 }
 
 function showMathToolbar(inputEl) {
   if (state.settings && state.settings.showMathToolbar === false) return;
   activeCalcInput = inputEl;
-  positionMathToolbar(inputEl);
+  if(positionMathToolbar(inputEl)===false)return;
   mathToolbar.classList.add("visible");
   if (toolbarHideTimeout) clearTimeout(toolbarHideTimeout);
 }

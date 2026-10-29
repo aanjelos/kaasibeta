@@ -2615,6 +2615,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .cloud-manual-actions .btn { min-height:44px; font-size:13px; }
 .cloud-paused-hint { margin:0; }
 .sync-paused-warning { color:var(--accent-primary); }
+#appUpdateNotice[hidden] { display:none; }
 #cloudRestoreOverlay { position:fixed; inset:0; z-index:99998; display:grid; place-items:center; padding:24px; background:rgba(0,0,0,.65); backdrop-filter:blur(2px); cursor:wait; }
 #cloudRestoreOverlay[hidden] { display:none; }
 body.cloud-restoring { overflow:hidden !important; }

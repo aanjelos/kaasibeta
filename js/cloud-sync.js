@@ -17,6 +17,7 @@ function beginCloudRestoreLock() {
     !['SCRIPT','STYLE','LINK'].includes(element.tagName));
   const previous = blocked.map(element => [element, !!element.inert]);
   cloudRestoreInteractionLocked = true;
+  if(typeof dismissSourceFloatingUI==='function')dismissSourceFloatingUI();
   document.body?.classList?.add('cloud-restoring');
   for (const [element] of previous) element.inert = true;
   overlay.hidden = false;
