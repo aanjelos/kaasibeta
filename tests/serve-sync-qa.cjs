@@ -38,12 +38,13 @@ if(process.env.KAASI_SYNC_QA_LONG_TEXT==='1'){
 const bootstrap=`<script>
 if(!localStorage.getItem('syncQaSeeded')){localStorage.setItem('KaasiData',${JSON.stringify(process.env.KAASI_STORAGE_RECOVERY_QA==='1'?'{invalid synthetic backup':JSON.stringify(fixture))});localStorage.setItem('syncQaSeeded','true');}
 navigator.storage.persist=async()=>true;
+${process.env.KAASI_RESTORE_OVERLAY_QA==='1'?"localStorage.setItem('kaasi_auto_sync_paused','true');":''}
 window.supabase={createClient(){let row=${JSON.stringify({data:remote,updated_at:'2026-10-22T10:00:00Z'})};return {
 auth:{onAuthStateChange(){},getSession:async()=>({data:{session:{user:{id:'qa-sync-only',email:'qa@example.invalid'}}}})},
 from(){let fields,method='read',payload,expected;return {
 select(value){fields=value;return this;},eq(key,value){if(key==='updated_at')expected=value;return this;},
 insert(value){method='insert';payload=value;return this;},update(value){method='update';payload=value;return this;},
-async maybeSingle(){if(method==='insert'&&row)return{data:null,error:{code:'23505'}};if(method==='update'&&row.updated_at!==expected)return{data:null,error:null};
+async maybeSingle(){${process.env.KAASI_RESTORE_OVERLAY_QA==='1'?"if(method==='read'&&fields.includes('data'))await new Promise(resolve=>setTimeout(resolve,12000));":''}if(method==='insert'&&row)return{data:null,error:{code:'23505'}};if(method==='update'&&row.updated_at!==expected)return{data:null,error:null};
 if(method!=='read')row=payload;return{data:fields==='updated_at'?{updated_at:row.updated_at}:row,error:null};}}
 }}}};
 </script>`;

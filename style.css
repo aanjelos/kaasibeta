@@ -2615,6 +2615,14 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .cloud-manual-actions .btn { min-height:44px; font-size:13px; }
 .cloud-paused-hint { margin:0; }
 .sync-paused-warning { color:var(--accent-primary); }
+#cloudRestoreOverlay { position:fixed; inset:0; z-index:99998; display:grid; place-items:center; padding:24px; background:rgba(0,0,0,.65); backdrop-filter:blur(2px); cursor:wait; }
+#cloudRestoreOverlay[hidden] { display:none; }
+body.cloud-restoring { overflow:hidden !important; }
+.cloud-restore-message { display:flex; flex-direction:column; align-items:center; gap:14px; width:100%; max-width:340px; padding:28px 24px; border:1px solid var(--border-color); border-radius:var(--radius-md); background:var(--bg-secondary); color:var(--text-primary); text-align:center; box-shadow:0 12px 36px rgba(0,0,0,.25); }
+.cloud-restore-message i { color:var(--accent-primary); font-size:24px; }
+.cloud-restore-message strong { font-size:18px; }
+.cloud-restore-message span { font-size:13px; line-height:1.6; color:var(--text-secondary); }
+@media (prefers-reduced-motion: reduce) { #cloudRestoreOverlay .fa-spin { animation:none; } }
 .sync-offline-pulse,
 .sync-offline-pulse:hover,
 .sync-offline-pulse .dashboard-sync-status,

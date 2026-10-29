@@ -6,6 +6,42 @@ let cloudSyncRemoteSequence = 0;
 let cloudSyncBusy = false;
 let cloudSyncActivity = 0;
 let cloudSyncFeedback = '';
+let cloudRestoreInteractionLocked = false;
+function beginCloudRestoreLock() {
+  if (cloudRestoreInteractionLocked) return () => {};
+  const overlay = document.getElementById('cloudRestoreOverlay');
+  if (!overlay) return () => {};
+  const origin = document.activeElement;
+  const blocked = [...(document.body?.children || [])].filter(element =>
+    !['cloudRestoreOverlay','pinLockOverlay','storageScreen','notificationArea','preloader'].includes(element.id) &&
+    !['SCRIPT','STYLE','LINK'].includes(element.tagName));
+  const previous = blocked.map(element => [element, !!element.inert]);
+  cloudRestoreInteractionLocked = true;
+  document.body?.classList?.add('cloud-restoring');
+  for (const [element] of previous) element.inert = true;
+  overlay.hidden = false;
+  overlay.focus?.({preventScroll:true});
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    cloudRestoreInteractionLocked = false;
+    document.body?.classList?.remove('cloud-restoring');
+    overlay.hidden = true;
+    const protectedScreen = isAppLocked() || document.getElementById('storageScreen')?.hidden === false;
+    for (const [element, wasInert] of previous) {
+      element.inert = wasInert || (protectedScreen &&
+        (element === document.getElementById('app-content') || element.tagName === 'FOOTER'));
+    }
+    if (!protectedScreen && origin?.isConnected && origin.getClientRects().length &&
+        !(mobileModalFocus() && origin.matches('input,select,textarea'))) origin.focus({preventScroll:true});
+  };
+}
+document.addEventListener('keydown', event => {
+  if (!cloudRestoreInteractionLocked || isAppLocked()) return;
+  event.stopImmediatePropagation();
+  if ((!event.ctrlKey && !event.metaKey) || event.key.toLowerCase() === 's') event.preventDefault();
+}, true);
 let settingsCloudSyncRevision = null;
 function settingsCloudSyncDeferred() {
   return document.getElementById('settingsModal')?.style.display === 'block' &&
@@ -58,6 +94,7 @@ function updateSyncPauseControls() {
 async function manualCloudTransfer(which) {
   if (cloudSyncBusy || storageOperationPending || isAppLocked()) return;
   setCloudSyncBusy(true);
+  const releaseRestoreLock = which === 'cloud' ? beginCloudRestoreLock() : () => {};
   try {
     const userId=supabaseUser?.id;cloudSyncAssertUser(userId);
     const revision=KaasiStorage.revision;
@@ -68,7 +105,7 @@ async function manualCloudTransfer(which) {
     if(which==='cloud')context.cloud=portableKaasiData(prepareImportedData(row.data));
     await assertCloudSyncLocal(context);cloudSyncReview=context;
   } catch(error){showNotification(error.message,'error');return;}
-  finally{setCloudSyncBusy(false);}
+  finally{releaseRestoreLock();setCloudSyncBusy(false);}
   chooseCloudSyncCopy(which);
 }
 
@@ -239,22 +276,21 @@ async function uploadCloudSync(context) {
 }
 async function downloadCloudSync(context) {
   if (KaasiStorage.mode !== "indexeddb") throw new Error("Complete the local storage upgrade before applying a cloud copy. Your saved data has not been replaced.");
+  if (context.automatic && !cloudSyncDownloadSafe(context)) return;
+  const releaseRestoreLock = beginCloudRestoreLock();
+  try {
   await assertCloudSyncLocal(context);
   const latest = await readCloudSyncRow(context.userId);
   if (!latest || latest.updated_at !== context.updatedAt) throw new Error("The cloud copy changed. Start Sync again before restoring.");
   await assertCloudSyncLocal(context);
   if (context.automatic && !cloudSyncDownloadSafe(context)) return;
-  // Briefly prevent new draft input during the atomic local replacement and rerender.
-  const content = context.automatic ? document.getElementById('app-content') : null;
-  const wasInert = content?.inert;
-  if (content) content.inert = true;
-  try { await applyImportedData(context.cloud, context.revision, {source:'cloud'}); }
-  finally { if (content) content.inert = wasInert || isAppLocked(); }
+  await applyImportedData(context.cloud, context.revision, {source:'cloud'});
   // applyImportedData normalizes legacy optional defaults; baseline matches what was actually saved.
   await recordCloudSync(context.userId, KaasiStorage.current, context.updatedAt, false);
   await finishSyncResume(context);
   if (state.settings.initialSetupDone && $("#initialSetupModal")?.style.display === "block") closeModal("initialSetupModal");
   if (!context.automatic) showNotification(context.resume ? 'Automatic sync resumed.' : "Sync complete. The cloud copy was applied.", "success");
+  } finally { releaseRestoreLock(); }
 }
 function setCloudSyncBusy(busy) {
   cloudSyncBusy = busy;
@@ -276,6 +312,7 @@ async function syncCloudData(options = {}) {
   cloudSyncFeedback = '';
   setCloudSyncBusy(true);
   ++cloudSyncRemoteSequence;
+  let releaseRestoreLock = () => {};
   try {
     if (cloudSyncReview && !automatic) { closeModal("cloudSyncModal"); cloudSyncReview = null; }
     const userId = supabaseUser.id;
@@ -320,6 +357,7 @@ async function syncCloudData(options = {}) {
     const reviewKey = `${userId}:${context.updatedAt}`;
     if (automatic && (direction === 'review' || direction === 'conflict') && automaticCloudReviewsSeen.has(reviewKey)) return;
     if (automatic && !cloudSyncDownloadSafe(context)) return;
+    if (direction === 'cloud_newer') releaseRestoreLock = beginCloudRestoreLock();
     const full = await readCloudSyncRow(userId, true);
     if (!full || full.updated_at !== context.updatedAt) throw new Error("The cloud copy changed. Start Sync again.");
     context.cloud = portableKaasiData(prepareImportedData(full.data));
@@ -347,6 +385,7 @@ async function syncCloudData(options = {}) {
     if (!automatic) showNotification(`Sync stopped: ${error.message}`, "error", 10000);
     if (automatic) automaticCloudSyncFailures = Math.min(automaticCloudSyncFailures + 1, 4);
   } finally {
+    releaseRestoreLock();
     setCloudSyncBusy(false);
     if(resume && cloudSyncReview?.resume && cloudSyncReview.updatedAt===null)chooseCloudSyncCopy('local');
     if (automatic && !cloudSyncFeedback) automaticCloudSyncFailures = 0;
@@ -513,10 +552,10 @@ function renderCloudSyncReview(page = 0) {
 function chooseCloudSyncCopy(which) {
   if (!cloudSyncReview || cloudSyncBusy || isAppLocked()) return;
   const context = cloudSyncReview;
-  showConfirmationModal(which === "local" ? "Replace Cloud Copy?" : "Replace This Device's Copy?",
-    which === "local" ? "This replaces the cloud dataset with this device's copy. Cloud-only entries will no longer be in the active cloud copy."
-      : "This replaces this device's dataset with the cloud copy. Device-only entries will no longer be active. One previous local copy is retained for recovery.",
-    which === "local" ? "Replace Cloud" : "Replace Device", "Cancel", async () => {
+  showConfirmationModal(which === "local" ? "Update Cloud Backup?" : "Restore From Cloud?",
+    which === "local" ? "This replaces your cloud backup with the data on this device. Changes saved only in the cloud will be removed."
+      : "This replaces the data on this device with your cloud backup. Changes saved only here will be removed.",
+    which === "local" ? "Upload" : "Restore", "Cancel", async () => {
       if (cloudSyncBusy || isAppLocked() || cloudSyncReview !== context) return;
       setCloudSyncBusy(true);
       try {

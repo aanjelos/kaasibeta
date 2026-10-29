@@ -795,6 +795,52 @@ function syncCloud(r, initial) {
   return cloud;
 }
 
+test('cloud restore locks before full fetch and releases on success, invalid data, failure and timeout',async()=>{
+  for(const outcome of ['success','invalid','storage','network','timeout']) {
+    const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+    const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();
+    const content=r.element('#app-content'),footer=new Element();footer.inert=true;
+    r.context.document.body.children=[content,footer];r.element('#cloudRestoreOverlay').hidden=true;
+    cloud.row.data.accounts[0].balance=500;cloud.row.updated_at='2026-10-22T00:00:00Z';
+    let fullFetched=false;
+    cloud.beforeRead=async call=>{
+      if(!call.fields.includes('data'))return;
+      fullFetched=true;
+      assert.equal(content.inert,true);assert.equal(r.element('#cloudRestoreOverlay').hidden,false);
+      if(outcome==='network')throw Error('Connection lost');
+      if(outcome==='invalid')cloud.row.data.transactions=null;
+      if(outcome==='storage')r.localStorage.failMain=true;
+      if(outcome==='timeout')await new Promise(()=>{});
+    };
+    const operation=r.context.syncCloudData();
+    if(outcome==='timeout') {
+      for(let i=0;i<50&&!fullFetched;i++)await new Promise(setImmediate);
+      assert.equal(fullFetched,true);r.timers.at(-1)();
+    }
+    await operation;
+    assert.equal(fullFetched,true);assert.equal(content.inert,false);
+    assert.equal(footer.inert,true,'preserve existing interaction restrictions');
+    assert.equal(r.element('#cloudRestoreOverlay').hidden,true);
+    assert.equal(r.run('cloudRestoreInteractionLocked'),false);
+    assert.equal(r.run('state.accounts[0].balance'),outcome==='success'?500:1000);
+  }
+});
+
+test('restore lock retains PIN protection and automatic downloads wait for unfinished input',async()=>{
+  const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();enableAutomaticSync(r);
+  const content=r.element('#app-content'),otherDialog=new Element();r.context.document.body.children=[content,otherDialog];
+  cloud.row.updated_at='2026-10-22T00:00:00Z';cloud.row.data.accounts[0].balance=500;
+  r.element('#description').value='Unfinished entry';
+  await r.context.runAutomaticCloudSync();
+  assert.equal(cloud.calls.some(call=>call.fields?.includes('data')),false);
+  assert.equal(r.run('cloudRestoreInteractionLocked'),false);
+  r.element('#description').value='';
+  const release=r.context.beginCloudRestoreLock();r.context.kaasiAppLocked=true;release();
+  assert.equal(content.inert,true);assert.equal(r.element('#cloudRestoreOverlay').hidden,true);
+  assert.equal(otherDialog.inert,false,'do not leave unrelated dialogs permanently inert after PIN unlock');
+});
+
 test('Settings toggles persist locally but automatic checks wait for explicit Save or closing',async()=>{
   const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
   const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();enableAutomaticSync(r);
@@ -1356,6 +1402,7 @@ test('a competing cloud write rejects automatic upload and becomes review on ret
 
 test('a failed automatic replacement releases input and retains the previous financial copy',async()=>{
   const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+  r.context.document.body.children=[r.element('#app-content')];
   const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();enableAutomaticSync(r);
   cloud.row.data.accounts[0].balance=700;cloud.row.updated_at='2026-10-22T00:00:00Z';
   r.context.KaasiStorage.replace=async()=>{assert.equal(r.element('#app-content').inert,true);throw new Error('Write failed');};

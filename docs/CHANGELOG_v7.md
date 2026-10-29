@@ -2,6 +2,15 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.444n - 2026-10-29
+
+### Visible Cloud Restore Lock
+
+- Dim the screen and block background interaction and app keyboard shortcuts before fetching a newer cloud copy, retaining the lock through validation, local replacement and interface refresh. Metadata-only checks, uploads and conflict comparisons do not show the overlay.
+- Continue deferring automatic restores around unfinished entries and open dialogs. Keep revision/timestamp checks and recovery copies; release the lock on success, failure and timeout without overriding PIN or storage-recovery protection. Add no artificial delay.
+- Show the same progress state when preparing an explicit cloud restore and when applying the confirmed copy. Preserve existing replacement confirmation and paused-sync behaviour.
+- Simplify upload/restore confirmations to plain-language descriptions and short Upload/Restore actions while retaining the warning that changes present only in the replaced copy will be removed.
+
 ## v6.443n - 2026-10-29
 
 ### Batch Settings Changes for Cloud Sync
