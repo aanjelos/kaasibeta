@@ -2636,3 +2636,6 @@ body.cloud-restoring { overflow:hidden !important; }
 .recent-transactions-heading h2 { min-width: 0; flex: 1 1 0; }
 .recent-transactions-heading .btn { flex-shrink: 0; margin: 0; white-space: nowrap; }
 @media(max-width:340px) { .recent-transactions-heading { flex-wrap: wrap; } .recent-transactions-heading h2 { flex-basis: 100%; } }
+.desktop-header-actions { gap: 8px; }
+.desktop-header-actions > button { margin: 0; }
+.desktop-header-actions #headerCloudSyncBtn { margin: 0; }

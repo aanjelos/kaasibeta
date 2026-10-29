@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.454n - 2026-10-30
+
+### Consistent Desktop Header Spacing
+
+- Replace accumulated button margins with a shared 8px gap between desktop header actions, including Sync, Keyboard Shortcuts and Settings. Keep mobile header spacing unchanged.
+
 ## v6.453n - 2026-10-30
 
 ### Consistent Dashboard View Buttons
