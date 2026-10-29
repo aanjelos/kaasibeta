@@ -2,6 +2,13 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.446n - 2026-10-29
+
+### Streamlined Amount-field Tab Order
+
+- Skip calculator toggle buttons during Tab navigation in static and dynamically rendered forms. Preserve mouse/touch toggles and direct expression entry in amount fields.
+- Clear focus from the submitted form after successfully saving income, expenses, transfers and credit card purchases, allowing dashboard shortcuts to work immediately after Enter submission. Preserve focus on validation or save failures.
+
 ## v6.445n - 2026-10-29
 
 ### Context-aware Floating Controls and Update Notice

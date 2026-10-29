@@ -396,7 +396,11 @@ test('failed financial save retains previous data and form input without a succe
   const r = runtime(); const before = r.storage.get('KaasiData');
   const form = { values: { transactionType: 'expense', amount: '100', account: 'cash', category: 'Other', description: 'Lunch', date: '2026-10-20' }, reset() { this.resetCalled = true; }, querySelector() { return null; } };
   r.localStorage.failMain = true;
+  let blurred = false;
+  r.context.document.activeElement = { blur() { blurred = true; } };
+  form.contains = element => element === r.context.document.activeElement;
   await assert.rejects(r.context.handleTransactionSubmit({ preventDefault() {}, target: form }), /not saved/);
+  assert.equal(blurred, false);
   assert.equal(r.storage.get('KaasiData'), before);
   assert.equal(r.run('state.accounts[0].balance'), 1000);
   assert.equal(r.run('state.transactions.length'), 0);
@@ -404,6 +408,7 @@ test('failed financial save retains previous data and form input without a succe
   assert.ok(!r.notices.some(([, type]) => type === 'success'));
   r.localStorage.failMain = false;
   await r.context.handleTransactionSubmit({ preventDefault() {}, target: form });
+  assert.equal(blurred, true);
   assert.equal(r.run('state.accounts[0].balance'), 900);
   assert.equal(r.run('state.transactions.length'), 1);
 });

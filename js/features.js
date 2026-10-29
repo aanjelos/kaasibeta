@@ -615,6 +615,7 @@ async function handleTransactionSubmit(event) {
 
     await saveData();
     showNotification("Transfer successful.", "success");
+    if (form.contains?.(document.activeElement)) document.activeElement.blur();
     if (typeof trackEvent === "function") trackEvent("add_transfer", "Engagement");
 
     renderDashboard();
@@ -691,6 +692,7 @@ async function handleTransactionSubmit(event) {
     "success"
   );
   if (typeof trackEvent === "function") trackEvent(`add_${type}`, "Engagement");
+  if (form.contains?.(document.activeElement)) document.activeElement.blur();
 
   renderDashboard();
   populateDropdowns();
@@ -2532,6 +2534,7 @@ async function handleCcTransactionSubmit(event) {
   if (category) newCcTransaction.category = category;
   await saveData();
   showNotification("CC transaction added.", "success");
+  if (form.contains?.(document.activeElement)) document.activeElement.blur();
   if (typeof trackEvent === "function") trackEvent("add_cc_transaction", "Engagement");
 
   renderCreditCardSection(); // This will use the rounded amount

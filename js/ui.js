@@ -744,7 +744,7 @@ function enhanceKeyboardControls() {
   document.querySelectorAll('.budget-progress-container').forEach(el=>action(el,'View budget transactions'));
   document.querySelectorAll('#mobileDropdown span[onclick]').forEach(el=>action(el));
   document.querySelectorAll('.day-transactions-container, .cc-history-row > .overflow-hidden').forEach(panel=>{panel.inert=panel.style.maxHeight==='0px';});
-  document.querySelectorAll('.calc-toggle-btn').forEach(el=>{el.tabIndex=0;if(!el.hasAttribute('aria-label'))el.setAttribute('aria-label','Toggle Calculator');});
+  document.querySelectorAll('.calc-toggle-btn').forEach(el=>{el.tabIndex=-1;if(!el.hasAttribute('aria-label'))el.setAttribute('aria-label','Toggle Calculator');});
   document.querySelectorAll('button[data-tooltip]').forEach(el=>{if(!el.textContent.trim()||!/[a-z0-9]/i.test(el.textContent)){if(!el.hasAttribute('aria-label'))el.setAttribute('aria-label',el.dataset.tooltip);}});
 }
 enhanceKeyboardControls();
