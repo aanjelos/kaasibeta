@@ -157,6 +157,7 @@ function prepareImportedData(input) {
     if(!object(candidate.achievements))fail('invalid achievements');
     Object.entries(candidate.achievements).forEach(([id,row])=>{
       if(!id || !object(row) || !Number.isFinite(row.earnedAt) || row.earnedAt<0)fail('invalid achievement record');
+      if(row.achievedDate!==undefined && (typeof row.achievedDate!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(row.achievedDate)||!Number.isFinite(Date.parse(row.achievedDate))||new Date(row.achievedDate).toISOString().slice(0,10)!==row.achievedDate))fail('invalid achievement date');
     });
   }
   // Optional additions: preserve absent fields in legacy backups and retain

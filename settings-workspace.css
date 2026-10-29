@@ -303,5 +303,4 @@
 .milestone-card p { font-size: 12px; line-height: 1.6; color: var(--text-secondary); margin: 5px 0 10px; }
 .milestone-status { font-size: 11px; color: var(--text-secondary); }
 .is-earned .milestone-status { color: var(--accent-primary); }
-.milestone-new { display: inline-block; color: var(--accent-primary); background: rgba(var(--accent-primary-rgb),.12); border-radius: 4px; font-size: 10px; padding: 1px 6px; margin-left: 8px; vertical-align: middle; }
 @media(max-width:600px) { .milestone-grid { grid-template-columns: minmax(0,1fr); } .milestone-card { padding: 16px; } }

@@ -1,5 +1,5 @@
 /** Achievement metadata uses the verified dataset settings store, avoiding a database
- * version upgrade. It is portable; viewing and celebration state stay device-only. */
+ * version upgrade. Earned awards and their dates are portable. */
 const Milestones = (() => {
   const definitions = [
     ['first_record','First Record','Record an income or expense.','receipt','Getting Started',1,'records'],
@@ -38,19 +38,55 @@ const Milestones = (() => {
   }
   function evaluate(data, quiet=false, events=[]) {
     const counts=metrics(data), earned={...(data.achievements||{})}, unlocked=[];
+    if(quiet) for(const d of definitions) {
+      if(earned[d.id]?.earnedAt===0)earned[d.id]={...earned[d.id],...historicalDate(data,d)};
+    }
     for(const d of definitions)if(!earned[d.id] && ((counts[d.metric]||0)>=d.target || events.includes(d.metric))) {
-      earned[d.id]={earnedAt:quiet?0:Date.now()}; unlocked.push(d.id);
+      earned[d.id]=quiet?historicalDate(data,d):{earnedAt:Date.now()}; unlocked.push(d.id);
     }
     if(Object.keys(earned).length)data.achievements=earned;
     return quiet?[]:unlocked;
+  }
+  function historicalDate(data,d) {
+    const valid=s=>typeof s==='string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(Date.parse(s)) && new Date(s).toISOString().slice(0,10)===s;
+    const rows=(data.transactions||[]).filter(t=>['income','expense'].includes(t.type)&&valid(t.date)).sort((a,b)=>a.date.localeCompare(b.date));
+    let date;
+    if(d.metric==='records')date=rows[d.target-1]?.date;
+    if(['income','expense'].includes(d.metric))date=rows.find(t=>t.type===d.metric)?.date;
+    const dates=[...new Set(rows.map(t=>t.date))];
+    if(d.metric==='days') {
+      const months=new Map();
+      date=dates.find(day=>{const m=day.slice(0,7);months.set(m,(months.get(m)||0)+1);return months.get(m)===d.target;});
+    }
+    if(d.metric==='years' && dates.length) {
+      const first=dates[0],y=Number(first.slice(0,4))+d.target,m=Number(first.slice(5,7));
+      const day=Math.min(Number(first.slice(8)),new Date(y,m,0).getDate());
+      const anniversary=`${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      date=dates.find(day=>day>=anniversary);
+    }
+    if(['debts','receivables','installments'].includes(d.metric)) {
+      const timestamps=(data[d.metric]||[]).map(r=>r.timestamp).filter(t=>Number.isFinite(t)&&t>0&&t<=Date.now()).sort((a,b)=>a-b);
+      if(timestamps.length)return {earnedAt:timestamps[0]};
+    }
+    return date?{earnedAt:Date.parse(date+'T12:00:00Z'),achievedDate:date}:{earnedAt:0};
+  }
+  function status(item) {
+    if(!item)return '';
+    const date=item.achievedDate?new Date(item.achievedDate+'T12:00:00Z'):item.earnedAt>0?new Date(item.earnedAt):null;
+    return date?'Achieved '+date.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',...(item.achievedDate?{timeZone:'UTC'}:{})}):'Achieved';
   }
   function baseline(data) {
     const copy=JSON.parse(JSON.stringify(data)); evaluate(copy,true);
     historical=copy.achievements||{}; pending.clear(); clearTimeout(timer);
   }
   function prepare(data) {
-    data.achievements={...historical,...(data.achievements||{})};
+    data.achievements=withHistoricalDates(data.achievements);
     return {events:[...pending],ids:evaluate(data,false,[...pending])};
+  }
+  function withHistoricalDates(saved={}) {
+    const merged={...historical,...saved};
+    for(const id of Object.keys(merged))if(merged[id]?.earnedAt===0 && historical[id]?.earnedAt>0)merged[id]={...merged[id],...historical[id]};
+    return merged;
   }
   function committed(result) { result.events.forEach(e=>pending.delete(e)); if(result.ids.length)celebrate(result.ids); }
   function track(event) {
@@ -71,17 +107,14 @@ const Milestones = (() => {
   }
   function render() {
     const host=document.getElementById('milestoneCards'); if(!host)return;
-    const earned={...historical,...(state.achievements||{})}, counts=metrics(state);
-    let viewed={};try{viewed=JSON.parse(appPreferences.getItem('kaasi_milestones_viewed')||'{}');}catch(_){}
+    const earned=withHistoricalDates(state.achievements), counts=metrics(state);
     host.innerHTML=[...new Set(definitions.map(d=>d.group))].map(group=>`<section class="milestone-group"><h3>${group}</h3><div class="milestone-grid">${definitions.filter(d=>d.group===group).map(d=>{
-      const item=earned[d.id],isNew=item?.earnedAt>Date.now()-7*86400000&&!viewed[d.id];
+      const item=earned[d.id];
       const progress=Math.min(d.target,counts[d.metric]||0);
-      return `<article class="milestone-card ${item?'is-earned':''}"><i class="fas fa-${d.icon}" aria-hidden="true"></i><div><h4>${d.name}${isNew?'<span class="milestone-new">New</span>':''}</h4><p>${d.description}</p><span class="milestone-status">${item?'Achieved':d.target>1?`${progress} / ${d.target}`:'Not Yet'}</span></div></article>`;
+      return `<article class="milestone-card ${item?'is-earned':''}"><i class="fas fa-${d.icon}" aria-hidden="true"></i><div><h4>${d.name}</h4><p>${d.description}</p><span class="milestone-status">${item?status(item):d.target>1?`${progress} / ${d.target}`:'Not Yet'}</span></div></article>`;
     }).join('')}</div></section>`).join('');
-    Object.keys(earned).forEach(id=>viewed[id]=true);
-    appPreferences.setItem('kaasi_milestones_viewed',JSON.stringify(viewed));
   }
   function open() { render(); openModalHelper('milestonesModal'); }
   function forget(id) { delete historical[id]; }
-  return {definitions,metrics,evaluate,baseline,prepare,committed,track,open,known,forget};
+  return {definitions,metrics,evaluate,baseline,prepare,committed,track,open,known,forget,historicalDate,status};
 })();

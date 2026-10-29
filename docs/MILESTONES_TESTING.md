@@ -16,8 +16,10 @@ helpers without affecting the feature. Do not expose them in the public release.
 
 Historical recognition runs silently at load/import; earned records are persisted
 with the next normal save. `earnedAt: 0` means recognised from existing data, not
-a known historical completion date. Views are device-only and never backed up.
-New badges appear for seven days until the Milestones view has been opened.
+a known historical completion date. Reliable historical transaction dates are
+stored as achievedDate; new awards retain their actual unlock timestamp.
+Cards use the same Achieved wording for both. New badges and viewed tracking
+have been removed; opening Milestones does not write any viewing preferences.
 
 Achievements are stored in the existing settings object store as dataset metadata,
 and exported as `achievements`. This intentionally avoids a new database version.

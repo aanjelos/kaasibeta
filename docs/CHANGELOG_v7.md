@@ -2,6 +2,14 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.449n - 2026-10-29
+
+### Milestone Dates
+
+- Display Achieved followed by the unlock date on milestone cards. Derive historical count, recording-day and anniversary dates from the earliest qualifying retained records; use creation timestamps for debts, receivables and installments when available. Leave unsupported historical dates unspecified.
+- Backfill previously undated awards without replacing known unlock dates or triggering celebrations. Keep dates in JSON backups.
+- Remove New badges and device-specific viewed tracking. Opening Milestones no longer writes viewing preferences.
+
 ## v6.448n - 2026-10-29
 
 ### Extras and Milestones
