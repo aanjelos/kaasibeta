@@ -2,6 +2,13 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.442n - 2026-10-29
+
+### Quicker Automatic Sync Scheduling
+
+- Reduce the debounce after saved changes from three seconds to 500 milliseconds. Group edits within that interval into one scheduled attempt; retain failure backoff, in-flight guards and local persistence.
+- Keep immediate reconnect/focus checks and the existing best-effort upload when switching away. Closing an app is not a guarantee that an upload completes; pending changes remain saved locally.
+
 ## v6.441n - 2026-10-29
 
 ### Faster Verified Cloud Sync Preparation

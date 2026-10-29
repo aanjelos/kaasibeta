@@ -123,6 +123,17 @@ function runtime(mobile = false) {
   return { context, run, element, documentEvents, windowEvents, storage, localStorage, notices, timers };
 }
 
+test('saved-edit sync debounce is 500ms, groups rapid edits and retains failure backoff',()=>{
+  const r=runtime(),pending=new Map();let id=0;
+  r.context.automaticCloudSyncEnabled=()=>true;
+  r.context.setTimeout=(callback,delay)=>{pending.set(++id,{callback,delay});return id;};
+  r.context.clearTimeout=key=>pending.delete(key);
+  r.context.scheduleAutomaticCloudSync();r.context.scheduleAutomaticCloudSync();
+  assert.equal(pending.size,1);assert.equal([...pending.values()][0].delay,500);
+  r.run('automaticCloudSyncFailures=2;');r.context.scheduleAutomaticCloudSync();
+  assert.equal(pending.size,1);assert.equal([...pending.values()][0].delay,20000);
+});
+
 test('opening a phone dialog focuses its container while desktop forms retain field focus', () => {
   for (const mobile of [true,false]) {
     const r=runtime(mobile),modal=r.element('#formModal'),container=new Element(),input=new Element();

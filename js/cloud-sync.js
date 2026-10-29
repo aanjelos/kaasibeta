@@ -533,7 +533,7 @@ function automaticCloudSyncEnabled() {
   return !!(window.uiInitialized && supabaseUser && supabaseClient && KaasiStorage.ready &&
     KaasiStorage.mode === 'indexeddb' && state.settings?.initialSetupDone && !isAppLocked() && !KaasiStorage.stale);
 }
-function scheduleAutomaticCloudSync(delay = 3000) {
+function scheduleAutomaticCloudSync(delay = 500) {
   clearTimeout(automaticCloudSyncTimer);
   if (!automaticCloudSyncEnabled()) return;
   automaticCloudSyncTimer = setTimeout(() => runAutomaticCloudSync(), Math.max(delay, automaticCloudSyncFailures ? 5000 * 2 ** automaticCloudSyncFailures : 0));
