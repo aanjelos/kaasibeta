@@ -153,6 +153,12 @@ function prepareImportedData(input) {
       text(settings.appPin.question, "security question");
     }
   }
+  if ('achievements' in candidate) {
+    if(!object(candidate.achievements))fail('invalid achievements');
+    Object.entries(candidate.achievements).forEach(([id,row])=>{
+      if(!id || !object(row) || !Number.isFinite(row.earnedAt) || row.earnedAt<0)fail('invalid achievement record');
+    });
+  }
   // Optional additions: preserve absent fields in legacy backups and retain
   // unknown compatible properties inside schedules/renewal records.
   if ('subscriptions' in candidate) {

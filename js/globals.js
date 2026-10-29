@@ -631,7 +631,9 @@ async function saveData(nextState = state, options = {}) {
   if (storageOperationPending) throw new Error("A save is already in progress. Please wait.");
   storageOperationPending = true;
   let serialized;
+  let milestoneResult;
   try {
+    if (typeof Milestones !== 'undefined' && !options.skipMilestones) milestoneResult = Milestones.prepare(nextState);
     serialized = JSON.stringify(nextState);
     await KaasiStorage.commit(JSON.parse(serialized), { lastLocalDataModification: Date.now().toString() });
   } catch (cause) {
@@ -648,6 +650,7 @@ async function saveData(nextState = state, options = {}) {
   }
   state = nextState;
   lastPersistedStateJson = serialized;
+  if (milestoneResult) Milestones.committed(milestoneResult);
   if (typeof noteCloudSyncSave === 'function') noteCloudSyncSave(options.syncSettings === true);
   const syncedHash = appPreferences.getItem("kaasi_synced_state_hash");
   window.currentCloudSyncStatus = syncedHash && generateDataHash(serialized) === syncedHash ? "synced" : "local_newer";
@@ -660,6 +663,7 @@ async function saveData(nextState = state, options = {}) {
 function loadData() {
   if (!KaasiStorage.ready) throw new Error("Local data is not ready. Complete storage initialization first.");
   state = KaasiStorage.current;
+  if (typeof Milestones !== 'undefined') Milestones.baseline(state);
   lastPersistedStateJson = JSON.stringify(state);
 }
 
@@ -784,6 +788,11 @@ function showNotification(message, type = "success", duration = 4000) {
 
   let bgColor, textColor, borderStyle;
   switch (type) {
+    case "achievement":
+      bgColor = "var(--bg-tertiary)";
+      textColor = "var(--text-primary)";
+      borderStyle = "1px solid var(--accent-primary)";
+      break;
     case "error":
       bgColor = "var(--expense-color)";
       textColor = "#ffffff";
@@ -815,6 +824,11 @@ function showNotification(message, type = "success", duration = 4000) {
   n.setAttribute("aria-live", "assertive");
 
   n.textContent = message;
+  if (type === 'achievement') {
+    const icon=document.createElement('i'); icon.className='fas fa-award'; icon.setAttribute('aria-hidden','true');
+    icon.style.color='var(--accent-primary)'; icon.style.marginRight='8px'; n.prepend(icon);
+    n.setAttribute('role','status'); n.setAttribute('aria-live','polite');
+  }
   area.appendChild(n);
   void n.offsetWidth;
   requestAnimationFrame(() => {

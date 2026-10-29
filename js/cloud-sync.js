@@ -234,6 +234,7 @@ async function recordCloudSync(userId, snapshot, updatedAt, uploaded) {
   appPreferences.setItem("kaasi_synced_state_hash", generateDataHash(JSON.stringify(snapshot)));
   appPreferences.setItem("lastLocalCloudSync", Date.now().toString());
   if (uploaded) appPreferences.setItem("lastSuccessfulCloudBackupDate", getCurrentDateString());
+  if (uploaded && typeof Milestones !== 'undefined' && !state.achievements?.cloud_backup) Milestones.track('cloud_backup');
   await appPreferences.flush();
   cloudSyncRemote = { userId, exists: true, updatedAt };
   lastCloudSyncTimeString = formatCloudBackupTime(updatedAt);

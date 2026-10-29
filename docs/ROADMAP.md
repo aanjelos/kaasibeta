@@ -15,10 +15,8 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Implementation Idea**: Add an "Is Split" toggle when adding a transaction. If toggled, prompt the user to specify who owes them (or who they owe) and the split amount. Create a dedicated "Shared Expenses" tab to view running tallies of debts and settlements with specific friends/roommates.
 
 ### 3. Gamification: Streaks & Badges
-- **Concept**: Encourage responsible spending and habit-building by rewarding users with milestones.
-- **Implementation Idea**: 
-  - **Under Budget Streaks**: Track how many consecutive months a user stays under their set Category Budgets. Display a visual "Streak" counter with fire emojis 🔥. If they break the budget, the streak resets.
-  - **Achievement Badges**: Unlockable SVG badges in the profile/settings for hitting app milestones (e.g., "Data Nerd" for 100 transactions, "Diversified" for using 5+ categories, "Debt Free" for paying off a debt).
+- **Implemented**: Extras → Milestones covers first records, transaction counts, recording days, anniversaries and optional feature discovery. Removed the original badge proposal from pending work.
+- **Before public release**: Review milestone presentation and logic in beta, then remove the temporary console debug script. Additional badges require separate agreement; do not reward spending more or require optional features to complete a percentage.
 
 ### 4. Undo Transactions
 - **Concept**: A simple way to quickly revert the last added, edited, or deleted transaction in case of an accidental action or typo.

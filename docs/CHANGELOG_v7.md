@@ -2,6 +2,15 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.448n - 2026-10-29
+
+### Extras and Milestones
+
+- Add Extras under Information in Settings, with responsive milestone cards for first records, transaction counts, active recording days, anniversaries and optional feature discovery.
+- Persist earned achievement IDs and timestamps with verified dataset metadata and JSON backups. Recognise existing records and imports silently; retain earned awards after source records are deleted.
+- Show a restrained orange-accent toast after newly earned achievements; defer notifications while typing or using dialogs. Show New badges for unseen awards earned within seven days, with viewed state kept on-device.
+- Add removable beta console helpers for non-persistent toast previews and explicit achievement resets. Document usage in MILESTONES_TESTING.md.
+
 ## v6.447n - 2026-10-29
 
 ### Installment Focus and Donation Settings

@@ -780,7 +780,7 @@ function openModalHelper(modalId) {
 
 window.addEventListener("popstate", (event) => {
   const modalsToClose = [
-    "confirmationModal", "formModal", "subscriptionReminderModal", "upcomingPaymentsModal", "subscriptionsModal", "transactionDetailModal", "ccTransactionDetailModal", "ccHistoryModal", "cashCounterModal",
+    "milestonesModal", "confirmationModal", "formModal", "subscriptionReminderModal", "upcomingPaymentsModal", "subscriptionsModal", "transactionDetailModal", "ccTransactionDetailModal", "ccHistoryModal", "cashCounterModal",
     "debtsViewModal", "receivablesViewModal", "transferMoneyModal",
     "monthlyViewModal", "settingsModal", "settingsAddCategoryModal", "settingsAddBudgetModal", "cloudSyncModal", "donateModal", "shortcutsHelpModal", "securityQuestionModal", "initialSetupModal", "editBudgetModal"
   ];
@@ -988,7 +988,8 @@ const settingsTabsConfig = [
   { label: "Data & Backups", targetPanelId: "settingsDataManagementPanel", group: "App", icon: "cloud", hint: "Sync, files, storage & reminders", description: "Manage backups and saved data on this device." },
   { label: "Security", targetPanelId: "settingsSecurityPanel", group: "App", icon: "shield-alt", hint: "PIN lock & security question", description: "Manage your app PIN and security question." },
   { label: "About & Support", targetPanelId: "settingsAboutPanel", group: "Information", icon: "info-circle", hint: "About Kaasi & getting in touch", description: "About Kaasi and how to get in touch." },
-  { label: "Donate", targetPanelId: "settingsDonatePanel", group: "Information", icon: "heart", hint: "Support Kaasi's development", description: "Help keep Kaasi free and in active development." }
+  { label: "Donate", targetPanelId: "settingsDonatePanel", group: "Information", icon: "heart", hint: "Support Kaasi's development", description: "Help keep Kaasi free and in active development." },
+  { label: "Extras", targetPanelId: "settingsExtrasPanel", group: "Information", icon: "star", hint: "Milestones & little extras", description: "A little encouragement for your financial journey." }
 ];
 
 

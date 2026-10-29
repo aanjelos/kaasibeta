@@ -4,6 +4,7 @@
  * Sets up UI, event listeners, and coordinates core components.
  */
 function initializeUI(isRefresh = false) {
+  if (typeof Milestones !== 'undefined') Milestones.baseline(state);
   if (window.uiInitialized && !isRefresh) return;
   window.uiInitialized = true;
   console.log("Initializing UI...");
@@ -218,6 +219,7 @@ function initializeUI(isRefresh = false) {
     });
 
     filterCategoryDropdown.addEventListener("change", (e) => {
+      if (typeof Milestones !== 'undefined') Milestones.track('search_filters');
       if (e.target.tagName.toLowerCase() === "input" && e.target.type === "checkbox") {
         const isAllCheckbox = e.target.id === "filterCategoryAll";
         const allCheckboxes = Array.from(filterCategoryDropdown.querySelectorAll(".filter-category-checkbox"));
@@ -417,6 +419,7 @@ function initializeUI(isRefresh = false) {
   
   if (filterDateRange && bindOnce) {
     filterDateRange.addEventListener("change", (e) => {
+      if (typeof Milestones !== 'undefined') Milestones.track('search_filters');
       const range = e.target.value;
       const filterStartDate = $("#filterStartDate");
       const filterEndDate = $("#filterEndDate");

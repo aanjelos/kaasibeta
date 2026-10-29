@@ -35,6 +35,7 @@ async function exportData() {
     appPreferences.setItem("lastSuccessfulBackupDate", getCurrentDateString());
     
     showNotification("Data exported.", "success");
+    if (typeof Milestones !== 'undefined') Milestones.track('local_backup');
   } catch (error) {
     console.error("Export failed:", error);
     showNotification("Data export failed.", "error");

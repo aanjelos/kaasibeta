@@ -1,0 +1,87 @@
+/** Achievement metadata uses the verified dataset settings store, avoiding a database
+ * version upgrade. It is portable; viewing and celebration state stay device-only. */
+const Milestones = (() => {
+  const definitions = [
+    ['first_record','First Record','Record an income or expense.','receipt','Getting Started',1,'records'],
+    ['first_income','Money In','Record your first income.','coins','Getting Started',1,'income'],
+    ['first_expense','First Expense','Record your first expense.','shopping-bag','Getting Started',1,'expense'],
+    ['first_debt','Keeping Track','Add your first debt.','hand-holding-usd','Getting Started',1,'debts'],
+    ['first_receivable','Owed to You','Add your first receivable.','handshake','Getting Started',1,'receivables'],
+    ['first_installment','One Step at a Time','Add your first installment plan.','calendar-check','Getting Started',1,'installments'],
+    ...[50,100,250,500,1000].map(n=>['records_'+n,n.toLocaleString()+' Records','Record '+n.toLocaleString()+' income or expense entries.','layer-group','Building a Habit',n,'records']),
+    ...[7,14,28].map((n,i)=>['days_'+n,['A Week Captured','Half a Month','A Month Captured'][i],'Record income or expenses on '+n+' distinct days in one calendar month.','calendar-alt','Building a Habit',n,'days']),
+    ...[1,2,3,4,5].map(n=>['years_'+n,n===1?'A Year in View':n+' Years in View','Have recorded transactions spanning '+n+' calendar year'+(n===1?'':'s')+'.','history','Your Journey',n,'years']),
+    ['first_budget','A Plan for Spending','Create your first budget.','chart-pie','Discover Kaasi',1,'budgets'],
+    ['search_filters','Find Your Way','Use a transaction search filter.','filter','Discover Kaasi',1,'search_filters'],
+    ['calculator','Quick Calculation','Calculate an amount using an expression.','calculator','Discover Kaasi',1,'calculator'],
+    ['local_backup','A Copy to Keep','Export a local backup.','file-export','Discover Kaasi',1,'local_backup'],
+    ['cloud_backup','Backed Up','Successfully upload a cloud backup.','cloud','Optional Features',1,'cloud_backup'],
+    ['pin_lock','A Little Privacy','Enable the app PIN lock.','lock','Optional Features',1,'pin']
+  ].map(([id,name,description,icon,group,target,metric])=>({id,name,description,icon,group,target,metric}));
+  const known = new Set(definitions.map(d=>d.id));
+  let pending = new Set(), timer, historical = {};
+  function metrics(data) {
+    const rows=(data.transactions||[]).filter(t=>['income','expense'].includes(t.type));
+    const dates=[...new Set(rows.map(t=>t.date).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d||'')))].sort();
+    const months=new Map(); dates.forEach(d=>months.set(d.slice(0,7),(months.get(d.slice(0,7))||0)+1));
+    let years=0;
+    if(dates.length) {
+      const first=dates[0],last=dates[dates.length-1];
+      for(let n=1;n<=5;n++) {
+        const y=Number(first.slice(0,4))+n,m=Number(first.slice(5,7)),day=Math.min(Number(first.slice(8)),new Date(y,m,0).getDate());
+        if(last>=`${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`)years=n;
+      }
+    }
+    return {records:rows.length,income:rows.filter(t=>t.type==='income').length,expense:rows.filter(t=>t.type==='expense').length,
+      debts:(data.debts||[]).length,receivables:(data.receivables||[]).length,installments:(data.installments||[]).length,
+      budgets:(data.budgets||[]).length,days:Math.max(0,...months.values()),years,pin:data.settings?.appPin?.enabled?1:0};
+  }
+  function evaluate(data, quiet=false, events=[]) {
+    const counts=metrics(data), earned={...(data.achievements||{})}, unlocked=[];
+    for(const d of definitions)if(!earned[d.id] && ((counts[d.metric]||0)>=d.target || events.includes(d.metric))) {
+      earned[d.id]={earnedAt:quiet?0:Date.now()}; unlocked.push(d.id);
+    }
+    if(Object.keys(earned).length)data.achievements=earned;
+    return quiet?[]:unlocked;
+  }
+  function baseline(data) {
+    const copy=JSON.parse(JSON.stringify(data)); evaluate(copy,true);
+    historical=copy.achievements||{}; pending.clear(); clearTimeout(timer);
+  }
+  function prepare(data) {
+    data.achievements={...historical,...(data.achievements||{})};
+    return {events:[...pending],ids:evaluate(data,false,[...pending])};
+  }
+  function committed(result) { result.events.forEach(e=>pending.delete(e)); if(result.ids.length)celebrate(result.ids); }
+  function track(event) {
+    pending.add(event); clearTimeout(timer);
+    timer=setTimeout(async()=>{
+      if(typeof storageOperationPending!=='undefined' && storageOperationPending){track(event);return;}
+      try { await saveData(); } catch (_) { /* Standard save handling retains the last committed state. */ }
+    },800);
+  }
+  function celebrate(ids) {
+    const names=ids.map(id=>definitions.find(d=>d.id===id)?.name).filter(Boolean);
+    if(!names.length)return;
+    // Never steal focus or interrupt a locked screen or active dialog.
+    const notify=()=>{
+      if(document.querySelector('.modal[style*="display: block"], body.cloud-restoring') || document.querySelector('#pinLockOverlay:not(.hidden)') || document.activeElement?.matches('input,select,textarea')){setTimeout(notify,2000);return;}
+      showNotification(names.length===1?'Milestone unlocked: '+names[0]:names.length+' milestones unlocked','achievement',5000);
+    }; setTimeout(notify,1000);
+  }
+  function render() {
+    const host=document.getElementById('milestoneCards'); if(!host)return;
+    const earned={...historical,...(state.achievements||{})}, counts=metrics(state);
+    let viewed={};try{viewed=JSON.parse(appPreferences.getItem('kaasi_milestones_viewed')||'{}');}catch(_){}
+    host.innerHTML=[...new Set(definitions.map(d=>d.group))].map(group=>`<section class="milestone-group"><h3>${group}</h3><div class="milestone-grid">${definitions.filter(d=>d.group===group).map(d=>{
+      const item=earned[d.id],isNew=item?.earnedAt>Date.now()-7*86400000&&!viewed[d.id];
+      const progress=Math.min(d.target,counts[d.metric]||0);
+      return `<article class="milestone-card ${item?'is-earned':''}"><i class="fas fa-${d.icon}" aria-hidden="true"></i><div><h4>${d.name}${isNew?'<span class="milestone-new">New</span>':''}</h4><p>${d.description}</p><span class="milestone-status">${item?'Achieved':d.target>1?`${progress} / ${d.target}`:'Not Yet'}</span></div></article>`;
+    }).join('')}</div></section>`).join('');
+    Object.keys(earned).forEach(id=>viewed[id]=true);
+    appPreferences.setItem('kaasi_milestones_viewed',JSON.stringify(viewed));
+  }
+  function open() { render(); openModalHelper('milestonesModal'); }
+  function forget(id) { delete historical[id]; }
+  return {definitions,metrics,evaluate,baseline,prepare,committed,track,open,known,forget};
+})();
