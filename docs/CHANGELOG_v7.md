@@ -2,6 +2,15 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.441n - 2026-10-29
+
+### Faster Verified Cloud Sync Preparation
+
+- Begin independent cloud reads and local snapshot preparation together for unified Sync and paused manual transfers.
+- Retain one full integrity-checked IndexedDB snapshot per sync attempt. At later checkpoints, verify that the saved revision, generation and dataset hash still match that snapshot instead of reconstructing and hashing every collection again. Checkpoints reject changes from other tabs, replacements and resets; unrecognised snapshots cannot use the fast path.
+- Keep conditional cloud writes, final cloud timestamp checks, backup validation, staged-write verification, atomic activation and the previous local recovery copy. Storage schemas, backup JSON and Supabase configuration are unchanged; no partial syncing is introduced.
+- Add repeatable synthetic before/after benchmarks and storage-backed restore race checks. Benchmarks exclude real cloud latency and browser rendering and are not production speed guarantees.
+
 ## v6.440n - 2026-10-29
 
 ### Consistent Branded Checkboxes

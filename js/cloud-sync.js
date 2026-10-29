@@ -47,10 +47,11 @@ async function manualCloudTransfer(which) {
   setCloudSyncBusy(true);
   try {
     const userId=supabaseUser?.id;cloudSyncAssertUser(userId);
-    const revision=KaasiStorage.revision,local=portableKaasiData(await KaasiStorage.snapshot());
-    const row=await readCloudSyncRow(userId,which==='cloud');
+    const revision=KaasiStorage.revision;
+    const [saved,row]=await Promise.all([KaasiStorage.snapshot(),readCloudSyncRow(userId,which==='cloud')]);
+    const local=portableKaasiData(saved);
     if(which==='cloud'&&!row)throw new Error('There is no cloud copy to restore.');
-    const context={userId,revision,local,hash:await KaasiStorage.digest(local),updatedAt:row?.updated_at??null,automatic:false};
+    const context={userId,revision,saved,local,hash:await KaasiStorage.digest(local),updatedAt:row?.updated_at??null,automatic:false};
     if(which==='cloud')context.cloud=portableKaasiData(prepareImportedData(row.data));
     await assertCloudSyncLocal(context);cloudSyncReview=context;
   } catch(error){showNotification(error.message,'error');return;}
@@ -193,9 +194,14 @@ async function assertCloudSyncLocal(context) {
   if (storageOperationPending || KaasiStorage.stale || KaasiStorage.revision !== context.revision) {
     throw new Error("Local data changed. Start Sync again to compare the latest copies.");
   }
-  const saved = await KaasiStorage.snapshot();
-  if (await KaasiStorage.digest(portableKaasiData(saved)) !== context.hash || KaasiStorage.revision !== context.revision) {
-    throw new Error("Local data changed in another window. Reload before syncing.");
+  if (context.saved && KaasiStorage.mode === 'indexeddb' && KaasiStorage.assertSnapshotCurrent) {
+    // Recheck durable revision/generation/hash, rather than rebuild the same verified records.
+    await KaasiStorage.assertSnapshotCurrent(context.saved, context.revision);
+  } else {
+    const saved = await KaasiStorage.snapshot();
+    if (await KaasiStorage.digest(portableKaasiData(saved)) !== context.hash || KaasiStorage.revision !== context.revision) {
+      throw new Error("Local data changed in another window. Reload before syncing.");
+    }
   }
   cloudSyncAssertUser(context.userId);
 }
@@ -262,13 +268,12 @@ async function syncCloudData(options = {}) {
     const activity = cloudSyncActivity;
     cloudSyncAssertUser(userId);
     const revision = KaasiStorage.revision;
-    const saved = await KaasiStorage.snapshot();
+    const [saved, remote] = await Promise.all([KaasiStorage.snapshot(), readCloudSyncRow(userId)]);
     const baseline = await portableCloudBaseline(userId, saved);
     const local = portableKaasiData(saved);
     const hash = await KaasiStorage.digest(local);
-    const remote = await readCloudSyncRow(userId);
     if(options.reviewOnly && !remote)throw new Error('There is no cloud copy to compare. Use Upload to Cloud if you want to create one.');
-    const context = { userId, revision, local, hash, automatic, resume, activity, updatedAt: remote?.updated_at ?? null };
+    const context = { userId, revision, saved, local, hash, automatic, resume, activity, updatedAt: remote?.updated_at ?? null };
     await assertCloudSyncLocal(context);
     cloudSyncRemote = { userId, exists: !!remote, updatedAt: context.updatedAt };
     let direction = cloudSyncDirection(hash, baseline, cloudSyncRemote);

@@ -12,6 +12,8 @@ const KaasiStorage = (() => {
   let db, mode, revision = 0, current, root, legacyRaw = null, stale = false;
   let preferenceQueue = Promise.resolve();
   const preferences = new Map();
+  // Proofs are private and short-lived: every sync still starts with a full verified read.
+  const snapshotProofs = new WeakMap();
   const owns = key => ownKeys.has(key) || (key.startsWith("kaasi_") && key !== MARKER) || /BackupReminder|backupReminder/.test(key);
   const clone = value => JSON.parse(JSON.stringify(value));
   const request = req => new Promise((resolve, reject) => { req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error); });
@@ -298,7 +300,18 @@ const KaasiStorage = (() => {
       if (group === "ccTransactions") value.creditCard.transactions = values; else value[group] = values;
     });
     if (await digest(value) !== latest.hash) throw new Error("Backup snapshot failed verification. Please retry.");
+    snapshotProofs.set(value, { revision: latest.revision, generation: latest.generation, hash: latest.hash });
     return value;
+  }
+  async function assertSnapshotCurrent(value, expected) {
+    assertWritable();
+    const proof = snapshotProofs.get(value);
+    const latest = await readRoot();
+    assertWritable();
+    if (!proof || proof.revision !== expected || revision !== expected ||
+        !latest || latest.revision !== expected || latest.generation !== proof.generation || latest.hash !== proof.hash) {
+      throw conflict('Saved data changed after verification. Start Sync again before replacing either copy.');
+    }
   }
   // IndexedDB serializes these short transactions across updated tabs, even while
   // financial data remains in localStorage. Older builds cannot honor this lock.
@@ -394,7 +407,7 @@ const KaasiStorage = (() => {
     },
     flush() { return preferenceQueue; }
   };
-  return { initialize, commit, replace, snapshot, clear, recover, recoverySources, digest, canonical, preferences: prefs,
+  return { initialize, commit, replace, snapshot, assertSnapshotCurrent, clear, recover, recoverySources, digest, canonical, preferences: prefs,
     get revision() { return revision; }, get ready() { return !!mode; }, get mode() { return mode; },
     get current() { return current && clone(current); },
     get legacyRaw() { return legacyRaw; }, get stale() { return stale; } };

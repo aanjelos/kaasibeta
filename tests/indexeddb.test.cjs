@@ -43,6 +43,29 @@ function legacy(e) {
   return value;
 }
 
+test('verified sync checkpoints avoid collection reads but detect writes from another tab',async()=>{
+  const e=environment();legacy(e);await e.initialize();
+  const snapshot=await e.db.snapshot(), revision=e.db.revision;
+  const getAll=IDBObjectStore.prototype.getAll;
+  IDBObjectStore.prototype.getAll=function(){throw Error('Checkpoint must not reread collections');};
+  try {await e.db.assertSnapshotCurrent(snapshot,revision);}finally{IDBObjectStore.prototype.getAll=getAll;}
+  const other=environment(e);await other.initialize();
+  const changed=await other.db.snapshot();changed.accounts[0].balance=900;
+  await other.db.commit(changed);
+  await assert.rejects(e.db.assertSnapshotCurrent(snapshot,revision),/changed/);
+});
+
+test('verified sync checkpoints reject cloned proofs, replacements and resets',async()=>{
+  const e=environment();legacy(e);await e.initialize();
+  const snapshot=await e.db.snapshot(),revision=e.db.revision;
+  await assert.rejects(e.db.assertSnapshotCurrent(copy(snapshot),revision),/changed/);
+  await e.db.replace(snapshot,revision);
+  await assert.rejects(e.db.assertSnapshotCurrent(snapshot,revision),/changed/);
+  const next=await e.db.snapshot(),nextRevision=e.db.revision;
+  await e.db.clear();
+  await assert.rejects(e.db.assertSnapshotCurrent(next,nextRevision),/changed|reset|writ|storage/i);
+});
+
 async function rawStore(e,store,key) {
   const db=await new Promise((resolve,reject)=>{const req=e.factory.open('kaasi-finances');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});
   try {return await new Promise((resolve,reject)=>{const tx=db.transaction(store);const req=tx.objectStore(store).get(key);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
@@ -67,6 +90,32 @@ function recoveryCloud(e, backup=e.defaults()) {
   cloud.open=async()=>{await e.context.showStorageFailure(new Error('Saved data failed its integrity check.'));await cloud.button('Restore From Cloud').onclick();};
   return cloud;
 }
+
+test('optimized cloud restore uses real storage checkpoints and rejects late local or cloud edits',async()=>{
+  for(const race of ['none','local','cloud']) {
+    const e=environment(),original=legacy(e);await e.initialize();
+    const remote=copy(original);remote.accounts[0].balance=500;
+    const cloud=recoveryCloud(e,remote);cloud.row.updated_at='2026-10-25T00:00:00Z';
+    e.context.syncUser=cloud.user;
+    e.run('supabaseUser=syncUser;state=KaasiStorage.current;lastPersistedStateJson=JSON.stringify(state);');
+    e.context.updateHeaderShortcutButtons=()=>{};e.context.initializeUI=()=>{};
+    await e.context.recordCloudSync(cloud.user.id,original,'2026-10-24T00:00:00Z',false);
+    let checkpoints=0;const check=e.db.assertSnapshotCurrent;
+    e.db.assertSnapshotCurrent=async(...args)=>{checkpoints++;return check(...args);};
+    const other=environment(e);await other.initialize();
+    cloud.beforeRead=async()=>{
+      if(cloud.reads.length!==3)return;
+      if(race==='local'){const value=copy(original);value.accounts[0].balance=600;await other.db.commit(value);}
+      if(race==='cloud')cloud.row.updated_at='2026-10-26T00:00:00Z';
+    };
+    await e.context.syncCloudData();
+    assert.ok(checkpoints>0);
+    const disk=race==='local'?await other.db.snapshot():await e.db.snapshot();
+    assert.equal(disk.accounts[0].balance,race==='none'?500:race==='local'?600:original.accounts[0].balance);
+    if(race==='none')assert.deepEqual((await rawStore(e,'recovery','previous')).value,original);
+    else assert.equal(e.context.cloudSyncBaseline(cloud.user.id).updatedAt,'2026-10-24T00:00:00Z');
+  }
+});
 
 test('cloud recovery validates and downloads without writes, then explicitly repairs a damaged database while retaining history',async()=>{
   const e=environment(),original=legacy(e);await e.initialize();
