@@ -1661,7 +1661,6 @@ footer a[href^="https://kaasi.com.lk"]:hover
 
 /* --- NEW: Header Button Mobile Consistency --- */
 @media (max-width: 767px) { /* Tailwind 'md' breakpoint */
-  #monthlyViewBtn,
   #headerBackupBtn,
   #headerRestoreBtn {
     padding-left: 0;
@@ -1675,7 +1674,6 @@ footer a[href^="https://kaasi.com.lk"]:hover
   }
   
   /* Ensure icon-only buttons in the header have their icons sized appropriately */
-  #monthlyViewBtn i,
   #headerBackupBtn i,
   #headerRestoreBtn i {
     font-size: 1rem; /* 16px */
@@ -2634,3 +2632,7 @@ body.cloud-restoring { overflow:hidden !important; }
 @keyframes sync-offline-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
 @media (prefers-reduced-motion: reduce) { .sync-offline-pulse { animation: none; } }
 @media(max-width:480px){.cloud-manual-actions { grid-template-columns:1fr; }.cloud-auto-control { gap:12px; }}
+.recent-transactions-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.recent-transactions-heading h2 { min-width: 0; flex: 1 1 0; }
+.recent-transactions-heading .btn { flex-shrink: 0; margin: 0; white-space: nowrap; }
+@media(max-width:340px) { .recent-transactions-heading { flex-wrap: wrap; } .recent-transactions-heading h2 { flex-basis: 100%; } }

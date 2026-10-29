@@ -2,6 +2,13 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.452n - 2026-10-30
+
+### Transaction History Shortcut Placement
+
+- Move the desktop All Transactions shortcut from the header to the Recent Transactions card, using the existing secondary button style. Show the card shortcut on mobile while retaining the hamburger entry and A keyboard shortcut.
+- Allow the card heading and shortcut to wrap cleanly at narrow widths without truncating either label.
+
 ## v6.451n - 2026-10-29
 
 ### Compact Mobile Milestones
