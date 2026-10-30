@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.460n - 2026-10-30
+
+### Cash Counter Refinements
+
+- Match the Cash Counter card width to other Settings cards and add the Rs. 2,000 denomination to its count and total.
+
 ## v6.459n - 2026-10-30
 
 ### Cash Counter Redesign

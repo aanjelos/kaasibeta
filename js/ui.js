@@ -531,7 +531,7 @@ function updateCcDashboardSectionVisibility() {
 
 function openCashCounter() {
   const form = $("#cashCounterForm");
-  const denominations = [5000, 1000, 500, 100, 50, 20, 10, 5, 2, 1];
+  const denominations = [5000, 2000, 1000, 500, 100, 50, 20, 10, 5, 2, 1];
   const gridContainer = form.querySelector(".grid");
   if (gridContainer.children.length > 3) { calculateCashTotal(); return; }
   while (gridContainer.children.length > 3)

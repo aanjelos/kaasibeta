@@ -145,7 +145,6 @@
 #settingsSubscriptionHost .subscription-row-copy > strong { font-size: 16px; }
 #settingsModal button:focus-visible, #settingsModal input:focus-visible, #settingsModal select:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 3px; }
 #settingsAddCategoryModal, #settingsAddBudgetModal { z-index: 68; }
-#settingsCashCounterPanel { max-width: 620px; }
 .cash-counter-settings { padding: 24px; }
 #cashCounterForm > .grid { grid-template-columns: minmax(82px,1fr) minmax(132px,1.15fr) minmax(100px,1fr); gap: 8px 10px; margin-bottom: 0; }
 #cashCounterForm > .grid > span:nth-child(-n+3) { font-size: 12px; color: var(--text-secondary); padding-bottom: 8px; }
