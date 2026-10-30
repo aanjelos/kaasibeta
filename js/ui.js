@@ -20,8 +20,10 @@ function openShortcutsHelpModal() {
     { key: "S", action: "Open Settings (In Dashboard)." },
     { key: "S", action: "Start Search (In All Transactions)." },
     { key: "C", action: "Start a CC Transaction." },
-    { key: "D", action: "View All Debts." },
-    { key: "R", action: "View All Receivables." },
+    { key: "D", action: "Add a Debt." },
+    { key: "Shift + D", action: "View All Debts." },
+    { key: "R", action: "Add a Receivable." },
+    { key: "Shift + R", action: "View All Receivables." },
     { key: "T", action: "Transfer Money." },
     { key: "Ctrl + S", action: "Sync Now (Signed In)." },
     { key: "Ctrl + E", action: "Export Local File." },
@@ -292,6 +294,7 @@ function handleKeyboardShortcuts(event) {
     case "D":
       if (!inInputField) {
         event.preventDefault();
+        if (!event.shiftKey) { $("#addDebtBtn")?.click(); break; }
         const viewDebtsBtn = $("#viewDebtsBtn");
         if (viewDebtsBtn) {
           if ($("#debtsViewModal")?.style.display !== "block") {
@@ -309,6 +312,7 @@ function handleKeyboardShortcuts(event) {
     case "R":
       if (!inInputField) {
         event.preventDefault();
+        if (!event.shiftKey) { $("#addReceivableBtn")?.click(); break; }
         const viewReceivablesBtn = $("#viewReceivablesBtn");
         if (viewReceivablesBtn) {
           if ($("#receivablesViewModal")?.style.display !== "block") {

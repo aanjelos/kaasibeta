@@ -1161,6 +1161,17 @@ test('cloud backup times use calendar-relative days and readable local times',()
   assert.equal(r.context.formatCloudBackupTime('invalid'),'Unavailable');
 });
 
+test('debt and receivable shortcuts distinguish Shift and respect input and dialog guards',()=>{
+  const r=runtime(),calls=[];
+  for(const id of ['addDebtBtn','viewDebtsBtn','addReceivableBtn','viewReceivablesBtn'])r.element('#'+id).click=()=>calls.push(id);
+  const press=(key,shiftKey=false,extra={})=>r.context.handleKeyboardShortcuts({key,shiftKey,ctrlKey:false,altKey:false,metaKey:false,preventDefault(){},...extra});
+  press('d');press('D',true);press('r');press('R',true);
+  assert.deepEqual(calls,['addDebtBtn','viewDebtsBtn','addReceivableBtn','viewReceivablesBtn']);
+  r.context.document.activeElement.tagName='INPUT';press('d');press('R',true);
+  r.context.document.activeElement.tagName='DIV';r.context.topVisibleModal=()=>({id:'formModal'});press('r');
+  assert.equal(calls.length,4);
+});
+
 test('Ctrl+S syncs and Ctrl+E/I remain local in either dashboard mode, with input and lock guards',()=>{
   const r=runtime(),calls=[];
   r.context.syncCloudData=()=>calls.push('sync');r.context.exportData=()=>calls.push('export');r.context.triggerDataImport=()=>calls.push('import');

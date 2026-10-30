@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.455n - 2026-10-30
+
+### Debt and Receivable Shortcuts
+
+- Use D and R to open the Add Debt and Add Receivable forms; use Shift+D and Shift+R to open the corresponding lists. Update shortcut help and list-button tooltips. Preserve input, modifier and dialog guards.
+
 ## v6.454n - 2026-10-30
 
 ### Consistent Desktop Header Spacing
