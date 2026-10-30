@@ -539,7 +539,7 @@ function openCashCounter() {
   denominations.forEach((denom) => {
     const denomEl = document.createElement("span");
     denomEl.className = "cash-denomination";
-    denomEl.textContent = `Rs. ${denom.toLocaleString('en-US')}`;
+    denomEl.textContent = denom.toLocaleString('en-US');
     const inputEl = document.createElement("input");
     inputEl.type = "number";
     inputEl.min = "0";
@@ -569,7 +569,7 @@ function openCashCounter() {
     const totalEl = document.createElement("span");
     totalEl.className = "cash-row-total";
     totalEl.id = `cashTotal-${denom}`;
-    totalEl.textContent = formatCurrency(0);
+    totalEl.textContent = '0.00';
     const stepper = document.createElement("div");
     stepper.className = "cash-stepper";
     for (const [delta, label, symbol] of [[-1, 'Decrease', '−'], [1, 'Increase', '+']]) {
@@ -597,9 +597,7 @@ function calculateCashTotal() {
     grandTotal += total;
     const totalEl = $(`#cashTotal-${denomination}`);
     if (totalEl)
-      totalEl.innerHTML = `<span class="tabular-nums">${formatCurrency(
-        total
-      )}</span>`;
+      totalEl.textContent = total.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
   });
   $(
     "#cashCounterTotal"
@@ -627,6 +625,11 @@ function calculateCashTotal() {
         cashAccount.balance
       )}</span>)</p>`;
   }
+}
+
+function resetCashCounts() {
+  $$('#cashCounterForm input[data-denom]').forEach(input => { input.value = ''; input._scrollAccumulator = 0; });
+  calculateCashTotal();
 }
 
 // --- MODAL & BACK GESTURE LOGIC ---

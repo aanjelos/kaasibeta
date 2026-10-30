@@ -347,3 +347,10 @@
   .cash-counter-row { padding: 6px 0; }
 }
 @media(max-width:340px) { #cashCounterForm > .grid { grid-template-columns: minmax(58px,1fr) minmax(114px,1.65fr) minmax(64px,1fr); } #cashCounterForm .cash-stepper input { width: 52px; } .cash-row-total { font-size: 12px; } }
+.cash-counter-row .cash-row-total { white-space: nowrap; overflow-wrap: normal; }
+@media(max-width:480px) { #cashCounterForm > .grid { grid-template-columns: minmax(48px,.8fr) minmax(124px,1.65fr) minmax(82px,1.2fr); } }
+@media(max-width:340px) { .cash-counter-settings { padding: 12px; } #cashCounterForm > .grid { grid-template-columns: minmax(42px,.7fr) minmax(114px,1.5fr) minmax(78px,1.2fr); } }
+.cash-counter-toolbar { display:flex; justify-content:flex-end; max-width:660px; margin:0 auto 8px; }
+.cash-reset { display:inline-flex; align-items:center; gap:6px; min-height:40px; padding:4px 0 4px 10px; background:transparent; border:0; color:var(--text-secondary); font:inherit; font-size:12px; cursor:pointer; }
+.cash-reset:hover { color:var(--accent-primary); }
+.cash-reset:focus-visible { outline:2px solid var(--accent-primary); outline-offset:3px; border-radius:4px; }

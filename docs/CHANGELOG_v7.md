@@ -2,6 +2,13 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.462n - 2026-10-30
+
+### Cleaner Cash Counter Amounts
+
+- Remove repeated currency prefixes from denomination values and row totals, label the total column in LKR, and keep row totals on one line with more room at phone widths. Retain currency on the grand total and balance comparison.
+- Add a subtle Reset Counts action that clears scratch counts and wheel accumulators without changing saved balances or transactions.
+
 ## v6.461n - 2026-10-30
 
 ### Cash Counter Alignment and Readability
