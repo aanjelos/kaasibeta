@@ -581,9 +581,9 @@ function openCashCounter() {
       if (delta < 0) stepper.appendChild(button);
       else { stepper.appendChild(inputEl); stepper.appendChild(button); }
     }
-    gridContainer.appendChild(denomEl);
-    gridContainer.appendChild(stepper);
-    gridContainer.appendChild(totalEl);
+    const row=document.createElement('div'); row.className='cash-counter-row';
+    row.appendChild(denomEl); row.appendChild(stepper); row.appendChild(totalEl);
+    gridContainer.appendChild(row);
   });
   calculateCashTotal();
 }

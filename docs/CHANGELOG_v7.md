@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.461n - 2026-10-30
+
+### Cash Counter Alignment and Readability
+
+- Add subtle denomination-row dividers, bring desktop columns closer together within the full-width card, widen count fields and improve mobile text sizes. Right-align denominations and apply tabular numerals throughout the counter.
+
 ## v6.460n - 2026-10-30
 
 ### Cash Counter Refinements

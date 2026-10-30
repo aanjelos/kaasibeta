@@ -330,3 +330,20 @@
   .milestone-footer { padding-top: 10px; }
 }
 @media(max-width:340px) { .milestone-grid { grid-template-columns: minmax(0,1fr); } }
+#cashCounterForm > .grid { max-width: 660px; margin: 0 auto; grid-template-columns: minmax(90px,1fr) minmax(180px,1.4fr) minmax(110px,1fr); gap: 0 16px; }
+#cashCounterForm > .grid > span:first-child { text-align: right; }
+.cash-counter-row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
+.cash-counter-row:last-child { border-bottom: 0; }
+#cashCounterForm .cash-denomination { text-align: right; font-size: 14px; }
+#cashCounterForm .cash-stepper input { width: 76px; height: 44px; font-size: 16px; }
+#cashCounterForm, #cashCounterTotal, #cashCounterComparison { font-variant-numeric: tabular-nums; }
+.cash-row-total { font-size: 14px; }
+@media(max-width:480px) {
+  #cashCounterForm > .grid { grid-template-columns: minmax(66px,1fr) minmax(124px,1.65fr) minmax(68px,1fr); gap: 0 4px; }
+  #cashCounterForm .cash-denomination { font-size: 13px !important; }
+  #cashCounterForm .cash-stepper input { width: 60px; }
+  .cash-stepper-button { flex-basis: 30px; width: 30px; }
+  .cash-row-total { font-size: 13px; }
+  .cash-counter-row { padding: 6px 0; }
+}
+@media(max-width:340px) { #cashCounterForm > .grid { grid-template-columns: minmax(58px,1fr) minmax(114px,1.65fr) minmax(64px,1fr); } #cashCounterForm .cash-stepper input { width: 52px; } .cash-row-total { font-size: 12px; } }
