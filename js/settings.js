@@ -341,21 +341,6 @@ function renderSettingsForm() {
     }
   }
 
-  // --- CASH COUNTER TOGGLE INIT ---
-  const toggleHideCashCounter = $("#toggleHideCashCounter");
-  if (toggleHideCashCounter) {
-    toggleHideCashCounter.checked = state.settings.hideCashCounter === true;
-
-    if (!toggleHideCashCounter.dataset.listenerAttached) {
-      toggleHideCashCounter.onchange = async () => {
-        if (!state.settings) state.settings = {};
-        state.settings.hideCashCounter = toggleHideCashCounter.checked;
-        await saveData();
-        if (typeof renderDashboard === "function") renderDashboard();
-      };
-      toggleHideCashCounter.dataset.listenerAttached = "true";
-    }
-  }
 
   // --- ADDITIONAL DASHBOARD TOGGLES INIT ---
   const toggleHideTotalPotential = $("#toggleHideTotalPotential");

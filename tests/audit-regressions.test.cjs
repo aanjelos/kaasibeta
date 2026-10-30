@@ -850,19 +850,19 @@ test('Settings toggles persist locally but automatic checks wait for explicit Sa
   const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
   const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();enableAutomaticSync(r);
   r.element('#settingsModal').style.display='block';
-  await r.run('state.settings.hideCashCounter=true;saveData();');
-  assert.equal(JSON.parse(r.storage.get('KaasiData')).settings.hideCashCounter,true);
+  await r.run('state.settings.hideTotalPotential=true;saveData();');
+  assert.equal(JSON.parse(r.storage.get('KaasiData')).settings.hideTotalPotential,true);
   await r.context.runAutomaticCloudSync();await r.context.syncCloudData({automatic:true});
   assert.equal(cloud.calls.length,0,'polling and direct automatic attempts must not bypass batching');
   await r.run('state.settings.defaultTransferFee=42;saveData(state,{syncSettings:true});');
   await r.context.runAutomaticCloudSync();
   assert.equal(cloud.row.data.settings.defaultTransferFee,42);
-  assert.equal(cloud.row.data.settings.hideCashCounter,true);
+  assert.equal(cloud.row.data.settings.hideTotalPotential,true);
   cloud.calls.length=0;
-  await r.run('state.settings.hideCashCounter=false;saveData();');
+  await r.run('state.settings.hideTotalPotential=false;saveData();');
   await r.context.runAutomaticCloudSync();assert.equal(cloud.calls.length,0,'later toggles revoke the previous Save allowance');
   r.element('#settingsModal').style.display='none';r.context.finishSettingsCloudSyncBatch();
-  await r.context.runAutomaticCloudSync();assert.equal(cloud.row.data.settings.hideCashCounter,false);
+  await r.context.runAutomaticCloudSync();assert.equal(cloud.row.data.settings.hideTotalPotential,false);
 });
 
 test('Settings close via button or browser history releases batching, section navigation does not',async()=>{
@@ -871,7 +871,7 @@ test('Settings close via button or browser history releases batching, section na
     r.context.cancelDeleteAllData=()=>{};
     const pending=new Map();let id=0;r.context.setTimeout=(callback,delay)=>{pending.set(++id,{callback,delay});return id;};r.context.clearTimeout=key=>pending.delete(key);
     r.element('#settingsModal').style.display='block';
-    await r.run('state.settings.hideCashCounter=true;saveData();');
+    await r.run('state.settings.hideTotalPotential=true;saveData();');
     assert.equal(pending.size,0);
     r.run('SettingsWorkspace.navigate("settingsBudgetsPanel");');
     assert.equal(pending.size,0);

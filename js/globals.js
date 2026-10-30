@@ -608,7 +608,10 @@ function portableKaasiData(value) {
     });
     if (!copy.subscriptionOccurrences.length) delete copy.subscriptionOccurrences;
   }
-  if (copy.settings) delete copy.settings.lastDismissedBudgetTipMonth;
+  if (copy.settings) {
+    delete copy.settings.lastDismissedBudgetTipMonth;
+    delete copy.settings.hideCashCounter;
+  }
   return copy;
 }
 
@@ -633,6 +636,7 @@ async function saveData(nextState = state, options = {}) {
   let serialized;
   let milestoneResult;
   try {
+    if (nextState.settings) delete nextState.settings.hideCashCounter;
     if (typeof Milestones !== 'undefined' && !options.skipMilestones) milestoneResult = Milestones.prepare(nextState);
     serialized = JSON.stringify(nextState);
     await KaasiStorage.commit(JSON.parse(serialized), { lastLocalDataModification: Date.now().toString() });

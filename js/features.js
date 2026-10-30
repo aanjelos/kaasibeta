@@ -3999,7 +3999,6 @@ async function handlePayCcItemSubmit(event) {
 
 
 function renderDashboard() {
-  const cashCounterBtn = $("#cashCounterBtn");
   const topCardsContainer = $("#dashboardTopCardsContainer");
   const totalPotentialCard = $("#totalPotentialCard");
 
@@ -4017,16 +4016,6 @@ function renderDashboard() {
       }
     }
 
-    // Cash Counter visibility
-    const hideCashCounter = state.settings && state.settings.hideCashCounter;
-    if (cashCounterBtn) {
-      if (hideCashCounter) {
-        cashCounterBtn.style.display = "none";
-      } else {
-        cashCounterBtn.style.display = "flex";
-        visibleCards++;
-      }
-    }
 
     topCardsContainer.className = "dashboard-summary-grid gap-4 mb-4";
     topCardsContainer.dataset.visibleCards = String(visibleCards);

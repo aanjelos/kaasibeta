@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.455n" />
+    <meta name="application-version" content="v6.456n" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -51,9 +51,9 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" integrity="sha384-UagCvVPT5XXA0Hx+nJYUAGBFseHT9zBgpJMSebsAxl9lciTwbT+39j5VfRjdP5Tp" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v6.455n" />
-    <link rel="stylesheet" href="settings-workspace.css?v=v6.455n" />
-    <link rel="stylesheet" href="tailwind.css?v=v6.455n" />
+    <link rel="stylesheet" href="style.css?v=v6.456n" />
+    <link rel="stylesheet" href="settings-workspace.css?v=v6.456n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.456n" />
 
     <script
       async
@@ -498,18 +498,6 @@
                   </p>
                   <p class="text-xs text-gray-400">(Available + Owed to Me)</p>
                 </div>
-                <button
-                  id="cashCounterBtn"
-                  class="bg-gray-700 p-4 rounded-lg text-center shadow-md hover:bg-gray-600 transition duration-200 flex flex-col items-center justify-center"
-                  data-tooltip="Cash Counter"
-                >
-                  <i
-                    class="fas fa-money-bill-wave text-2xl accent-text mb-1"
-                  ></i>
-                  <span class="text-sm font-medium text-gray-300"
-                    >Cash Counter</span
-                  >
-                </button>
               </div>
               <!-- This container will be dynamically populated -->
               <div id="accountCardsContainer" class="grid gap-3 text-center">
@@ -1294,15 +1282,6 @@
                 <h3 class="text-base font-semibold border-b border-gray-600 pb-2 mb-2">Customize Dashboard</h3>
                 
                 <div class="flex items-center justify-between">
-                  <div>
-                    <h4 class="text-sm font-medium">Hide Cash Counter</h4>
-                    <p class="text-xs text-gray-300">Remove the Cash Counter from the dashboard</p>
-                  </div>
-                  <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="toggleHideCashCounter" class="sr-only peer" aria-label="Toggle Hide Cash Counter">
-                    <div class="w-11 h-6 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                  </label>
-                </div>
 
                 <div class="flex items-center justify-between">
                   <div>
@@ -1521,6 +1500,7 @@
               </div>
             </div>
             <div id="settingsMilestonesPanel" class="settings-tab-panel hidden"><div id="milestoneCards"></div></div>
+            <div id="settingsCashCounterPanel" class="settings-tab-panel hidden"><div class="card"><h3>Cash Counter</h3><p>Count notes and coins and compare the total with your saved cash balance.</p><button id="cashCounterBtn" type="button" class="btn btn-secondary"><i class="fas fa-money-bill-wave" aria-hidden="true"></i> Open Cash Counter</button></div></div>
             <div id="settingsAboutPanel" class="settings-tab-panel hidden">
           <div
             id="settingsAboutSection"
@@ -2126,26 +2106,26 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v6.455n" defer></script>
-    <script src="js/import-validation.js?v=v6.455n" defer></script>
-    <script src="js/storage.js?v=v6.455n" defer></script>
-    <script src="js/storage-ui.js?v=v6.455n" defer></script>
-    <script src="js/animations.js?v=v6.455n" defer></script>
-    <script src="js/data-sync.js?v=v6.455n" defer></script>
-    <script src="js/cloud-sync.js?v=v6.455n" defer></script>
-    <script src="js/math-tool.js?v=v6.455n" defer></script>
-    <script src="js/settings.js?v=v6.455n" defer></script>
-    <script src="js/charts.js?v=v6.455n" defer></script>
-    <script src="js/ui.js?v=v6.455n" defer></script>
-    <script src="js/settings-workspace.js?v=v6.455n" defer></script>
-    <script src="js/features.js?v=v6.455n" defer></script>
-    <script src="js/subscription-assets.js?v=v6.455n" defer></script>
-    <script src="js/subscription-services.js?v=v6.455n" defer></script>
-    <script src="js/subscriptions.js?v=v6.455n" defer></script>
-    <script src="js/security.js?v=v6.455n" defer></script>
-    <script src="js/milestones.js?v=v6.455n" defer></script>
-    <script src="js/milestones-debug.js?v=v6.455n" defer></script>
-    <script src="js/app.js?v=v6.455n" defer></script>
+    <script src="js/globals.js?v=v6.456n" defer></script>
+    <script src="js/import-validation.js?v=v6.456n" defer></script>
+    <script src="js/storage.js?v=v6.456n" defer></script>
+    <script src="js/storage-ui.js?v=v6.456n" defer></script>
+    <script src="js/animations.js?v=v6.456n" defer></script>
+    <script src="js/data-sync.js?v=v6.456n" defer></script>
+    <script src="js/cloud-sync.js?v=v6.456n" defer></script>
+    <script src="js/math-tool.js?v=v6.456n" defer></script>
+    <script src="js/settings.js?v=v6.456n" defer></script>
+    <script src="js/charts.js?v=v6.456n" defer></script>
+    <script src="js/ui.js?v=v6.456n" defer></script>
+    <script src="js/settings-workspace.js?v=v6.456n" defer></script>
+    <script src="js/features.js?v=v6.456n" defer></script>
+    <script src="js/subscription-assets.js?v=v6.456n" defer></script>
+    <script src="js/subscription-services.js?v=v6.456n" defer></script>
+    <script src="js/subscriptions.js?v=v6.456n" defer></script>
+    <script src="js/security.js?v=v6.456n" defer></script>
+    <script src="js/milestones.js?v=v6.456n" defer></script>
+    <script src="js/milestones-debug.js?v=v6.456n" defer></script>
+    <script src="js/app.js?v=v6.456n" defer></script>
   </body>
 </html>
 
