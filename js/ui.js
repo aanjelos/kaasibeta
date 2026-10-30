@@ -538,8 +538,8 @@ function openCashCounter() {
     gridContainer.removeChild(gridContainer.lastChild);
   denominations.forEach((denom) => {
     const denomEl = document.createElement("span");
-    denomEl.className = "font-medium text-right pr-2 text-sm";
-    denomEl.textContent = `Rs. ${denom}`;
+    denomEl.className = "cash-denomination";
+    denomEl.textContent = `Rs. ${denom.toLocaleString('en-US')}`;
     const inputEl = document.createElement("input");
     inputEl.type = "number";
     inputEl.min = "0";
@@ -548,6 +548,7 @@ function openCashCounter() {
     inputEl.className =
       "text-center bg-gray-600 border border-gray-500 rounded px-1 py-0.5 w-16 mx-auto text-sm";
     inputEl.placeholder = "0";
+    inputEl.setAttribute("aria-label", `Number of Rs. ${denom} notes or coins`);
     inputEl.oninput = calculateCashTotal;
     inputEl.onkeydown = (e) => {
       if (['.', 'e', 'E', '-', '+'].includes(e.key)) e.preventDefault();
@@ -566,11 +567,22 @@ function openCashCounter() {
       }
     });
     const totalEl = document.createElement("span");
-    totalEl.className = "text-right text-gray-400 text-sm";
+    totalEl.className = "cash-row-total";
     totalEl.id = `cashTotal-${denom}`;
     totalEl.textContent = formatCurrency(0);
+    const stepper = document.createElement("div");
+    stepper.className = "cash-stepper";
+    for (const [delta, label, symbol] of [[-1, 'Decrease', '−'], [1, 'Increase', '+']]) {
+      const button = document.createElement("button");
+      button.type = "button"; button.className = "cash-stepper-button";
+      button.setAttribute("aria-label", `${label} Rs. ${denom} count`);
+      button.textContent = symbol;
+      button.onclick = () => { inputEl.value = Math.max(0, (parseInt(inputEl.value, 10) || 0) + delta); calculateCashTotal(); };
+      if (delta < 0) stepper.appendChild(button);
+      else { stepper.appendChild(inputEl); stepper.appendChild(button); }
+    }
     gridContainer.appendChild(denomEl);
-    gridContainer.appendChild(inputEl);
+    gridContainer.appendChild(stepper);
     gridContainer.appendChild(totalEl);
   });
   calculateCashTotal();

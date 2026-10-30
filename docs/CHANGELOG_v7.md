@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.459n - 2026-10-30
+
+### Cash Counter Redesign
+
+- Redesign the inline cash counter as a compact, responsive Settings card with a clear total and balance comparison. Add accessible minus and plus controls for each denomination while retaining direct entry and wheel input.
+
 ## v6.458n - 2026-10-30
 
 ### Inline Cash Counter
