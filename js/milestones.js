@@ -13,6 +13,8 @@ const Milestones = (() => {
     ...[3,6].map(n=>['months_'+n,n+' Months in View','Have recorded transactions spanning '+n+' calendar months.','history','Your Journey',n,'months']),
     ...[1,2,3,4,5].map(n=>['years_'+n,n===1?'A Year in View':n+' Years in View','Have recorded transactions spanning '+n+' calendar year'+(n===1?'':'s')+'.','history','Your Journey',n,'years']),
     ['first_budget','A Plan for Spending','Create your first budget.','chart-pie','Discover Kaasi',1,'budgets'],
+    ['second_look','A Second Look','Edit an existing income or expense record.','edit','Discover Kaasi',1,'edit_transaction'],
+    ['looking_back','Looking Back','View your transactions from a previous month.','calendar-alt','Discover Kaasi',1,'previous_month'],
     ['search_filters','Find Your Way','Use a transaction search filter.','filter','Discover Kaasi',1,'search_filters'],
     ['calculator','Quick Calculation','Calculate an amount using an expression.','calculator','Discover Kaasi',1,'calculator'],
     ['local_backup','A Copy to Keep','Export a local backup.','file-export','Discover Kaasi',1,'local_backup'],
@@ -86,9 +88,10 @@ const Milestones = (() => {
     const copy=JSON.parse(JSON.stringify(data)); evaluate(copy,true);
     historical=copy.achievements||{}; pending.clear(); clearTimeout(timer);
   }
-  function prepare(data) {
+  function prepare(data, event) {
     data.achievements=withHistoricalDates(data.achievements);
-    return {events:[...pending],ids:evaluate(data,false,[...pending])};
+    const events=[...pending,...(event?[event]:[])];
+    return {events,ids:evaluate(data,false,events)};
   }
   function withHistoricalDates(saved={}) {
     const merged={...historical,...saved};
@@ -97,6 +100,8 @@ const Milestones = (() => {
   }
   function committed(result) { result.events.forEach(e=>pending.delete(e)); if(result.ids.length)celebrate(result.ids); }
   function track(event) {
+    const definition=definitions.find(d=>d.metric===event);
+    if(definition && (state.achievements?.[definition.id] || historical[definition.id])) return;
     pending.add(event); clearTimeout(timer);
     timer=setTimeout(async()=>{
       if(typeof storageOperationPending!=='undefined' && storageOperationPending){track(event);return;}

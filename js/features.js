@@ -1050,7 +1050,7 @@ async function handleEditTransactionModalSubmit(event) {
     );
   }
 
-  await saveData();
+  await saveData(state, { milestoneEvent: 'edit_transaction' });
   renderDashboard();
   populateDropdowns();
   closeModal("formModal");
@@ -1282,6 +1282,8 @@ function renderMonthTabs(year) {
         }
       }
       renderMonthlyDetails(index, year, new Set(), false, "", false);
+      const today = new Date();
+      if ((year < today.getFullYear() || (year === today.getFullYear() && index < today.getMonth())) && $("#monthlyViewModal")?.style.display === "block" && typeof Milestones !== 'undefined') Milestones.track('previous_month');
     };
     monthTabsContainer.appendChild(button);
   });

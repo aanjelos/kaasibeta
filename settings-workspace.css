@@ -306,7 +306,7 @@
 #settingsDonatePanel .copy-button { min-width: 44px; min-height: 44px; flex-shrink: 0; }
 #settingsDonatePanel .donate-bank-block + .donate-bank-block { border-top: 1px solid var(--border-color); padding-top: 20px; }
 .milestone-group + .milestone-group { margin-top: 28px; }
-.milestone-group h3 { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+.milestone-group h3 { font-size: 17px; font-weight: 600; text-align: center; padding-bottom: 12px; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); }
 .milestone-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
 .milestone-card { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 28px 20px 22px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-secondary); min-width: 0; }
 .milestone-card > i { color: var(--text-secondary); opacity: .45; font-size: 40px; line-height: 48px; margin-bottom: 16px; }

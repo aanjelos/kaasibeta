@@ -2,6 +2,13 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.464n - 2026-10-30
+
+### Milestone Additions
+
+- Add A Second Look for successfully editing an income or expense, and Looking Back for viewing a previous calendar month in All Transactions. Unlocks are recorded through the existing verified save and backup flow.
+- Centre and enlarge milestone section headings and add a subtle divider beneath each heading.
+
 ## v6.463n - 2026-10-30
 
 ### Cash Counter Alignment

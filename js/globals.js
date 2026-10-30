@@ -637,7 +637,7 @@ async function saveData(nextState = state, options = {}) {
   let milestoneResult;
   try {
     if (nextState.settings) delete nextState.settings.hideCashCounter;
-    if (typeof Milestones !== 'undefined' && !options.skipMilestones) milestoneResult = Milestones.prepare(nextState);
+    if (typeof Milestones !== 'undefined' && !options.skipMilestones) milestoneResult = Milestones.prepare(nextState, options.milestoneEvent);
     serialized = JSON.stringify(nextState);
     await KaasiStorage.commit(JSON.parse(serialized), { lastLocalDataModification: Date.now().toString() });
   } catch (cause) {
