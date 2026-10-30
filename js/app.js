@@ -603,7 +603,6 @@ function initializeUI(isRefresh = false) {
   $("#addDebtBtn").onclick = openAddDebtForm;
   $("#addReceivableBtn").onclick = openAddReceivableForm;
   $("#addInstallmentBtn").onclick = openAddInstallmentForm;
-  $("#cashCounterBtn").onclick = openCashCounter;
   $("#ccHistoryBtn").onclick = openCcHistoryModal;
 
   const viewDebtsBtn = $("#viewDebtsBtn");

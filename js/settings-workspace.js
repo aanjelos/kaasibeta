@@ -141,6 +141,7 @@ const SettingsWorkspace = (() => {
     else releaseSubscriptions();
     if (selected === "settingsDataManagementPanel") refreshStorageProtection();
     if (selected === "settingsMilestonesPanel" && typeof Milestones !== 'undefined') Milestones.render();
+    if (selected === "settingsCashCounterPanel") openCashCounter();
     if (scroll) {
       const pane = document.querySelector("#settingsModal .settings-main");
       if (pane) pane.scrollTop = 0;

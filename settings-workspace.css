@@ -145,7 +145,8 @@
 #settingsSubscriptionHost .subscription-row-copy > strong { font-size: 16px; }
 #settingsModal button:focus-visible, #settingsModal input:focus-visible, #settingsModal select:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 3px; }
 #settingsAddCategoryModal, #settingsAddBudgetModal { z-index: 68; }
-#cashCounterModal { z-index: 68; }
+.cash-counter-settings #cashCounterForm { max-width: 460px; margin: 0 auto; }
+.cash-counter-settings #cashCounterComparison { max-width: 460px; margin: 0 auto; }
 .settings-editor-content { max-width: 520px; }
 .settings-editor-content .btn { min-height: 44px; font-size: 14px; }
 .settings-editor-content .modal-close { min-width: 44px; min-height: 44px; top: 12px; right: 12px; display: grid; place-items: center; }

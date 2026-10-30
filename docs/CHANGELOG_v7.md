@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.458n - 2026-10-30
+
+### Inline Cash Counter
+
+- Embed the cash counter directly in its Extras section. Preserve entered counts while moving between Settings sections and retain live totals and cash-balance comparison.
+
 ## v6.457n - 2026-10-30
 
 ### Cash Counter Settings Fix
