@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.463n - 2026-10-30
+
+### Cash Counter Alignment
+
+- Centre Reset Counts above the count column and centre denomination values. Use clearer, thicker plus and minus icons while retaining accessible button labels and touch targets.
+
 ## v6.462n - 2026-10-30
 
 ### Cleaner Cash Counter Amounts

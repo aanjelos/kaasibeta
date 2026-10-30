@@ -354,3 +354,7 @@
 .cash-reset { display:inline-flex; align-items:center; gap:6px; min-height:40px; padding:4px 0 4px 10px; background:transparent; border:0; color:var(--text-secondary); font:inherit; font-size:12px; cursor:pointer; }
 .cash-reset:hover { color:var(--accent-primary); }
 .cash-reset:focus-visible { outline:2px solid var(--accent-primary); outline-offset:3px; border-radius:4px; }
+.cash-counter-toolbar { justify-content: center; }
+.cash-reset { padding: 4px 10px; }
+#cashCounterForm > .grid > span:first-child, #cashCounterForm .cash-denomination { text-align: center; }
+.cash-stepper-button i { font-size: 14px; }

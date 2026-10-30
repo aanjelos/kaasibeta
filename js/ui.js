@@ -576,7 +576,7 @@ function openCashCounter() {
       const button = document.createElement("button");
       button.type = "button"; button.className = "cash-stepper-button";
       button.setAttribute("aria-label", `${label} Rs. ${denom} count`);
-      button.textContent = symbol;
+      const icon=document.createElement('i'); icon.className = delta < 0 ? 'fas fa-minus' : 'fas fa-plus'; icon.setAttribute('aria-hidden','true'); button.appendChild(icon);
       button.onclick = () => { inputEl.value = Math.max(0, (parseInt(inputEl.value, 10) || 0) + delta); calculateCashTotal(); };
       if (delta < 0) stepper.appendChild(button);
       else { stepper.appendChild(inputEl); stepper.appendChild(button); }
