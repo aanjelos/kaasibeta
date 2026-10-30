@@ -1,4 +1,4 @@
-const BUILD = "v6.456n";
+const BUILD = "v6.457n";
 const CACHE_NAME = `kaasi-cache-${BUILD}`;
 const NAV_CACHE = 'kaasi-shell-navigation';
 const pendingShells = new Map();

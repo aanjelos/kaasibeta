@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.457n - 2026-10-30
+
+### Cash Counter Settings Fix
+
+- Fix the Settings panel structure so Cash Counter and other sections open independently after removing the old dashboard toggle.
+
 ## v6.456n - 2026-10-30
 
 ### Cash Counter in Extras
