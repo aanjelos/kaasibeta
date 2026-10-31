@@ -578,9 +578,6 @@ function initializeUI(isRefresh = false) {
     backupToSupabaseButton.onclick = syncCloudData;
   }
 
-  const setupCloudSyncButton = $("#setupCloudSyncBtn");
-  if (setupCloudSyncButton) setupCloudSyncButton.onclick = syncCloudData;
-
   // --- MODIFIED: shortcutTargetGroup listener ---
   const shortcutTargetGroup = $("#shortcutTargetGroup");
   if (shortcutTargetGroup) {

@@ -472,7 +472,7 @@ async function initializeSupabase() {
     if (!state?.settings?.initialSetupDone) {
       // Signing in never replaces data. Sync remains an explicit action.
       openInitialSetupWizard();
-      if (user) { $("#setupCloudSyncBtn").hidden = false; $("#setupCloudSyncBtn").onclick = syncCloudData; }
+      if (user && $("#setupCloudSyncBtn")) $("#setupCloudSyncBtn").hidden = false;
     }
     
     // Hide the preloader if it was kept visible for pending restore

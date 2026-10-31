@@ -189,15 +189,6 @@ test('Other stays last in settings and cannot be renamed or deleted', async () =
   assert.deepEqual(Array.from(r.run('state.categories')),['Other','Zebra','Apple']);
 });
 
-test('initial setup displays Other last without a remove action', () => {
-  const r=runtime();r.context.openInitialSetupWizard();
-  const rows=r.element('#setupCategoriesList').children;
-  assert.ok(rows.length > 1);
-  assert.match(rows.at(-1).innerHTML,/<span>Other<\/span>/);
-  assert.doesNotMatch(rows.at(-1).innerHTML,/<button/);
-  assert.ok(rows.slice(0,-1).some(row=>row.innerHTML.includes('<button')));
-});
-
 test('dashboard chart preserves series and points for edits and skips unchanged renders', () => {
   const r=runtime();r.element('#monthlyOverviewChart').getContext=()=>({});
   let creations=0,updates=0;

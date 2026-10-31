@@ -95,19 +95,6 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## ✨ UI / UX Polish
 
-### New User Experience Revamp
-- **Release target**: Plan and complete before the public v7 release.
-- **Experience**: Replace the all-in-one setup modal with a branded full-screen, step-by-step flow inspired by the Settings workspace, with subtle motion, progress and Back controls. Design mobile and desktop together; respect reduced-motion preferences. Build and verify the flow as a coherent feature; show a representative visual slice for design feedback early.
-- **Welcome and restore**: Start with new-user and returning-user choices. Returning users can import a local file or sign in and explicitly restore a cloud copy, then proceed to the dashboard without repeating setup. Sign-in alone must not replace data; show the account and backup details and use the existing restore safeguards.
-- **Accounts**: Present Cash and the existing three bank accounts as individual cards for starting balances, bank names and visibility. Preserve the current Cash rules and provide sensible defaults.
-- **Credit card**: Offer optional card tracking, a limit and an optional starting unpaid balance. If a balance is entered, create one clearly labelled unpaid credit card entry that affects available credit but does not create a regular expense or debit a bank account; future payments use the existing settlement flow. Decide how it appears in reports and handle balances exceeding the limit before building.
-- **Categories**: Use the Settings-style list with defaults and options to add or remove categories; avoid introducing category hiding during setup. Preserve the existing protection against removing or renaming Other, and keep it at the end of the list.
-- **Backup and PIN**: Offer optional cloud sign-in and an offline route, plus optional PIN setup using the existing recovery process. Do not require a cloud account or PIN to proceed.
-- **Tutorial**: After setup, offer a short, optional, skippable walkthrough and a way to reopen it later in About & Support or Extras. Explain expense/income entry and calculator use, All Transactions, debts and receivables; briefly introduce installments, budgets, subscriptions and PIN. Use clearly identified examples isolated from real records, balances, achievements and sync; closing or skipping must never create financial data.
-- **Completion state and milestone**: No separate tutorial-completion flag is required merely to prevent auto-opening: offer it only after a genuinely new setup or when the user opens it manually. Explore an optional tutorial-completion milestone that works for both new and existing users; skipping or closing must not unlock it, and existing users must never be forced through the tutorial. Final naming and whether to include it remain open for agreement.
-- **Architecture and safety**: Keep onboarding in a dedicated JavaScript module where practical, reuse existing validation and restore logic, and stage setup values before a verified save. Preserve existing users and unknown backup fields; an update, missing optional setting, incomplete setup or failed restore must never reset saved data or silently overwrite a cloud copy. Account for OAuth redirects, interrupted setup, keyboard access, responsive layouts and restore failure/retry.
-- **Verification**: Test fresh offline and online setups, returning local/cloud restores, setup interruption/retry, existing-user upgrades, optional PIN and recovery, tutorial replay/skip/isolation, starting credit-card balances and payment, and mobile/desktop accessibility. Verify real cloud flows with an authorised test account separately from synthetic tests.
-
 ### 1. Internal Modal Refinements, Especially on Mobile
 - **Priority**: Follow up on remaining mobile editor and keyboard-layout issues after the dashboard and Settings refinements. Review any further user-reported issues before category icons.
 - **Scope**: Improve sizing, spacing, typography, field hierarchy, scrolling, close controls and action-button placement at narrow mobile widths, including when the keyboard is open. Keep primary actions reachable and avoid clipped content or horizontal overflow. Preserve existing payment and storage behaviour.
@@ -143,6 +130,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ### 3. Public Release Validation for IndexedDB
 - **Scope**: Before promoting the beta storage changes, verify an authorized cloud backup/restore using a test account, production service-worker updates and offline launches, and the actual mobile/browser combinations in use.
+- **Onboarding check**: Use the test account to verify first-run cloud sign-in, explicit cloud restore, and the optional cloud-sync handoff after new setup. Check local-file restore and PIN recovery on a clean browser profile.
 - **Acceptance**: Existing data survives upgrade and reload, exported backups restore correctly, PIN-protected access remains intact, and interrupted or failed operations retain recovery options. Automated database tests and localhost browser checks do not replace these environment-specific checks.
 
 ### 4. Supabase Advisor Review

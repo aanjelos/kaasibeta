@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.467n" />
+    <meta name="application-version" content="v6.468n" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
     <title>Kaasi Beta - Expense Tracker | Manage Your Finances 🇱🇰</title>
@@ -51,9 +51,10 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" integrity="sha384-UagCvVPT5XXA0Hx+nJYUAGBFseHT9zBgpJMSebsAxl9lciTwbT+39j5VfRjdP5Tp" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v6.467n" />
-    <link rel="stylesheet" href="settings-workspace.css?v=v6.467n" />
-    <link rel="stylesheet" href="tailwind.css?v=v6.467n" />
+    <link rel="stylesheet" href="style.css?v=v6.468n" />
+    <link rel="stylesheet" href="settings-workspace.css?v=v6.468n" />
+    <link rel="stylesheet" href="onboarding.css?v=v6.468n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.468n" />
 
     <script
       async
@@ -1529,6 +1530,7 @@
             id="settingsAboutSection"
             class="mt-8 pt-6 border-t border-gray-600 text-xs text-gray-300 space-y-2 text-center"
           >
+            <div class="onboard-replay"><span><strong>New to Kaasi?</strong><small>Replay the short, data-free tour anytime.</small></span><button type="button" class="btn btn-secondary" onclick="Onboarding.openTutorial()"><i class="fas fa-play-circle" aria-hidden="true"></i> Take a Tour</button></div>
             <p>Created by Aanjelo Salgado with Antigravity and Codex.</p>
             <p>
               If you encounter any bugs, please send them over to
@@ -1584,178 +1586,8 @@
       <div id="settingsAddCategoryModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsAddCategoryTitle"><div class="modal-content settings-editor-content"><button type="button" class="modal-close" aria-label="Close modal" onclick="closeModal('settingsAddCategoryModal')">&times;</button><h2 id="settingsAddCategoryTitle">Add Category</h2><div id="settingsAddCategoryHost"></div></div></div>
       <div id="settingsAddBudgetModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsAddBudgetTitle"><div class="modal-content settings-editor-content"><button type="button" class="modal-close" aria-label="Close modal" onclick="closeModal('settingsAddBudgetModal')">&times;</button><div id="settingsAddBudgetHost"></div></div></div>
 
-      <div id="initialSetupModal" class="modal z-[60]">
-        <div class="modal-content max-w-2xl">
-          <h2
-            class="text-2xl font-semibold mb-2 text-center accent-text flex justify-center items-center"
-          >
-            Welcome to
-            <img
-              src="img/LogoType.svg"
-              alt="Kaasi Text Logo"
-              class="h-8 ml-2 inline-block theme-logo-type"
-              onerror="this.onerror=null; this.src='https://placehold.co/120x30/e67e26/white?text=Kaasi&font=satoshi';"
-            />
-          </h2>
-          <p class="text-sm text-gray-300 mb-6 text-center">
-            Let's get your expense tracker set up.
-          </p>
-
-          <div class="mb-6">
-            <div class="card !p-4 border-2 border-dashed border-gray-600 bg-[var(--bg-tertiary)] flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div class="text-center sm:text-left flex-grow">
-                <h3 class="text-sm font-semibold text-[var(--text-primary)]">Already have data?</h3>
-                <p class="text-xs text-gray-300 mt-1">Sign in and select Sync to compare your cloud copy, or import a backup file.</p>
-              </div>
-              <div class="flex flex-row gap-2 w-full sm:w-auto shrink-0 justify-center">
-                <button type="button" id="setupCloudLoginBtn" class="btn btn-secondary text-sm flex-1 sm:flex-none justify-center m-0 whitespace-nowrap">
-                  <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-4 h-4 mr-2 inline-block" />
-                  Sign In
-                </button>
-                <button type="button" id="setupCloudSyncBtn" class="btn btn-secondary text-sm" onclick="syncCloudData()" hidden>Sync</button>
-                <label class="btn btn-secondary text-sm cursor-pointer flex-1 sm:flex-none justify-center m-0 whitespace-nowrap">
-                  <i class="fas fa-file-import mr-2"></i>Local File
-                  <input type="file" id="setupImportInput" accept=".json" class="hidden" aria-label="Setup Import Input" />
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <form id="initialSetupForm" class="space-y-6">
-            <div class="card !p-4 bg-tertiary">
-              <h3 class="text-lg font-semibold mb-3">1. Account Setup</h3>
-              <p class="text-xs text-gray-300 mb-3">
-                Set initial balances. You can rename bank accounts and toggle
-                their visibility. "Cash" is fixed. Leave balance blank or 0 if
-                not applicable.
-              </p>
-              <div id="setupAccountBalances" class="space-y-3"></div>
-            </div>
-            <div class="card !p-4 bg-tertiary">
-              <h3 class="text-lg font-semibold mb-3">2. Credit Card Setup</h3>
-              <div class="flex items-center justify-between mb-3">
-                <label
-                  for="setupEnableCc"
-                  class="text-sm font-medium text-gray-300"
-                  >Enable Credit Card Tracking?</label
-                >
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    id="setupEnableCc"
-                    name="setupEnableCc"
-                    class="sr-only peer"
-                    checked
-                  aria-label="Setup Enable Cc" />
-                  <div
-                    class="w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-accent-500/50 rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
-                  ></div>
-                </label>
-              </div>
-              <div id="setupCcLimitGroup">
-                <label for="setupCcLimit" class="block text-sm font-medium mb-1"
-                  >Credit Card Limit (LKR)</label
-                >
-                <div class="relative flex items-center w-full">
-                <input
-                  type="text" inputmode="decimal" autocomplete="off" class="calc-amount pr-8 text-sm"
-                  id="setupCcLimit"
-                  name="setupCcLimit"
-                  step="0.01"
-                  min="0"
-                  placeholder="e.g., 100000"
-                aria-label="e.g., 100000" />
-                <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
-                  <i class="fas fa-calculator"></i>
-                </button>
-              </div>
-              </div>
-            </div>
-            <div class="card !p-4 bg-tertiary">
-              <h3 class="text-lg font-semibold mb-3">3. Expense Categories</h3>
-              <p class="text-xs text-gray-300 mb-3">
-                Review and customize your starting categories. You can manage
-                these later in Settings.
-              </p>
-              <div id="setupCategoriesList" class="space-y-2"></div>
-              <div class="flex gap-2 mt-3">
-                <input
-                  type="text"
-                  id="setupNewCategoryName"
-                  placeholder="Add custom category"
-                  class="flex-grow text-sm"
-                aria-label="Add custom category" />
-                <button
-                  type="button"
-                  id="setupAddCategoryBtn"
-                  class="btn btn-secondary btn-sm"
-                >
-                  Add
-                </button>
-              </div>
-            </div>
-            <div class="pt-4">
-              <button
-                type="submit"
-                class="btn btn-primary w-full text-base py-3"
-              >
-                <i class="fas fa-check-circle mr-2"></i>Save Setup & Get Started
-              </button>
-            </div>
-          </form>
-
-
-          <div
-            class="mt-8 pt-6 border-t border-gray-600 text-xs text-gray-300 space-y-2 text-center"
-          >
-            <p>Created by Aanjelo Salgado with Antigravity and Codex.</p>
-            <p>
-              If you encounter any bugs, please send them over to
-              <a
-                href="mailto:aanjelo99@gmail.com"
-                class="text-info hover:underline"
-              >
-                aanjelo99@gmail.com
-              </a>
-              or
-              <a
-                href="https://www.instagram.com/aanjelo.s"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-info hover:underline"
-              >
-                @aanjelo.s
-              </a>
-              on Instagram.
-            </p>
-            <div class="max-w-lg mx-auto">
-              <p>
-                Make sure to back up the data from time to time. You will receive
-                automatic reminders based on your chosen interval in the Data settings.
-              </p>
-            </div>
-            <p class="font-semibold mt-2">Earn Well And Spend Responsibly!</p>
-            <div class="mt-4 flex justify-center flex-col items-center">
-              <img
-                src="img/AanjeloNoText.svg"
-                alt="Aanjelo Salgado Logo"
-                class="h-8 mb-2 theme-logo-type"
-                onerror="this.onerror=null; this.src='https://placehold.co/80x32/e67e26/white?text=AS&font=satoshi';"
-              />
-              <hr class="w-1/4 my-2 border-gray-600" />
-              <p id="appVersionSetup" class="text-gray-400 text-xs"></p>
-              <div class="max-w-2xl mx-auto">
-                <p class="font-semibold text-gray-300 mt-2">
-                  Keep regular local or cloud backups. Persistent storage can
-                  reduce automatic browser cleanup when granted, but clearing
-                  site data or losing access to this device can still remove
-                  local records.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div id="initialSetupModal" class="modal" role="dialog" aria-modal="true" aria-label="Kaasi setup"><div class="modal-content" tabindex="-1"></div></div>
+      <div id="kaasiTutorialModal" class="modal" role="dialog" aria-modal="true" aria-label="Kaasi tour"><div class="modal-content" tabindex="-1"></div></div>
 
       <div id="formModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-lg">
@@ -2098,26 +1930,27 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v6.467n" defer></script>
-    <script src="js/import-validation.js?v=v6.467n" defer></script>
-    <script src="js/storage.js?v=v6.467n" defer></script>
-    <script src="js/storage-ui.js?v=v6.467n" defer></script>
-    <script src="js/animations.js?v=v6.467n" defer></script>
-    <script src="js/data-sync.js?v=v6.467n" defer></script>
-    <script src="js/cloud-sync.js?v=v6.467n" defer></script>
-    <script src="js/math-tool.js?v=v6.467n" defer></script>
-    <script src="js/settings.js?v=v6.467n" defer></script>
-    <script src="js/charts.js?v=v6.467n" defer></script>
-    <script src="js/ui.js?v=v6.467n" defer></script>
-    <script src="js/settings-workspace.js?v=v6.467n" defer></script>
-    <script src="js/features.js?v=v6.467n" defer></script>
-    <script src="js/subscription-assets.js?v=v6.467n" defer></script>
-    <script src="js/subscription-services.js?v=v6.467n" defer></script>
-    <script src="js/subscriptions.js?v=v6.467n" defer></script>
-    <script src="js/security.js?v=v6.467n" defer></script>
-    <script src="js/milestones.js?v=v6.467n" defer></script>
-    <script src="js/milestones-debug.js?v=v6.467n" defer></script>
-    <script src="js/app.js?v=v6.467n" defer></script>
+    <script src="js/globals.js?v=v6.468n" defer></script>
+    <script src="js/import-validation.js?v=v6.468n" defer></script>
+    <script src="js/storage.js?v=v6.468n" defer></script>
+    <script src="js/storage-ui.js?v=v6.468n" defer></script>
+    <script src="js/animations.js?v=v6.468n" defer></script>
+    <script src="js/data-sync.js?v=v6.468n" defer></script>
+    <script src="js/cloud-sync.js?v=v6.468n" defer></script>
+    <script src="js/math-tool.js?v=v6.468n" defer></script>
+    <script src="js/settings.js?v=v6.468n" defer></script>
+    <script src="js/charts.js?v=v6.468n" defer></script>
+    <script src="js/ui.js?v=v6.468n" defer></script>
+    <script src="js/settings-workspace.js?v=v6.468n" defer></script>
+    <script src="js/features.js?v=v6.468n" defer></script>
+    <script src="js/subscription-assets.js?v=v6.468n" defer></script>
+    <script src="js/subscription-services.js?v=v6.468n" defer></script>
+    <script src="js/subscriptions.js?v=v6.468n" defer></script>
+    <script src="js/security.js?v=v6.468n" defer></script>
+    <script src="js/milestones.js?v=v6.468n" defer></script>
+    <script src="js/milestones-debug.js?v=v6.468n" defer></script>
+    <script src="js/onboarding.js?v=v6.468n" defer></script>
+    <script src="js/app.js?v=v6.468n" defer></script>
   </body>
 </html>
 

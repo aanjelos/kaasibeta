@@ -2,6 +2,20 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.468n - 2026-10-31
+
+### New User Setup
+
+- Replace the initial setup form with a full-screen, step-by-step experience for desktop and mobile. First-time users can set starting account balances, choose expense categories and optionally configure credit card tracking and a PIN before saving.
+- Support an optional starting unpaid credit card balance as a single unpaid purchase without changing bank balances or recording a regular expense.
+- Let returning users import a local backup or sign in and review a cloud copy. Signing in does not automatically replace local data.
+- Add an optional, replayable tour with practice examples. Tour actions do not create transactions, achievements or sync changes.
+- Offer a cloud-sync handoff after setup and the tour while keeping the offline route available. Setup values are staged until one verified save; an existing dataset cannot be replaced by the new-user path.
+
+### Offline Assets
+
+- Include the new setup styles and script in the versioned app shell so refreshes load a consistent build.
+
 ## v6.467n - 2026-10-31
 
 ### Category Management

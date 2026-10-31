@@ -804,7 +804,7 @@ window.addEventListener("popstate", (event) => {
   const modalsToClose = [
     "milestonesModal", "confirmationModal", "formModal", "subscriptionReminderModal", "upcomingPaymentsModal", "subscriptionsModal", "transactionDetailModal", "ccTransactionDetailModal", "ccHistoryModal", "cashCounterModal",
     "debtsViewModal", "receivablesViewModal", "transferMoneyModal",
-    "monthlyViewModal", "settingsModal", "settingsAddCategoryModal", "settingsAddBudgetModal", "cloudSyncModal", "donateModal", "shortcutsHelpModal", "securityQuestionModal", "initialSetupModal", "editBudgetModal"
+    "monthlyViewModal", "settingsModal", "settingsAddCategoryModal", "settingsAddBudgetModal", "cloudSyncModal", "donateModal", "shortcutsHelpModal", "securityQuestionModal", "initialSetupModal", "kaasiTutorialModal", "editBudgetModal"
   ];
   
   const targetOpenModals = (event.state && event.state.openModals) ? event.state.openModals : [];
