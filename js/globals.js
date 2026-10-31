@@ -853,13 +853,57 @@ function compareCategoryNames(a, b) {
   return aOther === bOther ? a.localeCompare(b) : aOther ? 1 : -1;
 }
 
+function updateTransferAccountOptions() {
+  const from = document.getElementById("transferFrom");
+  const to = document.getElementById("transferTo");
+  if (!from || !to) return;
+  const accounts = state.accounts.filter((account) => !account.hidden);
+  const valid = (value) => accounts.some((account) => account.id === value);
+  const toValue = valid(to.value) ? to.value : (accounts.find((account) => account.id === 'cash')?.id || accounts[0]?.id || "");
+  const fromValue = valid(from.value) && from.value !== toValue ? from.value : (accounts.find((account) => account.id !== 'cash' && account.id !== toValue)?.id || accounts.find((account) => account.id !== toValue)?.id || "");
+  const fill = (select, selected, disabledId) => {
+    select.innerHTML = "";
+    if (!selected) {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = "No other account available";
+      select.appendChild(option);
+    }
+    accounts.forEach((account) => {
+      const option = document.createElement("option");
+      option.value = account.id;
+      option.textContent = `${account.name} (${formatCurrency(account.balance)})`;
+      option.disabled = account.id === disabledId;
+      select.appendChild(option);
+    });
+    select.value = selected;
+  };
+  fill(from, fromValue, toValue);
+  fill(to, toValue, null);
+  const type = document.getElementById("transactionType");
+  const transferOption = type?.querySelector('option[value="transfer"]');
+  if (transferOption) {
+    transferOption.hidden = accounts.length < 2;
+    transferOption.disabled = accounts.length < 2;
+    if (accounts.length < 2 && type.value === "transfer") {
+      type.value = "expense";
+      if (typeof type.onchange === "function") type.onchange();
+    }
+  }
+  if (!from.dataset.transferBound) {
+    from.addEventListener("change", updateTransferAccountOptions);
+    to.addEventListener("change", updateTransferAccountOptions);
+    from.dataset.transferBound = "true";
+  }
+}
+
 function populateDropdowns() {
   const ccPurchaseCategory = document.getElementById("ccPurchaseCategory");
   if (ccPurchaseCategory) {
     ccPurchaseCategory.innerHTML = ccPurchaseCategoryOptions(getCcPurchaseCategory({category: ccPurchaseCategory.value}));
   }
   const accountSelects = $$(
-    'select[name="account"], select[name="transferFrom"], select[name="transferTo"], select[name="receivableSourceAccount"], select[name="payDebtAccount"], select[name="recPaymentAccount"], select[name="instPayAccount"], select[name="ccPayFromAccount"], #modalAccount, #recSourceAccountAdd, #recSourceAccountEdit, #modalCcPayFromAccount, #modalInstPayAccount, #modalPayDebtAccount, #modalTransferFrom, #modalTransferTo'
+    'select[name="account"], select[name="receivableSourceAccount"], select[name="payDebtAccount"], select[name="recPaymentAccount"], select[name="instPayAccount"], select[name="ccPayFromAccount"], #modalAccount, #recSourceAccountAdd, #recSourceAccountEdit, #modalCcPayFromAccount, #modalInstPayAccount, #modalPayDebtAccount, #modalTransferFrom, #modalTransferTo'
   );
   const categorySelects = $$(
     "#category, #modalCategory, #modalPayDebtCategory, #modalInstPayCategory, #modalCcPayCategory"
@@ -888,6 +932,7 @@ function populateDropdowns() {
       }
     }
   });
+  updateTransferAccountOptions();
 
   const populateCategorySelect = (selectEl) => {
     if (!selectEl) return;

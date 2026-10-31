@@ -2,6 +2,17 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.465n - 2026-10-31
+
+### Transfer Account Selection
+
+- Default transfers from the first visible bank account to Cash, keep all destination accounts available, and disable the selected destination in the source dropdown. Hide transfers when fewer than two accounts are visible.
+
+### Sync Comparison
+
+- Display milestone unlocks individually, use names and descriptions for debts and receivables, and show clearer values for categories, settings and account names. Summarise unsupported saved information without exposing raw data.
+- Avoid an unnecessary conflict review when the copies differ only in milestone dates or record order; apply the verified cloud copy using the existing restore safeguards.
+
 ## v6.464n - 2026-10-30
 
 ### Milestone Additions

@@ -1034,14 +1034,67 @@ test('offline status is unknown and Sync does not upload or download',async()=>{
   await r.context.syncCloudData();assert.equal(cloud.calls.length,0);
 });
 
+test('comparison hides milestone date differences and unknown objects without raw data',()=>{
+  const r=runtime(),local=JSON.parse(r.storage.get('KaasiData')),remote=JSON.parse(JSON.stringify(local));
+  local.achievements={local_backup:{earnedAt:1000}}; remote.achievements={local_backup:{earnedAt:2000},future_award:{earnedAt:3000}};
+  remote.futureSettings={secretStructure:{value:'example'}};
+  const changes=r.context.cloudSyncDifferences(local,remote);
+  assert.ok(!changes.some(row=>row.fields.some(field=>field.name==='achievementDate')));
+  assert.ok(changes.some(row=>row.area==='Milestones' && row.kind==='Only in cloud'));
+  r.context.reviewLocal=local;r.context.reviewRemote=remote;
+  r.run('cloudSyncReview={userId:"sync-user",local:reviewLocal,cloud:reviewRemote};');r.context.renderCloudSyncReview();
+  const textOf = node => (node.textContent || '') + (node.children || []).map(textOf).join('');
+  assert.ok(!textOf(r.element('#cloudSyncDifferences')).includes('example'));
+});
+
+test('milestone dates and record order do not trigger a comparison, but other differences do',()=>{
+  const r=runtime(),local=JSON.parse(r.storage.get('KaasiData')),remote=JSON.parse(JSON.stringify(local));
+  local.achievements={local_backup:{earnedAt:1000}}; remote.achievements={local_backup:{earnedAt:2000}};
+  local.transactions=[{id:'a',amount:10},{id:'b',amount:20}];remote.transactions=[local.transactions[1],local.transactions[0]];
+  assert.equal(r.context.cloudSyncDifferences(local,remote).length,0);
+  assert.equal(r.context.cloudSyncEquivalentForReview(local,remote),true);
+  remote.transactions[0]={...remote.transactions[0],amount:21};
+  assert.equal(r.context.cloudSyncEquivalentForReview(local,remote),false);
+  remote.transactions[0]={...remote.transactions[0],amount:20,extraFutureField:'retained'};
+  assert.equal(r.context.cloudSyncEquivalentForReview(local,remote),false);
+});
+
+test('comparison describes debts, categories, settings and account names without exposing IDs',()=>{
+  const r=runtime(),local=JSON.parse(r.storage.get('KaasiData')),remote=JSON.parse(JSON.stringify(local));
+  local.debts=[{id:'private-debt-id',who:'Aiya',why:'Lunch',amount:50}];remote.debts=[];
+  local.categories=['Food'];remote.categories=['Travel'];
+  local.settings.showCcDashboardSection=true;remote.settings.showCcDashboardSection=false;
+  local.transactions=[{id:'entry',description:'Lunch',account:'cash',amount:10}];
+  remote.transactions=[{...local.transactions[0],account:'bank_1'}];
+  r.context.reviewLocal=local;r.context.reviewRemote=remote;
+  r.run('cloudSyncReview={userId:"sync-user",local:reviewLocal,cloud:reviewRemote};');r.context.renderCloudSyncReview();
+  const textOf=node=>(node.textContent||'')+(node.children||[]).map(textOf).join('');
+  const text=textOf(r.element('#cloudSyncDifferences'));
+  assert.match(text,/Aiya · Lunch/);assert.match(text,/Food/);assert.match(text,/Travel/);assert.match(text,/Credit card on dashboard/);
+  assert.doesNotMatch(text,/private-debt-id|bank_1|showCcDashboardSection/);
+});
+
+test('conflict involving only milestone dates applies the verified cloud copy without prompting',async()=>{
+  const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+  original.achievements={local_backup:{earnedAt:1000}};
+  r.run('state.achievements={local_backup:{earnedAt:1000}};'); await r.run('saveData();');
+  const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();
+  await r.run('state.achievements.local_backup.earnedAt=2000;saveData();');
+  cloud.row.data.achievements.local_backup.earnedAt=3000;cloud.row.updated_at='2026-10-22T00:00:00Z';
+  await r.context.syncCloudData();
+  assert.equal(r.run('state.achievements.local_backup.earnedAt'),3000);
+  assert.notEqual(r.element('#cloudSyncModal').style.display,'block');
+  assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);
+});
+
 test('comparison labels missing records accurately, redacts security values, and paginates safely',async()=>{
   const r=runtime();const local=JSON.parse(r.storage.get('KaasiData')),remote=JSON.parse(JSON.stringify(local));
   local.transactions=Array.from({length:31},(_,i)=>({id:`local_${i}`,amount:1,description:'<img src=x onerror=alert(1)>',date:'2026-10-21',type:'expense',account:'cash',category:'Other',timestamp:i}));
   remote.transactions=[{...local.transactions[0],id:'remote_1'}];
   local.settings.appPin={enabled:true,pin:'private-pin-hash',answer:'private-answer-hash'};
   const changes=r.context.cloudSyncDifferences(local,remote);
-  assert.equal(changes.filter(c=>c.kind==='Only on this device').length,31);
-  assert.equal(changes.filter(c=>c.kind==='Only in cloud').length,1);
+  assert.equal(changes.filter(c=>c.area==='Transactions' && c.kind==='Only on this device').length,31);
+  assert.equal(changes.filter(c=>c.area==='Transactions' && c.kind==='Only in cloud').length,1);
   assert.ok(!JSON.stringify(changes).includes('private-pin-hash'));assert.ok(!JSON.stringify(changes).includes('private-answer-hash'));
   const cloud=syncCloud(r,{data:remote,updated_at:'2026-10-21T00:00:00Z'});
   r.context.reviewLocal=local;r.context.reviewRemote=remote;

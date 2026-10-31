@@ -333,6 +333,10 @@ function handleKeyboardShortcuts(event) {
         const typeSelect = $("#transactionType");
         const amountInput = $("#amount");
         if (typeSelect && amountInput) {
+          if (typeSelect.querySelector('option[value="transfer"]')?.disabled) {
+            showNotification("At least two visible accounts are needed to make a transfer.", "warning");
+            break;
+          }
           typeSelect.value = "transfer";
           typeSelect.dispatchEvent(new Event("change"));
           amountInput.focus();

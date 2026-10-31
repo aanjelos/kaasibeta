@@ -368,6 +368,9 @@ async function syncCloudData(options = {}) {
       await recordCloudSync(userId, local, context.updatedAt, false);
       await finishSyncResume(context);
       if (!automatic) showNotification(resume ? 'Automatic sync resumed.' : "Already synced. Both copies contain the same data.", "success");
+    } else if (['cloud_newer', 'conflict'].includes(direction) && cloudSyncEquivalentForReview(local, context.cloud) && !resume && !options.reviewOnly) {
+      // The cloud is the chosen copy for differences limited to order and milestone dates.
+      await downloadCloudSync(context);
     } else if (direction === "cloud_newer") {
       await downloadCloudSync(context);
     } else {
@@ -393,6 +396,26 @@ async function syncCloudData(options = {}) {
     if (automatic && !cloudSyncFeedback) automaticCloudSyncFailures = 0;
     if (window.currentCloudSyncStatus === 'local_newer') scheduleAutomaticCloudSync();
   }
+}
+
+// This comparison does not alter backups or suppress any other field differences.
+function cloudSyncEquivalentForReview(left, right) {
+  const normalize = data => {
+    const copy = portableKaasiData(data);
+    for (const award of Object.values(copy.achievements || {})) {
+      if (award && typeof award === 'object') { delete award.earnedAt; delete award.achievedDate; }
+    }
+    const arrays = ['accounts','transactions','debts','receivables','installments','budgets','subscriptions','subscriptionOccurrences'];
+    const reorder = rows => {
+      if (!Array.isArray(rows) || rows.some(row => !row || typeof row.id !== 'string') || new Set(rows.map(row => row.id)).size !== rows.length) return rows;
+      return rows.slice().sort((a,b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+    };
+    for (const key of arrays) if (Array.isArray(copy[key])) copy[key] = reorder(copy[key]);
+    for (const key of ['categories','hiddenCategories']) if (Array.isArray(copy[key]) && copy[key].every(value => typeof value === 'string')) copy[key] = copy[key].slice().sort();
+    if (copy.creditCard && Array.isArray(copy.creditCard.transactions)) copy.creditCard.transactions = reorder(copy.creditCard.transactions);
+    return copy;
+  };
+  return KaasiStorage.canonical(normalize(left)) === KaasiStorage.canonical(normalize(right));
 }
 
 /** Compare by record ID. Missing records are not classified as deletions. */
@@ -431,14 +454,42 @@ function cloudSyncDifferences(local, cloud) {
     for (const id of new Set([...left.keys(), ...right.keys()])) {
       const row = left.get(id) || right.get(id);
       const subscriptionName=key==='subscriptionOccurrences' ? [...(local.subscriptions||[]),...(cloud.subscriptions||[])].find(sub=>sub.id===row.subscriptionId)?.name : '';
-      compare(area, `${row.date || row.dateGiven || row.dueDate || row.nextDueDate || ""} ${row.description || row.name || subscriptionName || id}`.trim(), left.get(id), right.get(id));
+      const title = ['debts','receivables'].includes(key) ? [row.who, row.why].filter(Boolean).join(' · ') : (row.description || row.name || subscriptionName);
+      compare(area, `${row.date || row.dateGiven || row.dueDate || row.nextDueDate || ""} ${title || 'Unnamed entry'}`.trim(), left.get(id), right.get(id));
     }
-    if (a.length === b.length && a.every(row => right.has(row.id))) compare(area, "Record order", a.map(row => row.id), b.map(row => row.id));
   }
   compare("Credit card", "Card settings", { ...local.creditCard, transactions: undefined }, { ...cloud.creditCard, transactions: undefined });
-  const omitted = new Set([...collections.map(([, key]) => key), "creditCard"]);
+  const achievementNames = typeof Milestones !== 'undefined' ? new Map(Milestones.definitions.map(item => [item.id, item.name])) : new Map();
+  const localAchievements = local.achievements || {}, cloudAchievements = cloud.achievements || {};
+  for (const id of new Set([...Object.keys(localAchievements), ...Object.keys(cloudAchievements)])) {
+    if (Boolean(localAchievements[id]) !== Boolean(cloudAchievements[id])) {
+      const name = achievementNames.get(id) || 'Other milestone';
+      changes.push({ area: 'Milestones', label: name, kind: localAchievements[id] ? 'Only on this device' : 'Only in cloud', fields: [] });
+    } else if (localAchievements[id] && cloudAchievements[id]) {
+      const other = value => Object.fromEntries(Object.entries(value).filter(([key]) => !['earnedAt', 'achievedDate'].includes(key)));
+      if (!equal(other(localAchievements[id]), other(cloudAchievements[id]))) compare('Milestones', achievementNames.get(id) || 'Other milestone', other(localAchievements[id]), other(cloudAchievements[id]));
+    }
+  }
+  for (const categoryKey of ['categories', 'hiddenCategories']) {
+    const left = new Set(local[categoryKey] || []), right = new Set(cloud[categoryKey] || []);
+    for (const name of new Set([...left, ...right])) if (left.has(name) !== right.has(name)) {
+      changes.push({area:categoryKey === 'categories' ? 'Categories' : 'Hidden categories', label:name, kind:left.has(name) ? 'Only on this device' : 'Only in cloud', fields:[]});
+    }
+  }
+  const leftSettings = local.settings || {}, rightSettings = cloud.settings || {};
+  for (const key of new Set([...Object.keys(leftSettings), ...Object.keys(rightSettings)])) {
+    if (key === 'hiddenCategoryRules') {
+      const a = leftSettings[key] || {}, b = rightSettings[key] || {};
+      for (const rule of new Set([...Object.keys(a), ...Object.keys(b)])) compare('Settings & categories', rule, a[rule], b[rule]);
+    } else compare('Settings & categories', key, leftSettings[key], rightSettings[key]);
+  }
+  const omitted = new Set([...collections.map(([, key]) => key), "creditCard", "achievements", "categories", "hiddenCategories", "settings"]);
   for (const key of new Set([...Object.keys(local), ...Object.keys(cloud)])) {
-    if (!omitted.has(key)) compare("Settings & categories", sensitive(key) ? "Security setting" : key, local[key], cloud[key]);
+    if (!omitted.has(key)) {
+      if (sensitive(key)) {
+        if (!equal(local[key], cloud[key])) changes.push({area:'Settings & categories',label:'Security setting',kind:'Different values',fields:[{name:'Security setting',local:'Changed',cloud:'Changed'}]});
+      } else compare("Settings & categories", key, local[key], cloud[key]);
+    }
   }
   return changes;
 }
@@ -446,6 +497,7 @@ function renderCloudSyncReview(page = 0) {
   const context = cloudSyncReview;
   if (!context) return;
   const changes = cloudSyncDifferences(context.local, context.cloud);
+  if (!changes.length && !cloudSyncEquivalentForReview(context.local, context.cloud)) changes.push({area:'Settings & categories',label:'Other saved information',kind:'Different values',fields:[{name:'Value',local:'Saved information differs',cloud:'Saved information differs'}]});
   const pageSize = 25, pages = Math.max(1, Math.ceil(changes.length / pageSize));
   const host = $("#cloudSyncDifferences"); host.replaceChildren();
   $("#cloudSyncDeviceCount").textContent = String(changes.filter(c => c.kind === "Only on this device").length);
@@ -454,9 +506,23 @@ function renderCloudSyncReview(page = 0) {
   $("#cloudSyncSummary").setAttribute("aria-label", `${changes.length} differences`);
   const labels = { amount: "Amount", balance: "Balance", paidAmount: "Amount paid", paidOff: "Fully paid", originalAmount: "Original amount", remainingAmount: "Remaining amount", originalFullAmount: "Original total", monthlyAmount: "Monthly amount", limit: "Limit", type: "Type", date: "Date", description: "Description", account: "Account", category: "Category", name: "Name", ccPurchaseId: "Linked card purchase", timestamp: "Recorded time", hidden: "Hidden", totalMonths: "Total months", monthsLeft: "Months remaining", startDate: "Start date", dueDate: "Due date", dateGiven: "Date lent" };
   Object.assign(labels,{nextDueDate:'Next renewal',frequency:'Frequency',method:'Payment method',status:'Status',anchorDay:'Renewal day',serviceId:'Service',icon:'Icon',subscriptionId:'Subscription',subscriptionOccurrenceId:'Renewal',transactionId:'Recorded entry',kind:'Payment method',snoozedUntil:'Remind after',handledAt:'Recorded time'});
-  const money = new Set(["amount", "balance", "paidAmount", "originalAmount", "remainingAmount", "originalFullAmount", "monthlyAmount", "limit"]);
-  const display = (value, key) => value === undefined ? "Absent" : money.has(key) && typeof value === "number" ? formatCurrency(value).replace(/^LKR\s*/, "")
-    : typeof value === "boolean" ? value ? "Yes" : "No" : typeof value === "string" ? value : JSON.stringify(value, null, 2);
+  Object.assign(labels, {who:'Person',why:'Description'});
+  labels.achievementDate = 'Achieved';
+  const settingNames = {settings:'App settings',categories:'Categories',hiddenCategories:'Hidden categories',showCcDashboardSection:'Credit card on dashboard',showMathToolbar:'Calculator',defaultTransferFee:'Default transfer fee',defaultTransferFeeCategory:'Transfer fee category',backupReminderFrequency:'Backup reminders',hiddenCategoryRules:'Hidden category rules',budgetSortOrder:'Budget order',initialSetupDone:'Setup',theme:'Theme',accent:'Accent colour',excludeFromDashboardCharts:'Hide from dashboard charts',excludeFromReports:'Exclude from PDF reports',excludeFromMonthlyTotals:'Hide from monthly totals',excludeFromPieChart:'Hide from monthly chart',excludeFromQuickStats:'Hide from quick stats',excludeFromYearlyTotals:'Hide from yearly totals',dimInTransactionLists:'Dim in transaction lists'};
+  Object.assign(labels, settingNames);
+  Object.assign(labels,{sourceAccount:'Account',categories:'Categories'});
+  const money = new Set(["amount", "balance", "paidAmount", "originalAmount", "remainingAmount", "originalFullAmount", "monthlyAmount", "limit", "defaultTransferFee"]);
+  const display = (value, key, side) => {
+    if (value === undefined) return "Absent";
+    if (money.has(key) && typeof value === 'number') return formatCurrency(value).replace(/^LKR\s*/, '');
+    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+    if (key === 'Value' && Array.isArray(value)) return 'Order differs';
+    if (['account','sourceAccount'].includes(key) && typeof value === 'string') return (context[side]?.accounts || []).find(account => account.id === value)?.name || 'Account unavailable';
+    if (/id$/i.test(key) || ['timestamp', 'handledAt', 'snoozedUntil', 'anchorDay', 'icon'].includes(key)) return 'Saved information differs';
+    if (typeof value === 'string') return (labels[key] || key === 'Value') ? value : 'Saved information differs';
+    if (Array.isArray(value) && value.every(item => typeof item === 'string')) return value.join(', ');
+    return 'Different saved information';
+  };
   const appendText = (parent, value, className, expand, label, limit = 64) => {
     const text = document.createElement("span"); text.className = className; text.textContent = value;
     parent.appendChild(text);
@@ -505,14 +571,15 @@ function renderCloudSyncReview(page = 0) {
       if (date.getFullYear() !== new Date().getFullYear()) options.year = "numeric";
       dateText = date.toLocaleDateString(undefined, options);
     }
-    appendText(entry, dateLabel ? dateLabel[2] : change.label.replace(/^./, c => c.toUpperCase()), "sync-entry-name", expand, "Entry");
+    const entryName = change.area === 'Settings & categories' ? (settingNames[change.label] || 'Other saved information') : change.label;
+    appendText(entry, dateLabel ? dateLabel[2] : entryName.replace(/^./, c => c.toUpperCase()), "sync-entry-name", expand, "Entry");
     const area = { Transactions: "Transaction", Accounts: "Account", Debts: "Debt", Receivables: "Receivable", Installments: "Installment", Budgets: "Budget", "Settings & categories": "Settings" }[change.area] || change.area;
-    const fieldLabel = key => labels[key] || key.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, c => c.toUpperCase());
+    const fieldLabel = key => labels[key] || 'Other information';
     const descriptionChange = change.kind === "Different values" ? change.fields.find(field => field.name === "description") : null;
     const valueFields = change.fields.filter(field => field.name !== "description");
     if (descriptionChange) {
-      addSection("This Device · Description", display(descriptionChange.local, "description"));
-      addSection("Cloud · Description", display(descriptionChange.cloud, "description"));
+      addSection("This Device · Description", display(descriptionChange.local, "description", 'local'));
+      addSection("Cloud · Description", display(descriptionChange.cloud, "description", 'cloud'));
       if (!toggles.length) addToggle(entry);
     }
     const singleField = change.kind === "Different values" && valueFields.length === 1 ? valueFields[0].name : null;
@@ -526,7 +593,7 @@ function renderCloudSyncReview(page = 0) {
       if (change.kind !== "Different values") {
         const present = change.kind === "Only on this device" ? side === "local" : side === "cloud";
         const status = document.createElement("span"); status.className = `sync-presence ${present ? "is-present" : "is-absent"}`;
-        status.textContent = present ? "Present" : "Absent"; cell.appendChild(status);
+        status.textContent = change.area === 'Milestones' ? (present ? 'Unlocked' : 'Not unlocked') : (present ? "Present" : "Absent"); cell.appendChild(status);
       } else {
         if (!valueFields.length) { cell.textContent = "—"; cell.setAttribute("aria-label", "Description changed; expand the entry for details"); }
         for (const field of valueFields) {
@@ -534,7 +601,7 @@ function renderCloudSyncReview(page = 0) {
           if (valueFields.length > 1) {
             const name = document.createElement("span"); name.className = "sync-field-name"; name.textContent = fieldLabel(field.name); value.appendChild(name);
           }
-          appendText(value, display(field[side], field.name), "sync-cell-text", expand, `${side === "local" ? "This Device" : "Cloud"} · ${fieldLabel(field.name)}`, 96);
+          appendText(value, display(field[side], field.name, side), "sync-cell-text", expand, `${side === "local" ? "This Device" : "Cloud"} · ${fieldLabel(field.name)}`, 96);
           cell.appendChild(value);
         }
       }

@@ -101,11 +101,6 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Tutorial**: Explore a short, optional walkthrough using individual cards or pages to introduce Kaasi's main features. Decide the content and presentation before implementation.
 - **Planning**: Preserve existing setup functionality and make the experience usable on both mobile and desktop. Review the design and flow before building it.
 
-### Transfer Account Selection
-- **Release target**: Address before the public v7 release.
-- **Concept**: Keep the From and To account selections distinct when opening or editing a transfer. Choose a different available account by default and update the options when either selection changes, without adding a settings preference.
-- **Planning**: Handle having fewer than two available accounts clearly, and retain validation that prevents transfers to the same account.
-
 ### 1. Internal Modal Refinements, Especially on Mobile
 - **Priority**: Follow up on remaining mobile editor and keyboard-layout issues after the dashboard and Settings refinements. Review any further user-reported issues before category icons.
 - **Scope**: Improve sizing, spacing, typography, field hierarchy, scrolling, close controls and action-button placement at narrow mobile widths, including when the keyboard is open. Keep primary actions reachable and avoid clipped content or horizontal overflow. Preserve existing payment and storage behaviour.
