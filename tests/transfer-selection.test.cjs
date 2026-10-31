@@ -21,17 +21,17 @@ const accounts = ['cash', 'bank', 'wallet'].map(id => ({ id, name: id, balance: 
 test('transfer defaults to bank to cash and prevents same-account selections', () => {
   const f = fixture(accounts); f.update();
   assert.equal(f.transferFrom.value, 'bank'); assert.equal(f.transferTo.value, 'cash');
-  assert.equal(f.transferFrom.options.find(o => o.value === 'cash').disabled, true);
-  assert.equal(f.transferTo.options.length, 3);
-  f.transferFrom.value = 'wallet'; f.transferFrom.listeners.change();
+  assert.ok(f.transferFrom.options.every(o => !o.disabled));
+  assert.equal(f.transferTo.options.find(o => o.value === 'bank').disabled, true);
+  f.transferFrom.value = 'cash'; f.transferFrom.listeners.change();
+  assert.equal(f.transferFrom.value, 'cash'); assert.equal(f.transferTo.value, 'bank');
+  assert.equal(f.transferTo.options.find(o => o.value === 'cash').disabled, true);
   f.transferTo.value = 'wallet'; f.transferTo.listeners.change();
-  assert.equal(f.transferTo.value, 'wallet'); assert.equal(f.transferFrom.value, 'bank');
-  assert.equal(f.transferFrom.options.find(o => o.value === 'wallet').disabled, true);
-  f.update(); assert.equal(f.transferFrom.value, 'bank'); assert.equal(f.transferTo.value, 'wallet');
+  f.update(); assert.equal(f.transferFrom.value, 'cash'); assert.equal(f.transferTo.value, 'wallet');
 });
 test('fewer than two visible accounts hides transfer and returns an active transfer to expense', () => {
   const f = fixture([accounts[0], { ...accounts[1], hidden: true }]); f.update();
-  assert.equal(f.transferFrom.value, ''); assert.equal(f.transferTo.value, 'cash');
+  assert.equal(f.transferFrom.value, 'cash'); assert.equal(f.transferTo.value, '');
   assert.equal(f.transferOption.hidden, true); assert.equal(f.transferOption.disabled, true);
   f.transactionType.value = 'transfer'; f.update(); assert.equal(f.transactionType.value, 'expense'); assert.equal(f.transactionType.changed, true);
   f.state.accounts = []; f.update(); assert.equal(f.transferFrom.value, ''); assert.equal(f.transferTo.value, '');

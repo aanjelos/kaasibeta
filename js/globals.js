@@ -859,8 +859,8 @@ function updateTransferAccountOptions() {
   if (!from || !to) return;
   const accounts = state.accounts.filter((account) => !account.hidden);
   const valid = (value) => accounts.some((account) => account.id === value);
-  const toValue = valid(to.value) ? to.value : (accounts.find((account) => account.id === 'cash')?.id || accounts[0]?.id || "");
-  const fromValue = valid(from.value) && from.value !== toValue ? from.value : (accounts.find((account) => account.id !== 'cash' && account.id !== toValue)?.id || accounts.find((account) => account.id !== toValue)?.id || "");
+  const fromValue = valid(from.value) ? from.value : (accounts.find((account) => account.id !== 'cash')?.id || accounts[0]?.id || "");
+  const toValue = valid(to.value) && to.value !== fromValue ? to.value : (accounts.find((account) => account.id === 'cash' && account.id !== fromValue)?.id || accounts.find((account) => account.id !== fromValue)?.id || "");
   const fill = (select, selected, disabledId) => {
     select.innerHTML = "";
     if (!selected) {
@@ -878,8 +878,8 @@ function updateTransferAccountOptions() {
     });
     select.value = selected;
   };
-  fill(from, fromValue, toValue);
-  fill(to, toValue, null);
+  fill(from, fromValue, null);
+  fill(to, toValue, fromValue);
   const type = document.getElementById("transactionType");
   const transferOption = type?.querySelector('option[value="transfer"]');
   if (transferOption) {

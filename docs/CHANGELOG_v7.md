@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.466n - 2026-10-31
+
+### Transfer Account Selection
+
+- Allow all visible accounts in From and disable the selected source in To, automatically choosing another destination when needed.
+
 ## v6.465n - 2026-10-31
 
 ### Transfer Account Selection
