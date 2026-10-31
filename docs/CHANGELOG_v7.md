@@ -2,6 +2,19 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.469n - 2026-10-31
+
+### Setup and Tutorial Refinements
+
+- Constrain the setup layout on wide screens and use Kaasi's landing-page typography and clearer first-run copy.
+- Replace the unnecessary cloud comparison step during first-run restore with a direct, confirmed cloud restore. Keep setup open if the restore is cancelled.
+- Rename the new-user starting account to Sampath and ask for the amount still owed on a credit card instead of its available credit.
+- Limit setup motion to step transitions so ordinary controls and focus changes do not replay it.
+- Expand tutorial practice to include transaction type, amount, account, category, description and date. Practice remains isolated from saved data. Reuse the app's expression evaluator in the practice calculator.
+- Keep the practice transaction card at dashboard card width and show calculation results only in its amount field.
+- Combine the expense and income walkthroughs into one transaction lesson with a type switch.
+- Keep dashboard local-file import in the original click gesture and delay release of exported file data until the download starts.
+
 ## v6.468n - 2026-10-31
 
 ### New User Setup

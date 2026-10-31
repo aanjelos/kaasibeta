@@ -1134,28 +1134,9 @@ mathToolbar.addEventListener("touchstart", handleMathToolbarInteraction, { passi
 
 function triggerDataImport() {
   const importInput = $("#importDataInput");
-  if (importInput) {
-    // Ensure settings modal is open and on the correct tab
-    const settingsModal = $("#settingsModal");
-    if (settingsModal && settingsModal.style.display !== "block") {
-      openSettingsModal();
-      setTimeout(() => {
-        const dataTabButton = Array.from(
-          $$("#settingsTabsContainer button")
-        ).find((btn) => btn.dataset.tabTarget === "#settingsDataManagementPanel");
-        if (dataTabButton) dataTabButton.click();
-        importInput.click();
-      }, 100);
-    } else if (settingsModal) {
-      const dataTabButton = Array.from(
-        $$("#settingsTabsContainer button")
-      ).find((btn) => btn.dataset.tabTarget === "#settingsDataManagementPanel");
-      if (dataTabButton) dataTabButton.click();
-      importInput.click();
-    } else {
-      importInput.click(); // Fallback
-    }
-  }
+  // Keep the file picker in the original user gesture; browsers may block
+  // a click delayed until after opening Settings.
+  importInput?.click();
 }
 
 // --- MOBILE DROPDOWN MENU LOGIC ---

@@ -29,7 +29,8 @@ async function exportData() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    // Give the browser time to begin the download before releasing the blob.
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
     
 
     appPreferences.setItem("lastSuccessfulBackupDate", getCurrentDateString());

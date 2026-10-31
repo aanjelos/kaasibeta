@@ -191,7 +191,7 @@ function getDefaultState() {
         },
         {
           id: "bank_3",
-          name: "Genie",
+          name: "Sampath",
           balance: 0,
           hidden: false,
         },
