@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.470n - 2026-10-31
+
+### Dashboard Header
+
+- Restore square Export Local File and Import Local File buttons after moving All Transactions out of the header.
+
 ## v6.469n - 2026-10-31
 
 ### Setup and Tutorial Refinements
