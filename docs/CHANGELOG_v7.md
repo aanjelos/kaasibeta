@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.467n - 2026-10-31
+
+### Category Management
+
+- Keep Other at the bottom of category lists and protect it from removal during setup and from renaming or deletion in Settings.
+
 ## v6.466n - 2026-10-31
 
 ### Transfer Account Selection

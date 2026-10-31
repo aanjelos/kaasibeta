@@ -175,6 +175,29 @@ test('category choices keep Other last after custom categories and CC forms put 
   assert.ok(index.indexOf('for="ccPurchaseCategory"')<index.indexOf('for="ccDescription"'));
 });
 
+test('Other stays last in settings and cannot be renamed or deleted', async () => {
+  const r=runtime();r.run('state.categories=["Other","Zebra","Apple"]; state.transactions=[{id:"one",category:"Other"}];');
+  r.context.renderCategorySettingsList();
+  const rows=r.element('#categorySettingsList').children;
+  assert.match(rows[0].innerHTML,/>Apple<\/strong>/);assert.match(rows[1].innerHTML,/>Zebra<\/strong>/);
+  assert.match(rows[2].innerHTML,/>Other<\/strong>/);assert.doesNotMatch(rows[2].innerHTML,/Rename Other|Delete Other/);
+  assert.match(rows[2].innerHTML,/Hide Other/);
+  const input={value:'Renamed',dataset:{originalName:'Other'}};
+  await r.context.renameCategory({closest:()=>({querySelector:()=>input})});
+  await r.context.deleteCategory('Other');
+  assert.equal(input.value,'Other');assert.equal(r.run('state.transactions[0].category'),'Other');
+  assert.deepEqual(Array.from(r.run('state.categories')),['Other','Zebra','Apple']);
+});
+
+test('initial setup displays Other last without a remove action', () => {
+  const r=runtime();r.context.openInitialSetupWizard();
+  const rows=r.element('#setupCategoriesList').children;
+  assert.ok(rows.length > 1);
+  assert.match(rows.at(-1).innerHTML,/<span>Other<\/span>/);
+  assert.doesNotMatch(rows.at(-1).innerHTML,/<button/);
+  assert.ok(rows.slice(0,-1).some(row=>row.innerHTML.includes('<button')));
+});
+
 test('dashboard chart preserves series and points for edits and skips unchanged renders', () => {
   const r=runtime();r.element('#monthlyOverviewChart').getContext=()=>({});
   let creations=0,updates=0;

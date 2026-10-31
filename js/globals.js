@@ -373,7 +373,7 @@ function openInitialSetupWizard() {
     if (!categoriesContainer) return;
     categoriesContainer.innerHTML = "";
     currentSetupCategories
-      .sort((a, b) => a.localeCompare(b))
+      .sort(compareCategoryNames)
       .forEach((cat) => {
         const div = document.createElement("div");
 
@@ -384,12 +384,14 @@ function openInitialSetupWizard() {
 
         div.innerHTML = `
               <span>${escapeHTML(cat)}</span>
-              <button type="button" class="text-red-400 hover:text-red-300 text-xs ml-2" data-category-name="${escapeHTML(cat)}" data-tooltip="Remove">
+              ${cat.toLowerCase() === 'other' ? '' : `<button type="button" class="text-red-400 hover:text-red-300 text-xs ml-2" data-category-name="${escapeHTML(cat)}" data-tooltip="Remove">
                   <i class="fas fa-times"></i>
-              </button>
+              </button>`}
           `;
-        div.querySelector("button").onclick = (e) => {
+        const removeButton = div.querySelector("button");
+        if (removeButton) removeButton.onclick = (e) => {
           const catNameToRemove = e.currentTarget.dataset.categoryName;
+          if (catNameToRemove.toLowerCase() === 'other') return;
           currentSetupCategories = currentSetupCategories.filter(
             (c) => c !== catNameToRemove
           );
