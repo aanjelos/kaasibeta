@@ -147,7 +147,7 @@ const Onboarding = (() => {
     const amountField=`<label class="onboard-field"><span>Amount (LKR)</span><div class="onboard-amount"><input id="onboardCalc" class="calc-amount" inputmode="decimal" placeholder="e.g. 250.00"><button type="button" class="calc-toggle-btn" tabindex="-1" aria-label="Show calculator"><i class="fas fa-calculator"></i></button></div></label>`;
     const accountOptions=accounts.map(a=>`<option value="${safe(a.id)}">${safe(a.name)}</option>`).join('');
     const practice=item.calculator
-      ? `<div class="onboard-practice onboard-calculator-practice"><span>Practice only · Nothing here is saved</span>${amountField}<output id="onboardCalcResult" aria-live="polite"></output></div>`
+      ? `<div class="onboard-practice onboard-calculator-practice">${amountField}<output id="onboardCalcResult" aria-live="polite"></output></div>`
       : `<div class="onboard-practice"><span>Practice only · Nothing here is saved</span><label class="onboard-field"><span>Type</span><select id="tourType"><option value="expense">Expense</option><option value="income">Income</option>${accounts.length>1?'<option value="transfer">Transfer</option>':''}</select></label>${amountField}<label class="onboard-field" id="tourFromLabel"><span>Account</span><select id="tourAccount">${accountOptions}</select></label><label class="onboard-field" id="tourToLabel" hidden><span>To Account</span><select id="tourToAccount">${accountOptions}</select></label><label class="onboard-field" id="tourCategoryLabel"><span>Category</span><select id="tourCategory"><option value="">Select Category</option>${state.categories.slice().sort(compareCategoryNames).map(c=>`<option>${safe(c)}</option>`).join('')}</select></label><label class="onboard-field"><span>Description</span><input id="tourDescription" placeholder="e.g. Lunch"></label><label class="onboard-field"><span>Date</span><input id="tourDate" type="date" value="${getCurrentDateString()}"></label><button type="button" class="btn btn-primary" data-action="practice-save">Try Adding Transaction</button><output id="onboardCalcResult" aria-live="polite"></output></div>`;
     const previews = {
       2: `<div class="onboard-demo"><div class="onboard-demo-title">All Transactions <small>Example only</small></div><div class="onboard-demo-tabs">${demoMonths.map((month,index)=>`<button type="button" class="${index===0?'selected':''}" data-demo="month" data-index="${index}">${month}</button>`).join('')}</div><label class="onboard-field"><span>Search this month</span><input id="onboardDemoSearch" placeholder="Search description or amount…"></label><div id="onboardDemoRows"><div class="onboard-demo-row expense" data-search="lunch"><span>Lunch<small>Cash · Food</small></span><strong>−LKR 500.00</strong></div><div class="onboard-demo-row income" data-search="salary"><span>Salary<small>Bank · Income</small></span><strong>+LKR 45,000.00</strong></div></div></div>`,
@@ -223,7 +223,15 @@ const Onboarding = (() => {
     else if (action === 'tour-close') closeTour(false);
     else if (action === 'tour-next') {if(lesson===lessons.length-1)closeTour(true);else {lesson++;renderTutorial();}}
     else if (action === 'tour-back') {lesson=Math.max(0,lesson-1);renderTutorial();}
-    else if (action === 'practice-save') { const amount=$o('onboardCalc'); calculatePractice(); const type=$o('tourType').value; if(!Number.isFinite(parseAmountValue(amount.value))||parseAmountValue(amount.value)<=0||!$o('tourDescription').value.trim()||(type==='expense'&&!$o('tourCategory').value)||(type==='transfer'&&$o('tourAccount').value===$o('tourToAccount').value)) { $o('onboardCalcResult').textContent='Complete the fields above to try it.'; return; } $o('onboardCalcResult').textContent='Looks good! This was only practice.'; }
+    else if (action === 'practice-save') {
+      const amount=$o('onboardCalc'); calculatePractice();
+      const type=$o('tourType').value, feedback=$o('onboardCalcResult');
+      if(!Number.isFinite(parseAmountValue(amount.value))||parseAmountValue(amount.value)<=0) feedback.textContent='Enter an amount to try this.';
+      else if(type==='expense'&&!$o('tourCategory').value) feedback.textContent='Choose a category for this expense.';
+      else if(!$o('tourDescription').value.trim()) feedback.textContent='Add a short description to try this.';
+      else if(type==='transfer'&&$o('tourAccount').value===$o('tourToAccount').value) feedback.textContent='Choose two different accounts.';
+      else feedback.textContent='Nice work! This practice entry was not saved.';
+    }
   }
   function calculatePractice() { const field=$o('onboardCalc'); if(!field)return; const result=evaluateMathExpression(field.value); if(result!==null) { field.value=formatAmountInputResult(result,field.value); $o('onboardCalcResult').textContent=''; } }
   function open() {
@@ -237,7 +245,7 @@ const Onboarding = (() => {
         if(event.target.id==='onboardPinEnabled') {collect();$o('onboardPinFields').hidden=!draft.pinEnabled;}
         if(['tourType','tourAccount'].includes(event.target.id)) updateTourType();
       });
-      root.addEventListener('keydown',event=>{if(event.key==='Enter'&&event.target.id==='onboardNewCategory'){event.preventDefault();root.querySelector('[data-action="add-category"]').click();}else if(event.target.id==='onboardCalc'&&(event.key==='Tab'||event.key==='=')){if(event.key==='=')event.preventDefault();calculatePractice();}});
+      root.addEventListener('keydown',event=>{if(event.key==='Enter'&&event.target.id==='onboardNewCategory'){event.preventDefault();root.querySelector('[data-action="add-category"]').click();}else if(event.target.id==='onboardCalc'&&['Tab','Enter','='].includes(event.key)){if(event.key!=='Tab')event.preventDefault();calculatePractice();}});
       root.addEventListener('input',event=>{if(event.target.id==='onboardDemoSearch'){const query=event.target.value.trim().toLowerCase();root.querySelectorAll('[data-search]').forEach(row=>{row.hidden=!row.dataset.search.includes(query);});}});
       root.dataset.onboardingBound='true';
     }
@@ -246,7 +254,7 @@ const Onboarding = (() => {
   function openTutorial() {
     if(!state?.settings?.initialSetupDone) return;
     const root=$o('kaasiTutorialModal');
-    if(!root.dataset.onboardingBound){root.addEventListener('click',onClick);root.addEventListener('change',event=>{if(['tourType','tourAccount'].includes(event.target.id))updateTourType();});root.addEventListener('keydown',event=>{if(event.target.id==='onboardCalc'&&(event.key==='Tab'||event.key==='=')){if(event.key==='=')event.preventDefault();calculatePractice();}});root.addEventListener('input',event=>{if(event.target.id==='onboardDemoSearch'){const query=event.target.value.trim().toLowerCase();root.querySelectorAll('[data-search]').forEach(row=>{row.hidden=!row.dataset.search.includes(query);});}});root.dataset.onboardingBound='true';}
+    if(!root.dataset.onboardingBound){root.addEventListener('click',onClick);root.addEventListener('change',event=>{if(['tourType','tourAccount'].includes(event.target.id))updateTourType();});root.addEventListener('keydown',event=>{if(event.target.id==='onboardCalc'&&['Tab','Enter','='].includes(event.key)){if(event.key!=='Tab')event.preventDefault();calculatePractice();}});root.addEventListener('input',event=>{if(event.target.id==='onboardDemoSearch'){const query=event.target.value.trim().toLowerCase();root.querySelectorAll('[data-search]').forEach(row=>{row.hidden=!row.dataset.search.includes(query);});}});root.dataset.onboardingBound='true';}
     tutorialFromSetup=false;lesson=-1;renderTutorial();openModalHelper('kaasiTutorialModal');
   }
   function openReturning() { open(); step = 0; returning = true; render(); }

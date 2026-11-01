@@ -2,6 +2,14 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.473n - 2026-11-01
+
+### Tutorial Corrections
+
+- Remove the surrounding card from calculator practice so that the amount field stands on its own.
+- Make Enter evaluate tutorial calculations as described, alongside Tab and the calculator controls.
+- Replace generic practice feedback with guidance for the missing field and a clear confirmation that sample entries are never saved.
+
 ## v6.472n - 2026-11-01
 
 ### Guided Tour
