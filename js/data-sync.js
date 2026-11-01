@@ -285,6 +285,7 @@ async function signInWithGoogle() {
     });
     if (error) {
       appPreferences.removeItem("pendingCloudRestore");
+      appPreferences.removeItem('onboardingCloudRestoreIntent');
       console.error("Error during Google sign-in:", error.message);
       showNotification(`Google Sign-In Error: ${error.message}`, "error");
     } else {
@@ -292,6 +293,7 @@ async function signInWithGoogle() {
     }
   } catch (err) {
     appPreferences.removeItem("pendingCloudRestore");
+    appPreferences.removeItem('onboardingCloudRestoreIntent');
     console.error("Exception during Google sign-in:", err);
     showNotification("An unexpected error occurred during sign-in.", "error");
   }
@@ -468,12 +470,22 @@ async function initializeSupabase() {
   }
   console.log("Checking Supabase auth state...");
 
+  let onboardingRestoreInProgress = false;
   const checkAutoRestore = async (user) => {
+    if (onboardingRestoreInProgress) return;
     appPreferences.removeItem("pendingCloudRestore");
     if (!state?.settings?.initialSetupDone) {
-      // Signing in never replaces data. Sync remains an explicit action.
-      openInitialSetupWizard();
-      if (user && $("#setupCloudSyncBtn")) $("#setupCloudSyncBtn").hidden = false;
+      const returningFromSignIn = user && appPreferences.getItem('onboardingCloudRestoreIntent') === 'true';
+      if (returningFromSignIn) Onboarding.openReturning();
+      else openInitialSetupWizard();
+      if (returningFromSignIn) {
+        appPreferences.removeItem('onboardingCloudRestoreIntent');
+        onboardingRestoreInProgress = true;
+        try { await manualCloudTransfer('cloud', {initialRestore:true}); }
+        finally { onboardingRestoreInProgress = false; }
+      } else if (user && $("#setupCloudSyncBtn")) {
+        $("#setupCloudSyncBtn").hidden = false;
+      }
     }
     
     // Hide the preloader if it was kept visible for pending restore
@@ -498,7 +510,10 @@ async function initializeSupabase() {
     if (!user && appPreferences.getItem("preferredSyncMethod") === "cloud") {
       openCloudSessionExpiredModal();
     } else {
-      await checkAutoRestore(user);
+      // Supabase requests must run after the auth callback has returned.
+      setTimeout(() => {
+        checkAutoRestore(user).catch(error => console.error('First-run cloud restore failed:', error));
+      }, 0);
     }
   });
 

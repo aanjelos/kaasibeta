@@ -814,6 +814,31 @@ function syncCloud(r, initial) {
   return cloud;
 }
 
+test('first-run cloud sign-in restores a clean device directly but never replaces saved local data', async () => {
+  const r=runtime();
+  r.run('state=getDefaultState();lastPersistedStateJson=JSON.stringify(state);');
+  r.storage.set('KaasiData',r.run('JSON.stringify(state)'));
+  const cloudData=JSON.parse(r.storage.get('KaasiData'));
+  cloudData.settings.initialSetupDone=true;
+  cloudData.accounts[0].balance=500;
+  const cloud=syncCloud(r,{data:cloudData,updated_at:'2026-10-22T00:00:00Z'});
+  r.context.Onboarding={hasSavedRecords:()=>false};
+  r.element('#initialSetupModal').style.display='block';
+  await r.context.manualCloudTransfer('cloud',{initialRestore:true});
+  assert.equal(JSON.parse(r.storage.get('KaasiData')).accounts[0].balance,500);
+  assert.equal(r.element('#initialSetupModal').style.display,'none');
+  assert.equal(cloud.calls.filter(call=>call.type!=='read').length,0);
+  assert.equal(r.run('cloudRestoreInteractionLocked'),false);
+
+  const dirty=runtime();
+  dirty.run('state.settings.initialSetupDone=false;');
+  dirty.context.Onboarding={hasSavedRecords:()=>true};
+  const dirtyBefore=dirty.storage.get('KaasiData');
+  await dirty.context.manualCloudTransfer('cloud',{initialRestore:true});
+  assert.equal(dirty.storage.get('KaasiData'),dirtyBefore);
+  assert.equal(dirty.run('cloudRestoreInteractionLocked'),false);
+});
+
 test('cloud restore locks before full fetch and releases on success, invalid data, failure and timeout',async()=>{
   for(const outcome of ['success','invalid','storage','network','timeout']) {
     const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));

@@ -813,6 +813,7 @@ window.addEventListener("popstate", (event) => {
   }
 
   modalsToClose.forEach(id => {
+    if (id === 'initialSetupModal' && !state?.settings?.initialSetupDone) return;
     const m = $(`#${id}`);
     if (m) {
       if (targetOpenModals.includes(id)) {

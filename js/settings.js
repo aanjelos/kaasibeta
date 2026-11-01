@@ -603,9 +603,9 @@ function renderCategorySettingsList() {
     const li = document.createElement("li");
     li.className = "settings-category-row";
     const hidden = state.hiddenCategories?.includes(cat);
-    const isOther = cat.toLowerCase() === 'other';
+    const isProtected = ['other', 'bank charges'].includes(cat.toLowerCase());
     li.innerHTML = `
-      <div class="settings-category-summary"><div class="settings-category-name"><strong>${escapeHTML(cat)}</strong>${hidden ? '<small>Hidden</small>' : ''}<input hidden type="text" aria-label="Category name" value="${escapeHTML(cat)}" data-original-name="${escapeHTML(cat)}"></div><div class="settings-category-normal-actions"><button type="button" class="settings-row-icon" aria-label="${hidden?'Show':'Hide'} ${escapeHTML(cat)}" onclick="toggleHiddenCategory(this.dataset.cat)" data-cat="${escapeHTML(cat)}"><i class="fas ${hidden?'fa-eye-slash':'fa-eye'}" aria-hidden="true"></i></button>${isOther ? '' : `<button type="button" class="settings-row-icon" aria-label="Rename ${escapeHTML(cat)}" onclick="SettingsWorkspace.editCategory(this)"><i class="fas fa-pen" aria-hidden="true"></i></button><button type="button" class="settings-row-icon" aria-label="Delete ${escapeHTML(cat)}" onclick="deleteCategory(this.dataset.cat)" data-cat="${escapeHTML(cat)}"><i class="fas fa-trash-alt" aria-hidden="true"></i></button>`}</div><div class="settings-category-save-actions" hidden><button class="settings-row-icon" type="button" aria-label="Cancel Rename" onclick="SettingsWorkspace.editCategory(this,false)"><i class="fas fa-times" aria-hidden="true"></i></button><button class="settings-row-icon accent-text" type="button" aria-label="Save Rename" onclick="renameCategory(this)"><i class="fas fa-check" aria-hidden="true"></i></button></div></div>`;
+      <div class="settings-category-summary"><div class="settings-category-name"><strong>${escapeHTML(cat)}</strong>${hidden ? '<small>Hidden</small>' : ''}<input hidden type="text" aria-label="Category name" value="${escapeHTML(cat)}" data-original-name="${escapeHTML(cat)}"></div><div class="settings-category-normal-actions"><button type="button" class="settings-row-icon" aria-label="${hidden?'Show':'Hide'} ${escapeHTML(cat)}" onclick="toggleHiddenCategory(this.dataset.cat)" data-cat="${escapeHTML(cat)}"><i class="fas ${hidden?'fa-eye-slash':'fa-eye'}" aria-hidden="true"></i></button>${isProtected ? '' : `<button type="button" class="settings-row-icon" aria-label="Rename ${escapeHTML(cat)}" onclick="SettingsWorkspace.editCategory(this)"><i class="fas fa-pen" aria-hidden="true"></i></button><button type="button" class="settings-row-icon" aria-label="Delete ${escapeHTML(cat)}" onclick="deleteCategory(this.dataset.cat)" data-cat="${escapeHTML(cat)}"><i class="fas fa-trash-alt" aria-hidden="true"></i></button>`}</div><div class="settings-category-save-actions" hidden><button class="settings-row-icon" type="button" aria-label="Cancel Rename" onclick="SettingsWorkspace.editCategory(this,false)"><i class="fas fa-times" aria-hidden="true"></i></button><button class="settings-row-icon accent-text" type="button" aria-label="Save Rename" onclick="renameCategory(this)"><i class="fas fa-check" aria-hidden="true"></i></button></div></div>`;
     categoryList.appendChild(li);
   });
 }
@@ -660,8 +660,8 @@ async function renameCategory(buttonElement) {
   const inputElement = liElement.querySelector('input[type="text"]');
   const newName = inputElement.value.trim();
   const originalName = inputElement.dataset.originalName;
-  if (originalName.toLowerCase() === 'other') {
-    showNotification("The 'Other' category cannot be renamed.", "warning");
+  if (['other', 'bank charges'].includes(originalName.toLowerCase())) {
+    showNotification(`The '${originalName}' category cannot be renamed.`, "warning");
     inputElement.value = originalName;
     return;
   }
@@ -771,8 +771,8 @@ async function addCategory(event) {
 }
 
 async function deleteCategory(categoryName) {
-  if (categoryName.toLowerCase() === "other") {
-    showNotification("The 'Other' category cannot be deleted.", "warning");
+  if (["other", "bank charges"].includes(categoryName.toLowerCase())) {
+    showNotification(`The '${categoryName}' category cannot be deleted.`, "warning");
     return;
   }
   const isUsed = state.transactions.some((t) => t.category === categoryName);

@@ -2,6 +2,15 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.471n - 2026-11-01
+
+### First-Run Setup and Tour
+
+- Replace the split setup layout with a centered welcome screen, a separate returning-user path and consistent full-screen setup steps on desktop and mobile.
+- Restore a cloud backup automatically after sign-in on a clean, unfinished setup. Keep existing local data protected and prevent duplicate startup restore attempts.
+- Rework tutorial examples to resemble Kaasi's transaction, monthly history and debt views. Practice entries never enter financial data or sync, and the calculator uses the standard toolbar.
+- Keep Bank Charges available for transfer fees by preventing its removal during setup and its renaming or deletion in Settings.
+
 ## v6.470n - 2026-10-31
 
 ### Dashboard Header

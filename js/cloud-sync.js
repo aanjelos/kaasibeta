@@ -92,8 +92,14 @@ function updateSyncPauseControls() {
   const warning=document.getElementById('pausedSyncWarning');
   if(warning){warning.hidden=!paused||!['conflict','local_newer','cloud_newer'].includes(window.currentCloudSyncStatus);warning.textContent=window.currentCloudSyncStatus==='conflict' ? 'This device and the cloud have different changes. Review copies before replacing either.' : window.currentCloudSyncStatus==='local_newer' ? 'This device has changes that have not been uploaded.' : window.currentCloudSyncStatus==='cloud_newer' ? 'A newer cloud copy is available. Your device has not been replaced.' : '';}
 }
-async function manualCloudTransfer(which) {
+async function manualCloudTransfer(which, options = {}) {
   if (cloudSyncBusy || storageOperationPending || isAppLocked()) return;
+  const initialRestore = which === 'cloud' && options.initialRestore === true &&
+    !state.settings?.initialSetupDone && !Onboarding.hasSavedRecords();
+  if (options.initialRestore && !initialRestore) {
+    showNotification('This device has saved data. Review both copies before restoring.','error');
+    return;
+  }
   setCloudSyncBusy(true);
   const releaseRestoreLock = which === 'cloud' ? beginCloudRestoreLock() : () => {};
   try {
@@ -104,10 +110,15 @@ async function manualCloudTransfer(which) {
     if(which==='cloud'&&!row)throw new Error('There is no cloud copy to restore.');
     const context={userId,revision,saved,local,hash:await KaasiStorage.digest(local),updatedAt:row?.updated_at??null,automatic:false};
     if(which==='cloud')context.cloud=portableKaasiData(prepareImportedData(row.data));
-    await assertCloudSyncLocal(context);cloudSyncReview=context;
+    await assertCloudSyncLocal(context);
+    if (initialRestore) {
+      await downloadCloudSync(context);
+      return;
+    }
+    cloudSyncReview=context;
   } catch(error){showNotification(error.message,'error');return;}
   finally{releaseRestoreLock();setCloudSyncBusy(false);}
-  chooseCloudSyncCopy(which);
+  if (!initialRestore) chooseCloudSyncCopy(which);
 }
 
 function cloudSyncDownloadSafe(context) {

@@ -70,8 +70,9 @@ function processCalculation(inputEl) {
   if (result !== null) {
     const wasExpression = /[+*/()×÷=]|\d\s*-/.test(inputEl.value);
     inputEl.value = formatAmountInputResult(result, inputEl.value);
-    if (wasExpression && typeof trackEvent === "function") trackEvent("used_inline_calculator", "Feature Usage");
-      if (wasExpression && typeof Milestones !== 'undefined') Milestones.track('calculator');
+    const practice = inputEl.closest?.('#initialSetupModal, #kaasiTutorialModal');
+    if (wasExpression && !practice && typeof trackEvent === "function") trackEvent("used_inline_calculator", "Feature Usage");
+    if (wasExpression && !practice && typeof Milestones !== 'undefined') Milestones.track('calculator');
     return wasExpression;
   }
   return false; 

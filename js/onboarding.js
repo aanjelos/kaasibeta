@@ -4,11 +4,11 @@ const Onboarding = (() => {
   const lessons = [
     { icon: 'receipt', title: 'Record a transaction', body: 'Choose Expense or Income, then enter the amount, account, category, description and date. Try switching between the two types below.', practice: 'transaction' },
     { icon: 'calculator', title: 'Calculate in the amount field', body: 'Tap the calculator icon, enter a calculation and press =. You can also type an expression and press Tab.', calculator: true },
-    { icon: 'calendar-alt', title: 'Find your transactions', body: 'All Transactions shows earlier months, search, filters and monthly totals. Tap a transaction to see its full details.' },
-    { icon: 'hand-holding-usd', title: 'Track what is owed', body: 'Debts track what you owe. Receivables track money owed to you. Record a payment when money actually changes hands.' },
+    { icon: 'calendar-alt', title: 'Look back at your money', body: 'Open All Transactions to move between months, search, and see the details behind each entry.' },
+    { icon: 'hand-holding-usd', title: 'Keep track of what is owed', body: 'I Owe is for money you need to pay back. Owes Me is for money someone needs to return to you.' },
     { icon: 'compass', title: 'Explore when you are ready', body: 'You can also set budgets, track installments and subscriptions, and add a PIN in Settings. Your data stays on this device until you export or connect cloud sync.' }
   ];
-  let step = 0, lesson = 0, draft = null, saving = false, tutorialFromSetup = false, returning = false, pendingCloudSetup = false;
+  let step = 0, lesson = 0, draft = null, saving = false, tutorialFromSetup = false, returning = false, pendingCloudSetup = false, welcomeAnimated = false;
   const $o = id => document.getElementById(id);
   const modal = () => $o('initialSetupModal');
   const shell = () => modal().querySelector('.modal-content');
@@ -41,9 +41,9 @@ const Onboarding = (() => {
     const current = steps[step];
     let content = '';
     if (current === 'welcome') {
-      content = header('Welcome to Kaasi', 'Start fresh or bring your saved data with you.') +
-        `<div class="onboard-choices">${choice('plus','I’m new to Kaasi','Set up accounts and categories in a few steps.','new')}${choice('cloud-download-alt','I already have data','Restore a local file or cloud backup.','return')}</div>` +
-        `<div id="onboardRestore" class="onboard-restore" ${returning || supabaseUser ? '' : 'hidden'}><p>Choose where your Kaasi backup is saved.</p><div class="onboard-restore-actions"><button type="button" class="btn btn-secondary" data-action="file"><i class="fas fa-file-import" aria-hidden="true"></i> Import Local File</button><button type="button" class="btn btn-secondary" id="setupCloudLoginBtn" data-action="signin"><i class="fab fa-google" aria-hidden="true"></i> Sign In</button><button type="button" class="btn btn-primary" id="setupCloudSyncBtn" data-action="cloud" hidden>Restore From Cloud</button></div><input type="file" id="setupImportInput" accept=".json,application/json" hidden></div>`;
+      content = returning
+        ? `<div class="onboard-welcome"><img class="onboard-mark" src="img/LogoIcon.svg" alt="Kaasi"><span class="onboard-eyebrow">WELCOME BACK</span><h1>Bring your data back.</h1><p>Choose where you saved your Kaasi backup.</p><div class="onboard-return-actions"><button type="button" class="btn btn-secondary" data-action="file"><i class="fas fa-file-import" aria-hidden="true"></i> Import Local File</button><button type="button" class="btn btn-primary" id="setupCloudLoginBtn" data-action="signin"><i class="fab fa-google" aria-hidden="true"></i> Sign In to Restore</button><button type="button" class="btn btn-primary" id="setupCloudSyncBtn" data-action="cloud" hidden><i class="fas fa-cloud-download-alt" aria-hidden="true"></i> Restore From Cloud</button></div><button type="button" class="onboard-text-back" data-action="welcome-back"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back</button><input type="file" id="setupImportInput" accept=".json,application/json" hidden></div>`
+        : `<div class="onboard-welcome ${welcomeAnimated ? '' : 'is-first-visit'}"><img class="onboard-mark" src="img/LogoIcon.svg" alt="Kaasi"><span class="onboard-eyebrow">YOUR MONEY, YOUR WAY</span><h1>Welcome to Kaasi.</h1><p>A clearer picture of your money starts here.</p><div class="onboard-choices">${choice('plus','I’m new to Kaasi','Set up your own space.','new')}${choice('cloud-download-alt','I already have data','Bring back an existing backup.','return')}</div></div>`;
     } else if (current === 'accounts') {
       content = header('Set up your accounts', 'Enter starting balances. Cash keeps its name; you can rename or hide a bank account later.') +
         `<div class="onboard-account-grid">${draft.accounts.map((a,i) => `<div class="onboard-account-card ${a.hidden ? 'muted' : ''}" data-account="${i}"><div class="onboard-account-top"><span class="onboard-account-icon"><i class="fas fa-${i ? 'university' : 'wallet'}" aria-hidden="true"></i></span><span>${i ? `Bank account ${i}` : 'Cash account'}</span>${i ? `<button type="button" class="onboard-visibility" data-action="visibility" data-index="${i}" aria-label="${a.hidden ? 'Show' : 'Hide'} ${safe(a.name)}" aria-pressed="${a.hidden}"><i class="fas fa-eye${a.hidden ? '-slash' : ''}" aria-hidden="true"></i></button>` : ''}</div><div class="onboard-account-fields">${i ? input('Account name',`onboardName${i}`,a.name,'Account name','maxlength="60"') : `<div class="onboard-field"><span>Account name</span><strong>Cash</strong></div>`}${input('Starting balance (LKR)',`onboardBalance${i}`,a.balance || '','0.00','inputmode="decimal" autocomplete="off"')}</div></div>`).join('')}</div>`;
@@ -52,17 +52,13 @@ const Onboarding = (() => {
         `<label class="onboard-switch-row"><span><strong>Track a credit card</strong><small>You can turn this on later in Settings.</small></span><input type="checkbox" id="onboardCcEnabled" ${draft.ccEnabled ? 'checked' : ''}><span class="onboard-switch" aria-hidden="true"></span></label><div id="onboardCcFields" ${draft.ccEnabled ? '' : 'hidden'} class="onboard-card-fields">${input('Credit limit (LKR)','onboardCcLimit',draft.limit,'e.g. 100,000','inputmode="decimal" autocomplete="off"')}${input('Amount you still owe (LKR) · optional','onboardCcUnpaid',draft.unpaid,'0.00','inputmode="decimal" autocomplete="off"')}<p class="onboard-hint">Enter card purchases you have not paid off yet. Leave this at zero if your card is fully paid. This will not change your bank balance.</p></div>`;
     } else if (current === 'categories') {
       content = header('Choose your categories', 'Keep the ones you use. You can add or change categories later in Settings.') +
-        `<div class="onboard-category-add"><label class="onboard-field"><span>New category</span><input id="onboardNewCategory" placeholder="e.g. Pet care" maxlength="60"></label><button type="button" class="btn btn-secondary" data-action="add-category">Add</button></div><div class="onboard-category-list">${draft.categories.slice().sort(compareCategoryNames).map(cat => `<div class="onboard-category"><span>${safe(cat)}</span>${cat.toLowerCase() === 'other' ? '<span class="onboard-hint">Always available</span>' : `<button type="button" data-action="remove-category" data-category="${safe(cat)}" aria-label="Remove ${safe(cat)}"><i class="fas fa-times" aria-hidden="true"></i></button>`}</div>`).join('')}</div>`;
+        `<div class="onboard-category-add"><label class="onboard-field"><span>New category</span><input id="onboardNewCategory" placeholder="e.g. Pet care" maxlength="60"></label><button type="button" class="btn btn-secondary" data-action="add-category">Add</button></div><div class="onboard-category-list">${draft.categories.slice().sort(compareCategoryNames).map(cat => `<div class="onboard-category"><span>${safe(cat)}</span>${['other','bank charges'].includes(cat.toLowerCase()) ? '<span class="onboard-hint">Always available</span>' : `<button type="button" data-action="remove-category" data-category="${safe(cat)}" aria-label="Remove ${safe(cat)}"><i class="fas fa-times" aria-hidden="true"></i></button>`}</div>`).join('')}</div>`;
     } else {
       content = header('Ready to start', 'Your accounts and categories will be saved together when you finish.') +
         `<div class="onboard-summary"><strong>Local data comes first</strong><p>Kaasi saves changes on this device. Export a local backup anytime from Data & Backups.</p></div><label class="onboard-switch-row"><span><strong>Add a PIN</strong><small>Optional. You can set one later in Settings.</small></span><input type="checkbox" id="onboardPinEnabled" ${draft.pinEnabled ? 'checked' : ''}><span class="onboard-switch" aria-hidden="true"></span></label><div id="onboardPinFields" ${draft.pinEnabled ? '' : 'hidden'} class="onboard-pin-fields">${input('4-digit PIN','onboardPin',draft.pin,'••••','inputmode="numeric" maxlength="4" type="password" autocomplete="new-password"')}${input('Confirm PIN','onboardPinConfirm',draft.pinConfirm,'••••','inputmode="numeric" maxlength="4" type="password" autocomplete="new-password"')}<label class="onboard-field"><span>Recovery question</span><select id="onboardQuestion"><option value="">Choose a question</option><option>What was the name of your first pet?</option><option>What city were you born in?</option><option>What was your childhood nickname?</option><option>What is the name of your favorite teacher?</option></select></label>${input('Answer','onboardAnswer',draft.answer,'Your answer','autocomplete="off"')}</div><label class="onboard-switch-row onboard-cloud-choice"><span><strong>Connect cloud sync</strong><small>After the tour, open Data & Backups to sign in. Your data will stay here until you choose to sync.</small></span><input type="checkbox" id="onboardConnectCloud" ${draft.connectCloud ? 'checked' : ''}><span class="onboard-switch" aria-hidden="true"></span></label>`;
     }
-    shell().innerHTML = `<div class="onboard-layout"><aside class="onboard-rail"><img src="img/FullLogo.svg" alt="Kaasi"><div class="onboard-rail-text"><span>YOUR MONEY, YOUR WAY</span><h2>Take control of every rupee.</h2><p>Kaasi works offline and gives you the tools to track what matters to you.</p></div><small>Earn well. Spend responsibly.</small></aside><main class="onboard-main"><div class="onboard-panel" id="onboardPanel">${content}${step ? `<nav class="onboard-footer"><button type="button" class="btn btn-secondary" data-action="back">Back</button><button type="button" class="btn btn-primary" data-action="${step === steps.length-1 ? 'save' : 'next'}">${step === steps.length-1 ? 'Finish Setup' : 'Continue'} <i class="fas fa-arrow-right" aria-hidden="true"></i></button></nav>` : ''}</div></main></div>`;
-    if (current === 'welcome') {
-      $o('setupCloudSyncBtn').hidden = !supabaseUser;
-      $o('setupCloudLoginBtn').hidden = !!supabaseUser;
-      const file = $o('setupImportInput'); file.addEventListener('change', handleImport);
-    }
+    shell().innerHTML = `<div class="onboard-layout"><main class="onboard-main"><div class="onboard-panel ${current === 'welcome' ? 'onboard-panel-welcome' : ''}" id="onboardPanel">${current !== 'welcome' ? `<div class="onboard-step-brand"><img src="img/LogoType.svg" alt="Kaasi"><span>Earn well. Spend responsibly.</span></div>` : ''}${content}${step ? `<nav class="onboard-footer"><button type="button" class="btn btn-secondary" data-action="back">Back</button><button type="button" class="btn btn-primary" data-action="${step === steps.length-1 ? 'save' : 'next'}">${step === steps.length-1 ? 'Finish Setup' : 'Continue'} <i class="fas fa-arrow-right" aria-hidden="true"></i></button></nav>` : ''}</div></main></div>`;
+    if (current === 'welcome') { welcomeAnimated = true; if(returning){ $o('setupCloudSyncBtn').hidden = !supabaseUser; $o('setupCloudLoginBtn').hidden = !!supabaseUser; $o('setupImportInput').addEventListener('change', handleImport); } }
     if (current === 'finish') $o('onboardQuestion').value = draft.question;
     if (animate) shell().querySelector('.onboard-panel').classList.add('is-entering');
     shell().querySelector('.onboard-main').scrollTop = 0;
@@ -146,17 +142,18 @@ const Onboarding = (() => {
   function tutorialMarkup() {
     const item = lessons[lesson];
     if (lesson < 0) return header('Would you like a quick tour?', 'A few short examples to help you find your way. Nothing in the tour is saved.',0,lessons.length+1) + `<div class="onboard-tour-choice">${choice('play-circle','Show Me Around','A short guided tour with safe practice examples.','tour-start',true)}${choice('forward','I’ll Explore Myself','Open the dashboard now. You can replay this later in About & Support.','tour-close')}</div>`;
-    const practice = `<div class="onboard-practice"><span>Try it here · Practice entries are never saved</span><label class="onboard-field"><span>Type</span><select id="tourType"><option value="expense" ${item.practice==='income'?'':'selected'}>Expense</option><option value="income" ${item.practice==='income'?'selected':''}>Income</option></select></label><label class="onboard-field"><span>Amount (LKR)</span><div class="onboard-amount"><input id="onboardCalc" inputmode="decimal" placeholder="e.g. 250.00"><button type="button" data-action="calc-toggle" aria-label="Show calculator"><i class="fas fa-calculator"></i></button></div></label><div id="onboardMathBar" class="onboard-math-bar" hidden>${['+','−','×','÷','='].map(symbol=>`<button type="button" data-action="calc-symbol" data-symbol="${symbol}">${symbol}</button>`).join('')}</div><label class="onboard-field"><span>Account</span><select id="tourAccount">${state.accounts.filter(a=>!a.hidden).map(a=>`<option>${safe(a.name)}</option>`).join('')}</select></label><label class="onboard-field"><span>Category</span><select id="tourCategory"><option value="">Select Category</option>${state.categories.slice().sort(compareCategoryNames).map(c=>`<option>${safe(c)}</option>`).join('')}</select></label><label class="onboard-field"><span>Description</span><input id="tourDescription" placeholder="e.g. Lunch"></label><label class="onboard-field"><span>Date</span><input id="tourDate" type="date" value="${getCurrentDateString()}"></label><button type="button" class="btn btn-primary" data-action="practice-save">Try Adding Transaction</button><output id="onboardCalcResult" aria-live="polite"></output></div>`;
+    const demoMonths = Array.from({length:3},(_,index)=>{ const date=new Date(); date.setDate(1); date.setMonth(date.getMonth()-index); return date.toLocaleString('en-US',{month:'long'}); });
+    const practice = `<div class="onboard-practice"><span>Practice only · Nothing here is saved</span><label class="onboard-field"><span>Type</span><select id="tourType"><option value="expense">Expense</option><option value="income">Income</option></select></label><label class="onboard-field"><span>Amount (LKR)</span><div class="onboard-amount"><input id="onboardCalc" class="calc-amount" inputmode="decimal" placeholder="e.g. 250.00"><button type="button" class="calc-toggle-btn" tabindex="-1" aria-label="Show calculator"><i class="fas fa-calculator"></i></button></div></label><label class="onboard-field"><span>Account</span><select id="tourAccount">${state.accounts.filter(a=>!a.hidden).map(a=>`<option>${safe(a.name)}</option>`).join('')}</select></label><label class="onboard-field"><span>Category</span><select id="tourCategory"><option value="">Select Category</option>${state.categories.slice().sort(compareCategoryNames).map(c=>`<option>${safe(c)}</option>`).join('')}</select></label><label class="onboard-field"><span>Description</span><input id="tourDescription" placeholder="e.g. Lunch"></label><label class="onboard-field"><span>Date</span><input id="tourDate" type="date" value="${getCurrentDateString()}"></label><button type="button" class="btn btn-primary" data-action="practice-save">Try Adding Transaction</button><output id="onboardCalcResult" aria-live="polite"></output></div>`;
     const previews = {
-      2: '<div class="onboard-demo"><span>All Transactions</span><div><strong>October</strong><strong>September</strong><strong>August</strong></div><label class="onboard-field"><span>Search transactions</span><input placeholder="Search description or amount…"></label><div>Lunch · Cash <strong>−LKR 500.00</strong></div><div>Salary · Bank <strong>+LKR 45,000.00</strong></div></div>',
-      3: '<div class="onboard-demo"><span>Debts & Receivables</span><div><strong>I Owe</strong><strong>Owes Me</strong></div><div>Friend · Dinner <strong>Pay</strong></div><div>Shared purchase <strong>Receive</strong></div></div>',
-      4: '<div class="onboard-demo"><span>More in Kaasi</span><div>Budgets <strong>Set spending limits</strong></div><div>Subscriptions <strong>See upcoming payments</strong></div><div>Settings <strong>PIN and backups</strong></div></div>'
+      2: `<div class="onboard-demo"><div class="onboard-demo-title">All Transactions <small>Example only</small></div><div class="onboard-demo-tabs">${demoMonths.map((month,index)=>`<button type="button" class="${index===0?'selected':''}" data-demo="month" data-index="${index}">${month}</button>`).join('')}</div><label class="onboard-field"><span>Search this month</span><input id="onboardDemoSearch" placeholder="Search description or amount…"></label><div id="onboardDemoRows"><div class="onboard-demo-row expense" data-search="lunch"><span>Lunch<small>Cash · Food</small></span><strong>−LKR 500.00</strong></div><div class="onboard-demo-row income" data-search="salary"><span>Salary<small>Bank · Income</small></span><strong>+LKR 45,000.00</strong></div></div></div>`,
+      3: '<div class="onboard-demo"><div class="onboard-demo-title">Debts & Receivables</div><div class="onboard-demo-tabs"><button type="button" class="selected" data-demo="owed" data-kind="debt">I Owe</button><button type="button" data-demo="owed" data-kind="receivable">Owes Me</button></div><div class="onboard-demo-row" id="onboardOwedRow"><span>Friend · Dinner<small>Money to pay back</small></span><strong>Pay</strong></div></div>',
+      4: '<div class="onboard-demo"><div class="onboard-demo-title">More when you need it</div><div class="onboard-demo-row"><span>Budgets<small>Set monthly spending limits</small></span><i class="fas fa-chart-pie" aria-hidden="true"></i></div><div class="onboard-demo-row"><span>Subscriptions<small>Keep an eye on renewals</small></span><i class="fas fa-calendar-check" aria-hidden="true"></i></div><div class="onboard-demo-row"><span>Settings<small>Backups, PIN and appearance</small></span><i class="fas fa-cog" aria-hidden="true"></i></div></div>'
     };
     return header(item.title,item.body,lesson+1,lessons.length+1) + `<div class="onboard-lesson">${item.practice||item.calculator?practice:previews[lesson]}</div><nav class="onboard-footer"><button type="button" class="btn btn-secondary" data-action="tour-back">Back</button><button type="button" class="btn btn-primary" data-action="tour-next">${lesson === lessons.length-1 ? 'Finish Tour' : 'Next'} <i class="fas fa-arrow-right" aria-hidden="true"></i></button></nav><button type="button" class="onboard-skip" data-action="tour-close">Skip tour</button>`;
   }
   function renderTutorial() {
     const root = tutorialFromSetup ? shell() : $o('kaasiTutorialModal').querySelector('.modal-content');
-    root.innerHTML = `<div class="onboard-layout"><aside class="onboard-rail"><img src="img/FullLogo.svg" alt="Kaasi"><div class="onboard-rail-text"><span>A LITTLE GUIDANCE</span><h2>Make yourself at home.</h2><p>Discover the essentials at your own pace.</p></div><small>Practice stays in the tour.</small></aside><main class="onboard-main"><div class="onboard-panel">${tutorialMarkup()}</div></main></div>`;
+    root.innerHTML = `<div class="onboard-layout"><main class="onboard-main"><div class="onboard-panel ${lesson >= 0 ? 'is-entering' : ''}"><div class="onboard-step-brand"><img src="img/LogoType.svg" alt="Kaasi"><span>Practice stays in the tour.</span></div>${tutorialMarkup()}</div></main></div>`;
     root.querySelector('.onboard-main').scrollTop=0;
     root.focus({preventScroll:true});
   }
@@ -176,25 +173,41 @@ const Onboarding = (() => {
   }
   function onClick(event) {
     const target = event.target.closest('[data-action],[data-demo]'); if (!target) return;
-    if (target.dataset.demo) { target.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('selected',b===target)); return; }
+    if (target.dataset.demo) {
+      target.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('selected',b===target));
+      if (target.dataset.demo === 'owed') {
+        const row = $o('onboardOwedRow');
+        row.innerHTML = target.dataset.kind === 'debt' ? '<span>Friend · Dinner<small>Money to pay back</small></span><strong>Pay</strong>' : '<span>Shared purchase<small>Money owed to you</small></span><strong>Receive</strong>';
+      }
+      if (target.dataset.demo === 'month') {
+        const examples = [
+          [['Lunch','Cash · Food','−LKR 500.00'],['Salary','Bank · Income','+LKR 45,000.00']],
+          [['Groceries','Cash · Food','−LKR 1,200.00'],['Income','Bank · Income','+LKR 35,000.00']],
+          [['Coffee','Cash · Food','−LKR 450.00'],['Refund','Bank · Income','+LKR 1,000.00']]
+        ];
+        $o('onboardDemoRows').innerHTML = examples[Number(target.dataset.index)].map(([name,detail,amount])=>`<div class="onboard-demo-row ${amount.startsWith('+') ? 'income' : 'expense'}" data-search="${name.toLowerCase()}"><span>${name}<small>${detail}</small></span><strong>${amount}</strong></div>`).join('');
+        const query=$o('onboardDemoSearch').value.trim().toLowerCase();
+        target.closest('.onboard-demo').querySelectorAll('[data-search]').forEach(row=>{row.hidden=!row.dataset.search.includes(query);});
+      }
+      return;
+    }
     const action = target.dataset.action;
-    if (action === 'return') { returning=true; $o('onboardRestore').hidden=false; $o('onboardRestore').scrollIntoView({block:'nearest'}); }
+    if (action === 'return') { returning=true; render(true); }
+    else if (action === 'welcome-back') { returning=false; render(true); }
     else if (action === 'new') { if (hasSavedRecords(state)) return showNotification('This device already has saved data. Restore or protect it before starting again.','error'); step=1; render(true); }
     else if (action === 'back') { collect(); step=Math.max(0,step-1); render(true); }
     else if (action === 'next') { collect(); if (validateCurrent()) { step++; render(true); } }
     else if (action === 'save') { collect(); finish(); }
     else if (action === 'visibility') { collect(); const a=draft.accounts[Number(target.dataset.index)]; a.hidden=!a.hidden; render(); }
     else if (action === 'add-category') { const field=$o('onboardNewCategory'); const name=field.value.trim(); if (!name) return; if(draft.categories.some(c=>c.toLowerCase()===name.toLowerCase())) return showNotification('That category already exists.','info'); draft.categories.push(name);render(); }
-    else if (action === 'remove-category') { if(target.dataset.category?.toLowerCase()==='other')return; draft.categories=draft.categories.filter(c=>c!==target.dataset.category);render(); }
+    else if (action === 'remove-category') { if(['other','bank charges'].includes(target.dataset.category?.toLowerCase()))return; draft.categories=draft.categories.filter(c=>c!==target.dataset.category);render(); }
     else if (action === 'file') $o('setupImportInput').click();
-    else if (action === 'signin') signInWithGoogle();
-    else if (action === 'cloud') manualCloudTransfer('cloud');
+    else if (action === 'signin') { appPreferences.setItem('onboardingCloudRestoreIntent','true'); signInWithGoogle(); }
+    else if (action === 'cloud') manualCloudTransfer('cloud',{initialRestore:true});
     else if (action === 'tour-start') {lesson=0;renderTutorial();}
     else if (action === 'tour-close') closeTour(false);
     else if (action === 'tour-next') {if(lesson===lessons.length-1)closeTour(true);else {lesson++;renderTutorial();}}
     else if (action === 'tour-back') {lesson=Math.max(0,lesson-1);renderTutorial();}
-    else if (action === 'calc-toggle') $o('onboardMathBar').hidden = !$o('onboardMathBar').hidden;
-    else if (action === 'calc-symbol') { const field=$o('onboardCalc'); const symbol=target.dataset.symbol; if(symbol==='=') calculatePractice(); else {field.value += {'−':'-','×':'*','÷':'/'}[symbol]||symbol;field.focus();} }
     else if (action === 'practice-save') { const amount=$o('onboardCalc'); calculatePractice(); if(!Number.isFinite(parseAmountValue(amount.value))||parseAmountValue(amount.value)<=0||!$o('tourCategory').value||!$o('tourDescription').value.trim()) { $o('onboardCalcResult').textContent='Add an amount, category and description to try this.'; return; } $o('onboardCalcResult').textContent='Practice complete. No transaction was saved.'; }
   }
   function calculatePractice() { const field=$o('onboardCalc'); if(!field)return; const result=evaluateMathExpression(field.value); if(result!==null) { field.value=formatAmountInputResult(result,field.value); $o('onboardCalcResult').textContent=''; } }
@@ -209,6 +222,7 @@ const Onboarding = (() => {
         if(event.target.id==='onboardPinEnabled') {collect();$o('onboardPinFields').hidden=!draft.pinEnabled;}
       });
       root.addEventListener('keydown',event=>{if(event.key==='Enter'&&event.target.id==='onboardNewCategory'){event.preventDefault();root.querySelector('[data-action="add-category"]').click();}else if(event.target.id==='onboardCalc'&&(event.key==='Tab'||event.key==='=')){if(event.key==='=')event.preventDefault();calculatePractice();}});
+      root.addEventListener('input',event=>{if(event.target.id==='onboardDemoSearch'){const query=event.target.value.trim().toLowerCase();root.querySelectorAll('[data-search]').forEach(row=>{row.hidden=!row.dataset.search.includes(query);});}});
       root.dataset.onboardingBound='true';
     }
     render();root.style.display='block';updateBodyScrollState();displayAppVersion();
@@ -216,8 +230,9 @@ const Onboarding = (() => {
   function openTutorial() {
     if(!state?.settings?.initialSetupDone) return;
     const root=$o('kaasiTutorialModal');
-    if(!root.dataset.onboardingBound){root.addEventListener('click',onClick);root.addEventListener('keydown',event=>{if(event.target.id==='onboardCalc'&&(event.key==='Tab'||event.key==='=')){if(event.key==='=')event.preventDefault();calculatePractice();}});root.dataset.onboardingBound='true';}
+    if(!root.dataset.onboardingBound){root.addEventListener('click',onClick);root.addEventListener('keydown',event=>{if(event.target.id==='onboardCalc'&&(event.key==='Tab'||event.key==='=')){if(event.key==='=')event.preventDefault();calculatePractice();}});root.addEventListener('input',event=>{if(event.target.id==='onboardDemoSearch'){const query=event.target.value.trim().toLowerCase();root.querySelectorAll('[data-search]').forEach(row=>{row.hidden=!row.dataset.search.includes(query);});}});root.dataset.onboardingBound='true';}
     tutorialFromSetup=false;lesson=-1;renderTutorial();openModalHelper('kaasiTutorialModal');
   }
-  return {open,openTutorial};
+  function openReturning() { step = 0; returning = true; open(); }
+  return {open,openReturning,openTutorial,hasSavedRecords:() => hasSavedRecords(state)};
 })();
