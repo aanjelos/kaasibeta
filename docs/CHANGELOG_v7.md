@@ -2,6 +2,13 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.475n - 2026-11-01
+
+### New Record IDs and Credit Card Payments
+
+- Generate UUIDs through the shared new-record ID helper instead of timestamp/random-fragment IDs. Preserve existing and imported IDs without rewriting historical records or changing the storage schema.
+- Omit `ccPurchaseId` from new individual and bulk credit card payment expenses. Preserve historical references, unknown backup fields and existing payment, balance and sync behavior.
+
 ## v6.474n - 2026-11-01
 
 ### Onboarding Copy

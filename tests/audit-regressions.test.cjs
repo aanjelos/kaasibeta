@@ -653,22 +653,22 @@ function cardPayment(r, id, amount = '20') {
   }}});
 }
 
-test('CC payment links survive renaming/import; deleting a purchase preserves all recorded payments', async () => {
+test('new CC payments omit purchase links while legacy links survive import and purchase deletion', async () => {
   const r = runtime(); await seedCards(r);
   await cardPayment(r,'c1'); await cardPayment(r,'c2');
-  assert.equal(r.run('state.transactions[0].ccPurchaseId'), 'c1');
-  assert.equal(r.run('prepareImportedData(JSON.parse(JSON.stringify(state))).transactions[0].ccPurchaseId'), 'c1');
+  assert.equal(r.run('state.transactions.every(t=>!Object.hasOwn(t,"ccPurchaseId"))'), true);
   await r.run(`state.transactions.push({id:'legacy',type:'expense',amount:20,account:'cash',category:'Credit Card Payment',
-    description:'Credit Card Payment: Online shopping shoes',date:'2026-10-20',timestamp:3});
+    description:'Credit Card Payment: Online shopping shoes',date:'2026-10-20',timestamp:3,ccPurchaseId:'c1',futureMetadata:{keep:true}});
     state.creditCard.transactions[0].description='Renamed purchase';saveData();`);
   const balance = r.run('state.accounts[0].balance');
   const payments = r.run('JSON.stringify(state.transactions)');
+  assert.equal(r.run('JSON.stringify(prepareImportedData(JSON.parse(JSON.stringify(state))).transactions)'), payments);
   let confirmed; r.context.showConfirmationModal = (...args) => { confirmed=args[4](); };
   r.context.deleteCcTransaction('c1'); await confirmed;
   assert.equal(r.run('state.transactions.length'), 3);
   assert.equal(r.run('JSON.stringify(state.transactions)'), payments);
   assert.equal(r.run('state.transactions.some(t=>t.ccPurchaseId==="c1")'), true);
-  assert.equal(r.run('state.transactions.some(t=>t.ccPurchaseId==="c2")'), true);
+  assert.equal(r.run('state.transactions.find(t=>t.id==="legacy").futureMetadata.keep'), true);
   assert.equal(r.run('state.transactions.some(t=>t.id==="legacy")'), true);
   assert.equal(r.run('state.accounts[0].balance'), balance);
   assert.equal(r.run('state.creditCard.transactions.some(t=>t.id==="c1")'), false);
@@ -1550,7 +1550,7 @@ test('legacy mode cannot replace data without recovery protection',async()=>{
   assert.equal(r.run('state.accounts[0].balance'),1000);assert.ok(r.notices.some(([m])=>m.includes('Complete the local storage upgrade')));
 });
 
-test('bulk CC payments save a separate purchase ID for each payment', async () => {
+test('bulk CC payments use distinct UUIDs at the same time without purchase links', async () => {
   const r=runtime(); const openHistory=r.context.openCcHistoryModal; await seedCards(r);
   r.context.openModalHelper=()=>{};
   openHistory();
@@ -1558,10 +1558,15 @@ test('bulk CC payments save a separate purchase ID for each payment', async () =
   let submit;
   r.context.openFormModal=(title,html,callback)=>{submit=callback;};
   r.context.openBulkPayCcItemForm();
+  r.run('Date.now=()=>1793491200000;Math.random=()=>0.123456789');
   await submit({preventDefault(){},target:{values:{payFromAccount:'cash',payAmount_c1:'100',payAmount_c2:'100',logBulkCcPaymentAsExpense:'on',payCategory_c1:'Groceries',payCategory_c2:'Other'}}});
   assert.equal(r.run('state.transactions.length'),2);
-  assert.equal(r.run('state.transactions[0].ccPurchaseId'),'c1');
-  assert.equal(r.run('state.transactions[1].ccPurchaseId'),'c2');
+  assert.equal(r.run('state.transactions.every(t=>!Object.hasOwn(t,"ccPurchaseId"))'),true);
+  const ids=JSON.parse(r.run('JSON.stringify(state.transactions.map(t=>t.id))'));
+  assert.equal(new Set(ids).size,2);
+  ids.forEach(id=>assert.match(id,/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/));
+  assert.equal(r.run('state.transactions[0].timestamp'),r.run('state.transactions[1].timestamp'));
+  assert.equal(r.run('state.creditCard.transactions.map(t=>t.id).join(",")'),'c1,c2');
   assert.equal(r.run('state.creditCard.transactions[0].category'),'Groceries');
   assert.equal(r.run('state.creditCard.transactions[1].category'),'Other');
   assert.equal(r.run('state.accounts[0].balance'),800);

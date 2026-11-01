@@ -28,7 +28,8 @@ const formatCurrency = (amount) => {
   return `LKR\u00A0${amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
 };
 
-const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
+// Only new records use UUIDs; existing and imported IDs remain unchanged.
+const generateId = () => crypto.randomUUID();
 
 const escapeHTML = (str) => {
   if (!str) return "";

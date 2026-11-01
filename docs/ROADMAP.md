@@ -125,8 +125,8 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Acceptance**: Test independent offline edits, delete-versus-edit, repeated merges, stale-device reconnection, category changes, linked financial records and interrupted sync before release. No automatic merging is enabled yet.
 
 ### 2. UUIDs for New Financial Records
-- **Concept**: Replace the timestamp/random-fragment financial record ID generator with UUIDs for new records. This portion of the former storage migration item is still pending.
-- **Compatibility**: Preserve existing IDs, payment references, and imported backup records. Database generations already use UUIDs; financial records still use the existing `generateId()` helper.
+- **Implemented**: v6.475n replaces the shared timestamp/random-fragment ID generator with UUIDs for newly created records.
+- **Compatibility**: Existing IDs, payment references and imported backup records remain unchanged. Old and UUID IDs coexist without a schema migration. New credit card payment expenses omit the optional purchase reference; historical references remain supported and preserved.
 
 ### 3. Public Release Validation for IndexedDB
 - **Scope**: Before promoting the beta storage changes, verify an authorized cloud backup/restore using a test account, production service-worker updates and offline launches, and the actual mobile/browser combinations in use.

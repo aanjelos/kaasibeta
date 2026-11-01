@@ -2426,7 +2426,6 @@ function openCcHistoryModal() {
                 id: generateId(),
                 amount,
                 description: `Credit Card Payment: ${item.description}`,
-                ccPurchaseId: item.id,
                 category: payCategory,
                 type: "expense",
                 account: payFromAccountId,
@@ -3964,7 +3963,6 @@ async function handlePayCcItemSubmit(event) {
       category: category,
       // CORRECTED: Store the full description, not the truncated version.
       description: `Credit Card Payment: ${item.description}`,
-      ccPurchaseId: item.id,
       date: paymentDate,
       timestamp: Date.now(),
     };

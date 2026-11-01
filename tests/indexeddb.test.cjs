@@ -43,6 +43,27 @@ function legacy(e) {
   return value;
 }
 
+test('legacy and UUID records round-trip through storage and import without rewriting historical data',async()=>{
+  const e=environment();const original=legacy(e);await e.initialize();
+  const snapshot=await e.db.snapshot();
+  const id=e.run('generateId()');
+  assert.match(id,/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+  snapshot.transactions.push({...copy(original.transactions[0]),id,ccPurchaseId:undefined,description:'New payment'});
+  delete snapshot.transactions[1].ccPurchaseId;
+  await e.db.commit(snapshot);
+  const reopened=environment(e);await reopened.initialize();
+  const saved=await reopened.db.snapshot();
+  assert.deepEqual(saved.transactions[0],original.transactions[0]);
+  assert.equal(saved.transactions[1].id,id);
+  assert.equal(Object.hasOwn(saved.transactions[1],'ccPurchaseId'),false);
+  reopened.context.mixedBackup=copy(saved);
+  const imported=copy(reopened.run('prepareImportedData(mixedBackup)'));
+  assert.deepEqual(imported.transactions,saved.transactions);
+  assert.deepEqual(imported.customFutureField,original.customFutureField);
+  await reopened.db.replace(imported,reopened.db.revision);
+  assert.deepEqual((await reopened.db.snapshot()).transactions,saved.transactions);
+});
+
 test('verified sync checkpoints avoid collection reads but detect writes from another tab',async()=>{
   const e=environment();legacy(e);await e.initialize();
   const snapshot=await e.db.snapshot(), revision=e.db.revision;
