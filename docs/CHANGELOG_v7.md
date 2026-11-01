@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.474n - 2026-11-01
+
+### Onboarding Copy
+
+- Update the cloud sync setup description to explain that syncing runs automatically after sign-in when online.
+
 ## v6.473n - 2026-11-01
 
 ### Tutorial Corrections
