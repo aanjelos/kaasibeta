@@ -2,6 +2,14 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.472n - 2026-11-01
+
+### Guided Tour
+
+- Add transfer practice for moves between personal accounts, ATM withdrawals and cash deposits. Match the real form by showing Category only for expenses and restoring dropdown arrows.
+- Give calculator practice its own compact card, clarify the practice feedback and Enter shortcut, and mention Milestones in the feature tour.
+- Put Take a Tour in its own About & Support card and restart setup from the welcome screen when opened again.
+
 ## v6.471n - 2026-11-01
 
 ### First-Run Setup and Tour
