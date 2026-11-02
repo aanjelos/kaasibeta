@@ -2,6 +2,13 @@
 
 This document serves as a backlog for approved feature ideas, UI/UX improvements, and technical refinements to be implemented in Kaasi over time.
 
+## Before v7
+
+1. Refine the Start-of-Month Budget Reminder (feature 21).
+2. Add Subscription Suggestions From History (feature 18), with explicit review before creating a schedule and no automatic charges.
+
+Completed items were removed from the active backlog on 2026-11-02 at the user's request: Milestones, credit-card tracking workflows and starting expenses, mobile modal/Settings/accessibility refinements, UUIDs and IndexedDB work. Final release smoke checks still cover upgrades, backup/restore, PIN recovery, offline launches and cross-device sync; remove the temporary milestone debug script before release. This roadmap cleanup does not constitute new live-environment verification.
+
 ---
 
 ## 🌟 Feature Additions
@@ -13,10 +20,6 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 ### 2. Split Bills / IOU Tracker
 - **Concept**: A built-in "Splitwise" style feature to track shared expenses and who owes who money.
 - **Implementation Idea**: Add an "Is Split" toggle when adding a transaction. If toggled, prompt the user to specify who owes them (or who they owe) and the split amount. Create a dedicated "Shared Expenses" tab to view running tallies of debts and settlements with specific friends/roommates.
-
-### 3. Gamification: Streaks & Badges
-- **Implemented**: Extras → Milestones covers first records, transaction counts, recording days, anniversaries and optional feature discovery. Removed the original badge proposal from pending work.
-- **Before public release**: Review milestone presentation and logic in beta, then remove the temporary console debug script. Additional badges require separate agreement; do not reward spending more or require optional features to complete a percentage.
 
 ### 4. Undo Transactions
 - **Concept**: A simple way to quickly revert the last added, edited, or deleted transaction in case of an accidental action or typo.
@@ -57,12 +60,6 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Concept**: A Spotify Wrapped-style "Fun Facts" or "Stats" page that highlights interesting all-time data points for the user to reflect on their financial journey.
 - **Implementation Idea**: Build a dedicated view that parses the entire `transactions` array to calculate and display fun metrics such as: Total transactions added, most common spending category, highest single expense of all time, highest earning month, highest spending day, etc. Could be implemented as a new tab in the Monthly Overview or a standalone widget.
 
-### 13. Flexible Credit Card Tracking Modes (Lump-Sum Bill vs. Per-Transaction)
-- **Concept**: Provide an option for users to select their preferred credit card tracking workflow: either logging individual credit card purchases transaction-by-transaction, or entering the total monthly credit card statement bill as a single lump-sum expense.
-
-### 14. Credit Card Initial / Starting Expenses
-- **Concept**: Allow users to set an initial carried-over balance or starting un-billed expense total when adding or configuring a Credit Card account.
-
 ### 15. Support > 3 Bank Accounts
 - **Concept**: Remove or expand the restriction capping users to 3 bank accounts in setup and settings, allowing full flexibility for power users with multiple accounts.
 
@@ -77,6 +74,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Scope**: Advisory duplicate detection, not automatic deletion, merging or blocking. Define the matching window and apply equivalent rules on web and Android before implementation.
 
 ### 18. Subscription Suggestions From History
+- **Release target**: Before v7, after the budget reminder refinement. Agree detection rules and the review flow before implementation.
 - **Concept**: Suggest recurring services from historical transactions for explicit review. Manual schedules and Save as Subscription are implemented; pattern detection remains future work. Never create a schedule or charge from a guess.
 
 ### 19. Dated Installment Reminders
@@ -88,6 +86,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Planning**: Confirm provider-specific schedules and rules before implementation. Include due installments in Upcoming Payments and define expense/account treatment to avoid double-counting purchases and repayments. Start with manual tracking; provider integrations or automatic payments require separate agreement.
 
 ### 21. Start-of-Month Budget Reminder
+- **Release target**: Before v7; next refinement ahead of subscription suggestions.
 - **Scope**: Review and refine the existing monthly budget tip so users can review or adjust the new month's budgets on their first eligible visit, including when they do not open Kaasi on the first day.
 - **Behaviour**: Keep the reminder brief and dismissible, with a direct route to budget management. Store dismissal state on the device, outside cloud sync. Coordinate with monthly budget carry-forward and history; decide reminder timing and repeat behaviour before implementation.
 
@@ -95,22 +94,11 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## ✨ UI / UX Polish
 
-### 1. Internal Modal Refinements, Especially on Mobile
-- **Priority**: Follow up on remaining mobile editor and keyboard-layout issues after the dashboard and Settings refinements. Review any further user-reported issues before category icons.
-- **Scope**: Improve sizing, spacing, typography, field hierarchy, scrolling, close controls and action-button placement at narrow mobile widths, including when the keyboard is open. Keep primary actions reachable and avoid clipped content or horizontal overflow. Preserve existing payment and storage behaviour.
-
 ### 2. Segmented Control Buttons for Transaction Type
 - **Concept**: Replace the standard `<select>` dropdown for Transaction Type (`Income` | `Expense` | `Transfer`) in the Add/Edit modal with prominent segmented toggle buttons for faster, one-tap selection.
 
 ### 3. Mobile Floating Action Button (FAB)
 - **Concept**: Add an optional floating `+` button in the bottom-right corner visible on mobile viewports for instant 1-tap transaction entry.
-
-### 4. Settings Workspace UI/UX Refinements
-- **Status**: The functional workspace shipped in v6.421n; further visual and interaction refinements remain planned.
-- **Next step**: Review the user's next round of feedback across desktop and mobile, including spacing, typography, grouping and editing flows. Preserve existing settings, save behaviour, financial logic and shared subscription data.
-
-### 5. Keyboard Accessibility Follow-up
-- **Status**: App-wide keyboard navigation and mobile Settings transitions have received an implementation pass. Verify remaining focus visibility and navigation with populated installment lists, nested dialogs, Settings Back/Escape and Tab/Shift+Tab before closing this item.
 
 ---
 
@@ -123,15 +111,6 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 - **Financial integrity**: Define record revisions, device identity and a shared merge baseline. Preserve linked effects across transactions, transfers, CC payments, debts, receivables and account balances; combining lists or taking the newest balance is insufficient. Handle retries without duplicating financial effects.
 - **Compatibility**: Plan schema/JSON upgrades, backup round-tripping and restrictions for older clients that do not understand merging or deletion markers. Preserve unknown fields and retain recovery before replacing data. Never enable merging silently for incompatible clients.
 - **Acceptance**: Test independent offline edits, delete-versus-edit, repeated merges, stale-device reconnection, category changes, linked financial records and interrupted sync before release. No automatic merging is enabled yet.
-
-### 2. UUIDs for New Financial Records
-- **Implemented**: v6.475n replaces the shared timestamp/random-fragment ID generator with UUIDs for newly created records.
-- **Compatibility**: Existing IDs, payment references and imported backup records remain unchanged. Old and UUID IDs coexist without a schema migration. New credit card payment expenses omit the optional purchase reference; historical references remain supported and preserved.
-
-### 3. Public Release Validation for IndexedDB
-- **Scope**: Before promoting the beta storage changes, verify an authorized cloud backup/restore using a test account, production service-worker updates and offline launches, and the actual mobile/browser combinations in use.
-- **Onboarding check**: Use the test account to verify first-run cloud sign-in, explicit cloud restore, and the optional cloud-sync handoff after new setup. Check local-file restore and PIN recovery on a clean browser profile.
-- **Acceptance**: Existing data survives upgrade and reload, exported backups restore correctly, PIN-protected access remains intact, and interrupted or failed operations retain recovery options. Automated database tests and localhost browser checks do not replace these environment-specific checks.
 
 ### 4. Supabase Advisor Review
 - **Read-only findings (2026-10-29)**: Review three security warnings concerning `public.handle_updated_at()` search-path configuration and execution permissions, plus three authentication/RLS evaluation performance warnings on `public.user_data`. Determine actual impact before proposing any change; preserve compatibility with public and beta clients.
