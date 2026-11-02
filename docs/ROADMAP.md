@@ -7,7 +7,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 1. Refine the Start-of-Month Budget Reminder (feature 21).
 2. Add Subscription Suggestions From History (feature 18), with explicit review before creating a schedule and no automatic charges.
 
-Completed items were removed from the active backlog on 2026-11-02 at the user's request: Milestones, credit-card tracking workflows and starting expenses, mobile modal/Settings/accessibility refinements, UUIDs and IndexedDB work. Final release smoke checks still cover upgrades, backup/restore, PIN recovery, offline launches and cross-device sync; remove the temporary milestone debug script before release. This roadmap cleanup does not constitute new live-environment verification.
+Completed items were removed from the active backlog on 2026-11-02 at the user's request: Milestones, credit-card tracking workflows and starting expenses, mobile modal/Settings/accessibility refinements, UUIDs and IndexedDB work. Final release smoke checks still cover upgrades, backup/restore, PIN recovery, offline launches and cross-device sync. The temporary milestone debug script was removed in v6.476n. This roadmap cleanup does not constitute new live-environment verification.
 
 ---
 

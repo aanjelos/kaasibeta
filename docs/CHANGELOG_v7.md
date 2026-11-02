@@ -2,6 +2,14 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.476n - 2026-11-02
+
+### Release Cleanup
+
+- Remove the temporary milestone console helper from the release and app shell; retain normal milestone behavior and saved achievements.
+- Allow onboarding styles in the local synthetic sync QA server and remove obsolete edit-history comments from financial handlers.
+- Refresh agent guidance for automatic whole-copy cloud sync, IndexedDB preferences, versioning and the v7 development changelog.
+
 ## v6.475n - 2026-11-01
 
 ### New Record IDs and Credit Card Payments

@@ -1017,7 +1017,7 @@ async function handleEditTransactionModalSubmit(event) {
   transaction.category = newCategory;
   transaction.description = newDescription;
   transaction.date = newDate;
-  // transaction.timestamp = Date.now(); // Timestamp is NOT updated to preserve original order
+  // Preserve the original timestamp so editing does not reorder the transaction.
 
   // Apply new transaction's effect on (potentially new) account balance
   const newAccount = state.accounts.find((acc) => acc.id === newAccountId);
@@ -2948,7 +2948,6 @@ async function handlePayDebtSubmit(event) {
       amount: roundedPaymentAmount,
       account: accountId,
       category: category,
-      // CORRECTED: Store the full description, not the truncated version.
       description: `Debt Payment: ${debt.who} - ${debt.why}`,
       date: currentDate,
       timestamp: Date.now(),
@@ -3961,7 +3960,6 @@ async function handlePayCcItemSubmit(event) {
       amount: roundedPaymentAmount,
       account: accountId,
       category: category,
-      // CORRECTED: Store the full description, not the truncated version.
       description: `Credit Card Payment: ${item.description}`,
       date: paymentDate,
       timestamp: Date.now(),

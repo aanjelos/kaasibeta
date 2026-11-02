@@ -14,18 +14,16 @@ This document outlines the project architecture, release workflow, rules, and cr
 Agents **MUST** strictly adhere to the following workflow for all updates:
 
 1. **Version Code Increment**:
-   - The application version is stored in `index.html` (e.g., `<meta name="application-version" content="v5.267m" />`).
-   - Increment the **decimal portion only** on update (e.g., `v5.267m` becomes `v5.268m`).
-   - **DO NOT change the trailing letter** (e.g., `m`) unless the user explicitly requests you to do so.
+   - The application version is stored in `index.html`. Retain the `v6.<internal number>n` format until v7 is public.
+   - Increment the internal number once per round of app changes; keep the major version and trailing letter unless explicitly requested otherwise.
 
 2. **Service Worker Cache Versioning**:
    - Every time a JavaScript, CSS, or HTML asset is modified, you **must** increment the cache version name inside `sw.js`.
-   - The cache version format must exactly match the application version (e.g., `const CACHE_NAME = "kaasi-cache-v5.308m"`).
+   - Keep `sw.js` BUILD and HTML asset query versions equal to the application version. Refresh normalized SHA-256 hashes in `app-shell.json` following `docs/APP_SHELL_CACHE.md`.
    - Failing to bump this will cause PWA clients to serve stale cached assets, rendering your changes invisible.
 
-3. **Changelog Updates (`docs/CHANGELOG.md`)**:
-   - **Notable Features/Major Fixes**: Document these sequentially in the chronologically ordered changelog list.
-   - **Minor/Tiny Bug Fixes / Rollbacks**: Do **NOT** add these to the changelog. Ignore minor tweaks or experimental features that end up being rolled back to prevent changelog bloat.
+3. **Changelog Updates (`docs/CHANGELOG_v7.md`)**:
+   - Document each app change round in concise developer-facing language, newest version first. Keep historical changelogs unchanged.
 
 4. **Git Version Control**:
    - Commit changes incrementally with clear, descriptive commit messages.
@@ -35,14 +33,14 @@ Agents **MUST** strictly adhere to the following workflow for all updates:
 
 ## Key App Features & Architecture
 
-### 1. Manual Cloud Sync & Storage (`js/data-sync.js`)
-- Cloud backups are **manual** (triggered by user action), not instant or automatic syncing. Make sure any UI/alert copy emphasizes this.
-- Sync options are stored in `localStorage` under `preferredSyncMethod` (`cloud` or `local`).
-- Modals like `#offlineSyncWarningModal` check offline status before allowing cloud operations, though local mode users bypass this check.
+### 1. Cloud Sync & Storage (`js/cloud-sync.js`, `js/data-sync.js`, `js/storage.js`)
+- Cloud sync automatically synchronizes whole datasets after sign-in when online, subject to pause, conflict, lock and activity safeguards. Manual sync and explicit replacement actions are also available; do not describe sync as manual-only.
+- IndexedDB holds financial data and device preferences through `KaasiStorage` and `appPreferences`. Preserve migration/recovery copies, unknown backup fields and older IDs; no automatic cross-device merging is enabled.
+- Preserve explicit conflict decisions, local-import sync pause and verified replacement safeguards. Do not change Supabase data, policies or settings without an explicit request.
 
 ### 2. Lockscreen & Secure PIN Recovery (`js/security.js`)
-- Protects access using a numeric PIN.
-- Recovery is handled via a secure, offline hash-based recovery code mechanism (avoiding data resets).
+- The numeric PIN is a display lock, not encryption of stored data or backups.
+- Recovery supports a security answer and owner-issued offline recovery codes without deleting financial data. Code rotation affects updated builds; cached older builds can retain earlier codes.
 - Valid recovery code hashes are verified using SHA-256 matching. Actual codes are stored in the `.gitignore`d `recovery_codes.md` file.
 
 ### 3. Tailwind CSS Compiling
