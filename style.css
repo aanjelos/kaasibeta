@@ -51,7 +51,7 @@
   --text-primary: #e0e0e0;
   --text-secondary: #a0a0a0;
   --text-placeholder: #757575;
-  --text-on-accent: #121212; /* Charcoal text on brand-orange controls. */
+  --text-on-accent: #ffffff; /* White labels on brand-orange controls, per product preference. */
 
   /* Accent Colors (Remains consistent across themes) */
   --accent-primary: #e67e26;
@@ -130,7 +130,7 @@
   --text-primary: #121212;
   --text-secondary: #2b2b2b;
   --text-placeholder: #64748b;
-  --text-on-accent: #121212;
+  --text-on-accent: #ffffff;
 
   --button-secondary-bg: #fcfcfb;
   --button-secondary-hover-bg: #eeeeeb;

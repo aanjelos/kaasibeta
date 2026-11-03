@@ -31,7 +31,7 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 - Do not force blue, purple, pink or competitor-associated green as a replacement brand accent; the user prefers orange. Keep green/red for financial meaning. Burgundy and yellow were discussed as alternatives, not selected directions.
 - Keep the current v7 light-mode refinement and dark-mode styling for release. The reference palette is for future v9 previews, not an instruction to restyle the current app.
 - Follow Settings' restrained surfaces, subtle borders and lighter shadows. Reduce competing tile backgrounds and repetitive nested framing; align spacing, typography and corner treatment.
-- Use orange for deliberate emphasis and actions, and retain green/red financial meaning. Preserve the recent contrast improvements, including charcoal text on orange controls and readable light-mode text.
+- Use orange for deliberate emphasis and actions, and retain green/red financial meaning. White labels on orange controls were restored by user preference in v6.485n; revisit their contrast during v9 palette work. Preserve readable light-mode balance and supporting text.
 - Preserve accessible dialog naming, keyboard interaction, reduced-motion support and screen-reader chart information. Do not reintroduce a visible chart-data section/control; the user declined that addition.
 
 ### Desktop and mobile composition

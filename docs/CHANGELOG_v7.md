@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.485n - 2026-11-03
+
+- Restore white labels on orange action/selected controls in both themes at the user's request. Retain the existing brand-orange fill and light-mode surface/readability fixes. White on current orange remains below normal-text contrast targets; revisit the pairing during v9 palette work.
+
 ## v6.484n - 2026-11-03
 
 - Replace light-theme blue-grey surface, border and secondary-button tokens with neutral tones. Emphasize Total Available with a subtle brand-orange tint and quieter neutral account tiles, preserving dashboard layout, financial behavior and all dark-theme styling.
