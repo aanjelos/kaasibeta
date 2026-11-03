@@ -1,4 +1,4 @@
-const BUILD = "v6.480n";
+const BUILD = "v6.481n";
 const CACHE_NAME = `kaasi-cache-${BUILD}`;
 const NAV_CACHE = 'kaasi-shell-navigation';
 const pendingShells = new Map();
@@ -62,6 +62,7 @@ const STATIC_ASSETS = [
   `./tailwind.css?v=${BUILD}`,
   ...["globals", "import-validation", "storage", "storage-ui", "data-sync", "cloud-sync", "math-tool", "settings", "settings-workspace", "charts", "ui", "features", "animations", "subscription-assets", "subscription-services", "subscriptions", "security", "onboarding", "app"].map(name => `./js/${name}.js?v=${BUILD}`),
   "./img/LogoIcon.svg",
+  ...["chartjs", "jspdf", "supabase-js", "tailwindcss", "font-awesome"].map(name => `./licenses/${name}.txt`),
   "./img/LogoIcon_Maskable.svg",
   "./img/FullLogo.svg",
   "./img/AanjeloNoText.svg",

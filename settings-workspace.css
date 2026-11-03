@@ -358,3 +358,11 @@
 .cash-reset { padding: 4px 10px; }
 #cashCounterForm > .grid > span:first-child, #cashCounterForm .cash-denomination { text-align: center; }
 .cash-stepper-button i { font-size: 14px; }
+.settings-license-list > div { padding: 16px 0; border-bottom: 1px solid var(--border-color); }
+.settings-license-list > div:first-child { padding-top: 0; }
+.settings-license-list > div:last-child { border-bottom: 0; }
+.settings-license-list strong { font-size: 14px; color: var(--text-primary); }
+.settings-license-list p, .settings-license-trademarks { color: var(--text-secondary); font-size: 13px; line-height: 1.6; }
+.settings-license-list p { margin: 4px 0; }
+.settings-license-list a { display: inline-block; padding: 6px 0; color: var(--accent-primary); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+.settings-license-trademarks { margin-top: 12px; padding-top: 16px; border-top: 1px solid var(--border-color); }

@@ -2,6 +2,14 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.481n - 2026-11-03
+
+### Third-Party Acknowledgments
+
+- Add a divided, inline Licenses & Acknowledgments card to About & Support for Chart.js, jsPDF, Supabase's JavaScript client, Tailwind CSS and Font Awesome Free.
+- Bundle upstream license notices, link each component to its notice and include the approved third-party trademark statement. Cache notices for offline access.
+- Leave font-family and subscription-artwork entries out of the card; preserve existing asset notices.
+
 ## v6.480n - 2026-11-03
 
 ### Fresh Defaults and Category Guidance
