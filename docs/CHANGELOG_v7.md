@@ -2,6 +2,13 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.478n - 2026-11-03
+
+### Category Deletion Guidance
+
+- Include the affected subscription count in category deletion confirmation when saved subscription defaults use that category. Explain that deleting clears those defaults and users can choose replacements in subscription editing or individual payment forms.
+- Preserve existing category protection, recorded-expense checks, deletion behavior and financial records.
+
 ## v6.477n - 2026-11-03
 
 ### Monthly Budget Reminder

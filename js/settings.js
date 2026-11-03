@@ -787,7 +787,11 @@ async function deleteCategory(categoryName) {
     showNotification(`Category "${categoryName}" not found.`, "error");
     return;
   }
-  showConfirmationModal('Delete Category?', `Delete "${escapeHTML(categoryName)}"? This cannot be undone.`, 'Delete Category', 'Cancel', async () => {
+  const subscriptionCount = (state.subscriptions || []).filter(item => item.category === categoryName).length;
+  const subscriptionWarning = subscriptionCount
+    ? `<br><br>This category is used by ${subscriptionCount} ${subscriptionCount === 1 ? 'subscription. Its saved category selection will be cleared. Edit that subscription' : 'subscriptions. Their saved category selections will be cleared. Edit those subscriptions'} to choose a new default, or select a category when recording each payment.`
+    : '';
+  showConfirmationModal('Delete Category?', `Delete "${escapeHTML(categoryName)}"? This cannot be undone.${subscriptionWarning}`, 'Delete Category', 'Cancel', async () => {
     if (state.transactions.some(t => t.category === categoryName)) { showNotification('This category is now in use and cannot be deleted.', 'error'); return; }
     state.categories = state.categories.filter((cat) => cat !== categoryName);
     state.creditCard.transactions.forEach(item => {

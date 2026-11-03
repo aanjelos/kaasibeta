@@ -779,6 +779,27 @@ test('CC category edits only update purchase metadata and payment forms prefill 
   assert.match(r.element('#modalCcPayCategory').innerHTML,/value="Other" selected/);
 });
 
+test('category deletion confirmation explains affected subscription defaults only when needed',async()=>{
+  const r=runtime();let confirmation;
+  r.context.showConfirmationModal=(...args)=>{confirmation=args;};
+  r.context.renderCategorySettingsList=()=>{};r.context.renderCategoryBudgets=()=>{};
+  await r.run('state.categories.push("Custom <b>category</b>");state.subscriptions=[{id:"a",category:"Custom <b>category</b>",status:"active"},{id:"b",category:"Other",status:"paused"}];saveData();');
+  const before=r.run('JSON.stringify(state)');
+  await r.context.deleteCategory('Custom <b>category</b>');
+  assert.match(confirmation[1],/1 subscription\. Its saved category selection will be cleared/);
+  assert.match(confirmation[1],/Edit that subscription to choose a new default, or select a category when recording each payment/);
+  assert.match(confirmation[1],/Custom &lt;b&gt;category&lt;\/b&gt;/);
+  assert.equal(r.run('JSON.stringify(state)'),before,'opening/cancelling confirmation does not change saved defaults');
+  r.run('state.subscriptions[1].category="Custom <b>category</b>";');
+  await r.context.deleteCategory('Custom <b>category</b>');
+  assert.match(confirmation[1],/2 subscriptions\. Their saved category selections will be cleared/);
+  await confirmation[4]();
+  assert.equal(r.run('state.subscriptions.every(s=>s.category==="")'),true);
+  assert.equal(r.run('state.transactions.length'),0);
+  await r.context.deleteCategory('Entertainment');
+  assert.doesNotMatch(confirmation[1],/subscription|default/);
+});
+
 test('CC category deletion removes purchase defaults; categories remain optional on addition', async () => {
   const r=runtime();await seedCards(r);r.run('state.categories.push("Temporary");state.creditCard.transactions[0].category="Temporary";');
   let confirmed;r.context.showConfirmationModal=(...args)=>{confirmed=args[4]();};r.context.renderCategorySettingsList=()=>{};r.context.renderCategoryBudgets=()=>{};
