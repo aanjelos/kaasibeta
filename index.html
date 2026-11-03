@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.479n" />
+    <meta name="application-version" content="v6.480n" />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
@@ -52,10 +52,10 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" integrity="sha384-UagCvVPT5XXA0Hx+nJYUAGBFseHT9zBgpJMSebsAxl9lciTwbT+39j5VfRjdP5Tp" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v6.479n" />
-    <link rel="stylesheet" href="settings-workspace.css?v=v6.479n" />
-    <link rel="stylesheet" href="onboarding.css?v=v6.479n" />
-    <link rel="stylesheet" href="tailwind.css?v=v6.479n" />
+    <link rel="stylesheet" href="style.css?v=v6.480n" />
+    <link rel="stylesheet" href="settings-workspace.css?v=v6.480n" />
+    <link rel="stylesheet" href="onboarding.css?v=v6.480n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.480n" />
 
     <script
       async
@@ -903,15 +903,15 @@
                 style="background-color: var(--bg-tertiary)"
               >
                 <h3 class="text-lg font-semibold mb-3">
-                  Hidden Category Rules
+                  Rules for Hidden Categories
                 </h3>
                 <p class="text-xs text-gray-300 mb-4">
-                  Choose how hidden categories appear in charts, reports and totals.
+                  Choose whether hidden categories count toward charts, totals and reports.
                 </p>
                 <div class="space-y-3" id="hiddenCategoryRulesContainer">
                   <!-- Primary Rules -->
                   <div class="flex items-center justify-between">
-                    <label class="text-sm font-medium text-gray-300">Hide from Dashboard Charts</label>
+                    <label class="text-sm font-medium text-gray-300">Exclude from Dashboard Charts</label>
                     <label class="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" id="rule_excludeFromDashboardCharts" class="sr-only peer" onchange="toggleHiddenRule('excludeFromDashboardCharts')" aria-label="Rule_exclude From Dashboard Charts">
                       <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
@@ -934,28 +934,28 @@
                     </button>
                     <div id="advancedRulesContainer" class="hidden p-3 space-y-3 advanced-rules-content">
                       <div class="flex items-center justify-between">
-                        <label class="text-sm font-medium text-gray-300">Hide from Monthly Breakdown Totals</label>
+                        <label class="text-sm font-medium text-gray-300">Exclude from Monthly Breakdown Totals</label>
                         <label class="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" id="rule_excludeFromMonthlyTotals" class="sr-only peer" onchange="toggleHiddenRule('excludeFromMonthlyTotals')" aria-label="Rule_exclude From Monthly Totals">
                           <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                         </label>
                       </div>
                       <div class="flex items-center justify-between">
-                        <label class="text-sm font-medium text-gray-300">Hide from Monthly Pie Chart</label>
+                        <label class="text-sm font-medium text-gray-300">Exclude from Monthly Pie Chart</label>
                         <label class="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" id="rule_excludeFromPieChart" class="sr-only peer" onchange="toggleHiddenRule('excludeFromPieChart')" aria-label="Rule_exclude From Pie Chart">
                           <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                         </label>
                       </div>
                       <div class="flex items-center justify-between">
-                        <label class="text-sm font-medium text-gray-300">Hide from Today/Past 7 Days Stats</label>
+                        <label class="text-sm font-medium text-gray-300">Exclude from Today/Past 7 Days Stats</label>
                         <label class="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" id="rule_excludeFromQuickStats" class="sr-only peer" onchange="toggleHiddenRule('excludeFromQuickStats')" aria-label="Rule_exclude From Quick Stats">
                           <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
                         </label>
                       </div>
                       <div class="flex items-center justify-between">
-                        <label class="text-sm font-medium text-gray-300">Hide from Yearly Totals</label>
+                        <label class="text-sm font-medium text-gray-300">Exclude from Yearly Totals</label>
                         <label class="relative inline-flex items-center cursor-pointer">
                           <input type="checkbox" id="rule_excludeFromYearlyTotals" class="sr-only peer" onchange="toggleHiddenRule('excludeFromYearlyTotals')" aria-label="Rule_exclude From Yearly Totals">
                           <div class="w-9 h-5 bg-gray-500 peer-focus:outline-none rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
@@ -991,6 +991,7 @@
                     Add
                   </button>
                 </form>
+                <p class="text-xs text-gray-300 mb-4">Hidden categories remain in your transaction history. Use the rules below to choose whether they count toward charts, totals and reports.</p>
                 <ul id="categorySettingsList" class="space-y-2"></ul>
                 <div class="settings-list-footer"><button type="button" class="btn btn-primary" onclick="openModalHelper('settingsAddCategoryModal')"><i class="fas fa-plus" aria-hidden="true"></i> Add Category</button></div>
               </div>
@@ -1931,26 +1932,26 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v6.479n" defer></script>
-    <script src="js/import-validation.js?v=v6.479n" defer></script>
-    <script src="js/storage.js?v=v6.479n" defer></script>
-    <script src="js/storage-ui.js?v=v6.479n" defer></script>
-    <script src="js/animations.js?v=v6.479n" defer></script>
-    <script src="js/data-sync.js?v=v6.479n" defer></script>
-    <script src="js/cloud-sync.js?v=v6.479n" defer></script>
-    <script src="js/math-tool.js?v=v6.479n" defer></script>
-    <script src="js/settings.js?v=v6.479n" defer></script>
-    <script src="js/charts.js?v=v6.479n" defer></script>
-    <script src="js/ui.js?v=v6.479n" defer></script>
-    <script src="js/settings-workspace.js?v=v6.479n" defer></script>
-    <script src="js/features.js?v=v6.479n" defer></script>
-    <script src="js/subscription-assets.js?v=v6.479n" defer></script>
-    <script src="js/subscription-services.js?v=v6.479n" defer></script>
-    <script src="js/subscriptions.js?v=v6.479n" defer></script>
-    <script src="js/security.js?v=v6.479n" defer></script>
-    <script src="js/milestones.js?v=v6.479n" defer></script>
-    <script src="js/onboarding.js?v=v6.479n" defer></script>
-    <script src="js/app.js?v=v6.479n" defer></script>
+    <script src="js/globals.js?v=v6.480n" defer></script>
+    <script src="js/import-validation.js?v=v6.480n" defer></script>
+    <script src="js/storage.js?v=v6.480n" defer></script>
+    <script src="js/storage-ui.js?v=v6.480n" defer></script>
+    <script src="js/animations.js?v=v6.480n" defer></script>
+    <script src="js/data-sync.js?v=v6.480n" defer></script>
+    <script src="js/cloud-sync.js?v=v6.480n" defer></script>
+    <script src="js/math-tool.js?v=v6.480n" defer></script>
+    <script src="js/settings.js?v=v6.480n" defer></script>
+    <script src="js/charts.js?v=v6.480n" defer></script>
+    <script src="js/ui.js?v=v6.480n" defer></script>
+    <script src="js/settings-workspace.js?v=v6.480n" defer></script>
+    <script src="js/features.js?v=v6.480n" defer></script>
+    <script src="js/subscription-assets.js?v=v6.480n" defer></script>
+    <script src="js/subscription-services.js?v=v6.480n" defer></script>
+    <script src="js/subscriptions.js?v=v6.480n" defer></script>
+    <script src="js/security.js?v=v6.480n" defer></script>
+    <script src="js/milestones.js?v=v6.480n" defer></script>
+    <script src="js/onboarding.js?v=v6.480n" defer></script>
+    <script src="js/app.js?v=v6.480n" defer></script>
   </body>
 </html>
 

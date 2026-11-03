@@ -15,13 +15,15 @@ const Onboarding = (() => {
   const safe = value => escapeHTML(String(value ?? ''));
   function hasSavedRecords(data) {
     const defaults = getDefaultState();
+    const legacyCategories = defaults.categories.filter(category => !['Housing & Utilities', 'Phone & Internet'].includes(category));
+    const hasDefaultCategories = [defaults.categories, legacyCategories].some(categories =>
+      data.categories?.length === categories.length && data.categories.every(category => categories.includes(category)));
     return ['transactions','debts','receivables','installments','budgets','subscriptions'].some(key => data[key]?.length) ||
       data.creditCard?.transactions?.length || data.accounts?.some((account, index) =>
         account.id !== defaults.accounts[index]?.id || Number(account.balance) !== 0 ||
         (account.name !== defaults.accounts[index]?.name && !(account.id === 'bank_3' && account.name === 'Genie')) || !!account.hidden) ||
       Number(data.creditCard?.limit) > 0 || data.settings?.appPin?.enabled || data.hiddenCategories?.length ||
-      data.categories?.length !== defaults.categories.length ||
-      data.categories?.some(category => !defaults.categories.includes(category));
+      !hasDefaultCategories;
   }
   function freshDraft() {
     const base = getDefaultState();

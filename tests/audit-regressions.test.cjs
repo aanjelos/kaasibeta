@@ -238,6 +238,32 @@ test('all application scripts parse', () => {
   }
 });
 
+test('fresh categories and budget sorting change without rewriting existing backups or saved choices',()=>{
+  const r=runtime();const fresh=r.run('getDefaultState()');
+  assert.ok(fresh.categories.includes('Housing & Utilities'));assert.ok(fresh.categories.includes('Phone & Internet'));
+  assert.equal(fresh.settings.budgetSortOrder,'percent_desc');
+  const old=JSON.parse(JSON.stringify(fresh));old.categories=old.categories.filter(c=>!['Housing & Utilities','Phone & Internet'].includes(c));
+  delete old.settings.budgetSortOrder;
+  const imported=r.context.prepareImportedData(old);
+  assert.equal(imported.settings.budgetSortOrder,'added');assert.equal(JSON.stringify(imported.categories),JSON.stringify(old.categories));
+  for(const choice of ['added','alpha_asc','limit_desc','limit_asc','percent_desc']){
+    old.settings.budgetSortOrder=choice;assert.equal(r.context.prepareImportedData(old).settings.budgetSortOrder,choice);
+  }
+  r.context.legacyDefaults=old;
+  vm.runInContext(fs.readFileSync(path.join(root,'js/onboarding.js'),'utf8'),r.context);
+  r.run('legacyDefaults.settings.initialSetupDone=false;state=legacyDefaults;');
+  assert.equal(r.run('!!Onboarding.hasSavedRecords()'),false);
+  r.run('legacyDefaults.categories.push("My custom category");');
+  assert.equal(r.run('!!Onboarding.hasSavedRecords()'),true);
+});
+
+test('fresh budget sorting prioritizes percentage used rather than absolute spending',()=>{
+  const r=runtime();r.context.getCurrentDateString=()=> '2026-11-03';
+  r.run('state.budgets=[{id:"large",name:"Large",limit:1000,categories:["Shopping"]},{id:"small",name:"Small",limit:100,categories:["Groceries"]}];state.transactions=[{type:"expense",category:"Shopping",amount:500,date:"2026-11-01"},{type:"expense",category:"Groceries",amount:90,date:"2026-11-01"}];');
+  assert.equal(r.run('getSortedBudgets()[0].id'),'small');
+  r.run('state.settings.budgetSortOrder="added";');assert.equal(r.run('getSortedBudgets()[0].id'),'large');
+});
+
 test('category choices keep Other last after custom categories and CC forms put category before description', async () => {
   const r=runtime();r.run('state.categories=["Other","Zebra Custom","Apple Custom","Groceries"];');
   assert.deepEqual(Array.from(r.run('state.categories.slice().sort(compareCategoryNames)')),['Apple Custom','Groceries','Zebra Custom','Other']);

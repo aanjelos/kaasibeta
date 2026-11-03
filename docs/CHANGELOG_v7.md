@@ -2,6 +2,15 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.480n - 2026-11-03
+
+### Fresh Defaults and Category Guidance
+
+- Add Housing & Utilities and Phone & Internet to fresh category defaults without inserting them into existing category lists.
+- Default fresh setups to Highest % Used budget sorting; retain existing saved choices and Order Added for older backups without a sort preference.
+- Explain that hidden categories remain in transaction history, rename the rule section and use exclusion wording for charts and totals. Keep exclusion behavior unchanged.
+- Recognize untouched pre-update category defaults during clean-device onboarding restore checks.
+
 ## v6.479n - 2026-11-03
 
 ### Bank Charge Category Naming

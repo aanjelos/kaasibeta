@@ -205,7 +205,9 @@ function getDefaultState() {
         "Groceries",
         "Transportation",
         "Healthcare",
+        "Housing & Utilities",
         "Personal Care",
+        "Phone & Internet",
         "Shopping",
         "Entertainment",
         "Education",
@@ -242,7 +244,7 @@ function getDefaultState() {
           dimInTransactionLists: true
         },
         lastDismissedBudgetTipMonth: "",
-        budgetSortOrder: "added"
+        budgetSortOrder: "percent_desc"
       },
     })
   );

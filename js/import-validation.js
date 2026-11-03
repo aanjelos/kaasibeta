@@ -26,6 +26,8 @@ function prepareImportedData(input) {
   }
 
   const candidate = deepMerge(getDefaultState(), JSON.parse(JSON.stringify(input)));
+  // Older backups without an explicit sort retain their original Order Added behavior.
+  if (input.settings?.budgetSortOrder === undefined) candidate.settings.budgetSortOrder = 'added';
   const text = (value, field, allowEmpty = false) => {
     if (typeof value !== "string" || (!allowEmpty && !value.trim())) fail(`${field} must contain text`);
   };
