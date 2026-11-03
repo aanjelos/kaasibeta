@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.484n - 2026-11-03
+
+- Replace light-theme blue-grey surface, border and secondary-button tokens with neutral tones. Emphasize Total Available with a subtle brand-orange tint and quieter neutral account tiles, preserving dashboard layout, financial behavior and all dark-theme styling.
+
 ## v6.483n - 2026-11-03
 
 - Move acknowledgments below creator/support information while keeping tutorial replay first. Compact license rows into component descriptions and accessible icon links; strengthen the framed card heading to match Settings.

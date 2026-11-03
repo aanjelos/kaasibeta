@@ -122,29 +122,29 @@
 
 /* Light Theme Variables */
 [data-theme="light"] {
-  --bg-primary: #e2e8f0;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #e2e8f0;
-  --bg-quaternary: #cbd5e1;
+  --bg-primary: #f0f0ee;
+  --bg-secondary: #fcfcfb;
+  --bg-tertiary: #eeeeeb;
+  --bg-quaternary: #deded9;
 
   --text-primary: #121212;
   --text-secondary: #2b2b2b;
   --text-placeholder: #64748b;
   --text-on-accent: #121212;
 
-  --button-secondary-bg: #f8fafc;
-  --button-secondary-hover-bg: #e2e8f0;
+  --button-secondary-bg: #fcfcfb;
+  --button-secondary-hover-bg: #eeeeeb;
   --button-secondary-text: #121212;
-  --button-secondary-border: #cbd5e1;
-  --button-secondary-hover-border: #94a3b8;
+  --button-secondary-border: #d5d5cf;
+  --button-secondary-hover-border: #aaaaa2;
 
-  --border-color: #cbd5e1;
-  --border-light: #e2e8f0;
+  --border-color: #d5d5cf;
+  --border-light: #e3e3dd;
   
   --shadow-color: rgba(0, 0, 0, 0.08);
   --shadow-color-light: rgba(0, 0, 0, 0.04);
 
-  --ring-bg-color: #e2e8f0;
+  --ring-bg-color: #e3e3dd;
 
   --chart-grid-color: rgba(0, 0, 0, 0.05);
   --chart-tick-color: #64748b;
@@ -2658,6 +2658,17 @@ body.cloud-restoring { overflow:hidden !important; }
 .sync-expanded-content strong, .sync-counts > span > span,
 .sync-comparison-table thead th { font-size: 12px; line-height: 1.5; }
 .chart-accessible-data { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+[data-theme="light"] #dashboardTopCardsContainer > div:first-child {
+  background: rgba(var(--accent-primary-rgb), .12) !important;
+  border: 1px solid rgba(var(--accent-primary-rgb), .35);
+  box-shadow: none;
+}
+[data-theme="light"] #totalPotentialCard,
+[data-theme="light"] #accountCardsContainer > div {
+  border: 1px solid var(--border-color);
+  box-shadow: none;
+}
+[data-theme="light"] #balanceOverviewCard { box-shadow: 0 3px 12px var(--shadow-color-light); }
 .monthly-empty-grid { grid-template-columns: minmax(0, 1fr) !important; }
 .monthly-empty-grid > div:first-child { grid-column: 1 / -1; }
 [data-theme="light"] #ccHistoryModal .text-white { color: var(--text-primary); }
