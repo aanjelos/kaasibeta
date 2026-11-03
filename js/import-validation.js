@@ -134,6 +134,8 @@ function prepareImportedData(input) {
     budget.categories.forEach(cat => text(cat, "budget category"));
   });
   const settings = candidate.settings;
+  if (settings.budgetReminderHandledMonth !== undefined &&
+      (typeof settings.budgetReminderHandledMonth !== 'string' || !/^\d{4}-(0[1-9]|1[0-2])$/.test(settings.budgetReminderHandledMonth))) fail('invalid budget reminder month');
   const defaults = getDefaultState().settings;
   Object.keys(defaults).forEach(key => {
     if (typeof defaults[key] !== "object" && typeof settings[key] !== typeof defaults[key]) fail(`invalid setting ${key}`);

@@ -32,6 +32,12 @@ class Element {
   }
   removeEventListener() {}
   appendChild(child) { this.children.push(child); child.parentElement = this; return child; }
+  insertBefore(child, before) {
+    this.children = this.children.filter(item => item !== child);
+    const index = this.children.indexOf(before);
+    this.children.splice(index < 0 ? this.children.length : index, 0, child);
+    child.parentElement = this; return child;
+  }
   replaceChildren(...children) { this.children = children; }
   querySelector() { return new Element(); }
   querySelectorAll() { return []; }
@@ -122,6 +128,77 @@ function runtime(mobile = false) {
   notices.length = 0;
   return { context, run, element, documentEvents, windowEvents, storage, localStorage, notices, timers };
 }
+
+test('monthly budget reminder persists dismissal, survives backup restore and returns next month without resetting budgets',async()=>{
+  const r=runtime();r.context.getCurrentDateString=()=> '2026-11-23';
+  await r.run('state.budgets=[{id:"old-budget",name:"Groceries",limit:500,categories:["Groceries"]}];saveData();');
+  const original=r.run('JSON.stringify(state.budgets)');
+  r.context.renderCategoryBudgets();
+  assert.equal(r.element('#categoryBudgetsTipContainer').classes.has('hidden'),false);
+  await r.context.dismissMonthlyBudgetReminder();
+  assert.equal(r.element('#categoryBudgetsTipContainer').classes.has('hidden'),true);
+  assert.equal(JSON.parse(r.storage.get('KaasiData')).settings.budgetReminderHandledMonth,'2026-11');
+  const backup=r.run('JSON.stringify(portableKaasiData(state))');
+  const other=runtime();other.context.getCurrentDateString=()=> '2026-11-28';other.context.backup=JSON.parse(backup);
+  await other.context.applyImportedData(other.context.backup);
+  other.context.renderCategoryBudgets();
+  assert.equal(other.element('#categoryBudgetsTipContainer').classes.has('hidden'),true);
+  other.context.getCurrentDateString=()=> '2026-12-18';other.context.renderCategoryBudgets();
+  assert.equal(other.element('#categoryBudgetsTipContainer').classes.has('hidden'),false);
+  assert.equal(other.run('JSON.stringify(state.budgets)'),original);
+});
+
+test('dismissed budget reminder uploads through the existing cloud sync flow',async()=>{
+  const r=runtime();r.context.getCurrentDateString=()=> '2026-11-23';
+  await r.run('state.budgets=[{id:"b",name:"Groceries",limit:500,categories:["Groceries"]}];saveData();');
+  const local=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:local,updated_at:'2026-11-22T00:00:00Z'});await cloud.baseline(local,'2026-11-22T00:00:00Z');
+  await r.context.dismissMonthlyBudgetReminder();await r.context.syncCloudData();
+  assert.equal(cloud.row.data.settings.budgetReminderHandledMonth,'2026-11');
+  assert.deepEqual(cloud.row.data.budgets,local.budgets);
+});
+
+test('failed reminder dismissal retains its previous saved month and visible reminder',async()=>{
+  const r=runtime();r.context.getCurrentDateString=()=> '2026-11-23';
+  await r.run('state.budgets=[{id:"b",name:"Groceries",limit:500,categories:["Groceries"]}];state.settings.budgetReminderHandledMonth="2026-10";saveData();');
+  r.context.renderCategoryBudgets();r.localStorage.failMain=true;
+  await r.context.dismissMonthlyBudgetReminder();
+  assert.equal(r.run('state.settings.budgetReminderHandledMonth'),'2026-10');
+  assert.equal(r.element('#categoryBudgetsTipContainer').classes.has('hidden'),false);
+});
+
+test('adding or saving a budget handles the month atomically while invalid and failed saves do not',async()=>{
+  const r=runtime();r.context.getCurrentDateString=()=> '2026-11-23';
+  for(const name of ['renderBudgetsSettingsList','buildBudgetCategoryCheckboxes','renderCategoryBudgets'])r.context[name]=()=>{};
+  r.element('#addBudgetForm').reset=()=>{};
+  const checkbox={checked:true,value:'Groceries'};
+  r.element('#addBudgetCategoriesContainer').querySelectorAll=()=>[checkbox];
+  r.element('#editBudgetCategoriesContainer').querySelectorAll=()=>[checkbox];
+  r.element('#addBudgetName').value='Food';r.element('#addBudgetLimit').value='0';
+  const event={preventDefault(){}};
+  await r.context.handleAddBudgetSubmit(event);
+  assert.equal(r.run('state.settings.budgetReminderHandledMonth'),undefined);
+  r.element('#addBudgetLimit').value='500';await r.context.handleAddBudgetSubmit(event);
+  assert.equal(r.run('state.settings.budgetReminderHandledMonth'),'2026-11');
+  r.element('#editBudgetId').value=r.run('state.budgets[0].id');r.element('#editBudgetName').value='Food';r.element('#editBudgetLimit').value='600';
+  r.context.getCurrentDateString=()=> '2026-12-09';r.localStorage.failMain=true;
+  await assert.rejects(r.context.handleEditBudgetSubmit(event));
+  assert.equal(r.run('state.settings.budgetReminderHandledMonth'),'2026-11');assert.equal(r.run('state.budgets[0].limit'),500);
+  r.localStorage.failMain=false;await r.context.handleEditBudgetSubmit(event);
+  assert.equal(r.run('state.settings.budgetReminderHandledMonth'),'2026-12');assert.equal(r.run('state.budgets[0].limit'),600);
+});
+
+test('monthly reminder field is optional for old backups, validated and included in cloud comparisons',()=>{
+  const r=runtime();const original=JSON.parse(r.run('JSON.stringify(state)'));
+  assert.equal(r.context.prepareImportedData(original).settings.budgetReminderHandledMonth,undefined);
+  const updated=JSON.parse(JSON.stringify(original));updated.settings.budgetReminderHandledMonth='2026-11';updated.futureField={keep:true};
+  assert.equal(r.context.prepareImportedData(updated).settings.budgetReminderHandledMonth,'2026-11');
+  assert.equal(JSON.stringify(r.context.prepareImportedData(updated).futureField),JSON.stringify(updated.futureField));
+  assert.ok(r.context.cloudSyncDifferences(original,updated).length>0);
+  for(const invalid of ['2026-13','2026-1','',true,202611]){
+    updated.settings.budgetReminderHandledMonth=invalid;assert.throws(()=>r.context.prepareImportedData(updated),/budget reminder month/);
+  }
+});
 
 test('saved-edit sync debounce is 500ms, groups rapid edits and retains failure backoff',()=>{
   const r=runtime(),pending=new Map();let id=0;

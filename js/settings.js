@@ -1133,6 +1133,7 @@ async function handleAddBudgetSubmit(event) {
 
   if (!state.budgets) state.budgets = [];
   state.budgets.push(newBudget);
+  state.settings.budgetReminderHandledMonth = getCurrentDateString().slice(0, 7);
   
   await saveData(state, {syncSettings:true});
   renderBudgetsSettingsList();
@@ -1194,6 +1195,7 @@ async function handleEditBudgetSubmit(event) {
       limit: roundToTwoDecimals(limitInput),
       categories: selectedCategories
     };
+    state.settings.budgetReminderHandledMonth = getCurrentDateString().slice(0, 7);
     await saveData(state, {syncSettings:true});
     renderBudgetsSettingsList();
     closeModal("editBudgetModal");

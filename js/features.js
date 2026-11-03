@@ -4315,6 +4315,18 @@ function renderYearlyAndQuickStats() {
 
 // --- CATEGORY BUDGETS DASHBOARD LOGIC ---
 
+async function dismissMonthlyBudgetReminder() {
+  if (isAppLocked() || storageOperationPending) return;
+  state.settings.budgetReminderHandledMonth = getCurrentDateString().slice(0, 7);
+  try {
+    await saveData();
+    renderCategoryBudgets();
+  } catch (error) {
+    // saveData restores the previous state and reports failed persistence.
+    if (!error.kaasiSaveFailure) showNotification(error.message, 'error');
+  }
+}
+
 function renderCategoryBudgets() {
   const container = $("#categoryBudgetsProgressContainer");
   const card = $("#categoryBudgetsDashboardCard");
@@ -4332,12 +4344,8 @@ function renderCategoryBudgets() {
   const headerEl = card.querySelector(".flex.justify-between.items-center");
   const isCollapsed = appPreferences.getItem("kaasi_collapseCategoryBudgets") === "true";
   
-  const now = new Date();
-  const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const isFirst5Days = now.getDate() <= 5;
-  const lastDismissed = appPreferences.getItem("kaasi_lastDismissedBudgetTipMonth");
-  const isDismissedForThisMonth = lastDismissed === currentMonthStr;
-  const showTip = isFirst5Days && !isDismissedForThisMonth;
+  const currentMonthStr = getCurrentDateString().slice(0, 7);
+  const showTip = state.settings.budgetReminderHandledMonth !== currentMonthStr;
 
   if (isCollapsed) {
     container.style.maxHeight = "0px";
@@ -4371,24 +4379,17 @@ function renderCategoryBudgets() {
             <i class="fas fa-lightbulb text-accent-500 mt-0.5"></i>
             <div>
               <span class="font-semibold text-accent-400 text-[11px] block mb-0.5">Monthly Budget Check</span>
-              It's the start of the month. Do you need to adjust or update your budget limits in Settings?
+              Review this month's budgets. Keep your current limits or update them in Settings.
             </div>
           </div>
-          <button id="dismissBudgetTipBtn" class="text-gray-400 hover:text-white ml-2 focus:outline-none" data-tooltip="Dismiss">
+          <button type="button" id="dismissBudgetTipBtn" class="text-gray-400 hover:text-white ml-2 focus:outline-none" data-tooltip="Dismiss" aria-label="Dismiss monthly budget reminder">
             <i class="fas fa-times"></i>
           </button>
         </div>
       `;
       const dismissBtn = $("#dismissBudgetTipBtn");
       if (dismissBtn) {
-        dismissBtn.addEventListener("click", () => {
-          appPreferences.setItem("kaasi_lastDismissedBudgetTipMonth", currentMonthStr);
-          tipContainer.classList.add("hidden");
-          if (appPreferences.getItem("kaasi_collapseCategoryBudgets") === "true" && headerEl) {
-            headerEl.classList.remove("border-b", "border-gray-600", "pb-2", "mb-4");
-            headerEl.classList.add("mb-0");
-          }
-        });
+        dismissBtn.addEventListener("click", dismissMonthlyBudgetReminder);
       }
     } else {
       tipContainer.classList.add("hidden");

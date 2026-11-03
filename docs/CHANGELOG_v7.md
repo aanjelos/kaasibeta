@@ -2,6 +2,15 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.477n - 2026-11-03
+
+### Monthly Budget Reminder
+
+- Replace the device-only, first-five-days reminder with a portable latest-handled month. Dismissal and successful budget creation/edit saves clear the notice for that month through the existing verified save and cloud sync flow.
+- Show the review notice on later visits and again in a new month without resetting budget limits. Clarify the copy and label its dismiss control for assistive technology.
+- Validate the optional reminder month while accepting older backups without it. Preserve existing financial data, unknown fields and sync conflict rules.
+- Drop history-based subscription suggestions from the roadmap; retain manual subscription workflows.
+
 ## v6.476n - 2026-11-02
 
 ### Release Cleanup

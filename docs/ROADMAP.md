@@ -4,8 +4,7 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## Before v7
 
-1. Refine the Start-of-Month Budget Reminder (feature 21).
-2. Add Subscription Suggestions From History (feature 18), with explicit review before creating a schedule and no automatic charges.
+The monthly budget reminder refinement shipped in v6.477n. Subscription Suggestions From History was dropped on 2026-11-03; retain manual subscription creation and Save as Subscription.
 
 Completed items were removed from the active backlog on 2026-11-02 at the user's request: Milestones, credit-card tracking workflows and starting expenses, mobile modal/Settings/accessibility refinements, UUIDs and IndexedDB work. Final release smoke checks still cover upgrades, backup/restore, PIN recovery, offline launches and cross-device sync. The temporary milestone debug script was removed in v6.476n. This roadmap cleanup does not constitute new live-environment verification.
 
@@ -73,10 +72,6 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 - **Behaviour**: Compare transaction type, account, amount, date and normalised description. Present the matching entry with options to go back or save anyway; legitimate repeated purchases must remain possible. Exclude the edited record itself, and treat transfers and automatically generated payment records explicitly to avoid false warnings.
 - **Scope**: Advisory duplicate detection, not automatic deletion, merging or blocking. Define the matching window and apply equivalent rules on web and Android before implementation.
 
-### 18. Subscription Suggestions From History
-- **Release target**: Before v7, after the budget reminder refinement. Agree detection rules and the review flow before implementation.
-- **Concept**: Suggest recurring services from historical transactions for explicit review. Manual schedules and Save as Subscription are implemented; pattern detection remains future work. Never create a schedule or charge from a guess.
-
 ### 19. Dated Installment Reminders
 - **Concept**: Extend the existing Upcoming Payments bar to installments once plans have explicit, reliable due-date rules. Do not infer deadlines from months remaining alone. Subscription and dated-debt notices are implemented.
 - **Scope**: Reminders appear inside Kaasi while it is open; closed-app browser/PWA system notifications are not planned. Displaying a reminder must not create financial records. Android remains outside the current web implementation scope.
@@ -86,9 +81,8 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 - **Planning**: Confirm provider-specific schedules and rules before implementation. Include due installments in Upcoming Payments and define expense/account treatment to avoid double-counting purchases and repayments. Start with manual tracking; provider integrations or automatic payments require separate agreement.
 
 ### 21. Start-of-Month Budget Reminder
-- **Release target**: Before v7; next refinement ahead of subscription suggestions.
-- **Scope**: Review and refine the existing monthly budget tip so users can review or adjust the new month's budgets on their first eligible visit, including when they do not open Kaasi on the first day.
-- **Behaviour**: Keep the reminder brief and dismissible, with a direct route to budget management. Store dismissal state on the device, outside cloud sync. Coordinate with monthly budget carry-forward and history; decide reminder timing and repeat behaviour before implementation.
+- **Implemented**: v6.477n shows a review reminder in the existing dashboard budget card until dismissed or a budget is successfully created/saved that month, including visits after the fifth day.
+- **Behaviour**: Store only the latest handled month in portable settings, using the existing backup/cloud sync flow. Show the notice again in a later month without resetting limits or changing financial records. Offline devices reflect dismissal after syncing; whole-copy conflict/replacement rules remain unchanged.
 
 ---
 
