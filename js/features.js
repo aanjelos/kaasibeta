@@ -1730,6 +1730,10 @@ function renderMonthlyDetails(
 
   const categorySection = document.createElement("div");
   categorySection.className = "md:col-span-2 space-y-4";
+  if (transactionsToDisplay.length === 0 && !Object.values(categoryTotals).some(amount => amount > 0)) {
+    categorySection.hidden = true;
+    contentGrid.classList.add('monthly-empty-grid');
+  }
   const summaryCard = document.createElement("div");
   summaryCard.className = "p-4 rounded-lg";
   summaryCard.style.backgroundColor = "var(--bg-tertiary)";
@@ -1780,6 +1784,8 @@ function renderMonthlyDetails(
       canvasContainer.className = "absolute inset-0";
       const canvas = document.createElement("canvas");
       canvas.id = "monthlyDetailPieChartCanvas";
+      canvas.setAttribute('role', 'img');
+      canvas.setAttribute('aria-label', 'Category distribution. Exact amounts are listed in Category Summary.');
       canvasContainer.appendChild(canvas);
       
       // Center Info Overlay

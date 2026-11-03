@@ -534,8 +534,31 @@ function renderMonthlyOverviewChart() {
   }
 
   // --- Create or Update the Chart ---
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const chartDataHost = document.getElementById('overviewChartData');
+  if (chartDataHost) {
+    chartDataHost.replaceChildren();
+    const table = document.createElement('table');
+    const caption = document.createElement('caption');
+    caption.textContent = chartTitleEl?.textContent || 'Dashboard chart data';
+    table.appendChild(caption);
+    const thead = document.createElement('thead');
+    const head = document.createElement('tr'); thead.appendChild(head); table.appendChild(thead);
+    ['Period', ...chartDatasets.map(series => series.label)].forEach(label => {
+      const th = document.createElement('th'); th.scope = 'col'; th.textContent = label; head.appendChild(th);
+    });
+    const body = document.createElement('tbody'); table.appendChild(body);
+    chartLabels.forEach((label, index) => {
+      const row = document.createElement('tr'); body.appendChild(row);
+      const th = document.createElement('th'); th.scope = 'row'; th.textContent = label; row.appendChild(th);
+      chartDatasets.forEach(series => { const cell = document.createElement('td'); cell.textContent = formatCurrency(series.data[index] || 0); row.appendChild(cell); });
+    });
+    chartDataHost.appendChild(table);
+  }
+  canvas.setAttribute('role', 'img');
+  canvas.setAttribute('aria-label', `${chartTitleEl?.textContent || 'Dashboard chart'}. Exact values follow in the chart data table.`);
   const renderSignature = JSON.stringify({
-    mode: dashboardChartState, labels: chartLabels, datasets: chartDatasets,
+    mode: dashboardChartState, labels: chartLabels, datasets: chartDatasets, reducedMotion,
     chartGridColor, chartTickColor, chartLegendColor, chartTooltipBg, chartTooltipText
   });
   if (monthlyOverviewChartInstance) {
@@ -569,7 +592,8 @@ function renderMonthlyOverviewChart() {
       monthlyOverviewChartInstance.options.plugins.tooltip.bodyColor = chartTooltipText;
     }
     
-    monthlyOverviewChartInstance.update();
+    monthlyOverviewChartInstance.options.animation = reducedMotion ? false : { duration: 400, easing: "easeOutQuart" };
+    monthlyOverviewChartInstance.update(reducedMotion ? 'none' : undefined);
   } else {
     monthlyOverviewChartInstance = new Chart(ctx, {
       type: "line",
@@ -580,7 +604,7 @@ function renderMonthlyOverviewChart() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 400, easing: "easeOutQuart" },
+        animation: reducedMotion ? false : { duration: 400, easing: "easeOutQuart" },
         scales: {
           y: {
             beginAtZero: true,
@@ -726,7 +750,7 @@ function renderMonthlyPieChart(data, isUpdate = false) {
       },
       options: {
         cutout: "72%",
-        animation: isUpdate ? false : { animateRotate: true, animateScale: true },
+        animation: isUpdate || window.matchMedia('(prefers-reduced-motion: reduce)').matches ? false : { animateRotate: true, animateScale: true },
         responsive: true,
         maintainAspectRatio: false,
         onClick: (event, activeElements, chart) => {

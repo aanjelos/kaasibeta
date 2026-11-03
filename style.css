@@ -51,7 +51,7 @@
   --text-primary: #e0e0e0;
   --text-secondary: #a0a0a0;
   --text-placeholder: #757575;
-  --text-on-accent: #ffffff; /* Text color for on top of accent buttons */
+  --text-on-accent: #121212; /* Charcoal text on brand-orange controls. */
 
   /* Accent Colors (Remains consistent across themes) */
   --accent-primary: #e67e26;
@@ -130,7 +130,7 @@
   --text-primary: #121212;
   --text-secondary: #2b2b2b;
   --text-placeholder: #64748b;
-  --text-on-accent: #ffffff;
+  --text-on-accent: #121212;
 
   --button-secondary-bg: #f8fafc;
   --button-secondary-hover-bg: #e2e8f0;
@@ -2641,3 +2641,35 @@ body.cloud-restoring { overflow:hidden !important; }
 .desktop-header-actions #headerCloudSyncBtn { margin: 0; }
 .desktop-header-actions #headerBackupBtn,
 .desktop-header-actions #headerRestoreBtn { width: 44px; height: 44px; padding: 0; flex: 0 0 44px; }
+
+/* Accessibility refinements retain the existing dashboard composition. */
+[data-theme="light"] { --accent-text-accessible: var(--text-primary); }
+[data-theme="light"] .accent-text,
+[data-theme="light"] .text-accent-primary,
+[data-theme="light"] .is-earned .milestone-status,
+[data-theme="light"] .settings-license-list a { color: var(--accent-text-accessible) !important; }
+#ccAvailable { color: var(--accent-text-accessible, var(--accent-primary)) !important; }
+#ccAvailable.text-danger { color: var(--expense-color) !important; }
+.btn-primary, .btn-primary:hover,
+.tab-btn.active, #ccHistoryModal .btn-primary,
+.onboard-segment button.selected, .onboard-demo-tabs button.selected,
+.onboard-math-bar button:last-child { color: var(--text-on-accent) !important; }
+.sync-entry-meta, .sync-field-name, .sync-presence, .sync-text-toggle,
+.sync-expanded-content strong, .sync-counts > span > span,
+.sync-comparison-table thead th { font-size: 12px; line-height: 1.5; }
+.chart-accessible-data { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.monthly-empty-grid { grid-template-columns: minmax(0, 1fr) !important; }
+.monthly-empty-grid > div:first-child { grid-column: 1 / -1; }
+[data-theme="light"] #ccHistoryModal .text-white { color: var(--text-primary); }
+.math-btn.math-btn-equal,
+#settingsModal #shortcutLocal.active, #settingsModal #shortcutCloud.active,
+#settingsModal .shortcut-btn.active,
+#settingsModal input[name='shortcutTarget']:checked + div { color: var(--text-on-accent) !important; }
+@media (max-width: 360px) {
+  #subscriptionList .subscription-row { grid-template-columns: 36px minmax(0, 1fr); }
+  #subscriptionList .subscription-row-actions { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; max-width: none; width: 100%; }
+  #subscriptionList .subscription-row-actions > strong { text-align: left; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; transition-duration: 0ms !important; scroll-behavior: auto !important; }
+}

@@ -2,6 +2,16 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.482n - 2026-11-03
+
+### Accessibility and Responsive Refinements
+
+- Correct light-theme credit-card balance and accent-text contrast; use charcoal labels on orange primary controls.
+- Respect system reduced-motion preferences for balance counters, chart animation and CSS effects.
+- Name generic dialogs from their headings and expose dashboard chart values in a screen-reader-only table without a visible data control; describe category charts via the existing summary.
+- Improve critical metadata sizing, stack subscription actions on narrow phones and consolidate empty transaction months into one state.
+- Preserve dashboard composition and defer its surface restyling to a separate checkpoint.
+
 ## v6.481n - 2026-11-03
 
 ### Third-Party Acknowledgments

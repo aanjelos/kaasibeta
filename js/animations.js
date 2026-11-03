@@ -22,7 +22,7 @@ function animateValue(el, newValue, isCurrency = true, prefix = '', stableKey = 
   
   previousBalances.set(key, newValue);
   
-  if (startValue === newValue) {
+  if (startValue === newValue || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
     el.innerHTML = isCurrency ? `${prefix}<span class="tabular-nums">${formatCurrency(newValue)}</span>` : `${prefix}${newValue}`;
     return;
   }

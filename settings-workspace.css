@@ -366,3 +366,4 @@
 .settings-license-list p { margin: 4px 0; }
 .settings-license-list a { display: inline-block; padding: 6px 0; color: var(--accent-primary); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
 .settings-license-trademarks { margin-top: 12px; padding-top: 16px; border-top: 1px solid var(--border-color); }
+.settings-category-name small, .milestone-status { font-size: 12px; line-height: 1.5; }

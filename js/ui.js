@@ -782,6 +782,13 @@ function openModalHelper(modalId) {
   if (modal && modal.style.display !== "block") {
     dismissSourceFloatingUI();
     modalFocusOrigins.set(modalId, document.activeElement);
+    const heading = modal.querySelector('h1, h2, h3');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    if (heading && !modal.getAttribute('aria-label') && !modal.getAttribute('aria-labelledby')) {
+      if (!heading.id) heading.id = `${modalId}Heading`;
+      modal.setAttribute('aria-labelledby', heading.id);
+    }
     modal.style.display = "block";
     updateBodyScrollState();
     

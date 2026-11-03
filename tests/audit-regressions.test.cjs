@@ -292,6 +292,32 @@ test('Other stays last in settings and cannot be renamed or deleted', async () =
   assert.deepEqual(Array.from(r.run('state.categories')),['Other','Zebra','Apple']);
 });
 
+test('reduced motion skips counters and chart animation while exposing exact chart values', () => {
+  const r=runtime();
+  r.context.window.matchMedia=query=>({matches:query.includes('prefers-reduced-motion'),addEventListener(){}});
+  r.context.requestAnimationFrame=()=>{throw new Error('Reduced-motion balance should render immediately');};
+  const balance=r.element('#testBalance');
+  r.context.animateValue(balance,123);
+  assert.match(balance.innerHTML,/123/);
+  r.element('#monthlyOverviewChart').getContext=()=>({});
+  r.context.Chart=class {constructor(ctx,config){this.data=config.data;this.options=config.options;}update(){}};
+  r.context.renderMonthlyOverviewChart();
+  assert.equal(r.run('monthlyOverviewChartInstance.options.animation'),false);
+  assert.equal(r.element('#monthlyOverviewChart').getAttribute('role'),'img');
+  const table=r.element('#overviewChartData').children[0];
+  assert.equal(table.children[2].children.length,12);
+  assert.equal(table.children[2].children[0].children.length,3);
+});
+
+test('empty monthly view renders a single empty state without a category panel', () => {
+  const r=runtime();
+  r.run('state.transactions=[];');
+  assert.doesNotThrow(()=>r.context.renderMonthlyDetails(10,2026));
+  const grid=r.element('#monthlyDetailsContainer').children.find(el=>el.classList.contains('monthly-empty-grid'));
+  assert.ok(grid);
+  assert.equal(grid.children[1].hidden,true);
+});
+
 test('dashboard chart preserves series and points for edits and skips unchanged renders', () => {
   const r=runtime();r.element('#monthlyOverviewChart').getContext=()=>({});
   let creations=0,updates=0;
