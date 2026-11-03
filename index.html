@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.482n" />
+    <meta name="application-version" content="v6.483n" />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
@@ -52,10 +52,10 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" integrity="sha384-UagCvVPT5XXA0Hx+nJYUAGBFseHT9zBgpJMSebsAxl9lciTwbT+39j5VfRjdP5Tp" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v6.482n" />
-    <link rel="stylesheet" href="settings-workspace.css?v=v6.482n" />
-    <link rel="stylesheet" href="onboarding.css?v=v6.482n" />
-    <link rel="stylesheet" href="tailwind.css?v=v6.482n" />
+    <link rel="stylesheet" href="style.css?v=v6.483n" />
+    <link rel="stylesheet" href="settings-workspace.css?v=v6.483n" />
+    <link rel="stylesheet" href="onboarding.css?v=v6.483n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.483n" />
 
     <script
       async
@@ -1530,18 +1530,6 @@
             </div></div>
             <div id="settingsAboutPanel" class="settings-tab-panel hidden">
           <div class="onboard-replay"><span><strong>New to Kaasi?</strong><small>Replay the short, data-free tour anytime.</small></span><button type="button" class="btn btn-secondary" onclick="Onboarding.openTutorial()"><i class="fas fa-play-circle" aria-hidden="true"></i> Take a Tour</button></div>
-          <div class="card" id="settingsLicensesCard">
-            <h3>Licenses &amp; Acknowledgments</h3>
-            <p>Open-source tools that help power Kaasi.</p>
-            <div class="settings-license-list">
-              <div><strong>Chart.js</strong><p>Charts and spending visualizations.</p><a href="licenses/chartjs.txt" target="_blank" rel="noopener noreferrer">MIT License</a></div>
-              <div><strong>jsPDF</strong><p>PDF report exports.</p><a href="licenses/jspdf.txt" target="_blank" rel="noopener noreferrer">MIT License</a></div>
-              <div><strong>Supabase JavaScript Client</strong><p>Cloud sign-in and backup synchronization.</p><a href="licenses/supabase-js.txt" target="_blank" rel="noopener noreferrer">MIT License</a></div>
-              <div><strong>Tailwind CSS</strong><p>Interface styling utilities.</p><a href="licenses/tailwindcss.txt" target="_blank" rel="noopener noreferrer">MIT License</a></div>
-              <div><strong>Font Awesome Free</strong><p>Interface icons.</p><a href="licenses/font-awesome.txt" target="_blank" rel="noopener noreferrer">CC BY 4.0, SIL OFL 1.1 &amp; MIT notices</a></div>
-            </div>
-            <p class="settings-license-trademarks">Third-party names and logos belong to their respective owners and identify supported services. Their inclusion does not imply affiliation or endorsement.</p>
-          </div>
           <div
             id="settingsAboutSection"
             class="mt-8 pt-6 border-t border-gray-600 text-xs text-gray-300 space-y-2 text-center"
@@ -1592,6 +1580,18 @@
                 </p>
               </div>
             </div>
+          </div>
+          <div class="card" id="settingsLicensesCard">
+            <h3>Licenses &amp; Acknowledgments</h3>
+            <p>Open-source tools that help power Kaasi.</p>
+            <div class="settings-license-list">
+              <div><span><strong>Chart.js</strong><small>Charts and spending visualizations.</small></span><a href="licenses/chartjs.txt" target="_blank" rel="noopener noreferrer" aria-label="Read Chart.js license" title="Read Chart.js license"><i class="fas fa-file-alt" aria-hidden="true"></i></a></div>
+              <div><span><strong>jsPDF</strong><small>PDF report exports.</small></span><a href="licenses/jspdf.txt" target="_blank" rel="noopener noreferrer" aria-label="Read jsPDF license" title="Read jsPDF license"><i class="fas fa-file-alt" aria-hidden="true"></i></a></div>
+              <div><span><strong>Supabase JavaScript Client</strong><small>Cloud sign-in and backup synchronization.</small></span><a href="licenses/supabase-js.txt" target="_blank" rel="noopener noreferrer" aria-label="Read Supabase JavaScript Client license" title="Read Supabase JavaScript Client license"><i class="fas fa-file-alt" aria-hidden="true"></i></a></div>
+              <div><span><strong>Tailwind CSS</strong><small>Interface styling utilities.</small></span><a href="licenses/tailwindcss.txt" target="_blank" rel="noopener noreferrer" aria-label="Read Tailwind CSS license" title="Read Tailwind CSS license"><i class="fas fa-file-alt" aria-hidden="true"></i></a></div>
+              <div><span><strong>Font Awesome Free</strong><small>Interface icons.</small></span><a href="licenses/font-awesome.txt" target="_blank" rel="noopener noreferrer" aria-label="Read Font Awesome Free license" title="Read Font Awesome Free license"><i class="fas fa-file-alt" aria-hidden="true"></i></a></div>
+            </div>
+            <p class="settings-license-trademarks">Third-party names and logos belong to their respective owners and identify supported services. Their inclusion does not imply affiliation or endorsement.</p>
           </div>
         </div>
       </div>
@@ -1945,26 +1945,26 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v6.482n" defer></script>
-    <script src="js/import-validation.js?v=v6.482n" defer></script>
-    <script src="js/storage.js?v=v6.482n" defer></script>
-    <script src="js/storage-ui.js?v=v6.482n" defer></script>
-    <script src="js/animations.js?v=v6.482n" defer></script>
-    <script src="js/data-sync.js?v=v6.482n" defer></script>
-    <script src="js/cloud-sync.js?v=v6.482n" defer></script>
-    <script src="js/math-tool.js?v=v6.482n" defer></script>
-    <script src="js/settings.js?v=v6.482n" defer></script>
-    <script src="js/charts.js?v=v6.482n" defer></script>
-    <script src="js/ui.js?v=v6.482n" defer></script>
-    <script src="js/settings-workspace.js?v=v6.482n" defer></script>
-    <script src="js/features.js?v=v6.482n" defer></script>
-    <script src="js/subscription-assets.js?v=v6.482n" defer></script>
-    <script src="js/subscription-services.js?v=v6.482n" defer></script>
-    <script src="js/subscriptions.js?v=v6.482n" defer></script>
-    <script src="js/security.js?v=v6.482n" defer></script>
-    <script src="js/milestones.js?v=v6.482n" defer></script>
-    <script src="js/onboarding.js?v=v6.482n" defer></script>
-    <script src="js/app.js?v=v6.482n" defer></script>
+    <script src="js/globals.js?v=v6.483n" defer></script>
+    <script src="js/import-validation.js?v=v6.483n" defer></script>
+    <script src="js/storage.js?v=v6.483n" defer></script>
+    <script src="js/storage-ui.js?v=v6.483n" defer></script>
+    <script src="js/animations.js?v=v6.483n" defer></script>
+    <script src="js/data-sync.js?v=v6.483n" defer></script>
+    <script src="js/cloud-sync.js?v=v6.483n" defer></script>
+    <script src="js/math-tool.js?v=v6.483n" defer></script>
+    <script src="js/settings.js?v=v6.483n" defer></script>
+    <script src="js/charts.js?v=v6.483n" defer></script>
+    <script src="js/ui.js?v=v6.483n" defer></script>
+    <script src="js/settings-workspace.js?v=v6.483n" defer></script>
+    <script src="js/features.js?v=v6.483n" defer></script>
+    <script src="js/subscription-assets.js?v=v6.483n" defer></script>
+    <script src="js/subscription-services.js?v=v6.483n" defer></script>
+    <script src="js/subscriptions.js?v=v6.483n" defer></script>
+    <script src="js/security.js?v=v6.483n" defer></script>
+    <script src="js/milestones.js?v=v6.483n" defer></script>
+    <script src="js/onboarding.js?v=v6.483n" defer></script>
+    <script src="js/app.js?v=v6.483n" defer></script>
   </body>
 </html>
 

@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.483n - 2026-11-03
+
+- Move acknowledgments below creator/support information while keeping tutorial replay first. Compact license rows into component descriptions and accessible icon links; strengthen the framed card heading to match Settings.
+
 ## v6.482n - 2026-11-03
 
 ### Accessibility and Responsive Refinements

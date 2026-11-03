@@ -367,3 +367,10 @@
 .settings-license-list a { display: inline-block; padding: 6px 0; color: var(--accent-primary); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
 .settings-license-trademarks { margin-top: 12px; padding-top: 16px; border-top: 1px solid var(--border-color); }
 .settings-category-name small, .milestone-status { font-size: 12px; line-height: 1.5; }
+#settingsAboutSection { margin-bottom: 22px !important; }
+#settingsLicensesCard .settings-panel-head h3 { font-size: 18px; font-weight: 700; }
+.settings-license-list > div { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; }
+.settings-license-list small { display: block; color: var(--text-secondary); font-size: 12px; line-height: 1.5; margin-top: 3px; }
+.settings-license-list a { display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); text-decoration: none; }
+.settings-license-list a:hover { background: var(--bg-tertiary); }
+.settings-license-list a:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 3px; }
