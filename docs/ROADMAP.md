@@ -10,6 +10,43 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 
 ---
 
+## Post-v7 Dashboard Redesign
+
+**Decision recorded 2026-11-03:** Release v7 with the current dashboard after final release validation. Plan a complete desktop/mobile dashboard redesign as a separate later update; v7.1 is a suggested target, not a committed release date. This section records direction only and does not authorize starting implementation.
+
+### Scope and functionality
+
+- Prefer a coherent redesign of dashboard hierarchy, spacing, grouping and presentation over successive cosmetic patches. Reuse existing financial logic rather than rewriting it for the redesign.
+- Preserve every existing piece of information, figure, calculation, form, action, shortcut, navigation destination and dashboard visibility preference. Inventory current functionality before designing and use that inventory for acceptance checks.
+- Cover transaction entry (expense, income and transfers), balance/account summaries, Total Potential, recent activity/history access, budgets and their monthly reminder, credit-card entry/history/payments, debts, receivables, installments, upcoming-payment notices, charts and header actions.
+- Preserve IndexedDB migration/recovery, historical IDs, unknown JSON fields, backup compatibility, PIN behavior and cloud-sync safeguards. Do not change Supabase data or settings as part of presentation work.
+- Keep the existing Settings workspace and its workflows; use its visual treatment as the reference for a more cohesive app.
+
+### Brand and visual direction
+
+- Retain Kaasi's logos, Satoshi typography, established serif heading treatment where appropriate, terminology and actual brand orange (`#e67e26`).
+- Use neutral charcoal surfaces in dark mode and neutral light surfaces in light mode. Remove the inherited blue-grey cast from dashboard tiles.
+- Follow Settings' restrained surfaces, subtle borders and lighter shadows. Reduce competing tile backgrounds and repetitive nested framing; align spacing, typography and corner treatment.
+- Use orange for deliberate emphasis and actions, and retain green/red financial meaning. Preserve the recent contrast improvements, including charcoal text on orange controls and readable light-mode text.
+- Preserve accessible dialog naming, keyboard interaction, reduced-motion support and screen-reader chart information. Do not reintroduce a visible chart-data section/control; the user declined that addition.
+
+### Desktop and mobile composition
+
+- **Desktop:** Explore a deliberate workspace with prominent transaction entry, scannable balances and clearer relationships between recent activity, budgets and upcoming obligations.
+- **Mobile:** Design the flow deliberately rather than merely stacking desktop cards. Keep Add Transaction first because recording transactions is the primary action; do not promote balances above it. Reduce repetitive framing and unnecessary scrolling while retaining all information and actions.
+- The optional mobile FAB remains a separate future feature, not a prerequisite or an automatically included addition.
+
+### Preview, checkpoint and acceptance
+
+- Begin with a polished desktop preview and a polished mobile preview using synthetic data and a mocked backend. Establish the direction with Balance Overview and Recent Transactions, shown in enough dashboard context to assess hierarchy.
+- Obtain approval of the visual direction before expanding to the complete dashboard. No new theme, dependency or paid image/API use is implied by this plan.
+- Keep the redesign in its own Git checkpoint and app-version round, separate from the completed accessibility fixes and v7 release work. The entire visual change must be independently reviewable and reversible without selectively reverting unrelated changes.
+- Verify desktop and mobile in both themes, including narrow phones and wide desktops. Check populated, empty, long-description and large-amount states, visibility preferences, chart behavior, keyboard/focus handling and reduced motion.
+- Test each workflow against the pre-redesign inventory in the browser, in addition to appropriate automated regression tests. Keep financial behavior unchanged and verify that presentation changes have not broken linked flows.
+- Before v7 itself, complete upgrade, local/cloud backup and restore, offline launch, PIN recovery and actual cross-device sync checks. Mocked browser previews do not substitute for live-device release validation.
+
+---
+
 ## 🌟 Feature Additions
 
 ### 1. Virtual Envelopes / Savings Wishlist
