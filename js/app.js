@@ -671,7 +671,7 @@ function initializeUI(isRefresh = false) {
           if (dashOpt) dashOpt.remove();
           
           if (!categorySelect.value || categorySelect.value === "-disabled-") {
-            const defaultCat = state.settings.defaultTransferFeeCategory || "Bank Charges";
+            const defaultCat = getTransferFeeCategory();
             if (Array.from(categorySelect.options).some(opt => opt.value === defaultCat)) {
               categorySelect.value = defaultCat;
             } else if (categorySelect.options.length > 1) {
@@ -706,7 +706,7 @@ function initializeUI(isRefresh = false) {
         
         // Auto-select default fee category if available
         if (categorySelect) {
-          const defaultCat = state.settings.defaultTransferFeeCategory || "Bank Charges";
+          const defaultCat = getTransferFeeCategory();
           if (Array.from(categorySelect.options).some(opt => opt.value === defaultCat)) {
             categorySelect.value = defaultCat;
           }

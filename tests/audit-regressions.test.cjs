@@ -630,6 +630,33 @@ test('first-time setup binds filters and CC search exactly once', () => {
   assert.equal(filter.events.get('click').length, 1); assert.equal(search.events.get('input').length, 1);
 });
 
+test('Bank Charges can be renamed repeatedly, stays deletion-protected and round-trips with transfer defaults',async()=>{
+  const r=runtime();
+  r.context.renderCategorySettingsList();
+  let markup=r.element('#categorySettingsList').children.map(row=>row.innerHTML).join('');
+  assert.match(markup,/Rename Bank Charges/);assert.doesNotMatch(markup,/Delete Bank Charges/);
+  for(const name of ['refreshMonthlyViewIfRelevant','renderBudgetsSettingsList','buildBudgetCategoryCheckboxes'])r.context[name]=()=>{};
+  await r.run('state.hiddenCategories=["Bank Charges"];state.budgets=[{id:"b",name:"Fees",limit:100,categories:["Bank Charges"]}];saveData();');
+  const rename=async(from,to)=>r.context.renameCategory({closest:()=>({querySelector:()=>({value:to,dataset:{originalName:from}})})});
+  await rename('Bank Charges','Bank Fees');await rename('Bank Fees','Service Fees');
+  assert.equal(r.run('getTransferFeeCategory()'),'Service Fees');
+  assert.equal(r.run('state.hiddenCategories[0]'),'Service Fees');
+  assert.equal(r.run('state.budgets[0].categories[0]'),'Service Fees');
+  markup=r.element('#categorySettingsList').children.map(row=>row.innerHTML).join('');
+  assert.match(markup,/Rename Service Fees/);assert.doesNotMatch(markup,/Delete Service Fees/);
+  const before=r.run('JSON.stringify(state)');
+  await r.context.deleteCategory('Service Fees');assert.equal(r.run('JSON.stringify(state)'),before);
+  const imported=r.run('prepareImportedData(JSON.parse(JSON.stringify(portableKaasiData(state))))');
+  assert.equal(imported.settings.defaultTransferFeeCategory,'Service Fees');assert.ok(imported.categories.includes('Service Fees'));assert.ok(!imported.categories.includes('Bank Charges'));
+  r.localStorage.failMain=true;await assert.rejects(rename('Service Fees','Failed Rename'));
+  assert.equal(r.run('getTransferFeeCategory()'),'Service Fees');
+  r.localStorage.failMain=false;
+  r.element('#transactionForm').reset=()=>{};
+  await r.context.handleTransactionSubmit({preventDefault(){},target:{reset(){},values:{transactionType:'transfer',amount:'100',description:'Transfer fee',date:'2026-11-03',transferFrom:'cash',transferTo:'bank_1',transferFee:'25'}}});
+  assert.equal(r.run('state.transactions[0].category'),'Service Fees');
+  assert.equal(r.run('state.accounts[0].balance'),875);assert.equal(r.run('state.accounts[1].balance'),100);
+});
+
 test('renaming a hidden category preserves exclusions, budgets, and transfer defaults', async () => {
   const r = runtime();
   r.run('state.categories.push("Old"); state.hiddenCategories=["Old"]; state.budgets=[{id:"b1",name:"B",limit:100,categories:["Old"]}]; state.settings.defaultTransferFeeCategory="Old"; state.transactions=[{id:"t1",category:"Old"}];');

@@ -31,6 +31,9 @@ const formatCurrency = (amount) => {
 // Only new records use UUIDs; existing and imported IDs remain unchanged.
 const generateId = () => crypto.randomUUID();
 
+// This saved reference follows renames; older backups fall back to the original name.
+const getTransferFeeCategory = () => state.settings.defaultTransferFeeCategory || 'Bank Charges';
+
 const escapeHTML = (str) => {
   if (!str) return "";
   return String(str)

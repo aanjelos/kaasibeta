@@ -605,7 +605,7 @@ async function handleTransactionSubmit(event) {
         type: "expense",
         amount: roundToTwoDecimals(fee),
         account: fromAccountId,
-        category: feeCategory || "Bank Charges",
+        category: feeCategory || getTransferFeeCategory(),
         description: description || "Bank Transfer Fee",
         date: date,
         timestamp: timestamp

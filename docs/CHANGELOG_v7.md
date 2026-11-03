@@ -2,6 +2,13 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.479n - 2026-11-03
+
+### Bank Charge Category Naming
+
+- Allow renaming the transfer-fee category while retaining deletion protection under its current saved name. Keep Other protected from both renaming and deletion.
+- Reuse the existing transfer-fee category reference for form defaults and fee-record fallback. Preserve category propagation to transactions, budgets, subscriptions, hidden categories and backups without introducing a new schema field.
+
 ## v6.478n - 2026-11-03
 
 ### Category Deletion Guidance
