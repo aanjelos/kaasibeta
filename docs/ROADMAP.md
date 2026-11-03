@@ -10,9 +10,9 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 
 ---
 
-## Post-v7 Dashboard Redesign
+## v9 Dashboard Redesign and Visual Direction
 
-**Decision recorded 2026-11-03:** Release v7 with the current dashboard after final release validation. Plan a complete desktop/mobile dashboard redesign as a separate later update; v7.1 is a suggested target, not a committed release date. This section records direction only and does not authorize starting implementation.
+**Decision updated 2026-11-03:** Release v7 with the current dashboard after final release validation. The proposed sequence is v8 for statistics, Year in Review and December Christmas styling, followed by the complete desktop/mobile dashboard redesign in v9. These are planning targets, not committed dates. This section records direction only and does not authorize starting implementation.
 
 ### Scope and functionality
 
@@ -24,8 +24,12 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 
 ### Brand and visual direction
 
-- Retain Kaasi's logos, Satoshi typography, established serif heading treatment where appropriate, terminology and actual brand orange (`#e67e26`).
-- Use neutral charcoal surfaces in dark mode and neutral light surfaces in light mode. Remove the inherited blue-grey cast from dashboard tiles.
+- Retain Kaasi's name, symbol, Satoshi typography, established serif heading treatment where appropriate and terminology. Explore a visual evolution rather than committing to a full rebrand. Orange remains the preferred accent; compare the current brand orange (`#e67e26`) against the reference in previews before approving any new shade.
+- **Preferred palette reference:** [Orange, charcoal and cream — dark/light pair](design-references/v9-orange-charcoal-cream.png). Saved from the user's first supplied image on 2026-11-03; original creator/source URL unknown. Use as visual inspiration, not a shipped app asset or a template to copy.
+- Explore warm charcoal surface levels in dark mode and soft cream with lighter cards in light mode, supported by beige and muted warm greys. The first reference is the strongest preference for both themes; no other reference images were retained.
+- Borrow the palette and surface contrast, with quieter effects suitable for financial information. Glowing edges, gradients and the reference's promotional card layout are not requirements. Check accent contrast and separation from expense/error red using real controls, balances and charts.
+- Do not force blue, purple, pink or competitor-associated green as a replacement brand accent; the user prefers orange. Keep green/red for financial meaning. Burgundy and yellow were discussed as alternatives, not selected directions.
+- Keep the current v7 light-mode refinement and dark-mode styling for release. The reference palette is for future v9 previews, not an instruction to restyle the current app.
 - Follow Settings' restrained surfaces, subtle borders and lighter shadows. Reduce competing tile backgrounds and repetitive nested framing; align spacing, typography and corner treatment.
 - Use orange for deliberate emphasis and actions, and retain green/red financial meaning. Preserve the recent contrast improvements, including charcoal text on orange controls and readable light-mode text.
 - Preserve accessible dialog naming, keyboard interaction, reduced-motion support and screen-reader chart information. Do not reintroduce a visible chart-data section/control; the user declined that addition.
