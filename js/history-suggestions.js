@@ -14,7 +14,9 @@ function findHistorySuggestions(records, query, field, type, limit = 2) {
 (() => {
   const selector = '#description, #ccDescription, #modalDescription, #modalCcDescription, input[name="debtWho"], input[name="recWho"]';
   let input = null, list = null, rows = [], selected = -1, config = null;
+  let searchTimer = null;
   function close() {
+    clearTimeout(searchTimer); searchTimer = null;
     if (input) { input.setAttribute('aria-expanded','false'); input.removeAttribute('aria-activedescendant'); input.removeAttribute('aria-controls'); }
     list?.remove(); list = null; input = null; rows = []; selected = -1;
   }
@@ -120,15 +122,26 @@ function findHistorySuggestions(records, query, field, type, limit = 2) {
   }
   prepare();
   new MutationObserver(prepare).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class','hidden']});
-  document.addEventListener('input',event=>{if(event.target.matches(selector) && !event.isComposing)show(event.target);});
+  document.addEventListener('input',event=>{
+    const target = event.target;
+    if (!target.matches(selector)) return;
+    close();
+    if (event.isComposing || target.value.trim().length < 2) return;
+    searchTimer = setTimeout(()=>{
+      searchTimer = null;
+      if (document.activeElement === target && target.isConnected) show(target);
+    },180);
+  });
+  document.addEventListener('focusin',close);
   document.addEventListener('focusout',event=>{if(event.target===input)close();});
-  document.addEventListener('pointerdown',event=>{if(input && event.target!==input && !list?.contains(event.target))close();});
+  document.addEventListener('pointerdown',event=>{if((input || searchTimer) && event.target!==input && !list?.contains(event.target))close();});
   document.addEventListener('change',event=>{if(input && event.target!==input)close();});
   window.addEventListener('resize',close);
   window.visualViewport?.addEventListener('resize',close);
   window.visualViewport?.addEventListener('scroll',close);
   document.addEventListener('scroll',event=>{if(!list?.contains(event.target))close();},true);
   document.addEventListener('keydown',event=>{
+    if (searchTimer && ['Escape','Tab','Enter'].includes(event.key)) close();
     if (!input || event.target!==input || event.isComposing) return;
     if (event.key==='Escape') {event.preventDefault();event.stopImmediatePropagation();close();return;}
     if (['ArrowDown','ArrowUp'].includes(event.key)) {

@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.488n - 2026-11-04
+
+- Debounce history matching by 180ms after typing. Clear stale suggestions immediately and cancel pending work on focus changes, dismissal, scrolling or submission; delayed matches require the original field to remain connected and focused.
+
 ## v6.487n - 2026-11-04
 
 - Keep history suggestions two rows tall with ten initial matches and ten more appended near the scroll boundary. Keyboard navigation follows loaded entries and loads the next batch.
