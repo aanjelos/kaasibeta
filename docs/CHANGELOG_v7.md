@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.490n - 2026-11-04
+
+- Add a beta-only robots noindex/nofollow directive. Keep crawler access available so compliant search engines can read the directive; direct beta access remains public and existing links to the main website remain intact.
+
 ## v6.489n - 2026-11-04
 
 - Start debt/receivable name suggestions after one non-whitespace character; retain the two-character description threshold, debounce and paging behavior.
