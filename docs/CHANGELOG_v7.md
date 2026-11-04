@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.491n - 2026-11-04
+
+- Submit transaction and credit-card add/edit forms on Enter from their category select, using requestSubmit to preserve validation and existing save handlers. Ignore held/modifier/composition keys and respect app locks and foreground dialogs.
+
 ## v6.490n - 2026-11-04
 
 - Add a beta-only robots noindex/nofollow directive. Keep crawler access available so compliant search engines can read the directive; direct beta access remains public and existing links to the main website remain intact.

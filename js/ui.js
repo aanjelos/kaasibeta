@@ -68,6 +68,17 @@ function handleKeyboardShortcuts(event) {
     if ((event.ctrlKey || event.metaKey) && ["s", "e", "i"].includes(event.key.toLowerCase())) event.preventDefault();
     return;
   }
+  if (event.key === "Enter" && !event.defaultPrevented && !event.isComposing &&
+      !event.repeat && !event.ctrlKey && !event.altKey && !event.metaKey && !event.shiftKey &&
+      event.target.matches?.("select:is(#category, #ccPurchaseCategory, #modalCategory, #modalCcPurchaseCategory)")) {
+    const category = event.target;
+    const dialog = topVisibleModal();
+    if (!category.disabled && category.form && (!dialog || dialog.contains(category))) {
+      event.preventDefault();
+      category.form.requestSubmit();
+      return;
+    }
+  }
   const activeElement = document.activeElement;
   const inInputField =
     activeElement &&
