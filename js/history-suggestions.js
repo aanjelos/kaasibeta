@@ -1,7 +1,7 @@
 /* Local history suggestions use the current dataset; nothing is persisted here. */
 function findHistorySuggestions(records, query, field, type, limit = 2) {
   const needle = query.trim().toLocaleLowerCase();
-  if (needle.length < 2) return [];
+  if (needle.length < (field === 'who' ? 1 : 2)) return [];
   const seen = new Set();
   return records.filter(row => !type || row.type === type)
     .filter(row => typeof row[field] === 'string' && row[field].trim().toLocaleLowerCase().includes(needle))
@@ -46,8 +46,9 @@ function findHistorySuggestions(records, query, field, type, limit = 2) {
   }
   function show(el) {
     close();
-    if (!el.matches(selector) || sourceFloatingLayer(el) === null || el.value.trim().length < 2) return;
+    if (!el.matches(selector) || sourceFloatingLayer(el) === null) return;
     config = configuration(el);
+    if (el.value.trim().length < (config.field === 'who' ? 1 : 2)) return;
     rows = findHistorySuggestions(config.records,el.value,config.field,config.type,10);
     if (!rows.length) return;
     input = el; list = document.createElement('div'); list.id = 'historySuggestions';
@@ -126,7 +127,7 @@ function findHistorySuggestions(records, query, field, type, limit = 2) {
     const target = event.target;
     if (!target.matches(selector)) return;
     close();
-    if (event.isComposing || target.value.trim().length < 2) return;
+    if (event.isComposing || target.value.trim().length < (configuration(target).field === 'who' ? 1 : 2)) return;
     searchTimer = setTimeout(()=>{
       searchTimer = null;
       if (document.activeElement === target && target.isConnected) show(target);

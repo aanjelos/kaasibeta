@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.489n - 2026-11-04
+
+- Start debt/receivable name suggestions after one non-whitespace character; retain the two-character description threshold, debounce and paging behavior.
+
 ## v6.488n - 2026-11-04
 
 - Debounce history matching by 180ms after typing. Clear stale suggestions immediately and cancel pending work on focus changes, dismissal, scrolling or submission; delayed matches require the original field to remain connected and focused.

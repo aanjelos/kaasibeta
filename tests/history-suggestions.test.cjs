@@ -26,6 +26,8 @@ test('history suggestions require typing, isolate types, rank prefixes and dedup
 test('person suggestions trim and deduplicate names without modifying records',()=>{
   const rows=[{who:' Alice ',timestamp:1},{who:'alice',timestamp:2},{who:'Alison',timestamp:3}];
   assert.equal(find(rows,'ali','who').length,2);
+  assert.equal(find(rows,'a','who').length,2);
+  assert.deepEqual(find(rows,' ','who'),[]);
   assert.equal(rows[0].who,' Alice ');
   assert.deepEqual(find(rows,'missing','who'),[]);
 });
