@@ -2,6 +2,11 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.487n - 2026-11-04
+
+- Keep history suggestions two rows tall with ten initial matches and ten more appended near the scroll boundary. Keyboard navigation follows loaded entries and loads the next batch.
+- Place Description before Category in transaction and CC add/edit forms and the tutorial practice form, retaining the same fields and handlers.
+
 ## v6.486n - 2026-11-04
 
 - Suggest at most two local history matches after two typed characters for transaction/CC descriptions and debt/receivable names. Deduplicate descriptions, prefer prefix/recent matches and separate transaction types and record collections.

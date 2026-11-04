@@ -28,6 +28,9 @@ if(process.env.KAASI_RESPONSIVE_QA==='1'){
   fixture.receivables=[{id:'qa_receivable',type:'cash',who:'Mello',why:'Shared dinner and household supplies',amount:1317,originalAmount:1317,remainingAmount:1317,sourceAccount:'cash',dateGiven:'2026-10-18'}];
   fixture.budgets=[{id:'qa_budget',name:'Transport and Maintenance for the household',categories:['Groceries'],limit:1200}];
 }
+if(process.env.KAASI_HISTORY_QA==='1'){
+  fixture.transactions.push(...Array.from({length:25},(_,i)=>({id:'history_'+i,type:'expense',amount:10,account:'cash',category:'Groceries',description:'Market visit '+i,date:'2026-10-22',timestamp:100+i})));
+}
 const remote=JSON.parse(JSON.stringify(fixture));remote.accounts[0].balance=4300;remote.transactions[0].amount=1500;
 remote.transactions[1]={...remote.transactions[1],id:'qa_taxi',amount:200,description:'Taxi',category:'Transportation'};
 if(process.env.KAASI_SYNC_QA_LONG_TEXT==='1'){

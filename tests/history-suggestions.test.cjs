@@ -29,3 +29,11 @@ test('person suggestions trim and deduplicate names without modifying records',(
   assert.equal(rows[0].who,' Alice ');
   assert.deepEqual(find(rows,'missing','who'),[]);
 });
+test('incremental limits preserve match order and stop at all distinct matches',()=>{
+  const rows=Array.from({length:25},(_,i)=>({description:'Market '+i,timestamp:i,type:'expense'}));
+  const first=find(rows,'market','description','expense',10);
+  const next=find(rows,'market','description','expense',20);
+  const all=find(rows,'market','description','expense',30);
+  assert.equal(first.length,10); assert.equal(next.length,20); assert.equal(all.length,25);
+  assert.deepEqual(next.slice(0,10),first); assert.deepEqual(all.slice(0,20),next);
+});

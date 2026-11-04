@@ -1,5 +1,5 @@
 /* Local history suggestions use the current dataset; nothing is persisted here. */
-function findHistorySuggestions(records, query, field, type) {
+function findHistorySuggestions(records, query, field, type, limit = 2) {
   const needle = query.trim().toLocaleLowerCase();
   if (needle.length < 2) return [];
   const seen = new Set();
@@ -8,7 +8,7 @@ function findHistorySuggestions(records, query, field, type) {
     .sort((a,b) => Number(b.timestamp || 0) - Number(a.timestamp || 0) || String(b.date || '').localeCompare(String(a.date || '')))
     .filter(row => { const key = row[field].trim().toLocaleLowerCase(); if (seen.has(key)) return false; seen.add(key); return true; })
     .sort((a,b) => Number(b[field].trim().toLocaleLowerCase().startsWith(needle)) - Number(a[field].trim().toLocaleLowerCase().startsWith(needle)))
-    .slice(0,2);
+    .slice(0,limit);
 }
 
 (() => {
@@ -46,11 +46,13 @@ function findHistorySuggestions(records, query, field, type) {
     close();
     if (!el.matches(selector) || sourceFloatingLayer(el) === null || el.value.trim().length < 2) return;
     config = configuration(el);
-    rows = findHistorySuggestions(config.records,el.value,config.field,config.type);
+    rows = findHistorySuggestions(config.records,el.value,config.field,config.type,10);
     if (!rows.length) return;
     input = el; list = document.createElement('div'); list.id = 'historySuggestions';
     list.className = 'subscription-service-results history-suggestions'; list.setAttribute('role','listbox'); list.setAttribute('aria-label','From your history');
-    rows.forEach((row,index) => {
+    function appendOptions(start) {
+    rows.slice(start).forEach((row,offset) => {
+      const index = start + offset;
       const option = document.createElement('button'); option.type = 'button'; option.tabIndex = -1;
       option.className = 'subscription-service-option';
       option.id = 'historySuggestion' + index; option.setAttribute('role','option'); option.setAttribute('aria-selected','false');
@@ -61,6 +63,20 @@ function findHistorySuggestions(records, query, field, type) {
       option.addEventListener('pointerdown',event=>event.preventDefault());
       option.addEventListener('click',()=>pick(index)); list.appendChild(option);
     });
+    }
+    appendOptions(0);
+    let exhausted = rows.length < 10;
+    function loadMore() {
+      if (exhausted) return;
+      const count = rows.length;
+      rows = findHistorySuggestions(config.records,el.value,config.field,config.type,count+10);
+      exhausted = rows.length < count+10;
+      appendOptions(count);
+    }
+    list.addEventListener('scroll',()=>{
+      if (list && list.scrollTop + list.clientHeight >= list.scrollHeight - 32) loadMore();
+    });
+    list.loadMoreHistory = loadMore;
     document.body.appendChild(list);
     const popup = list, started = performance.now();
     function position() {
@@ -71,8 +87,8 @@ function findHistorySuggestions(records, query, field, type) {
       const left = viewport?.offsetLeft || 0, top = viewport?.offsetTop || 0;
       const width = viewport?.width || window.innerWidth, height = viewport?.height || window.innerHeight;
       const below = Math.max(0,top+height-rect.bottom-12), above = Math.max(0,rect.top-top-12);
-      const placeBelow = below >= Math.min(popup.scrollHeight,180) || below >= above;
-      popup.style.maxHeight = Math.min(180,placeBelow ? below : above) + 'px';
+      const placeBelow = below >= Math.min(popup.scrollHeight,130) || below >= above;
+      popup.style.maxHeight = Math.min(130,placeBelow ? below : above) + 'px';
       popup.style.width = Math.max(0,Math.min(rect.width,width-24)) + 'px';
       popup.style.left = Math.max(left+12,Math.min(rect.left,left+width-popup.offsetWidth-12)) + 'px';
       popup.style.top = (placeBelow ? rect.bottom+8 : rect.top-popup.offsetHeight-8) + 'px';
@@ -84,6 +100,18 @@ function findHistorySuggestions(records, query, field, type) {
     el.setAttribute('aria-expanded','true'); el.setAttribute('aria-controls',list.id);
   }
   function prepare() {
+    [['description','category'],['ccDescription','ccPurchaseCategory'],
+      ['modalDescription','modalCategory'],['modalCcDescription','modalCcPurchaseCategory'],
+      ['tourDescription','tourCategory']].forEach(([descriptionId,categoryId])=>{
+      const description = document.getElementById(descriptionId), category = document.getElementById(categoryId);
+      if (!description || !category) return;
+      const descriptionBlock = description.closest('label.onboard-field') || description.parentElement;
+      const categoryBlock = category.closest('label.onboard-field') || category.parentElement;
+      const parent = categoryBlock.parentElement;
+      if (parent === descriptionBlock.parentElement && [...parent.children].indexOf(descriptionBlock) > [...parent.children].indexOf(categoryBlock)) {
+        parent.insertBefore(descriptionBlock,categoryBlock);
+      }
+    });
     document.querySelectorAll(selector).forEach(el=>{
       el.autocomplete='off'; el.setAttribute('role','combobox'); el.setAttribute('aria-autocomplete','list');
       if (!el.hasAttribute('aria-expanded')) el.setAttribute('aria-expanded','false');
@@ -105,9 +133,13 @@ function findHistorySuggestions(records, query, field, type) {
     if (event.key==='Escape') {event.preventDefault();event.stopImmediatePropagation();close();return;}
     if (['ArrowDown','ArrowUp'].includes(event.key)) {
       event.preventDefault(); event.stopImmediatePropagation();
+      if (event.key==='ArrowDown' && selected===rows.length-1) list.loadMoreHistory();
       selected = selected < 0 ? (event.key==='ArrowDown' ? 0 : rows.length-1) : (selected + (event.key==='ArrowDown'?1:-1) + rows.length) % rows.length;
       [...list.children].forEach((option,index)=>option.setAttribute('aria-selected',String(index===selected)));
       input.setAttribute('aria-activedescendant',list.children[selected].id);
+      const option = list.children[selected];
+      if (option.offsetTop < list.scrollTop) list.scrollTop = option.offsetTop;
+      else if (option.offsetTop+option.offsetHeight > list.scrollTop+list.clientHeight) list.scrollTop = option.offsetTop+option.offsetHeight-list.clientHeight;
     } else if (event.key==='Enter' && selected>=0) {
       event.preventDefault();event.stopImmediatePropagation();pick(selected);
     } else if (event.key==='Tab' || event.key==='Enter') close();
