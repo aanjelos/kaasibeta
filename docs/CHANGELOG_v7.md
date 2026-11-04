@@ -2,6 +2,11 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.486n - 2026-11-04
+
+- Suggest at most two local history matches after two typed characters for transaction/CC descriptions and debt/receivable names. Deduplicate descriptions, prefer prefix/recent matches and separate transaction types and record collections.
+- Apply only the chosen description/name and a currently valid category when blank; retain existing financial fields and save behavior. Request browser autocomplete suppression, provide keyboard navigation/Escape dismissal and keep suggestions transient with no new backup fields or cloud calls.
+
 ## v6.485n - 2026-11-03
 
 - Restore white labels on orange action/selected controls in both themes at the user's request. Retain the existing brand-orange fill and light-mode surface/readability fixes. White on current orange remains below normal-text contrast targets; revisit the pairing during v9 palette work.
