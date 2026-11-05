@@ -2,6 +2,11 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.493n - 2026-11-05
+
+- Refresh account dropdown balances after committed subscription changes.
+- Render the tutorial practice Description before Category directly in its template.
+
 ## v6.492n - 2026-11-05
 
 - Correct transaction, budget and PIN field names; name mobile menu and PDF export controls. Enlarge compact action targets and increase installment/reminder metadata to 12px without changing form input sizing.

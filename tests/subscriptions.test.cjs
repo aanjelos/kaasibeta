@@ -11,7 +11,7 @@ function env(){
   // globals defines this helper; freeze the fixture date after loading it.
   c.getCurrentDateString=()=> '2026-10-24';
   const run=s=>vm.runInContext(s,c);run('state=getDefaultState();state.settings.initialSetupDone=true;state.accounts[0].balance=1000;');
-  c.renderDashboard=()=>{};c.isAppLocked=()=>false;c.showNotification=()=>{};
+  c.populateDropdowns=()=>{};c.renderDashboard=()=>{};c.isAppLocked=()=>false;c.showNotification=()=>{};
   let saved=run('JSON.stringify(state)'),fail=false;
   c.saveData=async()=>{if(fail){run('state=JSON.parse('+JSON.stringify(saved)+')');throw new Error('Failed save');}saved=run('JSON.stringify(state)');};
   return {c,run,el,preferences,api:run('Subscriptions'),tick:async()=>{await timer();},fail:()=>{fail=true;},saved:()=>JSON.parse(saved)};

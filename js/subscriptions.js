@@ -81,7 +81,7 @@ const Subscriptions = (() => {
     assertOpen();busy=true;
     try {action();await saveData(state,{syncSettings});for(const key of remindersToClear)appPreferences.removeItem(key);}
     finally {remindersToClear.clear();busy=false;}
-    renderDashboard();render();
+    populateDropdowns();renderDashboard();render();
   }
   function clearSnooze(id,due) {
     // Do not clear a device reminder until the financial operation commits successfully.
