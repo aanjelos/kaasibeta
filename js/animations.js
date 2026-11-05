@@ -5,6 +5,7 @@
 // js/animations.js
 
 const previousBalances = new Map();
+const activeBalanceAnimations = new Map();
 
 function animateValue(el, newValue, isCurrency = true, prefix = '', stableKey = null) {
   if (!el) return;
@@ -13,8 +14,13 @@ function animateValue(el, newValue, isCurrency = true, prefix = '', stableKey = 
     el.dataset.animId = Math.random().toString(36).substr(2, 9);
   }
   const key = stableKey || el.id || el.dataset.animId;
-  
-  let startValue = previousBalances.get(key);
+  const previous = activeBalanceAnimations.get(key);
+  if (previous) {
+    cancelAnimationFrame(previous.frame);
+    previous.el.removeAttribute('data-balance-animating');
+    activeBalanceAnimations.delete(key);
+  }
+  let startValue = previous ? previous.value : previousBalances.get(key);
   if (startValue === undefined) {
     const rawText = el.textContent.replace(/[^0-9.-]/g, '');
     startValue = rawText ? parseFloat(rawText) : 0;
@@ -29,8 +35,20 @@ function animateValue(el, newValue, isCurrency = true, prefix = '', stableKey = 
 
   const duration = 600;
   const startTime = performance.now();
+  el.setAttribute('data-balance-animating', '');
+  el.innerHTML = isCurrency ? `${prefix}<span class="tabular-nums"></span>` : prefix;
+  const valueNode = document.createTextNode('');
+  (isCurrency ? el.lastElementChild : el).appendChild(valueNode);
+  const animation = { el, frame: null, value: startValue };
+  activeBalanceAnimations.set(key, animation);
   
   function update(currentTime) {
+    if (activeBalanceAnimations.get(key) !== animation) return;
+    if (!el.isConnected) {
+      el.removeAttribute('data-balance-animating');
+      activeBalanceAnimations.delete(key);
+      return;
+    }
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
     
@@ -39,16 +57,19 @@ function animateValue(el, newValue, isCurrency = true, prefix = '', stableKey = 
     
     const currentValue = startValue + (newValue - startValue) * easeProgress;
     
-    el.innerHTML = isCurrency ? `${prefix}<span class="tabular-nums">${formatCurrency(currentValue)}</span>` : `${prefix}${currentValue.toFixed(2)}`;
+    animation.value = currentValue;
+    valueNode.nodeValue = isCurrency ? formatCurrency(currentValue) : currentValue.toFixed(2);
     
     if (progress < 1) {
-      requestAnimationFrame(update);
+      animation.frame = requestAnimationFrame(update);
     } else {
-      el.innerHTML = isCurrency ? `${prefix}<span class="tabular-nums">${formatCurrency(newValue)}</span>` : `${prefix}${newValue}`;
+      el.removeAttribute('data-balance-animating');
+      activeBalanceAnimations.delete(key);
+      valueNode.nodeValue = isCurrency ? formatCurrency(newValue) : String(newValue);
     }
   }
   
-  requestAnimationFrame(update);
+  animation.frame = requestAnimationFrame(update);
 }
 
 function updateTabIndicator(containerId = 'monthTabs') {

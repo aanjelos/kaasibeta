@@ -123,6 +123,8 @@
 /* Light Theme Variables */
 [data-theme="light"] {
   --bg-primary: #f0f0ee;
+  --expense-color: #b9372b;
+  --expense-color-rgb: 185, 55, 43;
   --bg-secondary: #fcfcfb;
   --bg-tertiary: #eeeeeb;
   --bg-quaternary: #deded9;
@@ -457,7 +459,7 @@ select:focus {
   padding: 0.6rem 1.2rem;
   border-radius: var(--radius-sm);
   font-weight: 500;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.2s ease-out, color 0.2s ease-out, border-color 0.2s ease-out, box-shadow 0.2s ease-out, transform 0.2s ease-out, opacity 0.2s ease-out;
   cursor: pointer;
   text-align: center;
   display: inline-flex;
@@ -479,11 +481,13 @@ select:focus {
   color: var(--text-on-accent);
   border-color: var(--button-primary-bg);
 }
+@media (hover: hover) and (pointer: fine) {
 .btn-primary:hover {
   background-color: var(--button-primary-hover-bg);
   border-color: var(--button-primary-hover-bg);
   box-shadow: 0 4px 18px rgba(230, 126, 38, 0.45), 0 1px 4px rgba(230, 126, 38, 0.2);
   transform: translateY(-1px);
+}
 }
 .btn-primary:focus-visible {
   outline: none;
@@ -755,7 +759,7 @@ select:focus {
   padding: 0.6rem 1.2rem;
   cursor: pointer;
   border-bottom: 3px solid transparent;
-  transition: all 0.2s ease-in-out;
+  transition: color 0.2s ease-out, background-color 0.2s ease-out, border-color 0.2s ease-out;
   color: var(--text-secondary);
   font-weight: 500;
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
@@ -1250,10 +1254,12 @@ input[type="checkbox"]:not(.sr-only):not(.peer):disabled { opacity: .5; cursor: 
   border-bottom: none;
 }
 
+@media (hover: hover) and (pointer: fine) {
 .cc-history-transaction-item:hover {
   background-color: rgba(var(--accent-primary-rgb), 0.06);
   transform: translateX(3px);
   box-shadow: -3px 0 0 0 var(--accent-primary), inset 0 0 12px rgba(230, 126, 38, 0.04);
+}
 }
 
 /* NEW: Active state for CC history filter buttons */
@@ -2643,6 +2649,14 @@ body.cloud-restoring { overflow:hidden !important; }
 .desktop-header-actions #headerRestoreBtn { width: 44px; height: 44px; padding: 0; flex: 0 0 44px; }
 
 /* Accessibility refinements retain the existing dashboard composition. */
+.calc-amount { padding-right: 64px !important; }
+.calc-toggle-btn { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; right: 4px !important; }
+#dismissBudgetTipBtn, #toggleChartBtn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+button[data-record-action]:not(.btn) { min-width: 32px; min-height: 32px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #toggleChartBtn:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+#installmentList p:not(:first-child) { font-size: 12px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
+#categoryBudgetsTipContainer .font-semibold { font-size: 12px; line-height: 1.5; }
+@media (max-width: 767px) { button[data-record-action]:not(.btn) { min-width: 44px; min-height: 44px; } }
 [data-theme="light"] { --accent-text-accessible: var(--text-primary); }
 [data-theme="light"] .accent-text,
 [data-theme="light"] .text-accent-primary,

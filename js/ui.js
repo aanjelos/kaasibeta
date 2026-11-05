@@ -783,7 +783,10 @@ function enhanceKeyboardControls() {
 enhanceKeyboardControls();
 document.addEventListener('click',()=>requestAnimationFrame(enhanceKeyboardControls));
 let keyboardRefreshPending=false;
-if(typeof MutationObserver!=='undefined')new MutationObserver(()=>{
+if(typeof MutationObserver!=='undefined')new MutationObserver(records=>{
+  const controls = 'button, input, select, textarea, [role="button"], .cursor-pointer, .monthly-view-day-header, .budget-progress-container, .cc-payment-history-main, .transaction-list-item-layout, .monthly-view-transaction-item';
+  if (!records.some(record => [...record.addedNodes].some(node => node.nodeType === 1 &&
+      (node.matches(controls) || node.querySelector(controls))))) return;
   if(keyboardRefreshPending)return;keyboardRefreshPending=true;
   requestAnimationFrame(()=>{keyboardRefreshPending=false;enhanceKeyboardControls();});
 }).observe(document.body,{childList:true,subtree:true});
@@ -1170,10 +1173,18 @@ function setupMobileDropdown() {
   let isOpen = false;
   mobileMenuBtn.setAttribute('aria-controls','mobileDropdown');
   mobileMenuBtn.setAttribute('aria-expanded','false');
+  for (const id of ['dropMonthlyBtn','dropBackupBtn','dropRestoreBtn','dropSettingsBtn']) {
+    const button = document.getElementById(id), label = button?.parentElement?.querySelector('span');
+    if (label) {
+      if (!label.id) label.id = `${id}Label`;
+      button.setAttribute('aria-labelledby', label.id);
+    }
+  }
 
   const toggleDropdown = () => {
     isOpen = !isOpen;
     mobileMenuBtn.setAttribute('aria-expanded',String(isOpen));
+    mobileMenuBtn.setAttribute('aria-label',isOpen ? 'Close menu' : 'Open menu');
     if (isOpen) {
       document.body.classList.add("overflow-hidden");
       mobileDropdown.classList.remove("opacity-0", "invisible");
@@ -1257,7 +1268,7 @@ function setupMobileDropdown() {
 document.addEventListener("DOMContentLoaded", () => {
   const pending = new Set();
   let scheduled = false;
-  const excluded = "script, style, textarea, input, select, option, [contenteditable], .currency-wrap";
+  const excluded = "script, style, textarea, input, select, option, [contenteditable], .currency-wrap, [data-balance-animating]";
   const formatText = node => {
     if (!node.parentElement || node.parentElement.closest(excluded)) return;
     const text = node.nodeValue;

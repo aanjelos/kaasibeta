@@ -2,6 +2,13 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.492n - 2026-11-05
+
+- Correct transaction, budget and PIN field names; name mobile menu and PDF export controls. Enlarge compact action targets and increase installment/reminder metadata to 12px without changing form input sizing.
+- Use a deeper expense red in light mode; retain dark-theme colours and white labels on brand-orange actions. Limit shared transitions to named properties and gate decorative hover movement to fine hover-capable pointers.
+- Announce ordinary notifications politely and guarantee removal when transitions are disabled or interrupted. Keep errors and warnings assertive.
+- Cancel superseded balance counters, update a stable text node during animation and skip currency wrapping until completion. Restrict history/keyboard enhancement scans to newly inserted controls rather than balance markup.
+
 ## v6.491n - 2026-11-04
 
 - Submit transaction and credit-card add/edit forms on Enter from their category select, using requestSubmit to preserve validation and existing save handlers. Ignore held/modifier/composition keys and respect app locks and foreground dialogs.

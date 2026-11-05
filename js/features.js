@@ -1539,6 +1539,7 @@ function renderMonthlyDetails(
   exportButton.id = "exportPdfBtn";
   exportButton.className = "btn btn-secondary btn-sm";
   exportButton.dataset.tooltip = "Export as PDF";
+  exportButton.setAttribute('aria-label', 'Export as PDF');
   exportButton.innerHTML = `<i class="fas fa-file-pdf"></i> <span class="hidden md:inline">Export</span>`;
   exportButton.onclick = generateMonthlyPdfReport; // Attach event listener here
 

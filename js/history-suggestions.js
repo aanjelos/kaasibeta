@@ -122,7 +122,11 @@ function findHistorySuggestions(records, query, field, type, limit = 2) {
     if (input && sourceFloatingLayer(input) === null) close();
   }
   prepare();
-  new MutationObserver(prepare).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class','hidden']});
+  new MutationObserver(records=>{
+    if (records.some(record => record.type === 'childList' && [...record.addedNodes].some(node =>
+        node.nodeType === 1 && (node.matches(selector) || node.querySelector(selector))))) prepare();
+    else if (input && sourceFloatingLayer(input) === null) close();
+  }).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class','hidden']});
   document.addEventListener('input',event=>{
     const target = event.target;
     if (!target.matches(selector)) return;

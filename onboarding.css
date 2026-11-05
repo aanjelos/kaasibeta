@@ -26,7 +26,8 @@ body:has(#initialSetupModal[style*="block"]) #cloudSyncModal { z-index: 80; }
 .onboard-title p { max-width: 560px; margin-top: 10px; color: var(--text-secondary); font-size: 15px; line-height: 1.65; }
 .onboard-choices, .onboard-tour-choice { display: grid; gap: 12px; }
 .onboard-choice { width: 100%; display: grid; grid-template-columns: 46px minmax(0,1fr) 18px; align-items: center; gap: 18px; min-height: 92px; padding: 18px; color: var(--text-primary); background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; text-align: left; transition: border-color .18s, background .18s, transform .18s; }
-.onboard-choice:hover, .onboard-choice:focus-visible { border-color: var(--accent-primary); background: var(--bg-tertiary); transform: translateY(-1px); }
+.onboard-choice:focus-visible { border-color: var(--accent-primary); background: var(--bg-tertiary); }
+@media (hover: hover) and (pointer: fine) { .onboard-choice:hover { border-color: var(--accent-primary); background: var(--bg-tertiary); transform: translateY(-1px); } }
 .onboard-choice:active { transform: scale(.99); }
 .onboard-choice-icon { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 10px; background: rgba(var(--accent-primary-rgb),.12); color: var(--accent-primary); }
 .onboard-choice strong, .onboard-choice small { display: block; }

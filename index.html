@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.491n" />
+    <meta name="application-version" content="v6.492n" />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
@@ -53,10 +53,10 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" integrity="sha384-UagCvVPT5XXA0Hx+nJYUAGBFseHT9zBgpJMSebsAxl9lciTwbT+39j5VfRjdP5Tp" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v6.491n" />
-    <link rel="stylesheet" href="settings-workspace.css?v=v6.491n" />
-    <link rel="stylesheet" href="onboarding.css?v=v6.491n" />
-    <link rel="stylesheet" href="tailwind.css?v=v6.491n" />
+    <link rel="stylesheet" href="style.css?v=v6.492n" />
+    <link rel="stylesheet" href="settings-workspace.css?v=v6.492n" />
+    <link rel="stylesheet" href="onboarding.css?v=v6.492n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.492n" />
 
     <script
       async
@@ -248,7 +248,7 @@
           <!-- Mobile Dropdown Toggle Button -->
           <div class="md:hidden flex items-center ml-auto relative z-40">
              <button id="mobileSyncBtn" class="mobile-dashboard-sync dashboard-cloud-sync" hidden aria-label="Sync" type="button"><span id="mobileSyncStatus" class="dashboard-sync-status" role="status" aria-live="polite"></span><i class="fas fa-sync-alt" aria-hidden="true"></i></button>
-             <button id="mobileMenuBtn" class="text-gray-300 hover:text-white transition-colors focus:outline-none w-12 h-12 flex items-center justify-center">
+             <button id="mobileMenuBtn" aria-label="Open menu" class="text-gray-300 hover:text-white transition-colors focus:outline-none w-12 h-12 flex items-center justify-center">
                <i class="fas fa-bars text-2xl transition-transform duration-300 ease-in-out" id="mobileMenuIcon"></i>
              </button>
           </div>
@@ -322,7 +322,7 @@
                       min="0"
                       placeholder="e.g., 1500.50"
                       required
-                    aria-label="e.g., 1500.50" />
+                    />
                     <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                       <i class="fas fa-calculator"></i>
                     </button>
@@ -345,7 +345,7 @@
                 <div id="transferFeeGroup" class="hidden">
                   <label for="transferFee" class="block text-sm font-medium mb-1">Bank Transfer Fee</label>
                   <div class="relative flex items-center w-full">
-                    <input type="text" inputmode="decimal" autocomplete="off" class="calc-amount pr-8" id="transferFee" name="transferFee" step="0.01" min="0" placeholder="e.g., 25.00" aria-label="Transfer Fee">
+                    <input type="text" inputmode="decimal" autocomplete="off" class="calc-amount pr-8" id="transferFee" name="transferFee" step="0.01" min="0" placeholder="e.g., 25.00">
                     <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                       <i class="fas fa-calculator"></i>
                     </button>
@@ -367,7 +367,7 @@
                     name="description"
                     placeholder="e.g., Lunch, Monthly Groceries"
                     required
-                  aria-label="e.g., Lunch, Monthly Groceries" />
+                  />
                 </div>
                 <div>
                   <label for="date" class="block text-sm font-medium mb-1"
@@ -436,7 +436,7 @@
                       min="0"
                       placeholder="Amount spent"
                       required
-                    aria-label="Amount spent" />
+                    />
                     <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                       <i class="fas fa-calculator"></i>
                     </button>
@@ -457,7 +457,7 @@
                     name="ccDescription"
                     placeholder="e.g., Online purchase, Ride fare"
                     required
-                  aria-label="e.g., Online purchase, Ride fare" />
+                  />
                 </div>
                 <div>
                   <label for="ccDate" class="block text-sm font-medium mb-1"
@@ -826,7 +826,7 @@
                       placeholder="e.g., 25.00"
                       class="calc-amount text-sm rounded w-full pr-8"
                       required
-                     aria-label="Default Transfer Fee" />
+                     />
                       <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                         <i class="fas fa-calculator"></i>
                       </button>
@@ -863,7 +863,7 @@
                       placeholder="Enter total limit"
                       required
                       class="calc-amount pr-8 text-sm"
-                    aria-label="Enter total limit" />
+                    />
                     <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                       <i class="fas fa-calculator"></i>
                     </button>
@@ -888,7 +888,7 @@
                       type="checkbox"
                       id="toggleCcSection"
                       class="sr-only peer"
-                    aria-label="Toggle Cc Section" />
+                    />
                     <div
                       class="w-11 h-6 bg-gray-500 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent-500/50 rounded-full peer peer-checked:bg-accent-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
                     ></div>
@@ -1016,13 +1016,13 @@
                     </div>
                   </div>
                   <div>
-                    <label class="block text-sm font-medium mb-1">Budget Name</label>
-                    <input type="text" id="addBudgetName" placeholder="e.g. Groceries" class="w-full text-sm" aria-label="e.g. Groceries">
+                    <label for="addBudgetName" class="block text-sm font-medium mb-1">Budget Name</label>
+                    <input type="text" id="addBudgetName" placeholder="e.g. Groceries" class="w-full text-sm">
                   </div>
                   <div>
-                    <label class="block text-sm font-medium mb-1">Monthly Limit (LKR)</label>
+                    <label for="addBudgetLimit" class="block text-sm font-medium mb-1">Monthly Limit (LKR)</label>
                     <div class="relative flex items-center w-full">
-                      <input type="text" inputmode="decimal" autocomplete="off" id="addBudgetLimit" class="calc-amount w-full pr-8 text-sm" placeholder="e.g. 15000.00" required step="0.01" min="0" aria-label="e.g. 15000.00">
+                      <input type="text" inputmode="decimal" autocomplete="off" id="addBudgetLimit" class="calc-amount w-full pr-8 text-sm" placeholder="e.g. 15000.00" required step="0.01" min="0">
                       <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                         <i class="fas fa-calculator"></i>
                       </button>
@@ -1152,7 +1152,7 @@
                       id="importDataInput"
                       accept=".json"
                       class="hidden"
-                  aria-label="Import Data Input" /></label>
+                  /></label>
                 </div>
                 <p class="text-xs text-red-400 mt-1">
                   Warning: Browser data can be lost. Export backups regularly!
@@ -1170,14 +1170,14 @@
                 
                 <div class="flex p-1 bg-secondary rounded-lg border border-gray-700" id="shortcutTargetGroup">
                   <label class="flex-1 text-center cursor-pointer m-0">
-                    <input type="radio" id="shortcutLocal" name="shortcutTarget" value="local" class="peer sr-only" checked aria-label="Shortcut Local" />
+                    <input type="radio" id="shortcutLocal" name="shortcutTarget" value="local" class="peer sr-only" checked />
                     <div class="py-2 text-sm font-medium rounded-md text-gray-400 transition-all duration-200 peer-checked:bg-accent-primary peer-checked:text-white peer-checked:shadow-sm hover:text-gray-200 peer-checked:hover:text-white">
                       <i class="fas fa-file-alt mr-1"></i> Local File
                     </div>
                   </label>
                   
                   <label class="flex-1 text-center cursor-pointer m-0 transition-opacity duration-200" id="shortcutCloudLabel">
-                    <input type="radio" id="shortcutCloud" name="shortcutTarget" value="cloud" class="peer sr-only" disabled aria-label="Shortcut Cloud" />
+                    <input type="radio" id="shortcutCloud" name="shortcutTarget" value="cloud" class="peer sr-only" disabled />
                     <div class="py-2 text-sm font-medium rounded-md text-gray-400 transition-all duration-200 peer-checked:bg-accent-primary peer-checked:text-white peer-checked:shadow-sm hover:text-gray-200 peer-checked:hover:text-white">
                       <i class="fas fa-cloud mr-1"></i> Cloud Sync
                     </div>
@@ -1193,7 +1193,7 @@
                     <label for="settingsBackupReminderFreq" class="block text-sm font-medium text-gray-300">Local Export Reminder</label>
                     <p class="text-xs text-gray-300 mt-1">Alerts you to save an offline backup file if you haven't exported one recently.</p>
                   </div>
-                  <select id="settingsBackupReminderFreq" class="w-full sm:w-[220px] mt-2 sm:mt-0 flex-shrink-0" aria-label="Settings Backup Reminder Freq">
+                  <select id="settingsBackupReminderFreq" class="w-full sm:w-[220px] mt-2 sm:mt-0 flex-shrink-0">
                     <option value="default">Auto (Smart Schedule)</option>
                     <option value="3">Every 3 Days</option>
                     <option value="7">Weekly (7 Days)</option>
@@ -1345,12 +1345,12 @@
                 <div id="securityInlineSetup" class="hidden space-y-4 pt-4 border-t border-gray-600">
                   <div class="space-y-3">
                     <div>
-                      <label class="block text-sm font-medium mb-1">New 4-Digit PIN</label>
-                      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="setupPinInput" class="w-full masked-pin" placeholder="e.g. 1234" aria-label="e.g. 1234">
+                      <label for="setupPinInput" class="block text-sm font-medium mb-1">New 4-Digit PIN</label>
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="setupPinInput" class="w-full masked-pin" placeholder="e.g. 1234">
                     </div>
                     <div>
-                      <label class="block text-sm font-medium mb-1">Confirm PIN</label>
-                      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="setupPinConfirm" class="w-full masked-pin" placeholder="Confirm 4 digits" aria-label="Confirm 4 digits">
+                      <label for="setupPinConfirm" class="block text-sm font-medium mb-1">Confirm PIN</label>
+                      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="setupPinConfirm" class="w-full masked-pin" placeholder="Confirm 4 digits">
                     </div>
                     <div>
                       <label class="block text-sm font-medium mb-1">Security Question</label>
@@ -1800,13 +1800,13 @@
               </div>
             </div>
             <div>
-              <label class="block text-sm font-medium mb-1">Budget Name</label>
-              <input type="text" id="editBudgetName" placeholder="e.g. Groceries" class="w-full text-sm" aria-label="e.g. Groceries">
+              <label for="editBudgetName" class="block text-sm font-medium mb-1">Budget Name</label>
+              <input type="text" id="editBudgetName" placeholder="e.g. Groceries" class="w-full text-sm">
             </div>
             <div>
-              <label class="block text-sm font-medium mb-1">Monthly Limit (LKR)</label>
+              <label for="editBudgetLimit" class="block text-sm font-medium mb-1">Monthly Limit (LKR)</label>
               <div class="relative flex items-center w-full">
-                <input type="text" inputmode="decimal" autocomplete="off" id="editBudgetLimit" class="calc-amount w-full pr-8 text-sm" placeholder="e.g. 15000.00" required step="0.01" min="0" aria-label="e.g. 15000.00">
+                <input type="text" inputmode="decimal" autocomplete="off" id="editBudgetLimit" class="calc-amount w-full pr-8 text-sm" placeholder="e.g. 15000.00" required step="0.01" min="0">
                 <button type="button" class="calc-toggle-btn absolute right-4 text-gray-300 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1" aria-label="Toggle Calculator">
                   <i class="fas fa-calculator"></i>
                 </button>
@@ -1946,27 +1946,27 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v6.491n" defer></script>
-    <script src="js/import-validation.js?v=v6.491n" defer></script>
-    <script src="js/storage.js?v=v6.491n" defer></script>
-    <script src="js/storage-ui.js?v=v6.491n" defer></script>
-    <script src="js/animations.js?v=v6.491n" defer></script>
-    <script src="js/data-sync.js?v=v6.491n" defer></script>
-    <script src="js/cloud-sync.js?v=v6.491n" defer></script>
-    <script src="js/math-tool.js?v=v6.491n" defer></script>
-    <script src="js/settings.js?v=v6.491n" defer></script>
-    <script src="js/charts.js?v=v6.491n" defer></script>
-    <script src="js/ui.js?v=v6.491n" defer></script>
-    <script src="js/settings-workspace.js?v=v6.491n" defer></script>
-    <script src="js/features.js?v=v6.491n" defer></script>
-    <script src="js/subscription-assets.js?v=v6.491n" defer></script>
-    <script src="js/subscription-services.js?v=v6.491n" defer></script>
-    <script src="js/subscriptions.js?v=v6.491n" defer></script>
-    <script src="js/security.js?v=v6.491n" defer></script>
-    <script src="js/milestones.js?v=v6.491n" defer></script>
-    <script src="js/onboarding.js?v=v6.491n" defer></script>
-    <script src="js/app.js?v=v6.491n" defer></script>
-    <script src="js/history-suggestions.js?v=v6.491n" defer></script>
+    <script src="js/globals.js?v=v6.492n" defer></script>
+    <script src="js/import-validation.js?v=v6.492n" defer></script>
+    <script src="js/storage.js?v=v6.492n" defer></script>
+    <script src="js/storage-ui.js?v=v6.492n" defer></script>
+    <script src="js/animations.js?v=v6.492n" defer></script>
+    <script src="js/data-sync.js?v=v6.492n" defer></script>
+    <script src="js/cloud-sync.js?v=v6.492n" defer></script>
+    <script src="js/math-tool.js?v=v6.492n" defer></script>
+    <script src="js/settings.js?v=v6.492n" defer></script>
+    <script src="js/charts.js?v=v6.492n" defer></script>
+    <script src="js/ui.js?v=v6.492n" defer></script>
+    <script src="js/settings-workspace.js?v=v6.492n" defer></script>
+    <script src="js/features.js?v=v6.492n" defer></script>
+    <script src="js/subscription-assets.js?v=v6.492n" defer></script>
+    <script src="js/subscription-services.js?v=v6.492n" defer></script>
+    <script src="js/subscriptions.js?v=v6.492n" defer></script>
+    <script src="js/security.js?v=v6.492n" defer></script>
+    <script src="js/milestones.js?v=v6.492n" defer></script>
+    <script src="js/onboarding.js?v=v6.492n" defer></script>
+    <script src="js/app.js?v=v6.492n" defer></script>
+    <script src="js/history-suggestions.js?v=v6.492n" defer></script>
   </body>
 </html>
 

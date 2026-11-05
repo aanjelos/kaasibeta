@@ -508,9 +508,11 @@ function showNotification(message, type = "success", duration = 4000) {
   n.style.backgroundColor = bgColor;
   n.style.color = textColor;
   n.style.border = borderStyle;
+  n.style.transition = 'transform 300ms ease-out, opacity 300ms ease-out';
   
-  n.setAttribute("role", "alert");
-  n.setAttribute("aria-live", "assertive");
+  const urgent = type === 'error' || type === 'warning';
+  n.setAttribute("role", urgent ? "alert" : "status");
+  n.setAttribute("aria-live", urgent ? "assertive" : "polite");
 
   n.textContent = message;
   if (type === 'achievement') {
@@ -525,11 +527,12 @@ function showNotification(message, type = "success", duration = 4000) {
     n.classList.add("translate-x-0", "opacity-100");
   });
   setTimeout(() => {
+    const remove = () => n.remove();
+    n.addEventListener("transitionend", remove, { once: true });
     n.classList.remove("translate-x-0", "opacity-100");
     n.classList.add("translate-x-full", "opacity-0");
-    n.addEventListener("transitionend", () => n.remove(), {
-      once: true,
-    });
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) remove();
+    else setTimeout(remove, 350);
   }, duration);
 }
 
