@@ -1,0 +1,229 @@
+{
+  "node_count": 703,
+  "unverified_node_count": 0,
+  "raw_edge_count": 1367,
+  "non_object_edges": 0,
+  "missing_endpoint_edges": 0,
+  "dangling_endpoint_edges": 0,
+  "external_reference_edges": 74,
+  "self_loop_edges": 5,
+  "valid_candidate_edges": 1293,
+  "exact_duplicate_edges": 6,
+  "directed_unique_endpoint_pairs": 1173,
+  "directed_same_endpoint_collapsed_edges": 120,
+  "undirected_unique_endpoint_pairs": 1169,
+  "undirected_same_endpoint_collapsed_edges": 124,
+  "same_endpoint_group_count": 93,
+  "relation_variant_groups": 77,
+  "source_file_variant_groups": 0,
+  "source_location_variant_groups": 10,
+  "context_variant_groups": 0,
+  "post_build_graph_type": "Graph",
+  "post_build_node_count": 714,
+  "post_build_edge_count": 1243,
+  "post_build_error": "",
+  "producer_suppression": {
+    "path": "C:\\Users\\Lenovo\\AppData\\Roaming\\uv\\tools\\graphifyy\\Lib\\site-packages\\graphify\\extract.py",
+    "total_sites": 12,
+    "sites": [
+      {
+        "line": 1857,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids = {n[\"id\"] for n in nodes}"
+      },
+      {
+        "line": 2532,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids = {n[\"id\"] for n in nodes}"
+      },
+      {
+        "line": 2534,
+        "name": "seen_doc_refs",
+        "tuple_arity": 0,
+        "sample": "seen_doc_refs: set[str] = set()"
+      },
+      {
+        "line": 3201,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = {n[\"id\"] for n in nodes}"
+      },
+      {
+        "line": 3348,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids = {n.get(\"id\") for n in nodes}"
+      },
+      {
+        "line": 4489,
+        "name": "seen_keys",
+        "tuple_arity": 0,
+        "sample": "seen_keys: set[tuple] = set()"
+      },
+      {
+        "line": 4675,
+        "name": "seen_keys",
+        "tuple_arity": 0,
+        "sample": "seen_keys: set[tuple] = set()"
+      },
+      {
+        "line": 8495,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = set()"
+      },
+      {
+        "line": 8603,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = set()"
+      },
+      {
+        "line": 8682,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = set()"
+      },
+      {
+        "line": 9207,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = set()"
+      },
+      {
+        "line": 9208,
+        "name": "seen_edges",
+        "tuple_arity": 4,
+        "sample": "seen_edges: set[tuple[str, str, str, str | None]] = set()"
+      }
+    ],
+    "error": ""
+  },
+  "examples": [
+    {
+      "source": "tests_audit_regressions_test",
+      "target": "tests_audit_regressions_test_preventdefault",
+      "edge_count": 22,
+      "relations": [
+        "contains"
+      ],
+      "source_files": [
+        "tests/audit-regressions.test.cjs"
+      ],
+      "source_locations": [
+        "L1436",
+        "L1447",
+        "L1542",
+        "L1739",
+        "L1757",
+        "L1773",
+        "L1778",
+        "L178",
+        "L1788",
+        "L1800",
+        "L1803",
+        "L1883",
+        "L1939",
+        "L545",
+        "L553",
+        "L571",
+        "L645",
+        "L707",
+        "L838",
+        "L854",
+        "L889",
+        "L891"
+      ],
+      "contexts": [
+        ""
+      ]
+    },
+    {
+      "source": "tests_audit_regressions_test",
+      "target": "tests_audit_regressions_test_reset",
+      "edge_count": 4,
+      "relations": [
+        "contains"
+      ],
+      "source_files": [
+        "tests/audit-regressions.test.cjs"
+      ],
+      "source_locations": [
+        "L540",
+        "L570",
+        "L707",
+        "L888"
+      ],
+      "contexts": [
+        ""
+      ]
+    },
+    {
+      "source": "js_history_suggestions",
+      "target": "js_history_suggestions_close",
+      "edge_count": 3,
+      "relations": [
+        "calls",
+        "contains",
+        "indirect_call"
+      ],
+      "source_files": [
+        "js/history-suggestions.js"
+      ],
+      "source_locations": [
+        "L128",
+        "L140",
+        "L18"
+      ],
+      "contexts": [
+        "",
+        "argument",
+        "call"
+      ]
+    },
+    {
+      "source": "js_ui",
+      "target": "js_ui_enhancekeyboardcontrols",
+      "edge_count": 3,
+      "relations": [
+        "calls",
+        "contains",
+        "indirect_call"
+      ],
+      "source_files": [
+        "js/ui.js"
+      ],
+      "source_locations": [
+        "L763",
+        "L784",
+        "L791"
+      ],
+      "contexts": [
+        "",
+        "argument",
+        "call"
+      ]
+    },
+    {
+      "source": "tests_audit_regressions_test",
+      "target": "tests_audit_regressions_test_constructor",
+      "edge_count": 3,
+      "relations": [
+        "contains"
+      ],
+      "source_files": [
+        "tests/audit-regressions.test.cjs"
+      ],
+      "source_locations": [
+        "L303",
+        "L324",
+        "L348"
+      ],
+      "contexts": [
+        ""
+      ]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+# Private data and credentials must never enter the graph.
+recovery_codes.md
+.env
+.env.*
+*.pem
+*.key
+credentials*
+secrets*
+docs/data/
+
+# Development metadata, dependencies and the separate Android project.
+.git/
+.agents/
+.codex/
+AGENTS.md
+.graphifyignore
+node_modules/
+kaasi-android/
+graphify-out/
+tools/graphify.ps1
+docs/audits/
+docs/dev previews/
+docs/dev screenshots/
+docs/v6 Changelog/
+
+# Generated assets and media: this graph covers code and documents.
+tailwind.css
+app-shell.json
+package-lock.json
+*.svg
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.woff
+*.woff2
+*.mp4
+*.mp3
