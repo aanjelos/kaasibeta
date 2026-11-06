@@ -965,11 +965,11 @@ window.executePreloaderSequence = function() {
   // Initialize random preloader loading screen tips
   const PRELOADER_TIPS = [
     // Supabase & Backups
-    "Access Cloud Backups in Settings > Data.",
+    "Manage local and cloud backups in Settings > Data & Backups.",
     
     // UI Customize & Theme
     "Toggle Dark & Light Mode in Settings > Appearance.",
-    "Hide Cash Counter, Debts, or Installments in Settings > Appearance.",
+    "Choose which dashboard sections appear in Settings > Appearance.",
     "Hide unused bank accounts in Settings > Accounts.",
     
     // Tools & Shortcuts
@@ -979,39 +979,54 @@ window.executePreloaderSequence = function() {
     
     // Details & Charts
     "Tap a transaction to view its full details and description.",
-    "Click legends in the dashboard chart to toggle lines visibility.",
-    "Click the chart title icon to toggle between daily and monthly views.",
+    "Tap a chart legend to show or hide income and expenses.",
+    "Use the chart toggle to switch chart views.",
     "Filter history by category, amount, or date in All Transactions.",
     "Export print-friendly PDF reports inside All Transactions.",
     "Exclude categories from charts or PDFs in Category Settings.",
     "Enable a PIN lock screen in Settings > Security.",
     
     // Easter Eggs & Local-First
-    "Kaasi works 100% offline. No signal, no problem!",
+    "Track your money offline. Cloud sync resumes when you’re connected.",
     "Adulting is expensive. Kaasi helps you keep track.",
     "Fun Fact: Kaasi means coins in Sinhala.",
-    "Your financial secrets are safe. All data stays local by default.",
+    "Your records are saved on this device. Connect cloud backup to sync across devices.",
     "Budgeting: because coffee isn't free.",
-    "Rumor has it that budgeting makes you rich. Let's find out!"
+    "Budgeting won’t make you rich overnight. It can explain where lunch money went."
   ];
 
   // Dynamically add keyboard shortcuts for non-mobile/desktop users
   const isMobile = window.innerWidth < 768;
   if (!isMobile) {
     PRELOADER_TIPS.push(
-      "Use Ctrl+S to Sync with the cloud, Ctrl+E to export a local file, or Ctrl+I to import one.",
+      "Use Ctrl+S to sync with the cloud when signed in.",
+      "Use Ctrl+E to export a local backup file.",
+      "Use Ctrl+I to import a local backup file.",
+      "Press − for an expense, + for income, or T for a transfer.",
+      "Press C to start a credit card transaction.",
+      "Press S to open Settings, or search while viewing All Transactions.",
       "Press the 'A' key to view All Transactions.",
       "Press the '?' key to view Keyboard Shortcuts."
     );
   }
   
   PRELOADER_TIPS.push(
-    "Tip: You can edit past transactions by tapping them.",
     "A budget is telling your money where to go, instead of wondering where it went.",
-    "Pro Tip: You can customize your categories in the Categories view.",
+    "Make your categories your own in Settings > Categories.",
     "Use the date filter to see exactly how much you spent last month.",
     "Did you know? Setting limits on categories helps control spending.",
-    "Every Rupee counts! Keep tracking."
+    "Every Rupee counts! Keep tracking.",
+    "Start typing a description to find entries from your history.",
+    "Count your notes and coins in Settings > Extras > Cash Counter.",
+    "Paid a subscription elsewhere? Choose Already Recorded to avoid adding it twice.",
+    "A PIN adds privacy to your screen. Keep backups somewhere safe too.",
+    "An annual bill is a monthly saving goal in disguise.",
+    "Small purchases count. So do small savings.",
+    "Your balance deserves attention, not judgment.",
+    "Past you bought it. Present you gets to categorize it.",
+    "Your wallet called. It appreciates the supervision.",
+    "Money talks. Transaction history keeps the receipts.",
+    "A little tracking today saves a lot of guessing tomorrow."
   );
 
   const tipTextElement = document.getElementById("preloader-tip-text");

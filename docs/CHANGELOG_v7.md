@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.496n - 2026-11-06
+
+- Refresh loading tips for current Settings paths, offline/cloud behavior and chart controls. Split backup shortcuts, retain desktop-only keyboard tips, remove duplicate transaction advice and add feature, financial and lighthearted tips.
+
 ## v6.495n - 2026-11-06
 
 - Remove the redundant mobile transaction-action hiding rule; existing responsive utility classes continue to control visibility. Retain compact desktop action spacing.
