@@ -31,6 +31,11 @@ if(process.env.KAASI_RESPONSIVE_QA==='1'){
 if(process.env.KAASI_HISTORY_QA==='1'){
   fixture.transactions.push(...Array.from({length:25},(_,i)=>({id:'history_'+i,type:'expense',amount:10,account:'cash',category:'Groceries',description:'Market visit '+i,date:'2026-10-22',timestamp:100+i})));
 }
+if(process.env.KAASI_MIXED_PAYMENTS_QA==='1'){
+  const day=offset=>{const date=new Date();date.setDate(date.getDate()+offset);return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;};
+  fixture.debts=[{id:'qa_kasun',who:'Kasun',why:'Test loan',amount:3500,remainingAmount:3500,dueDate:day(-2)}];
+  fixture.subscriptions=[['netflix','Netflix',1800,1],['spotify','Spotify',749,5]].map(([serviceId,name,amount,offset])=>({id:'qa_'+serviceId,name,amount,method:'bank',account:'cash',category:'Other',frequency:'monthly',nextDueDate:day(offset),anchorDay:Number(day(offset).slice(8)),status:'active',serviceId,icon:'letter'}));
+}
 const remote=JSON.parse(JSON.stringify(fixture));remote.accounts[0].balance=4300;remote.transactions[0].amount=1500;
 remote.transactions[1]={...remote.transactions[1],id:'qa_taxi',amount:200,description:'Taxi',category:'Transportation'};
 if(process.env.KAASI_SYNC_QA_LONG_TEXT==='1'){

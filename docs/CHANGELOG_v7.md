@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.498n - 2026-11-06
+
+- Exclude Upcoming Payments rows from compact record-action button styles, preserving the shared debt/subscription grid on desktop and mobile. Add a mixed-payment browser QA fixture with relative due dates.
+
 ## v6.497n - 2026-11-06
 
 - Simplify migration to Upgrade Now, Download Backup and Later, followed by a verified-success screen. Remove persistence permission from migration and request extra protection only from Settings.

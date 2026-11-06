@@ -2652,13 +2652,13 @@ body.cloud-restoring { overflow:hidden !important; }
 .calc-amount { padding-right: 64px !important; }
 .calc-toggle-btn { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; right: 4px !important; }
 #dismissBudgetTipBtn, #toggleChartBtn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
-button[data-record-action]:not(.btn) { min-width: 32px; min-height: 32px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+button[data-record-action]:not(.btn):not(.upcoming-notice-item) { min-width: 32px; min-height: 32px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #toggleChartBtn:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
 .edit-btn-container button[data-record-action="editTransaction"],
 .edit-btn-container button[data-record-action="deleteTransaction"] { min-width: 0; min-height: 0; }
 #installmentList p:not(:first-child) { font-size: 12px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
 #categoryBudgetsTipContainer .font-semibold { font-size: 12px; line-height: 1.5; }
-@media (max-width: 767px) { button[data-record-action]:not(.btn) { min-width: 44px; min-height: 44px; } }
+@media (max-width: 767px) { button[data-record-action]:not(.btn):not(.upcoming-notice-item) { min-width: 44px; min-height: 44px; } }
 [data-theme="light"] { --accent-text-accessible: var(--text-primary); }
 [data-theme="light"] .accent-text,
 [data-theme="light"] .text-accent-primary,
