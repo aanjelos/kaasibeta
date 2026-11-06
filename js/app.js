@@ -1116,6 +1116,7 @@ async function applyKaasiUpdate(reg, button) {
 }
 
 function kaasiUpdateNoticeSafe() {
+  if(window.cloudSessionCheckPending || window.cloudSyncPriorityPending)return false;
   return !isAppLocked() && !storageOperationPending && !cloudSyncBusy &&
     ![...document.querySelectorAll('.modal')].some(modal=>modal.style.display==='block') &&
     document.getElementById('storageScreen')?.hidden!==false &&

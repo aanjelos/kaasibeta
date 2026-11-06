@@ -18,6 +18,16 @@ function env(){
 }
 const definition=overrides=>({name:'Netflix',amount:'100',method:'bank',account:'cash',category:'Other',frequency:'monthly',nextDueDate:'2026-10-24',serviceId:'netflix',icon:'letter',...overrides});
 const payment=overrides=>({amount:'100',date:'2026-10-24',account:'cash',category:'Other',...overrides});
+test('reminders wait for session checks and scheduled cloud sync',async()=>{
+  const e=env();await e.api.saveDefinition(definition());
+  for(const flag of ['cloudSessionCheckPending','cloudSyncPriorityPending']){
+    e.c[flag]=true;e.api.scheduleReminder();await e.tick();
+    assert.notEqual(e.el('subscriptionReminderModal').style.display,'block');
+    e.c[flag]=false;
+  }
+  e.api.scheduleReminder();await e.tick();
+  assert.equal(e.el('subscriptionReminderModal').style.display,'block');
+});
 test('handled and deleted reminders are pruned while failed payments retain their snooze',async()=>{
   const e=env(),id=await e.api.saveDefinition(definition()),key='kaasi_subscription_reminder_'+e.api.occurrenceId(id,'2026-10-24');
   await e.api.resolve(id,'2026-10-24','snooze');assert.ok(e.preferences.has(key));

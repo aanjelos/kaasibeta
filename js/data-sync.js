@@ -464,7 +464,9 @@ window.triggerTestBackupReminder = () => {
 
 
 async function initializeSupabase() {
+  window.cloudSessionCheckPending = true;
   if (!supabaseClient) {
+    window.cloudSessionCheckPending = false;
     console.error("Supabase client not available.");
     return;
   }
@@ -545,6 +547,8 @@ async function initializeSupabase() {
   } catch (error) {
     console.error("Failed to initialize session:", error);
     updateSupabaseUI(null);
+  } finally {
+    window.cloudSessionCheckPending = false;
   }
 }
 

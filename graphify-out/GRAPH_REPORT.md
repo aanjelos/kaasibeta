@@ -1,17 +1,17 @@
-# Graph Report - kaasibeta  (2026-11-05)
+# Graph Report - kaasibeta  (2026-11-06)
 
 ## Corpus Check
-- 67 files · ~115,838 words
+- 55 files · ~107,703 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 12 file(s) not represented in the graph (top: .woff2 4, .css 4, (none) 3)
+- Unclassified: 8 file(s) not represented in the graph (top: .css 4, (none) 3, .bat 1)
 
 ## Summary
-- 714 nodes · 1243 edges · 42 communities (34 shown, 8 thin omitted)
+- 715 nodes · 1244 edges · 43 communities (35 shown, 8 thin omitted)
 - Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 74 edges (avg confidence: 0.86)
-- External model API calls: 0. Document analysis used Codex agents; exact host input/output token totals were not exposed and are not reported as zero.
+- Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `786686de`
+- Built from commit: `59041d23`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -55,6 +55,7 @@
 - App Shell Cache Contract
 - Cloud Sync Test Fixtures
 - Form Containment Helpers
+- ui.js
 
 ## God Nodes (most connected - your core abstractions)
 1. `renderDashboard()` - 27 edges
@@ -62,8 +63,8 @@
 3. `syncCloudData()` - 23 edges
 4. `Element` - 21 edges
 5. `openCcHistoryModal()` - 14 edges
-6. `Settings desktop sidebar and mobile hub` - 11 edges
-7. `Portable subscription schedules` - 11 edges
+6. `Portable subscription schedules` - 11 edges
+7. `Settings desktop sidebar and mobile hub` - 11 edges
 8. `downloadCloudSync()` - 10 edges
 9. `refreshMonthlyViewIfRelevant()` - 10 edges
 10. `Consistent portable JSON snapshots` - 10 edges
@@ -87,11 +88,11 @@
 - **Credit-card settings purchase entry and payment history** — index_accounts_settings, index_credit_card_entry, index_credit_card_history [EXTRACTED 1.00]
 - **Local and cloud data recovery surfaces** — index_storage_recovery, index_backup_settings, index_cloud_restore_lock, index_cloud_conflict_review, index_session_recovery [INFERRED 0.85]
 
-## Communities (42 total, 8 thin omitted)
+## Communities (43 total, 8 thin omitted)
 
 ### Community 0 - "Dashboard and Financial Flows"
-Cohesion: 0.05
-Nodes (79): ccPurchaseCategoryOptions(), deleteCcTransaction(), deleteDebt(), deleteInstallment(), deleteReceivable(), deleteTransaction(), dismissMonthlyBudgetReminder(), getCcPurchaseCategory() (+71 more)
+Cohesion: 0.09
+Nodes (55): ccPurchaseCategoryOptions(), deleteCcTransaction(), deleteDebt(), deleteInstallment(), deleteReceivable(), deleteTransaction(), dismissMonthlyBudgetReminder(), getCcPurchaseCategory() (+47 more)
 
 ### Community 1 - "Roadmap and Data Contracts"
 Cohesion: 0.05
@@ -225,6 +226,10 @@ Nodes (5): fresh(), navigationShell(), pendingShells, STATIC_ASSETS, verifiedShe
 Cohesion: 0.70
 Nodes (3): Coordinated application, asset and worker versions, CRLF-normalized SHA-256 asset hashes, Versioned app-shell hash manifest
 
+### Community 42 - "ui.js"
+Cohesion: 0.11
+Nodes (24): applyAppearance(), calculateCashTotal(), closeModal(), dismissSourceFloatingUI(), focusModalStart(), handleKeyboardShortcuts(), mathToolbar, mobileModalFocus() (+16 more)
+
 ## Knowledge Gaps
 - **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -234,7 +239,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `Element` connect `UI Test Runtime` to `Interaction Regression Tests`?**
   _High betweenness centrality (0.049) - this node is a cross-community bridge._
 - **Should `Dashboard and Financial Flows` be split into smaller, more focused modules?**
-  _Cohesion score 0.05393258426966292 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08832425892316999 - nodes in this community are weakly interconnected._
 - **Should `Roadmap and Data Contracts` be split into smaller, more focused modules?**
   _Cohesion score 0.05030181086519115 - nodes in this community are weakly interconnected._
 - **Should `App Shell and Settings Surfaces` be split into smaller, more focused modules?**
@@ -245,8 +250,3 @@ _Questions this graph is uniquely positioned to answer:_
   _Cohesion score 0.0784313725490196 - nodes in this community are weakly interconnected._
 - **Should `IndexedDB Regression Tests` be split into smaller, more focused modules?**
   _Cohesion score 0.082010582010582 - nodes in this community are weakly interconnected._
-## Scope and graph health
-- 46 vetted code/config/test files plus all 21 document/HTML files (4,472 document lines). Image interpretation skipped by user request (164 assets).
-- Private recovery codes and credential patterns, backups, dependencies, generated assets, previous previews/audits and the untracked Android project excluded. CSS rules are not structurally parsed by Graphify; stylesheet references remain in the HTML concepts.
-- Raw extraction: 1,367 edges; 74 external-module references; zero missing or dangling endpoints; 5 self-links; 6 exact duplicate edges. The undirected graph combines 124 same-endpoint relationship variants into shared connections. This can hide individual call sites; consult combined-extraction.json and GRAPH_HEALTH.json for the raw evidence.
-- These are structural extraction limitations, not evidence of application data damage or bugs. The graph does not replace current-source verification or release testing.

@@ -668,8 +668,17 @@ function automaticCloudSyncEnabled() {
 }
 function scheduleAutomaticCloudSync(delay = 500) {
   clearTimeout(automaticCloudSyncTimer);
+  window.cloudSyncPriorityPending = false;
   if (!automaticCloudSyncEnabled() || settingsCloudSyncDeferred()) return;
-  automaticCloudSyncTimer = setTimeout(() => runAutomaticCloudSync(), Math.max(delay, automaticCloudSyncFailures ? 5000 * 2 ** automaticCloudSyncFailures : 0));
+  window.cloudSyncPriorityPending = true;
+  automaticCloudSyncTimer = setTimeout(async () => {
+    try { await runAutomaticCloudSync(); }
+    finally {
+      window.cloudSyncPriorityPending = false;
+      if(typeof Subscriptions !== 'undefined')Subscriptions.scheduleReminder();
+      if(typeof refreshKaasiUpdateNotice === 'function')refreshKaasiUpdateNotice();
+    }
+  }, Math.max(delay, automaticCloudSyncFailures ? 5000 * 2 ** automaticCloudSyncFailures : 0));
 }
 async function runAutomaticCloudSync(allowHidden = false) {
   if (!automaticCloudSyncEnabled() || !navigator.onLine || cloudSyncBusy || storageOperationPending ||

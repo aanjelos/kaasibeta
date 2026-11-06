@@ -2,6 +2,11 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.494n - 2026-11-06
+
+- Restore compact desktop transaction action spacing and hide inline transaction actions on mobile; retain detail-dialog actions.
+- Defer subscription reminders and update notices during session initialization and scheduled automatic sync, then reconsider reminders using refreshed data.
+
 ## v6.493n - 2026-11-05
 
 - Refresh account dropdown balances after committed subscription changes.
