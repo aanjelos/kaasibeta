@@ -2,6 +2,11 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.497n - 2026-11-06
+
+- Simplify migration to Upgrade Now, Download Backup and Later, followed by a verified-success screen. Remove persistence permission from migration and request extra protection only from Settings.
+- Rename Settings protection controls and explain browser cleanup and backup limitations without database terminology.
+
 ## v6.496n - 2026-11-06
 
 - Refresh loading tips for current Settings paths, offline/cloud behavior and chart controls. Split backup shortcuts, retain desktop-only keyboard tips, remove duplicate transaction advice and add feature, financial and lighthearted tips.

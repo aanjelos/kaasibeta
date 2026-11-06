@@ -55,7 +55,6 @@ async function requestStartupStorageProtection() {
     } catch (_) { /* Not every browser supports this permission query. */ }
     if (isAppLocked() || storageProtectionRequestPending) return;
     await refreshStorageProtection();
-    if (!isAppLocked() && !storageProtectionRequestPending && !$("#requestPersistenceBtn").disabled) await $("#requestPersistenceBtn").onclick();
   } catch (error) { console.warn("Automatic storage protection request could not complete.", error); }
 }
 
@@ -69,10 +68,10 @@ async function refreshStorageProtection() {
     const check = ++storageProtectionCheck;
     const renderProtection = (granted, message) => {
       persistButton.disabled = granted || !canRequest;
-      persistButton.textContent = granted ? "Protection Enabled" : "Protect Local Storage";
+      persistButton.textContent = granted ? "Protection Enabled" : "Enable Protection";
       $("#persistenceStatus").textContent = granted
-        ? "Persistent storage is enabled. External backups are still important."
-        : message || (canRequest ? "Persistent storage is not enabled." : "Persistent storage is unavailable in this browser. Keep external backups.");
+        ? "Your browser has enabled extra protection against automatic cleanup. Keep regular backups too."
+        : message || (canRequest ? "Ask your browser to protect Kaasi’s saved records from automatic cleanup. Keep regular backups too." : "Extra protection is unavailable in this browser. Kaasi can still save records. Keep regular backups.");
     };
     renderProtection(false, "Checking storage protection…");
     persistButton.onclick = async () => {
@@ -82,9 +81,9 @@ async function refreshStorageProtection() {
       persistButton.disabled = true;
       try {
         const granted = await navigator.storage.persist();
-        renderProtection(granted, "Not enabled. Your browser may decide without a prompt. Keep external backups.");
+        renderProtection(granted, "Your browser hasn’t enabled extra protection. Kaasi can still save your records. Keep regular backups.");
         await rememberStorageProtectionDecision(granted);
-      } catch (_) { renderProtection(false, "Persistent storage is unavailable in this browser. Keep external backups."); }
+      } catch (_) { renderProtection(false, "Extra protection is unavailable in this browser. Kaasi can still save records. Keep regular backups."); }
       finally { storageProtectionRequestPending = false; }
     };
     if (navigator.storage?.persisted) {

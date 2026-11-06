@@ -351,14 +351,13 @@ test('20,000 financial records preserve IDs, ordering, and balances through migr
   assert.deepEqual(copy(await e.db.snapshot()),value);
 });
 
-test('persistence is requested only after Continue; denial offers explicit continuation or postponement',async()=>{
+test('upgrade proceeds without requesting persistence',async()=>{
   const e=environment();let requests=0;
   e.context.navigator.storage={persist:async()=>{requests++;return false;}};
   const decision=e.context.chooseStorageMigration();
   assert.equal(requests,0);
   await e.element('storageActions').children[0].onclick();
-  assert.equal(requests,1);assert.match(e.element('storageStatus').textContent,/did not grant/);
-  await e.element('storageActions').children[1].onclick();assert.equal(await decision,'later');
+  assert.equal(requests,0);assert.equal(await decision,'migrate');
   e.context.navigator.storage.persist=async()=>true;
   const accepted=e.context.chooseStorageMigration();await e.element('storageActions').children[0].onclick();
   assert.equal(await accepted,'migrate');
@@ -373,11 +372,11 @@ test('upgrade-screen export downloads the original data without starting migrati
   const initialization=e.initialize(value=>{const decision=e.context.chooseStorageMigration(value);shown();return decision;});
   await visible;
   const click=label=>e.element('storageActions').children.find(child=>child.textContent===label).onclick();
-  await click('Export Existing Data');
+  await click('Download Backup');
   assert.deepEqual(downloaded.value,original);assert.equal(downloaded.prefix,'kaasi-before-upgrade');
   assert.equal(requests,0);assert.equal(e.db.ready,false);assert.equal(await rawStore(e,'datasets','local'),undefined);
   assert.equal(e.data.get('KaasiData'),raw);assert.match(e.element('storageStatus').textContent,/Check that the JSON file was saved/);
-  await click('Not Now');await initialization;assert.equal(e.db.mode,'legacy');
+  await click('Later');await initialization;assert.equal(e.db.mode,'legacy');
 });
 
 test('pre-upgrade exports of PIN-protected data require the correct existing PIN and allow cancelling',async()=>{
@@ -385,24 +384,24 @@ test('pre-upgrade exports of PIN-protected data require the correct existing PIN
   let downloads=0;e.context.downloadKaasiSnapshot=value=>{downloads++;assert.deepEqual(copy(value),original);};
   const decision=e.context.chooseStorageMigration(original);
   const click=label=>e.element('storageActions').children.find(child=>child.textContent===label).onclick();
-  await click('Export Existing Data');await click('Back');assert.equal(downloads,0);
-  await click('Export Existing Data');
+  await click('Download Backup');await click('Back');assert.equal(downloads,0);
+  await click('Download Backup');
   const pin=e.element('storageActions').children[0].children[0];pin.value='9999';
   await click('Download Backup');assert.equal(downloads,0);assert.match(e.element('storageStatus').textContent,/Incorrect PIN/);
   pin.value='1234';await click('Download Backup');assert.equal(downloads,1);assert.equal(pin.value,'');
-  await click('Not Now');assert.equal(await decision,'later');
+  await click('Later');assert.equal(await decision,'later');
 });
 
-test('export remains available after persistence denial and download failures can be retried',async()=>{
+test('pre-upgrade download failures can be retried',async()=>{
   const e=environment();const original=legacy(e);let attempts=0;
   e.context.navigator.storage={persist:async()=>false};
   e.context.downloadKaasiSnapshot=()=>{if(++attempts===1)throw new Error('Download unavailable');};
   const decision=e.context.chooseStorageMigration(original);
   const click=label=>e.element('storageActions').children.find(child=>child.textContent===label).onclick();
-  await click('Continue');await click('Export Existing Data');assert.match(e.element('storageStatus').textContent,/could not be started/);
-  await click('Export Existing Data');assert.equal(attempts,2);
-  assert.equal(e.element('storageTitle').textContent,'Persistent storage is not enabled');
-  await click('Continue With IndexedDB');assert.equal(await decision,'migrate');
+  await click('Download Backup');assert.match(e.element('storageStatus').textContent,/could not be started/);
+  await click('Download Backup');assert.equal(attempts,2);
+  assert.equal(e.element('storageTitle').textContent,'An upgrade for your saved data');
+  await click('Upgrade Now');assert.equal(await decision,'migrate');
 });
 
 test('concurrent saves within one tab reject a stale snapshot rather than combining inconsistent writes',async()=>{

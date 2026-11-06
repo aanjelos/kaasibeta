@@ -48,7 +48,7 @@ function addMigrationExport(actions, existingData, returnTo) {
       document.getElementById("storageStatus").textContent = "The backup download could not be started. Please retry; your existing data has not been changed.";
     }
   };
-  storageButton(actions, "Export Existing Data", () => {
+  storageButton(actions, "Download Backup", () => {
     if (!existingData.settings?.appPin?.enabled) return download();
     const exportActions = storageScreen("Export existing data", "Enter your existing app PIN to download a backup before upgrading. Exporting does not start the migration.");
     const label = document.createElement("label"); label.textContent = "Existing app PIN";
@@ -70,25 +70,13 @@ function addMigrationExport(actions, existingData, returnTo) {
 async function chooseStorageMigration(existingData) {
   return new Promise(resolve => {
     const intro = message => {
-      const actions = storageScreen("Upgrade local storage", message || "Kaasi can move your existing data to a larger local database. Your original data will be kept. Export your existing data below to save a backup before upgrading. Close other Kaasi tabs and app windows before continuing.");
-      storageButton(actions, "Continue", async () => {
-        let persistent = false;
-        try { persistent = await navigator.storage?.persist?.() || false; } catch (_) { /* The decision below remains explicit. */ }
-        window.storagePersistenceDecision = persistent;
-        if (persistent) {
-          storageScreen("Upgrading local storage", "Copying and verifying your data. Please keep Kaasi open."); resolve("migrate");
-        } else {
-          const showDenied = message => {
-            const denied = storageScreen("Persistent storage is not enabled", message || "This browser did not grant persistent storage. IndexedDB still provides more capacity, but automatic storage cleanup may remove data. Export your existing data below before continuing if you need a backup.");
-            storageButton(denied, "Continue With IndexedDB", () => { storageScreen("Upgrading local storage", "Copying and verifying your data. Please keep Kaasi open."); resolve("migrate"); });
-            storageButton(denied, "Not Now", () => resolve("later"));
-            addMigrationExport(denied, existingData, showDenied);
-          };
-          showDenied();
-        }
+      const actions = storageScreen("An upgrade for your saved data", message || "Kaasi needs to update how it saves records on this device. Your existing records will be copied and checked, and the original copy will be kept. Close other Kaasi tabs and keep this one open until the upgrade finishes. You can download a backup before starting.");
+      storageButton(actions, "Upgrade Now", async () => {
+        storageScreen("Updating your saved data…", "Copying and checking your records. Please keep Kaasi open.");
+        resolve("migrate");
       });
       addMigrationExport(actions, existingData, intro);
-      storageButton(actions, "Not Now", () => resolve("later"));
+      storageButton(actions, "Later", () => resolve("later"));
     };
     intro();
   });
@@ -241,11 +229,22 @@ function validateMigrationData(input) {
 }
 
 async function startLocalStorage() {
-  const value = await KaasiStorage.initialize(getDefaultState, validateMigrationData, chooseStorageMigration);
+  let upgrading = false;
+  const value = await KaasiStorage.initialize(getDefaultState, validateMigrationData, async existingData => {
+    const choice = await chooseStorageMigration(existingData);
+    upgrading = choice === "migrate";
+    return choice;
+  });
   state = value; lastPersistedStateJson = JSON.stringify(value);
+  if (upgrading) {
+    await new Promise(resolve => {
+      const actions = storageScreen("Your saved data is ready", "Your records have been copied and checked. Keep regular backups to help protect against browser data being cleared.");
+      storageButton(actions, "Open Kaasi", resolve);
+    });
+  }
   storageStartupReady = true;
   document.getElementById("storageScreen").hidden = true;
-  if (KaasiStorage.mode === "legacy") showNotification("Storage upgrade postponed. Existing local storage is still in use.", "warning", 8000);
+  if (KaasiStorage.mode === "legacy") showNotification("Upgrade postponed. Your records are still saved using the previous storage system.", "warning", 8000);
   else if (!KaasiStorage.legacyRaw) {
     // New users use IndexedDB immediately; persistence is an optional separate request.
     document.getElementById("requestPersistenceBtn").hidden = false;

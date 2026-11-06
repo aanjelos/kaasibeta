@@ -1,17 +1,17 @@
 # Graph Report - kaasibeta  (2026-11-06)
 
 ## Corpus Check
-- 55 files · ~107,932 words
+- 56 files · ~108,054 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 8 file(s) not represented in the graph (top: .css 4, (none) 3, .bat 1)
 
 ## Summary
-- 715 nodes · 1244 edges · 43 communities (35 shown, 8 thin omitted)
-- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 74 edges (avg confidence: 0.86)
+- 723 nodes · 1256 edges · 41 communities (34 shown, 7 thin omitted)
+- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 73 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `022c8d74`
+- Built from commit: `08bc7273`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -33,7 +33,7 @@
 - Artwork Attribution and Notices
 - History and Milestone Tests
 - Storage Migration and Recovery
-- Subscription Catalogue Tooling
+- ref_node_vm
 - Sync Performance Benchmarks
 - Dead Code Scanner
 - History Suggestions
@@ -41,15 +41,13 @@
 - Amount Calculator
 - Third Party MIT Notices
 - PIN Lock and Recovery
-- App Shell Manifest Builder
+- fetch-subscription-icons.cjs
 - PWA Manifest
-- Legacy Migration QA Server
+- serve-sync-qa.cjs
 - App Update Tests
-- Synthetic Sync QA Server
+- milestones.test.cjs
 - Logo Contrast Analysis
-- Subscription Test Environment
 - Transfer Selection Tests
-- UI Polish Regression Tests
 - Simple Icons Licensing
 - Offline Service Worker
 - App Shell Cache Contract
@@ -88,7 +86,7 @@
 - **Credit-card settings purchase entry and payment history** — index_accounts_settings, index_credit_card_entry, index_credit_card_history [EXTRACTED 1.00]
 - **Local and cloud data recovery surfaces** — index_storage_recovery, index_backup_settings, index_cloud_restore_lock, index_cloud_conflict_review, index_session_recovery [INFERRED 0.85]
 
-## Communities (43 total, 8 thin omitted)
+## Communities (41 total, 7 thin omitted)
 
 ### Community 0 - "Dashboard and Financial Flows"
 Cohesion: 0.09
@@ -111,8 +109,8 @@ Cohesion: 0.08
 Nodes (19): ccHistoryOpenMonthKeys, ccSelectedMonth, ccSelectedYear, deepMerge(), ensureDefaultAccounts(), ensureDefaultCategories(), escapeHTML(), formatCurrency() (+11 more)
 
 ### Community 5 - "IndexedDB Regression Tests"
-Cohesion: 0.08
-Nodes (19): devDependencies, fake-indexeddb@6.2.4, name, private, scripts, test, fake-indexeddb, assert (+11 more)
+Cohesion: 0.06
+Nodes (25): devDependencies, fake-indexeddb@6.2.4, name, private, scripts, test, fake-indexeddb, assert (+17 more)
 
 ### Community 6 - "Interaction Regression Tests"
 Cohesion: 0.08
@@ -135,8 +133,8 @@ Cohesion: 0.17
 Nodes (14): dir, fs, get(), icoImage(), main(), worker(), overrides, path (+6 more)
 
 ### Community 12 - "Subscription Regression Tests"
-Cohesion: 0.12
-Nodes (7): assert, fs, path, root, test, vm, {webcrypto}
+Cohesion: 0.08
+Nodes (9): assert, env(), c, fs, path, root, test, vm (+1 more)
 
 ### Community 13 - "Standalone Error and Confirmation Pages"
 Cohesion: 0.25
@@ -151,12 +149,12 @@ Cohesion: 0.13
 Nodes (9): assert, context, fs, test, vm, assert, fs, test (+1 more)
 
 ### Community 16 - "Storage Migration and Recovery"
-Cohesion: 0.30
+Cohesion: 0.32
 Nodes (14): activeStorageRecoverySource(), addMigrationExport(), authorizeStorageRecovery(), chooseStorageMigration(), guardStorageAction(), openStorageCloudRecovery(), showStorageFailure(), startLocalStorage() (+6 more)
 
-### Community 17 - "Subscription Catalogue Tooling"
-Cohesion: 0.14
-Nodes (10): c, fs, path, root, vm, context, fs, path (+2 more)
+### Community 17 - "ref_node_vm"
+Cohesion: 0.29
+Nodes (5): context, fs, path, root, vm
 
 ### Community 18 - "Sync Performance Benchmarks"
 Cohesion: 0.15
@@ -186,25 +184,25 @@ Nodes (5): LobeHub MIT Notice, Chart.js MIT Notice, jsPDF MIT Notice, Supabase J
 Cohesion: 0.42
 Nodes (8): addPinDigit(), onAppUnlocked(), removePinDigit(), showForgotPinModal(), showPinLockScreen(), updatePinDots(), verifyPin(), verifyRecoveryCode()
 
-### Community 25 - "App Shell Manifest Builder"
-Cohesion: 0.20
-Nodes (6): { createHash }, files, fs, html, path, root
+### Community 25 - "fetch-subscription-icons.cjs"
+Cohesion: 0.29
+Nodes (5): c, fs, path, root, vm
 
 ### Community 26 - "PWA Manifest"
 Cohesion: 0.22
 Nodes (8): background_color, description, display, icons, name, short_name, start_url, theme_color
 
-### Community 27 - "Legacy Migration QA Server"
-Cohesion: 0.22
-Nodes (6): { execFileSync }, fs, http, path, root, types
+### Community 27 - "serve-sync-qa.cjs"
+Cohesion: 0.08
+Nodes (21): beta, fs, http, legacy, path, server, types, { execFileSync } (+13 more)
 
 ### Community 28 - "App Update Tests"
 Cohesion: 0.22
 Nodes (7): assert, fs, handler, path, source, test, vm
 
-### Community 29 - "Synthetic Sync QA Server"
-Cohesion: 0.22
-Nodes (8): context, fixture, fs, http, path, remote, root, vm
+### Community 29 - "milestones.test.cjs"
+Cohesion: 0.29
+Nodes (4): assert, fs, test, vm
 
 ### Community 30 - "Logo Contrast Analysis"
 Cohesion: 0.33
@@ -213,10 +211,6 @@ Nodes (5): chooseFrame(), frames, fs, luminance(), path
 ### Community 32 - "Transfer Selection Tests"
 Cohesion: 0.29
 Nodes (5): accounts, assert, fs, test, vm
-
-### Community 33 - "UI Polish Regression Tests"
-Cohesion: 0.29
-Nodes (4): assert, fs, test, vm
 
 ### Community 35 - "Offline Service Worker"
 Cohesion: 0.53
@@ -231,13 +225,13 @@ Cohesion: 0.11
 Nodes (24): applyAppearance(), calculateCashTotal(), closeModal(), dismissSourceFloatingUI(), focusModalStart(), handleKeyboardShortcuts(), mathToolbar, mobileModalFocus() (+16 more)
 
 ## Knowledge Gaps
-- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Element` connect `UI Test Runtime` to `Interaction Regression Tests`?**
-  _High betweenness centrality (0.049) - this node is a cross-community bridge._
+  _High betweenness centrality (0.048) - this node is a cross-community bridge._
 - **Should `Dashboard and Financial Flows` be split into smaller, more focused modules?**
   _Cohesion score 0.08832425892316999 - nodes in this community are weakly interconnected._
 - **Should `Roadmap and Data Contracts` be split into smaller, more focused modules?**
@@ -249,4 +243,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `Shared State and Utilities` be split into smaller, more focused modules?**
   _Cohesion score 0.0784313725490196 - nodes in this community are weakly interconnected._
 - **Should `IndexedDB Regression Tests` be split into smaller, more focused modules?**
-  _Cohesion score 0.082010582010582 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05832147937411095 - nodes in this community are weakly interconnected._

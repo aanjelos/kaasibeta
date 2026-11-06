@@ -439,7 +439,7 @@ test('storage protection retains its backup reminder on reopen and ignores an ou
   c.navigator.storage = { persisted: async () => true, persist: async () => true };
   for (let attempt = 0; attempt < 2; attempt++) {
     c.openSettingsModal(); await new Promise(setImmediate);
-    assert.equal(r.element('#persistenceStatus').textContent, 'Persistent storage is enabled. External backups are still important.');
+    assert.equal(r.element('#persistenceStatus').textContent, 'Your browser has enabled extra protection against automatic cleanup. Keep regular backups too.');
     assert.equal(r.element('#requestPersistenceBtn').disabled, true);
     assert.equal(r.element('#requestPersistenceBtn').textContent, 'Protection Enabled');
   }
@@ -448,7 +448,7 @@ test('storage protection retains its backup reminder on reopen and ignores an ou
   c.navigator.storage.persisted = () => new Promise(resolve => finishCheck = resolve);
   c.openSettingsModal(); await r.element('#requestPersistenceBtn').onclick();
   finishCheck(false); await new Promise(setImmediate);
-  assert.match(r.element('#persistenceStatus').textContent, /enabled\. External backups are still important\./);
+  assert.match(r.element('#persistenceStatus').textContent, /enabled extra protection/);
   assert.equal(r.element('#requestPersistenceBtn').disabled, true);
   c.KaasiStorage.mode = 'legacy'; c.openSettingsModal();
   assert.match(r.element('#storageSizeInfo').textContent, /\(localStorage\)$/);
@@ -466,8 +466,8 @@ test('storage protection refreshes after revocation on focus, visibility, Data t
   granted=false;
   for(const fn of r.windowEvents.get('focus'))fn();await new Promise(setImmediate);
   assert.equal(r.element('#requestPersistenceBtn').disabled,false);
-  assert.equal(r.element('#requestPersistenceBtn').textContent,'Protect Local Storage');
-  assert.equal(r.element('#persistenceStatus').textContent,'Persistent storage is not enabled.');
+  assert.equal(r.element('#requestPersistenceBtn').textContent,'Enable Protection');
+  assert.equal(r.element('#persistenceStatus').textContent,'Ask your browser to protect Kaasi’s saved records from automatic cleanup. Keep regular backups too.');
   granted=true;
   for(const fn of r.documentEvents.get('visibilitychange'))fn();await new Promise(setImmediate);
   assert.equal(r.element('#requestPersistenceBtn').disabled,true);
@@ -488,14 +488,16 @@ test('a delayed protection check cannot overwrite a newer refresh result', async
   const old=c.refreshStorageProtection();
   c.navigator.storage.persisted=async()=>false;await c.refreshStorageProtection();
   finish(true);await old;
-  assert.equal(r.element('#requestPersistenceBtn').textContent,'Protect Local Storage');
+  assert.equal(r.element('#requestPersistenceBtn').textContent,'Enable Protection');
   assert.equal(r.element('#requestPersistenceBtn').disabled,false);
 });
 
-test('startup requests storage protection once, remembers refusal, and allows a manual retry',async()=>{
+test('startup only checks protection; manual requests remember refusal and permit retry',async()=>{
   const r=runtime(),c=r.context;let requests=0,granted=false;
   c.navigator.storage={persisted:async()=>granted,persist:async()=>{requests++;return granted;}};
-  await c.requestStartupStorageProtection();await c.requestStartupStorageProtection();assert.equal(requests,1);
+  await c.requestStartupStorageProtection();await c.requestStartupStorageProtection();assert.equal(requests,0);
+  await r.element('#requestPersistenceBtn').onclick();
+  assert.equal(requests,1);
   assert.equal(r.storage.get('kaasi_storage_protection_denied'),'true');
   r.run('storageProtectionLaunchChecked=false');await c.requestStartupStorageProtection();assert.equal(requests,1);
   granted=true;await r.element('#requestPersistenceBtn').onclick();assert.equal(requests,2);
