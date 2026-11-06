@@ -2656,9 +2656,6 @@ button[data-record-action]:not(.btn) { min-width: 32px; min-height: 32px; displa
 button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #toggleChartBtn:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
 .edit-btn-container button[data-record-action="editTransaction"],
 .edit-btn-container button[data-record-action="deleteTransaction"] { min-width: 0; min-height: 0; }
-@media (max-width: 767px) {
-  .edit-btn-container:has(button[data-record-action="editTransaction"]) { display: none; }
-}
 #installmentList p:not(:first-child) { font-size: 12px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
 #categoryBudgetsTipContainer .font-semibold { font-size: 12px; line-height: 1.5; }
 @media (max-width: 767px) { button[data-record-action]:not(.btn) { min-width: 44px; min-height: 44px; } }

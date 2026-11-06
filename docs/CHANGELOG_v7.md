@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.495n - 2026-11-06
+
+- Remove the redundant mobile transaction-action hiding rule; existing responsive utility classes continue to control visibility. Retain compact desktop action spacing.
+
 ## v6.494n - 2026-11-06
 
 - Restore compact desktop transaction action spacing and hide inline transaction actions on mobile; retain detail-dialog actions.
