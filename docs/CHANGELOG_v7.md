@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.499n - 2026-11-07
+
+- Keep the history-suggestion popup mounted during debounced typing and replace results in place. Disable stale options while awaiting results; retain dismissal, minimum query lengths and keyboard behavior.
+
 ## v6.498n - 2026-11-06
 
 - Exclude Upcoming Payments rows from compact record-action button styles, preserving the shared debt/subscription grid on desktop and mobile. Add a mixed-payment browser QA fixture with relative due dates.

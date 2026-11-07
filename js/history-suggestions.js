@@ -45,13 +45,16 @@ function findHistorySuggestions(records, query, field, type, limit = 2) {
     close();
   }
   function show(el) {
-    close();
+    const existing = input === el ? list : null;
+    if (!existing) close();
     if (!el.matches(selector) || sourceFloatingLayer(el) === null) return;
     config = configuration(el);
     if (el.value.trim().length < (config.field === 'who' ? 1 : 2)) return;
     rows = findHistorySuggestions(config.records,el.value,config.field,config.type,10);
-    if (!rows.length) return;
-    input = el; list = document.createElement('div'); list.id = 'historySuggestions';
+    if (!rows.length) { close(); return; }
+    selected = -1; el.removeAttribute('aria-activedescendant');
+    input = el; list = existing || document.createElement('div'); list.id = 'historySuggestions';
+    list.inert = false; list.removeAttribute('aria-busy'); list.replaceChildren(); list.scrollTop = 0;
     list.className = 'subscription-service-results history-suggestions'; list.setAttribute('role','listbox'); list.setAttribute('aria-label','From your history');
     function appendOptions(start) {
     rows.slice(start).forEach((row,offset) => {
@@ -76,11 +79,11 @@ function findHistorySuggestions(records, query, field, type, limit = 2) {
       exhausted = rows.length < count+10;
       appendOptions(count);
     }
-    list.addEventListener('scroll',()=>{
+    list.onscroll=()=>{
       if (list && list.scrollTop + list.clientHeight >= list.scrollHeight - 32) loadMore();
-    });
+    };
     list.loadMoreHistory = loadMore;
-    document.body.appendChild(list);
+    if (!existing) document.body.appendChild(list);
     const popup = list, started = performance.now();
     function position() {
       if (list !== popup) return;
@@ -130,8 +133,10 @@ function findHistorySuggestions(records, query, field, type, limit = 2) {
   document.addEventListener('input',event=>{
     const target = event.target;
     if (!target.matches(selector)) return;
-    close();
-    if (event.isComposing || target.value.trim().length < (configuration(target).field === 'who' ? 1 : 2)) return;
+    clearTimeout(searchTimer); searchTimer = null;
+    if (event.isComposing || target.value.trim().length < (configuration(target).field === 'who' ? 1 : 2)) { close(); return; }
+    if (input && input !== target) close();
+    if (list) { list.inert = true; list.setAttribute('aria-busy','true'); selected = -1; target.removeAttribute('aria-activedescendant'); }
     searchTimer = setTimeout(()=>{
       searchTimer = null;
       if (document.activeElement === target && target.isConnected) show(target);
@@ -148,6 +153,7 @@ function findHistorySuggestions(records, query, field, type, limit = 2) {
   document.addEventListener('keydown',event=>{
     if (searchTimer && ['Escape','Tab','Enter'].includes(event.key)) close();
     if (!input || event.target!==input || event.isComposing) return;
+    if (searchTimer && ['ArrowDown','ArrowUp'].includes(event.key)) { event.preventDefault(); return; }
     if (event.key==='Escape') {event.preventDefault();event.stopImmediatePropagation();close();return;}
     if (['ArrowDown','ArrowUp'].includes(event.key)) {
       event.preventDefault(); event.stopImmediatePropagation();
