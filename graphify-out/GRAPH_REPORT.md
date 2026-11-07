@@ -1,7 +1,7 @@
-# Graph Report - kaasibeta  (2026-11-07)
+# Graph Report - kaasibeta  (2026-11-08)
 
 ## Corpus Check
-- 56 files · ~108,377 words
+- 56 files · ~108,418 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 8 file(s) not represented in the graph (top: .css 4, (none) 3, .bat 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7dc765e4`
+- Built from commit: `e5e18394`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -64,8 +64,8 @@
 5. `openCcHistoryModal()` - 14 edges
 6. `Portable subscription schedules` - 11 edges
 7. `Settings desktop sidebar and mobile hub` - 11 edges
-8. `downloadCloudSync()` - 10 edges
-9. `refreshMonthlyViewIfRelevant()` - 10 edges
+8. `refreshMonthlyViewIfRelevant()` - 10 edges
+9. `downloadCloudSync()` - 10 edges
 10. `Consistent portable JSON snapshots` - 10 edges
 
 ## Surprising Connections (you probably didn't know these)

@@ -626,6 +626,8 @@ async function handleTransactionSubmit(event) {
       ts.value = "expense";
       ts.dispatchEvent(new Event("change"));
     }
+    const categorySelect = $("#category");
+    if (categorySelect) categorySelect.value = "";
     return;
   }
 

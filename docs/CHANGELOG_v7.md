@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.501n - 2026-11-08
+
+- Clear the transfer-fee category after a transfer commits and the form returns to Expense. Preserve draft fields on validation or save failures and leave type-switch behavior unchanged.
+
 ## v6.500n - 2026-11-07
 
 - Include the local-export date in portable settings and exported backups so reminders recognize exports made on another synced device. Retain the legacy device date as a fallback and ignore invalid or future dates.
