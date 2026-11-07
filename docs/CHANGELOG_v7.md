@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.500n - 2026-11-07
+
+- Include the local-export date in portable settings and exported backups so reminders recognize exports made on another synced device. Retain the legacy device date as a fallback and ignore invalid or future dates.
+
 ## v6.499n - 2026-11-07
 
 - Keep the history-suggestion popup mounted during debounced typing and replace results in place. Disable stale options while awaiting results; retain dismissal, minimum query lengths and keyboard behavior.

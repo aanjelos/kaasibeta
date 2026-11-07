@@ -676,6 +676,7 @@ function scheduleAutomaticCloudSync(delay = 500) {
     finally {
       window.cloudSyncPriorityPending = false;
       if(typeof Subscriptions !== 'undefined')Subscriptions.scheduleReminder();
+      if(typeof checkAndTriggerBackupReminder === 'function')checkAndTriggerBackupReminder();
       if(typeof refreshKaasiUpdateNotice === 'function')refreshKaasiUpdateNotice();
     }
   }, Math.max(delay, automaticCloudSyncFailures ? 5000 * 2 ** automaticCloudSyncFailures : 0));

@@ -7,6 +7,17 @@ const { webcrypto } = require('node:crypto');
 
 const root = path.resolve(__dirname, '..');
 
+test('backup reminders use the newest valid local or synced export date',()=>{
+  const r=runtime(),c=r.context;c.getCurrentDateString=()=> '2026-11-07';
+  r.storage.set('lastSuccessfulBackupDate','2026-10-01');
+  r.run('state.settings.lastLocalBackupDate="2026-11-06"');
+  assert.equal(c.latestLocalBackupDate(),'2026-11-06');
+  for(const value of ['2099-01-01','2026-02-31','bad']){
+    r.run('state.settings.lastLocalBackupDate='+JSON.stringify(value));
+    assert.equal(c.latestLocalBackupDate(),'2026-10-01');
+  }
+});
+
 class Element {
   constructor() {
     this.style = {}; this.dataset = {}; this.children = []; this.value = '';

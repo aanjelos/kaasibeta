@@ -14,7 +14,10 @@ function downloadKaasiSnapshot(snapshot, prefix = "kaasi-backup") {
 async function exportData() {
   if (isAppLocked() || storageOperationPending) return;
   try {
-    const dataStr = JSON.stringify(portableKaasiData(await KaasiStorage.snapshot()), null, 2);
+    const backupDate = getCurrentDateString();
+    const snapshot = await KaasiStorage.snapshot();
+    snapshot.settings = {...snapshot.settings, lastLocalBackupDate: backupDate};
+    const dataStr = JSON.stringify(portableKaasiData(snapshot), null, 2);
     const dataBlob = new Blob([dataStr], {
       type: "application/json",
     });
@@ -33,7 +36,13 @@ async function exportData() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     
 
-    appPreferences.setItem("lastSuccessfulBackupDate", getCurrentDateString());
+    appPreferences.setItem("lastSuccessfulBackupDate", backupDate);
+    state.settings.lastLocalBackupDate = backupDate;
+    try { await saveData(state, {syncSettings:true}); }
+    catch (_) {
+      showNotification("Backup download started, but its reminder date could not be saved for syncing.", "warning");
+      return;
+    }
     
     showNotification("Data exported.", "success");
     if (typeof Milestones !== 'undefined') Milestones.track('local_backup');
@@ -393,7 +402,19 @@ function showBackupReminderPopup() {
   );
 }
 
+function latestLocalBackupDate() {
+  const today = getCurrentDateString();
+  return [state.settings?.lastLocalBackupDate, appPreferences.getItem("lastSuccessfulBackupDate")]
+    .filter(value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+      Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0,10) === value && value <= today)
+    .sort().at(-1);
+}
+
+let backupReminderTimer;
 function checkAndTriggerBackupReminder() {
+  clearTimeout(backupReminderTimer);
+  if (window.cloudSessionCheckPending || window.cloudSyncPriorityPending ||
+      (typeof cloudSyncBusy !== 'undefined' && cloudSyncBusy)) return;
   if (!state.settings.initialSetupDone && state.transactions.length === 0) {
     console.log("Skipping backup reminder: Initial setup not done or no transactions.");
     return;
@@ -420,7 +441,7 @@ function checkAndTriggerBackupReminder() {
   const currentDateStr = getCurrentDateString();
   const reminderKey = "lastBackupReminderDismissedDate";
   const lastDismissedStr = appPreferences.getItem(reminderKey);
-  const lastBackupStr = appPreferences.getItem("lastSuccessfulBackupDate");
+  const lastBackupStr = latestLocalBackupDate();
   
   // Parse dates. If no previous date, treat it as epoch 0 to trigger immediately (or based on last sync)
   const today = new Date(currentDateStr);
@@ -446,7 +467,9 @@ function checkAndTriggerBackupReminder() {
 
   if (elapsedDays >= intervalDays) {
     // Use a timeout to show the reminder after the app has loaded
-    setTimeout(() => {
+    backupReminderTimer = setTimeout(() => {
+      if (window.cloudSessionCheckPending || window.cloudSyncPriorityPending ||
+          (typeof cloudSyncBusy !== 'undefined' && cloudSyncBusy) || latestLocalBackupDate() !== lastBackupStr) return;
       console.log(`Time to show backup reminder. Elapsed: ${elapsedDays} days. Interval: ${intervalDays} days.`);
       showBackupReminderPopup();
     }, 500); // 0.5-second delay
@@ -549,6 +572,7 @@ async function initializeSupabase() {
     updateSupabaseUI(null);
   } finally {
     window.cloudSessionCheckPending = false;
+    checkAndTriggerBackupReminder();
   }
 }
 
