@@ -7,7 +7,7 @@ Prepared 2026-11-08 from Kaasi Beta `1cfc141` (application `v6.501n`).
 - Repository: `aanjelos/kaasiapp`.
 - Branch: `codex/v7-release-staging`, based on production main `604bb1d`.
 - Published staging commit: `6ced2b3`. Production main remains `604bb1d`.
-- Staged application/cache version: `v6.503n` after the analytics follow-up below. Keep the internal format until public v7 publication; assign the public version and regenerate the app-shell manifest in the final release commit.
+- Staged application/cache version: `v7.503n`, explicitly requested on 2026-11-09. HTML, asset URLs, service-worker BUILD and regenerated app-shell hashes agree. Beta retains `v6.503n`. Keep JavaScript unminified for this release; compiled Tailwind CSS is already minified.
 - Production `main`, CNAME (`app.kaasi.com.lk`), Pages settings and Supabase settings/data were not changed. Pages was verified to publish only `main` at the repository root.
 
 ## Release contents
@@ -42,5 +42,5 @@ Prepared 2026-11-08 from Kaasi Beta `1cfc141` (application `v6.501n`).
 - Complete real desktop/phone bidirectional sync, paid-subscription reminder ordering and shared local-backup reminder checks.
 - Complete real-device PIN/recovery, installed-PWA update/offline/reconnect and real-data backup/restore acceptance checks. Keep personal test data out of both repositories.
 - Complete the deployed backend checks recorded in SYNC_BACKEND_VERIFICATION.md with disposable accounts before claiming them verified.
-- Assign public v7 version consistently in HTML, asset URLs, sw.js and app-shell.json; regenerate hashes and repeat cache checks.
+- Recheck version/hash consistency after any further staging edits. Version `v7.503n` passed all eight cache/service-worker tests and all four analytics tests; assigning this label did not publish the release.
 - Review the staging diff and merge only on the agreed release date. Do not change Pages to the staging branch or push this candidate to main beforehand.
