@@ -12,7 +12,7 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 
 ## v9 Dashboard Redesign and Visual Direction
 
-**Decision updated 2026-11-03:** Release v7 with the current dashboard after final release validation. The proposed sequence is v8 for statistics, Year in Review and December Christmas styling, followed by the complete desktop/mobile dashboard redesign in v9. These are planning targets, not committed dates. This section records direction only and does not authorize starting implementation.
+**Decision updated 2026-11-08:** Release v7 with the current dashboard after final release validation. The proposed sequence is v8 for statistics, Year in Review and December Christmas styling, followed by the complete desktop/mobile dashboard redesign in v9. These are planning targets, not committed dates. This section records direction only and does not authorize starting implementation.
 
 ### Scope and functionality
 
@@ -37,12 +37,15 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 ### Desktop and mobile composition
 
 - **Desktop:** Explore a deliberate workspace with prominent transaction entry, scannable balances and clearer relationships between recent activity, budgets and upcoming obligations.
-- **Mobile:** Design the flow deliberately rather than merely stacking desktop cards. Keep Add Transaction first because recording transactions is the primary action; do not promote balances above it. Reduce repetitive framing and unnecessary scrolling while retaining all information and actions.
-- The optional mobile FAB remains a separate future feature, not a prerequisite or an automatically included addition.
+- **Mobile:** Aim for an app-like web/PWA experience rather than merely stacking desktop cards. Explore dedicated screens and persistent bottom navigation for the main destinations, reducing unnecessary scrolling while retaining every existing piece of information and functionality.
+- Keep transaction entry the primary action through a prominent Add Transaction floating action button (FAB), accessible across the main screens. Explore its placement alongside bottom navigation so it does not obscure content or controls; this is now part of the v9 design exploration.
+- Explore bottom sheets for transaction details, filters and quick actions. Preserve screen scroll positions and filters when navigating back, and handle the phone keyboard, safe areas, browser Back button and focus deliberately.
+- Use purposeful, lightweight animations for screen transitions, sheets and button feedback. Keep frequent transaction entry fast, respect reduced-motion preferences and verify performance on phones.
+- Adapt navigation and composition independently for desktop rather than enlarging the phone layout. Keep financial calculations, storage and sync behaviour underneath the new interface unchanged; any future sync-engine changes need a separate checkpoint.
 
 ### Preview, checkpoint and acceptance
 
-- Begin with a polished desktop preview and a polished mobile preview using synthetic data and a mocked backend. Establish the direction with Balance Overview and Recent Transactions, shown in enough dashboard context to assess hierarchy.
+- Begin with a polished desktop preview and an interactive mobile preview using synthetic data and a mocked backend. Cover Home → Add Transaction → Transaction Details, including bottom navigation, FAB and transitions; include Balance Overview and Recent Transactions in enough context to assess hierarchy.
 - Obtain approval of the visual direction before expanding to the complete dashboard. No new theme, dependency or paid image/API use is implied by this plan.
 - Keep the redesign in its own Git checkpoint and app-version round, separate from the completed accessibility fixes and v7 release work. The entire visual change must be independently reviewable and reversible without selectively reverting unrelated changes.
 - Verify desktop and mobile in both themes, including narrow phones and wide desktops. Check populated, empty, long-description and large-amount states, visibility preferences, chart behavior, keyboard/focus handling and reduced motion.
@@ -134,6 +137,7 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 
 ### 3. Mobile Floating Action Button (FAB)
 - **Concept**: Add an optional floating `+` button in the bottom-right corner visible on mobile viewports for instant 1-tap transaction entry.
+- **Planning**: Explore this within the v9 app-like mobile experience above, coordinated with bottom navigation and dedicated screens. Final placement and optionality remain subject to preview approval.
 
 ---
 
