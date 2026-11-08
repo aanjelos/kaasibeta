@@ -122,6 +122,7 @@ const Onboarding = (() => {
       const before = state;
       try { await saveData(candidate,{skipMilestones:true}); }
       catch(error) { state = before; throw error; }
+      trackFeatureEvent('setup_completed');
       if (typeof Milestones !== 'undefined') Milestones.baseline(state);
       initializeUI(true);
       pendingCloudSetup = draft.connectCloud;
@@ -185,7 +186,10 @@ const Onboarding = (() => {
       window.addEventListener('popstate', () => openCloudSyncSettings(), {once:true});
     }
     closeModal(id);
-    if (completed) showNotification('Tour complete. Welcome to Kaasi!','success');
+    if (completed) {
+      trackFeatureEvent('tutorial_completed');
+      showNotification('Tour complete. Welcome to Kaasi!','success');
+    }
     if (openCloud && !history.state?.modalOpen) openCloudSyncSettings();
   }
   function onClick(event) {

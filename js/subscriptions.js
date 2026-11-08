@@ -113,6 +113,7 @@ const Subscriptions = (() => {
       if(existing&&!unchangedDate){clearSnooze(id,existing.nextDueDate);clearSnooze(id,nextDueDate);}
       if(existing) Object.assign(existing,definition);else state.subscriptions.push(definition);
     },true);
+    if (!existing) trackFeatureEvent('subscription_created');
     return definition.id;
   }
   async function record(id,due,values,expected) {
@@ -155,6 +156,7 @@ const Subscriptions = (() => {
       clearSnooze(id,due);
       sub.nextDueDate=next;if(reset)sub.anchorDay=anchorDay;
     });
+    trackFeatureEvent('subscription_payment_recorded');
   }
   async function resolve(id,due,action,expected) {
     const sub=assertCurrent(id,due,expected);

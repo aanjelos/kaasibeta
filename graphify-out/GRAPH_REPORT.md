@@ -1,17 +1,17 @@
 # Graph Report - kaasibeta  (2026-11-08)
 
 ## Corpus Check
-- 56 files · ~108,418 words
+- 58 files · ~109,519 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 8 file(s) not represented in the graph (top: .css 4, (none) 3, .bat 1)
 
 ## Summary
-- 724 nodes · 1259 edges · 42 communities (34 shown, 8 thin omitted)
-- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 73 edges (avg confidence: 0.86)
+- 744 nodes · 1282 edges · 45 communities (38 shown, 7 thin omitted)
+- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 74 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e5e18394`
+- Built from commit: `f5ead355`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -31,7 +31,7 @@
 - Subscription Regression Tests
 - Standalone Error and Confirmation Pages
 - Artwork Attribution and Notices
-- History and Milestone Tests
+- ref_node_test
 - Storage Migration and Recovery
 - ref_node_vm
 - Sync Performance Benchmarks
@@ -43,11 +43,11 @@
 - PIN Lock and Recovery
 - fetch-subscription-icons.cjs
 - PWA Manifest
-- serve-sync-qa.cjs
+- serve-migration-rehearsal.cjs
 - App Update Tests
-- update-app-shell.cjs
-- Logo Contrast Analysis
-- c
+- feature-analytics.test.cjs
+- docs/SUBSCRIPTIONS.md
+- serve-sync-qa.cjs
 - Transfer Selection Tests
 - history-suggestions.test.cjs
 - Simple Icons Licensing
@@ -55,6 +55,9 @@
 - App Shell Cache Contract
 - Cloud Sync Test Fixtures
 - Form Containment Helpers
+- serve-qa.cjs
+- v7 release staging
+- milestones.test.cjs
 
 ## God Nodes (most connected - your core abstractions)
 1. `renderDashboard()` - 27 edges
@@ -77,8 +80,8 @@
   licenses/supabase-js.txt → img/subscriptions/LOBE_ICONS_LICENSE.txt
 - `Tailwind CSS MIT Notice` --semantically_similar_to--> `LobeHub MIT Notice`  [INFERRED] [semantically similar]
   licenses/tailwindcss.txt → img/subscriptions/LOBE_ICONS_LICENSE.txt
-- `Complete Font Awesome Free Notices` --semantically_similar_to--> `Font Awesome Free License`  [INFERRED] [semantically similar]
-  licenses/font-awesome.txt → img/subscriptions/FONT_AWESOME_LICENSE.txt
+- `Release branch` --references--> `main()`  [INFERRED]
+  docs/V7_RELEASE_STAGING.md → tests/fetch-official-subscription-icons.cjs
 
 ## Import Cycles
 - None detected.
@@ -87,15 +90,15 @@
 - **Credit-card settings purchase entry and payment history** — index_accounts_settings, index_credit_card_entry, index_credit_card_history [EXTRACTED 1.00]
 - **Local and cloud data recovery surfaces** — index_storage_recovery, index_backup_settings, index_cloud_restore_lock, index_cloud_conflict_review, index_session_recovery [INFERRED 0.85]
 
-## Communities (42 total, 8 thin omitted)
+## Communities (45 total, 7 thin omitted)
 
 ### Community 0 - "Dashboard and Financial Flows"
 Cohesion: 0.05
 Nodes (79): ccPurchaseCategoryOptions(), deleteCcTransaction(), deleteDebt(), deleteInstallment(), deleteReceivable(), deleteTransaction(), dismissMonthlyBudgetReminder(), getCcPurchaseCategory() (+71 more)
 
 ### Community 1 - "Roadmap and Data Contracts"
-Cohesion: 0.05
-Nodes (47): v6.492n approved accessibility and rendering polish, Device-only sync pause and import protection, Local history-based description and name suggestions, UUIDs for new records, historical IDs retained, Isolated setup and replayable practice tour, Responsive Settings workspace, Shared backup validation and import rollback, Account-scoped SHA-256 sync baseline (+39 more)
+Cohesion: 0.06
+Nodes (36): v6.492n approved accessibility and rendering polish, Device-only sync pause and import protection, Local history-based description and name suggestions, UUIDs for new records, historical IDs retained, Isolated setup and replayable practice tour, Responsive Settings workspace, Shared backup validation and import rollback, Account-scoped SHA-256 sync baseline (+28 more)
 
 ### Community 2 - "App Shell and Settings Surfaces"
 Cohesion: 0.08
@@ -110,8 +113,8 @@ Cohesion: 0.08
 Nodes (19): ccHistoryOpenMonthKeys, ccSelectedMonth, ccSelectedYear, deepMerge(), ensureDefaultAccounts(), ensureDefaultCategories(), escapeHTML(), formatCurrency() (+11 more)
 
 ### Community 5 - "IndexedDB Regression Tests"
-Cohesion: 0.08
-Nodes (19): devDependencies, fake-indexeddb@6.2.4, name, private, scripts, test, fake-indexeddb, assert (+11 more)
+Cohesion: 0.06
+Nodes (25): devDependencies, fake-indexeddb@6.2.4, name, private, scripts, test, fake-indexeddb, assert (+17 more)
 
 ### Community 6 - "Interaction Regression Tests"
 Cohesion: 0.08
@@ -131,11 +134,11 @@ Nodes (11): activeBalanceAnimations, animateValue(), previousBalances, updateTab
 
 ### Community 11 - "Official Artwork Tooling"
 Cohesion: 0.17
-Nodes (14): dir, fs, get(), icoImage(), main(), worker(), overrides, path (+6 more)
+Nodes (13): dir, fs, get(), icoImage(), worker(), overrides, path, references() (+5 more)
 
 ### Community 12 - "Subscription Regression Tests"
-Cohesion: 0.12
-Nodes (7): assert, fs, path, root, test, vm, {webcrypto}
+Cohesion: 0.08
+Nodes (9): assert, env(), c, fs, path, root, test, vm (+1 more)
 
 ### Community 13 - "Standalone Error and Confirmation Pages"
 Cohesion: 0.25
@@ -145,9 +148,9 @@ Nodes (14): Google Analytics Page Tracking, External Font Awesome 6.5.1 Styleshe
 Cohesion: 0.25
 Nodes (7): Other Code: MIT, Font Awesome Free License, Font Files: SIL OFL 1.1, SVG and JS Icons: CC BY 4.0, Subscription Artwork Maintenance, Artwork Contact Sheet and Tests, Complete Font Awesome Free Notices
 
-### Community 15 - "History and Milestone Tests"
-Cohesion: 0.13
-Nodes (8): assert, fs, test, vm, assert, fs, test, vm
+### Community 15 - "ref_node_test"
+Cohesion: 0.25
+Nodes (4): assert, fs, test, vm
 
 ### Community 16 - "Storage Migration and Recovery"
 Cohesion: 0.32
@@ -186,35 +189,39 @@ Cohesion: 0.42
 Nodes (8): addPinDigit(), onAppUnlocked(), removePinDigit(), showForgotPinModal(), showPinLockScreen(), updatePinDots(), verifyPin(), verifyRecoveryCode()
 
 ### Community 25 - "fetch-subscription-icons.cjs"
-Cohesion: 0.29
+Cohesion: 0.25
 Nodes (5): c, fs, path, root, vm
 
 ### Community 26 - "PWA Manifest"
 Cohesion: 0.22
 Nodes (8): background_color, description, display, icons, name, short_name, start_url, theme_color
 
-### Community 27 - "serve-sync-qa.cjs"
-Cohesion: 0.08
-Nodes (21): beta, fs, http, legacy, path, server, types, { execFileSync } (+13 more)
+### Community 27 - "serve-migration-rehearsal.cjs"
+Cohesion: 0.22
+Nodes (7): beta, fs, http, legacy, path, server, types
 
 ### Community 28 - "App Update Tests"
 Cohesion: 0.22
 Nodes (7): assert, fs, handler, path, source, test, vm
 
-### Community 29 - "update-app-shell.cjs"
-Cohesion: 0.20
-Nodes (6): { createHash }, files, fs, html, path, root
+### Community 29 - "feature-analytics.test.cjs"
+Cohesion: 0.17
+Nodes (8): assert, fs, globals, helper, onboarding(), c, test, vm
 
-### Community 30 - "Logo Contrast Analysis"
-Cohesion: 0.33
-Nodes (5): chooseFrame(), frames, fs, luminance(), path
+### Community 30 - "docs/SUBSCRIPTIONS.md"
+Cohesion: 0.14
+Nodes (16): Already Recorded renewal-only action, Atomic payment and renewal commits, Calendar recurrence and anchor-day clamping, Independent subscription expense and CC records, Bundled subscription artwork and local matching, Portable subscription schedules, Six-hour subscription reminder snoozes, SUBSCRIPTION_LOGO_FILES (+8 more)
+
+### Community 31 - "serve-sync-qa.cjs"
+Cohesion: 0.22
+Nodes (8): context, fixture, fs, http, path, remote, root, vm
 
 ### Community 32 - "Transfer Selection Tests"
 Cohesion: 0.29
 Nodes (5): accounts, assert, fs, test, vm
 
 ### Community 33 - "history-suggestions.test.cjs"
-Cohesion: 0.29
+Cohesion: 0.25
 Nodes (5): assert, context, fs, test, vm
 
 ### Community 35 - "Offline Service Worker"
@@ -225,23 +232,35 @@ Nodes (5): fresh(), navigationShell(), pendingShells, STATIC_ASSETS, verifiedShe
 Cohesion: 0.70
 Nodes (3): Coordinated application, asset and worker versions, CRLF-normalized SHA-256 asset hashes, Versioned app-shell hash manifest
 
+### Community 42 - "serve-qa.cjs"
+Cohesion: 0.25
+Nodes (6): { execFileSync }, fs, http, path, root, types
+
+### Community 43 - "v7 release staging"
+Cohesion: 0.29
+Nodes (6): Before publishing, Release branch, Release contents, v7 release staging, Verification, main()
+
+### Community 44 - "milestones.test.cjs"
+Cohesion: 0.29
+Nodes (4): assert, fs, test, vm
+
 ## Knowledge Gaps
-- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Element` connect `UI Test Runtime` to `Interaction Regression Tests`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
+  _High betweenness centrality (0.047) - this node is a cross-community bridge._
 - **Should `Dashboard and Financial Flows` be split into smaller, more focused modules?**
   _Cohesion score 0.05393258426966292 - nodes in this community are weakly interconnected._
+- **Why does `Consistent portable JSON snapshots` connect `Roadmap and Data Contracts` to `docs/SUBSCRIPTIONS.md`?**
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **Should `Roadmap and Data Contracts` be split into smaller, more focused modules?**
-  _Cohesion score 0.05030181086519115 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06298701298701298 - nodes in this community are weakly interconnected._
 - **Should `App Shell and Settings Surfaces` be split into smaller, more focused modules?**
   _Cohesion score 0.08 - nodes in this community are weakly interconnected._
 - **Should `Cloud Synchronization` be split into smaller, more focused modules?**
   _Cohesion score 0.14615384615384616 - nodes in this community are weakly interconnected._
 - **Should `Shared State and Utilities` be split into smaller, more focused modules?**
-  _Cohesion score 0.0784313725490196 - nodes in this community are weakly interconnected._
-- **Should `IndexedDB Regression Tests` be split into smaller, more focused modules?**
-  _Cohesion score 0.082010582010582 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07563025210084033 - nodes in this community are weakly interconnected._

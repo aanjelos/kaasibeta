@@ -23,6 +23,7 @@ const Milestones = (() => {
   ].map(([id,name,description,icon,group,target,metric])=>({id,name,description,icon,group,target,metric}));
   const known = new Set(definitions.map(d=>d.id));
   let pending = new Set(), timer, historical = {};
+  const reported = new Set(), analyticsKey = 'kaasi_analytics_milestones';
   function anniversary(first,months) {
     const offset=Number(first.slice(5,7))-1+months,y=Number(first.slice(0,4))+Math.floor(offset/12),m=offset%12+1;
     const day=Math.min(Number(first.slice(8)),new Date(y,m,0).getDate());
@@ -87,6 +88,13 @@ const Milestones = (() => {
   function baseline(data) {
     const copy=JSON.parse(JSON.stringify(data)); evaluate(copy,true);
     historical=copy.achievements||{}; pending.clear(); clearTimeout(timer);
+    // Device-only receipts survive restores; imported and synced awards are silent.
+    try {
+      const saved = JSON.parse(appPreferences.getItem(analyticsKey) || '[]');
+      if (Array.isArray(saved)) saved.filter(id=>known.has(id)).forEach(id=>reported.add(id));
+    } catch (_) { /* Older devices may not have analytics receipts. */ }
+    Object.keys(historical).filter(id=>known.has(id)).forEach(id=>reported.add(id));
+    rememberReported();
   }
   function prepare(data, event) {
     data.achievements=withHistoricalDates(data.achievements);
@@ -98,7 +106,20 @@ const Milestones = (() => {
     for(const id of Object.keys(merged))if(merged[id]?.earnedAt===0 && historical[id]?.earnedAt>0)merged[id]={...merged[id],...historical[id]};
     return merged;
   }
-  function committed(result) { result.events.forEach(e=>pending.delete(e)); if(result.ids.length)celebrate(result.ids); }
+  function rememberReported() {
+    try {
+      const value = JSON.stringify([...reported]);
+      if (appPreferences.getItem(analyticsKey) !== value) appPreferences.setItem(analyticsKey, value);
+    }
+    catch (_) { /* Analytics bookkeeping must not affect financial saves. */ }
+  }
+  function committed(result) {
+    result.events.forEach(e=>pending.delete(e));
+    const fresh = result.ids.filter(id=>known.has(id) && !reported.has(id));
+    fresh.forEach(id=>reported.add(id)); rememberReported();
+    if (typeof trackFeatureEvent === 'function') fresh.forEach(id=>trackFeatureEvent('milestone_unlocked', id));
+    if(result.ids.length)celebrate(result.ids);
+  }
   function track(event) {
     const definition=definitions.find(d=>d.metric===event);
     if(definition && (state.achievements?.[definition.id] || historical[definition.id])) return;

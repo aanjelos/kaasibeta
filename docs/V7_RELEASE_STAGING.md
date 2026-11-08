@@ -7,7 +7,7 @@ Prepared 2026-11-08 from Kaasi Beta `1cfc141` (application `v6.501n`).
 - Repository: `aanjelos/kaasiapp`.
 - Branch: `codex/v7-release-staging`, based on production main `604bb1d`.
 - Published staging commit: `6ced2b3`. Production main remains `604bb1d`.
-- Staged application/cache version: `v6.502n`. Keep the internal format until public v7 publication; assign the public version and regenerate the app-shell manifest in the final release commit.
+- Staged application/cache version: `v6.503n` after the analytics follow-up below. Keep the internal format until public v7 publication; assign the public version and regenerate the app-shell manifest in the final release commit.
 - Production `main`, CNAME (`app.kaasi.com.lk`), Pages settings and Supabase settings/data were not changed. Pages was verified to publish only `main` at the repository root.
 
 ## Release contents
@@ -28,6 +28,16 @@ Prepared 2026-11-08 from Kaasi Beta `1cfc141` (application `v6.501n`).
 - The isolated mock server deliberately returns 404 for sw.js. Service-worker behavior was covered by automated tests; this browser run does not certify installed-PWA updating or live Supabase sync.
 
 ## Before publishing
+
+### Analytics follow-up, 2026-11-08
+
+- Added in Beta first: subscription_created, subscription_payment_recorded, setup_completed, tutorial_completed and milestone_unlocked. Payloads contain only fixed feature metadata and known milestone IDs, never financial record fields or personal details.
+- Only successful local actions emit events. Restored/synced achievements are silently baselined; device-only reporting receipts prevent milestone replay after reloads and older restores on that device. Receipts are not exported or cloud-synced. Clearing device storage or independent unlocks on separate devices can defeat deduplication; do not describe GA counts as exactly-once financial audit data.
+- Beta verification: all 247 tests passed. Browser event capture confirmed fixed creation/payment payloads, silent simulated cloud restore/reload, and a known ID for a newly earned milestone. New events were captured locally rather than sent to Google.
+- Only after Beta verification, copied the four changed runtime scripts and release versions to staging. All four scripts match Beta byte-for-byte. Staging's four analytics tests and eight app-shell/service-worker tests passed. Internal tests, mock capture and documentation remain excluded from the public app repository.
+- Existing Google Analytics property/configuration retained. No GA administrative settings were changed; reporting milestone_id as a custom dimension remains a separate reporting setup step.
+
+### Remaining release checks
 
 - Complete real desktop/phone bidirectional sync, paid-subscription reminder ordering and shared local-backup reminder checks.
 - Complete real-device PIN/recovery, installed-PWA update/offline/reconnect and real-data backup/restore acceptance checks. Keep personal test data out of both repositories.

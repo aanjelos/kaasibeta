@@ -44,6 +44,7 @@ if(process.env.KAASI_SYNC_QA_LONG_TEXT==='1'){
   fixture.transactions[1].description='LunchWithTheTeamAfterTheQuarterlyPlanningSession'.repeat(8);
 }
 const bootstrap=`<script>
+${process.env.KAASI_ANALYTICS_QA==='1'?`window.gtag=(...args)=>{let output=document.getElementById('qaAnalyticsEvents');if(!output){output=document.createElement('output');output.id='qaAnalyticsEvents';output.hidden=true;output.textContent='[]';document.body.append(output);}const events=JSON.parse(output.textContent);events.push(args);output.textContent=JSON.stringify(events);};`:''}
 if(!localStorage.getItem('syncQaSeeded')){localStorage.setItem('KaasiData',${JSON.stringify(process.env.KAASI_STORAGE_RECOVERY_QA==='1'?'{invalid synthetic backup':JSON.stringify(fixture))});localStorage.setItem('syncQaSeeded','true');}
 navigator.storage.persist=async()=>true;
 ${process.env.KAASI_RESTORE_OVERLAY_QA==='1'?"localStorage.setItem('kaasi_auto_sync_paused','true');":''}

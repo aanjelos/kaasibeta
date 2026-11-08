@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.503n - 2026-11-08
+
+- Add allowlisted analytics events for committed subscription creation/payment, completed setup/tutorial and newly earned milestones. Send only fixed event metadata and known milestone IDs; exclude record contents, amounts, names, dates, payment methods and account identifiers. Analytics failures cannot interrupt these workflows.
+- Keep device-only milestone reporting receipts across reloads/restores and silently baseline imported/synced achievements. Skip edits, failed saves, already-recorded subscription payments and tutorial dismissal. Receipts are best-effort telemetry deduplication, not a cross-device exactly-once guarantee.
+- Verify subscription backup compatibility against kaasiapp main rather than its checked-out staging branch. Update the release staging copy only after Beta verification; keep internal tests and documentation out of kaasiapp.
+
 ## v6.501n - 2026-11-08
 
 - Clear the transfer-fee category after a transfer commits and the form returns to Expense. Preserve draft fields on validation or save failures and leave type-switch behavior unchanged.

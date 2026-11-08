@@ -69,6 +69,19 @@ function trackEvent(action, category = "Engagement", label = "") {
   }
 }
 
+// Fixed feature telemetry only: never accept record contents or caller-supplied parameters.
+function trackFeatureEvent(action, milestoneId) {
+  if (!['subscription_created', 'subscription_payment_recorded', 'setup_completed', 'tutorial_completed', 'milestone_unlocked'].includes(action)) return;
+  const parameters = { event_category: 'Feature Usage' };
+  if (action === 'milestone_unlocked') {
+    if (typeof Milestones === 'undefined' || !Milestones.known.has(milestoneId)) return;
+    parameters.milestone_id = milestoneId;
+  }
+  try {
+    if (typeof gtag === 'function') gtag('event', action, parameters);
+  } catch (_) { /* Analytics must never interrupt saving or navigation. */ }
+}
+
 // Device-Specific Settings
 function getDeviceTheme() {
   return appPreferences.getItem("kaasi_device_theme") || "dark";

@@ -6,6 +6,7 @@ function env(){
     supabase:{createClient:()=>null},isAppLocked:()=>false,storageOperationPending:false,KaasiStorage:{mode:'indexeddb'},renderDashboard(){},showNotification(){},getCurrentDateString:()=> '2026-10-24',
     appPreferences:{keys:()=>[...preferences.keys()],getItem:k=>preferences.get(k),setItem:(k,v)=>preferences.set(k,v),removeItem:k=>preferences.delete(k),flush:async()=>{}},getComputedStyle:()=>({display:'none'}),openModalHelper:id=>{el(id).style.display='block';},
     closeModal:id=>{el(id).style.display='none';}};
+  c.analytics=[];c.gtag=(...args)=>c.analytics.push(args);
   c.window=c;vm.createContext(c);
   for(const file of ['globals','import-validation','math-tool','features','subscription-assets','subscription-services','subscriptions'])vm.runInContext(fs.readFileSync(path.join(root,'js',file+'.js'),'utf8'),c);
   // globals defines this helper; freeze the fixture date after loading it.
@@ -18,6 +19,27 @@ function env(){
 }
 const definition=overrides=>({name:'Netflix',amount:'100',method:'bank',account:'cash',category:'Other',frequency:'monthly',nextDueDate:'2026-10-24',serviceId:'netflix',icon:'letter',...overrides});
 const payment=overrides=>({amount:'100',date:'2026-10-24',account:'cash',category:'Other',...overrides});
+
+test('subscription telemetry contains only fixed events after successful creates and payments',async()=>{
+  const e=env(),id=await e.api.saveDefinition(definition({name:'Private person and service',amount:'123.45'}));
+  const sub=e.saved().subscriptions[0];
+  await e.api.saveDefinition(definition({name:'Renamed private subscription',amount:'123.45'}),id,JSON.stringify(sub));
+  await e.api.record(id,'2026-10-24',payment({amount:'123.45'}));
+  assert.deepEqual(JSON.parse(JSON.stringify(e.c.analytics)),[
+    ['event','subscription_created',{event_category:'Feature Usage'}],
+    ['event','subscription_payment_recorded',{event_category:'Feature Usage'}]
+  ]);
+  const failed=env();failed.fail();await assert.rejects(failed.api.saveDefinition(definition()));assert.equal(failed.c.analytics.length,0);
+  const f=env(),fid=await f.api.saveDefinition(definition());f.c.analytics.length=0;f.fail();
+  await assert.rejects(f.api.record(fid,'2026-10-24',payment()));assert.equal(f.c.analytics.length,0);
+});
+
+test('already recorded payments, imports, render and stale retries do not emit subscription events',async()=>{
+  const e=env(),id=await e.api.saveDefinition(definition());e.c.analytics.length=0;
+  await e.api.record(id,'2026-10-24',{alreadyRecorded:true});
+  await assert.rejects(e.api.record(id,'2026-10-24',payment()));
+  e.c.prepareImportedData(e.saved());e.api.render();assert.equal(e.c.analytics.length,0);
+});
 test('reminders wait for session checks and scheduled cloud sync',async()=>{
   const e=env();await e.api.saveDefinition(definition());
   for(const flag of ['cloudSessionCheckPending','cloudSyncPriorityPending']){
@@ -388,7 +410,9 @@ test('subscription fields survive the existing public web import, save and JSON 
   const external=await e.api.saveDefinition(definition({name:'Already recorded elsewhere'}));await e.api.record(external,'2026-10-24',{alreadyRecorded:true});
   const backup=e.saved();backup.subscriptions[0].androidFuture={preserve:true};
   const data=new Map(),legacy={console:{log(){},warn(){},error(){}},window:{addEventListener(){},supabase:{createClient:()=>null}},localStorage:{setItem:(key,value)=>data.set(key,value),getItem:key=>data.get(key)||null},input:backup};
-  vm.createContext(legacy);vm.runInContext(fs.readFileSync(path.join(root,'../kaasiapp/js/globals.js'),'utf8'),legacy);
+  const productionRoot=path.resolve(root,'../kaasiapp');
+  const productionGlobals=require('node:child_process').execFileSync('git',['-c',`safe.directory=${productionRoot.replaceAll('\\','/')}`,'-C',productionRoot,'show','main:js/globals.js'],{encoding:'utf8',windowsHide:true});
+  vm.createContext(legacy);vm.runInContext(productionGlobals,legacy);
   vm.runInContext('sanitizeAndMergeImportedData(input); saveData();',legacy);
   const exported=JSON.parse(data.get('KaasiData'));assert.deepEqual(exported.subscriptions,backup.subscriptions);assert.deepEqual(exported.subscriptionOccurrences,backup.subscriptionOccurrences);
   assert.equal(e.c.prepareImportedData(exported).subscriptions[0].androidFuture.preserve,true);
