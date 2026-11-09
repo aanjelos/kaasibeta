@@ -43,6 +43,16 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 - Use purposeful, lightweight animations for screen transitions, sheets and button feedback. Keep frequent transaction entry fast, respect reduced-motion preferences and verify performance on phones.
 - Adapt navigation and composition independently for desktop rather than enlarging the phone layout. Keep financial calculations, storage and sync behaviour underneath the new interface unchanged; any future sync-engine changes need a separate checkpoint.
 
+### Interactive in-app tour
+
+- **Decision (2026-11-09):** Keep the tested tutorial for v7. Revisit its replacement alongside the v9 screens, bottom navigation and FAB, rather than rebuilding the tour immediately before release.
+- Replace separate tutorial demonstrations with a short guided tour that highlights actual app controls using a dimmed background and attached explanations. Reuse the existing lessons and refined wording; advance relevant steps after the intended interaction rather than relying only on Next buttons.
+- **Preferred library to evaluate:** [Driver.js](https://driverjs.com/) ([source](https://github.com/nilbuild/driver.js)), a dependency-free vanilla JavaScript library under the MIT license. Verify its current license, maintenance and accessibility before adoption; bundle a reviewed version locally for offline use and retain its license notice. No paid onboarding service or external account is required for this direction.
+- Prototype transaction entry first: type selection, calculator, description and category, then show balances, history/search and optional features. Review desktop and mobile behaviour before replacing the complete guide.
+- Practice must remain isolated from financial persistence, backup/export, cloud sync, financial-action analytics and milestone awards. The tour library does not supply this isolation. Keep destructive, restore, payment and security actions outside the practice flow; preserve the user's unfinished draft and restore their previous screen when exiting.
+- Keep Skip/Exit available and replay from Settings starting at the beginning. Do not automatically force returning users through the replacement guide. Preserve completion tracking only for a genuinely completed tour, distinct from practice actions.
+- Match Kaasi's approved v9 styling. Test phone keyboard/popover overlap, scrolling, safe areas, hidden sections, missing targets, interrupted tours, keyboard/focus handling, screen readers and reduced motion. Adapt steps to the controls actually available on each device.
+
 ### Preview, checkpoint and acceptance
 
 - Begin with a polished desktop preview and an interactive mobile preview using synthetic data and a mocked backend. Cover Home → Add Transaction → Transaction Details, including bottom navigation, FAB and transitions; include Balance Overview and Recent Transactions in enough context to assess hierarchy.
