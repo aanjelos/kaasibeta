@@ -4,13 +4,6 @@ This document serves as a backlog for approved feature ideas, UI/UX improvements
 
 ## Before v7
 
-### Authentication email review and branding
-
-- **Added 2026-11-10:** Review signup confirmation and related authentication emails before v7. Identify which messages are actually used by Kaasi's current Google OAuth sign-in; do not add email/password signup or password recovery merely to use the templates. A welcome email after Google signup is a separate feature, not the signup-confirmation template.
-- Review the applicable templates under Supabase Authentication → Emails. Prepare Kaasi-branded subjects, concise copy, responsive HTML/plain-text content and clear actions; preserve the required confirmation/token variables. Review confirmation/redirect destinations against the production app and keep Beta links out of production messages.
-- Check sender identity, reply-to/support address, custom SMTP availability, delivery limits and domain authentication if email delivery is needed. Verify with owner-controlled test accounts, including expired/used links and mobile rendering; do not email existing users as part of template testing.
-- Draft and preview first. Supabase template, SMTP, authentication-provider and redirect changes require explicit authorization before applying; this roadmap item does not authorize backend changes or sending emails. Keep credentials and private test data out of the repositories.
-
 The monthly budget reminder refinement shipped in v6.477n. Subscription Suggestions From History was dropped on 2026-11-03; retain manual subscription creation and Save as Subscription.
 
 Completed items were removed from the active backlog on 2026-11-02 at the user's request: Milestones, credit-card tracking workflows and starting expenses, mobile modal/Settings/accessibility refinements, UUIDs and IndexedDB work. Final release smoke checks still cover upgrades, backup/restore, PIN recovery, offline launches and cross-device sync. The temporary milestone debug script was removed in v6.476n. This roadmap cleanup does not constitute new live-environment verification.
