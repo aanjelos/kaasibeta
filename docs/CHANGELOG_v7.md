@@ -2,6 +2,13 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.506n - 2026-11-13
+
+- Gate automatic sync, manual Sync/resume and explicit cloud replacements when this device is associated with another account or has no verified account association. Use the existing Supabase user ID and device-only owner marker; retain the association through sign-out. Returning to the same associated account keeps normal sync behavior.
+- Add branded account-choice and replacement dialogs with real copy comparison, optional backup downloads and Sign Out. Empty cloud accounts require explicit association before upload. Closing a dialog grants no transfer permission; revalidate account, ownership, local revision and conditional cloud timestamps before replacement. Reject stale decisions across account changes, including switching away and back.
+- Send copy choices directly from comparison to the existing replacement confirmation, without repeating the selection screen. Close the entire account-choice history branch after success and include the new dialog in browser-back handling.
+- Correct the tutorial action to “Skip Tour.” Keep sample data, preview completion screens and QA controls outside the shipped app.
+
 ## v6.505n - 2026-11-13
 
 - Choose history-suggestion placement against the full 130px two-result footprint even when only one result matches. Narrowing a query no longer flips the popup below a field near the keyboard; actual height still follows the results and available viewport space. Preserve the roomier-side fallback when neither side fits.

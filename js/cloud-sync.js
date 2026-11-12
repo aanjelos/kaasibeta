@@ -1,6 +1,8 @@
 /** Automatic and manual whole-dataset sync. Never merge or choose conflicting copies silently. */
 let cloudSyncRemote = null;
 let cloudSyncReview = null;
+let cloudAccountChoice = null;
+let cloudSyncAccountId = null, cloudSyncAccountEpoch = 0;
 let cloudSyncCheckSequence = 0;
 let cloudSyncRemoteSequence = 0;
 let cloudSyncBusy = false;
@@ -103,22 +105,143 @@ async function manualCloudTransfer(which, options = {}) {
   setCloudSyncBusy(true);
   const releaseRestoreLock = which === 'cloud' ? beginCloudRestoreLock() : () => {};
   try {
-    const userId=supabaseUser?.id;cloudSyncAssertUser(userId);
+    const userId=supabaseUser?.id, accountEpoch=cloudSyncAccountEpoch;cloudSyncAssertUser(userId);
     const revision=KaasiStorage.revision;
     const [saved,row]=await Promise.all([KaasiStorage.snapshot(),readCloudSyncRow(userId,which==='cloud')]);
     const local=portableKaasiData(saved);
     if(which==='cloud'&&!row)throw new Error('There is no cloud copy to restore.');
-    const context={userId,revision,saved,local,hash:await KaasiStorage.digest(local),updatedAt:row?.updated_at??null,automatic:false};
+    const context={userId,revision,saved,local,hash:await KaasiStorage.digest(local),updatedAt:row?.updated_at??null,automatic:false,accountEpoch};
     if(which==='cloud')context.cloud=portableKaasiData(prepareImportedData(row.data));
     await assertCloudSyncLocal(context);
     if (initialRestore) {
+      approveCloudAccountChoice(context);
       await downloadCloudSync(context);
+      return;
+    }
+    if (appPreferences.getItem('kaasi_cloud_data_owner') !== userId) {
+      await prepareCloudAccountChoice(context, row, which === 'cloud');
       return;
     }
     cloudSyncReview=context;
   } catch(error){showNotification(error.message,'error');return;}
   finally{releaseRestoreLock();setCloudSyncBusy(false);}
   if (!initialRestore) chooseCloudSyncCopy(which);
+}
+
+function approveCloudAccountChoice(context) {
+  cloudSyncAssertUser(context.userId);
+  const owner = appPreferences.getItem('kaasi_cloud_data_owner');
+  if (context.owner !== undefined && context.owner !== owner) throw new Error('The device account changed. Start Sync again.');
+  context.approvedAccount = context.userId;
+  context.approvedOwner = owner;
+}
+function assertCloudSyncOwnership(context) {
+  cloudSyncAssertUser(context.userId);
+  if (context.accountEpoch !== undefined && context.accountEpoch !== cloudSyncAccountEpoch) {
+    throw new Error('Your signed-in account changed. Start Sync again.');
+  }
+  const owner = appPreferences.getItem('kaasi_cloud_data_owner');
+  if (owner !== context.userId && (context.approvedAccount !== context.userId || context.approvedOwner !== owner)) {
+    throw new Error('Choose which data belongs with this account before syncing.');
+  }
+}
+async function prepareCloudAccountChoice(context, row, full = false) {
+  const owner = appPreferences.getItem('kaasi_cloud_data_owner');
+  if (row && !full) row = await readCloudSyncRow(context.userId, true);
+  if ((row?.updated_at ?? null) !== context.updatedAt) throw new Error('The cloud copy changed. Start Sync again.');
+  await assertCloudSyncLocal(context);
+  context.owner = owner;
+  context.cloud = row ? portableKaasiData(prepareImportedData(row.data)) : null;
+  context.automatic = false;
+  cloudAccountChoice = context;
+  window.currentCloudSyncStatus = 'review';
+  renderCloudAccountChoice(context);
+  openModalHelper('cloudAccountModal');
+}
+function renderCloudAccountChoice(context) {
+  if (cloudAccountChoice !== context) return;
+  const hasCloud = context.cloud !== null;
+  const otherAccount = !!context.owner && context.owner !== context.userId;
+  $('#cloudAccountTitle').textContent = hasCloud ? 'Choose which data to use' : 'Use this device’s data?';
+  $('#cloudAccountCopy').textContent = `${otherAccount ? 'This device has records from a different account.' : 'The records on this device have not been linked to this account.'} ${hasCloud ? 'The account below also has a cloud copy. Choose which data to use.' : 'Would you like to use these records with the account below?'}`;
+  $('#cloudAccountEmail').textContent = supabaseUser?.email || 'Current account';
+  $('#cloudAccountNote').textContent = hasCloud ? 'You’ll confirm before replacing either copy.' : 'Continue only if these records belong with this account.';
+  const actions = $('#cloudAccountActions');
+  actions.replaceChildren();
+  const button = (text, primary, action) => {
+    const item = document.createElement('button');
+    item.type = 'button'; item.className = `btn ${primary ? 'btn-primary' : 'btn-secondary'}`;
+    item.textContent = text;
+    item.onclick = async () => {
+      if (cloudSyncBusy || isAppLocked() || cloudAccountChoice !== context) return;
+      setCloudSyncBusy(true);
+      try { await assertCloudSyncLocal(context); await action(); }
+      catch (error) { showNotification(`Sync stopped: ${error.message}`, 'error', 10000); }
+      finally { setCloudSyncBusy(false); }
+    };
+    actions.appendChild(item);
+  };
+  if (hasCloud) {
+    button('Use Cloud Data', true, () => confirmCloudAccountReplacement(context, 'cloud'));
+    button('Use This Device’s Data', false, () => confirmCloudAccountReplacement(context, 'local'));
+  } else button('Continue', true, async () => {
+    approveCloudAccountChoice(context);
+    await uploadCloudSync(context);
+    closeCloudAccountFlow(context);
+  });
+  const compare = $('#cloudAccountCompare');
+  compare.hidden = !hasCloud;
+  compare.onclick = () => {
+    if (cloudSyncBusy || isAppLocked() || cloudAccountChoice !== context) return;
+    cloudSyncReview = context; renderCloudSyncReview(); openModalHelper('cloudSyncModal');
+  };
+  $('#cloudAccountSignOut').onclick = async () => {
+    if (cloudSyncBusy || isAppLocked() || cloudAccountChoice !== context) return;
+    cloudAccountChoice = null; cloudSyncReview = null;
+    closeModal('cloudAccountModal');
+    await signOut();
+  };
+}
+function closeCloudAccountFlow(context) {
+  if (cloudAccountChoice !== context) return;
+  cloudAccountChoice = null; cloudSyncReview = null;
+  const stack = history.state?.openModals || [];
+  const index = stack.indexOf('cloudAccountModal');
+  for (const id of ['cloudAccountModal','cloudSyncModal','confirmationModal']) $(`#${id}`).style.display = 'none';
+  updateBodyScrollState();
+  // Unwind the whole choice branch once, rather than reopening its selection screens.
+  if (index >= 0) history.go(-(stack.length - index));
+  restoreModalFocus('cloudAccountModal');
+}
+function confirmCloudAccountReplacement(context, which) {
+  if (cloudAccountChoice !== context || isAppLocked()) return;
+  const restoring = which === 'cloud';
+  showConfirmationModal(restoring ? 'Replace This Device’s Data?' : 'Replace the Cloud Data?',
+    `${restoring ? 'The cloud copy will replace the records on this device.' : 'The records on this device will replace the cloud copy.'} Changes saved only in the replaced copy will be removed.<br><br>Signed-in account: <strong>${escapeHTML(supabaseUser?.email || 'Current account')}</strong><br><br>Download a backup first if you want to keep a separate copy.<br><button id="cloudAccountDownload" type="button" class="btn btn-secondary cloud-account-backup">${restoring ? 'Download Device Backup' : 'Download Cloud Backup'}</button>`,
+    restoring ? 'Replace Device Data' : 'Replace Cloud Data', 'Cancel', async () => {
+      if (cloudSyncBusy || cloudAccountChoice !== context || isAppLocked()) return true;
+      setCloudSyncBusy(true);
+      try {
+        await assertCloudSyncLocal(context);
+        approveCloudAccountChoice(context);
+        if (restoring) await downloadCloudSync(context); else await uploadCloudSync(context);
+        closeCloudAccountFlow(context);
+      } catch (error) { showNotification(`Sync stopped: ${error.message}`, 'error', 10000); }
+      finally { setCloudSyncBusy(false); }
+      return true;
+    }, undefined, 'btn-primary');
+  $('#cloudAccountDownload').onclick = async () => {
+    if (cloudSyncBusy || cloudAccountChoice !== context || isAppLocked()) return;
+    setCloudSyncBusy(true);
+    try {
+      await assertCloudSyncLocal(context);
+      const latest = await readCloudSyncRow(context.userId);
+      if ((latest?.updated_at ?? null) !== context.updatedAt) throw new Error('The cloud copy changed. Start Sync again.');
+      await assertCloudSyncLocal(context);
+      downloadKaasiSnapshot(restoring ? context.local : context.cloud, 'kaasi-before-account-change');
+    } catch (error) { showNotification(error.message, 'error', 10000); }
+    finally { setCloudSyncBusy(false); }
+  };
 }
 
 function cloudSyncDownloadSafe(context) {
@@ -189,7 +312,7 @@ async function updateLocalCloudSyncStatus() {
     const hash = await KaasiStorage.digest(portableKaasiData(JSON.parse(json)));
     const baseline = await portableCloudBaseline(userId, JSON.parse(json));
     if (sequence !== cloudSyncCheckSequence || userId !== supabaseUser?.id || json !== lastPersistedStateJson) return;
-    window.currentCloudSyncStatus = cloudSyncRemote?.userId === userId
+    window.currentCloudSyncStatus = appPreferences.getItem('kaasi_cloud_data_owner') !== userId ? 'review' : cloudSyncRemote?.userId === userId
       ? cloudSyncDirection(hash, baseline, cloudSyncRemote) : "unknown";
     updateHeaderShortcutButtons();
   } catch (_) { window.currentCloudSyncStatus = "unknown"; updateHeaderShortcutButtons(); }
@@ -254,6 +377,7 @@ async function recordCloudSync(userId, snapshot, updatedAt, uploaded) {
 }
 async function assertCloudSyncLocal(context) {
   cloudSyncAssertUser(context.userId);
+  if (context.accountEpoch !== undefined && context.accountEpoch !== cloudSyncAccountEpoch) throw new Error('Your signed-in account changed. Start Sync again.');
   if (storageOperationPending || KaasiStorage.stale || KaasiStorage.revision !== context.revision) {
     throw new Error("Local data changed. Start Sync again to compare the latest copies.");
   }
@@ -270,6 +394,7 @@ async function assertCloudSyncLocal(context) {
 }
 async function uploadCloudSync(context) {
   await assertCloudSyncLocal(context);
+  assertCloudSyncOwnership(context);
   const updatedAt = new Date(Math.max(Date.now(), context.updatedAt ? Date.parse(context.updatedAt) + 1 : 0)).toISOString();
   const payload = { data: context.local, updated_at: updatedAt };
   const table = supabaseClient.from("user_data");
@@ -277,7 +402,7 @@ async function uploadCloudSync(context) {
     ? table.insert({ ...payload, user_id: context.userId })
     : table.update(payload).eq("user_id", context.userId).eq("updated_at", context.updatedAt);
   const { data, error } = await cloudSyncRequest(query.select("updated_at"));
-  cloudSyncAssertUser(context.userId);
+  assertCloudSyncOwnership(context);
   if (error || !data) throw new Error(error?.code === "23505" || !error
     ? "The cloud copy changed. Nothing was overwritten; start Sync again."
     : error.message || "Upload failed. Your local copy is unchanged.");
@@ -293,11 +418,14 @@ async function downloadCloudSync(context) {
   const releaseRestoreLock = beginCloudRestoreLock();
   try {
   await assertCloudSyncLocal(context);
+  assertCloudSyncOwnership(context);
   const latest = await readCloudSyncRow(context.userId);
   if (!latest || latest.updated_at !== context.updatedAt) throw new Error("The cloud copy changed. Start Sync again before restoring.");
   await assertCloudSyncLocal(context);
+  assertCloudSyncOwnership(context);
   if (context.automatic && !cloudSyncDownloadSafe(context)) return;
   await applyImportedData(context.cloud, context.revision, {source:'cloud'});
+  assertCloudSyncOwnership(context);
   // applyImportedData normalizes legacy optional defaults; baseline matches what was actually saved.
   await recordCloudSync(context.userId, KaasiStorage.current, context.updatedAt, false);
   await finishSyncResume(context);
@@ -328,7 +456,7 @@ async function syncCloudData(options = {}) {
   let releaseRestoreLock = () => {};
   try {
     if (cloudSyncReview && !automatic) { closeModal("cloudSyncModal"); cloudSyncReview = null; }
-    const userId = supabaseUser.id;
+    const userId = supabaseUser.id, accountEpoch = cloudSyncAccountEpoch;
     const activity = cloudSyncActivity;
     cloudSyncAssertUser(userId);
     const revision = KaasiStorage.revision;
@@ -337,9 +465,17 @@ async function syncCloudData(options = {}) {
     const local = portableKaasiData(saved);
     const hash = await KaasiStorage.digest(local);
     if(options.reviewOnly && !remote)throw new Error('There is no cloud copy to compare. Use Upload to Cloud if you want to create one.');
-    const context = { userId, revision, saved, local, hash, automatic, resume, activity, updatedAt: remote?.updated_at ?? null };
+    const context = { userId, revision, saved, local, hash, automatic, resume, activity, updatedAt: remote?.updated_at ?? null, accountEpoch };
     await assertCloudSyncLocal(context);
     cloudSyncRemote = { userId, exists: !!remote, updatedAt: context.updatedAt };
+    if (appPreferences.getItem('kaasi_cloud_data_owner') !== userId) {
+      window.currentCloudSyncStatus = 'review';
+      const key = `${userId}:account-choice`;
+      if (automatic && (automaticCloudReviewsSeen.has(key) || !cloudSyncDownloadSafe(context))) return;
+      await prepareCloudAccountChoice(context, remote);
+      automaticCloudReviewsSeen.add(key);
+      return;
+    }
     let direction = cloudSyncDirection(hash, baseline, cloudSyncRemote);
     if ((resume || options.reviewOnly) && remote) direction='review';
     if (resume && !remote) {
@@ -347,23 +483,7 @@ async function syncCloudData(options = {}) {
       // Confirmation is opened after releasing the busy state below.
       return;
     }
-    const owner = appPreferences.getItem('kaasi_cloud_data_owner');
-    if (automatic && owner !== userId && remote) direction = 'review';
     window.currentCloudSyncStatus = direction;
-    if (automatic && !remote && (!baseline || owner !== userId)) {
-      window.currentCloudSyncStatus = 'review';
-      const key = `${userId}:initial-upload`;
-      if (!automaticCloudReviewsSeen.has(key) && cloudSyncDownloadSafe(context)) {
-        automaticCloudReviewsSeen.add(key);
-        showConfirmationModal('Start Cloud Sync?', `The cloud account <strong>${escapeHTML(supabaseUser.email || 'currently signed in')}</strong> has no saved copy. Upload the data currently on this device and enable automatic sync for this account?`, 'Upload This Device', 'Not Now', async () => {
-          if (cloudSyncBusy) return true;
-          setCloudSyncBusy(true);
-          try { await uploadCloudSync({...context,automatic:false}); }
-          finally { setCloudSyncBusy(false); }
-        });
-      }
-      return;
-    }
     if (direction === "synced") { if (!automatic) showNotification("Already synced.", "success"); return; }
     if (direction === "local_newer") { await uploadCloudSync(context); return; }
     // Prompt once per cloud revision, after the active form/dialog is finished.
@@ -632,6 +752,10 @@ function renderCloudSyncReview(page = 0) {
 function chooseCloudSyncCopy(which) {
   if (!cloudSyncReview || cloudSyncBusy || isAppLocked()) return;
   const context = cloudSyncReview;
+  if (context === cloudAccountChoice) {
+    confirmCloudAccountReplacement(context, which);
+    return;
+  }
   showConfirmationModal(which === "local" ? "Update Cloud Backup?" : "Restore From Cloud?",
     which === "local" ? "This replaces your cloud backup with the data on this device. Changes saved only in the cloud will be removed."
       : "This replaces the data on this device with your cloud backup. Changes saved only here will be removed.",
@@ -647,6 +771,17 @@ function chooseCloudSyncCopy(which) {
 }
 
 function resetCloudSyncAccount(user) {
+  const closingAccountChoice = cloudAccountChoice && cloudAccountChoice.userId !== user?.id;
+  if (cloudSyncAccountId !== (user?.id || null)) {
+    cloudSyncAccountId = user?.id || null; ++cloudSyncAccountEpoch;
+    automaticCloudReviewsSeen.clear();
+  }
+  if (cloudAccountChoice && cloudAccountChoice.userId !== user?.id) {
+    cloudAccountChoice = null;
+    $('#cloudAccountModal').style.display = 'none';
+    $('#confirmationModal').style.display = 'none';
+    $('#cloudAccountEmail').textContent = '';
+  }
   clearTimeout(automaticCloudSyncTimer);
   cloudSyncFeedback = ''; automaticCloudSyncFailures = 0;
   if (cloudSyncReview && cloudSyncReview.userId !== user?.id) {
@@ -658,6 +793,7 @@ function resetCloudSyncAccount(user) {
   if (!user || cloudSyncRemote?.userId !== user.id) {
     cloudSyncRemote = null; window.currentCloudSyncStatus = "unknown"; ++cloudSyncCheckSequence; ++cloudSyncRemoteSequence;
   }
+  if (closingAccountChoice) updateBodyScrollState();
 }
 
 // Pending work is derived from persisted data and the account-specific baseline, not a volatile queue.
@@ -685,6 +821,7 @@ async function runAutomaticCloudSync(allowHidden = false) {
   if (!automaticCloudSyncEnabled() || !navigator.onLine || cloudSyncBusy || storageOperationPending ||
     settingsCloudSyncDeferred() || (!allowHidden && document.visibilityState === 'hidden')) return;
   if(automaticSyncPaused()){automaticCloudSyncLastCheck=Date.now();await refreshCloudSyncStatus();return;}
+  if ($('#cloudAccountModal')?.style.display === 'block') return;
   if (cloudSyncReview) {
     if ($('#cloudSyncModal')?.style.display === 'block') return;
     cloudSyncReview = null;

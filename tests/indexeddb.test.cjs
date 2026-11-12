@@ -452,6 +452,7 @@ test('a failed migration marker write does not cause successful migration to run
 test('cloud backup keeps the existing JSON object shape and recognizes unchanged IndexedDB data',async()=>{
   const e=environment();const original=legacy(e);await e.initialize();
   e.run('state=KaasiStorage.current;lastPersistedStateJson=JSON.stringify(state);supabaseUser={id:"qa-user"};');
+  e.run('appPreferences.setItem("kaasi_cloud_data_owner","qa-user");');
   vm.runInContext(fs.readFileSync(path.join(root,'js/data-sync.js'),'utf8'),e.context);
   vm.runInContext(fs.readFileSync(path.join(root,'js/cloud-sync.js'),'utf8'),e.context);
   e.context.navigator.onLine=true;e.context.updateHeaderShortcutButtons=()=>{};

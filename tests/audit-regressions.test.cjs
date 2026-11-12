@@ -931,6 +931,7 @@ function delayedBackup(r) {
     insert(value){payload=value;uploads++;write=true;return this;},update(value){payload=value;uploads++;write=true;return this;},select(){return this;},eq(){return this;},
     maybeSingle(){return write?new Promise(resolve=>{finish=resolve;}):Promise.resolve({data:row&&{updated_at:row.updated_at},error:null});}};}};
   r.run('supabaseUser={id:"test-user"};supabaseClient=testClient;');
+  r.storage.set('kaasi_cloud_data_owner','test-user');
   r.context.fetchAndUpdateLastCloudSyncTime=()=>{};
   return {refresh,async ready(count=1){for(let i=0;i<100&&uploads<count;i++)await new Promise(setImmediate);assert.equal(uploads,count,'upload started');},
     complete(error=null){if(!error)row={...payload,updated_at:'2026-10-20T01:00:00Z'};finish({data:error?null:{updated_at:row.updated_at},error});},
@@ -979,7 +980,7 @@ function syncCloud(r, initial) {
   r.context.initializeUI=()=>{};
   r.context.openModalHelper=id=>{r.element(`#${id}`).style.display='block';};
   r.context.closeModal=id=>{r.element(`#${id}`).style.display='none';};
-  r.context.showConfirmationModal=(...args)=>{cloud.confirm=args[4];};
+  r.context.showConfirmationModal=(...args)=>{cloud.confirm=args[4];cloud.confirmTitle=args[0];cloud.confirmLabel=args[2];};
   r.context.testClient={from:()=>{
     const call={type:'read',fields:null,filters:{},payload:null};
     return {select(fields){call.fields=fields;return this;},eq(key,value){call.filters[key]=value;return this;},
@@ -998,6 +999,9 @@ function syncCloud(r, initial) {
       }};
   }};
   r.run('supabaseUser={id:"sync-user"};supabaseClient=testClient;');
+  // Existing sync regressions model a device already associated with this account.
+  // Account-switch tests explicitly replace/remove this association below.
+  if (!r.storage.has('kaasi_cloud_data_owner')) r.storage.set('kaasi_cloud_data_owner','sync-user');
   cloud.baseline=async(data=JSON.parse(r.storage.get('KaasiData')),updated='2026-10-21T00:00:00Z')=>{
     await r.context.recordCloudSync('sync-user',data,updated,false);
   };
@@ -1561,8 +1565,9 @@ test('a different empty cloud identity requires explicit association before auto
   const r=runtime();r.run('supabaseUser={id:"previous-user"}');
   await r.context.recordCloudSync('previous-user',JSON.parse(r.storage.get('KaasiData')),'2026-10-21T00:00:00Z',false);
   const cloud=syncCloud(r,null);enableAutomaticSync(r);
-  await r.context.runAutomaticCloudSync();assert.equal(cloud.calls.filter(c=>c.type==='insert').length,0);assert.equal(typeof cloud.confirm,'function');
-  await cloud.confirm();assert.equal(cloud.row.data.accounts[0].balance,1000);assert.equal(r.storage.get('kaasi_cloud_data_owner'),'sync-user');
+  await r.context.runAutomaticCloudSync();assert.equal(cloud.calls.filter(c=>c.type==='insert').length,0);
+  assert.equal(r.element('#cloudAccountModal').style.display,'block');
+  await accountAction(r,'Continue');assert.equal(cloud.row.data.accounts[0].balance,1000);assert.equal(r.storage.get('kaasi_cloud_data_owner'),'sync-user');
   cloud.calls.length=0;await r.context.runAutomaticCloudSync();assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);
 });
 
@@ -1570,7 +1575,107 @@ test('returning to an earlier account cannot silently upload another account\'s 
   const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
   const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();enableAutomaticSync(r);
   r.storage.set('kaasi_cloud_data_owner','different-user');await r.run('state.accounts[0].balance=800;saveData();');
-  await r.context.runAutomaticCloudSync();assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);assert.equal(r.element('#cloudSyncModal').style.display,'block');
+  await r.context.runAutomaticCloudSync();assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);assert.equal(r.element('#cloudAccountModal').style.display,'block');
+});
+
+async function accountAction(r, text) {
+  const button=r.element('#cloudAccountActions').children.find(item=>item.textContent===text);
+  assert.ok(button,`Missing account action: ${text}`);
+  await button.onclick();
+}
+
+test('unknown and different owners gate automatic, manual, paused and replacement paths even with an old matching baseline',async()=>{
+  for(const owner of [null,'another-user'])for(const action of ['automatic','manual','upload','restore','resume']){
+    const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+    const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();enableAutomaticSync(r);
+    if(owner)r.storage.set('kaasi_cloud_data_owner',owner);else r.storage.delete('kaasi_cloud_data_owner');
+    const before=r.storage.get('KaasiData');
+    if(action==='automatic')await r.context.runAutomaticCloudSync();
+    else if(action==='manual')await r.context.syncCloudData();
+    else if(action==='resume'){await r.context.pauseAutomaticSync();await r.context.syncCloudData({resume:true});}
+    else await r.context.manualCloudTransfer(action==='upload'?'local':'cloud');
+    assert.equal(r.element('#cloudAccountModal').style.display,'block',owner+':'+action);
+    assert.equal(r.storage.get('KaasiData'),before);assert.equal(cloud.calls.some(c=>c.type!=='read'),false);
+    assert.equal(r.storage.get('kaasi_cloud_data_owner')??null,owner);
+  }
+});
+
+test('account replacement needs a second choice, exports the displaced copy and retains unknown fields and historical IDs',async()=>{
+  for(const side of ['cloud','local']){
+    const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+    original.futureField={keep:true};original.transactions=[{id:'legacy-123',type:'expense',account:'cash',category:'Other',description:'Historical record',amount:5,date:'2026-10-20',timestamp:1,unknown:'retained'}];
+    await r.run('saveData('+JSON.stringify(original)+');');
+    const remote=JSON.parse(JSON.stringify(original));remote.accounts[0].balance=700;
+    const cloud=syncCloud(r,{data:remote,updated_at:'2026-10-21T00:00:00Z'});r.storage.set('kaasi_cloud_data_owner','previous-user');
+    const backups=[];r.context.downloadKaasiSnapshot=value=>backups.push(JSON.parse(JSON.stringify(value)));
+    await r.context.syncCloudData();
+    const label=side==='cloud'?'Use Cloud Data':'Use This Device’s Data';await accountAction(r,label);
+    assert.equal(cloud.calls.some(c=>c.type!=='read'),false);assert.equal(r.run('state.accounts[0].balance'),1000);
+    await r.element('#cloudAccountDownload').onclick();
+    assert.equal(backups[0].accounts[0].balance,side==='cloud'?1000:700);
+    await cloud.confirm();
+    const selected=side==='cloud'?JSON.parse(r.storage.get('KaasiData')):cloud.row.data;
+    assert.equal(selected.accounts[0].balance,side==='cloud'?700:1000);
+    assert.equal(selected.futureField.keep,true);assert.equal(selected.transactions[0].id,'legacy-123');assert.equal(selected.transactions[0].unknown,'retained');
+    assert.equal(r.storage.get('kaasi_cloud_data_owner'),'sync-user');assert.equal(r.element('#cloudAccountModal').style.display,'none');
+  }
+});
+
+test('closing an account choice never authorizes retries, and compare actions go directly to replacement confirmation',async()=>{
+  const r=runtime(),original=JSON.parse(r.storage.get('KaasiData')),remote=JSON.parse(JSON.stringify(original));remote.accounts[0].balance=500;
+  const cloud=syncCloud(r,{data:remote,updated_at:'2026-10-21T00:00:00Z'});r.storage.delete('kaasi_cloud_data_owner');enableAutomaticSync(r);
+  await r.context.runAutomaticCloudSync();r.context.closeModal('cloudAccountModal');
+  await r.context.runAutomaticCloudSync();await r.context.refreshCloudSyncStatus();
+  assert.equal(cloud.calls.some(c=>c.type!=='read'),false);assert.equal(r.run('state.accounts[0].balance'),1000);
+  await r.context.syncCloudData();r.element('#cloudAccountCompare').onclick();
+  assert.equal(r.element('#cloudSyncModal').style.display,'block');r.context.chooseCloudSyncCopy('cloud');
+  assert.equal(typeof cloud.confirm,'function');
+  assert.equal(cloud.confirmTitle,'Replace This Device’s Data?');assert.equal(cloud.confirmLabel,'Replace Device Data');
+  assert.equal(r.element('#cloudSyncModal').style.display,'block');
+  assert.equal(r.element('#cloudAccountTitle').textContent,'Choose which data to use');
+  assert.equal(r.run('state.accounts[0].balance'),1000);assert.equal(cloud.calls.some(c=>c.type!=='read'),false);
+  const moves=[];r.context.history.state={openModals:['settingsModal','cloudAccountModal','cloudSyncModal','confirmationModal']};r.context.history.go=delta=>moves.push(delta);
+  await cloud.confirm();assert.deepEqual(moves,[-3]);assert.equal(r.run('state.accounts[0].balance'),500);
+});
+
+test('stale account choices reject local, cloud, owner and sign-in changes before replacing either copy',async()=>{
+  for(const race of ['local','cloud','owner','account','away-and-back','offline']){
+    const r=runtime(),original=JSON.parse(r.storage.get('KaasiData')),remote=JSON.parse(JSON.stringify(original));remote.accounts[0].balance=500;
+    const cloud=syncCloud(r,{data:remote,updated_at:'2026-10-21T00:00:00Z'});r.storage.set('kaasi_cloud_data_owner','previous-user');
+    await r.context.syncCloudData();await accountAction(r,'Use This Device’s Data');
+    if(race==='local')await r.run('state.accounts[0].balance=800;saveData();');
+    if(race==='cloud')cloud.row.updated_at='2026-10-22T00:00:00Z';
+    if(race==='owner')r.storage.set('kaasi_cloud_data_owner','third-user');
+    if(race==='account')r.run('supabaseUser={id:"third-user"}');
+    if(race==='away-and-back'){r.context.resetCloudSyncAccount({id:'third-user'});r.context.resetCloudSyncAccount({id:'sync-user'});}
+    if(race==='offline')r.context.navigator.onLine=false;
+    const before=r.storage.get('KaasiData');await cloud.confirm();
+    assert.equal(r.storage.get('KaasiData'),before,race);assert.equal(cloud.row.data.accounts[0].balance,500,race);
+    assert.notEqual(r.storage.get('kaasi_cloud_data_owner'),'sync-user',race);
+  }
+});
+
+test('signing out from the account choice retains both copies and the device ownership marker',async()=>{
+  const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});r.storage.set('kaasi_cloud_data_owner','previous-user');
+  r.context.testClient.auth={signOut:async()=>({error:null})};r.context.updateSupabaseUI=user=>r.context.resetCloudSyncAccount(user);
+  const before=r.storage.get('KaasiData');await r.context.syncCloudData();await r.element('#cloudAccountSignOut').onclick();
+  assert.equal(r.run('supabaseUser'),null);assert.equal(r.storage.get('KaasiData'),before);
+  assert.equal(r.storage.get('kaasi_cloud_data_owner'),'previous-user');assert.equal(cloud.calls.some(c=>c.type!=='read'),false);
+});
+
+test('same-account re-login keeps its association, and transfer primitives reject an unapproved owner',async()=>{
+  const r=runtime(),original=JSON.parse(r.storage.get('KaasiData'));
+  const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();
+  r.context.resetCloudSyncAccount(null);r.context.resetCloudSyncAccount({id:'sync-user'});
+  await r.context.syncCloudData();assert.equal(r.context.currentCloudSyncStatus,'synced');assert.notEqual(r.element('#cloudAccountModal').style.display,'block');
+  r.storage.set('kaasi_cloud_data_owner','previous-user');
+  const saved=await r.context.KaasiStorage.snapshot();
+  const local=r.context.portableKaasiData(saved);
+  const context={userId:'sync-user',saved,local,cloud:local,revision:r.context.KaasiStorage.revision,hash:await r.context.KaasiStorage.digest(local),updatedAt:cloud.row.updated_at};
+  await assert.rejects(r.context.uploadCloudSync(context),/Choose which data/);
+  await assert.rejects(r.context.downloadCloudSync(context),/Choose which data/);
+  assert.equal(cloud.calls.some(c=>c.type!=='read'),false);
 });
 
 test('timed-out requests abort the supported transport and late success is reconciled without duplicate upload',async()=>{

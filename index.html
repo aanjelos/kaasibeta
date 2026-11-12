@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v6.505n" />
+    <meta name="application-version" content="v6.506n" />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
@@ -53,10 +53,10 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" integrity="sha384-UagCvVPT5XXA0Hx+nJYUAGBFseHT9zBgpJMSebsAxl9lciTwbT+39j5VfRjdP5Tp" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v6.505n" />
-    <link rel="stylesheet" href="settings-workspace.css?v=v6.505n" />
-    <link rel="stylesheet" href="onboarding.css?v=v6.505n" />
-    <link rel="stylesheet" href="tailwind.css?v=v6.505n" />
+    <link rel="stylesheet" href="style.css?v=v6.506n" />
+    <link rel="stylesheet" href="settings-workspace.css?v=v6.506n" />
+    <link rel="stylesheet" href="onboarding.css?v=v6.506n" />
+    <link rel="stylesheet" href="tailwind.css?v=v6.506n" />
 
     <script
       async
@@ -1726,6 +1726,25 @@
         </div>
       </div>
 
+      <div id="cloudAccountModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="cloudAccountTitle">
+        <div class="modal-content cloud-sync-content cloud-account-content">
+          <div class="sync-review-heading">
+            <div class="sync-review-symbol" aria-hidden="true"><i class="fas fa-arrows-rotate"></i></div>
+            <div><h2 id="cloudAccountTitle">Choose which data to use</h2><p>Nothing has been replaced.</p></div>
+          </div>
+          <div class="sync-review-body">
+            <p id="cloudAccountCopy" class="cloud-account-copy"></p>
+            <div class="cloud-account-identity"><small>Signed-in account</small><strong id="cloudAccountEmail"></strong></div>
+          </div>
+          <div class="sync-choice-actions">
+            <p id="cloudAccountNote"></p>
+            <div id="cloudAccountActions" class="cloud-account-actions"></div>
+            <button id="cloudAccountCompare" type="button" class="cloud-account-compare">Compare Copies</button><br />
+            <button id="cloudAccountSignOut" type="button" class="btn btn-secondary sync-cancel">Sign Out</button>
+          </div>
+        </div>
+      </div>
+
       <div id="cloudSyncModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="cloudSyncTitle">
         <div class="modal-content cloud-sync-content">
           <button class="modal-close" type="button" aria-label="Close comparison" onclick="closeModal('cloudSyncModal')">&times;</button>
@@ -1946,27 +1965,27 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v6.505n" defer></script>
-    <script src="js/import-validation.js?v=v6.505n" defer></script>
-    <script src="js/storage.js?v=v6.505n" defer></script>
-    <script src="js/storage-ui.js?v=v6.505n" defer></script>
-    <script src="js/animations.js?v=v6.505n" defer></script>
-    <script src="js/data-sync.js?v=v6.505n" defer></script>
-    <script src="js/cloud-sync.js?v=v6.505n" defer></script>
-    <script src="js/math-tool.js?v=v6.505n" defer></script>
-    <script src="js/settings.js?v=v6.505n" defer></script>
-    <script src="js/charts.js?v=v6.505n" defer></script>
-    <script src="js/ui.js?v=v6.505n" defer></script>
-    <script src="js/settings-workspace.js?v=v6.505n" defer></script>
-    <script src="js/features.js?v=v6.505n" defer></script>
-    <script src="js/subscription-assets.js?v=v6.505n" defer></script>
-    <script src="js/subscription-services.js?v=v6.505n" defer></script>
-    <script src="js/subscriptions.js?v=v6.505n" defer></script>
-    <script src="js/security.js?v=v6.505n" defer></script>
-    <script src="js/milestones.js?v=v6.505n" defer></script>
-    <script src="js/onboarding.js?v=v6.505n" defer></script>
-    <script src="js/app.js?v=v6.505n" defer></script>
-    <script src="js/history-suggestions.js?v=v6.505n" defer></script>
+    <script src="js/globals.js?v=v6.506n" defer></script>
+    <script src="js/import-validation.js?v=v6.506n" defer></script>
+    <script src="js/storage.js?v=v6.506n" defer></script>
+    <script src="js/storage-ui.js?v=v6.506n" defer></script>
+    <script src="js/animations.js?v=v6.506n" defer></script>
+    <script src="js/data-sync.js?v=v6.506n" defer></script>
+    <script src="js/cloud-sync.js?v=v6.506n" defer></script>
+    <script src="js/math-tool.js?v=v6.506n" defer></script>
+    <script src="js/settings.js?v=v6.506n" defer></script>
+    <script src="js/charts.js?v=v6.506n" defer></script>
+    <script src="js/ui.js?v=v6.506n" defer></script>
+    <script src="js/settings-workspace.js?v=v6.506n" defer></script>
+    <script src="js/features.js?v=v6.506n" defer></script>
+    <script src="js/subscription-assets.js?v=v6.506n" defer></script>
+    <script src="js/subscription-services.js?v=v6.506n" defer></script>
+    <script src="js/subscriptions.js?v=v6.506n" defer></script>
+    <script src="js/security.js?v=v6.506n" defer></script>
+    <script src="js/milestones.js?v=v6.506n" defer></script>
+    <script src="js/onboarding.js?v=v6.506n" defer></script>
+    <script src="js/app.js?v=v6.506n" defer></script>
+    <script src="js/history-suggestions.js?v=v6.506n" defer></script>
   </body>
 </html>
 

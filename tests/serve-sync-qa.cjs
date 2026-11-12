@@ -57,13 +57,35 @@ async maybeSingle(){${process.env.KAASI_RESTORE_OVERLAY_QA==='1'?"if(method==='r
 if(method!=='read')row=payload;return{data:fields==='updated_at'?{updated_at:row.updated_at}:row,error:null};}}
 }}}};
 </script>`;
+const accountQa = process.env.KAASI_ACCOUNT_QA === '1' ? `<script>
+window.supabase={createClient(){
+  let user={id:'qa-account-a',email:'alex@example.invalid'},row=${JSON.stringify({data:remote,updated_at:'2026-11-13T10:00:00Z'})},writes=0;
+  const report=()=>{const output=document.getElementById('qaAccountState');if(output)output.textContent=JSON.stringify({user:user?.id,writes,cloudBalance:row?.data.accounts[0].balance??null,deviceBalance:state?.accounts?.[0]?.balance??null,owner:appPreferences.getItem('kaasi_cloud_data_owner')});};
+  document.addEventListener('DOMContentLoaded',()=>{
+    const panel=document.createElement('aside');panel.id='qaAccountTools';panel.style.cssText='position:fixed;bottom:0;left:0;z-index:200;background:#333;padding:4px;font:11px sans-serif;color:white';
+    const add=(label,action)=>{const button=document.createElement('button');button.textContent=label;button.style.cssText='margin:2px;padding:3px;border:1px solid white';button.onclick=async()=>{await action();report();};panel.append(button);};
+    const reset=empty=>{user={id:empty?'qa-account-b':'qa-account-a',email:empty?'blair@example.invalid':'alex@example.invalid'};row=empty?null:${JSON.stringify({data:remote,updated_at:'2026-11-13T10:00:00Z'})};supabaseUser=user;updateSupabaseUI(user);};
+    add('QA Other Account',()=>reset(false));add('QA Empty Account',()=>reset(true));
+    add('QA Check Sync',()=>syncCloudData());add('QA Read State',()=>{});
+    const output=document.createElement('output');output.id='qaAccountState';output.style.display='block';panel.append(output);document.body.append(panel);report();
+  });
+  return {auth:{onAuthStateChange(){},getSession:async()=>({data:{session:user?{user}:null}}),signOut:async()=>{user=null;report();return{error:null};}},
+    from(){let fields,method='read',payload,expected;return{select(value){fields=value;return this;},eq(key,value){if(key==='updated_at')expected=value;return this;},insert(value){method='insert';payload=value;return this;},update(value){method='update';payload=value;return this;},async maybeSingle(){
+      if(method==='insert'&&row)return{data:null,error:{code:'23505'}};
+      if(method==='update'&&row?.updated_at!==expected)return{data:null,error:null};
+      if(method!=='read'){row=payload;writes++;}report();
+      return{data:row?(fields==='updated_at'?{updated_at:row.updated_at}:row):null,error:null};
+    }}}};
+}};
+</script>` : '';
 new vm.Script(bootstrap.slice(8,-9));
+if(accountQa)new vm.Script(accountQa.slice(8,-9));
 http.createServer((req,res)=>{
   let name=new URL(req.url,'http://127.0.0.1').pathname;if(name==='/')name='/index.html';
   if(!(/^\/(index\.html|style\.css|settings-workspace\.css|onboarding\.css|tailwind\.css|manifest\.json)$/.test(name)||/^\/(js|img|fonts|licenses)\/[a-zA-Z0-9_./-]+$/.test(name))||name.split('/').includes('..')){res.writeHead(404).end();return;}
   try{
     let body=fs.readFileSync(path.join(root,name));
-    if(name==='/index.html')body=body.toString().replace('<script src="js/globals.js',bootstrap+'<script src="js/globals.js');
+    if(name==='/index.html')body=body.toString().replace('<script src="js/globals.js',bootstrap+accountQa+'<script src="js/globals.js');
     const type={'.txt':'text/plain; charset=utf-8','.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.woff2':'font/woff2'};
     res.writeHead(200,{'Content-Type':type[path.extname(name)]||'application/octet-stream','Cache-Control':'no-store'}).end(body);
   }catch{res.writeHead(404).end();}

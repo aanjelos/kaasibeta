@@ -1,23 +1,23 @@
 # Graph Report - kaasibeta  (2026-11-13)
 
 ## Corpus Check
-- 57 files · ~110,470 words
+- 57 files · ~111,840 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 8 file(s) not represented in the graph (top: .css 4, (none) 3, .bat 1)
 
 ## Summary
-- 741 nodes · 1283 edges · 45 communities (38 shown, 7 thin omitted)
+- 748 nodes · 1314 edges · 50 communities (42 shown, 8 thin omitted)
 - Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 74 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d758531c`
+- Built from commit: `fb32f6c8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - Dashboard and Financial Flows
-- Roadmap and Data Contracts
+- docs/CHANGELOG_v7.md
 - App Shell and Settings Surfaces
 - Cloud Synchronization
 - Shared State and Utilities
@@ -52,24 +52,29 @@
 - ref_node_assert
 - Simple Icons Licensing
 - Offline Service Worker
-- docs/SUBSCRIPTIONS.md
+- fetch-subscription-icons.cjs
 - Cloud Sync Test Fixtures
 - Form Containment Helpers
 - transfer-selection.test.cjs
-- docs/APP_SHELL_CACHE.md
+- docs/INDEXEDDB_STORAGE.md
 - milestones.test.cjs
+- docs/SUBSCRIPTIONS.md
+- docs/ROADMAP.md
+- Deployed Supabase row-level security verification
+- docs/APP_SHELL_CACHE.md
+- Portable achievement metadata
 
 ## God Nodes (most connected - your core abstractions)
 1. `renderDashboard()` - 27 edges
 2. `Kaasi Beta application shell` - 27 edges
-3. `syncCloudData()` - 23 edges
+3. `syncCloudData()` - 24 edges
 4. `Element` - 21 edges
 5. `openCcHistoryModal()` - 14 edges
-6. `Portable subscription schedules` - 11 edges
-7. `Settings desktop sidebar and mobile hub` - 11 edges
-8. `refreshMonthlyViewIfRelevant()` - 10 edges
-9. `downloadCloudSync()` - 10 edges
-10. `Consistent portable JSON snapshots` - 10 edges
+6. `downloadCloudSync()` - 12 edges
+7. `manualCloudTransfer()` - 11 edges
+8. `Portable subscription schedules` - 11 edges
+9. `Settings desktop sidebar and mobile hub` - 11 edges
+10. `confirmCloudAccountReplacement()` - 10 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Chart.js MIT Notice` --semantically_similar_to--> `LobeHub MIT Notice`  [INFERRED] [semantically similar]
@@ -90,23 +95,23 @@
 - **Credit-card settings purchase entry and payment history** — index_accounts_settings, index_credit_card_entry, index_credit_card_history [EXTRACTED 1.00]
 - **Local and cloud data recovery surfaces** — index_storage_recovery, index_backup_settings, index_cloud_restore_lock, index_cloud_conflict_review, index_session_recovery [INFERRED 0.85]
 
-## Communities (45 total, 7 thin omitted)
+## Communities (50 total, 8 thin omitted)
 
 ### Community 0 - "Dashboard and Financial Flows"
 Cohesion: 0.05
 Nodes (79): ccPurchaseCategoryOptions(), deleteCcTransaction(), deleteDebt(), deleteInstallment(), deleteReceivable(), deleteTransaction(), dismissMonthlyBudgetReminder(), getCcPurchaseCategory() (+71 more)
 
-### Community 1 - "Roadmap and Data Contracts"
-Cohesion: 0.06
-Nodes (36): v6.492n approved accessibility and rendering polish, Device-only sync pause and import protection, Local history-based description and name suggestions, UUIDs for new records, historical IDs retained, Isolated setup and replayable practice tour, Responsive Settings workspace, Shared backup validation and import rollback, Account-scoped SHA-256 sync baseline (+28 more)
+### Community 1 - "docs/CHANGELOG_v7.md"
+Cohesion: 0.15
+Nodes (8): v6.492n approved accessibility and rendering polish, Device-only sync pause and import protection, Local history-based description and name suggestions, UUIDs for new records, historical IDs retained, Isolated setup and replayable practice tour, Responsive Settings workspace, Shared backup validation and import rollback, Planned advisory duplicate-entry warning
 
 ### Community 2 - "App Shell and Settings Surfaces"
 Cohesion: 0.08
 Nodes (43): About support and third-party acknowledgments, Account names balances transfer fees and card limit, Google Analytics page configuration, Theme calculator and dashboard visibility preferences, Subscription security onboarding milestones and history scripts, Local backups cloud sync and storage protection, Total Available and Total Potential overview, Category budgets and monthly reminder (+35 more)
 
 ### Community 3 - "Cloud Synchronization"
-Cohesion: 0.15
-Nodes (37): assertCloudSyncLocal(), automaticCloudReviewsSeen, automaticCloudSyncEnabled(), automaticSyncPaused(), beginCloudRestoreLock(), checkVisibleCloudSync(), chooseCloudSyncCopy(), cloudSyncAssertUser() (+29 more)
+Cohesion: 0.14
+Nodes (43): approveCloudAccountChoice(), assertCloudSyncLocal(), assertCloudSyncOwnership(), automaticCloudReviewsSeen, automaticCloudSyncEnabled(), automaticSyncPaused(), beginCloudRestoreLock(), checkVisibleCloudSync() (+35 more)
 
 ### Community 4 - "Shared State and Utilities"
 Cohesion: 0.08
@@ -117,7 +122,7 @@ Cohesion: 0.06
 Nodes (25): devDependencies, fake-indexeddb@6.2.4, name, private, scripts, test, fake-indexeddb, assert (+17 more)
 
 ### Community 6 - "Interaction Regression Tests"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (7): assert, fs, path, root, test, vm, { webcrypto }
 
 ### Community 7 - "Settings and Budgets"
@@ -228,39 +233,55 @@ Nodes (5): assert, context, fs, test, vm
 Cohesion: 0.53
 Nodes (5): fresh(), navigationShell(), pendingShells, STATIC_ASSETS, verifiedShell()
 
-### Community 36 - "docs/SUBSCRIPTIONS.md"
-Cohesion: 0.13
-Nodes (16): Already Recorded renewal-only action, Atomic payment and renewal commits, Calendar recurrence and anchor-day clamping, Independent subscription expense and CC records, Bundled subscription artwork and local matching, Portable subscription schedules, Six-hour subscription reminder snoozes, SUBSCRIPTION_LOGO_FILES (+8 more)
+### Community 36 - "fetch-subscription-icons.cjs"
+Cohesion: 0.29
+Nodes (5): c, fs, path, root, vm
 
 ### Community 42 - "transfer-selection.test.cjs"
 Cohesion: 0.25
 Nodes (5): accounts, assert, fs, test, vm
 
-### Community 43 - "docs/APP_SHELL_CACHE.md"
-Cohesion: 0.70
-Nodes (3): Coordinated application, asset and worker versions, CRLF-normalized SHA-256 asset hashes, Versioned app-shell hash manifest
+### Community 43 - "docs/INDEXEDDB_STORAGE.md"
+Cohesion: 0.27
+Nodes (11): Account-scoped SHA-256 sync baseline, Atomic financial saves, Single previous-dataset recovery slot, kaasi-finances schema version 2, Frozen original KaasiData migration copy, Consistent portable JSON snapshots, Optimistic revision and generation guards, Verified staging generations (+3 more)
 
 ### Community 44 - "milestones.test.cjs"
 Cohesion: 0.29
 Nodes (4): assert, fs, test, vm
 
+### Community 45 - "docs/SUBSCRIPTIONS.md"
+Cohesion: 0.21
+Nodes (11): Already Recorded renewal-only action, Atomic payment and renewal commits, Calendar recurrence and anchor-day clamping, Independent subscription expense and CC records, Bundled subscription artwork and local matching, Portable subscription schedules, Six-hour subscription reminder snoozes, SUBSCRIPTION_LOGO_FILES (+3 more)
+
+### Community 46 - "docs/ROADMAP.md"
+Cohesion: 0.23
+Nodes (11): Planned BNPL purchase and repayment tracking, Planned per-month historical budget storage, Deferred Fluent Emoji Flat category icons, Planned reliably dated installment reminders, Planned historical budget PDF reporting, Optional future mobile transaction FAB, Implemented portable monthly budget reminder, Privacy-preserving shareable yearly recap (+3 more)
+
+### Community 47 - "Deployed Supabase row-level security verification"
+Cohesion: 0.43
+Nodes (4): Owner and timestamp conditional cloud writes, Two-account backup isolation tests, Deployed Supabase row-level security verification, Concurrent expected-timestamp write test
+
+### Community 48 - "docs/APP_SHELL_CACHE.md"
+Cohesion: 0.70
+Nodes (3): Coordinated application, asset and worker versions, CRLF-normalized SHA-256 asset hashes, Versioned app-shell hash manifest
+
 ## Knowledge Gaps
-- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Element` connect `UI Test Runtime` to `Interaction Regression Tests`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
+  _High betweenness centrality (0.047) - this node is a cross-community bridge._
 - **Should `Dashboard and Financial Flows` be split into smaller, more focused modules?**
   _Cohesion score 0.05393258426966292 - nodes in this community are weakly interconnected._
-- **Why does `Consistent portable JSON snapshots` connect `Roadmap and Data Contracts` to `docs/SUBSCRIPTIONS.md`?**
+- **Why does `Consistent portable JSON snapshots` connect `docs/INDEXEDDB_STORAGE.md` to `docs/CHANGELOG_v7.md`, `docs/SUBSCRIPTIONS.md`, `docs/ROADMAP.md`, `Portable achievement metadata`?**
   _High betweenness centrality (0.024) - this node is a cross-community bridge._
-- **Should `Roadmap and Data Contracts` be split into smaller, more focused modules?**
-  _Cohesion score 0.06298701298701298 - nodes in this community are weakly interconnected._
 - **Should `App Shell and Settings Surfaces` be split into smaller, more focused modules?**
   _Cohesion score 0.08 - nodes in this community are weakly interconnected._
 - **Should `Cloud Synchronization` be split into smaller, more focused modules?**
-  _Cohesion score 0.14615384615384616 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.1391304347826087 - nodes in this community are weakly interconnected._
 - **Should `Shared State and Utilities` be split into smaller, more focused modules?**
   _Cohesion score 0.07563025210084033 - nodes in this community are weakly interconnected._
+- **Should `IndexedDB Regression Tests` be split into smaller, more focused modules?**
+  _Cohesion score 0.05832147937411095 - nodes in this community are weakly interconnected._
