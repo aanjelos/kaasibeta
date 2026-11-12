@@ -53,6 +53,14 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 - Keep Skip/Exit available and replay from Settings starting at the beginning. Do not automatically force returning users through the replacement guide. Preserve completion tracking only for a genuinely completed tour, distinct from practice actions.
 - Match Kaasi's approved v9 styling. Test phone keyboard/popover overlap, scrolling, safe areas, hidden sections, missing targets, interrupted tours, keyboard/focus handling, screen readers and reduced motion. Adapt steps to the controls actually available on each device.
 
+### Sinhala localization
+
+- **Requested 2026-11-12; explore with v9:** Offer Sinhala alongside English, with a clear language selector in Settings. Discuss default language and whether the preference is device-specific before implementation; keep switching reversible.
+- Translate interface labels, navigation, forms, validation/errors, reminders, onboarding/tour, Settings and accessibility text using shared translation resources. Have Sinhala financial terminology and natural phrasing reviewed by a fluent speaker; retain English fallbacks for missing translations.
+- Localize presentation only. Preserve stored category/account names, descriptions, person names, stable IDs, calculations, backup structure and sync behaviour; never rewrite user-entered financial records when changing language. Distinguish translated default labels from their underlying stored values.
+- Choose an appropriately licensed Sinhala-capable font and bundle required resources for offline use. Verify glyph shaping, readable sizing, line height, wrapping and longer labels on desktop/mobile in both themes. Review date/number/currency formatting, search behaviour, charts and PDF exports explicitly rather than assuming the existing font/export paths support Sinhala.
+- Include Sinhala previews in the v9 design review and test the same financial workflows in both languages. This is planning only; no translation service, dependency or current-app change is authorized by this item.
+
 ### Preview, checkpoint and acceptance
 
 - Begin with a polished desktop preview and an interactive mobile preview using synthetic data and a mocked backend. Cover Home → Add Transaction → Transaction Details, including bottom navigation, FAB and transitions; include Balance Overview and Recent Transactions in enough context to assess hierarchy.
