@@ -6,6 +6,24 @@ const context = {};
 vm.createContext(context);
 vm.runInContext(fs.readFileSync('js/history-suggestions.js','utf8').split('(() => {')[0],context);
 const find = (...args)=>JSON.parse(JSON.stringify(context.findHistorySuggestions(...args)));
+
+test('placement reserves two results when narrowing to one and responds to actual space changes',()=>{
+  const source=fs.readFileSync('js/history-suggestions.js','utf8');
+  const start=source.indexOf('    function position() {'),end=source.indexOf('\n    position();',start);
+  const popup={style:{},scrollHeight:128,offsetHeight:128,offsetWidth:280};
+  const viewport={height:450,width:390,offsetLeft:0,offsetTop:0};
+  const rect={top:300,bottom:344,left:20,width:280};
+  const c=vm.createContext({popup,list:popup,el:{getBoundingClientRect:()=>rect},window:{visualViewport:viewport},sourceFloatingLayer:()=>100,
+    performance:{now:()=>1000},started:0,Math,close(){throw Error('Unexpected close');}});
+  vm.runInContext(source.slice(start,end),c);c.position();
+  assert.equal(popup.style.top,'164px','two results appear above');
+  popup.scrollHeight=64;popup.offsetHeight=64;c.position();
+  assert.equal(popup.style.top,'228px','one result remains above instead of flipping below');
+  viewport.height=600;c.position();assert.equal(popup.style.top,'352px','below is allowed once two results fit');
+  viewport.height=180;rect.top=60;rect.bottom=104;c.position();
+  assert.equal(popup.style.top,'112px','when neither side fits, use the roomier side');
+  assert.equal(popup.style.maxHeight,'64px');
+});
 test('history suggestions require typing, isolate types, rank prefixes and deduplicate newest entries',()=>{
   const rows=[
     {description:'Weekly groceries',category:'Old',timestamp:1,type:'expense'},

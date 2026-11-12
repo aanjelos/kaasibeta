@@ -7,7 +7,7 @@ Prepared 2026-11-08 from Kaasi Beta `1cfc141` (application `v6.501n`).
 - Repository: `aanjelos/kaasiapp`.
 - Branch: `codex/v7-release-staging`, based on production main `604bb1d`.
 - Published staging commit: `6ced2b3`. Production main remains `604bb1d`.
-- Staged application/cache version: `v7.504n`, including the Enter submission fix verified on 2026-11-12. HTML, asset URLs, service-worker BUILD and regenerated app-shell hashes agree. Beta retains `v6.504n`. Keep JavaScript unminified for this release; compiled Tailwind CSS is already minified.
+- Staged application/cache version: `v7.505n`, including the history-popup placement fix verified on 2026-11-13. HTML, asset URLs, service-worker BUILD and regenerated app-shell hashes agree. Beta retains `v6.505n`. Keep JavaScript unminified for this release; compiled Tailwind CSS is already minified.
 - Production `main`, CNAME (`app.kaasi.com.lk`), Pages settings and Supabase settings/data were not changed. Pages was verified to publish only `main` at the repository root.
 
 ## Release contents
@@ -38,6 +38,8 @@ Prepared 2026-11-08 from Kaasi Beta `1cfc141` (application `v6.501n`).
 - Existing Google Analytics property/configuration retained. No GA administrative settings were changed; reporting milestone_id as a custom dimension remains a separate reporting setup step.
 
 ### Remaining release checks
+
+- Suggestion placement follow-up (2026-11-13): reserve two-result space when choosing above/below, regardless of result count. Browser checks in a 390px-wide, keyboard-sized viewport confirmed six results above becoming one above (130px shrinking to 66px with 78px below the field); desktop selection still fills description/category. Actual phone keyboard validation remains a real-device check. Four suggestion tests and eight cache tests passed in Beta and staging.
 
 - Keyboard follow-up (2026-11-12): Enter from normal income/expense account and either transfer account selector follows the existing validated form-submit path. Browser checks verified income, expense, both transfer selectors, balances and calculator precedence with disposable data. All 249 Beta tests passed; staging's two keyboard tests and eight cache tests passed. No financial data or Supabase settings were changed.
 

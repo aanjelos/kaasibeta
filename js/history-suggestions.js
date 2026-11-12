@@ -93,7 +93,8 @@ function findHistorySuggestions(records, query, field, type, limit = 2) {
       const left = viewport?.offsetLeft || 0, top = viewport?.offsetTop || 0;
       const width = viewport?.width || window.innerWidth, height = viewport?.height || window.innerHeight;
       const below = Math.max(0,top+height-rect.bottom-12), above = Math.max(0,rect.top-top-12);
-      const placeBelow = below >= Math.min(popup.scrollHeight,130) || below >= above;
+      // Reserve the full two-result footprint even when filtering leaves one result.
+      const placeBelow = below >= 130 || below >= above;
       popup.style.maxHeight = Math.min(130,placeBelow ? below : above) + 'px';
       popup.style.width = Math.max(0,Math.min(rect.width,width-24)) + 'px';
       popup.style.left = Math.max(left+12,Math.min(rect.left,left+width-popup.offsetWidth-12)) + 'px';

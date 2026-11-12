@@ -1,17 +1,17 @@
-# Graph Report - kaasibeta  (2026-11-12)
+# Graph Report - kaasibeta  (2026-11-13)
 
 ## Corpus Check
-- 57 files · ~110,280 words
+- 57 files · ~110,470 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 8 file(s) not represented in the graph (top: .css 4, (none) 3, .bat 1)
 
 ## Summary
-- 740 nodes · 1282 edges · 44 communities (37 shown, 7 thin omitted)
+- 741 nodes · 1283 edges · 45 communities (38 shown, 7 thin omitted)
 - Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 74 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `436fbcc2`
+- Built from commit: `d758531c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -52,10 +52,11 @@
 - ref_node_assert
 - Simple Icons Licensing
 - Offline Service Worker
-- fetch-subscription-icons.cjs
+- docs/SUBSCRIPTIONS.md
 - Cloud Sync Test Fixtures
 - Form Containment Helpers
 - transfer-selection.test.cjs
+- docs/APP_SHELL_CACHE.md
 - milestones.test.cjs
 
 ## God Nodes (most connected - your core abstractions)
@@ -89,15 +90,15 @@
 - **Credit-card settings purchase entry and payment history** — index_accounts_settings, index_credit_card_entry, index_credit_card_history [EXTRACTED 1.00]
 - **Local and cloud data recovery surfaces** — index_storage_recovery, index_backup_settings, index_cloud_restore_lock, index_cloud_conflict_review, index_session_recovery [INFERRED 0.85]
 
-## Communities (44 total, 7 thin omitted)
+## Communities (45 total, 7 thin omitted)
 
 ### Community 0 - "Dashboard and Financial Flows"
 Cohesion: 0.05
 Nodes (79): ccPurchaseCategoryOptions(), deleteCcTransaction(), deleteDebt(), deleteInstallment(), deleteReceivable(), deleteTransaction(), dismissMonthlyBudgetReminder(), getCcPurchaseCategory() (+71 more)
 
 ### Community 1 - "Roadmap and Data Contracts"
-Cohesion: 0.05
-Nodes (47): v6.492n approved accessibility and rendering polish, Device-only sync pause and import protection, Local history-based description and name suggestions, UUIDs for new records, historical IDs retained, Isolated setup and replayable practice tour, Responsive Settings workspace, Shared backup validation and import rollback, Account-scoped SHA-256 sync baseline (+39 more)
+Cohesion: 0.06
+Nodes (36): v6.492n approved accessibility and rendering polish, Device-only sync pause and import protection, Local history-based description and name suggestions, UUIDs for new records, historical IDs retained, Isolated setup and replayable practice tour, Responsive Settings workspace, Shared backup validation and import rollback, Account-scoped SHA-256 sync baseline (+28 more)
 
 ### Community 2 - "App Shell and Settings Surfaces"
 Cohesion: 0.08
@@ -112,8 +113,8 @@ Cohesion: 0.08
 Nodes (19): ccHistoryOpenMonthKeys, ccSelectedMonth, ccSelectedYear, deepMerge(), ensureDefaultAccounts(), ensureDefaultCategories(), escapeHTML(), formatCurrency() (+11 more)
 
 ### Community 5 - "IndexedDB Regression Tests"
-Cohesion: 0.08
-Nodes (19): devDependencies, fake-indexeddb@6.2.4, name, private, scripts, test, fake-indexeddb, assert (+11 more)
+Cohesion: 0.06
+Nodes (25): devDependencies, fake-indexeddb@6.2.4, name, private, scripts, test, fake-indexeddb, assert (+17 more)
 
 ### Community 6 - "Interaction Regression Tests"
 Cohesion: 0.08
@@ -172,8 +173,8 @@ Cohesion: 0.30
 Nodes (10): close(), configuration(), findHistorySuggestions(), pick(), prepare(), show(), appendOptions(), loadMore() (+2 more)
 
 ### Community 21 - "service-worker.test.cjs"
-Cohesion: 0.08
-Nodes (17): Coordinated application, asset and worker versions, CRLF-normalized SHA-256 asset hashes, Versioned app-shell hash manifest, assert, fs, path, root, source (+9 more)
+Cohesion: 0.17
+Nodes (8): assert, fs, path, root, source, test, vm, {webcrypto,createHash}
 
 ### Community 22 - "Amount Calculator"
 Cohesion: 0.31
@@ -227,13 +228,17 @@ Nodes (5): assert, context, fs, test, vm
 Cohesion: 0.53
 Nodes (5): fresh(), navigationShell(), pendingShells, STATIC_ASSETS, verifiedShell()
 
-### Community 36 - "fetch-subscription-icons.cjs"
-Cohesion: 0.29
-Nodes (5): c, fs, path, root, vm
+### Community 36 - "docs/SUBSCRIPTIONS.md"
+Cohesion: 0.13
+Nodes (16): Already Recorded renewal-only action, Atomic payment and renewal commits, Calendar recurrence and anchor-day clamping, Independent subscription expense and CC records, Bundled subscription artwork and local matching, Portable subscription schedules, Six-hour subscription reminder snoozes, SUBSCRIPTION_LOGO_FILES (+8 more)
 
 ### Community 42 - "transfer-selection.test.cjs"
-Cohesion: 0.29
+Cohesion: 0.25
 Nodes (5): accounts, assert, fs, test, vm
+
+### Community 43 - "docs/APP_SHELL_CACHE.md"
+Cohesion: 0.70
+Nodes (3): Coordinated application, asset and worker versions, CRLF-normalized SHA-256 asset hashes, Versioned app-shell hash manifest
 
 ### Community 44 - "milestones.test.cjs"
 Cohesion: 0.29
@@ -249,13 +254,13 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.048) - this node is a cross-community bridge._
 - **Should `Dashboard and Financial Flows` be split into smaller, more focused modules?**
   _Cohesion score 0.05393258426966292 - nodes in this community are weakly interconnected._
+- **Why does `Consistent portable JSON snapshots` connect `Roadmap and Data Contracts` to `docs/SUBSCRIPTIONS.md`?**
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **Should `Roadmap and Data Contracts` be split into smaller, more focused modules?**
-  _Cohesion score 0.05030181086519115 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06298701298701298 - nodes in this community are weakly interconnected._
 - **Should `App Shell and Settings Surfaces` be split into smaller, more focused modules?**
   _Cohesion score 0.08 - nodes in this community are weakly interconnected._
 - **Should `Cloud Synchronization` be split into smaller, more focused modules?**
   _Cohesion score 0.14615384615384616 - nodes in this community are weakly interconnected._
 - **Should `Shared State and Utilities` be split into smaller, more focused modules?**
   _Cohesion score 0.07563025210084033 - nodes in this community are weakly interconnected._
-- **Should `IndexedDB Regression Tests` be split into smaller, more focused modules?**
-  _Cohesion score 0.082010582010582 - nodes in this community are weakly interconnected._

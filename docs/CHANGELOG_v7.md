@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.505n - 2026-11-13
+
+- Choose history-suggestion placement against the full 130px two-result footprint even when only one result matches. Narrowing a query no longer flips the popup below a field near the keyboard; actual height still follows the results and available viewport space. Preserve the roomier-side fallback when neither side fits.
+
 ## v6.504n - 2026-11-12
 
 - Submit the transaction form on plain Enter from either transfer account selector or the normal income/expense account selector, using the existing category-select submission path. Preserve form validation, lock/modal isolation and consumed, composing, modified or repeated key handling; calculator and suggestion Enter handling remains unchanged.
