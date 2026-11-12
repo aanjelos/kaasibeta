@@ -70,12 +70,12 @@ function handleKeyboardShortcuts(event) {
   }
   if (event.key === "Enter" && !event.defaultPrevented && !event.isComposing &&
       !event.repeat && !event.ctrlKey && !event.altKey && !event.metaKey && !event.shiftKey &&
-      event.target.matches?.("select:is(#category, #ccPurchaseCategory, #modalCategory, #modalCcPurchaseCategory)")) {
-    const category = event.target;
+      event.target.matches?.("select:is(#account, #transferFrom, #transferTo, #category, #ccPurchaseCategory, #modalCategory, #modalCcPurchaseCategory)")) {
+    const field = event.target;
     const dialog = topVisibleModal();
-    if (!category.disabled && category.form && (!dialog || dialog.contains(category))) {
+    if (!field.disabled && field.form && (!dialog || dialog.contains(field))) {
       event.preventDefault();
-      category.form.requestSubmit();
+      field.form.requestSubmit();
       return;
     }
   }

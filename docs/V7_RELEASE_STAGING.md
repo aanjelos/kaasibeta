@@ -7,7 +7,7 @@ Prepared 2026-11-08 from Kaasi Beta `1cfc141` (application `v6.501n`).
 - Repository: `aanjelos/kaasiapp`.
 - Branch: `codex/v7-release-staging`, based on production main `604bb1d`.
 - Published staging commit: `6ced2b3`. Production main remains `604bb1d`.
-- Staged application/cache version: `v7.503n`, explicitly requested on 2026-11-09. HTML, asset URLs, service-worker BUILD and regenerated app-shell hashes agree. Beta retains `v6.503n`. Keep JavaScript unminified for this release; compiled Tailwind CSS is already minified.
+- Staged application/cache version: `v7.504n`, including the Enter submission fix verified on 2026-11-12. HTML, asset URLs, service-worker BUILD and regenerated app-shell hashes agree. Beta retains `v6.504n`. Keep JavaScript unminified for this release; compiled Tailwind CSS is already minified.
 - Production `main`, CNAME (`app.kaasi.com.lk`), Pages settings and Supabase settings/data were not changed. Pages was verified to publish only `main` at the repository root.
 
 ## Release contents
@@ -38,6 +38,8 @@ Prepared 2026-11-08 from Kaasi Beta `1cfc141` (application `v6.501n`).
 - Existing Google Analytics property/configuration retained. No GA administrative settings were changed; reporting milestone_id as a custom dimension remains a separate reporting setup step.
 
 ### Remaining release checks
+
+- Keyboard follow-up (2026-11-12): Enter from normal income/expense account and either transfer account selector follows the existing validated form-submit path. Browser checks verified income, expense, both transfer selectors, balances and calculator precedence with disposable data. All 249 Beta tests passed; staging's two keyboard tests and eight cache tests passed. No financial data or Supabase settings were changed.
 
 - Complete real desktop/phone bidirectional sync, paid-subscription reminder ordering and shared local-backup reminder checks.
 - Complete real-device PIN/recovery, installed-PWA update/offline/reconnect and real-data backup/restore acceptance checks. Keep personal test data out of both repositories.

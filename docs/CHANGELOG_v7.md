@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v6.504n - 2026-11-12
+
+- Submit the transaction form on plain Enter from either transfer account selector or the normal income/expense account selector, using the existing category-select submission path. Preserve form validation, lock/modal isolation and consumed, composing, modified or repeated key handling; calculator and suggestion Enter handling remains unchanged.
+
 ## v6.503n - 2026-11-08
 
 - Add allowlisted analytics events for committed subscription creation/payment, completed setup/tutorial and newly earned milestones. Send only fixed event metadata and known milestone IDs; exclude record contents, amounts, names, dates, payment methods and account identifiers. Analytics failures cannot interrupt these workflows.
