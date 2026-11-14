@@ -138,6 +138,14 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 - **Concept**: Extend the existing Upcoming Payments bar to installments once plans have explicit, reliable due-date rules. Do not infer deadlines from months remaining alone. Subscription and dated-debt notices are implemented.
 - **Scope**: Reminders appear inside Kaasi while it is open; closed-app browser/PWA system notifications are not planned. Displaying a reminder must not create financial records. Android remains outside the current web implementation scope.
 
+### Daily Notes (v8)
+
+- **Requested 2026-11-14; next-update target v8:** Add an optional note for each calendar day, separate from individual transactions. Support adding, editing and deleting the note without creating or changing financial records.
+- Show the note below the date inside the daily accordion, before that day's transactions. Refine placement and editing controls for desktop and mobile before implementation.
+- Start with a proposed limit of 256 characters per day, with a visible character counter and consistent validation. Store and render notes as plain text.
+- Assess a separate IndexedDB object store keyed by local calendar date (`YYYY-MM-DD`). Storage layout remains an implementation decision; preserve existing records, migration/recovery copies and unknown backup fields.
+- Include notes in local backup/restore and the existing whole-dataset cloud-sync flow, preserving compatibility with older backups that contain no notes. Define behaviour for days without transactions and retention when transactions for a day are deleted. This roadmap item does not authorize implementation or Supabase changes.
+
 ### Optional Installment Links to Credit-card Transactions (v8)
 
 - **Requested 2026-11-12; next-update target v8:** Let users optionally link an installment plan to an existing credit-card purchase. Offer linking when creating a plan and later for existing plans. Unlinked plans retain their current behaviour; do not infer links or migrate existing plans automatically.
