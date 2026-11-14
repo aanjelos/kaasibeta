@@ -138,6 +138,12 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 - **Concept**: Extend the existing Upcoming Payments bar to installments once plans have explicit, reliable due-date rules. Do not infer deadlines from months remaining alone. Subscription and dated-debt notices are implemented.
 - **Scope**: Reminders appear inside Kaasi while it is open; closed-app browser/PWA system notifications are not planned. Displaying a reminder must not create financial records. Android remains outside the current web implementation scope.
 
+### Immediate History Suggestions During Entry (v8)
+
+- **Requested 2026-11-14; next-update target v8:** Remove the debounce delay from history suggestions when entering transaction descriptions, so suggestions appear promptly for users who type and submit quickly. Review equivalent credit-card description and debt/receivable name-entry suggestions for consistent behaviour, including edit forms.
+- Retain debouncing for transaction-list/history searches, where it remains useful. Preserve existing minimum query lengths, category autofill rules, keyboard handling, stable popup placement and updates without flashing.
+- Check responsiveness with large histories before implementation is final; use efficient matching/caching if necessary without reintroducing a noticeable delay during entry. Planning only; no current search behaviour changes are authorized by this item.
+
 ### Daily Notes (v8)
 
 - **Requested 2026-11-14; next-update target v8:** Add an optional note for each calendar day, separate from individual transactions. Support adding, editing and deleting the note without creating or changing financial records.
