@@ -138,6 +138,13 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 - **Concept**: Extend the existing Upcoming Payments bar to installments once plans have explicit, reliable due-date rules. Do not infer deadlines from months remaining alone. Subscription and dated-debt notices are implemented.
 - **Scope**: Reminders appear inside Kaasi while it is open; closed-app browser/PWA system notifications are not planned. Displaying a reminder must not create financial records. Android remains outside the current web implementation scope.
 
+### Configurable Subscription and Debt Reminder Window
+
+- **Requested 2026-11-16:** Add a setting to choose how far ahead subscription renewals and dated debts appear in Upcoming Payments: **28, 14, 7, 5 or 3 days**, retaining **7 days** as the default for existing and new users.
+- Proposed wording: “Upcoming Payments Window.” Prefer one shared setting for subscriptions and debts; confirm scope and placement before implementation. Always retain overdue unpaid items regardless of the selected future window.
+- Changing the window must not alter due dates, create payments, reset paid/dismissed/snoozed states or increase repeat prompts. Decide explicitly whether it affects only the upcoming list or also reminder prompts; this does not introduce closed-app notifications.
+- Preserve older-backup defaults and existing backup/cloud-sync compatibility. Planning only; no current reminder behaviour or Supabase changes.
+
 ### Immediate History Suggestions During Entry (v8)
 
 - **Requested 2026-11-14; next-update target v8:** Remove the debounce delay from history suggestions when entering transaction descriptions, so suggestions appear promptly for users who type and submit quickly. Review equivalent credit-card description and debt/receivable name-entry suggestions for consistent behaviour, including edit forms.
