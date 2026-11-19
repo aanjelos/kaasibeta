@@ -24,6 +24,9 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 
 ### Brand and visual direction
 
+- **Descriptor refinement requested 2026-11-19:** Consider “Kaasi — Personal Finance” instead of a narrower “Finance Tracker” / “Expense Tracker” descriptor. This better reflects budgets, subscriptions, debts, receivables and credit-card workflows alongside transaction tracking. Keep the Kaasi name; explain the product with a short supporting line where needed.
+- Review the descriptor alongside any approved colour refresh during v9 so the presentation changes feel coherent. A colour change remains optional, with orange still the preferred direction. Before implementation, inventory app/website headings, metadata, PWA descriptions and promotional copy for consistent terminology; avoid implying banking, investing or advisory capabilities Kaasi does not provide. Discussion only; no current branding changes are authorized.
+
 - Retain Kaasi's name, symbol, Satoshi typography, established serif heading treatment where appropriate and terminology. Explore a visual evolution rather than committing to a full rebrand. Orange remains the preferred accent; compare the current brand orange (`#e67e26`) against the reference in previews before approving any new shade.
 - **Preferred palette reference:** [Orange, charcoal and cream — dark/light pair](design-references/v9-orange-charcoal-cream.png). Saved from the user's first supplied image on 2026-11-03; original creator/source URL unknown. Use as visual inspiration, not a shipped app asset or a template to copy.
 - Explore warm charcoal surface levels in dark mode and soft cream with lighter cards in light mode, supported by beige and muted warm greys. The first reference is the strongest preference for both themes; no other reference images were retained.
