@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v7.515m" />
+    <meta name="application-version" content="v7.516m" />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
@@ -52,10 +52,10 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" integrity="sha384-UagCvVPT5XXA0Hx+nJYUAGBFseHT9zBgpJMSebsAxl9lciTwbT+39j5VfRjdP5Tp" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v7.515m" />
-    <link rel="stylesheet" href="settings-workspace.css?v=v7.515m" />
-    <link rel="stylesheet" href="onboarding.css?v=v7.515m" />
-    <link rel="stylesheet" href="tailwind.css?v=v7.515m" />
+    <link rel="stylesheet" href="style.css?v=v7.516m" />
+    <link rel="stylesheet" href="settings-workspace.css?v=v7.516m" />
+    <link rel="stylesheet" href="onboarding.css?v=v7.516m" />
+    <link rel="stylesheet" href="tailwind.css?v=v7.516m" />
 
     <script
       async
@@ -378,9 +378,11 @@
               </form>
               <form id="inlineDailyNoteForm" class="mt-4 space-y-4" hidden>
                 <div>
-                  <label for="inlineDailyNoteText" class="block text-sm font-medium mb-1">Note</label>
+                  <div class="flex items-baseline justify-between gap-2 mb-1">
+                    <label for="inlineDailyNoteText" class="text-sm font-medium">Note</label>
+                    <span id="inlineDailyNoteCount" class="text-xs text-gray-400 tabular-nums"></span>
+                  </div>
                   <textarea id="inlineDailyNoteText" class="block w-full" rows="3" required enterkeyhint="done" aria-describedby="inlineDailyNoteCount inlineDailyNoteError"></textarea>
-                  <p id="inlineDailyNoteCount" class="text-xs text-gray-400 text-right mt-1"></p>
                 </div>
                 <div>
                   <label for="inlineDailyNoteDate" class="block text-sm font-medium mb-1">Date</label>
@@ -1992,27 +1994,27 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v7.515m" defer></script>
-    <script src="js/import-validation.js?v=v7.515m" defer></script>
-    <script src="js/storage.js?v=v7.515m" defer></script>
-    <script src="js/storage-ui.js?v=v7.515m" defer></script>
-    <script src="js/animations.js?v=v7.515m" defer></script>
-    <script src="js/data-sync.js?v=v7.515m" defer></script>
-    <script src="js/cloud-sync.js?v=v7.515m" defer></script>
-    <script src="js/math-tool.js?v=v7.515m" defer></script>
-    <script src="js/settings.js?v=v7.515m" defer></script>
-    <script src="js/charts.js?v=v7.515m" defer></script>
-    <script src="js/ui.js?v=v7.515m" defer></script>
-    <script src="js/settings-workspace.js?v=v7.515m" defer></script>
-    <script src="js/features.js?v=v7.515m" defer></script>
-    <script src="js/subscription-assets.js?v=v7.515m" defer></script>
-    <script src="js/subscription-services.js?v=v7.515m" defer></script>
-    <script src="js/subscriptions.js?v=v7.515m" defer></script>
-    <script src="js/security.js?v=v7.515m" defer></script>
-    <script src="js/milestones.js?v=v7.515m" defer></script>
-    <script src="js/onboarding.js?v=v7.515m" defer></script>
-    <script src="js/app.js?v=v7.515m" defer></script>
-    <script src="js/history-suggestions.js?v=v7.515m" defer></script>
+    <script src="js/globals.js?v=v7.516m" defer></script>
+    <script src="js/import-validation.js?v=v7.516m" defer></script>
+    <script src="js/storage.js?v=v7.516m" defer></script>
+    <script src="js/storage-ui.js?v=v7.516m" defer></script>
+    <script src="js/animations.js?v=v7.516m" defer></script>
+    <script src="js/data-sync.js?v=v7.516m" defer></script>
+    <script src="js/cloud-sync.js?v=v7.516m" defer></script>
+    <script src="js/math-tool.js?v=v7.516m" defer></script>
+    <script src="js/settings.js?v=v7.516m" defer></script>
+    <script src="js/charts.js?v=v7.516m" defer></script>
+    <script src="js/ui.js?v=v7.516m" defer></script>
+    <script src="js/settings-workspace.js?v=v7.516m" defer></script>
+    <script src="js/features.js?v=v7.516m" defer></script>
+    <script src="js/subscription-assets.js?v=v7.516m" defer></script>
+    <script src="js/subscription-services.js?v=v7.516m" defer></script>
+    <script src="js/subscriptions.js?v=v7.516m" defer></script>
+    <script src="js/security.js?v=v7.516m" defer></script>
+    <script src="js/milestones.js?v=v7.516m" defer></script>
+    <script src="js/onboarding.js?v=v7.516m" defer></script>
+    <script src="js/app.js?v=v7.516m" defer></script>
+    <script src="js/history-suggestions.js?v=v7.516m" defer></script>
   </body>
 </html>
 

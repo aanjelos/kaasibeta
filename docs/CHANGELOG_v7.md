@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v7.516m - 2026-11-21
+
+- Align the inline Daily Note character counter with the Note label, restoring standard spacing before the date field.
+
 ## v7.515m - 2026-11-21
 
 - Match inline Daily Note fields and save action to the Add Entry card. Keep the history modal layout.
