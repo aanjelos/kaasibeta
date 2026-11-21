@@ -189,6 +189,14 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 
 ## ✨ UI / UX Polish
 
+### Cloud Sync Comparison and Replacement Clarity
+
+- **Requested 2026-11-22:** Simplify the account-choice comparison and the regular sync-conflict review. Keep their distinct reasons for opening and use consistent labels for the two copies and the replacement actions.
+- Explain the decision before showing details. Use “This device” and “Cloud backup,” show the signed-in account where relevant, and summarize differences as “Only on this device,” “Only in your cloud backup,” and “Different in both.” Show the detailed comparison on demand and keep the summary readable on phones.
+- Use neutral choices for two existing copies. Preview the direction and what would be lost before confirming. For example, choosing the device copy leads to “Replace cloud backup,” while choosing the cloud copy leads to “Replace data on this device.” Offer “Download a backup” of the copy being replaced and a visible “Decide later” option.
+- Preserve explicit account association and replacement confirmation, PIN and activity guards, revision and cloud timestamp checks, and existing sync behavior. Handle an empty cloud account as a first upload. Keep account-mismatch sign-out available. This is a UX review item and does not authorize Supabase changes or data merging.
+- Prototype with synthetic data and test on desktop and mobile. Check whether someone can explain which copy will be kept, which is replaced, and how to back out or keep both copies as separate backups before they confirm.
+
 ### 2. Segmented Control Buttons for Transaction Type
 - **Concept**: Replace the standard `<select>` dropdown for Transaction Type (`Income` | `Expense` | `Transfer`) in the Add/Edit modal with prominent segmented toggle buttons for faster, one-tap selection.
 
