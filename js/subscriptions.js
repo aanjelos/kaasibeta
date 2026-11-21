@@ -185,9 +185,24 @@ const Subscriptions = (() => {
       if(state.subscriptionOccurrences)state.subscriptionOccurrences=occurrences().filter(row=>row.subscriptionId!==id||row.status!=='snoozed');
     });
   }
+  const upcomingWindowKey = 'kaasi_upcoming_payments_window';
+  const upcomingWindowOptions = new Set(['3', '5', '7', '14', '28']);
+
+  function getUpcomingWindow() {
+    const value = appPreferences.getItem(upcomingWindowKey);
+    return upcomingWindowOptions.has(value) ? Number(value) : 7;
+  }
+
+  function setUpcomingWindow(value) {
+    if (!upcomingWindowOptions.has(value)) return;
+    appPreferences.setItem(upcomingWindowKey, value);
+    renderNotice();
+  }
+
   function upcoming() {
-    const subscriptions=list().filter(row=>row.status==='active' && daysUntil(row.nextDueDate)<=7).map(sub=>({kind:'subscription',id:sub.id,name:sub.name,due:sub.nextDueDate,amount:sub.amount,sub}));
-    const debts=(state.debts||[]).filter(row=>row.remainingAmount>0 && validDate(row.dueDate) && daysUntil(row.dueDate)<=7)
+    const windowDays = getUpcomingWindow();
+    const subscriptions=list().filter(row=>row.status==='active' && daysUntil(row.nextDueDate)<=windowDays).map(sub=>({kind:'subscription',id:sub.id,name:sub.name,due:sub.nextDueDate,amount:sub.amount,sub}));
+    const debts=(state.debts||[]).filter(row=>row.remainingAmount>0 && validDate(row.dueDate) && daysUntil(row.dueDate)<=windowDays)
       .map(row=>({kind:'debt',id:row.id,name:row.who,due:row.dueDate,amount:row.remainingAmount}));
     return [...subscriptions,...debts].sort((a,b)=>a.due.localeCompare(b.due)||a.name.localeCompare(b.name));
   }
@@ -241,7 +256,7 @@ const Subscriptions = (() => {
   }
   function renderUpcoming() {
     const host=document.getElementById('upcomingPaymentList');
-    host.innerHTML=upcoming().map(item=>`<article class="payment-list-row">${item.sub?SubscriptionServices.icon(item.sub):'<span class="subscription-icon"><i class="fas fa-hand-holding-usd" aria-hidden="true"></i></span>'}<div class="payment-list-copy"><strong>${escapeHTML(item.name)}</strong><span class="${daysUntil(item.due)<0?'text-expense':''}">${escapeHTML(dueLabel(item.due))} <span class="payment-list-type">· ${item.kind==='debt'?'Debt':escapeHTML(frequencies[item.sub.frequency])}</span></span><strong class="payment-list-amount">${formatCurrency(item.amount)}</strong></div><div class="payment-list-primary"><button class="btn btn-primary" ${item.kind==='debt'?`data-record-action="payDebt" data-record-id="${escapeHTML(item.id)}"`:`data-sub-action="paid" data-sub-id="${escapeHTML(item.id)}"`}>Pay</button></div></article>`).join('')||'<p class="subscription-empty">Nothing due within seven days.</p>';
+    host.innerHTML=upcoming().map(item=>`<article class="payment-list-row">${item.sub?SubscriptionServices.icon(item.sub):'<span class="subscription-icon"><i class="fas fa-hand-holding-usd" aria-hidden="true"></i></span>'}<div class="payment-list-copy"><strong>${escapeHTML(item.name)}</strong><span class="${daysUntil(item.due)<0?'text-expense':''}">${escapeHTML(dueLabel(item.due))} <span class="payment-list-type">· ${item.kind==='debt'?'Debt':escapeHTML(frequencies[item.sub.frequency])}</span></span><strong class="payment-list-amount">${formatCurrency(item.amount)}</strong></div><div class="payment-list-primary"><button class="btn btn-primary" ${item.kind==='debt'?`data-record-action="payDebt" data-record-id="${escapeHTML(item.id)}"`:`data-sub-action="paid" data-sub-id="${escapeHTML(item.id)}"`}>Pay</button></div></article>`).join('')||'<p class="subscription-empty">No payments in this window.</p>';
   }
   function openUpcoming() {
     if(isAppLocked())return;
@@ -426,6 +441,6 @@ const Subscriptions = (() => {
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){renderNotice();scheduleReminder();}});
   // Recalculate calendar-day boundaries while the app stays open; never auto-charge.
   window.setInterval?.(()=>{if(document.visibilityState==='visible'&&!isAppLocked()){renderNotice();scheduleReminder();}},60000);
-  return {validDate,nextDate,firstUpcomingDate,occurrenceId,upcoming,saveDefinition,record,resolve,setStatus,deleteDefinition,render,renderNotice,openManager,openEditor,openPayment,scheduleReminder,
+  return {validDate,nextDate,firstUpcomingDate,occurrenceId,upcoming,getUpcomingWindow,setUpcomingWindow,saveDefinition,record,resolve,setStatus,deleteDefinition,render,renderNotice,openManager,openEditor,openPayment,scheduleReminder,
     onSearch:value=>{search=value;render();},onFilter:value=>{filter=value;render();}};
 })();

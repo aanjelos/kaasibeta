@@ -20,6 +20,40 @@ function env(){
 const definition=overrides=>({name:'Netflix',amount:'100',method:'bank',account:'cash',category:'Other',frequency:'monthly',nextDueDate:'2026-10-24',serviceId:'netflix',icon:'letter',...overrides});
 const payment=overrides=>({amount:'100',date:'2026-10-24',account:'cash',category:'Other',...overrides});
 
+test('Upcoming Payments uses the device window inclusively without advancing renewal prompts', async () => {
+  const e = env();
+  await e.api.saveDefinition(definition({name:'Due today'}));
+  await e.api.saveDefinition(definition({name:'In seven days',nextDueDate:'2026-10-31'}));
+  await e.api.saveDefinition(definition({name:'In 28 days',nextDueDate:'2026-11-21'}));
+  e.run(`state.debts = [
+    {id:'overdue',who:'Overdue debt',dueDate:'2026-10-23',remainingAmount:100},
+    {id:'threeDays',who:'In three days',dueDate:'2026-10-27',remainingAmount:100},
+    {id:'fourteenDays',who:'In 14 days',dueDate:'2026-11-07',remainingAmount:100},
+    {id:'paid',who:'Paid debt',dueDate:'2026-10-24',remainingAmount:0}
+  ];`);
+  const names = () => Array.from(e.api.upcoming(), item => item.name);
+  const records = e.run('JSON.stringify(state)');
+  assert.equal(e.api.getUpcomingWindow(), 7);
+  assert.deepEqual(names(), ['Overdue debt','Due today','In three days','In seven days']);
+  e.api.setUpcomingWindow('3');
+  assert.deepEqual(names(), ['Overdue debt','Due today','In three days']);
+  assert.doesNotMatch(e.el('upcomingPaymentsNotice').innerHTML, /In seven days/);
+  e.api.setUpcomingWindow('14');
+  assert.ok(names().includes('In 14 days'));
+  assert.ok(!names().includes('In 28 days'));
+  e.api.setUpcomingWindow('28');
+  assert.ok(names().includes('In 28 days'));
+  e.api.setUpcomingWindow('30');
+  assert.equal(e.api.getUpcomingWindow(), 28);
+  assert.equal(e.run('JSON.stringify(state)'), records);
+  e.api.scheduleReminder();
+  await e.tick();
+  assert.match(e.el('subscriptionReminderList').innerHTML, /Due today/);
+  assert.doesNotMatch(e.el('subscriptionReminderList').innerHTML, /In seven days|In 28 days/);
+  e.preferences.set('kaasi_upcoming_payments_window', 'invalid');
+  assert.equal(e.api.getUpcomingWindow(), 7);
+});
+
 test('subscription telemetry contains only fixed events after successful creates and payments',async()=>{
   const e=env(),id=await e.api.saveDefinition(definition({name:'Private person and service',amount:'123.45'}));
   const sub=e.saved().subscriptions[0];

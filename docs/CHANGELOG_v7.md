@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v7.510m - 2026-11-21
+
+- Add a device preference under Appearance → Customize Dashboard for the Upcoming Payments window (3, 5, 7, 14 or 28 calendar days). Default to 7 days and retain overdue unpaid items in the dashboard notice and full list. Preserve subscription prompt timing, snoozes and dismissals.
+
 ## v7.509n - 2026-11-21
 
 - Remove the fixed startup preloader delay while retaining the pending cloud restore gate.

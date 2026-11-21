@@ -384,6 +384,14 @@ function renderSettingsForm() {
     }
   }
 
+  const upcomingPaymentsWindow = $("#settingsUpcomingPaymentsWindow");
+  if (upcomingPaymentsWindow) {
+    upcomingPaymentsWindow.value = String(Subscriptions.getUpcomingWindow());
+    upcomingPaymentsWindow.onchange = () => {
+      Subscriptions.setUpcomingWindow(upcomingPaymentsWindow.value);
+    };
+  }
+
   // --- SECURITY PANEL UI INIT ---
   const toggleAppPin = $("#toggleAppPin");
   const securityManagementOptions = $("#securityManagementOptions");
