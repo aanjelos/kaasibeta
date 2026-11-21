@@ -7,6 +7,20 @@ vm.createContext(context);
 vm.runInContext(fs.readFileSync('js/history-suggestions.js','utf8').split('(() => {')[0],context);
 const find = (...args)=>JSON.parse(JSON.stringify(context.findHistorySuggestions(...args)));
 
+test('entry input updates suggestions in the same event without timers and respects composition and thresholds',()=>{
+  const source=fs.readFileSync('js/history-suggestions.js','utf8');
+  const start=source.indexOf("  document.addEventListener('input',event=>{"),end=source.indexOf("  document.addEventListener('focusin'",start);
+  for(const field of ['description','who']){
+    let handler,shown=0,closed=0;
+    const target={value:field==='who'?'K':'Ma',isConnected:true,matches:()=>true};
+    const c={selector:'entry',input:null,document:{activeElement:target,addEventListener:(type,fn)=>{handler=fn;}},configuration:()=>({field}),show:()=>shown++,close:()=>closed++,setTimeout:()=>{throw Error('Entry suggestions must not schedule a timer');}};
+    vm.runInNewContext(source.slice(start,end),c);
+    handler({target,isComposing:false});assert.equal(shown,1,'results update before the input handler returns');
+    handler({target,isComposing:true});assert.equal(shown,1);assert.equal(closed,1);
+    target.value=field==='who'?'':'M';handler({target,isComposing:false});assert.equal(shown,1);assert.equal(closed,2);
+  }
+});
+
 test('placement reserves two results when narrowing to one and responds to actual space changes',()=>{
   const source=fs.readFileSync('js/history-suggestions.js','utf8');
   const start=source.indexOf('    function position() {'),end=source.indexOf('\n    position();',start);

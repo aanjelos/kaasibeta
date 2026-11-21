@@ -152,9 +152,10 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 
 ### Immediate History Suggestions During Entry (v8)
 
+- **Implemented in Beta v7.508n (2026-11-21):** Description and person-name suggestions update immediately; transaction-list search debouncing remains unchanged. Retain the requirements below as acceptance context for the v8 release.
 - **Requested 2026-11-14; next-update target v8:** Remove the debounce delay from history suggestions when entering transaction descriptions, so suggestions appear promptly for users who type and submit quickly. Review equivalent credit-card description and debt/receivable name-entry suggestions for consistent behaviour, including edit forms.
 - Retain debouncing for transaction-list/history searches, where it remains useful. Preserve existing minimum query lengths, category autofill rules, keyboard handling, stable popup placement and updates without flashing.
-- Check responsiveness with large histories before implementation is final; use efficient matching/caching if necessary without reintroducing a noticeable delay during entry. Planning only; no current search behaviour changes are authorized by this item.
+- Check responsiveness with large histories before the v8 release; use efficient matching/caching if necessary without reintroducing a noticeable delay during entry.
 
 ### Daily Notes (v8)
 

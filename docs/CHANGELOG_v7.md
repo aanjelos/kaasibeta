@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v7.508n - 2026-11-21
+
+- Update description and debt/receivable name history suggestions synchronously on input instead of waiting 180ms. Remove the pending-search timer and its temporary keyboard/pointer guards. Preserve matching thresholds, autofill, pagination and stable popup placement across add/edit fields. Transaction-list and credit-card history search debouncing is unchanged.
+
 ## v7.507n - 2026-11-21
 
 - Prepare the v8 development baseline from production v7.506n (kaasiapp commit 48da056). Verify runtime parity and remove the two legacy backup/session debug hooks already excluded from production. Preserve Beta identity, no-index behaviour and development tooling; leave kaasiapp unchanged.
