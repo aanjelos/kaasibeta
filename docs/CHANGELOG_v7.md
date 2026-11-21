@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v7.517m - 2026-11-21
+
+- Add the N dashboard shortcut to select Daily Note and focus the inline editor. List it in Keyboard Shortcuts.
+
 ## v7.516m - 2026-11-21
 
 - Align the inline Daily Note character counter with the Note label, restoring standard spacing before the date field.

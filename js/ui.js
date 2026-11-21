@@ -25,6 +25,7 @@ function openShortcutsHelpModal() {
     { key: "R", action: "Add a Receivable." },
     { key: "Shift + R", action: "View All Receivables." },
     { key: "T", action: "Transfer Money." },
+    { key: "N", action: "Start a Daily Note." },
     { key: "Ctrl + S", action: "Sync Now (Signed In)." },
     { key: "Ctrl + E", action: "Export Local File." },
     { key: "Ctrl + I", action: "Import Local File." },
@@ -355,6 +356,17 @@ function handleKeyboardShortcuts(event) {
         }
       }
       break;
+
+    case "n":
+    case "N": {
+      if (event.defaultPrevented || event.isComposing || event.repeat) break;
+      const typeSelect = $("#transactionType");
+      if (!typeSelect?.querySelector('option[value="note"]')) break;
+      event.preventDefault();
+      typeSelect.value = "note";
+      typeSelect.dispatchEvent(new Event("change"));
+      break;
+    }
 
     case "ArrowLeft":
       if (monthlyViewModalVisible && !inInputField) {
