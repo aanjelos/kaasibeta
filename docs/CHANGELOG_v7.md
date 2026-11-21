@@ -2,6 +2,11 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v7.511m - 2026-11-21
+
+- Add Daily Notes from the Add Transaction card and edit them in All Transactions. Support plain text, emoji and up to 512 characters. Keep note-only dates in chronological history, including after the last transaction is removed.
+- Store notes in a dedicated IndexedDB collection keyed by calendar date within each dataset generation. Include notes in JSON backups and existing cloud sync, accept older backups without notes, and validate unique dates and note text before restore.
+
 ## v7.510m - 2026-11-21
 
 - Add a device preference under Appearance → Customize Dashboard for the Upcoming Payments window (3, 5, 7, 14 or 28 calendar days). Default to 7 days and retain overdue unpaid items in the dashboard notice and full list. Preserve subscription prompt timing, snoozes and dismissals.

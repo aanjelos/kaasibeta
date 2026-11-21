@@ -1,3 +1,11 @@
+const DAILY_NOTE_LIMIT = 512;
+
+function isCalendarDate(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value) || value.startsWith("0000-")) return false;
+  const parsed = new Date(`${value}T00:00:00Z`);
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
 /** Validate backups without mutating the current state or the supplied object. */
 function prepareImportedData(input) {
   const fail = (field) => { throw new Error(`Invalid backup: ${field}. Existing data was not replaced.`); };
@@ -180,6 +188,14 @@ function prepareImportedData(input) {
       if(sub.category)text(sub.category,'subscription category');
       if(sub.serviceId)identifier(sub.serviceId,'subscription service');
       if(sub.icon)identifier(sub.icon,'subscription icon');
+    });
+  }
+  if ("dailyNotes" in candidate) {
+    if (!Array.isArray(candidate.dailyNotes)) fail("daily notes must be a list");
+    records(candidate.dailyNotes, "daily notes", note => {
+      if (!isCalendarDate(note.id)) fail("daily note date is invalid");
+      text(note.text, "daily note");
+      if ([...note.text].length > DAILY_NOTE_LIMIT) fail(`daily note exceeds ${DAILY_NOTE_LIMIT} characters`);
     });
   }
   if ('subscriptionOccurrences' in candidate) {

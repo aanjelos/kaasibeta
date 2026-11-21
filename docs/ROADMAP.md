@@ -164,11 +164,9 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 
 ### Daily Notes (v8)
 
-- **Requested 2026-11-14; next-update target v8:** Add an optional note for each calendar day, separate from individual transactions. Support adding, editing and deleting the note without creating or changing financial records.
-- Show the note below the date inside the daily accordion, before that day's transactions. Refine placement and editing controls for desktop and mobile before implementation.
-- Start with a proposed limit of 256 characters per day, with a visible character counter and consistent validation. Store and render notes as plain text.
-- Assess a separate IndexedDB object store keyed by local calendar date (`YYYY-MM-DD`). Storage layout remains an implementation decision; preserve existing records, migration/recovery copies and unknown backup fields.
-- Include notes in local backup/restore and the existing whole-dataset cloud-sync flow, preserving compatibility with older backups that contain no notes. Define behaviour for days without transactions and retention when transactions for a day are deleted. This roadmap item does not authorize implementation or Supabase changes.
+- **Implemented in Beta v7.511m:** Open the note editor from the Add Transaction card or edit a saved note in All Transactions. Notes support emoji and line breaks, with one editable note per date and a 512-character limit.
+- Notes appear before the day's transactions in the history accordion. Dates with only a note have their own row, including after the last transaction for that date is deleted.
+- Notes are stored in a dedicated IndexedDB collection and included in local backups and existing whole-dataset cloud sync. Older backups without notes remain compatible.
 
 ### Optional Installment Links to Credit-card Transactions (v8)
 

@@ -62,6 +62,8 @@ function initializeUI(isRefresh = false) {
   displayAppVersion();
 
   $("#transactionForm").onsubmit = handleTransactionSubmit;
+  const addDailyNoteButton = $("#addDailyNoteBtn");
+  if (addDailyNoteButton) addDailyNoteButton.onclick = () => openDailyNoteEditor();
   $("#ccTransactionForm").onsubmit = handleCcTransactionSubmit;
 
   // --- Header & Footer Button Event Listeners ---

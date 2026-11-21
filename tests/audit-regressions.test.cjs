@@ -1163,17 +1163,22 @@ test('an unchanged older sync baseline upgrades locally and keeps metadata-only 
 test('local-only changes use a conditional upload and return only metadata',async()=>{
   const r=runtime();const original=JSON.parse(r.storage.get('KaasiData'));
   const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();
-  await r.run('state.accounts[0].balance=900;saveData();');await r.context.syncCloudData();
+  const dailyNotes = [{ id: '2026-10-21', text: '<em>Literal note</em> 🙂' }];
+  r.context.dailyNotes = dailyNotes;
+  await r.run('state.accounts[0].balance=900;state.dailyNotes=dailyNotes;saveData();');await r.context.syncCloudData();
   const write=cloud.calls.find(c=>c.type==='update');assert.equal(write.filters.updated_at,'2026-10-21T00:00:00Z');
   assert.equal(write.filters.user_id,'sync-user');assert.equal(write.fields,'updated_at');
   assert.equal(cloud.row.data.accounts[0].balance,900);assert.equal(r.context.currentCloudSyncStatus,'synced');
+  assert.equal(cloud.row.data.dailyNotes[0].text, dailyNotes[0].text);
 });
 
 test('cloud-only changes download and apply while preserving the compatible JSON format',async()=>{
   const r=runtime();const original=JSON.parse(r.storage.get('KaasiData'));
   const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();
   cloud.row.data.accounts[0].balance=750;cloud.row.updated_at='2026-10-22T00:00:00Z';
+  cloud.row.data.dailyNotes=[{id:'2026-10-21',text:'<img src=x onerror="window.executed=true"> 🙂'}];
   await r.context.syncCloudData();assert.equal(r.run('state.accounts[0].balance'),750);
+  assert.equal(r.run('state.dailyNotes[0].text'),cloud.row.data.dailyNotes[0].text);
   assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);assert.equal(r.context.currentCloudSyncStatus,'synced');
 });
 

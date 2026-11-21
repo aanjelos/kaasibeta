@@ -11,6 +11,7 @@ function populateYearSelector(transactionsArray, yearSelectorElement, currentYea
     })
   );
   years.add(currentYear);
+  if (Number.isInteger(selectedYear)) years.add(selectedYear);
   yearSelectorElement.innerHTML = "";
   [...years]
     .sort((a, b) => b - a)
@@ -1121,7 +1122,7 @@ function deleteTransaction(id, event) {
 }
 
 
-function refreshMonthlyViewIfRelevant(dateString) {
+function refreshMonthlyViewIfRelevant(dateString, expandDay = false) {
   const monthlyViewModal = $("#monthlyViewModal");
   const activeTab = $("#monthTabs .tab-button[data-logically-active='true']") || $("#monthTabs .tab-button.active");
 
@@ -1143,7 +1144,7 @@ function refreshMonthlyViewIfRelevant(dateString) {
       }
 
 
-      const openDayKeys = new Set();
+      const openDayKeys = new Set(expandDay ? [dateString] : []);
       // Query for all day group headers within the monthly details container
       // Then check which ones have an expanded transaction list.
       // We identify expanded lists if their maxHeight is not "0px".
@@ -1190,6 +1191,136 @@ function refreshMonthlyViewIfRelevant(dateString) {
 
 let monthlyPieChartInstance = null;
 
+function populateHistoryYears(selectedYear) {
+  const selector = $("#yearSelector");
+  if (!selector) return;
+  const noteDates = (state.dailyNotes || []).map(note => ({ date: `${note.id}T00:00:00` }));
+  populateYearSelector([...state.transactions, ...noteDates], selector, new Date().getFullYear(), selectedYear);
+}
+
+function openDailyNoteEditor(date) {
+  if (isAppLocked() || storageOperationPending) return;
+  const initialDate = date || getCurrentDateString();
+
+  openFormModal("Daily Note", `
+    <label for="dailyNoteDate">Date</label>
+    <input id="dailyNoteDate" type="date" required>
+    <label for="dailyNoteText">Note</label>
+    <textarea id="dailyNoteText" rows="5" required aria-describedby="dailyNoteCount dailyNoteError"></textarea>
+    <p id="dailyNoteCount" class="daily-note-count"></p>
+    <p id="dailyNoteError" class="daily-note-error" role="alert"></p>
+    <div class="daily-note-editor-actions">
+      <button type="submit" id="dailyNoteSave" class="btn btn-primary">Save Note</button>
+      <button type="button" id="dailyNoteCancel" class="btn btn-secondary">Cancel</button>
+      <button type="button" id="dailyNoteDelete" class="btn btn-danger" hidden>Delete Note</button>
+    </div>`, submit);
+
+  const dateField = $("#dailyNoteDate");
+  const noteField = $("#dailyNoteText");
+  const count = $("#dailyNoteCount");
+  const errorMessage = $("#dailyNoteError");
+  const saveButton = $("#dailyNoteSave");
+  const deleteButton = $("#dailyNoteDelete");
+  const cancelButton = $("#dailyNoteCancel");
+  let loadedDate;
+  let originalNote;
+  const findNote = key => (state.dailyNotes || []).find(note => note.id === key);
+  const updateCount = () => {
+    const length = [...noteField.value].length;
+    count.textContent = `${length} / ${DAILY_NOTE_LIMIT} characters`;
+    noteField.setCustomValidity(length > DAILY_NOTE_LIMIT ? `Use ${DAILY_NOTE_LIMIT} characters or fewer.` : "");
+    if (length > DAILY_NOTE_LIMIT) noteField.setAttribute("aria-invalid", "true");
+    else noteField.removeAttribute("aria-invalid");
+  };
+  const loadDate = () => {
+    if (dateField.value === loadedDate) return;
+    loadedDate = dateField.value;
+    originalNote = findNote(loadedDate);
+    noteField.value = originalNote?.text ?? "";
+    deleteButton.hidden = !originalNote;
+    errorMessage.textContent = "";
+    updateCount();
+  };
+  dateField.value = initialDate;
+  dateField.readOnly = Boolean(date);
+  dateField.onchange = loadDate;
+  noteField.oninput = updateCount;
+  cancelButton.onclick = () => closeModal("formModal");
+  deleteButton.onclick = () => {
+    showConfirmationModal("Delete Daily Note?", "Delete the note for this date?", "Delete Note", "Cancel", async () => {
+      if (await persist(true)) return true;
+    });
+  };
+  loadDate();
+  if (date && !window.matchMedia("(max-width: 760px)").matches) noteField.focus();
+
+  async function submit(event) {
+    event.preventDefault();
+    await persist(false);
+  }
+
+  async function persist(remove) {
+    if (isAppLocked() || storageOperationPending) return false;
+    const key = dateField.value;
+    if (key !== loadedDate) {
+      loadDate();
+      noteField.focus();
+      return false;
+    }
+    const text = noteField.value;
+    if (!isCalendarDate(key) || (!remove && (!text.trim() || [...text].length > DAILY_NOTE_LIMIT))) {
+      errorMessage.textContent = "Choose a valid date and enter a note of up to 512 characters.";
+      return false;
+    }
+    if (JSON.stringify(findNote(key)) !== JSON.stringify(originalNote)) {
+      errorMessage.textContent = "This note changed while you were editing. Reopen the editor to see the latest version.";
+      return false;
+    }
+    const nextNotes = (state.dailyNotes || []).slice();
+    const index = nextNotes.findIndex(note => note.id === key);
+    if (remove && index < 0) return false;
+    if (remove) nextNotes.splice(index, 1);
+    else if (index < 0) nextNotes.push({ id: key, text });
+    else nextNotes[index] = { ...nextNotes[index], text };
+
+    saveButton.disabled = deleteButton.disabled = cancelButton.disabled = dateField.disabled = noteField.disabled = true;
+    try {
+      await saveData({ ...state, dailyNotes: nextNotes }, { skipMilestones: true });
+    } catch (error) {
+      if (!error.kaasiSaveFailure) showNotification(error.message, "error");
+      return false;
+    } finally {
+      saveButton.disabled = deleteButton.disabled = cancelButton.disabled = dateField.disabled = noteField.disabled = false;
+    }
+    if (remove) closeModal("confirmationModal");
+    closeModal("formModal");
+    const selectedYear = Number($("#yearSelector")?.value) || new Date().getFullYear();
+    populateHistoryYears(selectedYear);
+    refreshMonthlyViewIfRelevant(key, !remove);
+    const header = date && document.querySelector(`.monthly-view-day-header[data-day-key="${key}"]`);
+    (header || $(date ? "#monthlySearchInput" : "#addDailyNoteBtn"))?.focus({ preventScroll: true });
+    showNotification(remove ? "Daily note deleted." : "Daily note saved.", "success");
+    return true;
+  }
+}
+
+function renderDailyNote(note) {
+  const row = document.createElement("div");
+  row.className = "daily-note-row";
+  const text = document.createElement("p");
+  text.className = "daily-note-text";
+  text.textContent = note.text;
+  row.appendChild(text);
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "btn btn-secondary btn-sm";
+  button.textContent = "Edit";
+  button.setAttribute("aria-label", "Edit Daily Note");
+  button.onclick = () => openDailyNoteEditor(note.id);
+  row.appendChild(button);
+  return row;
+}
+
 function setupMonthlyView() {
   const yearSelector = $("#yearSelector");
   const currentYear = new Date().getFullYear();
@@ -1206,7 +1337,7 @@ function setupMonthlyView() {
     return;
   }
 
-  populateYearSelector(state.transactions, yearSelector, currentYear, currentYear);
+  populateHistoryYears(currentYear);
 
   yearSelector.onchange = () => {
     const monthlySearchInput = $("#monthlySearchInput");
@@ -1397,18 +1528,15 @@ function renderMonthlyDetails(
     if (typeof updateTabIndicator === 'function') updateTabIndicator();
   }, 10);
 
-  const transactionsToDisplay = state.transactions.filter((t) => {
-    const tDate = new Date(t.date + "T00:00:00");
-    if (isNaN(tDate.getTime())) return false;
-
-    // 1. Date Check
+  const isDateInHistory = date => {
     if (filterStartDate || filterEndDate) {
-      if (filterStartDate && t.date < filterStartDate) return false;
-      if (filterEndDate && t.date > filterEndDate) return false;
-    } else {
-      // Fallback to month/year tabs
-      if (tDate.getFullYear() !== year || tDate.getMonth() !== month) return false;
+      return (!filterStartDate || date >= filterStartDate) && (!filterEndDate || date <= filterEndDate);
     }
+    const localDate = new Date(date + "T00:00:00");
+    return localDate.getFullYear() === year && localDate.getMonth() === month;
+  };
+  const transactionsToDisplay = state.transactions.filter((t) => {
+    if (isNaN(new Date(t.date + "T00:00:00").getTime()) || !isDateInHistory(t.date)) return false;
 
     // 2. Type Check
     if (filterType !== "all" && t.type !== filterType) return false;
@@ -1552,26 +1680,28 @@ function renderMonthlyDetails(
   transactionListSection.appendChild(transactionHeader);
   // --- END FIX ---
 
-  if (transactionsToDisplay.length === 0) {
+  const notesByDay = new Map((state.dailyNotes || []).map(note => [note.id, note]));
+  const transactionsByDay = new Map();
+  function historyDay(dayKey) {
+    if (!transactionsByDay.has(dayKey)) {
+      transactionsByDay.set(dayKey, { date: new Date(dayKey + "T00:00:00"), transactions: [], dayKey });
+    }
+    return transactionsByDay.get(dayKey);
+  }
+  for (const transaction of transactionsToDisplay) historyDay(transaction.date).transactions.push(transaction);
+  if (!searchLower && filterType === "all" && isAllCategories && !filterMinAmount && !filterMaxAmount) {
+    for (const date of notesByDay.keys()) {
+      if (isDateInHistory(date)) historyDay(date);
+    }
+  }
+
+  if (transactionsByDay.size === 0) {
     const noTransactionsDiv = document.createElement("div");
     const msg = searchTerm ? "No transactions match your search" : "No transactions for this period";
     noTransactionsDiv.innerHTML = `<div class="flex flex-col items-center justify-center py-12 text-gray-500"><i class="fas fa-search text-4xl mb-3 opacity-40"></i><p class="text-sm font-medium">${msg}</p></div>`;
     transactionListSection.appendChild(noTransactionsDiv);
   } else {
-    const transactionsByDay = transactionsToDisplay.reduce((acc, t) => {
-      const dayKey = new Date(t.date).toLocaleDateString("en-CA");
-      if (!acc[dayKey]) {
-        acc[dayKey] = {
-          date: new Date(t.date + "T00:00:00"),
-          transactions: [],
-          dayKey: dayKey,
-        };
-      }
-      acc[dayKey].transactions.push(t);
-      return acc;
-    }, {});
-
-    const sortedDays = Object.values(transactionsByDay).sort(
+    const sortedDays = [...transactionsByDay.values()].sort(
       (a, b) => b.date - a.date
     );
     const listContainerElement = document.createElement("div");
@@ -1579,8 +1709,7 @@ function renderMonthlyDetails(
     listContainerElement.className = "max-h-[60vh] overflow-y-auto pr-2";
 
     sortedDays.forEach((dayData) => {
-      if (searchTerm && dayData.transactions.length === 0) return;
-
+      const note = notesByDay.get(dayData.dayKey);
       const dayGroup = document.createElement("div");
       dayGroup.className = "monthly-view-day-group";
       dayGroup.style.transition =
@@ -1591,6 +1720,9 @@ function renderMonthlyDetails(
       dayHeader.className = "monthly-view-day-header flex flex-col sm:flex-row sm:justify-between sm:items-center items-start gap-2 sm:gap-0";
       dayHeader.style.cursor = "pointer";
       dayHeader.dataset.dayKey = dayData.dayKey;
+      dayHeader.tabIndex = 0;
+      dayHeader.setAttribute("role", "button");
+      dayHeader.setAttribute("aria-controls", `history-day-${dayData.dayKey}`);
 
       const dateSpan = document.createElement("span");
       dateSpan.className = "font-semibold";
@@ -1617,7 +1749,13 @@ function renderMonthlyDetails(
       const chevronIcon = document.createElement("i");
       chevronIcon.className = "fas text-xs text-gray-400";
 
-      rightSideContainer.appendChild(spentSpan);
+      if (dayData.transactions.length) rightSideContainer.appendChild(spentSpan);
+      if (note) {
+        const noteLabel = document.createElement("span");
+        noteLabel.className = "daily-note-indicator";
+        noteLabel.textContent = "Daily Note";
+        rightSideContainer.appendChild(noteLabel);
+      }
       rightSideContainer.appendChild(chevronIcon);
       dayHeader.appendChild(dateSpan);
       dayHeader.appendChild(rightSideContainer);
@@ -1625,11 +1763,15 @@ function renderMonthlyDetails(
 
       const dayTransactionsContainer = document.createElement("div");
       dayTransactionsContainer.className = "day-transactions-container";
+      dayTransactionsContainer.id = `history-day-${dayData.dayKey}`;
+      if (note) dayTransactionsContainer.appendChild(renderDailyNote(note));
 
       const shouldBeOpenInitially =
         (searchTerm && dayData.transactions.length > 0) ||
         (!searchTerm && openDayKeys.has(dayData.dayKey));
 
+      dayHeader.setAttribute("aria-expanded", String(shouldBeOpenInitially));
+      dayTransactionsContainer.inert = !shouldBeOpenInitially;
       if (shouldBeOpenInitially) {
         chevronIcon.classList.add("fa-chevron-up");
       } else {
@@ -1704,6 +1846,8 @@ function renderMonthlyDetails(
       dayHeader.onclick = () => {
         const isCurrentlyCollapsed =
           dayTransactionsContainer.style.maxHeight === "0px";
+        dayTransactionsContainer.inert = !isCurrentlyCollapsed;
+        dayHeader.setAttribute("aria-expanded", String(isCurrentlyCollapsed));
         if (isCurrentlyCollapsed) {
           dayTransactionsContainer.style.maxHeight =
             dayTransactionsContainer.scrollHeight + "px";
@@ -1724,6 +1868,12 @@ function renderMonthlyDetails(
           chevronIcon.classList.add("fa-chevron-down");
           if (!searchTerm) openDayKeys.delete(dayData.dayKey);
         }
+      };
+      dayHeader.onkeydown = event => {
+        if (!["Enter", " "].includes(event.key)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        dayHeader.click();
       };
       listContainerElement.appendChild(dayGroup);
     });

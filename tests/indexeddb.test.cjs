@@ -25,7 +25,7 @@ function environment({ factory = new IDBFactory(), data = new Map(), testVersion
   context.window=context;
   for (const name of ['globals','import-validation','storage','storage-ui']) {
     let source=fs.readFileSync(path.join(root,'js',`${name}.js`),'utf8');
-    if(name==='storage'&&testVersion)source=source.replace('const VERSION = 2;',`const VERSION = ${testVersion};`);
+    if(name==='storage'&&testVersion)source=source.replace(/const VERSION = \d+;/,`const VERSION = ${testVersion};`);
     vm.runInContext(source,context,{filename:name+'.js'});
   }
   const run=source=>vm.runInContext(source,context);
@@ -62,6 +62,43 @@ test('legacy and UUID records round-trip through storage and import without rewr
   assert.deepEqual(imported.customFutureField,original.customFutureField);
   await reopened.db.replace(imported,reopened.db.revision);
   assert.deepEqual((await reopened.db.snapshot()).transactions,saved.transactions);
+});
+
+test('daily notes survive IndexedDB snapshots and restore as literal text with one record per date', async () => {
+  const e = environment();
+  const original = legacy(e);
+  await e.initialize();
+  const unmodified = await e.db.snapshot();
+  assert.equal(Object.hasOwn(unmodified, 'dailyNotes'), false);
+  const note = { id: '2026-10-21', text: '<img src=x onerror="window.executed=true">\n💬', futureField: 'keep' };
+  await e.db.commit({ ...unmodified, dailyNotes: [note] });
+  const snapshot = await e.db.snapshot();
+  const row = await new Promise((resolve, reject) => {
+    const opening = e.factory.open('kaasi-finances');
+    opening.onerror = () => reject(opening.error);
+    opening.onsuccess = () => {
+      const connection = opening.result;
+      const read = connection.transaction('dailyNotes').objectStore('dailyNotes').getAll();
+      read.onsuccess = () => { connection.close(); resolve(read.result[0]); };
+      read.onerror = () => { connection.close(); reject(read.error); };
+    };
+  });
+  assert.deepEqual(row.value, note);
+  assert.equal(row.id, note.id);
+  assert.deepEqual(snapshot.transactions, original.transactions);
+  e.context.backup = copy(snapshot);
+  const restored = copy(e.run('prepareImportedData(backup)'));
+  await e.db.replace(restored, e.db.revision);
+  assert.deepEqual((await e.db.snapshot()).dailyNotes, [note]);
+
+  for (const notes of [[note,note], [{ ...note, id: '2026-02-29' }], [{ ...note, text: '🙂'.repeat(513) }], [{ ...note, text: ' \n ' }]]) {
+    e.context.backup.dailyNotes = notes;
+    assert.throws(() => e.run('prepareImportedData(backup)'), /Invalid backup: daily note/);
+  }
+  e.context.backup.dailyNotes = [{ ...note, text: '🙂'.repeat(512) }];
+  assert.equal(copy(e.run('prepareImportedData(backup)')).dailyNotes[0].text, '🙂'.repeat(512));
+  await e.db.commit({ ...snapshot, dailyNotes: [] });
+  assert.deepEqual((await e.db.snapshot()).dailyNotes, []);
 });
 
 test('verified sync checkpoints avoid collection reads but detect writes from another tab',async()=>{
@@ -547,7 +584,7 @@ test('a blocked schema upgrade reports recovery instead of waiting silently or d
   const e=environment();await e.initialize();
   const foreign=await new Promise(resolve=>{const req=e.factory.open('kaasi-finances');req.onsuccess=()=>resolve(req.result);});
   foreign.onversionchange=()=>{}; // Represents an older tab that refuses to close.
-  const upgrade=environment({...e,testVersion:3});
+  const upgrade=environment({...e,testVersion:4});
   await assert.rejects(upgrade.initialize(),/Close other Kaasi/);
   foreign.close();
 });
