@@ -2,6 +2,11 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v7.518m - 2026-11-22
+
+- Return Add Entry to Expense after saving an inline Daily Note. Reset the note editor to today's date and load today's saved note when present.
+- Show the Daily Note indicator immediately to the right of the date in All Transactions.
+
 ## v7.517m - 2026-11-21
 
 - Add the N dashboard shortcut to select Daily Note and focus the inline editor. List it in Keyboard Shortcuts.

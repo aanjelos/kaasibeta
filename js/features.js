@@ -1348,9 +1348,17 @@ function bindDailyNoteEditor(form, date) {
     }
     if (remove) closeModal("confirmationModal");
     if (inline) {
-      originalNote = findNote(key);
+      selectedDate = getCurrentDateString();
+      originalNote = findNote(selectedDate);
+      dateField.value = selectedDate;
+      noteField.value = originalNote?.text ?? "";
       errorMessage.textContent = "";
-      if (!form.hidden) noteField.focus();
+      updateCount();
+      const typeSelect = $("#transactionType");
+      if (typeSelect?.value === "note") {
+        typeSelect.value = "expense";
+        typeSelect.dispatchEvent(new Event("change"));
+      }
     } else closeModal("formModal");
     const selectedYear = Number($("#yearSelector")?.value) || new Date().getFullYear();
     populateHistoryYears(selectedYear);
@@ -1819,7 +1827,7 @@ function renderMonthlyDetails(
         noteLabel.className = "fas fa-note-sticky daily-note-indicator";
         noteLabel.setAttribute("role", "img");
         noteLabel.setAttribute("aria-label", "Daily Note");
-        rightSideContainer.appendChild(noteLabel);
+        dateSpan.appendChild(noteLabel);
       }
       rightSideContainer.appendChild(chevronIcon);
       dayHeader.appendChild(dateSpan);
