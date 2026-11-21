@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v7.513m - 2026-11-21
+
+- Cap Daily Note input and backup validation at 256 characters. Keep the history note indicator visually subdued.
+
 ## v7.512m - 2026-11-21
 
 - Put the Daily Note text field first, support Enter to save and Shift+Enter for line breaks, and simplify the dashboard, history and editor controls to icons.

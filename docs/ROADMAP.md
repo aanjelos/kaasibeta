@@ -164,7 +164,7 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 
 ### Daily Notes (v8)
 
-- **Implemented in Beta v7.511m and refined in v7.512m:** Open the note editor from Add Transaction or edit a saved note in All Transactions. Notes support emoji and line breaks, with one editable note per date and a 256-character limit for new or edited text. Existing longer notes remain readable and portable.
+- **Implemented in Beta v7.511m:** Open the note editor from Add Transaction or edit a saved note in All Transactions. Notes support emoji and line breaks, with one editable note per date and a 256-character limit.
 - Notes appear before the day's transactions in the history accordion. Dates with only a note have their own row, including after the last transaction for that date is deleted.
 - Notes are stored in a dedicated IndexedDB collection and included in local backups and existing whole-dataset cloud sync. Older backups without notes remain compatible.
 

@@ -1234,14 +1234,10 @@ function openDailyNoteEditor(date) {
   let selectedDate = initialDate;
   const findNote = key => (state.dailyNotes || []).find(note => note.id === key);
   let originalNote = findNote(initialDate);
-  const exceedsLimit = text => text !== originalNote?.text && [...text].length > DAILY_NOTE_LIMIT;
   const updateCount = () => {
-    const length = [...noteField.value].length;
-    count.textContent = length > DAILY_NOTE_LIMIT && !exceedsLimit(noteField.value)
-      ? `${length} characters · previously saved` : `${length} / ${DAILY_NOTE_LIMIT}`;
-    noteField.setCustomValidity(exceedsLimit(noteField.value) ? `Use ${DAILY_NOTE_LIMIT} characters or fewer.` : "");
-    if (exceedsLimit(noteField.value)) noteField.setAttribute("aria-invalid", "true");
-    else noteField.removeAttribute("aria-invalid");
+    const characters = [...noteField.value];
+    if (characters.length > DAILY_NOTE_LIMIT) noteField.value = characters.slice(0, DAILY_NOTE_LIMIT).join("");
+    count.textContent = `${Math.min(characters.length, DAILY_NOTE_LIMIT)} / ${DAILY_NOTE_LIMIT}`;
   };
   const changeDate = () => {
     const key = dateField.value;
@@ -1268,7 +1264,17 @@ function openDailyNoteEditor(date) {
   dateField.onchange = changeDate;
   noteField.value = originalNote?.text ?? "";
   deleteButton.hidden = !originalNote;
-  noteField.oninput = updateCount;
+  noteField.onbeforeinput = event => {
+    if (event.isComposing || !event.inputType.startsWith("insert")) return;
+    const inserted = event.data ?? (event.inputType === "insertLineBreak" ? "\n" : null);
+    if (inserted === null) return;
+    const remaining = noteField.value.slice(0, noteField.selectionStart) + noteField.value.slice(noteField.selectionEnd);
+    if ([...remaining, ...inserted].length > DAILY_NOTE_LIMIT) event.preventDefault();
+  };
+  noteField.oninput = event => {
+    if (!event.isComposing) updateCount();
+  };
+  noteField.oncompositionend = updateCount;
   noteField.onkeydown = event => {
     if (event.key !== "Enter" || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey ||
         event.isComposing || event.keyCode === 229 || event.defaultPrevented) return;
@@ -1296,7 +1302,7 @@ function openDailyNoteEditor(date) {
     if (isAppLocked() || storageOperationPending) return false;
     const key = remove ? originalNote?.id : dateField.value;
     const text = noteField.value;
-    if (!isCalendarDate(key) || (!remove && (!text.trim() || exceedsLimit(text)))) {
+    if (!isCalendarDate(key) || (!remove && (!text.trim() || [...text].length > DAILY_NOTE_LIMIT))) {
       errorMessage.textContent = `Choose a valid date and enter a note of up to ${DAILY_NOTE_LIMIT} characters.`;
       return false;
     }

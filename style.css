@@ -1475,6 +1475,7 @@ input[type="checkbox"].peer:focus-visible + div {
 }
 .daily-note-indicator {
   font-size: 0.875rem;
+  opacity: 0.65;
   margin-inline-end: 0.75rem;
 }
 .daily-note-editor,

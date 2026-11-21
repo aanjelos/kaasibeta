@@ -91,12 +91,12 @@ test('daily notes survive IndexedDB snapshots and restore as literal text with o
   await e.db.replace(restored, e.db.revision);
   assert.deepEqual((await e.db.snapshot()).dailyNotes, [note]);
 
-  for (const notes of [[note,note], [{ ...note, id: '2026-02-29' }], [{ ...note, text: '🙂'.repeat(513) }], [{ ...note, text: ' \n ' }]]) {
+  for (const notes of [[note,note], [{ ...note, id: '2026-02-29' }], [{ ...note, text: '🙂'.repeat(257) }], [{ ...note, text: ' \n ' }]]) {
     e.context.backup.dailyNotes = notes;
     assert.throws(() => e.run('prepareImportedData(backup)'), /Invalid backup: daily note/);
   }
-  e.context.backup.dailyNotes = [{ ...note, text: '🙂'.repeat(512) }];
-  assert.equal(copy(e.run('prepareImportedData(backup)')).dailyNotes[0].text, '🙂'.repeat(512));
+  e.context.backup.dailyNotes = [{ ...note, text: '🙂'.repeat(256) }];
+  assert.equal(copy(e.run('prepareImportedData(backup)')).dailyNotes[0].text, '🙂'.repeat(256));
   await e.db.commit({ ...snapshot, dailyNotes: [] });
   assert.deepEqual((await e.db.snapshot()).dailyNotes, []);
 });
