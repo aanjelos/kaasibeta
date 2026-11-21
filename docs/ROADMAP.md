@@ -2,7 +2,9 @@
 
 This document serves as a backlog for approved feature ideas, UI/UX improvements, and technical refinements to be implemented in Kaasi over time.
 
-## Before v7
+## v7 Release Baseline and v8 Development
+
+**Released 2026-11-14:** Production v7.506n shipped from kaasiapp commit 48da056. On 2026-11-21, Beta was aligned with that runtime baseline for v8 development, retaining its separate identity and tooling. Continue development builds as v7.<internal number>n, starting at v7.507n; switch the public major version to v8 only for its release. Keep production kaasiapp unchanged until a separate release is explicitly authorized. The feature ideas below remain planning items until selected for implementation.
 
 The monthly budget reminder refinement shipped in v6.477n. Subscription Suggestions From History was dropped on 2026-11-03; retain manual subscription creation and Save as Subscription.
 

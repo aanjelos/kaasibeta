@@ -478,14 +478,6 @@ function checkAndTriggerBackupReminder() {
   }
 }
 
-// Attach a debug hook to the window object to test it instantly
-window.triggerTestBackupReminder = () => {
-  console.log("Triggering test backup reminder popup...");
-  showBackupReminderPopup();
-};
-
-
-
 async function initializeSupabase() {
   window.cloudSessionCheckPending = true;
   if (!supabaseClient) {
@@ -689,10 +681,3 @@ function openCloudSessionExpiredModal() {
     };
   }
 }
-
-// Global debug helper to test the session expiration modal
-window.triggerTestSessionExpiration = () => {
-  console.log("Triggering mock session expiration modal...");
-  openCloudSessionExpiredModal();
-};
-

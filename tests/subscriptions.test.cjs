@@ -405,15 +405,23 @@ test('deleting a schedule retains independent expenses, CC purchases and balance
   assert.equal(e.saved().subscriptions.length,0);assert.deepEqual(e.saved().transactions,before.transactions);assert.deepEqual(e.saved().creditCard,before.creditCard);assert.deepEqual(e.saved().accounts,before.accounts);assert.equal((e.saved().subscriptionOccurrences||[]).length,0);
   assert.equal((e.c.prepareImportedData(e.saved()).subscriptionOccurrences||[]).length,0);
 });
-test('subscription fields survive the existing public web import, save and JSON export path',{skip:!fs.existsSync(path.join(root,'../kaasiapp/js/globals.js'))},async()=>{
+test('subscription fields survive pre-v7 public import/export and current production validation',{skip:!fs.existsSync(path.join(root,'../kaasiapp/js/globals.js'))},async()=>{
   const e=env();await e.api.saveDefinition(definition());await e.api.record(e.saved().subscriptions[0].id,'2026-10-24',payment());
   const external=await e.api.saveDefinition(definition({name:'Already recorded elsewhere'}));await e.api.record(external,'2026-10-24',{alreadyRecorded:true});
   const backup=e.saved();backup.subscriptions[0].androidFuture={preserve:true};
   const data=new Map(),legacy={console:{log(){},warn(){},error(){}},window:{addEventListener(){},supabase:{createClient:()=>null}},localStorage:{setItem:(key,value)=>data.set(key,value),getItem:key=>data.get(key)||null},input:backup};
   const productionRoot=path.resolve(root,'../kaasiapp');
-  const productionGlobals=require('node:child_process').execFileSync('git',['-c',`safe.directory=${productionRoot.replaceAll('\\','/')}`,'-C',productionRoot,'show','main:js/globals.js'],{encoding:'utf8',windowsHide:true});
-  vm.createContext(legacy);vm.runInContext(productionGlobals,legacy);
+  const legacyGlobals=require('node:child_process').execFileSync('git',['-c',`safe.directory=${productionRoot.replaceAll('\\','/')}`,'-C',productionRoot,'show','pre-v7-2026-11-14:js/globals.js'],{encoding:'utf8',windowsHide:true});
+  vm.createContext(legacy);vm.runInContext(legacyGlobals,legacy);
   vm.runInContext('sanitizeAndMergeImportedData(input); saveData();',legacy);
   const exported=JSON.parse(data.get('KaasiData'));assert.deepEqual(exported.subscriptions,backup.subscriptions);assert.deepEqual(exported.subscriptionOccurrences,backup.subscriptionOccurrences);
   assert.equal(e.c.prepareImportedData(exported).subscriptions[0].androidFuture.preserve,true);
+  const current={console:legacy.console,window:legacy.window,input:backup};
+  vm.createContext(current);
+  vm.runInContext(fs.readFileSync(path.join(productionRoot,'js/globals.js'),'utf8'),current);
+  vm.runInContext(fs.readFileSync(path.join(productionRoot,'js/import-validation.js'),'utf8'),current);
+  const restored=JSON.parse(vm.runInContext('JSON.stringify(prepareImportedData(input))',current));
+  assert.deepEqual(restored.subscriptions,backup.subscriptions);
+  assert.deepEqual(restored.subscriptionOccurrences,backup.subscriptionOccurrences);
+  assert.equal(restored.subscriptions[0].androidFuture.preserve,true);
 });

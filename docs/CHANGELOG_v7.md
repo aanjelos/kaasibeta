@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v7.507n - 2026-11-21
+
+- Prepare the v8 development baseline from production v7.506n (kaasiapp commit 48da056). Verify runtime parity and remove the two legacy backup/session debug hooks already excluded from production. Preserve Beta identity, no-index behaviour and development tooling; leave kaasiapp unchanged.
+- Adopt v7.<internal number>n numbering now that v7 is public. Advance the internal counter once to 507 and align HTML asset versions, service-worker BUILD and app-shell hashes. Retain roadmap additions; no v8 feature or financial-data schema changes in this round.
+- Pin the pre-v7 public import/export regression to the preserved pre-v7 release tag rather than the now-upgraded main branch, and validate the same subscription backup against current production import validation.
+
 ## v6.506n - 2026-11-13
 
 - Gate automatic sync, manual Sync/resume and explicit cloud replacements when this device is associated with another account or has no verified account association. Use the existing Supabase user ID and device-only owner marker; retain the association through sign-out. Returning to the same associated account keeps normal sync behavior.
