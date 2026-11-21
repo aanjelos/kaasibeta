@@ -58,6 +58,11 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 - Keep Skip/Exit available and replay from Settings starting at the beginning. Do not automatically force returning users through the replacement guide. Preserve completion tracking only for a genuinely completed tour, distinct from practice actions.
 - Match Kaasi's approved v9 styling. Test phone keyboard/popover overlap, scrolling, safe areas, hidden sections, missing targets, interrupted tours, keyboard/focus handling, screen readers and reduced motion. Adapt steps to the controls actually available on each device.
 
+### Native HTML dialog pilot
+
+- Migrate one simple informational popup to a native HTML dialog, retaining Kaasi typography, colours, controls, and backdrop.
+- Verify Escape, mobile Back, keyboard focus containment and return, and dismissal behaviour before expanding to editors or account and restore flows.
+
 ### Sinhala localization
 
 - **Requested 2026-11-12; explore with v9:** Offer Sinhala alongside English, with a clear language selector in Settings. Discuss default language and whether the preference is device-specific before implementation; keep switching reversible.

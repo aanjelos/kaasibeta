@@ -2,13 +2,28 @@
  * charts.js
  * Manages data visualization including charts, graphs, and PDF report generation.
  */
-function generateMonthlyPdfReport() {
-  if (typeof window.jspdf === "undefined") {
-    showNotification("PDF generation library is not loaded.", "error");
-    return;
-  }
+let pdfLibraryRequest;
 
-  const { jsPDF } = window.jspdf;
+function loadPdfLibrary() {
+  if (window.jspdf?.jsPDF) return Promise.resolve(window.jspdf);
+  if (!pdfLibraryRequest) {
+    pdfLibraryRequest = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+      script.integrity = "sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk";
+      script.crossOrigin = "anonymous";
+      script.onload = () => window.jspdf?.jsPDF ? resolve(window.jspdf) : reject(new Error("PDF library unavailable"));
+      script.onerror = () => reject(new Error("PDF library unavailable"));
+      document.head.append(script);
+    }).catch(error => {
+      pdfLibraryRequest = null;
+      throw error;
+    });
+  }
+  return pdfLibraryRequest;
+}
+
+async function generateMonthlyPdfReport(event) {
   const activeTab = $("#monthTabs .tab-button.active");
 
   if (!activeTab) {
@@ -18,6 +33,17 @@ function generateMonthlyPdfReport() {
 
   const month = parseInt(activeTab.dataset.month);
   const year = parseInt(activeTab.dataset.year);
+  const button = event?.currentTarget;
+  if (button) button.disabled = true;
+  let jsPDF;
+  try {
+    ({ jsPDF } = await loadPdfLibrary());
+  } catch {
+    showNotification("PDF export couldn’t load. Connect to the internet and try again.", "error");
+    return;
+  } finally {
+    if (button) button.disabled = false;
+  }
   const monthName = new Date(year, month).toLocaleString("default", {
     month: "long",
   });

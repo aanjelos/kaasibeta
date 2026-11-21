@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v7.509n - 2026-11-21
+
+- Remove the fixed startup preloader delay while retaining the pending cloud restore gate.
+- Load jsPDF on first export while retaining offline precaching, and request Instrument Serif when setup or the tutorial opens.
+- Label the mobile PIN backspace control and consolidate history suggestion positioning and pagination work.
+
 ## v7.508n - 2026-11-21
 
 - Update description and debt/receivable name history suggestions synchronously on input instead of waiting 180ms. Remove the pending-search timer and its temporary keyboard/pointer guards. Preserve matching thresholds, autofill, pagination and stable popup placement across add/edit fields. Transaction-list and credit-card history search debouncing is unchanged.

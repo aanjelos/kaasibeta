@@ -52,7 +52,11 @@ test('core executable CDN scripts are pinned and include browser integrity check
   const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
   assert.ok(!html.includes('supabase-js@2"'));
   const scripts=[...html.matchAll(/<script[^>]+src="https:\/\/(?:cdn\.jsdelivr\.net|cdnjs\.cloudflare\.com)[^>]+>/g)];
-  assert.equal(scripts.length,3);for(const script of scripts)assert.match(script[0],/integrity="sha384-[A-Za-z0-9+/=]+"/);
+  assert.equal(scripts.length,2);for(const script of scripts)assert.match(script[0],/integrity="sha384-[A-Za-z0-9+/=]+"/);
+  assert.doesNotMatch(html,/jspdf\.umd/);
+  const charts=fs.readFileSync(path.join(root,'js/charts.js'),'utf8');
+  assert.match(charts,/script\.src = "https:\/\/cdnjs\.cloudflare\.com\/ajax\/libs\/jspdf\/\d+\.\d+\.\d+\/jspdf\.umd\.min\.js"/);
+  assert.match(charts,/script\.integrity = "sha384-[A-Za-z0-9+/=]+"/);
 });
 test('old document requests use their own cached build and never fetch current code under old queries',async()=>{
   const f=fixture(),cache=await f.caches.open('kaasi-cache-v6.434n');await cache.put('./js/app.js?v=v6.434n',new Response('old code'));

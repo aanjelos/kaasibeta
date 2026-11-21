@@ -14,7 +14,10 @@ function findHistorySuggestions(records, query, field, type, limit = 2) {
 (() => {
   const selector = '#description, #ccDescription, #modalDescription, #modalCcDescription, input[name="debtWho"], input[name="recWho"]';
   let input = null, list = null, rows = [], selected = -1, config = null;
+  let positionFrame;
   function close() {
+    if (positionFrame !== undefined) cancelAnimationFrame(positionFrame);
+    positionFrame = undefined;
     if (input) { input.setAttribute('aria-expanded','false'); input.removeAttribute('aria-activedescendant'); input.removeAttribute('aria-controls'); }
     list?.remove(); list = null; input = null; rows = []; selected = -1;
   }
@@ -48,7 +51,8 @@ function findHistorySuggestions(records, query, field, type, limit = 2) {
     if (!el.matches(selector) || sourceFloatingLayer(el) === null) return;
     config = configuration(el);
     if (el.value.trim().length < (config.field === 'who' ? 1 : 2)) return;
-    rows = findHistorySuggestions(config.records,el.value,config.field,config.type,10);
+    const matches = findHistorySuggestions(config.records,el.value,config.field,config.type,Infinity);
+    rows = matches.slice(0,10);
     if (!rows.length) { close(); return; }
     selected = -1; el.removeAttribute('aria-activedescendant');
     input = el; list = existing || document.createElement('div'); list.id = 'historySuggestions';
@@ -69,12 +73,10 @@ function findHistorySuggestions(records, query, field, type, limit = 2) {
     });
     }
     appendOptions(0);
-    let exhausted = rows.length < 10;
     function loadMore() {
-      if (exhausted) return;
+      if (rows.length >= matches.length) return;
       const count = rows.length;
-      rows = findHistorySuggestions(config.records,el.value,config.field,config.type,count+10);
-      exhausted = rows.length < count+10;
+      rows = matches.slice(0,count+10);
       appendOptions(count);
     }
     list.onscroll=()=>{
@@ -99,8 +101,9 @@ function findHistorySuggestions(records, query, field, type, limit = 2) {
       popup.style.top = (placeBelow ? rect.bottom+8 : rect.top-popup.offsetHeight-8) + 'px';
       popup.style.zIndex = layer;
       // Follow the field while its dialog entrance animation settles.
-      if (performance.now()-started < 500) requestAnimationFrame(position);
+      positionFrame = performance.now()-started < 500 ? requestAnimationFrame(position) : undefined;
     }
+    if (positionFrame !== undefined) cancelAnimationFrame(positionFrame);
     position();
     el.setAttribute('aria-expanded','true'); el.setAttribute('aria-controls',list.id);
   }

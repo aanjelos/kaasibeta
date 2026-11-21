@@ -960,7 +960,6 @@ window.executePreloaderSequence = function() {
   // Preloader logic
   const preloaderElement = document.getElementById("preloader");
   const appContentElement = document.getElementById("app-content");
-  const preloaderDuration = 1250; // Duration preloader is visible
 
   // Initialize random preloader loading screen tips
   const PRELOADER_TIPS = [
@@ -1048,21 +1047,8 @@ window.executePreloaderSequence = function() {
         }, 750);
       };
     } else {
-      console.log(
-        `Preloader will be shown for ${preloaderDuration / 1000} seconds.`
-      );
-
-      setTimeout(() => {
-        console.log(
-          "Preloader timer finished. Hiding preloader, showing app content."
-        );
-        preloaderElement.classList.add("hidden");
-        appContentElement.classList.add("visible");
-        setTimeout(() => {
-          preloaderElement.style.display = "none";
-          console.log("Preloader display set to 'none' after fade-out.");
-        }, 750); // Matches CSS transition duration for opacity
-      }, preloaderDuration);
+      preloaderElement.style.display = "none";
+      appContentElement.classList.add("visible");
     }
   } else {
     if (!preloaderElement) {

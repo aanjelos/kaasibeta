@@ -28,7 +28,7 @@ test('placement reserves two results when narrowing to one and responds to actua
   const viewport={height:450,width:390,offsetLeft:0,offsetTop:0};
   const rect={top:300,bottom:344,left:20,width:280};
   const c=vm.createContext({popup,list:popup,el:{getBoundingClientRect:()=>rect},window:{visualViewport:viewport},sourceFloatingLayer:()=>100,
-    performance:{now:()=>1000},started:0,Math,close(){throw Error('Unexpected close');}});
+    performance:{now:()=>1000},started:0,positionFrame:undefined,Math,close(){throw Error('Unexpected close');}});
   vm.runInContext(source.slice(start,end),c);c.position();
   assert.equal(popup.style.top,'164px','two results appear above');
   popup.scrollHeight=64;popup.offsetHeight=64;c.position();

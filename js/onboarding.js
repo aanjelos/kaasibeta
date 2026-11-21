@@ -240,8 +240,18 @@ const Onboarding = (() => {
     }
   }
   function calculatePractice() { const field=$o('onboardCalc'); if(!field)return; const result=evaluateMathExpression(field.value); if(result!==null) { field.value=formatAmountInputResult(result,field.value); $o('onboardCalcResult').textContent=''; } }
+  function loadOnboardingFont() {
+    if ($o('onboardingFont')) return;
+    const stylesheet = document.createElement('link');
+    stylesheet.id = 'onboardingFont';
+    stylesheet.rel = 'stylesheet';
+    stylesheet.href = 'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap';
+    document.head.append(stylesheet);
+  }
+
   function open() {
     if (state?.settings?.initialSetupDone) return;
+    loadOnboardingFont();
     if (modal().style.display !== 'block') { step=0; returning=false; draft=freshDraft(); welcomeAnimated=false; }
     const root=modal();
     if(!root.dataset.onboardingBound) {
@@ -259,6 +269,7 @@ const Onboarding = (() => {
   }
   function openTutorial() {
     if(!state?.settings?.initialSetupDone) return;
+    loadOnboardingFont();
     const root=$o('kaasiTutorialModal');
     if(!root.dataset.onboardingBound){root.addEventListener('click',onClick);root.addEventListener('change',event=>{if(['tourType','tourAccount'].includes(event.target.id))updateTourType();});root.addEventListener('keydown',event=>{if(event.target.id==='onboardCalc'&&['Tab','Enter','='].includes(event.key)){if(event.key!=='Tab')event.preventDefault();calculatePractice();}});root.addEventListener('input',event=>{if(event.target.id==='onboardDemoSearch'){const query=event.target.value.trim().toLowerCase();root.querySelectorAll('[data-search]').forEach(row=>{row.hidden=!row.dataset.search.includes(query);});}});root.dataset.onboardingBound='true';}
     tutorialFromSetup=false;lesson=-1;renderTutorial();openModalHelper('kaasiTutorialModal');
