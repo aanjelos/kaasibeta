@@ -62,8 +62,6 @@ function initializeUI(isRefresh = false) {
   displayAppVersion();
 
   $("#transactionForm").onsubmit = handleTransactionSubmit;
-  const addDailyNoteButton = $("#addDailyNoteBtn");
-  if (addDailyNoteButton) addDailyNoteButton.onclick = () => openDailyNoteEditor();
   $("#ccTransactionForm").onsubmit = handleCcTransactionSubmit;
 
   // --- Header & Footer Button Event Listeners ---
@@ -623,9 +621,24 @@ function initializeUI(isRefresh = false) {
   const transactionTypeSelect = $("#transactionType");
   const categoryGroup = $("#categoryGroup");
   const descriptionInput = $("#description");
+  const transactionEntryFields = $("#transactionEntryFields");
+  const inlineDailyNoteForm = $("#inlineDailyNoteForm");
 
   const toggleMainCategoryVisibility = () => {
     if (!transactionTypeSelect) return;
+    const isNote = transactionTypeSelect.value === "note";
+    if (transactionEntryFields) transactionEntryFields.hidden = transactionEntryFields.disabled = isNote;
+    if (inlineDailyNoteForm) {
+      inlineDailyNoteForm.hidden = !isNote;
+      if (isNote && !inlineDailyNoteForm.onsubmit) {
+        inlineDailyNoteForm.innerHTML = dailyNoteEditorMarkup(true);
+        bindDailyNoteEditor(inlineDailyNoteForm);
+      }
+    }
+    if (isNote) {
+      inlineDailyNoteForm?.querySelector("textarea")?.focus();
+      return;
+    }
     const isIncome = transactionTypeSelect.value === "income";
     const isTransfer = transactionTypeSelect.value === "transfer";
     const isExpense = transactionTypeSelect.value === "expense";
@@ -976,7 +989,7 @@ window.executePreloaderSequence = function() {
     // Tools & Shortcuts
     "Type basic math (+, -, *, /) directly into amount fields.",
     "Click the calculator icon inside inputs to open the Math Toolbar.",
-    "Transfer money between accounts by selecting 'Transfer' in Add Transaction.",
+    "Transfer money between accounts by selecting 'Transfer Between Accounts' in Add Entry.",
     
     // Details & Charts
     "Tap a transaction to view its full details and description.",

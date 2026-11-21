@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v7.514m - 2026-11-21
+
+- Rename the dashboard card to Add Entry and add an inline Daily Note option to the type selector. Selecting a date loads its note without moving a saved record. The history editor still supports moving or deleting notes.
+
 ## v7.513m - 2026-11-21
 
 - Cap Daily Note input and backup validation at 256 characters. Keep the history note indicator visually subdued.

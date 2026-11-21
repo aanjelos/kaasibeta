@@ -1432,11 +1432,8 @@ input[type="checkbox"].peer:focus-visible + div {
   }
 }
 
-.transaction-card-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
+#transactionEntryFields {
+  min-width: 0;
 }
 .daily-note-icon {
   display: inline-grid;
@@ -1504,7 +1501,7 @@ input[type="checkbox"].peer:focus-visible + div {
   color: var(--text-secondary);
   font-size: 0.8125rem;
 }
-#dailyNoteCount {
+.daily-note-count {
   margin-inline-start: auto;
 }
 .daily-note-error {

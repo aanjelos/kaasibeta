@@ -546,6 +546,7 @@ async function handleTransactionSubmit(event) {
   const form = event.target,
     formData = new FormData(form);
   const type = formData.get("transactionType");
+  if (type === "note") return;
   const amount = parseAmountValue(formData.get("amount"));
   const description = formData.get("description").trim();
   const date = formData.get("date");
@@ -1198,39 +1199,51 @@ function populateHistoryYears(selectedYear) {
   populateYearSelector([...state.transactions, ...noteDates], selector, new Date().getFullYear(), selectedYear);
 }
 
-function openDailyNoteEditor(date) {
-  if (isAppLocked() || storageOperationPending) return;
-  const initialDate = date || getCurrentDateString();
-
-  openFormModal("Daily Note", `
+function dailyNoteEditorMarkup(inline = false) {
+  const id = name => `${inline ? 'inlineDailyNote' : 'dailyNote'}${name}`;
+  return `
     <div class="daily-note-editor">
       <div class="daily-note-field">
-        <label for="dailyNoteText">Note</label>
-        <textarea id="dailyNoteText" rows="4" required enterkeyhint="done" aria-describedby="dailyNoteCount dailyNoteError"></textarea>
+        <label for="${id("Text")}">Note</label>
+        <textarea id="${id("Text")}" rows="4" required enterkeyhint="done" aria-describedby="${id("Count")} ${id("Error")}"></textarea>
         <div class="daily-note-editor-meta">
           <span class="daily-note-keyboard-hint">Shift+Enter for a new line</span>
-          <span id="dailyNoteCount"></span>
+          <span id="${id("Count")}" class="daily-note-count"></span>
         </div>
       </div>
       <div class="daily-note-field">
-        <label for="dailyNoteDate">Date</label>
-        <input id="dailyNoteDate" type="date" required aria-describedby="dailyNoteError">
+        <label for="${id("Date")}">Date</label>
+        <input id="${id("Date")}" type="date" required aria-describedby="${id("Error")}">
       </div>
-      <p id="dailyNoteError" class="daily-note-error" role="alert"></p>
+      <p id="${id("Error")}" class="daily-note-error" role="alert"></p>
+      ${inline ? `<button type="submit" id="${id("Save")}" class="btn btn-primary w-full">Save Note</button>` : `
       <div class="daily-note-editor-actions">
         <button type="button" id="dailyNoteDelete" class="daily-note-icon" aria-label="Delete Note" title="Delete Note" hidden><i class="fas fa-trash" aria-hidden="true"></i></button>
         <button type="button" id="dailyNoteCancel" class="daily-note-icon" aria-label="Cancel" title="Cancel"><i class="fas fa-xmark" aria-hidden="true"></i></button>
         <button type="submit" id="dailyNoteSave" class="daily-note-icon" aria-label="Save Note" title="Save Note"><i class="fas fa-check" aria-hidden="true"></i></button>
-      </div>
-    </div>`, submit);
+      </div>`}
+    </div>`;
+}
 
-  const dateField = $("#dailyNoteDate");
-  const noteField = $("#dailyNoteText");
-  const count = $("#dailyNoteCount");
-  const errorMessage = $("#dailyNoteError");
-  const saveButton = $("#dailyNoteSave");
-  const deleteButton = $("#dailyNoteDelete");
-  const cancelButton = $("#dailyNoteCancel");
+function openDailyNoteEditor(date) {
+  if (isAppLocked() || storageOperationPending) return;
+  openFormModal("Daily Note", dailyNoteEditorMarkup(), null);
+  const form = $("#dynamicForm");
+  bindDailyNoteEditor(form, date);
+  form.querySelector("textarea").focus();
+}
+
+function bindDailyNoteEditor(form, date) {
+  const inline = !date;
+  const field = name => form.querySelector(`#${inline ? 'inlineDailyNote' : 'dailyNote'}${name}`);
+  const initialDate = date || getCurrentDateString();
+  const dateField = field("Date");
+  const noteField = field("Text");
+  const count = field("Count");
+  const errorMessage = field("Error");
+  const saveButton = field("Save");
+  const deleteButton = field("Delete");
+  const cancelButton = field("Cancel");
   let selectedDate = initialDate;
   const findNote = key => (state.dailyNotes || []).find(note => note.id === key);
   let originalNote = findNote(initialDate);
@@ -1241,29 +1254,31 @@ function openDailyNoteEditor(date) {
   };
   const changeDate = () => {
     const key = dateField.value;
-    if (key === selectedDate) return;
+    if (!isCalendarDate(key) || key === selectedDate) return;
     errorMessage.textContent = "";
     const existing = findNote(key);
-    if (existing && key !== originalNote?.id) {
-      if (originalNote && (date || noteField.value !== originalNote.text)) {
-        errorMessage.textContent = "That date already has a note. Choose another date to move this note.";
-      } else if (!originalNote && noteField.value.trim()) {
+    if (inline) {
+      const dirty = noteField.value !== (originalNote?.text ?? "");
+      if (dirty && (existing || originalNote)) {
         dateField.value = selectedDate;
-        errorMessage.textContent = "That date already has a note. Your draft is still here.";
+        errorMessage.textContent = existing ? "That date already has a note. Your draft is still here."
+          : "Save your changes before choosing another date.";
         return;
-      } else {
+      }
+      if (!dirty) {
         originalNote = existing;
-        noteField.value = existing.text;
-        deleteButton.hidden = false;
+        noteField.value = existing?.text ?? "";
         updateCount();
       }
+    } else if (existing && key !== originalNote?.id) {
+      errorMessage.textContent = "That date already has a note. Choose another date to move this note.";
     }
     selectedDate = key;
   };
   dateField.value = initialDate;
   dateField.onchange = changeDate;
   noteField.value = originalNote?.text ?? "";
-  deleteButton.hidden = !originalNote;
+  if (deleteButton) deleteButton.hidden = !originalNote;
   noteField.onbeforeinput = event => {
     if (event.isComposing || !event.inputType.startsWith("insert")) return;
     const inserted = event.data ?? (event.inputType === "insertLineBreak" ? "\n" : null);
@@ -1275,20 +1290,26 @@ function openDailyNoteEditor(date) {
     if (!event.isComposing) updateCount();
   };
   noteField.oncompositionend = updateCount;
+  if (inline) noteField.onfocus = () => {
+    if (noteField.value !== (originalNote?.text ?? "")) return;
+    originalNote = findNote(selectedDate);
+    noteField.value = originalNote?.text ?? "";
+    updateCount();
+  };
   noteField.onkeydown = event => {
     if (event.key !== "Enter" || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey ||
         event.isComposing || event.keyCode === 229 || event.defaultPrevented) return;
     event.preventDefault();
     if (!event.repeat) noteField.form.requestSubmit(saveButton);
   };
-  cancelButton.onclick = () => closeModal("formModal");
-  deleteButton.onclick = () => {
+  if (cancelButton) cancelButton.onclick = () => closeModal("formModal");
+  if (deleteButton) deleteButton.onclick = () => {
     showConfirmationModal("Delete Daily Note?", "Delete this saved note?", "Delete Note", "Cancel", async () => {
       if (await persist(true)) return true;
     });
   };
   updateCount();
-  noteField.focus();
+  form.onsubmit = submit;
 
   async function submit(event) {
     event.preventDefault();
@@ -1321,22 +1342,29 @@ function openDailyNoteEditor(date) {
     else if (index < 0) nextNotes.push({ id: key, text });
     else nextNotes[index] = { ...nextNotes[index], id: key, text };
 
-    saveButton.disabled = deleteButton.disabled = cancelButton.disabled = dateField.disabled = noteField.disabled = true;
+    const controls = [saveButton, deleteButton, cancelButton, dateField, noteField].filter(Boolean);
+    controls.forEach(control => { control.disabled = true; });
     try {
       await saveData({ ...state, dailyNotes: nextNotes }, { skipMilestones: true });
     } catch (error) {
       if (!error.kaasiSaveFailure) showNotification(error.message, "error");
       return false;
     } finally {
-      saveButton.disabled = deleteButton.disabled = cancelButton.disabled = dateField.disabled = noteField.disabled = false;
+      controls.forEach(control => { control.disabled = false; });
     }
     if (remove) closeModal("confirmationModal");
-    closeModal("formModal");
+    if (inline) {
+      originalNote = findNote(key);
+      errorMessage.textContent = "";
+      if (!form.hidden) noteField.focus();
+    } else closeModal("formModal");
     const selectedYear = Number($("#yearSelector")?.value) || new Date().getFullYear();
     populateHistoryYears(selectedYear);
     refreshMonthlyViewIfRelevant(key, !remove);
-    const header = date && document.querySelector(`.monthly-view-day-header[data-day-key="${key}"]`);
-    (header || $(date ? "#monthlySearchInput" : "#addDailyNoteBtn"))?.focus({ preventScroll: true });
+    if (!inline) {
+      const header = document.querySelector(`.monthly-view-day-header[data-day-key="${key}"]`);
+      (header || $("#monthlySearchInput"))?.focus({ preventScroll: true });
+    }
     showNotification(remove ? "Daily note deleted." : "Daily note saved.", "success");
     return true;
   }
