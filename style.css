@@ -1167,17 +1167,20 @@ input[type="checkbox"]:not(.sr-only):not(.peer):disabled { opacity: .5; cursor: 
 /* Expand list actions into the existing whitespace without moving the icons.
    Adjacent buttons have a 12px gap; each claims only its nearest 6px. */
 .edit-btn-container button[data-record-action="editTransaction"],
-.edit-btn-container button[data-record-action="deleteTransaction"] {
+.edit-btn-container button[data-record-action="deleteTransaction"],
+.edit-btn-container .note-row-action {
   position: relative;
 }
 .edit-btn-container button[data-record-action="editTransaction"]::before,
-.edit-btn-container button[data-record-action="deleteTransaction"]::before {
+.edit-btn-container button[data-record-action="deleteTransaction"]::before,
+.edit-btn-container .note-row-action::before {
   content: "";
   position: absolute;
   inset: -12px -6px;
 }
 .edit-btn-container button[data-record-action="editTransaction"]:focus-visible,
-.edit-btn-container button[data-record-action="deleteTransaction"]:focus-visible {
+.edit-btn-container button[data-record-action="deleteTransaction"]:focus-visible,
+.edit-btn-container .note-row-action:focus-visible {
   outline: 2px solid var(--accent-primary);
   outline-offset: 3px;
 }
@@ -1468,6 +1471,17 @@ input[type="checkbox"].peer:focus-visible + div {
   padding: 0.75rem;
   border-bottom: 1px solid var(--border-color);
 }
+.daily-note-actions {
+  flex-shrink: 0;
+  margin-inline-start: auto;
+}
+.daily-note-actions .note-row-action {
+  min-width: 32px;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 .daily-note-text {
   flex: 1;
   min-width: 0;
@@ -1537,6 +1551,16 @@ input[type="checkbox"].peer:focus-visible + div {
   }
   .daily-note-text {
     flex-basis: 100%;
+  }
+}
+@media (max-width: 767px) {
+  .daily-note-actions .note-row-action {
+    min-width: 44px;
+    min-height: 44px;
+    margin: 0;
+  }
+  .daily-note-actions .note-row-action::before {
+    content: none;
   }
 }
 .day-transactions-container {

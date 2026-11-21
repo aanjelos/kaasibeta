@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v7.519m - 2026-11-22
+
+- Match Daily Note row edit and delete controls to the transaction list and add direct note deletion with confirmation. Keep both controls available with 44px touch targets on mobile.
+
 ## v7.518m - 2026-11-22
 
 - Return Add Entry to Expense after saving an inline Daily Note. Reset the note editor to today's date and load today's saved note when present.

@@ -1297,11 +1297,7 @@ function bindDailyNoteEditor(form, date) {
     if (!event.repeat) noteField.form.requestSubmit(saveButton);
   };
   if (cancelButton) cancelButton.onclick = () => closeModal("formModal");
-  if (deleteButton) deleteButton.onclick = () => {
-    showConfirmationModal("Delete Daily Note?", "Delete this saved note?", "Delete Note", "Cancel", async () => {
-      if (await persist(true)) return true;
-    });
-  };
+  if (deleteButton) deleteButton.onclick = () => confirmDailyNoteDeletion(originalNote, () => closeModal("formModal"));
   updateCount();
   form.onsubmit = submit;
 
@@ -1310,14 +1306,14 @@ function bindDailyNoteEditor(form, date) {
     const requestedDate = dateField.value;
     changeDate();
     if (requestedDate !== dateField.value) return;
-    await persist(false);
+    await persist();
   }
 
-  async function persist(remove) {
+  async function persist() {
     if (isAppLocked() || storageOperationPending) return false;
-    const key = remove ? originalNote?.id : dateField.value;
+    const key = dateField.value;
     const text = noteField.value;
-    if (!isCalendarDate(key) || (!remove && (!text.trim() || [...text].length > DAILY_NOTE_LIMIT))) {
+    if (!isCalendarDate(key) || !text.trim() || [...text].length > DAILY_NOTE_LIMIT) {
       errorMessage.textContent = `Choose a valid date and enter a note of up to ${DAILY_NOTE_LIMIT} characters.`;
       return false;
     }
@@ -1331,9 +1327,7 @@ function bindDailyNoteEditor(form, date) {
     }
     const nextNotes = (state.dailyNotes || []).slice();
     const index = nextNotes.findIndex(note => note.id === originalNote?.id);
-    if (remove && index < 0) return false;
-    if (remove) nextNotes.splice(index, 1);
-    else if (index < 0) nextNotes.push({ id: key, text });
+    if (index < 0) nextNotes.push({ id: key, text });
     else nextNotes[index] = { ...nextNotes[index], id: key, text };
 
     const controls = [saveButton, deleteButton, cancelButton, dateField, noteField].filter(Boolean);
@@ -1346,7 +1340,6 @@ function bindDailyNoteEditor(form, date) {
     } finally {
       controls.forEach(control => { control.disabled = false; });
     }
-    if (remove) closeModal("confirmationModal");
     if (inline) {
       selectedDate = getCurrentDateString();
       originalNote = findNote(selectedDate);
@@ -1362,14 +1355,31 @@ function bindDailyNoteEditor(form, date) {
     } else closeModal("formModal");
     const selectedYear = Number($("#yearSelector")?.value) || new Date().getFullYear();
     populateHistoryYears(selectedYear);
-    refreshMonthlyViewIfRelevant(key, !remove);
+    refreshMonthlyViewIfRelevant(key, true);
     if (!inline) {
       const header = document.querySelector(`.monthly-view-day-header[data-day-key="${key}"]`);
       (header || $("#monthlySearchInput"))?.focus({ preventScroll: true });
     }
-    showNotification(remove ? "Daily note deleted." : "Daily note saved.", "success");
+    showNotification("Daily note saved.", "success");
     return true;
   }
+}
+
+function confirmDailyNoteDeletion(note, afterDelete) {
+  if (!note || isAppLocked() || storageOperationPending) return;
+  showConfirmationModal("Delete Daily Note?", "Delete this saved note?", "Delete Note", "Cancel", async () => {
+    if (isAppLocked() || storageOperationPending) return true;
+    const notes = state.dailyNotes || [];
+    if (!notes.includes(note)) throw new Error("This note changed. Reopen the editor and try again.");
+    await saveData({ ...state, dailyNotes: notes.filter(item => item !== note) }, { skipMilestones: true });
+    closeModal("confirmationModal");
+    afterDelete?.();
+    populateHistoryYears(Number($("#yearSelector")?.value));
+    refreshMonthlyViewIfRelevant(note.id);
+    (document.querySelector(`.monthly-view-day-header[data-day-key="${note.id}"]`) || $("#monthlySearchInput"))?.focus({ preventScroll: true });
+    showNotification("Daily note deleted.", "success");
+    return true;
+  });
 }
 
 function renderDailyNote(note) {
@@ -1379,17 +1389,14 @@ function renderDailyNote(note) {
   text.className = "daily-note-text";
   text.textContent = note.text;
   row.appendChild(text);
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "daily-note-icon";
-  const icon = document.createElement("i");
-  icon.className = "fas fa-pen";
-  icon.setAttribute("aria-hidden", "true");
-  button.appendChild(icon);
-  button.setAttribute("aria-label", "Edit Daily Note");
-  button.title = "Edit Daily Note";
-  button.onclick = () => openDailyNoteEditor(note.id);
-  row.appendChild(button);
+  const actions = document.createElement("div");
+  actions.className = "edit-btn-container daily-note-actions";
+  actions.innerHTML = `
+    <button type="button" class="note-row-action text-xs accent-text hover:text-accent-hover focus:outline-none" aria-label="Edit Daily Note" data-tooltip="Edit"><i class="fas fa-edit" aria-hidden="true"></i></button>
+    <button type="button" class="note-row-action text-xs text-gray-500 hover:text-expense focus:outline-none ml-2" aria-label="Delete Daily Note" data-tooltip="Delete"><i class="fas fa-times" aria-hidden="true"></i></button>`;
+  actions.firstElementChild.onclick = () => openDailyNoteEditor(note.id);
+  actions.lastElementChild.onclick = () => confirmDailyNoteDeletion(note);
+  row.appendChild(actions);
   return row;
 }
 
