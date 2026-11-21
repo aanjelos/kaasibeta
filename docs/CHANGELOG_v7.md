@@ -2,6 +2,11 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v7.512m - 2026-11-21
+
+- Put the Daily Note text field first, support Enter to save and Shift+Enter for line breaks, and simplify the dashboard, history and editor controls to icons.
+- Allow moving a note to an unoccupied date without changing financial records. Limit new and edited notes to 256 characters and preserve previously saved longer notes in storage and backups.
+
 ## v7.511m - 2026-11-21
 
 - Add Daily Notes from the Add Transaction card and edit them in All Transactions. Support plain text, emoji and up to 512 characters. Keep note-only dates in chronological history, including after the last transaction is removed.

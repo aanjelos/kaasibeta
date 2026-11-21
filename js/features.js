@@ -1203,16 +1203,25 @@ function openDailyNoteEditor(date) {
   const initialDate = date || getCurrentDateString();
 
   openFormModal("Daily Note", `
-    <label for="dailyNoteDate">Date</label>
-    <input id="dailyNoteDate" type="date" required>
-    <label for="dailyNoteText">Note</label>
-    <textarea id="dailyNoteText" rows="5" required aria-describedby="dailyNoteCount dailyNoteError"></textarea>
-    <p id="dailyNoteCount" class="daily-note-count"></p>
-    <p id="dailyNoteError" class="daily-note-error" role="alert"></p>
-    <div class="daily-note-editor-actions">
-      <button type="submit" id="dailyNoteSave" class="btn btn-primary">Save Note</button>
-      <button type="button" id="dailyNoteCancel" class="btn btn-secondary">Cancel</button>
-      <button type="button" id="dailyNoteDelete" class="btn btn-danger" hidden>Delete Note</button>
+    <div class="daily-note-editor">
+      <div class="daily-note-field">
+        <label for="dailyNoteText">Note</label>
+        <textarea id="dailyNoteText" rows="4" required enterkeyhint="done" aria-describedby="dailyNoteCount dailyNoteError"></textarea>
+        <div class="daily-note-editor-meta">
+          <span class="daily-note-keyboard-hint">Shift+Enter for a new line</span>
+          <span id="dailyNoteCount"></span>
+        </div>
+      </div>
+      <div class="daily-note-field">
+        <label for="dailyNoteDate">Date</label>
+        <input id="dailyNoteDate" type="date" required aria-describedby="dailyNoteError">
+      </div>
+      <p id="dailyNoteError" class="daily-note-error" role="alert"></p>
+      <div class="daily-note-editor-actions">
+        <button type="button" id="dailyNoteDelete" class="daily-note-icon" aria-label="Delete Note" title="Delete Note" hidden><i class="fas fa-trash" aria-hidden="true"></i></button>
+        <button type="button" id="dailyNoteCancel" class="daily-note-icon" aria-label="Cancel" title="Cancel"><i class="fas fa-xmark" aria-hidden="true"></i></button>
+        <button type="submit" id="dailyNoteSave" class="daily-note-icon" aria-label="Save Note" title="Save Note"><i class="fas fa-check" aria-hidden="true"></i></button>
+      </div>
     </div>`, submit);
 
   const dateField = $("#dailyNoteDate");
@@ -1222,66 +1231,89 @@ function openDailyNoteEditor(date) {
   const saveButton = $("#dailyNoteSave");
   const deleteButton = $("#dailyNoteDelete");
   const cancelButton = $("#dailyNoteCancel");
-  let loadedDate;
-  let originalNote;
+  let selectedDate = initialDate;
   const findNote = key => (state.dailyNotes || []).find(note => note.id === key);
+  let originalNote = findNote(initialDate);
+  const exceedsLimit = text => text !== originalNote?.text && [...text].length > DAILY_NOTE_LIMIT;
   const updateCount = () => {
     const length = [...noteField.value].length;
-    count.textContent = `${length} / ${DAILY_NOTE_LIMIT} characters`;
-    noteField.setCustomValidity(length > DAILY_NOTE_LIMIT ? `Use ${DAILY_NOTE_LIMIT} characters or fewer.` : "");
-    if (length > DAILY_NOTE_LIMIT) noteField.setAttribute("aria-invalid", "true");
+    count.textContent = length > DAILY_NOTE_LIMIT && !exceedsLimit(noteField.value)
+      ? `${length} characters · previously saved` : `${length} / ${DAILY_NOTE_LIMIT}`;
+    noteField.setCustomValidity(exceedsLimit(noteField.value) ? `Use ${DAILY_NOTE_LIMIT} characters or fewer.` : "");
+    if (exceedsLimit(noteField.value)) noteField.setAttribute("aria-invalid", "true");
     else noteField.removeAttribute("aria-invalid");
   };
-  const loadDate = () => {
-    if (dateField.value === loadedDate) return;
-    loadedDate = dateField.value;
-    originalNote = findNote(loadedDate);
-    noteField.value = originalNote?.text ?? "";
-    deleteButton.hidden = !originalNote;
+  const changeDate = () => {
+    const key = dateField.value;
+    if (key === selectedDate) return;
     errorMessage.textContent = "";
-    updateCount();
+    const existing = findNote(key);
+    if (existing && key !== originalNote?.id) {
+      if (originalNote && (date || noteField.value !== originalNote.text)) {
+        errorMessage.textContent = "That date already has a note. Choose another date to move this note.";
+      } else if (!originalNote && noteField.value.trim()) {
+        dateField.value = selectedDate;
+        errorMessage.textContent = "That date already has a note. Your draft is still here.";
+        return;
+      } else {
+        originalNote = existing;
+        noteField.value = existing.text;
+        deleteButton.hidden = false;
+        updateCount();
+      }
+    }
+    selectedDate = key;
   };
   dateField.value = initialDate;
-  dateField.readOnly = Boolean(date);
-  dateField.onchange = loadDate;
+  dateField.onchange = changeDate;
+  noteField.value = originalNote?.text ?? "";
+  deleteButton.hidden = !originalNote;
   noteField.oninput = updateCount;
+  noteField.onkeydown = event => {
+    if (event.key !== "Enter" || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey ||
+        event.isComposing || event.keyCode === 229 || event.defaultPrevented) return;
+    event.preventDefault();
+    if (!event.repeat) noteField.form.requestSubmit(saveButton);
+  };
   cancelButton.onclick = () => closeModal("formModal");
   deleteButton.onclick = () => {
-    showConfirmationModal("Delete Daily Note?", "Delete the note for this date?", "Delete Note", "Cancel", async () => {
+    showConfirmationModal("Delete Daily Note?", "Delete this saved note?", "Delete Note", "Cancel", async () => {
       if (await persist(true)) return true;
     });
   };
-  loadDate();
-  if (date && !window.matchMedia("(max-width: 760px)").matches) noteField.focus();
+  updateCount();
+  noteField.focus();
 
   async function submit(event) {
     event.preventDefault();
+    const requestedDate = dateField.value;
+    changeDate();
+    if (requestedDate !== dateField.value) return;
     await persist(false);
   }
 
   async function persist(remove) {
     if (isAppLocked() || storageOperationPending) return false;
-    const key = dateField.value;
-    if (key !== loadedDate) {
-      loadDate();
-      noteField.focus();
-      return false;
-    }
+    const key = remove ? originalNote?.id : dateField.value;
     const text = noteField.value;
-    if (!isCalendarDate(key) || (!remove && (!text.trim() || [...text].length > DAILY_NOTE_LIMIT))) {
-      errorMessage.textContent = "Choose a valid date and enter a note of up to 512 characters.";
+    if (!isCalendarDate(key) || (!remove && (!text.trim() || exceedsLimit(text)))) {
+      errorMessage.textContent = `Choose a valid date and enter a note of up to ${DAILY_NOTE_LIMIT} characters.`;
       return false;
     }
-    if (JSON.stringify(findNote(key)) !== JSON.stringify(originalNote)) {
+    if (originalNote && JSON.stringify(findNote(originalNote.id)) !== JSON.stringify(originalNote)) {
       errorMessage.textContent = "This note changed while you were editing. Reopen the editor to see the latest version.";
       return false;
     }
+    if (key !== originalNote?.id && findNote(key)) {
+      errorMessage.textContent = "That date already has a note. Choose another date.";
+      return false;
+    }
     const nextNotes = (state.dailyNotes || []).slice();
-    const index = nextNotes.findIndex(note => note.id === key);
+    const index = nextNotes.findIndex(note => note.id === originalNote?.id);
     if (remove && index < 0) return false;
     if (remove) nextNotes.splice(index, 1);
     else if (index < 0) nextNotes.push({ id: key, text });
-    else nextNotes[index] = { ...nextNotes[index], text };
+    else nextNotes[index] = { ...nextNotes[index], id: key, text };
 
     saveButton.disabled = deleteButton.disabled = cancelButton.disabled = dateField.disabled = noteField.disabled = true;
     try {
@@ -1313,9 +1345,13 @@ function renderDailyNote(note) {
   row.appendChild(text);
   const button = document.createElement("button");
   button.type = "button";
-  button.className = "btn btn-secondary btn-sm";
-  button.textContent = "Edit";
+  button.className = "daily-note-icon";
+  const icon = document.createElement("i");
+  icon.className = "fas fa-pen";
+  icon.setAttribute("aria-hidden", "true");
+  button.appendChild(icon);
   button.setAttribute("aria-label", "Edit Daily Note");
+  button.title = "Edit Daily Note";
   button.onclick = () => openDailyNoteEditor(note.id);
   row.appendChild(button);
   return row;
@@ -1751,9 +1787,10 @@ function renderMonthlyDetails(
 
       if (dayData.transactions.length) rightSideContainer.appendChild(spentSpan);
       if (note) {
-        const noteLabel = document.createElement("span");
-        noteLabel.className = "daily-note-indicator";
-        noteLabel.textContent = "Daily Note";
+        const noteLabel = document.createElement("i");
+        noteLabel.className = "fas fa-note-sticky daily-note-indicator";
+        noteLabel.setAttribute("role", "img");
+        noteLabel.setAttribute("aria-label", "Daily Note");
         rightSideContainer.appendChild(noteLabel);
       }
       rightSideContainer.appendChild(chevronIcon);
