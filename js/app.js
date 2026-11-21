@@ -631,7 +631,6 @@ function initializeUI(isRefresh = false) {
     if (inlineDailyNoteForm) {
       inlineDailyNoteForm.hidden = !isNote;
       if (isNote && !inlineDailyNoteForm.onsubmit) {
-        inlineDailyNoteForm.innerHTML = dailyNoteEditorMarkup(true);
         bindDailyNoteEditor(inlineDailyNoteForm);
       }
     }

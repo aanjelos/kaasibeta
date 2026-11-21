@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first.
 
+## v7.515m - 2026-11-21
+
+- Match inline Daily Note fields and save action to the Add Entry card. Keep the history modal layout.
+
 ## v7.514m - 2026-11-21
 
 - Rename the dashboard card to Add Entry and add an inline Daily Note option to the type selector. Selecting a date loads its note without moving a saved record. The history editor still supports moving or deleting notes.

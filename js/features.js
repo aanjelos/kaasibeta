@@ -1199,35 +1199,29 @@ function populateHistoryYears(selectedYear) {
   populateYearSelector([...state.transactions, ...noteDates], selector, new Date().getFullYear(), selectedYear);
 }
 
-function dailyNoteEditorMarkup(inline = false) {
-  const id = name => `${inline ? 'inlineDailyNote' : 'dailyNote'}${name}`;
-  return `
+function openDailyNoteEditor(date) {
+  if (isAppLocked() || storageOperationPending) return;
+  openFormModal("Daily Note", `
     <div class="daily-note-editor">
       <div class="daily-note-field">
-        <label for="${id("Text")}">Note</label>
-        <textarea id="${id("Text")}" rows="4" required enterkeyhint="done" aria-describedby="${id("Count")} ${id("Error")}"></textarea>
+        <label for="dailyNoteText">Note</label>
+        <textarea id="dailyNoteText" rows="4" required enterkeyhint="done" aria-describedby="dailyNoteCount dailyNoteError"></textarea>
         <div class="daily-note-editor-meta">
           <span class="daily-note-keyboard-hint">Shift+Enter for a new line</span>
-          <span id="${id("Count")}" class="daily-note-count"></span>
+          <span id="dailyNoteCount" class="daily-note-count"></span>
         </div>
       </div>
       <div class="daily-note-field">
-        <label for="${id("Date")}">Date</label>
-        <input id="${id("Date")}" type="date" required aria-describedby="${id("Error")}">
+        <label for="dailyNoteDate">Date</label>
+        <input id="dailyNoteDate" type="date" required aria-describedby="dailyNoteError">
       </div>
-      <p id="${id("Error")}" class="daily-note-error" role="alert"></p>
-      ${inline ? `<button type="submit" id="${id("Save")}" class="btn btn-primary w-full">Save Note</button>` : `
+      <p id="dailyNoteError" class="daily-note-error" role="alert"></p>
       <div class="daily-note-editor-actions">
         <button type="button" id="dailyNoteDelete" class="daily-note-icon" aria-label="Delete Note" title="Delete Note" hidden><i class="fas fa-trash" aria-hidden="true"></i></button>
         <button type="button" id="dailyNoteCancel" class="daily-note-icon" aria-label="Cancel" title="Cancel"><i class="fas fa-xmark" aria-hidden="true"></i></button>
         <button type="submit" id="dailyNoteSave" class="daily-note-icon" aria-label="Save Note" title="Save Note"><i class="fas fa-check" aria-hidden="true"></i></button>
-      </div>`}
-    </div>`;
-}
-
-function openDailyNoteEditor(date) {
-  if (isAppLocked() || storageOperationPending) return;
-  openFormModal("Daily Note", dailyNoteEditorMarkup(), null);
+      </div>
+    </div>`, null);
   const form = $("#dynamicForm");
   bindDailyNoteEditor(form, date);
   form.querySelector("textarea").focus();

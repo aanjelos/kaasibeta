@@ -1435,6 +1435,10 @@ input[type="checkbox"].peer:focus-visible + div {
 #transactionEntryFields {
   min-width: 0;
 }
+#inlineDailyNoteText {
+  padding: 0.7rem 0.95rem 0.7rem 1rem;
+  resize: vertical;
+}
 .daily-note-icon {
   display: inline-grid;
   place-items: center;
