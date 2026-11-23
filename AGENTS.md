@@ -2,6 +2,8 @@
 
 Read and follow [.agents/AGENTS.md](.agents/AGENTS.md) for the existing application rules, release workflow and financial-data constraints. Those rules remain authoritative; this file adds Graphify navigation guidance.
 
+For V8 development, use [docs/CHANGELOG_v8.md](docs/CHANGELOG_v8.md) for new entries. This supersedes the V7 changelog path in the release workflow. Keep archived changelogs under their version folders in `docs/`.
+
 ## Graphify navigation
 
 - The code-and-document knowledge graph is in `graphify-out/graph.json`; its report and interactive HTML are beside it. It excludes images, private data, dependencies and the separate Android project.

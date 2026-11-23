@@ -2,13 +2,11 @@
 
 This document serves as a backlog for approved feature ideas, UI/UX improvements, and technical refinements to be implemented in Kaasi over time.
 
-## v7 Release Baseline and v8 Development
+## v8 Development
 
-**Released 2026-11-14:** Production v7.506n shipped from kaasiapp commit 48da056. On 2026-11-21, Beta was aligned with that runtime baseline for v8 development, retaining its separate identity and tooling. Continue development builds as v7.<internal number>n, starting at v7.507n; switch the public major version to v8 only for its release. Keep production kaasiapp unchanged until a separate release is explicitly authorized. The feature ideas below remain planning items until selected for implementation.
+See the [V8 development changelog](CHANGELOG_v8.md) for completed Beta work and the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md) for the previous development cycle. Continue Beta builds as `v7.<internal number>m` until the public V8 release. Keep production kaasiapp unchanged until a separate release is authorized.
 
-The monthly budget reminder refinement shipped in v6.477n. Subscription Suggestions From History was dropped on 2026-11-03; retain manual subscription creation and Save as Subscription.
-
-Completed items were removed from the active backlog on 2026-11-02 at the user's request: Milestones, credit-card tracking workflows and starting expenses, mobile modal/Settings/accessibility refinements, UUIDs and IndexedDB work. Final release smoke checks still cover upgrades, backup/restore, PIN recovery, offline launches and cross-device sync. The temporary milestone debug script was removed in v6.476n. This roadmap cleanup does not constitute new live-environment verification.
+Before release, smoke-test upgrades, backup and restore, PIN recovery, offline launches, and cross-device sync. Check entry suggestion responsiveness with large transaction histories.
 
 ---
 
@@ -148,26 +146,6 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 - **Concept**: Extend the existing Upcoming Payments bar to installments once plans have explicit, reliable due-date rules. Do not infer deadlines from months remaining alone. Subscription and dated-debt notices are implemented.
 - **Scope**: Reminders appear inside Kaasi while it is open; closed-app browser/PWA system notifications are not planned. Displaying a reminder must not create financial records. Android remains outside the current web implementation scope.
 
-### Configurable Subscription and Debt Reminder Window
-
-- **Requested 2026-11-16:** Add a setting to choose how far ahead subscription renewals and dated debts appear in Upcoming Payments: **28, 14, 7, 5 or 3 days**, retaining **7 days** as the default for existing and new users.
-- Proposed wording: “Upcoming Payments Window.” Prefer one shared setting for subscriptions and debts; confirm scope and placement before implementation. Always retain overdue unpaid items regardless of the selected future window.
-- Changing the window must not alter due dates, create payments, reset paid/dismissed/snoozed states or increase repeat prompts. Decide explicitly whether it affects only the upcoming list or also reminder prompts; this does not introduce closed-app notifications.
-- Preserve older-backup defaults and existing backup/cloud-sync compatibility. Planning only; no current reminder behaviour or Supabase changes.
-
-### Immediate History Suggestions During Entry (v8)
-
-- **Implemented in Beta v7.508n (2026-11-21):** Description and person-name suggestions update immediately; transaction-list search debouncing remains unchanged. Retain the requirements below as acceptance context for the v8 release.
-- **Requested 2026-11-14; next-update target v8:** Remove the debounce delay from history suggestions when entering transaction descriptions, so suggestions appear promptly for users who type and submit quickly. Review equivalent credit-card description and debt/receivable name-entry suggestions for consistent behaviour, including edit forms.
-- Retain debouncing for transaction-list/history searches, where it remains useful. Preserve existing minimum query lengths, category autofill rules, keyboard handling, stable popup placement and updates without flashing.
-- Check responsiveness with large histories before the v8 release; use efficient matching/caching if necessary without reintroducing a noticeable delay during entry.
-
-### Daily Notes (v8)
-
-- **Implemented in Beta v7.511m and refined in v7.514m:** Choose Daily Note in Add Entry to write inline, or use the pencil in All Transactions to edit, move, or delete a saved note. Notes support emoji and line breaks, with one editable note per date and a 256-character limit.
-- Notes appear before the day's transactions in the history accordion. Dates with only a note have their own row, including after the last transaction for that date is deleted.
-- Notes are stored in a dedicated IndexedDB collection and included in local backups and existing whole-dataset cloud sync. Older backups without notes remain compatible.
-
 ### Optional Installment Links to Credit-card Transactions (v8)
 
 - **Requested 2026-11-12; next-update target v8:** Let users optionally link an installment plan to an existing credit-card purchase. Offer linking when creating a plan and later for existing plans. Unlinked plans retain their current behaviour; do not infer links or migrate existing plans automatically.
@@ -180,10 +158,6 @@ Completed items were removed from the active backlog on 2026-11-02 at the user's
 ### 20. Buy Now, Pay Later (BNPL) Tracking
 - **Concept**: Support purchases paid through providers such as Koko, Mintpay and Payzy, with installment schedules, due dates, recorded payments and outstanding balances.
 - **Planning**: Confirm provider-specific schedules and rules before implementation. Include due installments in Upcoming Payments and define expense/account treatment to avoid double-counting purchases and repayments. Start with manual tracking; provider integrations or automatic payments require separate agreement.
-
-### 21. Start-of-Month Budget Reminder
-- **Implemented**: v6.477n shows a review reminder in the existing dashboard budget card until dismissed or a budget is successfully created/saved that month, including visits after the fifth day.
-- **Behaviour**: Store only the latest handled month in portable settings, using the existing backup/cloud sync flow. Show the notice again in a later month without resetting limits or changing financial records. Offline devices reflect dismissal after syncing; whole-copy conflict/replacement rules remain unchanged.
 
 ---
 
