@@ -2,6 +2,7 @@ const KaasiStats = (() => {
   const formats = new Intl.NumberFormat('en-LK');
   const dateFormat = new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric'});
   const monthFormat = new Intl.DateTimeFormat('en-GB',{month:'long',year:'numeric'});
+  const monthName = new Intl.DateTimeFormat('en-GB',{month:'long'});
   const displayDate = date => dateFormat.format(new Date(date+'T12:00:00'));
   let grain, logo, assets, revision = 0, file;
   function summarize(data, period, today) {
@@ -94,7 +95,7 @@ const KaasiStats = (() => {
       c.fillStyle=glow; c.fillRect(0,0,1080,1920);
     }
     c.save();
-    c.globalAlpha = 30 / 255;
+    c.globalAlpha = 38 / 255;
     c.globalCompositeOperation = 'soft-light';
     c.imageSmoothingEnabled = false;
     c.scale(2.6,2.6);
@@ -107,9 +108,20 @@ const KaasiStats = (() => {
       c.textAlign='center';
       c.fillText(value,x,y,maxWidth);
     };
-    c.drawImage(logo,386,150,308,105);
-    text(data.title,480,'italic 132px "Instrument Serif", Georgia, serif');
-    text(data.dates,555,'500 34px Satoshi, system-ui, sans-serif','#a1a1aa');
+    const headingFont = '132px "Instrument Serif", Georgia, serif';
+    const headingBaseline = 375;
+    const wordmarkHeight = 94;
+    const wordmarkWidth = wordmarkHeight * 2164.01 / 700;
+    const gap = 24;
+    c.font = headingFont;
+    const prefixWidth = c.measureText('My').width;
+    const suffixWidth = c.measureText(data.titleSuffix).width;
+    const titleLeft = (1080 - prefixWidth - suffixWidth - wordmarkWidth - gap * 2) / 2;
+    const logoLeft = titleLeft + prefixWidth + gap;
+    text('My',headingBaseline,headingFont,'#fff',titleLeft + prefixWidth / 2);
+    c.drawImage(logo,logoLeft,headingBaseline - wordmarkHeight,wordmarkWidth,wordmarkHeight);
+    text(data.titleSuffix,headingBaseline,headingFont,'#fff',logoLeft + wordmarkWidth + gap + suffixWidth / 2);
+    text(data.dates,465,'500 34px Satoshi, system-ui, sans-serif','#a1a1aa');
     let size=400;
     const numeralFont = () => size+'px "Instrument Serif", Georgia, serif';
     c.font=numeralFont();
@@ -131,9 +143,9 @@ const KaasiStats = (() => {
   function loadAssets() {
     if (!assets) {
       logo = new Image();
-      logo.src = 'img/FullLogo.svg';
+      logo.src = 'img/KaasiWordmark.svg';
       grain = createGrain();
-      assets = Promise.all([logo.decode(),document.fonts.load('132px "Instrument Serif"'),document.fonts.load('italic 132px "Instrument Serif"'),document.fonts.load('500 58px Satoshi')]);
+      assets = Promise.all([logo.decode(),document.fonts.load('132px "Instrument Serif"'),document.fonts.load('500 58px Satoshi')]);
     }
     return assets;
   }
@@ -166,9 +178,16 @@ const KaasiStats = (() => {
     share.hidden = true;
     file = null;
     if (!data.first) return;
-    data.title = period==='all' ? 'My Kaasi stats' : 'My Kaasi year';
-    const monthName = date => monthFormat.format(new Date(date+'T12:00:00')).toUpperCase();
-    data.dates = period==='all' ? 'SINCE '+monthName(data.first) : period===year && today.slice(5,7)!=='12' ? year+' · THROUGH '+monthName(today).split(' ')[0] : period;
+    data.titleSuffix = period === 'all' ? 'stats' : 'year';
+    data.title = 'My Kaasi ' + data.titleSuffix;
+    const month = today.slice(5,7);
+    data.dates = period;
+    if (period === 'all') {
+      data.dates = 'Since ' + monthFormat.format(new Date(data.first+'T12:00:00'));
+    } else if (period === year && month !== '12') {
+      data.dates = month === '01' ? 'January ' + year :
+        'January to ' + monthName.format(new Date(today+'T12:00:00')) + ' ' + year;
+    }
     try {
       await loadAssets();
       if (token !== revision) return;
