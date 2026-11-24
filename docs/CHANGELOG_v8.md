@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.522m - 2026-11-24
+
+- Remove redundant expense and share preview descriptions from Stats.
+
 ## v7.521m - 2026-11-24
 
 - Give Stats separate panels for transactions, highlights, activity, and the share card. Align full-width export actions with the preview and label credit card purchases explicitly in Stats and the exported image.

@@ -151,7 +151,7 @@ const KaasiStats = (() => {
     const total = formats.format(data.counts.reduce((a,b)=>a+b,0));
     const amountRow = (label,row) => row ? [label,formatCurrency(Number(row.amount)),[row.description,displayDate(row.date)].filter(Boolean).join(' · ')] : [label,'—'];
     const peakRow = (label,peak,monthly) => peak ? [label,formatCurrency(peak[1]/100),monthly ? monthFormat.format(new Date(peak[0]+'-01T12:00:00')) : displayDate(peak[0])] : [label,'—'];
-    const note = data.first ? 'Recorded expenses include credit card payments logged as expenses.' : 'No transactions recorded for this period.';
+    const note = data.first ? '' : 'No transactions recorded for this period.';
     list.replaceChildren(group('Transactions', [
       ['Total transactions',total],
       ...['Expense entries','Income entries','Credit card purchases'].map((label,i)=>[label,formats.format(data.counts[i])]),
