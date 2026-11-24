@@ -140,6 +140,7 @@ const SettingsWorkspace = (() => {
     if (selected === "settingsSubscriptionsPanel") borrowSubscriptions();
     else releaseSubscriptions();
     if (selected === "settingsDataManagementPanel") refreshStorageProtection();
+    if (selected === "settingsStatsPanel") KaasiStats.open();
     if (selected === "settingsMilestonesPanel" && typeof Milestones !== 'undefined') Milestones.render();
     if (selected === "settingsCashCounterPanel") openCashCounter();
     if (scroll) {

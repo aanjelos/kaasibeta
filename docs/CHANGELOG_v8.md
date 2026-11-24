@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.520m - 2026-11-24
+
+- Add Settings → Extras → Stats for annual and all-time transaction activity, logged income and expenses, spending highlights and a branded 1080 × 1920 share image generated locally from historical records.
+
 ## v7.519m - 2026-11-22
 
 - Match Daily Note row edit and delete controls to the transaction list and add direct note deletion with confirmation. Keep both controls available with 44px touch targets on mobile.

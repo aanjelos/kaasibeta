@@ -1,4 +1,4 @@
-const BUILD = "v7.519m";
+const BUILD = "v7.520m";
 const CACHE_NAME = `kaasi-cache-${BUILD}`;
 const NAV_CACHE = 'kaasi-shell-navigation';
 const pendingShells = new Map();
@@ -68,6 +68,10 @@ const STATIC_ASSETS = [
   "./img/AanjeloNoText.svg",
   "./img/LogoType.svg",
   "./fonts/Satoshi-Light.woff2",
+  "./fonts/InstrumentSerif-Regular.ttf",
+  "./fonts/InstrumentSerif-Italic.ttf",
+  "./licenses/instrument-serif.txt",
+  `./js/stats.js?v=${BUILD}`,
   "./fonts/Satoshi-Regular.woff2",
   "./fonts/Satoshi-Medium.woff2",
   "./fonts/Satoshi-Bold.woff2",
