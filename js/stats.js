@@ -130,19 +130,19 @@ const KaasiStats = (() => {
     c.font=numeralFont();
     const width=c.measureText(total).width;
     if (width>900) size=Math.floor(size*900/width);
-    text(total,1136,numeralFont(),orange);
-    text('transactions logged',1230,'500 58px Satoshi, system-ui, sans-serif');
+    text(total,990,numeralFont(),orange);
+    text('transactions logged',1084,'500 58px Satoshi, system-ui, sans-serif');
     c.strokeStyle='rgba(255,255,255,.18)'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(92,1405); c.lineTo(988,1405); c.stroke();
+    c.beginPath(); c.moveTo(92,1200); c.lineTo(988,1200); c.stroke();
     const supporting = [[data.counts[0],'expenses logged'],[data.counts[1],'income entries'],[data.days,'days with activity']];
     supporting.forEach(([value,label],index) => {
       const x=[240,540,840][index];
-      text(formats.format(value),1570,'85px "Instrument Serif", Georgia, serif','#fff',x,255);
-      text(label,1637,'500 33px Satoshi, system-ui, sans-serif','#a1a1aa',x,255);
+      text(formats.format(value),1340,'85px "Instrument Serif", Georgia, serif','#fff',x,255);
+      text(label,1407,'500 33px Satoshi, system-ui, sans-serif','#a1a1aa',x,255);
     });
     const spendDay = data.day ? displayDate(data.day[0]) : '';
     if (spendDay) {
-      text('Highest-spend day · ' + spendDay,1770,'500 38px Satoshi, system-ui, sans-serif','#a1a1aa');
+      text('Highest-spend day · ' + spendDay,1510,'500 38px Satoshi, system-ui, sans-serif','#a1a1aa');
     }
     const activity = supporting.map(([value,label]) => formats.format(value) + ' ' + label).join(', ');
     canvas.setAttribute('aria-label', data.title + ', ' + data.dates + ': ' + total +
@@ -152,7 +152,7 @@ const KaasiStats = (() => {
   function loadAssets() {
     if (!assets) {
       logo = new Image();
-      logo.src = 'img/KaasiWordmark.svg';
+      logo.src = 'img/FullLogo.svg';
       grain = createGrain();
       assets = Promise.all([logo.decode(),document.fonts.load('132px "Instrument Serif"'),document.fonts.load('500 58px Satoshi')]);
     }

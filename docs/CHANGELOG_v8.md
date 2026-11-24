@@ -2,6 +2,11 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.526m - 2026-11-24
+
+- Restore the Expense Tracker tagline in the inline Kaasi logo on the Stats share card.
+- Move the share card stats upward to leave room for the Instagram Stories message box.
+
 ## v7.525m - 2026-11-24
 
 - Add ranked expense and income lists to private Stats. Update the share card with the full Kaasi mark, activity counts and the highest-spend date.
