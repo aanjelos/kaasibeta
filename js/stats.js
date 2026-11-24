@@ -6,7 +6,7 @@ const KaasiStats = (() => {
   const displayDate = date => dateFormat.format(new Date(date+'T12:00:00'));
   let grain, logo, assets, revision = 0, file;
   function summarize(data, period, today) {
-    const counts = [0,0,0], totals = [0,0], largest = [null,null];
+    const counts = [0,0,0], totals = [0,0], top = [[],[]];
     const days = new Set(), months = new Set(), years = new Set();
     const byDay = new Map(), byMonth = new Map();
     let first, last;
@@ -24,7 +24,10 @@ const KaasiStats = (() => {
       if (kind === 2) return;
       const cents = Math.round(amount * 100);
       totals[kind] += cents;
-      if (!largest[kind] || amount > Number(largest[kind].amount)) largest[kind] = row;
+      const entries = top[kind];
+      entries.push(row);
+      entries.sort((a,b) => Number(b.amount) - Number(a.amount));
+      if (entries.length > 5) entries.pop();
       if (kind === 0) {
         byDay.set(date,(byDay.get(date)||0)+cents);
         byMonth.set(month,(byMonth.get(month)||0)+cents);
@@ -37,7 +40,7 @@ const KaasiStats = (() => {
       for (const item of map) if (!best || item[1]>best[1] || (item[1]===best[1] && item[0]<best[0])) best=item;
       return best;
     }
-    return {counts,totals,largest,first,last,years,days:days.size,months:months.size,day:peak(byDay),month:peak(byMonth)};
+    return {counts,totals,top,first,last,years,days:days.size,months:months.size,day:peak(byDay),month:peak(byMonth)};
   }
   function createGrain() {
     const grain = document.createElement('canvas');
@@ -110,8 +113,8 @@ const KaasiStats = (() => {
     };
     const headingFont = '132px "Instrument Serif", Georgia, serif';
     const headingBaseline = 375;
-    const wordmarkHeight = 94;
-    const wordmarkWidth = wordmarkHeight * 2164.01 / 700;
+    const wordmarkHeight = 134;
+    const wordmarkWidth = wordmarkHeight * 3514.01 / 1199.88;
     const gap = 24;
     c.font = headingFont;
     const prefixWidth = c.measureText('My').width;
@@ -119,7 +122,7 @@ const KaasiStats = (() => {
     const titleLeft = (1080 - prefixWidth - suffixWidth - wordmarkWidth - gap * 2) / 2;
     const logoLeft = titleLeft + prefixWidth + gap;
     text('My',headingBaseline,headingFont,'#fff',titleLeft + prefixWidth / 2);
-    c.drawImage(logo,logoLeft,headingBaseline - wordmarkHeight,wordmarkWidth,wordmarkHeight);
+    c.drawImage(logo,logoLeft,headingBaseline - 93,wordmarkWidth,wordmarkHeight);
     text(data.titleSuffix,headingBaseline,headingFont,'#fff',logoLeft + wordmarkWidth + gap + suffixWidth / 2);
     text(data.dates,465,'500 34px Satoshi, system-ui, sans-serif','#a1a1aa');
     let size=400;
@@ -131,13 +134,19 @@ const KaasiStats = (() => {
     text('transactions logged',1230,'500 58px Satoshi, system-ui, sans-serif');
     c.strokeStyle='rgba(255,255,255,.18)'; c.lineWidth=2;
     c.beginPath(); c.moveTo(92,1405); c.lineTo(988,1405); c.stroke();
-    const supporting = [[data.days,'days tracked'],[data.counts[2],'credit card purchases'],[data.months,'active months']];
+    const supporting = [[data.counts[0],'expenses logged'],[data.counts[1],'income entries'],[data.days,'days with activity']];
     supporting.forEach(([value,label],index) => {
       const x=[240,540,840][index];
       text(formats.format(value),1570,'85px "Instrument Serif", Georgia, serif','#fff',x,255);
       text(label,1637,'500 33px Satoshi, system-ui, sans-serif','#a1a1aa',x,255);
     });
-    canvas.setAttribute('aria-label',data.title + ', ' + data.dates + ': ' + total + ' transactions logged, ' + data.days + ' days tracked, ' + data.counts[2] + ' credit card purchases and ' + data.months + ' active months.');
+    const spendDay = data.day ? displayDate(data.day[0]) : '';
+    if (spendDay) {
+      text('Highest-spend day · ' + spendDay,1770,'500 38px Satoshi, system-ui, sans-serif','#a1a1aa');
+    }
+    const activity = supporting.map(([value,label]) => formats.format(value) + ' ' + label).join(', ');
+    canvas.setAttribute('aria-label', data.title + ', ' + data.dates + ': ' + total +
+      ' transactions logged, ' + activity + (spendDay ? '. Highest-spend day: ' + spendDay : ''));
   }
 
   function loadAssets() {
@@ -161,7 +170,9 @@ const KaasiStats = (() => {
     if (!picker.value) { picker.value=year; return open(); }
     picker.onchange = open;
     const total = formats.format(data.counts.reduce((a,b)=>a+b,0));
-    const amountRow = (label,row) => row ? [label,formatCurrency(Number(row.amount)),[row.description,displayDate(row.date)].filter(Boolean).join(' · ')] : [label,'—'];
+    const rankedEntries = (rows,fallback) => rows.map(row => [
+      row.description?.trim() || fallback, formatCurrency(Number(row.amount)), displayDate(row.date)
+    ]);
     const peakRow = (label,peak,monthly) => peak ? [label,formatCurrency(peak[1]/100),monthly ? monthFormat.format(new Date(peak[0]+'-01T12:00:00')) : displayDate(peak[0])] : [label,'—'];
     const note = data.first ? '' : 'No transactions recorded for this period.';
     list.replaceChildren(group('Transactions', [
@@ -170,7 +181,9 @@ const KaasiStats = (() => {
       ['Recorded income',formatCurrency(data.totals[1]/100)],
       ['Recorded expenses',formatCurrency(data.totals[0]/100)]
     ],note),
-      group('Highlights',[amountRow('Biggest expense',data.largest[0]),amountRow('Biggest income',data.largest[1]),peakRow('Highest-spend month',data.month,true),peakRow('Highest-spend day',data.day,false)]),
+      group('Highlights',[peakRow('Highest-spend month',data.month,true),peakRow('Highest-spend day',data.day,false)]),
+      group('Top five expenses',rankedEntries(data.top[0],'Expense'),data.top[0].length ? '' : 'No expenses in this period.'),
+      group('Top five income entries',rankedEntries(data.top[1],'Income'),data.top[1].length ? '' : 'No income in this period.'),
       group('Activity',[['First transaction',data.first ? displayDate(data.first) : '—'],['Latest transaction',data.last ? displayDate(data.last) : '—'],['Days tracked',formats.format(data.days)],['Active months',formats.format(data.months)]]));
     const canvas = document.getElementById('statsPoster');
     canvas.parentElement.hidden = !data.first;

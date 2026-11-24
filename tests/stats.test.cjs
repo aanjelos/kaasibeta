@@ -13,7 +13,7 @@ test('Stats uses saved entries, counts card purchases once, and sums only logged
   const result = summarize(data,'2026','2026-11-24');
   assert.deepEqual(Array.from(result.counts),[2,1,1]);
   assert.deepEqual(Array.from(result.totals),[2000,1200]);
-  assert.equal(result.largest[0],expense);
+  assert.equal(result.top[0][0],expense);
   assert.deepEqual(Array.from(result.day),['2026-02-10',2000]);
   assert.equal(result.days,2);
   assert.equal(result.months,1);
@@ -25,5 +25,7 @@ test('Stats uses saved entries, counts card purchases once, and sums only logged
 test('Empty and legacy datasets need no tracking metadata', () => {
   assert.deepEqual(Array.from(summarize({},'all','2026-11-24').counts),[0,0,0]);
   const transactions = Array.from({length:12000},()=>({date:'2020-01-01',type:'income',amount:1}));
-  assert.equal(summarize({transactions},'all','2026-11-24').counts[1],12000);
+  const result = summarize({transactions},'all','2026-11-24');
+  assert.equal(result.counts[1],12000);
+  assert.equal(result.top[1].length,5);
 });

@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.525m - 2026-11-24
+
+- Add ranked expense and income lists to private Stats. Update the share card with the full Kaasi mark, activity counts and the highest-spend date.
+
 ## v7.524m - 2026-11-24
 
 - Use the Kaasi wordmark inline with regular Instrument Serif on the share card, show a natural month range for partial years, and slightly strengthen the soft-light grain.
