@@ -1196,7 +1196,12 @@ function populateHistoryYears(selectedYear) {
   const selector = $("#yearSelector");
   if (!selector) return;
   const noteDates = (state.dailyNotes || []).map(note => ({ date: `${note.id}T00:00:00` }));
-  populateYearSelector([...state.transactions, ...noteDates], selector, new Date().getFullYear(), selectedYear);
+  const budgetDates = (state.budgetHistory || []).map(row => ({date: row.id + '-01T12:00:00'}));
+  if (budgetDates.length) {
+    const first = Math.min(...budgetDates.map(row => Number(row.date.slice(0,4))));
+    for (let year = first + 1; year < new Date().getFullYear(); year++) budgetDates.push({date: year + '-01-01T12:00:00'});
+  }
+  populateYearSelector([...state.transactions, ...noteDates, ...budgetDates], selector, new Date().getFullYear(), selectedYear);
 }
 
 function openDailyNoteEditor(date) {
@@ -1994,6 +1999,35 @@ function renderMonthlyDetails(
   }
   summaryCard.appendChild(categoryList);
   categorySection.appendChild(summaryCard);
+  const budgetMonth = year + '-' + String(month + 1).padStart(2, '0');
+  if (!hasAdvancedFilters && !searchTerm && budgetMonth <= getCurrentDateString().slice(0,7)) {
+    const progress = monthlyBudgetProgress(state, budgetMonth);
+    if (state.budgetHistory?.length || !categorySection.hidden) {
+      if (categorySection.hidden) {
+        categorySection.hidden = false;
+        summaryCard.hidden = true;
+        contentGrid.classList.remove('monthly-empty-grid');
+      }
+      const card = document.createElement('section');
+      card.className = 'monthly-budget-progress';
+      card.innerHTML = '<h3>Budget Progress</h3>';
+      if (!progress?.length) {
+        const empty = document.createElement('p');
+        empty.textContent = progress ? 'No active budgets this month.' : 'No budget history for this month.';
+        card.appendChild(empty);
+      }
+      for (const plan of progress || []) {
+        const row = document.createElement('div');
+        row.className = 'monthly-budget-row';
+        const labels = plan.categories.map(cat => cat.label).join(', ');
+        row.innerHTML = `<strong>${escapeHTML(plan.name)}</strong>${labels && labels !== plan.name ? '<span>'+escapeHTML(labels)+'</span>' : ''}<span>${formatCurrency(plan.spent)} of ${formatCurrency(plan.limit)} spent</span>
+          <progress aria-label="${escapeHTML(plan.name)}" max="${plan.limit || 1}" value="${Math.min(plan.spent,plan.limit || 1)}"></progress>
+          <small>${formatCurrency(Math.abs(plan.remaining))} ${plan.remaining < 0 ? 'over' : 'left'}</small>`;
+        card.appendChild(row);
+      }
+      categorySection.appendChild(card);
+    }
+  }
 
   if (sortedCategories.length > 0) {
     if (existingChartCard) {
@@ -2088,7 +2122,7 @@ function renderMonthlyDetails(
     noChartCard.innerHTML =
       '<h3 class="text-lg font-semibold mb-3 text-center">Category Distribution</h3>' +
       '<div class="flex flex-col items-center justify-center flex-grow text-gray-500"><i class="fas fa-chart-pie text-5xl mb-4 opacity-30"></i><p class="text-sm font-medium">No expense data for chart</p></div>';
-    categorySection.appendChild(noChartCard);
+    if (!summaryCard.hidden) categorySection.appendChild(noChartCard);
   }
 
   contentGrid.appendChild(categorySection);

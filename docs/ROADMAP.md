@@ -93,10 +93,6 @@ Before release, smoke-test upgrades, backup and restore, PIN recovery, offline l
 ### 4. Undo Transactions
 - **Concept**: A simple way to quickly revert the last added, edited, or deleted transaction in case of an accidental action or typo.
 
-### 5. Historical Budget Progress in PDF Export
-- **Concept**: Include the user's set monthly budget goals and their progress against them within the generated PDF reports.
-- **Implementation Idea**: Use the budget definitions saved for the selected report month, including category assignments and limits, to show budget versus actual spending consistently with the in-app monthly view. Depends on Per-Month Historical Budget Storage & Persistence; do not apply today's limits retroactively to old reports or invent missing historical budgets.
-
 ### 6. "Safe to Spend" Metric
 - **Concept**: A prominent dashboard number that takes your current balance, subtracts pending bills, subtracts savings goals, and tells you the actual amount of money you can safely spend without ruining your budget.
 - **Implementation Idea**: Needs careful UI/UX design to avoid cluttering the dashboard. Could potentially be a togglable view or a dedicated widget.
@@ -126,11 +122,6 @@ Before release, smoke-test upgrades, backup and restore, PIN recovery, offline l
 
 ### 15. Support > 3 Bank Accounts
 - **Concept**: Remove or expand the restriction capping users to 3 bank accounts in setup and settings, allowing full flexibility for power users with multiple accounts.
-
-### 16. Per-Month Historical Budget Storage & Persistence
-- **Concept**: Save category budget limits on a per-month basis instead of having a single static budget that resets every month. This allows users to accurately review historical budget targets vs. actual spending for past months.
-- **Implementation Note**: IndexedDB storage is now available. Add a versioned schema upgrade and backup compatibility for historical budget records; the migration itself did not implement budget history. Coordinate this feature with Historical Budget Progress in PDF Export.
-- **Planning**: Carry the previous month's budgets forward as editable starting values. Preserve past months when current limits, names or category assignments change; define how edits within a month affect that month's saved budget. Handle users returning after several months without relying on the app being open at month-end. Calculate actual spending from transactions rather than saving duplicate totals. Historical data must round-trip through local/cloud backups; months predating this feature should clearly have no recorded budget unless explicitly supplied by the user.
 
 ### 17. Possible Duplicate Entry Warning
 - **Concept**: Warn before saving a manually entered transaction that closely matches a recent entry, helping prevent accidental double entry.

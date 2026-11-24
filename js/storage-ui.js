@@ -236,6 +236,7 @@ async function startLocalStorage() {
     return choice;
   });
   state = value; lastPersistedStateJson = JSON.stringify(value);
+  if (state.budgets?.length && !state.budgetHistory?.length) await saveData();
   if (upgrading) {
     await new Promise(resolve => {
       const actions = storageScreen("Your saved data is ready", "Your records have been copied and checked. Keep regular backups to help protect against browser data being cleared.");

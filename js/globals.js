@@ -329,12 +329,53 @@ function generateDataHash(str) {
   return hash.toString();
 }
 
+// A revision applies until the next recorded month. An empty plan explicitly ends carry-forward.
+function recordBudgetMonth(data, month = getCurrentDateString().slice(0, 7)) {
+  if (!data.budgets?.length && !data.budgetHistory?.length) return;
+  const history = data.budgetHistory ||= [];
+  const references = data.budgetCategoryRefs ||= [];
+  const previous = history.reduce((latest, row) => !latest || row.id > latest.id ? row : latest, null);
+  const plans = data.budgets.map(({id, name, limit, categories}) => {
+    const priorPlan = previous?.plans.find(plan => plan.id === id);
+    const assignments = categories.map(label => {
+      let ref = references.find(item => item.name === label);
+      if (!ref) {
+        ref = {id: history.length ? generateId() : 'initial-' + references.length, name: label};
+        references.push(ref);
+      }
+      const old = priorPlan?.categories.find(cat => cat.id === ref.id);
+      return {...old, id: ref.id, label};
+    });
+    return {...priorPlan, id, name, limit, categories: assignments};
+  });
+  if (previous && KaasiStorage.canonical(previous.plans) === KaasiStorage.canonical(plans)) return;
+  if (previous && previous.id > month) throw new Error('Budget history extends beyond the current device month.');
+  if (previous?.id === month) previous.plans = plans;
+  else history.push({id: month, plans});
+}
+
+function monthlyBudgetProgress(data, month, transactions = data.transactions) {
+  const revision = data.budgetHistory?.filter(row => row.id <= month).sort((a,b) => b.id.localeCompare(a.id))[0];
+  if (!revision) return null;
+  const totals = new Map();
+  for (const t of transactions) {
+    if (t.type === 'expense' && t.date.startsWith(month))
+      totals.set(t.category, (totals.get(t.category) || 0) + Math.round(t.amount * 100));
+  }
+  const names = new Map(data.budgetCategoryRefs.map(ref => [ref.id, ref.name]));
+  return revision.plans.map(plan => {
+    const spent = plan.categories.reduce((sum, cat) => sum + (totals.get(names.get(cat.id)) || 0), 0) / 100;
+    return {...plan, spent, remaining: roundToTwoDecimals(plan.limit - spent)};
+  });
+}
+
 async function saveData(nextState = state, options = {}) {
   if (storageOperationPending) throw new Error("A save is already in progress. Please wait.");
   storageOperationPending = true;
   let serialized;
   let milestoneResult;
   try {
+    recordBudgetMonth(nextState);
     if (nextState.settings) delete nextState.settings.hideCashCounter;
     if (typeof Milestones !== 'undefined' && !options.skipMilestones) milestoneResult = Milestones.prepare(nextState, options.milestoneEvent);
     serialized = JSON.stringify(nextState);

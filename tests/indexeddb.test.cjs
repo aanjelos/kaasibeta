@@ -64,6 +64,53 @@ test('legacy and UUID records round-trip through storage and import without rewr
   assert.deepEqual((await reopened.db.snapshot()).transactions,saved.transactions);
 });
 
+test('monthly budgets carry, stop and restart across year boundaries and round-trip through a backup', async () => {
+  const e = environment();
+  legacy(e);
+  await e.initialize();
+  const data = await e.db.snapshot();
+  data.budgets = [{id:'b1', name:'Food', limit:25, categories:['Other']}];
+  e.context.fixture = data;
+  const record = month => e.context.recordBudgetMonth(data, month);
+  const read = month => e.context.monthlyBudgetProgress(data, month);
+  record('2026-10');
+  assert.equal(read('2026-09'),null);
+  assert.equal(read('2026-10')[0].remaining,-45);
+  assert.equal(read('2026-11')[0].spent,0);
+  data.budgetHistory[0].plans[0].futureField = 'keep';
+  record('2026-11');
+  assert.equal(data.budgetHistory.length,1);
+  data.transactions[0].amount = 65;
+  data.transactions[0].category = 'Renamed';
+  data.budgetCategoryRefs[0].name = 'Renamed';
+  Object.assign(data.budgets[0],{name:'Essentials',limit:50,categories:['Renamed','New']});
+  record('2026-12');
+  assert.equal(read('2026-10')[0].spent,65);
+  assert.equal(read('2026-10')[0].categories[0].label,'Other');
+  assert.equal(read('2026-10')[0].limit,25);
+  assert.equal(read('2027-01')[0].limit,50);
+  data.budgets = [];
+  record('2027-02');
+  assert.equal(read('2027-03').length,0);
+  data.budgets = [{id:'b2',name:'Food',limit:90,categories:['Other']}];
+  record('2027-04');
+  assert.equal(read('2027-04')[0].id,'b2');
+  record('2026-12'); // A clock rollback alone must not rewrite archived months.
+  assert.equal(read('2026-12')[0].name,'Essentials');
+  assert.notEqual(read('2027-04')[0].categories[0].id,read('2026-10')[0].categories[0].id);
+  data.settings.includeBudgetProgressInPdf = true;
+  await e.db.commit(data);
+  const snapshot = await e.db.snapshot();
+  const restored = environment();
+  await restored.initialize();
+  restored.context.backup = copy(snapshot);
+  await restored.db.replace(restored.run('prepareImportedData(backup)'),restored.db.revision);
+  assert.deepEqual((await restored.db.snapshot()).budgetHistory,snapshot.budgetHistory);
+  assert.equal((await restored.db.snapshot()).settings.includeBudgetProgressInPdf,true);
+  restored.context.backup.budgetHistory[0].plans[0].categories[0].id='unknown';
+  assert.throws(()=>restored.run('prepareImportedData(backup)'),/unknown budget category/);
+});
+
 test('daily notes survive IndexedDB snapshots and restore as literal text with one record per date', async () => {
   const e = environment();
   const original = legacy(e);
@@ -584,7 +631,7 @@ test('a blocked schema upgrade reports recovery instead of waiting silently or d
   const e=environment();await e.initialize();
   const foreign=await new Promise(resolve=>{const req=e.factory.open('kaasi-finances');req.onsuccess=()=>resolve(req.result);});
   foreign.onversionchange=()=>{}; // Represents an older tab that refuses to close.
-  const upgrade=environment({...e,testVersion:4});
+  const upgrade=environment({...e,testVersion:foreign.version + 1});
   await assert.rejects(upgrade.initialize(),/Close other Kaasi/);
   foreign.close();
 });

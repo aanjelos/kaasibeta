@@ -1152,6 +1152,23 @@ test('an unchanged older sync baseline upgrades locally and keeps metadata-only 
   assert.equal(r.context.cloudSyncBaseline('sync-user').portable,true);
 });
 
+test('budget history and PDF preference survive a conditional upload and another device restore',async()=>{
+  const a=runtime(), original=JSON.parse(a.storage.get('KaasiData'));
+  const cloud=syncCloud(a,{data:original,updated_at:'2026-10-21T00:00:00Z'});
+  await cloud.baseline();
+  await a.run("state.budgets=[{id:'food',name:'Food',limit:12,categories:['Other']}];state.settings.includeBudgetProgressInPdf=true;recordBudgetMonth(state,'2026-01');state.budgets=[];saveData()");
+  await a.context.syncCloudData();
+  const b=runtime(), remote=syncCloud(b,{data:JSON.parse(b.storage.get('KaasiData')),updated_at:'2026-10-20T00:00:00Z'});
+  await remote.baseline();
+  remote.row.data=JSON.parse(JSON.stringify(cloud.row.data));
+  remote.row.updated_at='2026-11-23T00:00:00Z';
+  await b.context.syncCloudData();
+  assert.equal(b.run("monthlyBudgetProgress(state,'2026-01')[0].limit"),12);
+  assert.equal(b.run('state.budgets.length'),0);
+  assert.equal(b.run('state.settings.includeBudgetProgressInPdf'),true);
+  assert.equal(b.run('state.budgetHistory.length'),2);
+});
+
 test('local-only changes use a conditional upload and return only metadata',async()=>{
   const r=runtime();const original=JSON.parse(r.storage.get('KaasiData'));
   const cloud=syncCloud(r,{data:original,updated_at:'2026-10-21T00:00:00Z'});await cloud.baseline();

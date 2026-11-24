@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.529m - 2026-11-24
+
+- Store effective-month budget plans in IndexedDB, carrying limits and category assignments forward until changed or stopped. Show read-only Budget Progress above the monthly chart and optionally include it in PDF reports from Settings → Budgets.
+
 ## v7.528m - 2026-11-24
 
 - Shorten the Stats exclusion toggle label to match the other Exclusion Rules.

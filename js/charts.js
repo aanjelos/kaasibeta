@@ -53,7 +53,7 @@ async function generateMonthlyPdfReport(event) {
   // --- 1. Data Preparation ---
   const transactionsInMonth = state.transactions
     .filter((t) => {
-      const tDate = new Date(t.date);
+      const tDate = new Date(t.date + "T12:00:00");
       if (tDate.getFullYear() !== year || tDate.getMonth() !== month) return false;
       if (t.type === "expense" && isCategoryExcluded(t.category || "Other", 'excludeFromReports')) {
         return false;
@@ -244,7 +244,7 @@ async function generateMonthlyPdfReport(event) {
       doc.setFontSize(9);
       doc.setTextColor("#555555");
       let currentX = margin;
-      const date = new Date(t.date).toLocaleDateString("en-GB");
+      const date = new Date(t.date + "T12:00:00").toLocaleDateString("en-GB");
       const debit = t.type === "expense" ? formatNumberForPdf(t.amount) : "";
       const credit = t.type === "income" ? formatNumberForPdf(t.amount) : "";
 
@@ -384,6 +384,41 @@ async function generateMonthlyPdfReport(event) {
   // --- 4. Generate and Save PDF ---
   try {
     drawTable();
+    if (state.settings.includeBudgetProgressInPdf) {
+      const key = year + '-' + String(month + 1).padStart(2, '0');
+      const rows = monthlyBudgetProgress(state, key, transactionsInMonth);
+      if (rows?.length) {
+        const beginBudgetPage = () => {
+          doc.addPage();
+          cursorY = margin;
+          drawHeader();
+          doc.setTextColor('#333333');
+          doc.setFont('helvetica','bold');
+          doc.setFontSize(14);
+          doc.text('Budget Progress', margin, cursorY);
+          cursorY += 28;
+        };
+        beginBudgetPage();
+        for (const plan of rows) {
+          const amount = value => formatNumberForPdf(value);
+          const detail = `${amount(plan.spent)} of ${amount(plan.limit)} spent   |   ${amount(Math.abs(plan.remaining))} ${plan.remaining < 0 ? 'over' : 'left'}`;
+          doc.setFontSize(10);
+          const lines = [...doc.splitTextToSize(plan.name, pageWidth - 2 * margin), detail];
+          for (const line of lines) {
+            if (cursorY > pageHeight - margin - 20) {
+              drawFooter(doc.getNumberOfPages());
+              beginBudgetPage();
+            }
+            doc.setFont('helvetica','normal');
+            doc.setFontSize(10);
+            doc.text(line, margin, cursorY);
+            cursorY += 15;
+          }
+          cursorY += 12;
+        }
+        drawFooter(doc.getNumberOfPages());
+      }
+    }
     doc.save(`Kaasi-Report-${monthName}-${year}.pdf`);
     if (typeof trackEvent === "function") trackEvent("export_pdf", "Feature Usage");
   } catch (error) {

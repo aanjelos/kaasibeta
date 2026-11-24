@@ -144,6 +144,30 @@ function prepareImportedData(input) {
     budget.categories.forEach(cat => text(cat, "budget category"));
   });
   const settings = candidate.settings;
+  if (candidate.budgetHistory !== undefined || candidate.budgetCategoryRefs !== undefined) {
+    if (!Array.isArray(candidate.budgetHistory) || !Array.isArray(candidate.budgetCategoryRefs)) fail('invalid budget history');
+    const names = new Set(), refs = new Set();
+    records(candidate.budgetCategoryRefs, 'budget category references', ref => {
+      refs.add(ref.id);
+      if (ref.name === null) return;
+      text(ref.name, 'budget category reference');
+      if (names.has(ref.name)) fail('duplicate budget category reference');
+      names.add(ref.name);
+    });
+    records(candidate.budgetHistory, 'budget history', row => {
+      if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(row.id) || !Array.isArray(row.plans)) fail('invalid budget month');
+      records(row.plans, 'monthly budgets', plan => {
+        text(plan.name, 'budget name');
+        number(plan, 'limit');
+        if (!Array.isArray(plan.categories)) fail('invalid monthly budget categories');
+        records(plan.categories, 'monthly budget categories', cat => {
+          if (!refs.has(cat.id)) fail('unknown budget category reference');
+          text(cat.label, 'monthly category label');
+        });
+      });
+    });
+  }
+  if ('includeBudgetProgressInPdf' in settings && typeof settings.includeBudgetProgressInPdf !== 'boolean') fail('invalid budget PDF preference');
   if (settings.budgetReminderHandledMonth !== undefined &&
       (typeof settings.budgetReminderHandledMonth !== 'string' || !/^\d{4}-(0[1-9]|1[0-2])$/.test(settings.budgetReminderHandledMonth))) fail('invalid budget reminder month');
   const defaults = getDefaultState().settings;
@@ -224,6 +248,7 @@ async function applyImportedData(input, expectedRevision = KaasiStorage.revision
   const localImport=options.source!=='cloud';
   if(localImport && typeof cloudSyncBusy!=='undefined' && cloudSyncBusy)throw new Error('Sync is running. Wait for it to finish before importing.');
   const candidate = portableKaasiData(sanitizeAndMergeImportedData(input));
+  if (candidate.budgets.length && !candidate.budgetHistory?.length) recordBudgetMonth(candidate);
   const previousState = JSON.parse(lastPersistedStateJson);
   const previousSyncStatus = window.currentCloudSyncStatus;
   storageOperationPending = true;

@@ -680,6 +680,8 @@ async function renameCategory(buttonElement) {
   const index = state.categories.indexOf(originalName);
   if (index > -1) {
     state.categories[index] = newName;
+    const ref = state.budgetCategoryRefs?.find(item => item.name === originalName);
+    if (ref) ref.name = newName;
     state.categories.sort((a, b) => a.localeCompare(b));
     let updateCount = 0;
     state.transactions.forEach((t) => {
@@ -787,6 +789,8 @@ async function deleteCategory(categoryName) {
   showConfirmationModal('Delete Category?', `Delete "${escapeHTML(categoryName)}"? This cannot be undone.${subscriptionWarning}`, 'Delete Category', 'Cancel', async () => {
     if (state.transactions.some(t => t.category === categoryName)) { showNotification('This category is now in use and cannot be deleted.', 'error'); return; }
     state.categories = state.categories.filter((cat) => cat !== categoryName);
+    const ref = state.budgetCategoryRefs?.find(item => item.name === categoryName);
+    if (ref) ref.name = null;
     state.creditCard.transactions.forEach(item => {
       if (item.category === categoryName) delete item.category;
     });
@@ -1045,6 +1049,10 @@ function buildBudgetCategoryCheckboxes(containerId, selectedCategories = [], cur
 }
 
 function renderBudgetsSettingsList() {
+  const pdf = document.getElementById('budgetPdfToggle');
+  if (pdf) pdf.checked = state.settings?.includeBudgetProgressInPdf === true;
+  const stop = document.getElementById('stopMonthlyBudgets');
+  if (stop) stop.hidden = !state.budgets?.length;
   const container = $("#activeBudgetsList");
   if (!container) return;
   const sortSelect = $("#budgetSortOrderSelect");
@@ -1212,6 +1220,23 @@ async function deleteBudget(budgetId) {
     if (typeof renderCategoryBudgets === "function") renderCategoryBudgets();
     showNotification(`Budget deleted.`, "success");
   }
+}
+
+function requestBudgetStop() {
+  showConfirmationModal('Stop budgets from this month?', 'Earlier months keep their budgets. Add a budget whenever you want to start again.',
+    'Stop budgets', 'Cancel', async () => {
+      state.budgets = [];
+      await saveData();
+      buildBudgetCategoryCheckboxes("addBudgetCategoriesContainer");
+      renderBudgetsSettingsList();
+      renderCategoryBudgets();
+    });
+}
+
+async function changeBudgetPdfPreference(checkbox) {
+  state.settings.includeBudgetProgressInPdf = checkbox.checked;
+  try { await saveData(); }
+  finally { checkbox.checked = state.settings.includeBudgetProgressInPdf === true; }
 }
 
 // Hook into existing form submissions

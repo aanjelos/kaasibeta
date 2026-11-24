@@ -577,7 +577,8 @@ function cloudSyncDifferences(local, cloud) {
   };
   const collections = [["Accounts", "accounts"], ["Transactions", "transactions"], ["Credit card", "ccTransactions"],
     ["Debts", "debts"], ["Receivables", "receivables"], ["Installments", "installments"], ["Budgets", "budgets"],
-    ["Subscriptions", "subscriptions"], ["Renewals", "subscriptionOccurrences"], ["Daily Notes", "dailyNotes"]];
+    ["Subscriptions", "subscriptions"], ["Renewals", "subscriptionOccurrences"], ["Daily Notes", "dailyNotes"],
+    ["Budget history", "budgetHistory"], ["Budget categories", "budgetCategoryRefs"]];
   for (const [area, key] of collections) {
     const a = key === "ccTransactions" ? local.creditCard.transactions : (local[key] || []);
     const b = key === "ccTransactions" ? cloud.creditCard.transactions : (cloud[key] || []);
@@ -587,6 +588,7 @@ function cloudSyncDifferences(local, cloud) {
       const subscriptionName=key==='subscriptionOccurrences' ? [...(local.subscriptions||[]),...(cloud.subscriptions||[])].find(sub=>sub.id===row.subscriptionId)?.name : '';
       const title = ['debts','receivables'].includes(key) ? [row.who, row.why].filter(Boolean).join(' · ') : (row.description || row.name || subscriptionName);
       const label = key === "dailyNotes" ? `${id} Daily Note`
+        : key === "budgetHistory" ? id
         : `${row.date || row.dateGiven || row.dueDate || row.nextDueDate || ""} ${title || 'Unnamed entry'}`.trim();
       compare(area, label, left.get(id), right.get(id));
     }

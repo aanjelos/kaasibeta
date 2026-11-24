@@ -1,11 +1,11 @@
 /** Local database boundary. Financial records never depend on the auth SDK's storage. */
 const KaasiStorage = (() => {
   const NAME = "kaasi-finances";
-  const VERSION = 3;
+  const VERSION = 4;
   const DATASET = "local";
   const LEGACY = "KaasiData";
   const MARKER = "kaasi_indexeddb_migrated";
-  const optionalGroups = ["subscriptions", "subscriptionOccurrences", "dailyNotes"];
+  const optionalGroups = ["subscriptions", "subscriptionOccurrences", "dailyNotes", "budgetHistory"];
   const groups = ["accounts", "transactions", "ccTransactions", "debts", "receivables", "installments", "budgets", "categories", ...optionalGroups];
   const stores = ["datasets", "settings", "deviceSettings", "recovery", ...groups];
   const ownKeys = new Set(["preferredSyncMethod", "pendingCloudRestore", "skipRestoreWarning", "lastLocalDataModification", "lastLocalCloudSync", "lastSyncedCloudUpdatedAt", "kaasi_synced_state_hash", "lastSuccessfulBackupDate", "lastSuccessfulCloudBackupDate"]);
