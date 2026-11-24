@@ -1999,35 +1999,6 @@ function renderMonthlyDetails(
   }
   summaryCard.appendChild(categoryList);
   categorySection.appendChild(summaryCard);
-  const budgetMonth = year + '-' + String(month + 1).padStart(2, '0');
-  if (!hasAdvancedFilters && !searchTerm && budgetMonth <= getCurrentDateString().slice(0,7)) {
-    const progress = monthlyBudgetProgress(state, budgetMonth);
-    if (state.budgetHistory?.length || !categorySection.hidden) {
-      if (categorySection.hidden) {
-        categorySection.hidden = false;
-        summaryCard.hidden = true;
-        contentGrid.classList.remove('monthly-empty-grid');
-      }
-      const card = document.createElement('section');
-      card.className = 'monthly-budget-progress';
-      card.innerHTML = '<h3>Budget Progress</h3>';
-      if (!progress?.length) {
-        const empty = document.createElement('p');
-        empty.textContent = progress ? 'No active budgets this month.' : 'No budget history for this month.';
-        card.appendChild(empty);
-      }
-      for (const plan of progress || []) {
-        const row = document.createElement('div');
-        row.className = 'monthly-budget-row';
-        const labels = plan.categories.map(cat => cat.label).join(', ');
-        row.innerHTML = `<strong>${escapeHTML(plan.name)}</strong>${labels && labels !== plan.name ? '<span>'+escapeHTML(labels)+'</span>' : ''}<span>${formatCurrency(plan.spent)} of ${formatCurrency(plan.limit)} spent</span>
-          <progress aria-label="${escapeHTML(plan.name)}" max="${plan.limit || 1}" value="${Math.min(plan.spent,plan.limit || 1)}"></progress>
-          <small>${formatCurrency(Math.abs(plan.remaining))} ${plan.remaining < 0 ? 'over' : 'left'}</small>`;
-        card.appendChild(row);
-      }
-      categorySection.appendChild(card);
-    }
-  }
 
   if (sortedCategories.length > 0) {
     if (existingChartCard) {

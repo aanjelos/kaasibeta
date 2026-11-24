@@ -1,13 +1,4 @@
 /* Presentation only: Settings retains its existing forms and validation. */
-.monthly-budget-progress {background:var(--bg-tertiary);padding:1rem;border-radius:.5rem;overflow-wrap:anywhere}
-.monthly-budget-progress h3 {text-align:center;font-size:1.125rem;font-weight:600;margin-bottom:.75rem}
-.monthly-budget-progress p,.monthly-budget-row span,.monthly-budget-row small {color:var(--text-secondary);font-size:.875rem}
-.monthly-budget-row {display:grid;gap:.3rem}
-.monthly-budget-row + .monthly-budget-row {border-top:1px solid var(--border-color);padding-top:.75rem;margin-top:.75rem}
-.monthly-budget-row progress {display:block;appearance:none;width:100%;height:.4rem;border:0;border-radius:1rem;background:var(--border-color);overflow:hidden}
-.monthly-budget-row progress::-webkit-progress-bar {background:var(--border-color)}
-.monthly-budget-row progress::-webkit-progress-value {background:var(--accent-primary);border-radius:1rem}
-.monthly-budget-row progress::-moz-progress-bar {background:var(--accent-primary);border-radius:1rem}
 .budget-pdf-option {display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:44px;cursor:pointer}
 .budget-pdf-option input {width:1.2rem;height:1.2rem;accent-color:var(--accent-primary)}
 #stopMonthlyBudgets {margin-top:1rem}
