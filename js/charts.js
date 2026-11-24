@@ -414,7 +414,7 @@ async function generateMonthlyPdfReport(event) {
         doc.setFontSize(10);
         const lines = doc.splitTextToSize(plan.name, width * 0.32);
         const values = [plan.limit, plan.spent, Math.abs(plan.remaining)].map(value => formatNumberForPdf(value));
-        if (plan.remaining < 0) values[2] += ' over';
+        const leftAmountX = columns[2] - doc.getTextWidth(' over');
         for (const [i, line] of lines.entries()) {
           if (cursorY > bottom) {
             drawFooter(pageNumber);
@@ -424,10 +424,14 @@ async function generateMonthlyPdfReport(event) {
           }
           doc.setTextColor('#555555');
           doc.text(line, margin, cursorY);
-          if (i === 0) values.forEach((value, col) => {
-            if (col === 2) doc.setTextColor(plan.remaining < 0 ? '#e74c3c' : '#2a9d8f');
-            doc.text(value, columns[col], cursorY, {align: 'right'});
-          });
+          if (i === 0) {
+            doc.text(values[0], columns[0], cursorY, {align: 'right'});
+            doc.text(values[1], columns[1], cursorY, {align: 'right'});
+            const overspent = plan.remaining < 0;
+            doc.setTextColor(overspent ? '#e74c3c' : '#2a9d8f');
+            doc.text(values[2], leftAmountX, cursorY, {align: 'right'});
+            if (overspent) doc.text('over', columns[2], cursorY, {align: 'right'});
+          }
           cursorY += 13;
         }
         cursorY += 5;

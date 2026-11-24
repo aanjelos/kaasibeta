@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.532m - 2026-11-24
+
+- Align budget balances by decimal point in monthly PDFs and place the overspending label to the right.
+
 ## v7.531m - 2026-11-24
 
 - Start optional PDF budget tables on a dedicated page after Category Breakdown. Color remaining balances green and overspending red in the Left column.
