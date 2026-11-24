@@ -303,8 +303,6 @@
 #settingsAddCategoryModal h2, #settingsAddBudgetModal h2, #settingsAddBudgetModal h3 { font-family: inherit; font-size: 21px; font-weight: 600; }
 #settingsAddCategoryModal input, #settingsAddBudgetModal input, #formModal input { font-family: inherit; }
 #formModal button[type='submit'], #settingsAddBudgetModal button[type='submit'] { min-height: 44px; font-family: inherit; font-size: 14px; font-weight: 500; }
-#settingsModal #advancedRulesContainer, #settingsModal .advanced-rules-content { background: transparent; padding: 0; }
-#settingsModal button[onclick*='toggleAdvancedRules'] { background: transparent; padding: 14px 0; border-top: 1px solid var(--border-color); }
 #settingsModal #advancedRulesContainer .settings-control-row { padding: 14px 0; }
 #settingsModal #advancedRulesContainer .settings-control-row:last-child { padding-bottom: 0; }
 #settingsModal #settingsCcLimitForm { margin-top: 12px; padding-top: 16px; border-top: 1px solid var(--border-color); }

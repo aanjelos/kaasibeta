@@ -250,6 +250,7 @@ function getDefaultState() {
         hiddenCategoryRules: {
           excludeFromDashboardCharts: true,
           excludeFromReports: false,
+          excludeFromStats: false,
           excludeFromMonthlyTotals: true,
           excludeFromPieChart: true,
           excludeFromQuickStats: true,

@@ -9,10 +9,13 @@ const KaasiStats = (() => {
     const counts = [0,0,0], totals = [0,0], top = [[],[]];
     const days = new Set(), months = new Set(), years = new Set();
     const byDay = new Map(), byMonth = new Map();
+    const excluded = new Set(data.settings?.hiddenCategoryRules?.excludeFromStats === true ? data.hiddenCategories : []);
     let first, last;
     function collect(row, kind) {
       const date = row?.date, amount = Number(row?.amount);
       if (kind < 0 || !/^\d{4}-\d{2}-\d{2}$/.test(date) || date > today || !Number.isFinite(amount) || amount <= 0) return;
+      const category = row.category || (kind === 2 ? '' : kind === 1 ? 'Income' : 'Other');
+      if (excluded.has(category)) return;
       const year = date.slice(0,4), month = date.slice(0,7);
       years.add(year);
       if (period !== 'all' && period !== year) return;

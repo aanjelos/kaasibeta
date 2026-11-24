@@ -637,21 +637,6 @@ async function toggleHiddenCategory(categoryName) {
   renderDashboard();
 }
 
-function toggleAdvancedRules() {
-  const container = document.getElementById('advancedRulesContainer');
-  const icon = document.getElementById('advancedRulesIcon');
-  if (container.classList.contains('hidden') || container.style.display === 'none') {
-    container.classList.remove('hidden');
-    container.style.display = 'block';
-    icon.classList.remove('fa-chevron-down');
-    icon.classList.add('fa-chevron-up');
-  } else {
-    container.style.display = 'none';
-    icon.classList.remove('fa-chevron-up');
-    icon.classList.add('fa-chevron-down');
-  }
-}
-
 async function toggleHiddenRule(ruleKey) {
   if (!state.settings) state.settings = {};
   if (!state.settings.hiddenCategoryRules) state.settings.hiddenCategoryRules = {};

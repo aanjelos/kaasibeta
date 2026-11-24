@@ -428,14 +428,6 @@ test('closing Settings after an import removes nested confirmation history befor
   await closing;assert.equal(completed,true);
 });
 
-test('hidden category advanced rules expand on the first click', () => {
-  const r=runtime(),container=r.element('#advancedRulesContainer');
-  container.classList.add('hidden');
-  r.context.toggleAdvancedRules();
-  assert.equal(container.style.display,'block');assert.equal(container.classList.contains('hidden'),false);
-  r.context.toggleAdvancedRules();assert.equal(container.style.display,'none');
-});
-
 test('restoring Settings history after reload initializes its controls without pushing a new modal', () => {
   const r=runtime(),c=r.context;let options;
   delete r.element('#settingsTabsContainer').dataset.workspaceReady;
