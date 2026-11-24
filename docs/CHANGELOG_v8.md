@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.531m - 2026-11-24
+
+- Start optional PDF budget tables on a dedicated page after Category Breakdown. Color remaining balances green and overspending red in the Left column.
+
 ## v7.530m - 2026-11-24
 
 - Remove Budget Progress from the monthly view. Optional monthly PDFs now show historical budgets in a compact table after transaction totals.

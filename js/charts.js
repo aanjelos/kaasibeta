@@ -313,57 +313,6 @@ async function generateMonthlyPdfReport(event) {
       cursorY + 2
     );
 
-    if (state.settings.includeBudgetProgressInPdf) {
-      const key = year + '-' + String(month + 1).padStart(2, '0');
-      const plans = monthlyBudgetProgress(state, key, transactionsInMonth) || [];
-      const width = pageWidth - 2 * margin;
-      const columns = [0.54, 0.76, 1].map(fraction => margin + fraction * width);
-      const bottom = pageHeight - margin - 12;
-      const nextPage = () => {
-        drawFooter(pageNumber++);
-        doc.addPage();
-        cursorY = margin;
-        drawHeader();
-      };
-      const headings = () => {
-        doc.setTextColor('#333333');
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(14);
-        doc.text('Budgets', margin, cursorY);
-        cursorY += 21;
-        doc.setFontSize(10);
-        doc.text('Budget', margin, cursorY);
-        ['Limit', 'Spent', 'Left'].forEach((label, i) =>
-          doc.text(label, columns[i], cursorY, {align: 'right'}));
-        doc.setDrawColor('#DDDDDD');
-        doc.line(margin, cursorY + 5, pageWidth - margin, cursorY + 5);
-        cursorY += 21;
-      };
-      if (plans.length) {
-        cursorY += 32;
-        if (cursorY + 42 > bottom) nextPage();
-        headings();
-      }
-      for (const plan of plans) {
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        const lines = doc.splitTextToSize(plan.name, width * 0.32);
-        const values = [plan.limit, plan.spent, Math.abs(plan.remaining)].map(value => formatNumberForPdf(value));
-        if (plan.remaining < 0) values[2] += ' over';
-        for (const [i, line] of lines.entries()) {
-          if (cursorY > bottom) {
-            nextPage();
-            headings();
-            doc.setFont('helvetica', 'normal');
-          }
-          doc.text(line, margin, cursorY);
-          if (i === 0) values.forEach((value, col) =>
-            doc.text(value, columns[col], cursorY, {align: 'right'}));
-          cursorY += 13;
-        }
-        cursorY += 5;
-      }
-    }
     drawFooter(pageNumber);
 
     if (Object.keys(categoryTotals).length > 0) {
@@ -429,6 +378,61 @@ async function generateMonthlyPdfReport(event) {
         cursorY += rowHeight;
       });
       drawFooter(pageNumber);
+    }
+    if (state.settings.includeBudgetProgressInPdf) {
+      const key = year + '-' + String(month + 1).padStart(2, '0');
+      const plans = monthlyBudgetProgress(state, key, transactionsInMonth) || [];
+      const width = pageWidth - 2 * margin;
+      const columns = [0.54, 0.76, 1].map(fraction => margin + fraction * width);
+      const bottom = pageHeight - margin - 12;
+      const nextPage = () => {
+        doc.addPage();
+        pageNumber++;
+        cursorY = margin;
+        drawHeader();
+      };
+      const headings = () => {
+        doc.setTextColor('#333333');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text('Budgets', pageWidth / 2, cursorY, {align: 'center'});
+        cursorY += 30;
+        doc.setFontSize(10);
+        doc.text('Budget', margin, cursorY);
+        ['Limit', 'Spent', 'Left'].forEach((label, i) =>
+          doc.text(label, columns[i], cursorY, {align: 'right'}));
+        doc.setDrawColor('#DDDDDD');
+        doc.line(margin, cursorY + 5, pageWidth - margin, cursorY + 5);
+        cursorY += 21;
+      };
+      if (plans.length) {
+        nextPage();
+        headings();
+      }
+      for (const plan of plans) {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        const lines = doc.splitTextToSize(plan.name, width * 0.32);
+        const values = [plan.limit, plan.spent, Math.abs(plan.remaining)].map(value => formatNumberForPdf(value));
+        if (plan.remaining < 0) values[2] += ' over';
+        for (const [i, line] of lines.entries()) {
+          if (cursorY > bottom) {
+            drawFooter(pageNumber);
+            nextPage();
+            headings();
+            doc.setFont('helvetica', 'normal');
+          }
+          doc.setTextColor('#555555');
+          doc.text(line, margin, cursorY);
+          if (i === 0) values.forEach((value, col) => {
+            if (col === 2) doc.setTextColor(plan.remaining < 0 ? '#e74c3c' : '#2a9d8f');
+            doc.text(value, columns[col], cursorY, {align: 'right'});
+          });
+          cursorY += 13;
+        }
+        cursorY += 5;
+      }
+      if (plans.length) drawFooter(pageNumber);
     }
   };
 
