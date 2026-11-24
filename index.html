@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v7.520m" />
+    <meta name="application-version" content="v7.521m" />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
@@ -52,10 +52,10 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" integrity="sha384-UagCvVPT5XXA0Hx+nJYUAGBFseHT9zBgpJMSebsAxl9lciTwbT+39j5VfRjdP5Tp" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v7.520m" />
-    <link rel="stylesheet" href="settings-workspace.css?v=v7.520m" />
-    <link rel="stylesheet" href="onboarding.css?v=v7.520m" />
-    <link rel="stylesheet" href="tailwind.css?v=v7.520m" />
+    <link rel="stylesheet" href="style.css?v=v7.521m" />
+    <link rel="stylesheet" href="settings-workspace.css?v=v7.521m" />
+    <link rel="stylesheet" href="onboarding.css?v=v7.521m" />
+    <link rel="stylesheet" href="tailwind.css?v=v7.521m" />
 
     <script
       async
@@ -1532,11 +1532,23 @@
               </div>
             </div>
             <div id="settingsStatsPanel" class="settings-tab-panel hidden">
-                <label for="statsPeriod">Period</label><select id="statsPeriod"></select>
+                <div class="stats-period">
+                    <label for="statsPeriod">Period</label>
+                    <select id="statsPeriod"></select>
+                </div>
                 <div class="stats-layout">
                     <div id="statsList"></div>
-                    <section class="stats-share"><h3>Share preview</h3><canvas id="statsPoster" width="1080" height="1920" role="img"></canvas>
-                    <div><button id="statsExport" type="button" class="btn btn-primary">Save image</button> <button id="statsShare" type="button" class="btn btn-secondary" hidden>Share</button></div></section>
+                    <section class="stats-share" aria-labelledby="statsShareTitle" hidden>
+                        <header>
+                            <h3 id="statsShareTitle">Share card</h3>
+                            <p>A 9:16 recap with activity counts only.</p>
+                        </header>
+                        <canvas id="statsPoster" width="1080" height="1920" role="img"></canvas>
+                        <div class="stats-share-actions">
+                            <button id="statsExport" type="button" class="btn btn-primary" disabled>Save image</button>
+                            <button id="statsShare" type="button" class="btn btn-secondary" hidden>Share</button>
+                        </div>
+                    </section>
                 </div>
             </div>
             <div id="settingsMilestonesPanel" class="settings-tab-panel hidden"><div id="milestoneCards"></div></div>
@@ -2002,28 +2014,28 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v7.520m" defer></script>
-    <script src="js/import-validation.js?v=v7.520m" defer></script>
-    <script src="js/storage.js?v=v7.520m" defer></script>
-    <script src="js/storage-ui.js?v=v7.520m" defer></script>
-    <script src="js/animations.js?v=v7.520m" defer></script>
-    <script src="js/data-sync.js?v=v7.520m" defer></script>
-    <script src="js/cloud-sync.js?v=v7.520m" defer></script>
-    <script src="js/math-tool.js?v=v7.520m" defer></script>
-    <script src="js/settings.js?v=v7.520m" defer></script>
-    <script src="js/charts.js?v=v7.520m" defer></script>
-    <script src="js/ui.js?v=v7.520m" defer></script>
-    <script src="js/settings-workspace.js?v=v7.520m" defer></script>
-    <script src="js/features.js?v=v7.520m" defer></script>
-    <script src="js/subscription-assets.js?v=v7.520m" defer></script>
-    <script src="js/subscription-services.js?v=v7.520m" defer></script>
-    <script src="js/subscriptions.js?v=v7.520m" defer></script>
-    <script src="js/security.js?v=v7.520m" defer></script>
-    <script src="js/milestones.js?v=v7.520m" defer></script>
-    <script src="js/stats.js?v=v7.520m" defer></script>
-    <script src="js/onboarding.js?v=v7.520m" defer></script>
-    <script src="js/app.js?v=v7.520m" defer></script>
-    <script src="js/history-suggestions.js?v=v7.520m" defer></script>
+    <script src="js/globals.js?v=v7.521m" defer></script>
+    <script src="js/import-validation.js?v=v7.521m" defer></script>
+    <script src="js/storage.js?v=v7.521m" defer></script>
+    <script src="js/storage-ui.js?v=v7.521m" defer></script>
+    <script src="js/animations.js?v=v7.521m" defer></script>
+    <script src="js/data-sync.js?v=v7.521m" defer></script>
+    <script src="js/cloud-sync.js?v=v7.521m" defer></script>
+    <script src="js/math-tool.js?v=v7.521m" defer></script>
+    <script src="js/settings.js?v=v7.521m" defer></script>
+    <script src="js/charts.js?v=v7.521m" defer></script>
+    <script src="js/ui.js?v=v7.521m" defer></script>
+    <script src="js/settings-workspace.js?v=v7.521m" defer></script>
+    <script src="js/features.js?v=v7.521m" defer></script>
+    <script src="js/subscription-assets.js?v=v7.521m" defer></script>
+    <script src="js/subscription-services.js?v=v7.521m" defer></script>
+    <script src="js/subscriptions.js?v=v7.521m" defer></script>
+    <script src="js/security.js?v=v7.521m" defer></script>
+    <script src="js/milestones.js?v=v7.521m" defer></script>
+    <script src="js/stats.js?v=v7.521m" defer></script>
+    <script src="js/onboarding.js?v=v7.521m" defer></script>
+    <script src="js/app.js?v=v7.521m" defer></script>
+    <script src="js/history-suggestions.js?v=v7.521m" defer></script>
   </body>
 </html>
 

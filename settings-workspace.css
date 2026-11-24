@@ -1,19 +1,48 @@
 /* Presentation only: Settings retains its existing forms and validation. */
 @font-face {font-family:'Instrument Serif';src:url('fonts/InstrumentSerif-Regular.ttf') format('truetype');font-weight:400;}
 @font-face {font-family:'Instrument Serif';src:url('fonts/InstrumentSerif-Italic.ttf') format('truetype');font-style:italic;font-weight:400;}
-#settingsStatsPanel > label {margin-right:.75rem;font-weight:700}
-#statsPeriod {width:auto;min-width:9rem}
-.stats-layout {display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,32%);gap:clamp(16px,3vw,40px);align-items:start;margin-top:1.25rem}
-.stats-layout h3 {font:inherit;font-size:1.12rem;font-weight:700;margin:0 0 .7rem}
-#statsList section + section {margin-top:1.6rem}
-#statsList > p {margin:.6rem 0 1.6rem}
-#statsList dl > div {display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:.68rem 0;border-bottom:1px solid var(--border-color);overflow-wrap:anywhere}
-#statsList dd {text-align:right;font-weight:700;margin:0}
-#statsList p,.ks-secondary {font-size:.85rem;color:var(--text-secondary)}
-.stats-share canvas {display:block;width:100%;height:auto;border-radius:12px;margin-bottom:.8rem}
-.stats-share button {margin-bottom:.5rem}
+.stats-period {display:flex;align-items:center;gap:12px;margin-block:0 22px}
+.stats-period label {font-weight:700}
+#statsPeriod {width:auto;min-width:8rem;min-height:44px}
+.stats-layout {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(235px,34%);
+  gap:24px;
+  align-items:start;
+}
+#statsList {display:grid;gap:18px;min-width:0}
+#statsList section,.stats-share {
+  padding:clamp(16px,2vw,24px);
+  border:1px solid var(--border-color);
+  border-radius:14px;
+  background:var(--bg-secondary);
+}
+.stats-layout h3 {font:inherit;font-size:1.12rem;font-weight:700;margin:0 0 10px}
+#statsList dl {margin:0}
+#statsList dl > div {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,auto);
+  gap:12px;
+  padding:10px 0;
+  align-items:baseline;
+  overflow-wrap:anywhere;
+}
+#statsList dl > div + div {border-top:1px solid var(--border-color)}
+#statsList dl > div:last-child {padding-bottom:0}
+#statsList dd {text-align:right;font-variant-numeric:tabular-nums;font-weight:700;margin:0}
+.stats-detail,.stats-layout p {font-size:.85rem;line-height:1.5;color:var(--text-secondary)}
+.stats-detail {display:block;margin-top:3px}
+#statsList section > p {margin:14px 0 0}
+.stats-share header {margin-bottom:16px}
+.stats-share header h3 {margin-bottom:4px}
+.stats-share canvas {display:block;width:100%;height:auto;border:1px solid var(--border-color);border-radius:10px}
+.stats-share-actions {display:grid;gap:8px;margin-top:14px}
+.stats-share-actions .btn {width:100%;min-height:44px}
 .stats-share [hidden] {display:none}
-@media(max-width:800px){.stats-layout {grid-template-columns:minmax(0,1fr)}.stats-share {width:min(100%,320px);margin-inline:auto}}
+@media(max-width:950px) {
+  .stats-layout {grid-template-columns:minmax(0,1fr)}
+  .stats-share {width:min(100%,360px);justify-self:center}
+}
 #settingsModal { background: var(--bg-primary); backdrop-filter: none; }
 #settingsModal .settings-shell {
   display: grid; grid-template-columns: 252px minmax(0, 1fr); height: 100%; height: 100dvh;

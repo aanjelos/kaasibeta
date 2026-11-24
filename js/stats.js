@@ -53,7 +53,7 @@ const KaasiStats = (() => {
     grainContext.putImageData(pixels, 0, 0);
     return grain;
   }
-  function group(title, rows) {
+  function group(title, rows, note) {
     const section = document.createElement('section');
     const heading = document.createElement('h3');
     heading.textContent = title;
@@ -66,7 +66,7 @@ const KaasiStats = (() => {
       stat.textContent = value;
       if (detail) {
         const description = document.createElement('div');
-        description.className = 'ks-secondary';
+        description.className = 'stats-detail';
         description.textContent = detail;
         name.append(description);
       }
@@ -74,6 +74,11 @@ const KaasiStats = (() => {
       list.append(row);
     }
     section.append(heading,list);
+    if (note) {
+      const footnote = document.createElement('p');
+      footnote.textContent = note;
+      section.append(footnote);
+    }
     return section;
   }
   function poster(data, total) {
@@ -114,13 +119,13 @@ const KaasiStats = (() => {
     text('transactions logged',1230,'500 58px Satoshi, system-ui, sans-serif');
     c.strokeStyle='rgba(255,255,255,.18)'; c.lineWidth=2;
     c.beginPath(); c.moveTo(92,1405); c.lineTo(988,1405); c.stroke();
-    const supporting = [[data.days,'days tracked'],[data.counts[2],'card purchases'],[data.months,'active months']];
+    const supporting = [[data.days,'days tracked'],[data.counts[2],'credit card purchases'],[data.months,'active months']];
     supporting.forEach(([value,label],index) => {
       const x=[240,540,840][index];
       text(formats.format(value),1570,'85px "Instrument Serif", Georgia, serif','#fff',x,255);
       text(label,1637,'500 33px Satoshi, system-ui, sans-serif','#a1a1aa',x,255);
     });
-    canvas.setAttribute('aria-label',data.title + ', ' + data.dates + ': ' + total + ' transactions logged, ' + data.days + ' days tracked, ' + data.counts[2] + ' card purchases and ' + data.months + ' active months.');
+    canvas.setAttribute('aria-label',data.title + ', ' + data.dates + ': ' + total + ' transactions logged, ' + data.days + ' days tracked, ' + data.counts[2] + ' credit card purchases and ' + data.months + ' active months.');
   }
 
   function loadAssets() {
@@ -146,9 +151,13 @@ const KaasiStats = (() => {
     const total = formats.format(data.counts.reduce((a,b)=>a+b,0));
     const amountRow = (label,row) => row ? [label,formatCurrency(Number(row.amount)),[row.description,displayDate(row.date)].filter(Boolean).join(' · ')] : [label,'—'];
     const peakRow = (label,peak,monthly) => peak ? [label,formatCurrency(peak[1]/100),monthly ? monthFormat.format(new Date(peak[0]+'-01T12:00:00')) : displayDate(peak[0])] : [label,'—'];
-    const note = document.createElement('p');
-    note.textContent = data.first ? 'Spending uses logged expense entries, including any card payments recorded as expenses.' : 'No transactions recorded for this period.';
-    list.replaceChildren(group('Transactions', [['Total transactions',total],...['Expense entries','Income entries','Card purchases'].map((label,i)=>[label,formats.format(data.counts[i])]),['Recorded income',formatCurrency(data.totals[1]/100)],['Recorded expenses',formatCurrency(data.totals[0]/100)]]),note,
+    const note = data.first ? 'Recorded expenses include credit card payments logged as expenses.' : 'No transactions recorded for this period.';
+    list.replaceChildren(group('Transactions', [
+      ['Total transactions',total],
+      ...['Expense entries','Income entries','Credit card purchases'].map((label,i)=>[label,formats.format(data.counts[i])]),
+      ['Recorded income',formatCurrency(data.totals[1]/100)],
+      ['Recorded expenses',formatCurrency(data.totals[0]/100)]
+    ],note),
       group('Highlights',[amountRow('Biggest expense',data.largest[0]),amountRow('Biggest income',data.largest[1]),peakRow('Highest-spend month',data.month,true),peakRow('Highest-spend day',data.day,false)]),
       group('Activity',[['First transaction',data.first ? displayDate(data.first) : '—'],['Latest transaction',data.last ? displayDate(data.last) : '—'],['Days tracked',formats.format(data.days)],['Active months',formats.format(data.months)]]));
     const canvas = document.getElementById('statsPoster');
