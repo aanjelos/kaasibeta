@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.523m - 2026-11-24
+
+- Use the same outstanding cash receivable total to calculate Total Potential and automatically hide its dashboard card when that total is zero.
+
 ## v7.522m - 2026-11-24
 
 - Remove redundant expense and share preview descriptions from Stats.

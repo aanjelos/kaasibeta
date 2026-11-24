@@ -4238,12 +4238,16 @@ async function handlePayCcItemSubmit(event) {
 function renderDashboard() {
   const topCardsContainer = $("#dashboardTopCardsContainer");
   const totalPotentialCard = $("#totalPotentialCard");
+  const cashRecTotal = roundToTwoDecimals(state.receivables.reduce(
+    (total, receivable) => total + (receivable.type === "cash" ? receivable.remainingAmount : 0),
+    0
+  ));
 
   if (topCardsContainer) {
     let visibleCards = 1; // Total Available is always visible
     
     // Total Potential visibility
-    const hidePotential = (state.settings && state.settings.hideTotalPotential) || state.receivables.length === 0;
+    const hidePotential = state.settings?.hideTotalPotential || cashRecTotal === 0;
     if (totalPotentialCard) {
       if (hidePotential) {
         totalPotentialCard.style.display = "none";
@@ -4374,9 +4378,6 @@ function renderDashboard() {
 
   if (typeof animateValue === 'function') {
     animateValue($("#totalBalance"), totalBalance);
-    const cashRecTotal = state.receivables
-      .filter((r) => r.type === "cash" || (r.type === "cc" && r.sourceAccount))
-      .reduce((s, r) => s + r.remainingAmount, 0);
     animateValue($("#totalPotentialBalance"), totalBalance + cashRecTotal);
     
     animateValue($("#totalOwedToMe"), state.receivables.reduce((s, r) => s + r.remainingAmount, 0), true, "Total: ");
@@ -4386,9 +4387,6 @@ function renderDashboard() {
     $("#totalBalance").innerHTML = `<span class="tabular-nums">${formatCurrency(
       totalBalance
     )}</span>`;
-    const cashRecTotal = state.receivables
-      .filter((r) => r.type === "cash" || (r.type === "cc" && r.sourceAccount))
-      .reduce((s, r) => s + r.remainingAmount, 0);
     $(
       "#totalPotentialBalance"
     ).innerHTML = `<span class="tabular-nums">${formatCurrency(
