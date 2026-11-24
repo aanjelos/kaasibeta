@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.528m - 2026-11-24
+
+- Shorten the Stats exclusion toggle label to match the other Exclusion Rules.
+
 ## v7.527m - 2026-11-24
 
 - List hidden-category settings under Exclusion Rules and add an off-by-default Stats rule that filters rankings, totals, activity and the share card.
