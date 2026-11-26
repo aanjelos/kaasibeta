@@ -87,7 +87,8 @@
 #settingsModal .settings-tab-panel > .card > h3 { font-size: 18px; margin-bottom: 20px; }
 #settingsModal .settings-tab-panel > .card.settings-framed { padding: 0 !important; overflow: hidden; }
 .settings-panel-head { padding: 22px 24px; border-bottom: 1px solid var(--border-color); }
-.settings-panel-head h3 { margin: 0 !important; padding: 0 !important; border: 0 !important; font-size: 17px; font-weight: 600; line-height: 1.5; }
+.settings-panel-head h3 { margin: 0 !important; padding: 0 !important; border: 0 !important; }
+.settings-panel-head h3, .settings-tab-panel .settings-card-title { font-size: 1.0625rem; font-weight: 600; line-height: 1.5; }
 .settings-panel-head p { margin: 8px 0 0 !important; color: var(--text-secondary); font-size: 12px; line-height: 1.7; }
 .settings-panel-head > .budget-list-heading { margin: 0; gap: 16px; }
 .settings-panel-body { padding: 22px 24px; margin: 0 !important; }
@@ -302,7 +303,6 @@
 .settings-list-header .budget-list-heading h3 { flex: 1; }
 .settings-list-header .budget-list-heading select { flex-basis: 100%; }
 #settingsModal .settings-list-header .settings-list-footer .btn { padding: 9px 12px; font-size: 13px; }
-#settingsModal .settings-list-header > h3 { font-size: 16px; }
 #settingsModal .settings-panel-body > .settings-list-footer + * { margin-top: 12px; }
 #settingsAddCategoryModal h2, #settingsAddBudgetModal h2, #settingsAddBudgetModal h3 { font-family: inherit; font-size: 21px; font-weight: 600; }
 #settingsAddCategoryModal input, #settingsAddBudgetModal input, #formModal input { font-family: inherit; }
