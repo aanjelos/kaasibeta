@@ -835,7 +835,7 @@ function openModalHelper(modalId) {
 
 window.addEventListener("popstate", (event) => {
   const modalsToClose = [
-    "milestonesModal", "confirmationModal", "formModal", "subscriptionReminderModal", "upcomingPaymentsModal", "subscriptionsModal", "transactionDetailModal", "ccTransactionDetailModal", "ccHistoryModal", "cashCounterModal",
+    "milestonesModal", "confirmationModal", "formModal", "batchEntryModal", "subscriptionReminderModal", "upcomingPaymentsModal", "subscriptionsModal", "transactionDetailModal", "ccTransactionDetailModal", "ccHistoryModal", "cashCounterModal",
     "debtsViewModal", "receivablesViewModal", "transferMoneyModal",
     "monthlyViewModal", "settingsModal", "settingsAddCategoryModal", "settingsAddBudgetModal", "cloudSyncModal", "cloudAccountModal", "donateModal", "shortcutsHelpModal", "securityQuestionModal", "initialSetupModal", "kaasiTutorialModal", "editBudgetModal"
   ];

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v7.538m" />
+    <meta name="application-version" content="v7.539m" />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
@@ -52,11 +52,11 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" integrity="sha384-UagCvVPT5XXA0Hx+nJYUAGBFseHT9zBgpJMSebsAxl9lciTwbT+39j5VfRjdP5Tp" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v7.538m" />
-    <link rel="stylesheet" href="settings-workspace.css?v=v7.538m" />
-    <link rel="stylesheet" href="onboarding.css?v=v7.538m" />
-    <link rel="stylesheet" href="tailwind.css?v=v7.538m" />
-    <link rel="stylesheet" href="batch-entry.css?v=v7.538m" />
+    <link rel="stylesheet" href="style.css?v=v7.539m" />
+    <link rel="stylesheet" href="settings-workspace.css?v=v7.539m" />
+    <link rel="stylesheet" href="onboarding.css?v=v7.539m" />
+    <link rel="stylesheet" href="tailwind.css?v=v7.539m" />
+    <link rel="stylesheet" href="batch-entry.css?v=v7.539m" />
 
     <script
       async
@@ -657,12 +657,12 @@
         </div>
       </div>
 
-      <div id="monthlyViewModal" class="modal" role="dialog" aria-modal="true">
+      <div id="monthlyViewModal" class="modal mobile-list-view" role="dialog" aria-modal="true">
         <div class="modal-content max-w-4xl">
-          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('monthlyViewModal')"
-            >&times;</span
-          >
-          <h2 class="text-2xl font-semibold mb-4 pr-8">All Transactions</h2>
+          <div class="list-view-heading">
+            <h2 class="text-2xl font-semibold mb-4 pr-8">All Transactions</h2>
+            <button type="button" class="modal-close" aria-label="Close All Transactions" onclick="closeModal('monthlyViewModal')">&times;</button>
+          </div>
           <div
             class="flex flex-col sm:flex-row justify-between items-center mb-4 border-b border-gray-600 pb-2 gap-2"
           >
@@ -1695,14 +1695,12 @@
         </div>
       </div>
 
-      <div id="ccHistoryModal" class="modal" role="dialog" aria-modal="true">
+      <div id="ccHistoryModal" class="modal mobile-list-view" role="dialog" aria-modal="true">
         <div class="modal-content max-w-4xl">
-          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('ccHistoryModal')"
-            >&times;</span
-          >
-          <h2 class="text-2xl font-semibold mb-4 pr-8">
-            Credit Card History & Payments
-          </h2>
+          <div class="list-view-heading">
+            <h2 class="text-2xl font-semibold mb-4 pr-8">Credit Card History & Payments</h2>
+            <button type="button" class="modal-close" aria-label="Close Credit Card History & Payments" onclick="closeModal('ccHistoryModal')">&times;</button>
+          </div>
           
           <!-- Summary Cards -->
           <div class="monthly-view-summary-grid grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
@@ -1763,23 +1761,32 @@
         </div>
       </div>
 
-      <div id="subscriptionsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="subscriptionsTitle">
+      <div id="subscriptionsModal" class="modal mobile-list-view" role="dialog" aria-modal="true" aria-labelledby="subscriptionsTitle">
         <div class="modal-content subscriptions-content">
           <div class="subscription-manager-heading"><h2 id="subscriptionsTitle">Subscriptions</h2><button type="button" class="modal-close" aria-label="Close modal" onclick="closeModal('subscriptionsModal')">&times;</button></div>
           <div class="subscription-toolbar"><input type="search" id="subscriptionSearch" placeholder="Search subscriptions" aria-label="Search subscriptions" oninput="Subscriptions.onSearch(this.value)"><select id="subscriptionFilter" aria-label="Subscription status" onchange="Subscriptions.onFilter(this.value)"><option value="active">Active</option><option value="paused">Paused</option></select><button type="button" class="btn btn-primary" data-sub-action="add"><i class="fas fa-plus" aria-hidden="true"></i> Add New</button></div>
           <div id="subscriptionList" class="subscription-list custom-scrollbar"></div>
         </div>
       </div>
-      <div id="upcomingPaymentsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="upcomingPaymentsTitle"><div class="modal-content subscriptions-content"><span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('upcomingPaymentsModal')">&times;</span><h2 id="upcomingPaymentsTitle">Upcoming Payments</h2><div id="upcomingPaymentList" class="subscription-list custom-scrollbar"></div><button type="button" class="btn btn-secondary w-full" data-sub-action="open">Manage Subscriptions</button></div></div>
+      <div id="upcomingPaymentsModal" class="modal mobile-list-view" role="dialog" aria-modal="true" aria-labelledby="upcomingPaymentsTitle">
+        <div class="modal-content subscriptions-content">
+          <div class="list-view-heading">
+            <h2 id="upcomingPaymentsTitle">Upcoming Payments</h2>
+            <button type="button" class="modal-close" aria-label="Close Upcoming Payments" onclick="closeModal('upcomingPaymentsModal')">&times;</button>
+          </div>
+          <div id="upcomingPaymentList" class="subscription-list custom-scrollbar"></div>
+          <button type="button" class="btn btn-secondary w-full" data-sub-action="open">Manage Subscriptions</button>
+        </div>
+      </div>
       <div id="subscriptionReminderModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="subscriptionReminderTitle"><div class="modal-content subscriptions-content"><span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('subscriptionReminderModal')">&times;</span><h2 id="subscriptionReminderTitle">Were These Paid?</h2><div id="subscriptionReminderList" class="subscription-list custom-scrollbar"></div></div></div>
 
 
-      <div id="debtsViewModal" class="modal" role="dialog" aria-modal="true">
+      <div id="debtsViewModal" class="modal mobile-list-view" role="dialog" aria-modal="true">
         <div class="modal-content max-w-2xl">
-          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('debtsViewModal')"
-            >&times;</span
-          >
-          <h2 class="text-2xl font-semibold mb-4 pr-8">All Debts (I Owe)</h2>
+          <div class="list-view-heading">
+            <h2 class="text-2xl font-semibold mb-4 pr-8">All Debts (I Owe)</h2>
+            <button type="button" class="modal-close" aria-label="Close All Debts" onclick="closeModal('debtsViewModal')">&times;</button>
+          </div>
           <div
             id="debtModalListContainer"
             class="space-y-3 max-h-[70vh] overflow-y-auto pr-2"
@@ -1789,12 +1796,12 @@
         </div>
       </div>
 
-      <div id="receivablesViewModal" class="modal" role="dialog" aria-modal="true">
+      <div id="receivablesViewModal" class="modal mobile-list-view" role="dialog" aria-modal="true">
         <div class="modal-content max-w-2xl">
-          <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('receivablesViewModal')"
-            >&times;</span
-          >
-          <h2 class="text-2xl font-semibold mb-4 pr-8">All Receivables (Owes Me)</h2>
+          <div class="list-view-heading">
+            <h2 class="text-2xl font-semibold mb-4 pr-8">All Receivables (Owes Me)</h2>
+            <button type="button" class="modal-close" aria-label="Close All Receivables" onclick="closeModal('receivablesViewModal')">&times;</button>
+          </div>
           <div
             id="receivableModalListContainer"
             class="space-y-3 max-h-[70vh] overflow-y-auto pr-2"
@@ -2043,29 +2050,29 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v7.538m" defer></script>
-    <script src="js/import-validation.js?v=v7.538m" defer></script>
-    <script src="js/storage.js?v=v7.538m" defer></script>
-    <script src="js/storage-ui.js?v=v7.538m" defer></script>
-    <script src="js/animations.js?v=v7.538m" defer></script>
-    <script src="js/data-sync.js?v=v7.538m" defer></script>
-    <script src="js/cloud-sync.js?v=v7.538m" defer></script>
-    <script src="js/math-tool.js?v=v7.538m" defer></script>
-    <script src="js/settings.js?v=v7.538m" defer></script>
-    <script src="js/charts.js?v=v7.538m" defer></script>
-    <script src="js/ui.js?v=v7.538m" defer></script>
-    <script src="js/settings-workspace.js?v=v7.538m" defer></script>
-    <script src="js/features.js?v=v7.538m" defer></script>
-    <script src="js/subscription-assets.js?v=v7.538m" defer></script>
-    <script src="js/subscription-services.js?v=v7.538m" defer></script>
-    <script src="js/subscriptions.js?v=v7.538m" defer></script>
-    <script src="js/security.js?v=v7.538m" defer></script>
-    <script src="js/milestones.js?v=v7.538m" defer></script>
-    <script src="js/stats.js?v=v7.538m" defer></script>
-    <script src="js/onboarding.js?v=v7.538m" defer></script>
-    <script src="js/app.js?v=v7.538m" defer></script>
-    <script src="js/history-suggestions.js?v=v7.538m" defer></script>
-    <script src="js/batch-entry.js?v=v7.538m" defer></script>
+    <script src="js/globals.js?v=v7.539m" defer></script>
+    <script src="js/import-validation.js?v=v7.539m" defer></script>
+    <script src="js/storage.js?v=v7.539m" defer></script>
+    <script src="js/storage-ui.js?v=v7.539m" defer></script>
+    <script src="js/animations.js?v=v7.539m" defer></script>
+    <script src="js/data-sync.js?v=v7.539m" defer></script>
+    <script src="js/cloud-sync.js?v=v7.539m" defer></script>
+    <script src="js/math-tool.js?v=v7.539m" defer></script>
+    <script src="js/settings.js?v=v7.539m" defer></script>
+    <script src="js/charts.js?v=v7.539m" defer></script>
+    <script src="js/ui.js?v=v7.539m" defer></script>
+    <script src="js/settings-workspace.js?v=v7.539m" defer></script>
+    <script src="js/features.js?v=v7.539m" defer></script>
+    <script src="js/subscription-assets.js?v=v7.539m" defer></script>
+    <script src="js/subscription-services.js?v=v7.539m" defer></script>
+    <script src="js/subscriptions.js?v=v7.539m" defer></script>
+    <script src="js/security.js?v=v7.539m" defer></script>
+    <script src="js/milestones.js?v=v7.539m" defer></script>
+    <script src="js/stats.js?v=v7.539m" defer></script>
+    <script src="js/onboarding.js?v=v7.539m" defer></script>
+    <script src="js/app.js?v=v7.539m" defer></script>
+    <script src="js/history-suggestions.js?v=v7.539m" defer></script>
+    <script src="js/batch-entry.js?v=v7.539m" defer></script>
   </body>
 </html>
 

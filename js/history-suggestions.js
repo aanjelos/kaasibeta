@@ -12,7 +12,7 @@ function findHistorySuggestions(records, query, field, type, limit = 2) {
 }
 
 (() => {
-  const selector = '#description, #ccDescription, #modalDescription, #modalCcDescription, input[name="debtWho"], input[name="recWho"]';
+  const selector = '#description, #ccDescription, #modalDescription, #modalCcDescription, input[name="debtWho"], input[name="recWho"], #batchRows input[name="description"]';
   let input = null, list = null, rows = [], selected = -1, config = null;
   let positionFrame;
   function close() {
@@ -22,6 +22,12 @@ function findHistorySuggestions(records, query, field, type, limit = 2) {
     list?.remove(); list = null; input = null; rows = []; selected = -1;
   }
   function configuration(el) {
+    if (el.closest('#batchRows')) {
+      const row = el.closest('tr');
+      const type = row.querySelector('[name="type"]').value;
+      return {records:state.transactions || [], field:'description', type,
+        category:type === 'expense' ? row.querySelector('[name="category"]') : null};
+    }
     if (el.name === 'debtWho') return {records:state.debts || [], field:'who'};
     if (el.name === 'recWho') return {records:state.receivables || [], field:'who'};
     if (['ccDescription','modalCcDescription'].includes(el.id)) return {

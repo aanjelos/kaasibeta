@@ -2,6 +2,11 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.539m
+
+- Use full-screen mobile list views for All Transactions, Credit Card History & Payments, debts, receivables, subscriptions and upcoming payments, with a persistent close control.
+- Reuse local transaction suggestions in batch descriptions, filtered by the row's entry type. Selecting a previous expense fills an empty category on that row.
+
 ## v7.538m
 
 - Inset the dropdown chevrons and align dropdown labels with the other batch table cells.

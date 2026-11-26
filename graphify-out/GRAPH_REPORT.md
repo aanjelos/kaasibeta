@@ -1,23 +1,23 @@
-# Graph Report - kaasibeta  (2026-11-13)
+# Graph Report - kaasibeta  (2026-11-26)
 
 ## Corpus Check
-- 57 files · ~111,840 words
+- 61 files · ~118,683 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 8 file(s) not represented in the graph (top: .css 4, (none) 3, .bat 1)
+- Unclassified: 11 file(s) not represented in the graph (top: .css 5, (none) 3, .ttf 2)
 
 ## Summary
-- 748 nodes · 1314 edges · 50 communities (42 shown, 8 thin omitted)
-- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 74 edges (avg confidence: 0.86)
+- 1129 nodes · 1700 edges · 172 communities (79 shown, 93 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 68 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `fb32f6c8`
+- Built from commit: `c6d6fafb`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- Dashboard and Financial Flows
-- docs/CHANGELOG_v7.md
+- ui.js
+- Kaasi v7 - Development Changelog
 - App Shell and Settings Surfaces
 - Cloud Synchronization
 - Shared State and Utilities
@@ -63,18 +63,140 @@
 - Deployed Supabase row-level security verification
 - docs/APP_SHELL_CACHE.md
 - Portable achievement metadata
+- Kaasi v8 - Development Changelog
+- features.js
+- refreshMonthlyViewIfRelevant
+- openCcHistoryModal
+- v6.362n - 2026-10-20
+- update-app-shell.cjs
+- c
+- compareCategoryNames
+- v6.365n - 2026-10-21
+- ref_node_vm
+- batch-entry.js
+- v6.377n - 2026-10-23
+- v6.371n - 2026-10-22
+- v6.393n - 2026-10-24
+- v6.368n - 2026-10-21
+- v6.363n - 2026-10-20
+- v6.395n - 2026-10-24
+- v6.421n - 2026-10-27
+- v6.398n - 2026-10-24
+- v6.369n - 2026-10-21
+- v6.381n - 2026-10-23
+- v6.394n - 2026-10-24
+- v6.418n - 2026-10-26
+- v6.412n - 2026-10-26
+- v6.373n - 2026-10-22
+- v6.374n - 2026-10-22
+- v6.380n - 2026-10-23
+- v6.367n - 2026-10-21
+- v6.397n - 2026-10-24
+- v6.390n - 2026-10-23
+- v6.414n - 2026-10-26
+- v6.379n - 2026-10-23
+- v6.396n - 2026-10-24
+- v6.382n - 2026-10-23
+- v6.383n - 2026-10-23
+- v6.409n - 2026-10-25
+- v6.468n - 2026-10-31
+- v6.465n - 2026-10-31
+- v6.402n - 2026-10-24
+- v6.375n - 2026-10-23
+- v6.366n - 2026-10-21
+- v6.378n - 2026-10-23
+- v6.372n - 2026-10-22
+- v6.419n - 2026-10-26
+- v6.385n - 2026-10-23
+- v6.411n - 2026-10-26
+- v6.364n - 2026-10-21
+- v6.416n - 2026-10-26
+- v6.389n - 2026-10-23
+- v6.386n - 2026-10-23
+- v6.415n - 2026-10-26
+- v6.384n - 2026-10-23
+- v6.388n - 2026-10-23
+- v6.400n - 2026-10-24
+- v6.399n - 2026-10-24
+- v6.387n - 2026-10-23
+- v6.401n - 2026-10-24
+- v6.403n - 2026-10-25
+- v6.404n - 2026-10-25
+- v6.408n - 2026-10-25
+- v6.407n - 2026-10-25
+- v6.405n - 2026-10-25
+- v6.420n - 2026-10-26
+- v6.410n - 2026-10-25
+- v6.406n - 2026-10-25
+- v6.413n - 2026-10-26
+- v6.482n - 2026-11-03
+- v6.429n - 2026-10-28
+- v6.436n - 2026-10-28
+- v6.433n - 2026-10-28
+- v6.479n - 2026-11-03
+- v6.443n - 2026-10-29
+- v6.463n - 2026-10-30
+- v6.461n - 2026-10-30
+- v6.456n - 2026-10-30
+- v6.459n - 2026-10-30
+- v6.460n - 2026-10-30
+- v6.457n - 2026-10-30
+- v6.478n - 2026-11-03
+- v6.467n - 2026-10-31
+- v6.462n - 2026-10-30
+- v6.451n - 2026-10-29
+- v6.435n - 2026-10-28
+- v6.440n - 2026-10-29
+- v6.453n - 2026-10-30
+- v6.454n - 2026-10-30
+- v6.422n - 2026-10-28
+- v6.470n - 2026-10-31
+- v6.455n - 2026-10-30
+- v6.432n - 2026-10-28
+- v6.437n - 2026-10-29
+- v6.448n - 2026-10-29
+- v6.441n - 2026-10-29
+- v6.471n - 2026-11-01
+- v6.430n - 2026-10-28
+- v6.480n - 2026-11-03
+- v6.458n - 2026-10-30
+- v6.447n - 2026-10-29
+- v6.428n - 2026-10-28
+- v6.464n - 2026-10-30
+- v6.449n - 2026-10-29
+- v6.477n - 2026-11-03
+- v6.475n - 2026-11-01
+- v6.439n - 2026-10-29
+- v6.474n - 2026-11-01
+- v6.424n - 2026-10-28
+- v6.442n - 2026-10-29
+- v6.476n - 2026-11-02
+- v6.427n - 2026-10-28
+- v6.438n - 2026-10-29
+- v6.431n - 2026-10-28
+- v6.426n - 2026-10-28
+- v6.469n - 2026-10-31
+- v6.423n - 2026-10-28
+- v6.425n - 2026-10-28
+- v6.434n - 2026-10-28
+- v6.481n - 2026-11-03
+- v6.452n - 2026-10-30
+- v6.466n - 2026-10-31
+- v6.473n - 2026-11-01
+- v6.444n - 2026-10-29
+- stats.js
 
 ## God Nodes (most connected - your core abstractions)
-1. `renderDashboard()` - 27 edges
-2. `Kaasi Beta application shell` - 27 edges
-3. `syncCloudData()` - 24 edges
-4. `Element` - 21 edges
-5. `openCcHistoryModal()` - 14 edges
-6. `downloadCloudSync()` - 12 edges
-7. `manualCloudTransfer()` - 11 edges
-8. `Portable subscription schedules` - 11 edges
-9. `Settings desktop sidebar and mobile hub` - 11 edges
-10. `confirmCloudAccountReplacement()` - 10 edges
+1. `Kaasi v7 - Development Changelog` - 148 edges
+2. `Kaasi v8 - Development Changelog` - 31 edges
+3. `renderDashboard()` - 27 edges
+4. `Kaasi Beta application shell` - 27 edges
+5. `syncCloudData()` - 24 edges
+6. `Element` - 21 edges
+7. `openCcHistoryModal()` - 14 edges
+8. `downloadCloudSync()` - 12 edges
+9. `refreshMonthlyViewIfRelevant()` - 12 edges
+10. `v6.362n - 2026-10-20` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Chart.js MIT Notice` --semantically_similar_to--> `LobeHub MIT Notice`  [INFERRED] [semantically similar]
@@ -95,19 +217,19 @@
 - **Credit-card settings purchase entry and payment history** — index_accounts_settings, index_credit_card_entry, index_credit_card_history [EXTRACTED 1.00]
 - **Local and cloud data recovery surfaces** — index_storage_recovery, index_backup_settings, index_cloud_restore_lock, index_cloud_conflict_review, index_session_recovery [INFERRED 0.85]
 
-## Communities (50 total, 8 thin omitted)
+## Communities (172 total, 93 thin omitted)
 
-### Community 0 - "Dashboard and Financial Flows"
-Cohesion: 0.05
-Nodes (79): ccPurchaseCategoryOptions(), deleteCcTransaction(), deleteDebt(), deleteInstallment(), deleteReceivable(), deleteTransaction(), dismissMonthlyBudgetReminder(), getCcPurchaseCategory() (+71 more)
+### Community 0 - "ui.js"
+Cohesion: 0.11
+Nodes (24): applyAppearance(), calculateCashTotal(), closeModal(), dismissSourceFloatingUI(), focusModalStart(), handleKeyboardShortcuts(), mathToolbar, mobileModalFocus() (+16 more)
 
-### Community 1 - "docs/CHANGELOG_v7.md"
-Cohesion: 0.15
-Nodes (8): v6.492n approved accessibility and rendering polish, Device-only sync pause and import protection, Local history-based description and name suggestions, UUIDs for new records, historical IDs retained, Isolated setup and replayable practice tour, Responsive Settings workspace, Shared backup validation and import rollback, Planned advisory duplicate-entry warning
+### Community 1 - "Kaasi v7 - Development Changelog"
+Cohesion: 0.04
+Nodes (45): 1. [Copy] Consolidated Creator Credit, 1. [Enhancement] Keep Descriptions in the Entry Column, 1. [Fix] Overdue Timing Colour in Subscription Lists, 1. [Fix] Refresh Storage Protection After Browser Permission Changes, 1. [Improvement] Consistent Category Field Order and Choices, Context-aware Floating Controls and Update Notice, Guided Tour, Kaasi v7 - Development Changelog (+37 more)
 
 ### Community 2 - "App Shell and Settings Surfaces"
-Cohesion: 0.08
-Nodes (43): About support and third-party acknowledgments, Account names balances transfer fees and card limit, Google Analytics page configuration, Theme calculator and dashboard visibility preferences, Subscription security onboarding milestones and history scripts, Local backups cloud sync and storage protection, Total Available and Total Potential overview, Category budgets and monthly reminder (+35 more)
+Cohesion: 0.07
+Nodes (47): About support and third-party acknowledgments, Account names balances transfer fees and card limit, Google Analytics page configuration, Theme calculator and dashboard visibility preferences, Subscription security onboarding milestones and history scripts, Local backups cloud sync and storage protection, Total Available and Total Potential overview, Category budgets and monthly reminder (+39 more)
 
 ### Community 3 - "Cloud Synchronization"
 Cohesion: 0.14
@@ -115,11 +237,11 @@ Nodes (43): approveCloudAccountChoice(), assertCloudSyncLocal(), assertCloudSync
 
 ### Community 4 - "Shared State and Utilities"
 Cohesion: 0.08
-Nodes (19): ccHistoryOpenMonthKeys, ccSelectedMonth, ccSelectedYear, deepMerge(), ensureDefaultAccounts(), ensureDefaultCategories(), escapeHTML(), formatCurrency() (+11 more)
+Nodes (23): ccHistoryOpenMonthKeys, ccSelectedMonth, ccSelectedYear, deepMerge(), ensureDefaultAccounts(), ensureDefaultCategories(), escapeHTML(), formatCurrency() (+15 more)
 
 ### Community 5 - "IndexedDB Regression Tests"
-Cohesion: 0.06
-Nodes (25): devDependencies, fake-indexeddb@6.2.4, name, private, scripts, test, fake-indexeddb, assert (+17 more)
+Cohesion: 0.08
+Nodes (19): devDependencies, fake-indexeddb@6.2.4, name, private, scripts, test, fake-indexeddb, assert (+11 more)
 
 ### Community 6 - "Interaction Regression Tests"
 Cohesion: 0.07
@@ -127,14 +249,14 @@ Nodes (7): assert, fs, path, root, test, vm, { webcrypto }
 
 ### Community 7 - "Settings and Budgets"
 Cohesion: 0.16
-Nodes (19): addCategory(), buildBudgetCategoryCheckboxes(), deleteBudget(), deleteCategory(), handleAddBudgetSubmit(), handleEditBudgetSubmit(), handleManageAccountsSubmit(), openEditBudgetModal() (+11 more)
+Nodes (20): addCategory(), buildBudgetCategoryCheckboxes(), deleteBudget(), deleteCategory(), handleAddBudgetSubmit(), handleEditBudgetSubmit(), handleManageAccountsSubmit(), openEditBudgetModal() (+12 more)
 
 ### Community 9 - "Backups and Cloud Sessions"
 Cohesion: 0.16
 Nodes (13): checkAndTriggerBackupReminder(), completeDeletion(), exportData(), fetchAndUpdateLastCloudSyncTime(), handleBackupReminderDismiss(), initializeSupabase(), latestLocalBackupDate(), openCloudSessionExpiredModal() (+5 more)
 
 ### Community 10 - "Startup and Animations"
-Cohesion: 0.14
+Cohesion: 0.12
 Nodes (11): activeBalanceAnimations, animateValue(), previousBalances, updateTabIndicator(), initializeGlobalTooltips(), hideTooltip(), updateTooltipPosition(), initializeUI() (+3 more)
 
 ### Community 11 - "Official Artwork Tooling"
@@ -142,8 +264,8 @@ Cohesion: 0.17
 Nodes (13): dir, fs, get(), icoImage(), worker(), overrides, path, references() (+5 more)
 
 ### Community 12 - "Subscription Regression Tests"
-Cohesion: 0.08
-Nodes (9): assert, env(), c, fs, path, root, test, vm (+1 more)
+Cohesion: 0.12
+Nodes (7): assert, fs, path, root, test, vm, {webcrypto}
 
 ### Community 13 - "Standalone Error and Confirmation Pages"
 Cohesion: 0.25
@@ -174,7 +296,7 @@ Cohesion: 0.22
 Nodes (8): Analytics follow-up, 2026-11-08, Before publishing, Release branch, Release contents, Remaining release checks, v7 release staging, Verification, main()
 
 ### Community 20 - "History Suggestions"
-Cohesion: 0.30
+Cohesion: 0.29
 Nodes (10): close(), configuration(), findHistorySuggestions(), pick(), prepare(), show(), appendOptions(), loadMore() (+2 more)
 
 ### Community 21 - "service-worker.test.cjs"
@@ -194,7 +316,7 @@ Cohesion: 0.42
 Nodes (8): addPinDigit(), onAppUnlocked(), removePinDigit(), showForgotPinModal(), showPinLockScreen(), updatePinDots(), verifyPin(), verifyRecoveryCode()
 
 ### Community 25 - "ref_node_fs"
-Cohesion: 0.33
+Cohesion: 0.40
 Nodes (5): chooseFrame(), frames, fs, luminance(), path
 
 ### Community 26 - "PWA Manifest"
@@ -238,15 +360,15 @@ Cohesion: 0.29
 Nodes (5): c, fs, path, root, vm
 
 ### Community 42 - "transfer-selection.test.cjs"
-Cohesion: 0.25
+Cohesion: 0.29
 Nodes (5): accounts, assert, fs, test, vm
 
 ### Community 43 - "docs/INDEXEDDB_STORAGE.md"
-Cohesion: 0.27
-Nodes (11): Account-scoped SHA-256 sync baseline, Atomic financial saves, Single previous-dataset recovery slot, kaasi-finances schema version 2, Frozen original KaasiData migration copy, Consistent portable JSON snapshots, Optimistic revision and generation guards, Verified staging generations (+3 more)
+Cohesion: 0.32
+Nodes (9): Account-scoped SHA-256 sync baseline, Atomic financial saves, Single previous-dataset recovery slot, kaasi-finances schema version 2, Frozen original KaasiData migration copy, Optimistic revision and generation guards, Verified staging generations, Cloud restore during storage recovery (+1 more)
 
 ### Community 44 - "milestones.test.cjs"
-Cohesion: 0.29
+Cohesion: 0.25
 Nodes (4): assert, fs, test, vm
 
 ### Community 45 - "docs/SUBSCRIPTIONS.md"
@@ -254,8 +376,8 @@ Cohesion: 0.21
 Nodes (11): Already Recorded renewal-only action, Atomic payment and renewal commits, Calendar recurrence and anchor-day clamping, Independent subscription expense and CC records, Bundled subscription artwork and local matching, Portable subscription schedules, Six-hour subscription reminder snoozes, SUBSCRIPTION_LOGO_FILES (+3 more)
 
 ### Community 46 - "docs/ROADMAP.md"
-Cohesion: 0.23
-Nodes (11): Planned BNPL purchase and repayment tracking, Planned per-month historical budget storage, Deferred Fluent Emoji Flat category icons, Planned reliably dated installment reminders, Planned historical budget PDF reporting, Optional future mobile transaction FAB, Implemented portable monthly budget reminder, Privacy-preserving shareable yearly recap (+3 more)
+Cohesion: 0.19
+Nodes (14): Consistent portable JSON snapshots, Unknown-field and older-backup preservation, Planned BNPL purchase and repayment tracking, Planned per-month historical budget storage, Deferred Fluent Emoji Flat category icons, Planned reliably dated installment reminders, Planned advisory duplicate-entry warning, Planned historical budget PDF reporting (+6 more)
 
 ### Community 47 - "Deployed Supabase row-level security verification"
 Cohesion: 0.43
@@ -265,23 +387,173 @@ Nodes (4): Owner and timestamp conditional cloud writes, Two-account backup isol
 Cohesion: 0.70
 Nodes (3): Coordinated application, asset and worker versions, CRLF-normalized SHA-256 asset hashes, Versioned app-shell hash manifest
 
+### Community 50 - "Kaasi v8 - Development Changelog"
+Cohesion: 0.06
+Nodes (31): Kaasi v8 - Development Changelog, v7.510m - 2026-11-21, v7.511m - 2026-11-21, v7.512m - 2026-11-21, v7.513m - 2026-11-21, v7.514m - 2026-11-21, v7.515m - 2026-11-21, v7.516m - 2026-11-21 (+23 more)
+
+### Community 51 - "features.js"
+Cohesion: 0.14
+Nodes (28): deleteDebt(), deleteInstallment(), deleteReceivable(), dismissMonthlyBudgetReminder(), handleAddDebtSubmit(), handleAddInstallmentSubmit(), handleAddReceivableSubmit(), handleConfirmInstallmentPayment() (+20 more)
+
+### Community 52 - "refreshMonthlyViewIfRelevant"
+Cohesion: 0.19
+Nodes (14): bindDailyNoteEditor(), persist(), submit(), confirmDailyNoteDeletion(), deleteTransaction(), handleTransactionSubmit(), openDailyNoteEditor(), populateHistoryYears() (+6 more)
+
+### Community 53 - "openCcHistoryModal"
+Cohesion: 0.32
+Nodes (12): ccPurchaseCategoryOptions(), deleteCcTransaction(), getCcPurchaseCategory(), handleCcTransactionSubmit(), handleEditCcTransactionModalSubmit(), handlePayCcItemSubmit(), openCcHistoryModal(), openCcTransactionDetailModal() (+4 more)
+
+### Community 54 - "v6.362n - 2026-10-20"
+Cohesion: 0.17
+Nodes (12): 10. [Fix] Preserve Backdated Transaction Drafts, 11. [Maintenance] Automated Regression and Browser Validation, 1. [Maintenance] Public App Baseline Update, 2. [Fix] Safe Handling of Failed Local Saves, 3. [Fix] Backup Validation and Import Rollback, 4. [Security] Block Background Actions While PIN-Locked, 5. [Security] Safe Rendering of User-Controlled Data, 6. [Fix] Immediate Transaction History Updates (+4 more)
+
+### Community 55 - "update-app-shell.cjs"
+Cohesion: 0.20
+Nodes (6): { createHash }, files, fs, html, path, root
+
+### Community 57 - "compareCategoryNames"
+Cohesion: 0.25
+Nodes (8): handleEditTransactionModalSubmit(), handlePayDebtSubmit(), openEditTransactionModal(), openPayDebtForm(), openTransactionDetailModal(), processPaymentDeduction(), renderRecentTransactions(), compareCategoryNames()
+
+### Community 58 - "v6.365n - 2026-10-21"
+Cohesion: 0.29
+Nodes (7): 1. [Feature] IndexedDB Financial Storage, 2. [Feature] Verified Legacy Data Migration, 3. [Fix] Storage Failure Recovery and Concurrent Writes, 4. [Enhancement] Storage-Independent Local and Cloud Backups, 5. [Maintenance] Coordinated Startup and Application Updates, 6. [Maintenance] Database Regression Tests and Developer Reference, v6.365n - 2026-10-21
+
+### Community 59 - "ref_node_vm"
+Cohesion: 0.29
+Nodes (5): assert, fs, summarize, test, vm
+
+### Community 60 - "batch-entry.js"
+Cohesion: 0.47
+Nodes (4): addRow(), editing(), numberRows(), showReview()
+
+### Community 61 - "v6.377n - 2026-10-23"
+Cohesion: 0.40
+Nodes (5): 1. [Enhancement] Calmer Cloud Backup Settings, 2. [Enhancement] Dedicated Cloud Sync Keyboard Shortcut, 3. [Enhancement] Shorter Sync Completion Notification, 4. [Fix] Keep Sync Confirmation Actions on One Line, v6.377n - 2026-10-23
+
+### Community 62 - "v6.371n - 2026-10-22"
+Cohesion: 0.40
+Nodes (5): 1. [Feature] Single Manual Cloud Sync Action, 2. [Feature] Review Differences Before Replacing Divergent Copies, 3. [Fix] Conditional Cloud Writes and Stale Comparison Protection, 4. [Enhancement] Unified Sync Status Indicators and Bounded Recovery, v6.371n - 2026-10-22
+
+### Community 63 - "v6.393n - 2026-10-24"
+Cohesion: 0.40
+Nodes (5): 1. [Feature] Subscription Schedules and Confirmed Renewals, 2. [Feature] Upcoming Payments Bar, 3. [Improvement] Local Service Artwork and Personal Names, 4. [Storage] Subscription Collections and Backup Compatibility, v6.393n - 2026-10-24
+
+### Community 64 - "v6.368n - 2026-10-21"
+Cohesion: 0.40
+Nodes (5): 1. [Fix] Preserve Modals After Text-Selection Drags, 2. [Enhancement] Explicit Calculator Evaluation, 3. [Feature] Optional Expense Logging for Bulk Credit Card Payments, 4. [Planning] Credit Card Payment Workflow Follow-Up, v6.368n - 2026-10-21
+
+### Community 65 - "v6.363n - 2026-10-20"
+Cohesion: 0.40
+Nodes (5): 1. [Fix] Receivable Edit Validation and Balance Integrity, 2. [Enhancement] Explicit Credit Card Payment References, 3. [Fix] Accurate Backup Status During Concurrent Edits, 4. [Maintenance] Regression Coverage and Cache Update, v6.363n - 2026-10-20
+
+### Community 66 - "v6.395n - 2026-10-24"
+Cohesion: 0.40
+Nodes (5): 1. [Improvement] Identifiable Upcoming Payments and Simpler Artwork Controls, 2. [Improvement] Simple Payment Modes and Category Defaults, 3. [Improvement] Contrasting Local Logo Frames, 4. [Improvement] Paused Subscriptions and Schedule Deletion, v6.395n - 2026-10-24
+
+### Community 67 - "v6.421n - 2026-10-27"
+Cohesion: 0.40
+Nodes (5): 1. [UI] Responsive Settings Workspace, 2. [UX] Category and Budget Management, 3. [UI] Data, Subscriptions and About Sections, 4. [Fix] Settings and Nested-Dialog Navigation, v6.421n - 2026-10-27
+
+### Community 68 - "v6.398n - 2026-10-24"
+Cohesion: 0.50
+Nodes (4): 1. [Fix] Correcting Previously Handled Subscription Renewals, 2. [Improvement] Simplified Payment Actions and Already Recorded Flow, 3. [Improvement] Clear Name Editing and Responsive Notices, v6.398n - 2026-10-24
+
+### Community 69 - "v6.369n - 2026-10-21"
+Cohesion: 0.50
+Nodes (4): 1. [Fix] Export Divergent Legacy Data During Recovery, 2. [Fix] Reject Deletion From Stale Windows, 3. [Fix] Coordinate Saves While Migration Is Postponed, v6.369n - 2026-10-21
+
+### Community 70 - "v6.381n - 2026-10-23"
+Cohesion: 0.50
+Nodes (4): 1. [Improvement] Direct Credit Card Payments, 2. [Feature] Partial Payments Across Selected Purchases, 3. [Improvement] Compact Payment Forms, v6.381n - 2026-10-23
+
+### Community 71 - "v6.394n - 2026-10-24"
+Cohesion: 0.50
+Nodes (4): 1. [Improvement] Integrated Subscription Navigation and Consistent Forms, 2. [Improvement] Single Renewal Date and Six-Month Frequency, 3. [Clarification] Card Charge Versus Card Settlement, v6.394n - 2026-10-24
+
+### Community 72 - "v6.418n - 2026-10-26"
+Cohesion: 0.50
+Nodes (4): 1. [UI] Mobile Monthly Transactions and Subscription Management, 2. [UI] Responsive Financial Summaries and Installment Controls, 3. [UI] Responsive Chart Window and App Update Notice, v6.418n - 2026-10-26
+
+### Community 73 - "v6.412n - 2026-10-26"
+Cohesion: 0.50
+Nodes (4): 1. [UX] Subscription Search Keyboard Controls and Visible Icon Selection, 2. [Feature] Expanded Subscription Catalogue and Dark Logo Frames, 3. [UX] Transparent Subscription Marks and On-Demand Artwork, v6.412n - 2026-10-26
+
+### Community 74 - "v6.373n - 2026-10-22"
+Cohesion: 0.67
+Nodes (3): 1. [Enhancement] Direct Table Comparison for Sync Conflicts, 2. [Enhancement] Removed Backup Actions From Sync Comparison, v6.373n - 2026-10-22
+
+### Community 75 - "v6.374n - 2026-10-22"
+Cohesion: 0.67
+Nodes (3): 1. [Enhancement] Refined Sync Comparison Layout and Actions, 2. [Enhancement] Expandable Long Comparison Text, v6.374n - 2026-10-22
+
+### Community 76 - "v6.380n - 2026-10-23"
+Cohesion: 0.67
+Nodes (3): 1. [Enhancement] Request Storage Protection Automatically After Launch, 2. [Enhancement] Align Storage Protection Status and Action, v6.380n - 2026-10-23
+
+### Community 77 - "v6.367n - 2026-10-21"
+Cohesion: 0.67
+Nodes (3): 1. [Enhancement] Storage Settings Layout and Protection Status, 2. [Maintenance] Roadmap Reconciliation, v6.367n - 2026-10-21
+
+### Community 78 - "v6.397n - 2026-10-24"
+Cohesion: 0.67
+Nodes (3): 1. [Feature] Cloud Backup Recovery During Startup Failure, 2. [Improvement] Consistent Recovery and Pop-Up Action Labels, v6.397n - 2026-10-24
+
+### Community 79 - "v6.390n - 2026-10-23"
+Cohesion: 0.67
+Nodes (3): 1. [Feature] Optional Categories for Credit Card Purchases, 2. [Improvement] Payment Category Defaults, v6.390n - 2026-10-23
+
+### Community 80 - "v6.414n - 2026-10-26"
+Cohesion: 0.67
+Nodes (3): 1. [Feature] Passes and Fansly Catalogue Entries, 2. [UI] Muted Subscription Empty-State Icons, v6.414n - 2026-10-26
+
+### Community 81 - "v6.379n - 2026-10-23"
+Cohesion: 0.67
+Nodes (3): 1. [Fix] Explain Browser Storage Access Blocks, 2. [Enhancement] Clarify Silent Storage Protection Decisions, v6.379n - 2026-10-23
+
+### Community 82 - "v6.396n - 2026-10-24"
+Cohesion: 0.67
+Nodes (3): 1. [Improvement] Curated Subscription Catalogue and Shared Adobe Identity, 2. [Improvement] Complete Offline Logo Coverage and Asset Cleanup, v6.396n - 2026-10-24
+
+### Community 83 - "v6.382n - 2026-10-23"
+Cohesion: 0.67
+Nodes (3): 1. [Improvement] Focused Credit Card Selection, 2. [Improvement] Payment Summary Cleanup, v6.382n - 2026-10-23
+
+### Community 84 - "v6.383n - 2026-10-23"
+Cohesion: 0.67
+Nodes (3): 1. [Improvement] Lighter Credit Card Payment Forms, 2. [Improvement] Separate Selection From History Filters, v6.383n - 2026-10-23
+
+### Community 85 - "v6.409n - 2026-10-25"
+Cohesion: 0.67
+Nodes (3): 1. [UI] Contain Long Names and Large Financial Values, 2. [UI] Wrap Currency Values at Thousands Separators, v6.409n - 2026-10-25
+
+### Community 86 - "v6.468n - 2026-10-31"
+Cohesion: 0.67
+Nodes (3): New User Setup, Offline Assets, v6.468n - 2026-10-31
+
+### Community 87 - "v6.465n - 2026-10-31"
+Cohesion: 0.67
+Nodes (3): Sync Comparison, Transfer Account Selection, v6.465n - 2026-10-31
+
 ## Knowledge Gaps
-- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **1 isolated node(s):** `Planned advisory duplicate-entry warning`
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 544 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **93 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
+- **Why does `Kaasi v7 - Development Changelog` connect `Kaasi v7 - Development Changelog` to `Kaasi v8 - Development Changelog`, `v6.362n - 2026-10-20`, `v6.365n - 2026-10-21`, `v6.377n - 2026-10-23`, `v6.371n - 2026-10-22`, `v6.393n - 2026-10-24`, `v6.368n - 2026-10-21`, `v6.363n - 2026-10-20`, `v6.395n - 2026-10-24`, `v6.421n - 2026-10-27`, `v6.398n - 2026-10-24`, `v6.369n - 2026-10-21`, `v6.381n - 2026-10-23`, `v6.394n - 2026-10-24`, `v6.418n - 2026-10-26`, `v6.412n - 2026-10-26`, `v6.373n - 2026-10-22`, `v6.374n - 2026-10-22`, `v6.380n - 2026-10-23`, `v6.367n - 2026-10-21`, `v6.397n - 2026-10-24`, `v6.390n - 2026-10-23`, `v6.414n - 2026-10-26`, `v6.379n - 2026-10-23`, `v6.396n - 2026-10-24`, `v6.382n - 2026-10-23`, `v6.383n - 2026-10-23`, `v6.409n - 2026-10-25`, `v6.468n - 2026-10-31`, `v6.465n - 2026-10-31`, `v6.402n - 2026-10-24`, `v6.375n - 2026-10-23`, `v6.366n - 2026-10-21`, `v6.378n - 2026-10-23`, `v6.372n - 2026-10-22`, `v6.419n - 2026-10-26`, `v6.385n - 2026-10-23`, `v6.411n - 2026-10-26`, `v6.364n - 2026-10-21`, `v6.416n - 2026-10-26`, `v6.389n - 2026-10-23`, `v6.386n - 2026-10-23`, `v6.415n - 2026-10-26`, `v6.384n - 2026-10-23`, `v6.388n - 2026-10-23`, `v6.400n - 2026-10-24`, `v6.399n - 2026-10-24`, `v6.387n - 2026-10-23`, `v6.401n - 2026-10-24`, `v6.403n - 2026-10-25`, `v6.404n - 2026-10-25`, `v6.408n - 2026-10-25`, `v6.407n - 2026-10-25`, `v6.405n - 2026-10-25`, `v6.420n - 2026-10-26`, `v6.410n - 2026-10-25`, `v6.406n - 2026-10-25`, `v6.413n - 2026-10-26`, `v6.482n - 2026-11-03`, `v6.429n - 2026-10-28`, `v6.436n - 2026-10-28`, `v6.433n - 2026-10-28`, `v6.479n - 2026-11-03`, `v6.443n - 2026-10-29`, `v6.463n - 2026-10-30`, `v6.461n - 2026-10-30`, `v6.456n - 2026-10-30`, `v6.459n - 2026-10-30`, `v6.460n - 2026-10-30`, `v6.457n - 2026-10-30`, `v6.478n - 2026-11-03`, `v6.467n - 2026-10-31`, `v6.462n - 2026-10-30`, `v6.451n - 2026-10-29`, `v6.435n - 2026-10-28`, `v6.440n - 2026-10-29`, `v6.453n - 2026-10-30`, `v6.454n - 2026-10-30`, `v6.422n - 2026-10-28`, `v6.470n - 2026-10-31`, `v6.455n - 2026-10-30`, `v6.432n - 2026-10-28`, `v6.437n - 2026-10-29`, `v6.448n - 2026-10-29`, `v6.441n - 2026-10-29`, `v6.471n - 2026-11-01`, `v6.430n - 2026-10-28`, `v6.480n - 2026-11-03`, `v6.458n - 2026-10-30`, `v6.447n - 2026-10-29`, `v6.428n - 2026-10-28`, `v6.464n - 2026-10-30`, `v6.449n - 2026-10-29`, `v6.477n - 2026-11-03`, `v6.475n - 2026-11-01`, `v6.439n - 2026-10-29`, `v6.474n - 2026-11-01`, `v6.424n - 2026-10-28`, `v6.442n - 2026-10-29`, `v6.476n - 2026-11-02`, `v6.427n - 2026-10-28`, `v6.438n - 2026-10-29`, `v6.431n - 2026-10-28`, `v6.426n - 2026-10-28`, `v6.469n - 2026-10-31`, `v6.423n - 2026-10-28`, `v6.425n - 2026-10-28`, `v6.434n - 2026-10-28`, `v6.481n - 2026-11-03`, `v6.452n - 2026-10-30`, `v6.466n - 2026-10-31`, `v6.473n - 2026-11-01`, `v6.444n - 2026-10-29`?**
+  _High betweenness centrality (0.129) - this node is a cross-community bridge._
+- **What connects `Planned advisory duplicate-entry warning` to the rest of the system?**
+  _1 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `ui.js` be split into smaller, more focused modules?**
+  _Cohesion score 0.11088709677419355 - nodes in this community are weakly interconnected._
 - **Why does `Element` connect `UI Test Runtime` to `Interaction Regression Tests`?**
-  _High betweenness centrality (0.047) - this node is a cross-community bridge._
-- **Should `Dashboard and Financial Flows` be split into smaller, more focused modules?**
-  _Cohesion score 0.05393258426966292 - nodes in this community are weakly interconnected._
-- **Why does `Consistent portable JSON snapshots` connect `docs/INDEXEDDB_STORAGE.md` to `docs/CHANGELOG_v7.md`, `docs/SUBSCRIPTIONS.md`, `docs/ROADMAP.md`, `Portable achievement metadata`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+  _High betweenness centrality (0.022) - this node is a cross-community bridge._
+- **Should `Kaasi v7 - Development Changelog` be split into smaller, more focused modules?**
+  _Cohesion score 0.044444444444444446 - nodes in this community are weakly interconnected._
 - **Should `App Shell and Settings Surfaces` be split into smaller, more focused modules?**
-  _Cohesion score 0.08 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07077922077922078 - nodes in this community are weakly interconnected._
 - **Should `Cloud Synchronization` be split into smaller, more focused modules?**
   _Cohesion score 0.1391304347826087 - nodes in this community are weakly interconnected._
-- **Should `Shared State and Utilities` be split into smaller, more focused modules?**
-  _Cohesion score 0.07563025210084033 - nodes in this community are weakly interconnected._
-- **Should `IndexedDB Regression Tests` be split into smaller, more focused modules?**
-  _Cohesion score 0.05832147937411095 - nodes in this community are weakly interconnected._

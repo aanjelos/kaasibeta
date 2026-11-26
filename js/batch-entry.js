@@ -73,6 +73,7 @@ async function saveTransactionBatch(entries) {
     for (const name of ["account", "category"]) {
       field(name).replaceChildren(...Array.from(document.getElementById(name).options, option => option.cloneNode(true)));
     }
+    field("category").value = "";
     for (const option of field("account").options) {
       option.textContent = state.accounts.find(account => account.id === option.value)?.name || option.textContent;
     }
