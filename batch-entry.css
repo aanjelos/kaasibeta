@@ -2,11 +2,28 @@
 .batch-entry-heading button { flex:none; }
 .batch-entry-content { width:min(96%, 68rem); max-width:none; }
 #batchEntryTitle { font-size:1.3rem; font-weight:700; margin-bottom:16px; }
-#batchRows fieldset { display:grid; grid-template-columns: repeat(2,minmax(0,1fr)) minmax(0,1.6fr) repeat(3,minmax(0,1fr)) auto; gap:10px; align-items:end; padding:12px; margin-bottom:12px; border:1px solid var(--border-color); border-radius:10px; }
-#batchRows legend { padding-inline:6px; font-size:.82rem; color:var(--text-secondary); }
-#batchRows label { min-width:0; font-size:.83rem; }
-#batchRows label[hidden] { visibility:hidden; display:block; }
-#batchRows :is(input,select) { width:100%; min-width:0; margin-top:4px; }
+.batch-sheet-scroll { overflow:auto; max-height:55dvh; border:1px solid var(--border-color); border-radius:9px; }
+.batch-sheet-hint { display:none; }
+#batchSheet table { width:100%; min-width:760px; border-spacing:0; }
+#batchSheet th { position:sticky; top:0; z-index:1; padding:9px 12px; text-align:left; background:var(--bg-tertiary); color:var(--text-secondary); font-size:.82rem; }
+#batchSheet td { padding:0; background:var(--bg-secondary); }
+#batchSheet :is(td,th) { border-bottom:1px solid var(--border-color); }
+#batchSheet td:not(:last-child) { border-right:1px solid var(--border-color); }
+#batchSheet tr:last-child td { border-bottom:0; }
+#batchSheet th:first-child { width:26%; }
+#batchSheet :is(input,select) { display:block; width:100%; height:46px; padding:8px 12px; font-size:.88rem; border:0; border-radius:0; background:transparent; box-shadow:none; }
+#batchSheet { color-scheme:dark; }
+[data-theme="light"] #batchSheet { color-scheme:light; }
+#batchSheet select { appearance:auto; }
+#batchSheet option { background:var(--bg-secondary); color:var(--text-primary); }
+#batchSheet [name="amount"] { text-align:right; font-variant-numeric:tabular-nums; }
+#batchSheet :is(input,select):focus { outline:2px solid var(--accent-primary); outline-offset:-2px; }
+#batchSheet [aria-invalid="true"] { background:rgba(var(--expense-color-rgb),.12); box-shadow:inset 0 0 0 1px var(--expense-color); }
+#batchSheet [hidden] { display:none; }
+.batch-not-applicable { display:block; padding:0 12px; color:var(--text-secondary); }
+[data-batch-remove] { display:block; min-width:40px; min-height:44px; font-size:1.2rem; color:var(--text-secondary); }
+[data-batch-remove]:disabled { opacity:.35; }
+#batchAddRow { margin-top:12px; }
 #batchReview p { font-weight:700; margin-bottom:12px; }
 #batchReview li { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding:12px 0; border-top:1px solid var(--border-color); }
 #batchReview li div { min-width:0; overflow-wrap:anywhere; }
@@ -14,13 +31,14 @@
 #batchReview small { display:block; color:var(--text-secondary); }
 #batchError { color:var(--expense-color); margin-block:12px; }
 .batch-entry-actions { margin-top:16px; }
-@media (768px <= width < 1040px) {
-  #batchRows fieldset { grid-template-columns:repeat(3,minmax(0,1fr)); }
-}
 @media(max-width:767px) {
   .batch-entry-content { width:100%; max-height:100dvh; min-height:100dvh; margin:0; border-radius:0; }
-  #batchRows fieldset { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  #batchRows label:nth-of-type(3) { grid-column:1/-1; }
-  #batchRows label[hidden] { display:none; }
+  .batch-sheet-hint { display:block; margin-bottom:8px; font-size:.82rem; color:var(--text-secondary); }
+  #batchSheet table { table-layout:fixed; }
+  #batchSheet :is(th,td):first-child { position:sticky; left:0; width:145px; z-index:1; }
+  #batchSheet th:first-child { z-index:2; }
+  #batchSheet th:nth-child(2) { width:95px; }
+  #batchSheet th:last-child { width:44px; }
+  #batchSheet :is(input,select) { font-size:16px; }
   .batch-entry-actions { position:sticky; bottom:0; background:var(--bg-secondary); padding:10px 0; }
 }

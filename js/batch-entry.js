@@ -38,6 +38,7 @@ async function saveTransactionBatch(entries) {
 (() => {
   const modal = document.getElementById("batchEntryModal");
   const form = document.getElementById("batchEntryForm");
+  const sheet = document.getElementById("batchSheet");
   const rows = document.getElementById("batchRows");
   const add = document.getElementById("batchAddRow");
   const review = document.getElementById("batchReview");
@@ -49,7 +50,7 @@ async function saveTransactionBatch(entries) {
 
   function editing() {
     reviewedEntries = null;
-    rows.hidden = add.hidden = false;
+    sheet.hidden = add.hidden = false;
     review.hidden = true;
     review.replaceChildren();
     submit.textContent = "Review batch";
@@ -58,17 +59,16 @@ async function saveTransactionBatch(entries) {
 
   function addRow() {
     const previous = rows.lastElementChild;
-    const row = document.createElement("fieldset");
+    const row = document.createElement("tr");
     row.dataset.id = generateId();
     row.innerHTML = `
-      <legend></legend>
-      <label>Type<select name="type"><option value="expense">Expense</option><option value="income">Income</option></select></label>
-      <label>Date<input type="date" name="date" required></label>
-      <label>Description<input type="text" name="description" required></label>
-      <label>Category<select name="category" required></select></label>
-      <label>Account<select name="account" required></select></label>
-      <label>Amount<input name="amount" type="number" inputmode="decimal" min="0.01" step="0.01" required></label>
-      <button type="button" class="btn btn-secondary" data-batch-remove>Remove</button>`;
+      <td><input type="text" name="description" placeholder="Enter description" required></td>
+      <td><input name="amount" type="number" inputmode="decimal" placeholder="0.00" min="0.01" step="0.01" max="90071992547409.91" required></td>
+      <td><select name="type"><option value="expense">Expense</option><option value="income">Income</option></select></td>
+      <td><input type="date" name="date" required></td>
+      <td><select name="account" required></select></td>
+      <td><select name="category" required></select><span class="batch-not-applicable" hidden>—</span></td>
+      <td><button type="button" data-batch-remove>×</button></td>`;
     const field = name => row.querySelector(`[name="${name}"]`);
     for (const name of ["account", "category"]) {
       field(name).replaceChildren(...Array.from(document.getElementById(name).options, option => option.cloneNode(true)));
@@ -82,7 +82,9 @@ async function saveTransactionBatch(entries) {
     const updateCategory = () => {
       const income = field("type").value === "income";
       field("category").disabled = income;
-      field("category").parentElement.hidden = income;
+      field("category").hidden = income;
+      row.querySelector(".batch-not-applicable").hidden = !income;
+      if (income) field("category").removeAttribute("aria-invalid");
     };
     field("type").addEventListener("change", updateCategory);
     updateCategory();
@@ -93,7 +95,9 @@ async function saveTransactionBatch(entries) {
 
   function numberRows() {
     Array.from(rows.children).forEach((row, index) => {
-      row.querySelector("legend").textContent = `Entry ${index + 1}`;
+      for (const field of row.querySelectorAll("input, select")) {
+        field.setAttribute("aria-label", `${field.name}, row ${index + 1}`);
+      }
       const remove = row.querySelector("[data-batch-remove]");
       remove.disabled = rows.children.length === 1;
       remove.setAttribute("aria-label", `Remove entry ${index + 1}`);
@@ -101,6 +105,19 @@ async function saveTransactionBatch(entries) {
   }
 
   function showReview() {
+    const invalid = [];
+    for (const field of rows.querySelectorAll("input, select")) {
+      if (!field.checkValidity()) invalid.push(field);
+      if (field.validity.valid) field.removeAttribute("aria-invalid");
+      else field.setAttribute("aria-invalid", "true");
+    }
+    if (invalid.length) {
+      const first = invalid[0];
+      error.textContent = `Row ${first.closest("tr").rowIndex}, ${first.name}. ${first.validationMessage}`;
+      first.focus();
+      return;
+    }
+    error.textContent = "";
     reviewedEntries = Array.from(rows.children, row => {
       const value = name => row.querySelector(`[name="${name}"]`).value;
       const type = value("type");
@@ -134,7 +151,7 @@ async function saveTransactionBatch(entries) {
     back.textContent = "Edit entries";
     back.onclick = () => { editing(); rows.querySelector('[name="description"]').focus(); };
     review.replaceChildren(summary, list, back);
-    rows.hidden = add.hidden = true;
+    sheet.hidden = add.hidden = true;
     review.hidden = false;
     submit.textContent = `Save ${reviewedEntries.length} ${reviewedEntries.length === 1 ? "entry" : "entries"}`;
     back.focus();
@@ -149,14 +166,16 @@ async function saveTransactionBatch(entries) {
   rows.onclick = event => {
     const remove = event.target.closest("[data-batch-remove]");
     if (!remove || rows.children.length === 1) return;
-    remove.closest("fieldset").remove();
+    remove.closest("tr").remove();
     numberRows();
+    error.textContent = "";
     add.focus();
   };
   rows.oninput = event => {
     if (event.target.name === "description") {
       event.target.setCustomValidity(event.target.value.trim() ? "" : "Enter a description.");
     }
+    if (event.target.validity?.valid) event.target.removeAttribute("aria-invalid");
   };
   discard.onclick = () => {
     if (!confirm("Discard this batch draft?")) return;
