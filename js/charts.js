@@ -429,7 +429,7 @@ async function generateMonthlyPdfReport(event) {
           const isCategory = i >= nameLines.length;
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(isCategory ? 8 : 10);
-          doc.setTextColor(isCategory ? '#666666' : '#555555');
+          doc.setTextColor(isCategory ? '#757575' : '#555555');
           doc.text(line, margin, cursorY);
           if (i === 0) {
             doc.text(values[0], columns[0], cursorY, {align: 'right'});
