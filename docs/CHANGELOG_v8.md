@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.535m
+
+- Add batch entry for expenses and income, with review, stable UUIDs and a single commit for transactions and balances.
+
 ## v7.534m - 2026-11-26
 
 - Use a lighter grey for category labels beneath budget names in monthly PDFs.

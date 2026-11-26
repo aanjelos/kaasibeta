@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v7.534m" />
+    <meta name="application-version" content="v7.535m" />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
@@ -52,10 +52,11 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" integrity="sha384-UagCvVPT5XXA0Hx+nJYUAGBFseHT9zBgpJMSebsAxl9lciTwbT+39j5VfRjdP5Tp" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v7.534m" />
-    <link rel="stylesheet" href="settings-workspace.css?v=v7.534m" />
-    <link rel="stylesheet" href="onboarding.css?v=v7.534m" />
-    <link rel="stylesheet" href="tailwind.css?v=v7.534m" />
+    <link rel="stylesheet" href="style.css?v=v7.535m" />
+    <link rel="stylesheet" href="settings-workspace.css?v=v7.535m" />
+    <link rel="stylesheet" href="onboarding.css?v=v7.535m" />
+    <link rel="stylesheet" href="tailwind.css?v=v7.535m" />
+    <link rel="stylesheet" href="batch-entry.css?v=v7.535m" />
 
     <script
       async
@@ -291,7 +292,7 @@
         >
           <div class="contents lg:block lg:col-span-1 lg:space-y-6">
             <div class="card order-1 lg:order-none" id="addTransactionCard">
-              <h2 class="text-xl font-semibold mb-4 border-b border-gray-600 pb-2">Add Entry</h2>
+              <div class="batch-entry-heading mb-4 border-b border-gray-600 pb-2"><h2 class="text-xl font-semibold">Add Entry</h2><button type="button" class="btn btn-secondary" id="openBatchEntry">Batch entry</button></div>
               <form id="transactionForm" class="space-y-4">
                 <div>
                   <label
@@ -1658,6 +1659,22 @@
       <div id="initialSetupModal" class="modal" role="dialog" aria-modal="true" aria-label="Kaasi setup"><div class="modal-content" tabindex="-1"></div></div>
       <div id="kaasiTutorialModal" class="modal" role="dialog" aria-modal="true" aria-label="Kaasi tour"><div class="modal-content" tabindex="-1"></div></div>
 
+      <div id="batchEntryModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="batchEntryTitle">
+        <div class="modal-content batch-entry-content">
+          <button type="button" class="modal-close" aria-label="Close batch entry" onclick="closeModal('batchEntryModal')">&times;</button>
+          <h2 id="batchEntryTitle">Batch entry</h2>
+          <form id="batchEntryForm">
+            <div id="batchRows"></div>
+            <button type="button" class="btn btn-secondary" id="batchAddRow">+ Add another</button>
+            <div id="batchReview" hidden></div>
+            <p id="batchError" role="alert"></p>
+            <div class="batch-entry-actions">
+              <button type="button" class="btn btn-secondary" id="batchDiscard">Discard draft</button>
+              <button type="submit" class="btn btn-primary" id="batchSubmit">Review batch</button>
+            </div>
+          </form>
+        </div>
+      </div>
       <div id="formModal" class="modal" role="dialog" aria-modal="true">
         <div class="modal-content max-w-lg">
           <span class="modal-close" aria-label="Close modal" role="button" tabindex="0" onclick="closeModal('formModal')"
@@ -2018,28 +2035,29 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v7.534m" defer></script>
-    <script src="js/import-validation.js?v=v7.534m" defer></script>
-    <script src="js/storage.js?v=v7.534m" defer></script>
-    <script src="js/storage-ui.js?v=v7.534m" defer></script>
-    <script src="js/animations.js?v=v7.534m" defer></script>
-    <script src="js/data-sync.js?v=v7.534m" defer></script>
-    <script src="js/cloud-sync.js?v=v7.534m" defer></script>
-    <script src="js/math-tool.js?v=v7.534m" defer></script>
-    <script src="js/settings.js?v=v7.534m" defer></script>
-    <script src="js/charts.js?v=v7.534m" defer></script>
-    <script src="js/ui.js?v=v7.534m" defer></script>
-    <script src="js/settings-workspace.js?v=v7.534m" defer></script>
-    <script src="js/features.js?v=v7.534m" defer></script>
-    <script src="js/subscription-assets.js?v=v7.534m" defer></script>
-    <script src="js/subscription-services.js?v=v7.534m" defer></script>
-    <script src="js/subscriptions.js?v=v7.534m" defer></script>
-    <script src="js/security.js?v=v7.534m" defer></script>
-    <script src="js/milestones.js?v=v7.534m" defer></script>
-    <script src="js/stats.js?v=v7.534m" defer></script>
-    <script src="js/onboarding.js?v=v7.534m" defer></script>
-    <script src="js/app.js?v=v7.534m" defer></script>
-    <script src="js/history-suggestions.js?v=v7.534m" defer></script>
+    <script src="js/globals.js?v=v7.535m" defer></script>
+    <script src="js/import-validation.js?v=v7.535m" defer></script>
+    <script src="js/storage.js?v=v7.535m" defer></script>
+    <script src="js/storage-ui.js?v=v7.535m" defer></script>
+    <script src="js/animations.js?v=v7.535m" defer></script>
+    <script src="js/data-sync.js?v=v7.535m" defer></script>
+    <script src="js/cloud-sync.js?v=v7.535m" defer></script>
+    <script src="js/math-tool.js?v=v7.535m" defer></script>
+    <script src="js/settings.js?v=v7.535m" defer></script>
+    <script src="js/charts.js?v=v7.535m" defer></script>
+    <script src="js/ui.js?v=v7.535m" defer></script>
+    <script src="js/settings-workspace.js?v=v7.535m" defer></script>
+    <script src="js/features.js?v=v7.535m" defer></script>
+    <script src="js/subscription-assets.js?v=v7.535m" defer></script>
+    <script src="js/subscription-services.js?v=v7.535m" defer></script>
+    <script src="js/subscriptions.js?v=v7.535m" defer></script>
+    <script src="js/security.js?v=v7.535m" defer></script>
+    <script src="js/milestones.js?v=v7.535m" defer></script>
+    <script src="js/stats.js?v=v7.535m" defer></script>
+    <script src="js/onboarding.js?v=v7.535m" defer></script>
+    <script src="js/app.js?v=v7.535m" defer></script>
+    <script src="js/history-suggestions.js?v=v7.535m" defer></script>
+    <script src="js/batch-entry.js?v=v7.535m" defer></script>
   </body>
 </html>
 
