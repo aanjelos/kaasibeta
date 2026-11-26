@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.538m
+
+- Inset the dropdown chevrons and align dropdown labels with the other batch table cells.
+
 ## v7.537m
 
 - Adjust batch table column widths and align amount headings with their values.

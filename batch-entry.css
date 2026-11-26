@@ -19,7 +19,20 @@
 #batchSheet :is(input,select) { display:block; width:100%; height:46px; padding:8px 12px; font-size:.88rem; border:0; border-radius:0; background:transparent; box-shadow:none; }
 #batchSheet { color-scheme:dark; }
 [data-theme="light"] #batchSheet { color-scheme:light; }
-#batchSheet select { appearance:auto; padding-inline:9px 6px; text-overflow:ellipsis; }
+#batchSheet select { appearance:none; padding-inline:12px 28px; text-overflow:ellipsis; }
+#batchSheet td:has(select:not([hidden])) { position:relative; }
+#batchSheet td:has(select:not([hidden]))::after {
+  content:"";
+  position:absolute;
+  inset-inline-end:13px;
+  top:50%;
+  width:6px;
+  height:6px;
+  border:solid var(--text-secondary);
+  border-width:0 1.5px 1.5px 0;
+  transform:translateY(-70%) rotate(45deg);
+  pointer-events:none;
+}
 #batchSheet option { background:var(--bg-secondary); color:var(--text-primary); }
 #batchSheet [name="amount"] { text-align:right; font-variant-numeric:tabular-nums; }
 #batchSheet :is(input,select):focus { outline:2px solid var(--accent-primary); outline-offset:-2px; }
