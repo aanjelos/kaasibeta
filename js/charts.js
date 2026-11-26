@@ -412,17 +412,24 @@ async function generateMonthlyPdfReport(event) {
       for (const plan of plans) {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
-        const lines = doc.splitTextToSize(plan.name, width * 0.32);
+        const nameLines = doc.splitTextToSize(plan.name, width * 0.32);
         const values = [plan.limit, plan.spent, Math.abs(plan.remaining)].map(value => formatNumberForPdf(value));
         const leftAmountX = columns[2] - doc.getTextWidth(' over');
+        const labels = plan.categories.map(category => category.label);
+        const showLabels = labels.length > 0 && !(labels.length === 1 && labels[0] === plan.name);
+        doc.setFontSize(8);
+        const categoryLines = showLabels ? doc.splitTextToSize(labels.join(', '), width * 0.32) : [];
+        const lines = [...nameLines, ...categoryLines];
         for (const [i, line] of lines.entries()) {
           if (cursorY > bottom) {
             drawFooter(pageNumber);
             nextPage();
             headings();
-            doc.setFont('helvetica', 'normal');
           }
-          doc.setTextColor('#555555');
+          const isCategory = i >= nameLines.length;
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(isCategory ? 8 : 10);
+          doc.setTextColor(isCategory ? '#666666' : '#555555');
           doc.text(line, margin, cursorY);
           if (i === 0) {
             doc.text(values[0], columns[0], cursorY, {align: 'right'});
@@ -432,7 +439,7 @@ async function generateMonthlyPdfReport(event) {
             doc.text(values[2], leftAmountX, cursorY, {align: 'right'});
             if (overspent) doc.text('over', columns[2], cursorY, {align: 'right'});
           }
-          cursorY += 13;
+          cursorY += isCategory ? 11 : 13;
         }
         cursorY += 5;
       }

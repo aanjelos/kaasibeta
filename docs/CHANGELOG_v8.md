@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.533m - 2026-11-26
+
+- Show historical category labels beneath each budget name in monthly PDFs. Omit the category line when the sole category matches the budget name.
+
 ## v7.532m - 2026-11-24
 
 - Align budget balances by decimal point in monthly PDFs and place the overspending label to the right.
