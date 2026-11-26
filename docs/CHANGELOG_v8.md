@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.541m
+
+- Align standard entry fields, category pickers, history filters, Settings controls and tutorial fields at 14 px on desktop and 16 px on phones at the default browser text size.
+- Reserve space for dropdown chevrons, align batch cell text, simplify category prompts and use the standard dropdown arrow for budget sorting.
+- Match the title size and weight across the seven full-screen mobile lists and editors.
+
 ## v7.540m
 
 - Give full-screen mobile lists and batch entry consistent side gutters, inset header dividers, and clearance around titles, close buttons and bottom actions for device safe areas.

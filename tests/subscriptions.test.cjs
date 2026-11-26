@@ -373,7 +373,7 @@ test('payment choices simplify already-recorded confirmation, and category defau
   assert.match(html,/value="Subscriptions &amp; Memberships" selected/);assert.doesNotMatch(html,/Already recorded:/);
   e.run('state.subscriptions[0].category="Groceries";');e.api.openPayment(id);assert.match(html,/value="Groceries" selected/);
   e.run('state.subscriptions[0].category="";state.categories=state.categories.filter(c=>c!=="Subscriptions & Memberships");');e.api.openPayment(id);
-  assert.match(html,/<option value="" selected disabled>---- Select Category ----<\/option>/);
+  assert.match(html,/<option value="" selected disabled>Select Category<\/option>/);
   const controls=[{},{}];e.el('subNewPaymentFields').querySelectorAll=()=>controls;e.el('subPaymentMode').value='existing';e.el('subPaymentMode').onchange({target:{value:'existing'}});
   assert.equal(e.el('subNewPaymentFields').hidden,true);assert.ok(controls.every(c=>c.disabled));assert.equal(e.el('subPaymentSubmit').textContent,'Update Renewal');
   assert.doesNotMatch(html,/Find Expense|subRecordedList|Link Recorded Entry/);

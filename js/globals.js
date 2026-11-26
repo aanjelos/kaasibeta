@@ -684,7 +684,7 @@ function populateDropdowns() {
 
     const placeholderOption = document.createElement("option");
     placeholderOption.value = "";
-    placeholderOption.textContent = "---- Select Category ----";
+    placeholderOption.textContent = "Select Category";
     placeholderOption.disabled = true;
 
     selectEl.appendChild(placeholderOption);

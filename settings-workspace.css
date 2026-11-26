@@ -104,7 +104,7 @@
 #settingsModal .settings-tab-panel .text-sm { font-size: 14px; line-height: 1.55; }
 #settingsModal .settings-tab-panel p.text-sm { font-size: 12px; }
 #settingsModal .text-gray-300, #settingsModal .text-gray-400 { color: var(--text-secondary); }
-#settingsModal input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]), #settingsModal select { min-width: 0; min-height: 44px; font-size: 15px; background-color: var(--bg-tertiary) !important; color: var(--text-primary) !important; border-color: var(--border-color) !important; }
+#settingsModal input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]), #settingsModal select { min-width: 0; min-height: 44px; font-size: var(--field-text-size); background-color: var(--bg-tertiary) !important; color: var(--text-primary) !important; border-color: var(--border-color) !important; }
 #settingsModal input[type="checkbox"], #settingsModal input[type="radio"] { accent-color: var(--accent-primary); }
 #settingsModal select { padding-right: 40px; background-position: right 14px center; }
 #settingsModal .btn { min-height: 44px; font-size: 14px; }
@@ -251,7 +251,7 @@
   .settings-panel-head, .settings-panel-body { padding: 20px; }
   #settingsSubscriptionHost { padding: 18px 20px; }
   #settingsModal .account-row { grid-template-columns: 28px minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
-  #settingsModal .account-row input { padding-left: 8px; padding-right: 8px; font-size: 14px; }
+  #settingsModal .account-row input { padding-left: 8px; padding-right: 8px; }
   #settingsModal .account-row .btn-icon-hide { min-width: 28px; }
   .settings-account-columns { grid-template-columns: 28px minmax(0, 1fr) minmax(0, 1fr); gap: 8px; font-size: 13px; }
   .settings-account-footer { flex-direction: column; align-items: stretch; gap: 16px; }
@@ -274,7 +274,7 @@
   .settings-account-balance { grid-column: 3; grid-row: 1; }
   #settingsModal .account-row .btn-icon-hide { grid-column: 1; grid-row: 1; margin-top: 0; align-self: center; }
   .settings-mobile-field-label { display: none; }
-  #settingsModal .account-row input { font-size: 13px; padding: 8px 6px; }
+  #settingsModal .account-row input { padding: 8px 6px; }
   #settingsModal .settings-category-options .btn { flex: 1; }
   #settingsModal .settings-editor-actions .btn { flex: 1; }
   .settings-list-footer > .btn { width: 100%; }

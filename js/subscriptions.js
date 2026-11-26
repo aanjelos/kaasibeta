@@ -11,7 +11,7 @@ const Subscriptions = (() => {
   const paymentCategory=sub=>getCcPurchaseCategory(sub)||defaultCategory();
   const categoryOptions=(selected,optional=false)=>{
     const valid=getCcPurchaseCategory({category:selected});
-    return `<option value=""${valid?'':' selected'}${optional?'':' disabled'}>---- Select Category ----</option>`+ccPurchaseCategoryOptions(valid,false).replace('<option value="">Select Category</option>','');
+    return `<option value=""${valid?'':' selected'}${optional?'':' disabled'}>Select Category</option>`+ccPurchaseCategoryOptions(valid,false).replace('<option value="">Select Category</option>','');
   };
   function validDate(value) {
     return typeof value==='string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(dateObject(value).getTime()) && dateObject(value).toISOString().slice(0,10)===value;
