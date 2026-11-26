@@ -2846,27 +2846,28 @@ button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #t
 }
 
 @media (max-width: 767px) {
-  .mobile-list-view {
-    --list-gutter-left: max(1rem, env(safe-area-inset-left));
-    --list-gutter-right: max(1rem, env(safe-area-inset-right));
+  .mobile-fullscreen {
+    --screen-gutter: clamp(1.125rem, 5.5vw, 1.5rem);
+    --screen-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
     height: 100dvh;
     overscroll-behavior: contain;
-    scroll-padding-top: calc(5rem + env(safe-area-inset-top));
+    scroll-padding-top: calc(6.5rem + env(safe-area-inset-top, 0px));
     background: var(--bg-secondary);
     backdrop-filter: none;
   }
-  .mobile-list-view > .modal-content {
+  .mobile-fullscreen > .modal-content {
     width: 100%;
     max-width: none;
     min-height: 100%;
     margin: 0;
-    padding: 0 var(--list-gutter-right) max(1rem, env(safe-area-inset-bottom)) var(--list-gutter-left);
+    padding: 0 calc(var(--screen-gutter) + env(safe-area-inset-right, 0px))
+      var(--screen-bottom) calc(var(--screen-gutter) + env(safe-area-inset-left, 0px));
     border: 0;
     border-radius: 0;
     box-shadow: none;
     animation: none;
   }
-  .mobile-list-view :is(.list-view-heading, .subscription-manager-heading) {
+  .mobile-fullscreen :is(.list-view-heading, .subscription-manager-heading) {
     position: sticky;
     top: 0;
     z-index: 5;
@@ -2874,13 +2875,14 @@ button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #t
     align-items: center;
     justify-content: space-between;
     gap: .75rem;
-    margin: 0 calc(-1 * var(--list-gutter-right)) 1rem calc(-1 * var(--list-gutter-left));
-    padding: calc(.5rem + env(safe-area-inset-top)) var(--list-gutter-right) .5rem var(--list-gutter-left);
+    margin: 0 0 1rem;
+    padding: calc(1rem + env(safe-area-inset-top, 0px)) 0 .75rem;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
   }
-  .mobile-list-view h2 { padding: 0; margin: 0; }
-  .mobile-list-view .modal-close {
+  .mobile-fullscreen .list-view-heading > h2,
+  .mobile-fullscreen .subscription-manager-heading > h2 { padding: 0; margin: 0; }
+  .mobile-fullscreen .modal-close {
     position: static;
     flex: none;
     display: grid;
@@ -2888,13 +2890,13 @@ button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #t
     width: 44px;
     height: 44px;
   }
-  .mobile-list-view :is(#monthlyTransactionsListContainer, #ccHistoryListContainer,
+  .mobile-fullscreen :is(#monthlyTransactionsListContainer, #ccHistoryListContainer,
       #debtModalListContainer, #receivableModalListContainer, .subscription-list) {
     max-height: none;
     overflow: visible;
     padding-right: 0;
   }
-  .mobile-list-view #ccBulkPaymentBar { bottom: env(safe-area-inset-bottom); }
+  .mobile-fullscreen #ccBulkPaymentBar { bottom: var(--screen-bottom); }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; transition-duration: 0ms !important; scroll-behavior: auto !important; }

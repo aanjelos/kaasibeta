@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.540m
+
+- Give full-screen mobile lists and batch entry consistent side gutters, inset header dividers, and clearance around titles, close buttons and bottom actions for device safe areas.
+
 ## v7.539m
 
 - Use full-screen mobile list views for All Transactions, Credit Card History & Payments, debts, receivables, subscriptions and upcoming payments, with a persistent close control.

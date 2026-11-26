@@ -50,11 +50,11 @@
 #batchError { color:var(--expense-color); margin-block:12px; }
 .batch-entry-actions { margin-top:16px; }
 @media(max-width:767px) {
-  .batch-entry-content { width:100%; max-height:100dvh; min-height:100dvh; margin:0; border-radius:0; }
+  .list-view-heading #batchEntryTitle { margin-bottom:0; }
   .batch-sheet-hint { display:block; margin-bottom:8px; font-size:.82rem; color:var(--text-secondary); }
   #batchSheet :is(th,td):first-child { position:sticky; left:0; width:168px; z-index:1; }
   #batchSheet th:first-child { z-index:2; }
   #batchSheet th:nth-child(2) { width:95px; }
   #batchSheet :is(input,select) { font-size:16px; }
-  .batch-entry-actions { position:sticky; bottom:0; background:var(--bg-secondary); padding:10px 0; }
+  .batch-entry-actions { position:sticky; bottom:var(--screen-bottom); background:var(--bg-secondary); padding:10px 0; }
 }
