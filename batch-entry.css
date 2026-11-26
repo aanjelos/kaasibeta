@@ -4,17 +4,22 @@
 #batchEntryTitle { font-size:1.3rem; font-weight:700; margin-bottom:16px; }
 .batch-sheet-scroll { overflow:auto; max-height:55dvh; border:1px solid var(--border-color); border-radius:9px; }
 .batch-sheet-hint { display:none; }
-#batchSheet table { width:100%; min-width:760px; border-spacing:0; }
+#batchSheet table { width:100%; min-width:900px; table-layout:fixed; border-spacing:0; }
 #batchSheet th { position:sticky; top:0; z-index:1; padding:9px 12px; text-align:left; background:var(--bg-tertiary); color:var(--text-secondary); font-size:.82rem; }
 #batchSheet td { padding:0; background:var(--bg-secondary); }
 #batchSheet :is(td,th) { border-bottom:1px solid var(--border-color); }
 #batchSheet td:not(:last-child) { border-right:1px solid var(--border-color); }
 #batchSheet tr:last-child td { border-bottom:0; }
-#batchSheet th:first-child { width:26%; }
+#batchSheet th:nth-child(2) { width:110px; text-align:right; }
+#batchSheet th:nth-child(3) { width:108px; }
+#batchSheet th:nth-child(4) { width:142px; }
+#batchSheet th:nth-child(5) { width:146px; }
+#batchSheet th:nth-child(6) { width:176px; }
+#batchSheet th:last-child { width:44px; }
 #batchSheet :is(input,select) { display:block; width:100%; height:46px; padding:8px 12px; font-size:.88rem; border:0; border-radius:0; background:transparent; box-shadow:none; }
 #batchSheet { color-scheme:dark; }
 [data-theme="light"] #batchSheet { color-scheme:light; }
-#batchSheet select { appearance:auto; }
+#batchSheet select { appearance:auto; padding-inline:9px 6px; text-overflow:ellipsis; }
 #batchSheet option { background:var(--bg-secondary); color:var(--text-primary); }
 #batchSheet [name="amount"] { text-align:right; font-variant-numeric:tabular-nums; }
 #batchSheet :is(input,select):focus { outline:2px solid var(--accent-primary); outline-offset:-2px; }
@@ -34,11 +39,9 @@
 @media(max-width:767px) {
   .batch-entry-content { width:100%; max-height:100dvh; min-height:100dvh; margin:0; border-radius:0; }
   .batch-sheet-hint { display:block; margin-bottom:8px; font-size:.82rem; color:var(--text-secondary); }
-  #batchSheet table { table-layout:fixed; }
-  #batchSheet :is(th,td):first-child { position:sticky; left:0; width:145px; z-index:1; }
+  #batchSheet :is(th,td):first-child { position:sticky; left:0; width:168px; z-index:1; }
   #batchSheet th:first-child { z-index:2; }
   #batchSheet th:nth-child(2) { width:95px; }
-  #batchSheet th:last-child { width:44px; }
   #batchSheet :is(input,select) { font-size:16px; }
   .batch-entry-actions { position:sticky; bottom:0; background:var(--bg-secondary); padding:10px 0; }
 }
