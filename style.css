@@ -123,40 +123,53 @@
 
 /* Light Theme Variables */
 [data-theme="light"] {
-  --bg-primary: #f0f0ee;
+  color-scheme: light;
+  --accent-primary: #a8470b;
+  --accent-primary-rgb: 168, 71, 11;
+  --accent-hover: #873706;
+  --income-color: #24683e;
+  --income-color-rgb: 36, 104, 62;
+  --warning-color: #845707;
+  --chart-income-color: #267362;
+  --bg-primary: #f3ecdf;
   --expense-color: #b9372b;
   --expense-color-rgb: 185, 55, 43;
-  --bg-secondary: #fcfcfb;
-  --bg-tertiary: #eeeeeb;
-  --bg-quaternary: #deded9;
+  --bg-secondary: #fffdf8;
+  --bg-tertiary: #f5efe3;
+  --bg-quaternary: #e8dfce;
 
-  --text-primary: #121212;
-  --text-secondary: #2b2b2b;
-  --text-placeholder: #64748b;
+  --text-primary: #30291f;
+  --text-secondary: #615548;
+  --text-placeholder: #706252;
   --text-on-accent: #ffffff;
 
-  --button-secondary-bg: #fcfcfb;
-  --button-secondary-hover-bg: #eeeeeb;
-  --button-secondary-text: #121212;
-  --button-secondary-border: #d5d5cf;
-  --button-secondary-hover-border: #aaaaa2;
+  --button-secondary-bg: #fffdf8;
+  --button-secondary-hover-bg: #f5efe3;
+  --button-secondary-text: #30291f;
+  --button-secondary-border: #d9cebd;
+  --button-secondary-hover-border: #98856d;
 
-  --border-color: #d5d5cf;
-  --border-light: #e3e3dd;
+  --border-color: #d9cebd;
+  --border-light: #ccbfae;
   
-  --shadow-color: rgba(0, 0, 0, 0.08);
-  --shadow-color-light: rgba(0, 0, 0, 0.04);
+  --shadow-color: rgba(68, 46, 19, 0.08);
+  --shadow-color-light: rgba(68, 46, 19, 0.04);
 
-  --ring-bg-color: #e3e3dd;
+  --ring-bg-color: #ccbfae;
 
-  --chart-grid-color: rgba(0, 0, 0, 0.05);
-  --chart-tick-color: #64748b;
-  --chart-legend-color: #334155;
+  --chart-grid-color: rgba(68, 46, 19, 0.05);
+  --chart-tick-color: #706252;
+  --chart-legend-color: #30291f;
   --chart-tooltip-bg: rgba(255, 255, 255, 0.95);
-  --chart-tooltip-text: #0f172a;
+  --chart-tooltip-text: #30291f;
 }
 
 /* Tailwind Overrides for Light Mode */
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: var(--text-placeholder);
+  opacity: 1;
+}
 [data-theme="light"] .bg-gray-600,
 [data-theme="light"] .bg-gray-700,
 [data-theme="light"] .bg-gray-800,
@@ -1940,7 +1953,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
   background-color: var(--bg-quaternary);
 }
 [data-theme="light"] .advanced-rules-btn:hover {
-  background-color: #cbd5e1; /* Slate 300 for hover */
+  background-color: var(--button-secondary-hover-bg);
 }
 [data-theme="light"] .advanced-rules-content {
   background-color: var(--bg-tertiary);
@@ -2230,7 +2243,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
   background-color: var(--bg-quaternary);
 }
 [data-theme="light"] .advanced-rules-btn:hover {
-  background-color: #cbd5e1; /* Slate 300 for hover */
+  background-color: var(--button-secondary-hover-bg);
 }
 [data-theme="light"] .advanced-rules-content {
   background-color: var(--bg-tertiary);
@@ -2795,7 +2808,7 @@ button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #t
 #installmentList p:not(:first-child) { font-size: 12px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
 #categoryBudgetsTipContainer .font-semibold { font-size: 12px; line-height: 1.5; }
 @media (max-width: 767px) { button[data-record-action]:not(.btn):not(.upcoming-notice-item) { min-width: 44px; min-height: 44px; } }
-[data-theme="light"] { --accent-text-accessible: var(--text-primary); }
+[data-theme="light"] { --accent-text-accessible: var(--accent-primary); }
 [data-theme="light"] .accent-text,
 [data-theme="light"] .text-accent-primary,
 [data-theme="light"] .is-earned .milestone-status,
@@ -2950,7 +2963,7 @@ button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #t
   background-color: #332d29;
   color: var(--text-primary);
 }
-[data-theme="light"] #dashboardTopCardsContainer > #totalPotentialCard { background-color: #efe9e4; }
+[data-theme="light"] #dashboardTopCardsContainer > #totalPotentialCard { background-color: #f5e9d8; }
 :root:not([data-theme="light"]) #totalPotentialCard .text-gray-300 { color: var(--text-primary); }
 :root:not([data-theme="light"]) #totalPotentialCard .text-gray-400 { color: var(--text-secondary); }
 .edit-btn-container .record-edit-action:is(:hover, :focus-visible),

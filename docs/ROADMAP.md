@@ -17,7 +17,7 @@ Before release, smoke-test upgrades, backup and restore, PIN recovery, offline l
 ### Light-mode overhaul
 
 - Review light mode across the dashboard, Settings, and dialogs on desktop and mobile. Focus on surface contrast, text legibility, and how Kaasi’s orange reads on pale backgrounds.
-- Decide during V9 planning whether to overhaul light mode or retire it. Keep both options open until that decision.
+- Reassess the refined V8 light palette after user feedback.
 
 ### Scope and functionality
 

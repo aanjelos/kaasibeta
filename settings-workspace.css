@@ -114,9 +114,9 @@
 .settings-theme-thumb { height: 92px; display: grid; grid-template-columns: 30% 1fr; overflow: hidden; border-radius: 5px; background: #181818; border: 1px solid #404040; }
 .settings-theme-thumb::before { content: ''; background: #101010; border-right: 1px solid #444; }
 .settings-theme-thumb::after { content: ''; margin: 16px 12px; border-radius: 3px; background: linear-gradient(#3a3a3a 0 13px, transparent 13px 22px, #2c2c2c 22px 42px, transparent 42px); }
-.settings-theme-light { background: #eee; }
-.settings-theme-light::before { background: #ddd; border-color: #ccc; }
-.settings-theme-light::after { background: linear-gradient(#ccc 0 13px, transparent 13px 22px, #ddd 22px 42px, transparent 42px); }
+.settings-theme-light { background: #f3ecdf; border-color: #cbbda8; }
+.settings-theme-light::before { background: #fffdf8; border-color: #d9cebd; }
+.settings-theme-light::after { background: linear-gradient(#e67e26 0 13px, transparent 13px 22px, #fffdf8 22px 42px, transparent 42px); }
 .settings-theme-label { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 10px; }
 .settings-theme-label i { color: var(--accent-primary); }
 [aria-pressed="false"] .settings-theme-label i { visibility: hidden; }
