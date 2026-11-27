@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.549m
+
+- Disable browser form-history suggestions and typing corrections on description and name fields with Kaasi suggestions, and on search fields.
+
 ## v7.548m
 
 - Use the brand orange for category icons and reduce the glow opacity.

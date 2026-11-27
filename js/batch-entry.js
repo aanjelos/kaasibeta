@@ -62,7 +62,7 @@ async function saveTransactionBatch(entries) {
     const row = document.createElement("tr");
     row.dataset.id = generateId();
     row.innerHTML = `
-      <td><input type="text" name="description" placeholder="Enter description" required></td>
+      <td><input type="text" name="description" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="none" placeholder="Enter description" required></td>
       <td><input name="amount" type="number" inputmode="decimal" placeholder="0.00" min="0.01" step="0.01" max="90071992547409.91" required></td>
       <td><select name="type"><option value="expense">Expense</option><option value="income">Income</option></select></td>
       <td><input type="date" name="date" required></td>

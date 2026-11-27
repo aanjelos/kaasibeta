@@ -10,13 +10,18 @@ Before release, smoke-test upgrades, backup and restore, PIN recovery, offline l
 
 ---
 
-## v9 Dashboard Redesign and Visual Direction
+## v9 Dashboard Refinements and Visual Direction
 
-**Decision updated 2026-11-08:** Release v7 with the current dashboard after final release validation. The proposed sequence is v8 for statistics, Year in Review and December Christmas styling, followed by the complete desktop/mobile dashboard redesign in v9. These are planning targets, not committed dates. This section records direction only and does not authorize starting implementation.
+**Decision updated 2026-11-27:** Use the current V8 dashboard and dark-mode styling as the V9 baseline. Prioritize targeted refinements and a light-mode review. The broader dashboard and navigation ideas below remain exploratory.
+
+### Light-mode overhaul
+
+- Review light mode across the dashboard, Settings, and dialogs on desktop and mobile. Focus on surface contrast, text legibility, and how Kaasi’s orange reads on pale backgrounds.
+- Decide during V9 planning whether to overhaul light mode or retire it. Keep both options open until that decision.
 
 ### Scope and functionality
 
-- Prefer a coherent redesign of dashboard hierarchy, spacing, grouping and presentation over successive cosmetic patches. Reuse existing financial logic rather than rewriting it for the redesign.
+- Refine dashboard hierarchy, spacing, and grouping where there is a clear usability benefit. Reuse existing financial logic.
 - Preserve every existing piece of information, figure, calculation, form, action, shortcut, navigation destination and dashboard visibility preference. Inventory current functionality before designing and use that inventory for acceptance checks.
 - Cover transaction entry (expense, income and transfers), balance/account summaries, Total Potential, recent activity/history access, budgets and their monthly reminder, credit-card entry/history/payments, debts, receivables, installments, upcoming-payment notices, charts and header actions.
 - Preserve IndexedDB migration/recovery, historical IDs, unknown JSON fields, backup compatibility, PIN behavior and cloud-sync safeguards. Do not change Supabase data or settings as part of presentation work.
@@ -38,6 +43,8 @@ Before release, smoke-test upgrades, backup and restore, PIN recovery, offline l
 - Preserve accessible dialog naming, keyboard interaction, reduced-motion support and screen-reader chart information. Do not reintroduce a visible chart-data section/control; the user declined that addition.
 
 ### Desktop and mobile composition
+
+- Give All Transactions and Credit Cards dedicated full-screen views within the dashboard, following the Settings workspace pattern. Use dashboard tabs to reach the views and display their transaction lists inline.
 
 - **Desktop:** Explore a deliberate workspace with prominent transaction entry, scannable balances and clearer relationships between recent activity, budgets and upcoming obligations.
 - **Mobile:** Aim for an app-like web/PWA experience rather than merely stacking desktop cards. Explore dedicated screens and persistent bottom navigation for the main destinations, reducing unnecessary scrolling while retaining every existing piece of information and functionality.

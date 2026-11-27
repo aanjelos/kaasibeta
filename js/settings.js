@@ -650,7 +650,7 @@ function openCategoryIconPicker(category) {
   const options = Object.keys(CATEGORY_ICONS);
   openFormModal(`Icon for ${category}`, `
     <div class="category-picker">
-      <input type="search" aria-label="Search Icons" placeholder="Search Icons">
+      <input type="search" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="none" aria-label="Search Icons" placeholder="Search Icons">
       <div class="category-picker-grid" role="group" aria-label="Category Icons"></div>
       <div class="category-picker-empty flex flex-col items-center py-8 text-gray-500" role="status" hidden>
         <i class="fas fa-search text-3xl mb-3 opacity-40" aria-hidden="true"></i>

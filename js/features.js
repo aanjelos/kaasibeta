@@ -931,7 +931,7 @@ function openEditTransactionModal(transactionId, event) {
             </div>
             <div>
                 <label for="modalDescription" class="block text-sm font-medium mb-1">Description</label>
-                <input type="text" id="modalDescription" name="description" value="${
+                <input type="text" id="modalDescription" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="none" name="description" value="${
                   escapeHTML(transaction.description)
                 }" placeholder="e.g., Lunch with friends" required>
             </div>
@@ -2825,7 +2825,7 @@ function openEditCcTransactionModal(ccTransactionId) {
             </div>
             <div>
                 <label for="modalCcDescription" class="block text-sm font-medium mb-1">Description</label>
-                <input type="text" id="modalCcDescription" name="ccDescription" value="${
+                <input type="text" id="modalCcDescription" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="none" name="ccDescription" value="${
                   escapeHTML(transaction.description)
                 }" placeholder="e.g., Online purchase" required>
             </div>
@@ -2964,7 +2964,7 @@ function deleteCcTransaction(transactionId) {
 function openAddDebtForm() {
   openFormModal(
     "Add New Debt",
-    `<div><label for="debtAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="debtAmount" name="debtAmount" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div><div><label for="debtWho" class="block text-sm font-medium mb-1">Who do you owe?</label><input type="text" id="debtWho" name="debtWho" placeholder="e.g., John Doe" required></div><div><label for="debtWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="debtWhy" name="debtWhy" placeholder="e.g., Loan" required></div><div><label for="debtDueDate" class="block text-sm font-medium mb-1">Due Date</label><input type="date" id="debtDueDate" name="debtDueDate" required></div><button type="submit" class="btn btn-primary w-full">Add Debt</button>`,
+    `<div><label for="debtAmount" class="block text-sm font-medium mb-1">Amount Owed (LKR)</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" id="debtAmount" name="debtAmount" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div><div><label for="debtWho" class="block text-sm font-medium mb-1">Who do you owe?</label><input type="text" id="debtWho" name="debtWho" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="none" placeholder="e.g., John Doe" required></div><div><label for="debtWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="debtWhy" name="debtWhy" placeholder="e.g., Loan" required></div><div><label for="debtDueDate" class="block text-sm font-medium mb-1">Due Date</label><input type="date" id="debtDueDate" name="debtDueDate" required></div><button type="submit" class="btn btn-primary w-full">Add Debt</button>`,
     handleAddDebtSubmit
   );
   const nextMonth = new Date();
@@ -3023,7 +3023,7 @@ function openEditDebtForm(id) {
       2
     )}" step="0.01" min="0.01" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Remaining Amount</label><div class="relative flex items-center w-full"><input type="text" inputmode="decimal" class="calc-amount pr-8" name="debtRemainingAmount" value="${d.remainingAmount.toFixed(
       2
-    )}" step="0.01" min="0" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="debtWho" value="${
+    )}" step="0.01" min="0" required><button type="button" class="calc-toggle-btn absolute right-2 text-gray-400 hover:text-accent-500 transition-colors focus:outline-none" tabindex="-1"><i class="fas fa-calculator"></i></button></div></div> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="debtWho" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="none" value="${
       escapeHTML(d.who)
     }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="debtWhy" value="${
       escapeHTML(d.why)
@@ -3264,7 +3264,7 @@ function openAddReceivableForm() {
                 <i class="fas fa-info-circle mr-1"></i>
                 <strong>Important:</strong> Selecting "Credit Card Loan" means you provided funds from your credit card. This entry tracks the money owed <em>to you</em>. It does not automatically create an expense on your credit card. If you used your credit card for this, please add a separate "CC Expense" manually to reflect the charge on your card.
             </p>
-            <div><label for="recWho" class="block text-sm font-medium mb-1">Who owes you?</label><input type="text" id="recWho" name="recWho" placeholder="e.g., Jane Doe" required></div>
+            <div><label for="recWho" class="block text-sm font-medium mb-1">Who owes you?</label><input type="text" id="recWho" name="recWho" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="none" placeholder="e.g., Jane Doe" required></div>
             <div><label for="recWhy" class="block text-sm font-medium mb-1">Reason?</label><input type="text" id="recWhy" name="recWhy" placeholder="e.g., Friendly loan" required></div>
             <div><label for="recDateGiven" class="block text-sm font-medium mb-1">Date Given</label><input type="date" id="recDateGiven" name="recDateGiven" required></div>
             <button type="submit" class="btn btn-primary w-full"><i class="fas fa-plus"></i> Add Receivable</button>
@@ -3436,7 +3436,7 @@ function openEditReceivableForm(id) {
       )
       .join(
         ""
-      )}</select></div> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="recWho" value="${
+      )}</select></div> <div><label class="block text-sm font-medium mb-1">Who</label><input type="text" name="recWho" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="none" value="${
       escapeHTML(r.who)
     }" required></div> <div><label class="block text-sm font-medium mb-1">Why</label><input type="text" name="recWhy" value="${
       escapeHTML(r.why)

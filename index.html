@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v7.548m" />
+    <meta name="application-version" content="v7.549m" />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
@@ -52,11 +52,11 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" integrity="sha384-UagCvVPT5XXA0Hx+nJYUAGBFseHT9zBgpJMSebsAxl9lciTwbT+39j5VfRjdP5Tp" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v7.548m" />
-    <link rel="stylesheet" href="settings-workspace.css?v=v7.548m" />
-    <link rel="stylesheet" href="onboarding.css?v=v7.548m" />
-    <link rel="stylesheet" href="tailwind.css?v=v7.548m" />
-    <link rel="stylesheet" href="batch-entry.css?v=v7.548m" />
+    <link rel="stylesheet" href="style.css?v=v7.549m" />
+    <link rel="stylesheet" href="settings-workspace.css?v=v7.549m" />
+    <link rel="stylesheet" href="onboarding.css?v=v7.549m" />
+    <link rel="stylesheet" href="tailwind.css?v=v7.549m" />
+    <link rel="stylesheet" href="batch-entry.css?v=v7.549m" />
 
     <script
       async
@@ -366,7 +366,7 @@
                   >
                   <input
                     type="text"
-                    id="description"
+                    id="description" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="none"
                     name="description"
                     placeholder="e.g., Lunch, Monthly Groceries"
                     required
@@ -474,7 +474,7 @@
                     >Description</label
                   ><input
                     type="text"
-                    id="ccDescription"
+                    id="ccDescription" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="none"
                     name="ccDescription"
                     placeholder="e.g., Online purchase, Ride fare"
                     required
@@ -689,7 +689,7 @@
           <div class="monthly-search-controls my-4 flex flex-col sm:flex-row items-center gap-x-2 gap-y-3">
             <div class="flex-grow w-full flex items-center gap-x-2">
               <input
-                type="search"
+                type="search" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="none"
                 id="monthlySearchInput"
                 name="monthlySearch"
                 placeholder="Search description or amount..."
@@ -1739,7 +1739,7 @@
           <div id="ccHistoryToolbar" class="my-4 flex flex-col sm:flex-row items-center gap-2">
             <div class="flex-grow w-full flex flex-col sm:flex-row items-start sm:items-center gap-2">
               <div class="flex-grow w-full flex items-center gap-x-2">
-                <input type="search" id="ccHistorySearchInput" name="ccHistorySearch" placeholder="Search description or amount..." class="flex-grow bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm outline-none text-white focus:border-accent-500 transition-colors" aria-label="Search description or amount..." />
+                <input type="search" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="none" id="ccHistorySearchInput" name="ccHistorySearch" placeholder="Search description or amount..." class="flex-grow bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm outline-none text-white focus:border-accent-500 transition-colors" aria-label="Search description or amount..." />
                 <button id="clearCcHistorySearchBtn" class="btn-icon-clear-search hidden flex-shrink-0" aria-label="Clear search" data-tooltip="Clear Search">
                   <i class="fas fa-times text-gray-300 hover:text-white transition-colors"></i>
                 </button>
@@ -1771,7 +1771,7 @@
       <div id="subscriptionsModal" class="modal mobile-fullscreen" role="dialog" aria-modal="true" aria-labelledby="subscriptionsTitle">
         <div class="modal-content subscriptions-content">
           <div class="subscription-manager-heading"><h2 id="subscriptionsTitle">Subscriptions</h2><button type="button" class="modal-close" aria-label="Close modal" onclick="closeModal('subscriptionsModal')">&times;</button></div>
-          <div class="subscription-toolbar"><input type="search" id="subscriptionSearch" placeholder="Search subscriptions" aria-label="Search subscriptions" oninput="Subscriptions.onSearch(this.value)"><select id="subscriptionFilter" aria-label="Subscription status" onchange="Subscriptions.onFilter(this.value)"><option value="active">Active</option><option value="paused">Paused</option></select><button type="button" class="btn btn-primary" data-sub-action="add"><i class="fas fa-plus" aria-hidden="true"></i> Add New</button></div>
+          <div class="subscription-toolbar"><input type="search" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="none" id="subscriptionSearch" placeholder="Search subscriptions" aria-label="Search subscriptions" oninput="Subscriptions.onSearch(this.value)"><select id="subscriptionFilter" aria-label="Subscription status" onchange="Subscriptions.onFilter(this.value)"><option value="active">Active</option><option value="paused">Paused</option></select><button type="button" class="btn btn-primary" data-sub-action="add"><i class="fas fa-plus" aria-hidden="true"></i> Add New</button></div>
           <div id="subscriptionList" class="subscription-list custom-scrollbar"></div>
         </div>
       </div>
@@ -2055,29 +2055,29 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v7.548m" defer></script>
-    <script src="js/import-validation.js?v=v7.548m" defer></script>
-    <script src="js/storage.js?v=v7.548m" defer></script>
-    <script src="js/storage-ui.js?v=v7.548m" defer></script>
-    <script src="js/animations.js?v=v7.548m" defer></script>
-    <script src="js/data-sync.js?v=v7.548m" defer></script>
-    <script src="js/cloud-sync.js?v=v7.548m" defer></script>
-    <script src="js/math-tool.js?v=v7.548m" defer></script>
-    <script src="js/settings.js?v=v7.548m" defer></script>
-    <script src="js/charts.js?v=v7.548m" defer></script>
-    <script src="js/ui.js?v=v7.548m" defer></script>
-    <script src="js/settings-workspace.js?v=v7.548m" defer></script>
-    <script src="js/features.js?v=v7.548m" defer></script>
-    <script src="js/subscription-assets.js?v=v7.548m" defer></script>
-    <script src="js/subscription-services.js?v=v7.548m" defer></script>
-    <script src="js/subscriptions.js?v=v7.548m" defer></script>
-    <script src="js/security.js?v=v7.548m" defer></script>
-    <script src="js/milestones.js?v=v7.548m" defer></script>
-    <script src="js/stats.js?v=v7.548m" defer></script>
-    <script src="js/onboarding.js?v=v7.548m" defer></script>
-    <script src="js/app.js?v=v7.548m" defer></script>
-    <script src="js/history-suggestions.js?v=v7.548m" defer></script>
-    <script src="js/batch-entry.js?v=v7.548m" defer></script>
+    <script src="js/globals.js?v=v7.549m" defer></script>
+    <script src="js/import-validation.js?v=v7.549m" defer></script>
+    <script src="js/storage.js?v=v7.549m" defer></script>
+    <script src="js/storage-ui.js?v=v7.549m" defer></script>
+    <script src="js/animations.js?v=v7.549m" defer></script>
+    <script src="js/data-sync.js?v=v7.549m" defer></script>
+    <script src="js/cloud-sync.js?v=v7.549m" defer></script>
+    <script src="js/math-tool.js?v=v7.549m" defer></script>
+    <script src="js/settings.js?v=v7.549m" defer></script>
+    <script src="js/charts.js?v=v7.549m" defer></script>
+    <script src="js/ui.js?v=v7.549m" defer></script>
+    <script src="js/settings-workspace.js?v=v7.549m" defer></script>
+    <script src="js/features.js?v=v7.549m" defer></script>
+    <script src="js/subscription-assets.js?v=v7.549m" defer></script>
+    <script src="js/subscription-services.js?v=v7.549m" defer></script>
+    <script src="js/subscriptions.js?v=v7.549m" defer></script>
+    <script src="js/security.js?v=v7.549m" defer></script>
+    <script src="js/milestones.js?v=v7.549m" defer></script>
+    <script src="js/stats.js?v=v7.549m" defer></script>
+    <script src="js/onboarding.js?v=v7.549m" defer></script>
+    <script src="js/app.js?v=v7.549m" defer></script>
+    <script src="js/history-suggestions.js?v=v7.549m" defer></script>
+    <script src="js/batch-entry.js?v=v7.549m" defer></script>
   </body>
 </html>
 
