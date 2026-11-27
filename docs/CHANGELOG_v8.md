@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.548m
+
+- Use the brand orange for category icons and reduce the glow opacity.
+
 ## v7.547m
 
 - Add healthcare, medication and everyday category icons, plus searchable A–Z initials. Soften the category glow with a wider blur.

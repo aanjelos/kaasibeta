@@ -2925,11 +2925,10 @@ button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #t
 .category-icon-tile {
   display: inline-grid; place-items: center; flex: none;
   width: 2rem; height: 2rem; border-radius: .55rem;
-  color: #ffa45c; background: var(--bg-tertiary);
+  color: var(--accent-primary); background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
 }
-[data-theme="light"] .category-icon-tile { color: #aa4b0b; }
-.category-icon-tile :is(i, .category-icon-letter) { font-size: .95rem; text-shadow: 0 0 9px rgba(240, 118, 35, .28); }
+.category-icon-tile :is(i, .category-icon-letter) { font-size: .95rem; text-shadow: 0 0 9px rgba(var(--accent-primary-rgb), .14); }
 .category-icon-letter { font-weight: 700; line-height: 1; }
 .category-icon-tile.category-icon-placeholder { color: var(--text-secondary); background: var(--bg-tertiary); border-color: var(--border-color); }
 .category-icon-tile.category-icon-income { color: var(--income-color); }
