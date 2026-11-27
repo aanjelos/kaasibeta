@@ -2943,3 +2943,14 @@ button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #t
 .category-picker button[aria-pressed="true"] { background: var(--bg-tertiary); box-shadow: inset 0 0 0 1px var(--text-secondary); }
 .category-picker-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
 .category-picker-actions button { flex: 1 0 auto; min-height: 44px; }
+.edit-btn-container .record-edit-action,
+#transactionDetailModal [data-record-action="editTransaction"] i { color: var(--text-secondary); }
+#dashboardTopCardsContainer > #totalPotentialCard {
+  background-color: #332d29;
+  color: var(--text-primary);
+}
+[data-theme="light"] #dashboardTopCardsContainer > #totalPotentialCard { background-color: #efe9e4; }
+:root:not([data-theme="light"]) #totalPotentialCard .text-gray-300 { color: var(--text-primary); }
+:root:not([data-theme="light"]) #totalPotentialCard .text-gray-400 { color: var(--text-secondary); }
+.edit-btn-container .record-edit-action:is(:hover, :focus-visible),
+#transactionDetailModal [data-record-action="editTransaction"]:is(:hover, :focus-visible) i { color: var(--accent-primary); }

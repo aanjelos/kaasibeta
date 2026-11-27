@@ -145,7 +145,7 @@ function renderRecentTransactions() {
       </div>
       <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums">${isIncome ? "+" : "-"}${formatCurrency(t.amount)}</span>
       <div class="edit-btn-container flex-shrink-0 hidden md:flex">
-        <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" data-record-action="editTransaction" data-record-id="${escapeHTML(t.id)}" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
+        <button class="record-edit-action text-xs" data-record-action="editTransaction" data-record-id="${escapeHTML(t.id)}" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
         <button class="text-xs text-gray-500 hover:text-expense focus:outline-none" data-record-action="deleteTransaction" data-record-id="${escapeHTML(t.id)}" data-tooltip="Delete"><i class="fas fa-times"></i></button>
       </div>`;
     
@@ -261,8 +261,8 @@ function renderDebtList() {
           <div class="flex justify-between items-center text-xs text-gray-500 mt-1">
             <span>Due: ${new Date(d.dueDate).toLocaleDateString()}</span>
             <div class="edit-btn-container">
-              <button class="accent-text" aria-label="Edit debt" data-tooltip="Edit" data-record-action="editDebt" data-record-id="${escapeHTML(d.id)}"><i class="fas fa-edit" aria-hidden="true"></i></button>
               <button class="text-expense" aria-label="Pay debt" data-tooltip="Pay" data-record-action="payDebt" data-record-id="${escapeHTML(d.id)}"><i class="fas fa-money-bill-transfer" aria-hidden="true"></i></button>
+              <button class="record-edit-action" aria-label="Edit debt" data-tooltip="Edit" data-record-action="editDebt" data-record-id="${escapeHTML(d.id)}"><i class="fas fa-edit" aria-hidden="true"></i></button>
               <button class="text-gray-500 hover:text-expense" aria-label="Delete debt" data-record-action="deleteDebt" data-record-id="${escapeHTML(d.id)}" data-tooltip="Delete"><i class="fas fa-times" aria-hidden="true"></i></button>
             </div>
           </div>
@@ -411,8 +411,8 @@ function renderReceivableList() {
           <div class="flex justify-between items-center text-xs text-gray-500 mt-1">
             <span>Given: ${new Date(r.dateGiven).toLocaleDateString()}</span>
             <div class="edit-btn-container">
-              <button class="accent-text" aria-label="Edit receivable" data-tooltip="Edit" data-record-action="editReceivable" data-record-id="${escapeHTML(r.id)}"><i class="fas fa-edit" aria-hidden="true"></i></button>
               <button class="text-income" aria-label="Receive payment" data-tooltip="Receive" data-record-action="receivePayment" data-record-id="${escapeHTML(r.id)}"><i class="fas fa-hand-holding-dollar" aria-hidden="true"></i></button>
+              <button class="record-edit-action" aria-label="Edit receivable" data-tooltip="Edit" data-record-action="editReceivable" data-record-id="${escapeHTML(r.id)}"><i class="fas fa-edit" aria-hidden="true"></i></button>
               <button class="text-gray-500 hover:text-expense" aria-label="Delete receivable" data-record-action="deleteReceivable" data-record-id="${escapeHTML(r.id)}" data-tooltip="Delete"><i class="fas fa-times" aria-hidden="true"></i></button>
             </div>
           </div>
@@ -493,10 +493,10 @@ function renderInstallmentList() {
               i.monthsLeft > 0
                 ? `
                 <button class="text-sm text-income hover:opacity-80 focus:outline-none transition-opacity" data-record-action="payInstallment" data-record-id="${escapeHTML(i.id)}" data-tooltip="Pay Installment"><i class="fas fa-credit-card"></i></button>
-                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" data-record-action="editInstallment" data-record-id="${escapeHTML(i.id)}" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
+                <button class="record-edit-action text-sm" data-record-action="editInstallment" data-record-id="${escapeHTML(i.id)}" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
               `
                 : `
-                <button class="text-sm text-gray-400 hover:text-gray-200 focus:outline-none transition-colors" data-record-action="editInstallment" data-record-id="${escapeHTML(i.id)}" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
+                <button class="record-edit-action text-sm" data-record-action="editInstallment" data-record-id="${escapeHTML(i.id)}" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
               `
             }
             <button class="text-sm text-gray-500 hover:text-expense focus:outline-none transition-colors" data-record-action="deleteInstallment" data-record-id="${escapeHTML(i.id)}" data-tooltip="Delete"><i class="fas fa-times"></i></button>
@@ -1908,7 +1908,7 @@ function renderMonthlyDetails(
               isIncome ? "+" : "-"
             }${formatCurrency(t.amount)}</span>
                 <div class="edit-btn-container ml-3 hidden md:flex">
-                  <button class="text-xs accent-text hover:text-accent-hover focus:outline-none" data-record-action="editTransaction" data-record-id="${escapeHTML(t.id)}" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
+                  <button class="record-edit-action text-xs" data-record-action="editTransaction" data-record-id="${escapeHTML(t.id)}" data-tooltip="Edit"><i class="fas fa-edit"></i></button>
                   <button class="text-xs text-gray-500 hover:text-expense focus:outline-none ml-2" data-record-action="deleteTransaction" data-record-id="${escapeHTML(t.id)}" data-tooltip="Delete"><i class="fas fa-times"></i></button>
                 </div>
               </div>`;

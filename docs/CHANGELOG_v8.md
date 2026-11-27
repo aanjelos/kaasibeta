@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.545m
+
+- Give Total Potential a warm neutral surface and clarify that it includes cash owed to the user.
+
+- Align debt, receivable and installment controls in payment, edit and delete order. Use neutral edit icons with an orange hover and focus state in those lists and transaction history.
+
 ## v7.544m
 
 - Replace the Batch Entry header button with a table icon.
