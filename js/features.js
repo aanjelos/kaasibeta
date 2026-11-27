@@ -1438,7 +1438,7 @@ function setupMonthlyView() {
     }
     renderMonthTabs(parseInt(yearSelector.value));
     $("#monthlyDetailsContainer").innerHTML =
-      '<p class="text-center text-gray-400">Select a month to view details.</p>';
+      '<div class="flex flex-col items-center justify-center py-12 text-gray-500"><i class="fas fa-search text-4xl mb-3 opacity-40" aria-hidden="true"></i><p class="text-sm font-medium">Select a month to view details.</p></div>';
     if (monthlyPieChartInstance) {
       monthlyPieChartInstance.destroy();
       monthlyPieChartInstance = null;

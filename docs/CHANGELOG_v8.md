@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.554m
+
+- Increase the category summary’s visible height, style the month-selection empty state, add a click-safe gutter around history pages, and align the credit-card bulk payment bar with the page content.
+
 ## v7.553m
 
 - Rework All Transactions and Credit Card History & Payments as full-screen workspaces with responsive summaries and dashboard navigation.
