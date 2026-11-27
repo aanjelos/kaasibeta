@@ -1,5 +1,35 @@
 /* Kaasi - Expense Tracker - style.css */
 
+.modal.history-page { background: var(--bg-secondary); backdrop-filter: none; }
+.history-page > .modal-content.max-w-4xl {
+  width: 100%; max-width: 80rem; min-height: 100%; margin: 0 auto;
+  padding: calc(1rem + env(safe-area-inset-top)) max(clamp(1rem, 4vw, 4rem), env(safe-area-inset-right)) calc(6rem + env(safe-area-inset-bottom)) max(clamp(1rem, 4vw, 4rem), env(safe-area-inset-left));
+  background: transparent; border: 0; border-radius: 0; box-shadow: none; animation: none;
+}
+@media (min-width: 768px) {
+  .history-page > .modal-content.max-w-4xl { width: calc(100% - 4rem); padding-inline: 0; }
+}
+.history-page .modal-content .list-view-heading {
+  position: static; display: grid; justify-content: start; gap: .6rem; margin: 0 0 1.4rem;
+  padding: 0 0 1.1rem; border-bottom: 1px solid var(--border-color); background: transparent;
+}
+.history-back { display: inline-flex; align-items: center; justify-self: start; gap: .6rem; min-height: 44px; color: var(--text-secondary); }
+.history-back:hover, .history-back:focus-visible { color: var(--accent-primary); }
+.history-page .modal-content .list-view-heading h2 { margin: 0; font-size: clamp(1.45rem, 3vw, 2.35rem); line-height: 1.15; font-weight: 700; }
+.history-page :is(#monthlyTransactionsListContainer,#ccHistoryListContainer) { max-height: none; overflow: visible; padding-right: 0; }
+@media (max-width: 639px) {
+  .history-page > .modal-content.max-w-4xl { padding-top: calc(1.75rem + env(safe-area-inset-top, 0px)); }
+  .history-page .monthly-view-summary-grid { gap: .65rem; }
+  .history-page .monthly-view-summary-grid .monthly-view-summary-card { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; padding: .75rem; text-align: start; }
+}
+@media (min-width: 1024px) {
+  #ccHistoryModal.history-page > .modal-content { display: grid; grid-template-columns: minmax(13rem, 1fr) minmax(0, 3fr); align-content: start; column-gap: clamp(2rem, 4vw, 4rem); }
+  #ccHistoryModal.history-page .list-view-heading { grid-column: 1 / -1; }
+  #ccHistoryModal.history-page .monthly-view-summary-grid { grid-column: 1; grid-row: 2 / span 3; align-self: start; grid-template-columns: 1fr; position: sticky; top: 1rem; }
+  #ccHistoryModal.history-page :is(#ccHistoryNavigationRow,#ccHistoryToolbar,#ccHistoryListContainer) { grid-column: 2; min-width: 0; }
+}
+#ccHistoryModal.history-page #ccBulkPaymentBar { position: fixed; max-width: 54rem; margin-inline: auto; bottom: calc(1rem + env(safe-area-inset-bottom)); }
+
 /* ------------------------- */
 /* --- LOCAL FONTS --- */
 /* ------------------------- */
