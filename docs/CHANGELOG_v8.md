@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.552m
+
+- Use brand orange with ivory labels and icons on light-mode primary buttons.
+
 ## v7.551m
 
 - Brighten light-mode primary actions while retaining white labels.

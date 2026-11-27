@@ -127,8 +127,8 @@
   --accent-primary: #a8470b;
   --accent-primary-rgb: 168, 71, 11;
   --accent-hover: #873706;
-  --button-primary-bg: #c15306;
-  --button-primary-hover-bg: #af4906;
+  --button-primary-bg: #e67e26;
+  --button-primary-hover-bg: #ee903f;
   --income-color: #24683e;
   --income-color-rgb: 36, 104, 62;
   --warning-color: #845707;
@@ -507,6 +507,7 @@ select:focus {
   color: var(--text-on-accent);
   border-color: var(--button-primary-bg);
 }
+[data-theme="light"] .btn-primary { --text-on-accent: var(--bg-secondary); }
 @media (hover: hover) and (pointer: fine) {
 .btn-primary:hover {
   background-color: var(--button-primary-hover-bg);
