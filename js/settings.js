@@ -666,12 +666,19 @@ function openCategoryIconPicker(category) {
   const grid = picker.querySelector(".category-picker-grid");
   const render = () => {
     const normalise = value => value.toLowerCase().replace(/[-\s]+/g, " ").trim();
-    const terms = normalise(search.value).split(" ");
+    const query = normalise(search.value);
+    const terms = query.split(" ");
     const matches = options.filter(icon => {
+      if (/^[a-z]$/.test(query)) return icon === `letter-${query}`;
       const words = normalise(`${icon} ${CATEGORY_ICONS[icon].join(" ")}`);
       return terms.every(term => words.includes(term));
     });
-    grid.innerHTML = matches.map(icon => `<button type="button" data-icon="${icon}" aria-label="${categoryIconLabel(icon)}" title="${categoryIconLabel(icon)}" aria-pressed="${choice === icon}">${categoryIconMarkup(icon)}</button>`).join("");
+    const firstLetter = matches.find(icon => icon.startsWith("letter-"));
+    grid.innerHTML = matches.map(icon => {
+      const heading = icon === firstLetter ? '<div class="category-picker-section">A–Z</div>' : "";
+      const label = categoryIconLabel(icon);
+      return `${heading}<button type="button" data-icon="${icon}" aria-label="${label}" title="${label}" aria-pressed="${choice === icon}">${categoryIconMarkup(icon)}</button>`;
+    }).join("");
     grid.hidden = matches.length === 0;
     picker.querySelector(".category-picker-empty").hidden = matches.length > 0;
   };

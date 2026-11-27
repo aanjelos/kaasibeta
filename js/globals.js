@@ -158,6 +158,23 @@ const CATEGORY_ICONS = Object.freeze({
   lamp: ["lightbulb", "lighting electrical"],
   plug: ["plug", "electricity electrical power"],
   "cold-storage": ["snowflake", "fridge refrigerator freezer"],
+  stethoscope: ["stethoscope", "health medical doctor checkup examination"],
+  hospital: ["hospital", "health medical clinic emergency"],
+  "first-aid-kit": ["kit-medical", "health medical emergency first aid supplies"],
+  tooth: ["tooth", "health medical dentist dental orthodontics"],
+  capsules: ["capsules", "health medical medicine pharmacy pills supplements"],
+  "prescription-bottle": ["prescription-bottle", "health medical medicine pharmacy prescription pills"],
+  syringe: ["syringe", "health medical vaccine vaccination injection"],
+  glasses: ["glasses", "health optician eyewear vision spectacles"],
+  wheelchair: ["wheelchair", "health accessibility disability mobility"],
+  brain: ["brain", "health medical mental health therapy neurology"],
+  umbrella: ["umbrella", "insurance protection rain"],
+  key: ["key", "locksmith keys locks"],
+  hammer: ["hammer", "repairs diy hardware carpentry"],
+  "paint-roller": ["paint-roller", "painting paint decorating renovation"],
+  ...Object.fromEntries(Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ", letter =>
+    [`letter-${letter.toLowerCase()}`, [null, `letter ${letter} alphabet initial`]]
+  )),
 });
 const DEFAULT_CATEGORY_ICONS = new Map([
   ["Food & Dining", "dining"], ["Groceries", "basket"], ["Transportation", "car"],
@@ -178,7 +195,10 @@ function categoryIconMarkup(icon, income = false) {
   const valid = Object.hasOwn(CATEGORY_ICONS, icon);
   const glyph = income ? "arrow-down" : CATEGORY_ICONS[valid ? icon : "tag"][0];
   const tone = income ? " category-icon-income" : valid ? "" : " category-icon-placeholder";
-  return `<span class="category-icon-tile${tone}" aria-hidden="true"><i class="fas fa-${glyph}"></i></span>`;
+  const markup = glyph
+    ? `<i class="fas fa-${glyph}"></i>`
+    : `<span class="category-icon-letter">${icon.at(-1).toUpperCase()}</span>`;
+  return `<span class="category-icon-tile${tone}" aria-hidden="true">${markup}</span>`;
 }
 
 function categoryIconLabel(icon) {

@@ -2920,7 +2920,7 @@ button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #t
 .category-icon-row { display: flex; align-items: center; gap: .5rem; }
 .category-icon-row .category-icon-tile { width: 1.75rem; height: 1.75rem; background: transparent; border: 0; }
 .category-icon-row .category-icon-tile.category-icon-placeholder { background: transparent; }
-.category-icon-row .category-icon-tile i { font-size: .8125rem; }
+.category-icon-row .category-icon-tile :is(i, .category-icon-letter) { font-size: .8125rem; }
 .category-icon-row-copy { flex: 1; min-width: 0; }
 .category-icon-tile {
   display: inline-grid; place-items: center; flex: none;
@@ -2929,7 +2929,8 @@ button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #t
   border: 1px solid var(--border-color);
 }
 [data-theme="light"] .category-icon-tile { color: #aa4b0b; }
-.category-icon-tile i { font-size: .95rem; text-shadow: 0 0 3px rgba(255, 135, 56, .48), 0 0 6px rgba(240, 118, 35, .26); }
+.category-icon-tile :is(i, .category-icon-letter) { font-size: .95rem; text-shadow: 0 0 9px rgba(240, 118, 35, .28); }
+.category-icon-letter { font-weight: 700; line-height: 1; }
 .category-icon-tile.category-icon-placeholder { color: var(--text-secondary); background: var(--bg-tertiary); border-color: var(--border-color); }
 .category-icon-tile.category-icon-income { color: var(--income-color); }
 .category-icon-placeholder i, .category-icon-income i { text-shadow: none; }
@@ -2939,6 +2940,7 @@ button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #t
 .category-picker-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); gap: .375rem; max-height: 44dvh; overflow: auto; padding: 4px; overscroll-behavior: contain; }
 .category-picker-grid button { min-height: 48px; border-radius: .5rem; display: grid; place-items: center; }
 .category-picker-grid button:hover { background: var(--bg-tertiary); }
+.category-picker-section { grid-column: 1 / -1; padding: .5rem .375rem .125rem; color: var(--text-secondary); font-size: .75rem; font-weight: 600; }
 .category-picker-grid .category-icon-tile { background: transparent; border-color: transparent; }
 .category-picker button[aria-pressed="true"] { background: var(--bg-tertiary); box-shadow: inset 0 0 0 1px var(--text-secondary); }
 .category-picker-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
