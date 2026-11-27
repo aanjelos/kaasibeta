@@ -61,9 +61,9 @@ function importData(event) {
   }
 
   showConfirmationModal(
-    "Import Data",
-    "Importing data will <strong class='text-warning'>OVERWRITE ALL</strong> current data. This action cannot be undone.<br><br>Are you sure you want to proceed?",
-    "Import & Overwrite",
+    "Restore from this file?",
+    "The file will replace the data on this device. Changes saved only here will be lost.",
+    "Replace Device Data",
     "Cancel",
     () => {
       // onConfirm

@@ -128,7 +128,7 @@ function positionMathToolbar(inputEl) {
 }
 
 function showMathToolbar(inputEl) {
-  if (state.settings && state.settings.showMathToolbar === false) return;
+  if (!deviceCalculatorEnabled()) return;
   activeCalcInput = inputEl;
   if(positionMathToolbar(inputEl)===false)return;
   mathToolbar.classList.add("visible");

@@ -162,10 +162,9 @@ function renderCloudAccountChoice(context) {
   if (cloudAccountChoice !== context) return;
   const hasCloud = context.cloud !== null;
   const otherAccount = !!context.owner && context.owner !== context.userId;
-  $('#cloudAccountTitle').textContent = hasCloud ? 'Choose which data to use' : 'Use this device’s data?';
-  $('#cloudAccountCopy').textContent = `${otherAccount ? 'This device has records from a different account.' : 'The records on this device have not been linked to this account.'} ${hasCloud ? 'The account below also has a cloud copy. Choose which data to use.' : 'Would you like to use these records with the account below?'}`;
+  $('#cloudAccountTitle').textContent = hasCloud ? 'Use this account?' : 'Back up this device?';
+  $('#cloudAccountCopy').textContent = otherAccount ? 'This device was previously linked to a different account.' : hasCloud ? 'This device has saved data and hasn’t been linked to this account.' : 'Save this device’s data to the account below.';
   $('#cloudAccountEmail').textContent = supabaseUser?.email || 'Current account';
-  $('#cloudAccountNote').textContent = hasCloud ? 'You’ll confirm before replacing either copy.' : 'Continue only if these records belong with this account.';
   const actions = $('#cloudAccountActions');
   actions.replaceChildren();
   const button = (text, primary, action) => {
@@ -182,9 +181,9 @@ function renderCloudAccountChoice(context) {
     actions.appendChild(item);
   };
   if (hasCloud) {
-    button('Use Cloud Data', true, () => confirmCloudAccountReplacement(context, 'cloud'));
-    button('Use This Device’s Data', false, () => confirmCloudAccountReplacement(context, 'local'));
-  } else button('Continue', true, async () => {
+    button('Keep Account Copy', false, () => confirmCloudAccountReplacement(context, 'cloud'));
+    button('Keep Device Copy', false, () => confirmCloudAccountReplacement(context, 'local'));
+  } else button('Create Backup', true, async () => {
     approveCloudAccountChoice(context);
     await uploadCloudSync(context);
     closeCloudAccountFlow(context);
@@ -217,8 +216,8 @@ function confirmCloudAccountReplacement(context, which) {
   if (cloudAccountChoice !== context || isAppLocked()) return;
   const restoring = which === 'cloud';
   showConfirmationModal(restoring ? 'Replace This Device’s Data?' : 'Replace the Cloud Data?',
-    `${restoring ? 'The cloud copy will replace the records on this device.' : 'The records on this device will replace the cloud copy.'} Changes saved only in the replaced copy will be removed.<br><br>Signed-in account: <strong>${escapeHTML(supabaseUser?.email || 'Current account')}</strong><br><br>Download a backup first if you want to keep a separate copy.<br><button id="cloudAccountDownload" type="button" class="btn btn-secondary cloud-account-backup">${restoring ? 'Download Device Backup' : 'Download Cloud Backup'}</button>`,
-    restoring ? 'Replace Device Data' : 'Replace Cloud Data', 'Cancel', async () => {
+    `${restoring ? 'This device will use the copy from' : 'This device’s copy will replace the data in'} <strong>${escapeHTML(supabaseUser?.email || 'your account')}</strong>. ${restoring ? 'Changes only on this device will be lost.' : 'Changes only in that account will be lost.'}<br><button id="cloudAccountDownload" type="button" class="btn btn-secondary cloud-account-backup">${restoring ? 'Download Device Copy First' : 'Download Cloud Copy First'}</button>`,
+    restoring ? 'Replace Device Data' : 'Replace Cloud Data Only', 'Cancel', async () => {
       if (cloudSyncBusy || cloudAccountChoice !== context || isAppLocked()) return true;
       setCloudSyncBusy(true);
       try {
@@ -634,6 +633,11 @@ function renderCloudSyncReview(page = 0) {
   const changes = cloudSyncDifferences(context.local, context.cloud);
   if (!changes.length && !cloudSyncEquivalentForReview(context.local, context.cloud)) changes.push({area:'Settings & categories',label:'Other saved information',kind:'Different values',fields:[{name:'Value',local:'Saved information differs',cloud:'Saved information differs'}]});
   const pageSize = 25, pages = Math.max(1, Math.ceil(changes.length / pageSize));
+  $("#cloudSyncTitle").textContent = changes.length === 0 ? 'These copies match'
+    : changes.every(change => change.area === 'Settings & categories' &&
+      (Object.hasOwn(context.local.settings || {}, change.label) || Object.hasOwn(context.cloud.settings || {}, change.label)))
+      ? 'Your settings differ' : 'Your copies are different';
+  $("#cloudSyncSummary").hidden = changes.length <= 2;
   const host = $("#cloudSyncDifferences"); host.replaceChildren();
   $("#cloudSyncDeviceCount").textContent = String(changes.filter(c => c.kind === "Only on this device").length);
   $("#cloudSyncCloudCount").textContent = String(changes.filter(c => c.kind === "Only in cloud").length);
@@ -717,7 +721,8 @@ function renderCloudSyncReview(page = 0) {
       addSection("Cloud · Description", display(descriptionChange.cloud, "description", 'cloud'));
       if (!toggles.length) addToggle(entry);
     }
-    const singleField = change.kind === "Different values" && valueFields.length === 1 ? valueFields[0].name : null;
+    const singleField = change.kind === "Different values" && valueFields.length === 1 && valueFields[0].name !== "Value" ? valueFields[0].name : null;
+    const amount = change.kind !== "Different values" && change.fields.find(field => field.name === "amount");
     const subtitle = [dateText, area !== "Transaction" ? area : "", singleField && singleField !== "amount" ? fieldLabel(singleField) : "", descriptionChange ? "Description Changed" : ""].filter(Boolean).join(" · ");
     if (subtitle) {
       const meta = document.createElement("span"); meta.className = "sync-entry-meta"; meta.textContent = subtitle; entry.appendChild(meta);
@@ -728,7 +733,14 @@ function renderCloudSyncReview(page = 0) {
       if (change.kind !== "Different values") {
         const present = change.kind === "Only on this device" ? side === "local" : side === "cloud";
         const status = document.createElement("span"); status.className = `sync-presence ${present ? "is-present" : "is-absent"}`;
-        status.textContent = change.area === 'Milestones' ? (present ? 'Unlocked' : 'Not unlocked') : (present ? "Present" : "Absent"); cell.appendChild(status);
+        if (amount) {
+          status.className = "sync-cell-text tabular-nums";
+          status.textContent = present ? display(amount[side], 'amount', side) : '—';
+          if (!present) cell.setAttribute('aria-label', 'No entry');
+        } else {
+          status.textContent = change.area === 'Milestones' ? (present ? 'Unlocked' : 'Not unlocked') : (present ? "Present" : "Absent");
+        }
+        cell.appendChild(status);
       } else {
         if (!valueFields.length) { cell.textContent = "—"; cell.setAttribute("aria-label", "Description changed; expand the entry for details"); }
         for (const field of valueFields) {
@@ -760,10 +772,10 @@ function chooseCloudSyncCopy(which) {
     confirmCloudAccountReplacement(context, which);
     return;
   }
-  showConfirmationModal(which === "local" ? "Update Cloud Backup?" : "Restore From Cloud?",
+  showConfirmationModal(which === "local" ? "Replace cloud data?" : "Replace this device’s data?",
     which === "local" ? "This replaces your cloud backup with the data on this device. Changes saved only in the cloud will be removed."
       : "This replaces the data on this device with your cloud backup. Changes saved only here will be removed.",
-    which === "local" ? "Upload" : "Restore", "Cancel", async () => {
+    which === "local" ? "Replace Cloud Data Only" : "Replace Device Data", "Cancel", async () => {
       if (cloudSyncBusy || isAppLocked() || cloudSyncReview !== context) return;
       setCloudSyncBusy(true);
       try {

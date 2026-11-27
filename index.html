@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="application-version" content="v7.542m" />
+    <meta name="application-version" content="v7.543m" />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="img/LogoIcon.svg">
@@ -52,11 +52,11 @@
     />
     <!-- SUPABASE JAVASCRIPT CLIENT -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" integrity="sha384-UagCvVPT5XXA0Hx+nJYUAGBFseHT9zBgpJMSebsAxl9lciTwbT+39j5VfRjdP5Tp" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="style.css?v=v7.542m" />
-    <link rel="stylesheet" href="settings-workspace.css?v=v7.542m" />
-    <link rel="stylesheet" href="onboarding.css?v=v7.542m" />
-    <link rel="stylesheet" href="tailwind.css?v=v7.542m" />
-    <link rel="stylesheet" href="batch-entry.css?v=v7.542m" />
+    <link rel="stylesheet" href="style.css?v=v7.543m" />
+    <link rel="stylesheet" href="settings-workspace.css?v=v7.543m" />
+    <link rel="stylesheet" href="onboarding.css?v=v7.543m" />
+    <link rel="stylesheet" href="tailwind.css?v=v7.543m" />
+    <link rel="stylesheet" href="batch-entry.css?v=v7.543m" />
 
     <script
       async
@@ -1109,13 +1109,13 @@
                 class="card !p-4"
                 style="background-color: var(--bg-tertiary)"
               >
-                <h3 class="text-lg font-semibold mb-3">Cloud Backup</h3>
+                <h3 class="text-lg font-semibold mb-3">Sync across devices</h3>
 
                 <!-- Logged Out State (Visible by default) -->
                 <div id="cloudBackupLoggedOut">
                   <p class="text-sm text-gray-300 mb-3">
-                    Sign in with Google to securely back up your data to the
-                    cloud. This allows you to restore your data on any device.
+                    Sign in with Google to keep your Kaasi data up to date
+                    across your devices.
                   </p>
                   <button id="googleLoginBtn" class="btn btn-primary w-full">
                     <i class="fab fa-google mr-2"></i> Sign In With Google
@@ -1159,15 +1159,15 @@
                 style="background-color: var(--bg-tertiary)"
               >
                 <h3 class="text-lg font-semibold mb-3">
-                  Local Backups
+                  Backup files
                 </h3>
 
                 <div class="flex flex-col sm:flex-row gap-3">
                   <button id="exportDataBtn" class="btn btn-secondary flex-1">
-                    <i class="fas fa-file-export mr-1"></i> Export Local File
+                    <i class="fas fa-file-export mr-1"></i> Download Backup File
                   </button>
                   <label class="btn btn-secondary flex-1 cursor-pointer"
-                    ><i class="fas fa-file-import mr-1"></i> Import Local
+                    ><i class="fas fa-file-import mr-1"></i> Restore From Backup
                     File<input
                       type="file"
                       id="importDataInput"
@@ -1176,7 +1176,7 @@
                   /></label>
                 </div>
                 <p class="text-xs text-red-400 mt-1">
-                  Warning: Browser data can be lost. Export backups regularly!
+                  Keep a backup file somewhere safe so you can restore it later.
                 </p>
               </div>
 
@@ -1817,16 +1817,15 @@
         <div class="modal-content cloud-sync-content cloud-account-content">
           <div class="sync-review-heading">
             <div class="sync-review-symbol" aria-hidden="true"><i class="fas fa-arrows-rotate"></i></div>
-            <div><h2 id="cloudAccountTitle">Choose which data to use</h2><p>Nothing has been replaced.</p></div>
+            <div><h2 id="cloudAccountTitle">Use this account?</h2></div>
           </div>
           <div class="sync-review-body">
             <p id="cloudAccountCopy" class="cloud-account-copy"></p>
             <div class="cloud-account-identity"><small>Signed-in account</small><strong id="cloudAccountEmail"></strong></div>
           </div>
           <div class="sync-choice-actions">
-            <p id="cloudAccountNote"></p>
             <div id="cloudAccountActions" class="cloud-account-actions"></div>
-            <button id="cloudAccountCompare" type="button" class="cloud-account-compare">Compare Copies</button><br />
+            <button id="cloudAccountCompare" type="button" class="cloud-account-compare">See Differences</button><br />
             <button id="cloudAccountSignOut" type="button" class="btn btn-secondary sync-cancel">Sign Out</button>
           </div>
         </div>
@@ -1838,20 +1837,20 @@
           <div class="sync-review-heading">
             <div class="sync-review-symbol" aria-hidden="true"><i class="fas fa-arrows-rotate"></i></div>
             <div>
-              <h2 id="cloudSyncTitle">Which Copy Should We Keep?</h2>
-              <p>Review the differences, then choose a copy.</p>
+              <h2 id="cloudSyncTitle">Your copies are different</h2>
+              <p>The copy you keep will replace the other.</p>
             </div>
           </div>
           <div class="sync-review-body">
             <div id="cloudSyncSummary" class="sync-counts" aria-live="polite">
-              <span><strong id="cloudSyncDeviceCount"></strong><span>Device Only</span></span>
-              <span><strong id="cloudSyncCloudCount"></strong><span>Cloud Only</span></span>
-              <span><strong id="cloudSyncChangedCount"></strong><span>Changed</span></span>
+              <span><strong id="cloudSyncDeviceCount"></strong><span>Only on this device</span></span>
+              <span><strong id="cloudSyncCloudCount"></strong><span>Only in your account</span></span>
+              <span><strong id="cloudSyncChangedCount"></strong><span>Different in both</span></span>
             </div>
             <div class="sync-table-frame">
               <table class="sync-comparison-table" aria-label="Differences between this device and the cloud">
                 <colgroup><col class="sync-entry-column" /><col /><col /></colgroup>
-                <thead><tr><th scope="col">Entry</th><th scope="col"><i class="fas fa-laptop" aria-hidden="true"></i> This Device</th><th scope="col"><i class="fas fa-cloud" aria-hidden="true"></i> Cloud</th></tr></thead>
+                <thead><tr><th scope="col">Entry</th><th scope="col"><i class="fas fa-laptop" aria-hidden="true"></i> This Device</th><th scope="col"><i class="fas fa-cloud" aria-hidden="true"></i> Your account</th></tr></thead>
                 <tbody id="cloudSyncDifferences"></tbody>
               </table>
             </div>
@@ -1862,12 +1861,11 @@
             </div>
           </div>
           <div class="sync-choice-actions">
-            <p>Your choice replaces the other copy.</p>
             <div class="sync-copy-choices">
-              <button id="cloudSyncUseLocal" type="button" class="btn btn-primary"><i class="fas fa-laptop" aria-hidden="true"></i> Use This Device</button>
-              <button id="cloudSyncUseCloud" type="button" class="btn btn-primary"><i class="fas fa-cloud" aria-hidden="true"></i> Use Cloud</button>
+              <button id="cloudSyncUseLocal" type="button" class="btn btn-secondary"><i class="fas fa-laptop" aria-hidden="true"></i> Keep Device Copy</button>
+              <button id="cloudSyncUseCloud" type="button" class="btn btn-secondary"><i class="fas fa-cloud" aria-hidden="true"></i> Keep Account Copy</button>
             </div>
-            <button type="button" class="btn btn-secondary sync-cancel" onclick="closeModal('cloudSyncModal')">Cancel</button>
+            <button type="button" class="btn btn-secondary sync-cancel" onclick="closeModal('cloudSyncModal')">Decide Later</button>
           </div>
         </div>
       </div>
@@ -2052,29 +2050,29 @@
       class="fixed bottom-5 right-5 z-[999999] space-y-2 max-w-xs"
     ></div>
 
-    <script src="js/globals.js?v=v7.542m" defer></script>
-    <script src="js/import-validation.js?v=v7.542m" defer></script>
-    <script src="js/storage.js?v=v7.542m" defer></script>
-    <script src="js/storage-ui.js?v=v7.542m" defer></script>
-    <script src="js/animations.js?v=v7.542m" defer></script>
-    <script src="js/data-sync.js?v=v7.542m" defer></script>
-    <script src="js/cloud-sync.js?v=v7.542m" defer></script>
-    <script src="js/math-tool.js?v=v7.542m" defer></script>
-    <script src="js/settings.js?v=v7.542m" defer></script>
-    <script src="js/charts.js?v=v7.542m" defer></script>
-    <script src="js/ui.js?v=v7.542m" defer></script>
-    <script src="js/settings-workspace.js?v=v7.542m" defer></script>
-    <script src="js/features.js?v=v7.542m" defer></script>
-    <script src="js/subscription-assets.js?v=v7.542m" defer></script>
-    <script src="js/subscription-services.js?v=v7.542m" defer></script>
-    <script src="js/subscriptions.js?v=v7.542m" defer></script>
-    <script src="js/security.js?v=v7.542m" defer></script>
-    <script src="js/milestones.js?v=v7.542m" defer></script>
-    <script src="js/stats.js?v=v7.542m" defer></script>
-    <script src="js/onboarding.js?v=v7.542m" defer></script>
-    <script src="js/app.js?v=v7.542m" defer></script>
-    <script src="js/history-suggestions.js?v=v7.542m" defer></script>
-    <script src="js/batch-entry.js?v=v7.542m" defer></script>
+    <script src="js/globals.js?v=v7.543m" defer></script>
+    <script src="js/import-validation.js?v=v7.543m" defer></script>
+    <script src="js/storage.js?v=v7.543m" defer></script>
+    <script src="js/storage-ui.js?v=v7.543m" defer></script>
+    <script src="js/animations.js?v=v7.543m" defer></script>
+    <script src="js/data-sync.js?v=v7.543m" defer></script>
+    <script src="js/cloud-sync.js?v=v7.543m" defer></script>
+    <script src="js/math-tool.js?v=v7.543m" defer></script>
+    <script src="js/settings.js?v=v7.543m" defer></script>
+    <script src="js/charts.js?v=v7.543m" defer></script>
+    <script src="js/ui.js?v=v7.543m" defer></script>
+    <script src="js/settings-workspace.js?v=v7.543m" defer></script>
+    <script src="js/features.js?v=v7.543m" defer></script>
+    <script src="js/subscription-assets.js?v=v7.543m" defer></script>
+    <script src="js/subscription-services.js?v=v7.543m" defer></script>
+    <script src="js/subscriptions.js?v=v7.543m" defer></script>
+    <script src="js/security.js?v=v7.543m" defer></script>
+    <script src="js/milestones.js?v=v7.543m" defer></script>
+    <script src="js/stats.js?v=v7.543m" defer></script>
+    <script src="js/onboarding.js?v=v7.543m" defer></script>
+    <script src="js/app.js?v=v7.543m" defer></script>
+    <script src="js/history-suggestions.js?v=v7.543m" defer></script>
+    <script src="js/batch-entry.js?v=v7.543m" defer></script>
   </body>
 </html>
 

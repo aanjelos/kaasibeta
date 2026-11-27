@@ -2,6 +2,11 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.543m
+
+- Distinguish account sync from backup files, clarify which copy a replacement keeps, and show the differences immediately with pagination for longer comparisons.
+- Keep calculator visibility on the current device. Use its existing setting as the starting preference without changing older backup records.
+
 ## v7.542m
 
 - Match the Expense Categories, Storage Usage, Quick Action Shortcut and App PIN Lock headings to their peer Settings card titles.

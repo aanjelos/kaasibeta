@@ -83,6 +83,14 @@ function trackFeatureEvent(action, milestoneId) {
 }
 
 // Device-Specific Settings
+function deviceCalculatorEnabled() {
+  const saved = appPreferences.getItem("kaasi_device_calculator");
+  if (saved !== null) return saved === "true";
+  const enabled = state.settings?.showMathToolbar !== false;
+  appPreferences.setItem("kaasi_device_calculator", String(enabled));
+  return enabled;
+}
+
 function getDeviceTheme() {
   return appPreferences.getItem("kaasi_device_theme") || "dark";
 }

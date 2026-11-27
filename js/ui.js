@@ -416,7 +416,7 @@ function applyAppearance() {
 
   document.documentElement.setAttribute("data-theme", theme);
   
-  if (state.settings.showMathToolbar === false) {
+  if (!deviceCalculatorEnabled()) {
     document.body.classList.add("hide-calc-buttons");
   } else {
     document.body.classList.remove("hide-calc-buttons");

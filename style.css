@@ -2136,7 +2136,7 @@ footer a[href^="https://kaasi.com.lk"]:hover
 .sync-choice-actions { flex-shrink: 0; padding: 18px 28px 10px; border-top: 1px solid var(--border-color); background: rgba(var(--accent-primary-rgb), 0.025); text-align: center; }
 .sync-choice-actions > p { font-size: 12px; color: var(--text-secondary); margin: 0 0 12px; }
 .sync-copy-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.sync-copy-choices .btn { font-size: 14px; font-weight: 700; color: #1b1007; padding: 13px 10px; margin: 0; min-width: 0; min-height: 48px; border-radius: 8px; }
+.sync-copy-choices .btn { font-size: 14px; font-weight: 700; padding: 13px 10px; margin: 0; min-width: 0; min-height: 48px; border-radius: 8px; white-space: normal; }
 .sync-choice-actions .sync-cancel { background: transparent; border-color: transparent; box-shadow: none; color: var(--text-secondary); font-size: 13px; margin: 4px 0 0; padding: 10px 18px; min-height: 44px; }
 .sync-choice-actions .sync-cancel:hover { color: var(--text-primary); background: var(--bg-tertiary); }
 @media (max-width: 560px) {
@@ -2901,3 +2901,4 @@ button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #t
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; transition-duration: 0ms !important; scroll-behavior: auto !important; }
 }
+#cloudSyncSummary[hidden] { display: none; }

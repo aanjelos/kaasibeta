@@ -1349,10 +1349,10 @@ test('comparison labels missing records accurately, redacts security values, and
   r.context.renderCloudSyncReview();assert.equal(r.element('#cloudSyncDifferences').children.length,25);
   assert.equal(r.element('#cloudSyncPage').textContent,'1 / 2');
   const first=r.element('#cloudSyncDifferences').children[0];const title=first.children[0].children[0];assert.match(title.textContent,/<img/);assert.equal(title.innerHTML,'');
-  assert.equal(first.children[1].children[0].textContent,'Present');assert.equal(first.children[2].children[0].textContent,'Absent');
+  assert.match(first.children[1].children[0].textContent,/1\.00/);assert.equal(first.children[2].children[0].textContent,'—');
   r.element('#cloudSyncNext').onclick();assert.equal(r.element('#cloudSyncPage').textContent,'2 / 2');
-  const remoteRow=r.element('#cloudSyncDifferences').children.find(row=>row.children[1]?.children[0]?.textContent==='Absent');
-  assert.equal(remoteRow.children[2].children[0].textContent,'Present');assert.equal(cloud.calls.length,0);
+  const remoteRow=r.element('#cloudSyncDifferences').children.find(row=>row.children[1]?.children[0]?.textContent==='—');
+  assert.match(remoteRow.children[2].children[0].textContent,/1\.00/);assert.equal(cloud.calls.length,0);
 });
 
 test('long comparison descriptions and values stay complete, escaped, and separate from dates',()=>{
@@ -1581,7 +1581,7 @@ test('a different empty cloud identity requires explicit association before auto
   const cloud=syncCloud(r,null);enableAutomaticSync(r);
   await r.context.runAutomaticCloudSync();assert.equal(cloud.calls.filter(c=>c.type==='insert').length,0);
   assert.equal(r.element('#cloudAccountModal').style.display,'block');
-  await accountAction(r,'Continue');assert.equal(cloud.row.data.accounts[0].balance,1000);assert.equal(r.storage.get('kaasi_cloud_data_owner'),'sync-user');
+  await accountAction(r,'Create Backup');assert.equal(cloud.row.data.accounts[0].balance,1000);assert.equal(r.storage.get('kaasi_cloud_data_owner'),'sync-user');
   cloud.calls.length=0;await r.context.runAutomaticCloudSync();assert.equal(cloud.calls.filter(c=>c.type!=='read').length,0);
 });
 
@@ -1623,7 +1623,7 @@ test('account replacement needs a second choice, exports the displaced copy and 
     const cloud=syncCloud(r,{data:remote,updated_at:'2026-10-21T00:00:00Z'});r.storage.set('kaasi_cloud_data_owner','previous-user');
     const backups=[];r.context.downloadKaasiSnapshot=value=>backups.push(JSON.parse(JSON.stringify(value)));
     await r.context.syncCloudData();
-    const label=side==='cloud'?'Use Cloud Data':'Use This Device’s Data';await accountAction(r,label);
+    const label=side==='cloud'?'Keep Account Copy':'Keep Device Copy';await accountAction(r,label);
     assert.equal(cloud.calls.some(c=>c.type!=='read'),false);assert.equal(r.run('state.accounts[0].balance'),1000);
     await r.element('#cloudAccountDownload').onclick();
     assert.equal(backups[0].accounts[0].balance,side==='cloud'?1000:700);
@@ -1646,7 +1646,7 @@ test('closing an account choice never authorizes retries, and compare actions go
   assert.equal(typeof cloud.confirm,'function');
   assert.equal(cloud.confirmTitle,'Replace This Device’s Data?');assert.equal(cloud.confirmLabel,'Replace Device Data');
   assert.equal(r.element('#cloudSyncModal').style.display,'block');
-  assert.equal(r.element('#cloudAccountTitle').textContent,'Choose which data to use');
+  assert.equal(r.element('#cloudAccountTitle').textContent,'Use this account?');
   assert.equal(r.run('state.accounts[0].balance'),1000);assert.equal(cloud.calls.some(c=>c.type!=='read'),false);
   const moves=[];r.context.history.state={openModals:['settingsModal','cloudAccountModal','cloudSyncModal','confirmationModal']};r.context.history.go=delta=>moves.push(delta);
   await cloud.confirm();assert.deepEqual(moves,[-3]);assert.equal(r.run('state.accounts[0].balance'),500);
@@ -1656,7 +1656,7 @@ test('stale account choices reject local, cloud, owner and sign-in changes befor
   for(const race of ['local','cloud','owner','account','away-and-back','offline']){
     const r=runtime(),original=JSON.parse(r.storage.get('KaasiData')),remote=JSON.parse(JSON.stringify(original));remote.accounts[0].balance=500;
     const cloud=syncCloud(r,{data:remote,updated_at:'2026-10-21T00:00:00Z'});r.storage.set('kaasi_cloud_data_owner','previous-user');
-    await r.context.syncCloudData();await accountAction(r,'Use This Device’s Data');
+    await r.context.syncCloudData();await accountAction(r,'Keep Device Copy');
     if(race==='local')await r.run('state.accounts[0].balance=800;saveData();');
     if(race==='cloud')cloud.row.updated_at='2026-10-22T00:00:00Z';
     if(race==='owner')r.storage.set('kaasi_cloud_data_owner','third-user');

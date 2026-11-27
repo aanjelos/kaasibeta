@@ -291,23 +291,11 @@ function renderSettingsForm() {
         theme: "dark",
       };
     }
-    toggleMathToolbarElement.checked =
-      state.settings.showMathToolbar !== undefined
-        ? state.settings.showMathToolbar
-        : true;
+    toggleMathToolbarElement.checked = deviceCalculatorEnabled();
 
     if (!toggleMathToolbarElement.dataset.listenerAttached) {
-      toggleMathToolbarElement.onchange = async () => {
-        if (!state.settings) {
-          state.settings = {
-            initialSetupDone: false,
-            showCcDashboardSection: true,
-            showMathToolbar: true,
-            theme: "dark",
-          };
-        }
-        state.settings.showMathToolbar = toggleMathToolbarElement.checked;
-        await saveData();
+      toggleMathToolbarElement.onchange = () => {
+        appPreferences.setItem("kaasi_device_calculator", String(toggleMathToolbarElement.checked));
         applyAppearance();
       };
       toggleMathToolbarElement.dataset.listenerAttached = "true";
