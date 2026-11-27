@@ -646,29 +646,21 @@ function updateCategoryIcon(category, icon, reset = false) {
 
 function openCategoryIconPicker(category) {
   if (!state.categories.includes(category) || isAppLocked()) return;
-  let choice = categoryIconChoice(category);
-  let reset = false;
+  const choice = categoryIconChoice(category);
   const options = Object.keys(CATEGORY_ICONS);
   openFormModal(`Icon for ${category}`, `
     <div class="category-picker">
       <input type="search" aria-label="Search Icons" placeholder="Search Icons">
       <div class="category-picker-grid" role="group" aria-label="Category Icons"></div>
-      <p class="category-picker-empty" hidden>No matching icons.</p>
+      <div class="category-picker-empty flex flex-col items-center py-8 text-gray-500" role="status" hidden>
+        <i class="fas fa-search text-3xl mb-3 opacity-40" aria-hidden="true"></i>
+        <p class="text-sm font-medium">No icons match your search</p>
+      </div>
       <div class="category-picker-actions">
         <button type="button" class="btn btn-secondary" data-icon-action="clear">Clear Icon</button>
         <button type="button" class="btn btn-secondary" data-icon-action="reset">Reset to Default</button>
-        <button type="submit" class="btn btn-primary">Save Icon</button>
       </div>
-    </div>`, async event => {
-    event.preventDefault();
-    if (isAppLocked() || storageOperationPending || !state.categories.includes(category)) return;
-    updateCategoryIcon(category, choice, reset);
-    try { await saveData(state, { syncSettings: true, skipMilestones: true }); }
-    catch (_) { return; }
-    closeModal("formModal");
-    renderCategorySettingsList();
-    renderDashboard();
-  });
+    </div>`, event => event.preventDefault());
   const picker = document.querySelector(".category-picker");
   const search = picker.querySelector("input");
   const grid = picker.querySelector(".category-picker-grid");
@@ -680,17 +672,24 @@ function openCategoryIconPicker(category) {
       return terms.every(term => words.includes(term));
     });
     grid.innerHTML = matches.map(icon => `<button type="button" data-icon="${icon}" aria-label="${categoryIconLabel(icon)}" title="${categoryIconLabel(icon)}" aria-pressed="${choice === icon}">${categoryIconMarkup(icon)}</button>`).join("");
+    grid.hidden = matches.length === 0;
     picker.querySelector(".category-picker-empty").hidden = matches.length > 0;
   };
   search.addEventListener("input", render);
-  picker.addEventListener("click", event => {
+  picker.addEventListener("click", async event => {
     const button = event.target.closest("[data-icon], [data-icon-action]");
-    if (!button) return;
-    reset = button.dataset.iconAction === "reset";
-    choice = reset ? DEFAULT_CATEGORY_ICONS.get(category) ?? null : button.dataset.icon ?? null;
-    grid.querySelectorAll("button").forEach(option => option.setAttribute("aria-pressed", String(option.dataset.icon === choice)));
-    picker.querySelector('[data-icon-action="clear"]').setAttribute("aria-pressed", String(choice === null && !reset));
-    picker.querySelector('[data-icon-action="reset"]').setAttribute("aria-pressed", String(reset));
+    if (!button || isAppLocked() || storageOperationPending || !state.categories.includes(category)) return;
+    updateCategoryIcon(category, button.dataset.icon ?? null, button.dataset.iconAction === "reset");
+    try { await saveData(state, { syncSettings: true, skipMilestones: true }); }
+    catch (_) { return; }
+    const pickerStillOpen = picker.isConnected;
+    if (pickerStillOpen) closeModal("formModal");
+    renderCategorySettingsList();
+    renderDashboard();
+    if (pickerStillOpen) {
+      [...document.querySelectorAll(".category-icon-trigger")]
+        .find(trigger => trigger.dataset.category === category)?.focus({ preventScroll: true });
+    }
   });
   render();
 }

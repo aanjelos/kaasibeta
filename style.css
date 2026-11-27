@@ -2929,7 +2929,7 @@ button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #t
   border: 1px solid var(--border-color);
 }
 [data-theme="light"] .category-icon-tile { color: #aa4b0b; }
-.category-icon-tile i { font-size: .95rem; text-shadow: 0 0 3px rgba(255, 135, 56, .6), 0 0 7px rgba(240, 118, 35, .36); }
+.category-icon-tile i { font-size: .95rem; text-shadow: 0 0 3px rgba(255, 135, 56, .48), 0 0 6px rgba(240, 118, 35, .26); }
 .category-icon-tile.category-icon-placeholder { color: var(--text-secondary); background: var(--bg-tertiary); border-color: var(--border-color); }
 .category-icon-tile.category-icon-income { color: var(--income-color); }
 .category-icon-placeholder i, .category-icon-income i { text-shadow: none; }
@@ -2954,3 +2954,4 @@ button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #t
 :root:not([data-theme="light"]) #totalPotentialCard .text-gray-400 { color: var(--text-secondary); }
 .edit-btn-container .record-edit-action:is(:hover, :focus-visible),
 #transactionDetailModal [data-record-action="editTransaction"]:is(:hover, :focus-visible) i { color: var(--accent-primary); }
+.category-picker [hidden] { display: none; }

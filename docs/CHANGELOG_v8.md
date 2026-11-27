@@ -2,6 +2,11 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.546m
+
+- Match the category icon picker’s no-results state to transaction history and soften the orange icon glow.
+- Save and close the category icon picker when an icon is selected, cleared or reset.
+
 ## v7.545m
 
 - Give Total Potential a warm neutral surface and clarify that it includes cash owed to the user.

@@ -1,17 +1,17 @@
 # Graph Report - kaasibeta  (2026-11-27)
 
 ## Corpus Check
-- 61 files · ~119,631 words
+- 61 files · ~119,690 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 11 file(s) not represented in the graph (top: .css 5, (none) 3, .ttf 2)
 
 ## Summary
-- 1143 nodes · 1718 edges · 160 communities (69 shown, 91 thin omitted)
+- 1144 nodes · 1719 edges · 164 communities (70 shown, 94 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 68 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d3407da5`
+- Built from commit: `a8dd21fb`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -47,8 +47,8 @@
 - App Update Tests
 - feature-analytics.test.cjs
 - serve-sync-qa.cjs
-- v6.455n - 2026-10-30
-- ui-polish.test.cjs
+- ref_node_fs
+- transfer-selection.test.cjs
 - ref_node_assert
 - Simple Icons Licensing
 - Offline Service Worker
@@ -108,7 +108,7 @@
 - v6.372n - 2026-10-22
 - v6.419n - 2026-10-26
 - v6.391n - 2026-10-23
-- v6.411n - 2026-10-26
+- v6.385n - 2026-10-23
 - v6.401n - 2026-10-24
 - v6.467n - 2026-10-31
 - v6.417n - 2026-10-26
@@ -125,10 +125,10 @@
 - v6.408n - 2026-10-25
 - v6.407n - 2026-10-25
 - v6.405n - 2026-10-25
-- v6.420n - 2026-10-26
+- v6.416n - 2026-10-26
 - v6.410n - 2026-10-25
 - v6.441n - 2026-10-29
-- v6.413n - 2026-10-26
+- v6.386n - 2026-10-23
 - v6.482n - 2026-11-03
 - v6.429n - 2026-10-28
 - v6.436n - 2026-10-28
@@ -149,11 +149,17 @@
 - v6.440n - 2026-10-29
 - v6.469n - 2026-10-31
 - v6.434n - 2026-10-28
+- v6.415n - 2026-10-26
 - v6.470n - 2026-10-31
 - v6.445n - 2026-10-29
 - v6.432n - 2026-10-28
+- v6.462n - 2026-10-30
 - v6.448n - 2026-10-29
+- v6.472n - 2026-11-01
 - v6.471n - 2026-11-01
+- v6.458n - 2026-10-30
+- v6.428n - 2026-10-28
+- v6.452n - 2026-10-30
 - v6.447n - 2026-10-29
 - v6.464n - 2026-10-30
 - v6.449n - 2026-10-29
@@ -161,7 +167,6 @@
 - v6.439n - 2026-10-29
 - v6.474n - 2026-11-01
 - v6.424n - 2026-10-28
-- v6.442n - 2026-10-29
 - v6.476n - 2026-11-02
 - v6.427n - 2026-10-28
 - v6.438n - 2026-10-29
@@ -170,20 +175,19 @@
 - v6.425n - 2026-10-28
 - v6.481n - 2026-11-03
 - v6.446n - 2026-10-29
-- v6.466n - 2026-10-31
 - v6.473n - 2026-11-01
 - stats.js
 
 ## God Nodes (most connected - your core abstractions)
 1. `Kaasi v7 - Development Changelog` - 148 edges
-2. `Kaasi v8 - Development Changelog` - 37 edges
+2. `Kaasi v8 - Development Changelog` - 38 edges
 3. `renderDashboard()` - 27 edges
 4. `Kaasi Beta application shell` - 27 edges
 5. `syncCloudData()` - 24 edges
 6. `Element` - 21 edges
 7. `openCcHistoryModal()` - 14 edges
-8. `refreshMonthlyViewIfRelevant()` - 12 edges
-9. `downloadCloudSync()` - 12 edges
+8. `downloadCloudSync()` - 12 edges
+9. `refreshMonthlyViewIfRelevant()` - 12 edges
 10. `v6.362n - 2026-10-20` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
@@ -205,15 +209,15 @@
 - **Credit-card settings purchase entry and payment history** — index_accounts_settings, index_credit_card_entry, index_credit_card_history [EXTRACTED 1.00]
 - **Local and cloud data recovery surfaces** — index_storage_recovery, index_backup_settings, index_cloud_restore_lock, index_cloud_conflict_review, index_session_recovery [INFERRED 0.85]
 
-## Communities (160 total, 91 thin omitted)
+## Communities (164 total, 94 thin omitted)
 
 ### Community 0 - "ui.js"
 Cohesion: 0.11
 Nodes (24): applyAppearance(), calculateCashTotal(), closeModal(), dismissSourceFloatingUI(), focusModalStart(), handleKeyboardShortcuts(), mathToolbar, mobileModalFocus() (+16 more)
 
 ### Community 1 - "Kaasi v7 - Development Changelog"
-Cohesion: 0.04
-Nodes (47): 1. [Fix] Calculator Toolbar Clipping, 1. [Fix] Retain Overdue Renewals When Adding a Past Payment Date, 1. [Fix] Stale Payment Preview Handler on Reused Forms, 1. [Fix] Transparent Fansly Logo, 1. [Improvement] Responsive Dashboard Controls and Balances, Cleaner Cash Counter Amounts, Guided Tour, Inline Cash Counter (+39 more)
+Cohesion: 0.05
+Nodes (41): 1. [Fix] Preserve Decimal Zeros in Amount Fields, 1. [Improvement] Responsive Dashboard Controls and Balances, 1. [UI] Top-Aligned App Update Notice, 1. [UX] Require an Explicit Prefix for OnlyFans Suggestions, Debt and Receivable Shortcuts, Kaasi v7 - Development Changelog, Quicker Automatic Sync Scheduling, Transfer Account Selection (+33 more)
 
 ### Community 2 - "App Shell and Settings Surfaces"
 Cohesion: 0.07
@@ -261,15 +265,15 @@ Nodes (7): Other Code: MIT, Font Awesome Free License, Font Files: SIL OFL 1.1, 
 
 ### Community 15 - "ref_node_assert"
 Cohesion: 0.10
-Nodes (14): assert, fs, summarize, test, vm, assert, fs, test (+6 more)
+Nodes (13): assert, fs, summarize, test, vm, assert, fs, test (+5 more)
 
 ### Community 16 - "Storage Migration and Recovery"
 Cohesion: 0.32
 Nodes (14): activeStorageRecoverySource(), addMigrationExport(), authorizeStorageRecovery(), chooseStorageMigration(), guardStorageAction(), openStorageCloudRecovery(), showStorageFailure(), startLocalStorage() (+6 more)
 
 ### Community 17 - "ref_node_vm"
-Cohesion: 0.14
-Nodes (10): c, fs, path, root, vm, context, fs, path (+2 more)
+Cohesion: 0.25
+Nodes (5): c, fs, path, root, vm
 
 ### Community 18 - "Sync Performance Benchmarks"
 Cohesion: 0.15
@@ -319,9 +323,13 @@ Nodes (8): assert, fs, globals, helper, onboarding(), c, test, vm
 Cohesion: 0.22
 Nodes (8): context, fixture, fs, http, path, remote, root, vm
 
-### Community 32 - "ui-polish.test.cjs"
+### Community 31 - "ref_node_fs"
+Cohesion: 0.14
+Nodes (12): context, fs, path, root, vm, fs, path, chooseFrame() (+4 more)
+
+### Community 32 - "transfer-selection.test.cjs"
 Cohesion: 0.29
-Nodes (4): assert, fs, test, vm
+Nodes (5): accounts, assert, fs, test, vm
 
 ### Community 33 - "ref_node_assert"
 Cohesion: 0.25
@@ -337,15 +345,15 @@ Nodes (3): Coordinated application, asset and worker versions, CRLF-normalized S
 
 ### Community 46 - "docs/INDEXEDDB_STORAGE.md"
 Cohesion: 0.06
-Nodes (45): Account-scoped SHA-256 sync baseline, Atomic financial saves, Single previous-dataset recovery slot, Owner and timestamp conditional cloud writes, kaasi-finances schema version 2, Frozen original KaasiData migration copy, Consistent portable JSON snapshots, Optimistic revision and generation guards (+37 more)
+Nodes (40): Account-scoped SHA-256 sync baseline, Atomic financial saves, Single previous-dataset recovery slot, Owner and timestamp conditional cloud writes, kaasi-finances schema version 2, Frozen original KaasiData migration copy, Consistent portable JSON snapshots, Optimistic revision and generation guards (+32 more)
 
 ### Community 47 - "ref_node_fs"
-Cohesion: 0.18
-Nodes (6): assert, fs, test, vm, fs, path
+Cohesion: 0.29
+Nodes (4): assert, fs, test, vm
 
 ### Community 50 - "Kaasi v8 - Development Changelog"
 Cohesion: 0.05
-Nodes (37): Kaasi v8 - Development Changelog, v7.510m - 2026-11-21, v7.511m - 2026-11-21, v7.512m - 2026-11-21, v7.513m - 2026-11-21, v7.514m - 2026-11-21, v7.515m - 2026-11-21, v7.516m - 2026-11-21 (+29 more)
+Nodes (38): Kaasi v8 - Development Changelog, v7.510m - 2026-11-21, v7.511m - 2026-11-21, v7.512m - 2026-11-21, v7.513m - 2026-11-21, v7.514m - 2026-11-21, v7.515m - 2026-11-21, v7.516m - 2026-11-21 (+30 more)
 
 ### Community 51 - "features.js"
 Cohesion: 0.14
@@ -485,20 +493,20 @@ Nodes (3): Sync Comparison, Transfer Account Selection, v6.465n - 2026-10-31
 
 ## Knowledge Gaps
 - **1 isolated node(s):** `Planned advisory duplicate-entry warning`
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 556 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **91 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 557 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **94 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Kaasi v7 - Development Changelog` connect `Kaasi v7 - Development Changelog` to `v6.378n - 2026-10-23`, `v6.455n - 2026-10-30`, `v6.475n - 2026-11-01`, `v6.402n - 2026-10-24`, `v6.392n - 2026-10-23`, `v6.388n - 2026-10-23`, `v6.389n - 2026-10-23`, `v6.406n - 2026-10-25`, `Kaasi v8 - Development Changelog`, `v6.362n - 2026-10-20`, `v6.364n - 2026-10-21`, `v6.479n - 2026-11-03`, `v6.365n - 2026-10-21`, `v6.454n - 2026-10-30`, `v6.377n - 2026-10-23`, `v6.371n - 2026-10-22`, `v6.393n - 2026-10-24`, `v6.368n - 2026-10-21`, `v6.363n - 2026-10-20`, `v6.395n - 2026-10-24`, `v6.421n - 2026-10-27`, `v6.398n - 2026-10-24`, `v6.369n - 2026-10-21`, `v6.381n - 2026-10-23`, `v6.394n - 2026-10-24`, `v6.418n - 2026-10-26`, `v6.412n - 2026-10-26`, `v6.373n - 2026-10-22`, `v6.374n - 2026-10-22`, `v6.380n - 2026-10-23`, `v6.367n - 2026-10-21`, `v6.397n - 2026-10-24`, `v6.390n - 2026-10-23`, `v6.414n - 2026-10-26`, `v6.379n - 2026-10-23`, `v6.396n - 2026-10-24`, `v6.382n - 2026-10-23`, `v6.383n - 2026-10-23`, `v6.409n - 2026-10-25`, `v6.468n - 2026-10-31`, `v6.465n - 2026-10-31`, `v6.400n - 2026-10-24`, `v6.375n - 2026-10-23`, `v6.366n - 2026-10-21`, `v6.376n - 2026-10-23`, `v6.372n - 2026-10-22`, `v6.419n - 2026-10-26`, `v6.391n - 2026-10-23`, `v6.411n - 2026-10-26`, `v6.401n - 2026-10-24`, `v6.467n - 2026-10-31`, `v6.417n - 2026-10-26`, `v6.404n - 2026-10-25`, `v6.453n - 2026-10-30`, `v6.384n - 2026-10-23`, `v6.370n - 2026-10-21`, `v6.431n - 2026-10-28`, `v6.399n - 2026-10-24`, `v6.387n - 2026-10-23`, `v6.422n - 2026-10-28`, `v6.437n - 2026-10-29`, `v6.480n - 2026-11-03`, `v6.408n - 2026-10-25`, `v6.407n - 2026-10-25`, `v6.405n - 2026-10-25`, `v6.420n - 2026-10-26`, `v6.410n - 2026-10-25`, `v6.441n - 2026-10-29`, `v6.413n - 2026-10-26`, `v6.482n - 2026-11-03`, `v6.429n - 2026-10-28`, `v6.436n - 2026-10-28`, `v6.433n - 2026-10-28`, `v6.450n - 2026-10-29`, `v6.443n - 2026-10-29`, `v6.463n - 2026-10-30`, `v6.461n - 2026-10-30`, `v6.456n - 2026-10-30`, `v6.459n - 2026-10-30`, `v6.460n - 2026-10-30`, `v6.457n - 2026-10-30`, `v6.478n - 2026-11-03`, `v6.444n - 2026-10-29`, `v6.430n - 2026-10-28`, `v6.451n - 2026-10-29`, `v6.435n - 2026-10-28`, `v6.440n - 2026-10-29`, `v6.469n - 2026-10-31`, `v6.434n - 2026-10-28`, `v6.470n - 2026-10-31`, `v6.445n - 2026-10-29`, `v6.432n - 2026-10-28`, `v6.448n - 2026-10-29`, `v6.471n - 2026-11-01`, `v6.447n - 2026-10-29`, `v6.464n - 2026-10-30`, `v6.449n - 2026-10-29`, `v6.477n - 2026-11-03`, `v6.439n - 2026-10-29`, `v6.474n - 2026-11-01`, `v6.424n - 2026-10-28`, `v6.442n - 2026-10-29`, `v6.476n - 2026-11-02`, `v6.427n - 2026-10-28`, `v6.438n - 2026-10-29`, `v6.426n - 2026-10-28`, `v6.423n - 2026-10-28`, `v6.425n - 2026-10-28`, `v6.481n - 2026-11-03`, `v6.446n - 2026-10-29`, `v6.466n - 2026-10-31`, `v6.473n - 2026-11-01`?**
+- **Why does `Kaasi v7 - Development Changelog` connect `Kaasi v7 - Development Changelog` to `v6.378n - 2026-10-23`, `v6.475n - 2026-11-01`, `v6.402n - 2026-10-24`, `v6.392n - 2026-10-23`, `v6.388n - 2026-10-23`, `v6.389n - 2026-10-23`, `v6.406n - 2026-10-25`, `Kaasi v8 - Development Changelog`, `v6.362n - 2026-10-20`, `v6.364n - 2026-10-21`, `v6.479n - 2026-11-03`, `v6.365n - 2026-10-21`, `v6.454n - 2026-10-30`, `v6.377n - 2026-10-23`, `v6.371n - 2026-10-22`, `v6.393n - 2026-10-24`, `v6.368n - 2026-10-21`, `v6.363n - 2026-10-20`, `v6.395n - 2026-10-24`, `v6.421n - 2026-10-27`, `v6.398n - 2026-10-24`, `v6.369n - 2026-10-21`, `v6.381n - 2026-10-23`, `v6.394n - 2026-10-24`, `v6.418n - 2026-10-26`, `v6.412n - 2026-10-26`, `v6.373n - 2026-10-22`, `v6.374n - 2026-10-22`, `v6.380n - 2026-10-23`, `v6.367n - 2026-10-21`, `v6.397n - 2026-10-24`, `v6.390n - 2026-10-23`, `v6.414n - 2026-10-26`, `v6.379n - 2026-10-23`, `v6.396n - 2026-10-24`, `v6.382n - 2026-10-23`, `v6.383n - 2026-10-23`, `v6.409n - 2026-10-25`, `v6.468n - 2026-10-31`, `v6.465n - 2026-10-31`, `v6.400n - 2026-10-24`, `v6.375n - 2026-10-23`, `v6.366n - 2026-10-21`, `v6.376n - 2026-10-23`, `v6.372n - 2026-10-22`, `v6.419n - 2026-10-26`, `v6.391n - 2026-10-23`, `v6.385n - 2026-10-23`, `v6.401n - 2026-10-24`, `v6.467n - 2026-10-31`, `v6.417n - 2026-10-26`, `v6.404n - 2026-10-25`, `v6.453n - 2026-10-30`, `v6.384n - 2026-10-23`, `v6.370n - 2026-10-21`, `v6.431n - 2026-10-28`, `v6.399n - 2026-10-24`, `v6.387n - 2026-10-23`, `v6.422n - 2026-10-28`, `v6.437n - 2026-10-29`, `v6.480n - 2026-11-03`, `v6.408n - 2026-10-25`, `v6.407n - 2026-10-25`, `v6.405n - 2026-10-25`, `v6.416n - 2026-10-26`, `v6.410n - 2026-10-25`, `v6.441n - 2026-10-29`, `v6.386n - 2026-10-23`, `v6.482n - 2026-11-03`, `v6.429n - 2026-10-28`, `v6.436n - 2026-10-28`, `v6.433n - 2026-10-28`, `v6.450n - 2026-10-29`, `v6.443n - 2026-10-29`, `v6.463n - 2026-10-30`, `v6.461n - 2026-10-30`, `v6.456n - 2026-10-30`, `v6.459n - 2026-10-30`, `v6.460n - 2026-10-30`, `v6.457n - 2026-10-30`, `v6.478n - 2026-11-03`, `v6.444n - 2026-10-29`, `v6.430n - 2026-10-28`, `v6.451n - 2026-10-29`, `v6.435n - 2026-10-28`, `v6.440n - 2026-10-29`, `v6.469n - 2026-10-31`, `v6.434n - 2026-10-28`, `v6.415n - 2026-10-26`, `v6.470n - 2026-10-31`, `v6.445n - 2026-10-29`, `v6.432n - 2026-10-28`, `v6.462n - 2026-10-30`, `v6.448n - 2026-10-29`, `v6.472n - 2026-11-01`, `v6.471n - 2026-11-01`, `v6.458n - 2026-10-30`, `v6.428n - 2026-10-28`, `v6.452n - 2026-10-30`, `v6.447n - 2026-10-29`, `v6.464n - 2026-10-30`, `v6.449n - 2026-10-29`, `v6.477n - 2026-11-03`, `v6.439n - 2026-10-29`, `v6.474n - 2026-11-01`, `v6.424n - 2026-10-28`, `v6.476n - 2026-11-02`, `v6.427n - 2026-10-28`, `v6.438n - 2026-10-29`, `v6.426n - 2026-10-28`, `v6.423n - 2026-10-28`, `v6.425n - 2026-10-28`, `v6.481n - 2026-11-03`, `v6.446n - 2026-10-29`, `v6.473n - 2026-11-01`?**
   _High betweenness centrality (0.111) - this node is a cross-community bridge._
 - **What connects `Planned advisory duplicate-entry warning` to the rest of the system?**
   _1 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ui.js` be split into smaller, more focused modules?**
   _Cohesion score 0.11088709677419355 - nodes in this community are weakly interconnected._
 - **Should `Kaasi v7 - Development Changelog` be split into smaller, more focused modules?**
-  _Cohesion score 0.0425531914893617 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.04878048780487805 - nodes in this community are weakly interconnected._
 - **Should `App Shell and Settings Surfaces` be split into smaller, more focused modules?**
   _Cohesion score 0.07077922077922078 - nodes in this community are weakly interconnected._
 - **Should `Cloud Synchronization` be split into smaller, more focused modules?**
