@@ -136,9 +136,12 @@ function renderRecentTransactions() {
     }
 
     div.innerHTML = `
-      <div class="flex-grow mr-2 overflow-hidden">
+      <div class="flex-grow mr-2 overflow-hidden category-icon-row">
+        ${categoryIconMarkup(categoryIconChoice(t.category), isIncome)}
+        <div class="category-icon-row-copy">
         <p class="font-medium truncate ${textColorClass}">${escapeHTML(t.description)}</p>
         <p class="text-xs text-gray-400">${subDetailText}</p>
+        </div>
       </div>
       <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums">${isIncome ? "+" : "-"}${formatCurrency(t.amount)}</span>
       <div class="edit-btn-container flex-shrink-0 hidden md:flex">
@@ -1893,9 +1896,12 @@ function renderMonthlyDetails(
           const tooltipSuffix = isExcluded ? " (Hidden Category)" : "";
 
           itemDiv.innerHTML = `
-              <div class="flex-grow min-w-0 ${opacityClass} mr-2">
+              <div class="flex-grow min-w-0 ${opacityClass} mr-2 category-icon-row">
+                ${categoryIconMarkup(categoryIconChoice(t.category), isIncome)}
+                <div class="category-icon-row-copy">
                 <p class="font-medium truncate ${textColorClass}">${escapeHTML(t.description)}</p>
                 <p class="text-xs text-gray-400 mt-0.5 truncate">${subDetailText}</p>
+                </div>
               </div>
               <div class="flex items-center justify-end flex-shrink-0">
                 <span class="font-semibold whitespace-nowrap ${textColorClass} tabular-nums ${opacityClass}" data-tooltip="${isExcluded ? 'Excluded from totals' : ''}">${

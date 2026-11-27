@@ -91,6 +91,100 @@ function deviceCalculatorEnabled() {
   return enabled;
 }
 
+const CATEGORY_ICONS = Object.freeze({
+  tag: ["tag", "misc other"],
+  basket: ["basket-shopping", "groceries supermarket picnic basket outing"],
+  dining: ["utensils", "food restaurant meal"],
+  car: ["car-side", "auto vehicle"],
+  heart: ["heart", "healthcare medical"],
+  house: ["house", "home housing rent"],
+  sparkles: ["wand-magic-sparkles", "beauty grooming"],
+  phone: ["mobile-screen", "phone mobile internet"],
+  bag: ["bag-shopping", "retail shopping takeout takeaway delivery"],
+  film: ["film", "movie cinema entertainment"],
+  book: ["book-open", "education school"],
+  gift: ["gift", "donations giving"],
+  repeat: ["repeat", "subscription recurring"],
+  bank: ["building-columns", "bank fees"],
+  coffee: ["mug-hot", "cafe café tea"],
+  plane: ["plane", "flight travel"],
+  bus: ["bus", "public transport"],
+  bike: ["bicycle", "cycling"],
+  music: ["music", "songs"],
+  camera: ["camera", "photography"],
+  briefcase: ["briefcase", "work business"],
+  wallet: ["wallet", "cash"],
+  card: ["credit-card", "debit credit"],
+  paw: ["paw", "pet animal"],
+  game: ["gamepad", "gaming controller"],
+  bolt: ["bolt", "electricity power"],
+  water: ["droplet", "water utilities"],
+  globe: ["globe", "internet international"],
+  fitness: ["dumbbell", "gym exercise"],
+  pill: ["pills", "medicine pharmacy"],
+  shirt: ["shirt", "clothing laundry washing machine"],
+  tool: ["screwdriver-wrench", "repair tools"],
+  leaf: ["leaf", "garden"],
+  calendar: ["calendar-days", "date schedule"],
+  box: ["box", "parcel delivery"],
+  scissors: ["scissors", "haircut tailoring"],
+  "date-night": ["heart-circle-check", "date night dates romance anniversary love valentines"],
+  "clinking-glasses": ["champagne-glasses", "celebration drinks toast"],
+  pizza: ["pizza-slice", "food takeaway"],
+  burger: ["burger", "food fast food"],
+  "noodle-bowl": ["bowl-food", "noodles ramen food"],
+  "ice-cream": ["ice-cream", "dessert"],
+  bread: ["bread-slice", "bakery toast"],
+  ticket: ["ticket", "cinema events movies"],
+  microphone: ["microphone", "karaoke comedy"],
+  headphones: ["headphones", "audio"],
+  dice: ["dice", "tabletop games"],
+  "piggy-bank": ["piggy-bank", "saving savings"],
+  target: ["bullseye", "goal savings"],
+  coins: ["coins", "allowance cash"],
+  "growth-chart": ["chart-line", "investments growth"],
+  train: ["train", "rail railway public transport"],
+  motorcycle: ["motorcycle", "motorbike scooter moped"],
+  truck: ["truck", "lorry freight vehicle"],
+  "fuel-pump": ["gas-pump", "petrol diesel fuel"],
+  parking: ["square-parking", "parking sign"],
+  laptop: ["laptop", "computer office work"],
+  monitor: ["desktop", "screen office work"],
+  printer: ["print", "printing office work"],
+  "id-badge": ["id-badge", "office work badge"],
+  notebook: ["book", "stationery office work"],
+  sofa: ["couch", "furniture living room"],
+  bed: ["bed", "furniture bedroom"],
+  lamp: ["lightbulb", "lighting electrical"],
+  plug: ["plug", "electricity electrical power"],
+  "cold-storage": ["snowflake", "fridge refrigerator freezer"],
+});
+const DEFAULT_CATEGORY_ICONS = new Map([
+  ["Food & Dining", "dining"], ["Groceries", "basket"], ["Transportation", "car"],
+  ["Healthcare", "heart"], ["Housing & Utilities", "house"], ["Personal Care", "sparkles"],
+  ["Phone & Internet", "phone"], ["Shopping", "bag"], ["Entertainment", "film"],
+  ["Education", "book"], ["Gifts & Donations", "gift"], ["Subscriptions & Memberships", "repeat"],
+  ["Bank Charges", "bank"], ["Other", "tag"],
+]);
+
+function categoryIconChoice(category) {
+  const choices = state.settings?.categoryIcons;
+  const value = choices && Object.hasOwn(choices, category) ? choices[category] : undefined;
+  return value === null || Object.hasOwn(CATEGORY_ICONS, value)
+    ? value : DEFAULT_CATEGORY_ICONS.get(category) ?? null;
+}
+
+function categoryIconMarkup(icon, income = false) {
+  const valid = Object.hasOwn(CATEGORY_ICONS, icon);
+  const glyph = income ? "arrow-down" : CATEGORY_ICONS[valid ? icon : "tag"][0];
+  const tone = income ? " category-icon-income" : valid ? "" : " category-icon-placeholder";
+  return `<span class="category-icon-tile${tone}" aria-hidden="true"><i class="fas fa-${glyph}"></i></span>`;
+}
+
+function categoryIconLabel(icon) {
+  return icon.split("-").map(word => word[0].toUpperCase() + word.slice(1)).join(" ");
+}
+
 function getDeviceTheme() {
   return appPreferences.getItem("kaasi_device_theme") || "dark";
 }

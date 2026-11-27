@@ -1,5 +1,5 @@
 .batch-entry-heading,.batch-entry-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-.batch-entry-heading button { flex:none; }
+#openBatchEntry { flex:none; display:grid; place-items:center; width:44px; height:44px; padding:0; }
 .batch-entry-content { width:min(96%, 68rem); max-width:none; }
 .batch-entry-content h2 { font-size:1.3rem; font-weight:700; margin-bottom:16px; }
 .batch-sheet-scroll { overflow:auto; max-height:55dvh; border:1px solid var(--border-color); border-radius:9px; }

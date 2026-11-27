@@ -601,7 +601,7 @@ function renderCategorySettingsList() {
     const canRename = cat.toLowerCase() !== 'other';
     const canDelete = canRename && cat.toLowerCase() !== getTransferFeeCategory().toLowerCase();
     li.innerHTML = `
-      <div class="settings-category-summary"><div class="settings-category-name"><strong>${escapeHTML(cat)}</strong>${hidden ? '<small>Hidden</small>' : ''}<input hidden type="text" aria-label="Category name" value="${escapeHTML(cat)}" data-original-name="${escapeHTML(cat)}"></div><div class="settings-category-normal-actions"><button type="button" class="settings-row-icon" aria-label="${hidden?'Show':'Hide'} ${escapeHTML(cat)}" onclick="toggleHiddenCategory(this.dataset.cat)" data-cat="${escapeHTML(cat)}"><i class="fas ${hidden?'fa-eye-slash':'fa-eye'}" aria-hidden="true"></i></button>${canRename ? `<button type="button" class="settings-row-icon" aria-label="Rename ${escapeHTML(cat)}" onclick="SettingsWorkspace.editCategory(this)"><i class="fas fa-pen" aria-hidden="true"></i></button>` : ''}${canDelete ? `<button type="button" class="settings-row-icon" aria-label="Delete ${escapeHTML(cat)}" onclick="deleteCategory(this.dataset.cat)" data-cat="${escapeHTML(cat)}"><i class="fas fa-trash-alt" aria-hidden="true"></i></button>` : ''}</div><div class="settings-category-save-actions" hidden><button class="settings-row-icon" type="button" aria-label="Cancel Rename" onclick="SettingsWorkspace.editCategory(this,false)"><i class="fas fa-times" aria-hidden="true"></i></button><button class="settings-row-icon accent-text" type="button" aria-label="Save Rename" onclick="renameCategory(this)"><i class="fas fa-check" aria-hidden="true"></i></button></div></div>`;
+      <div class="settings-category-summary"><button type="button" class="category-icon-trigger" aria-label="Change icon for ${escapeHTML(cat)}" data-category="${escapeHTML(cat)}" onclick="openCategoryIconPicker(this.dataset.category)">${categoryIconMarkup(categoryIconChoice(cat))}</button><div class="settings-category-name"><strong>${escapeHTML(cat)}</strong>${hidden ? '<small>Hidden</small>' : ''}<input hidden type="text" aria-label="Category name" value="${escapeHTML(cat)}" data-original-name="${escapeHTML(cat)}"></div><div class="settings-category-normal-actions"><button type="button" class="settings-row-icon" aria-label="${hidden?'Show':'Hide'} ${escapeHTML(cat)}" onclick="toggleHiddenCategory(this.dataset.cat)" data-cat="${escapeHTML(cat)}"><i class="fas ${hidden?'fa-eye-slash':'fa-eye'}" aria-hidden="true"></i></button>${canRename ? `<button type="button" class="settings-row-icon" aria-label="Rename ${escapeHTML(cat)}" onclick="SettingsWorkspace.editCategory(this)"><i class="fas fa-pen" aria-hidden="true"></i></button>` : ''}${canDelete ? `<button type="button" class="settings-row-icon" aria-label="Delete ${escapeHTML(cat)}" onclick="deleteCategory(this.dataset.cat)" data-cat="${escapeHTML(cat)}"><i class="fas fa-trash-alt" aria-hidden="true"></i></button>` : ''}</div><div class="settings-category-save-actions" hidden><button class="settings-row-icon" type="button" aria-label="Cancel Rename" onclick="SettingsWorkspace.editCategory(this,false)"><i class="fas fa-times" aria-hidden="true"></i></button><button class="settings-row-icon accent-text" type="button" aria-label="Save Rename" onclick="renameCategory(this)"><i class="fas fa-check" aria-hidden="true"></i></button></div></div>`;
     categoryList.appendChild(li);
   });
 }
@@ -636,6 +636,65 @@ async function toggleHiddenRule(ruleKey) {
   renderDashboard();
 }
 
+function updateCategoryIcon(category, icon, reset = false) {
+  const choices = new Map(Object.entries(state.settings.categoryIcons || {}));
+  if (reset) choices.delete(category);
+  else choices.set(category, icon);
+  if (choices.size) state.settings.categoryIcons = Object.fromEntries(choices);
+  else delete state.settings.categoryIcons;
+}
+
+function openCategoryIconPicker(category) {
+  if (!state.categories.includes(category) || isAppLocked()) return;
+  let choice = categoryIconChoice(category);
+  let reset = false;
+  const options = Object.keys(CATEGORY_ICONS);
+  openFormModal(`Icon for ${category}`, `
+    <div class="category-picker">
+      <input type="search" aria-label="Search Icons" placeholder="Search Icons">
+      <div class="category-picker-grid" role="group" aria-label="Category Icons"></div>
+      <p class="category-picker-empty" hidden>No matching icons.</p>
+      <div class="category-picker-actions">
+        <button type="button" class="btn btn-secondary" data-icon-action="clear">Clear Icon</button>
+        <button type="button" class="btn btn-secondary" data-icon-action="reset">Reset to Default</button>
+        <button type="submit" class="btn btn-primary">Save Icon</button>
+      </div>
+    </div>`, async event => {
+    event.preventDefault();
+    if (isAppLocked() || storageOperationPending || !state.categories.includes(category)) return;
+    updateCategoryIcon(category, choice, reset);
+    try { await saveData(state, { syncSettings: true, skipMilestones: true }); }
+    catch (_) { return; }
+    closeModal("formModal");
+    renderCategorySettingsList();
+    renderDashboard();
+  });
+  const picker = document.querySelector(".category-picker");
+  const search = picker.querySelector("input");
+  const grid = picker.querySelector(".category-picker-grid");
+  const render = () => {
+    const normalise = value => value.toLowerCase().replace(/[-\s]+/g, " ").trim();
+    const terms = normalise(search.value).split(" ");
+    const matches = options.filter(icon => {
+      const words = normalise(`${icon} ${CATEGORY_ICONS[icon].join(" ")}`);
+      return terms.every(term => words.includes(term));
+    });
+    grid.innerHTML = matches.map(icon => `<button type="button" data-icon="${icon}" aria-label="${categoryIconLabel(icon)}" title="${categoryIconLabel(icon)}" aria-pressed="${choice === icon}">${categoryIconMarkup(icon)}</button>`).join("");
+    picker.querySelector(".category-picker-empty").hidden = matches.length > 0;
+  };
+  search.addEventListener("input", render);
+  picker.addEventListener("click", event => {
+    const button = event.target.closest("[data-icon], [data-icon-action]");
+    if (!button) return;
+    reset = button.dataset.iconAction === "reset";
+    choice = reset ? DEFAULT_CATEGORY_ICONS.get(category) ?? null : button.dataset.icon ?? null;
+    grid.querySelectorAll("button").forEach(option => option.setAttribute("aria-pressed", String(option.dataset.icon === choice)));
+    picker.querySelector('[data-icon-action="clear"]').setAttribute("aria-pressed", String(choice === null && !reset));
+    picker.querySelector('[data-icon-action="reset"]').setAttribute("aria-pressed", String(reset));
+  });
+  render();
+}
+
 async function renameCategory(buttonElement) {
   const liElement = buttonElement.closest("li");
   const inputElement = liElement.querySelector('input[type="text"]');
@@ -667,6 +726,9 @@ async function renameCategory(buttonElement) {
   }
   const index = state.categories.indexOf(originalName);
   if (index > -1) {
+    const icon = categoryIconChoice(originalName);
+    updateCategoryIcon(originalName, null, true);
+    if (icon !== (DEFAULT_CATEGORY_ICONS.get(newName) ?? null)) updateCategoryIcon(newName, icon);
     state.categories[index] = newName;
     const ref = state.budgetCategoryRefs?.find(item => item.name === originalName);
     if (ref) ref.name = newName;
@@ -777,6 +839,7 @@ async function deleteCategory(categoryName) {
   showConfirmationModal('Delete Category?', `Delete "${escapeHTML(categoryName)}"? This cannot be undone.${subscriptionWarning}`, 'Delete Category', 'Cancel', async () => {
     if (state.transactions.some(t => t.category === categoryName)) { showNotification('This category is now in use and cannot be deleted.', 'error'); return; }
     state.categories = state.categories.filter((cat) => cat !== categoryName);
+    if (state.settings.categoryIcons) updateCategoryIcon(categoryName, null, true);
     const ref = state.budgetCategoryRefs?.find(item => item.name === categoryName);
     if (ref) ref.name = null;
     state.creditCard.transactions.forEach(item => {

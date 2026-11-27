@@ -2,6 +2,12 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.544m
+
+- Replace the Batch Entry header button with a table icon.
+
+- Add framed category icons to Recent Transactions and All Transactions, with a searchable picker in Settings. Save current choices in backups and sync.
+
 ## v7.543m
 
 - Distinguish account sync from backup files, clarify which copy a replacement keeps, and show the differences immediately with pagination for longer comparisons.

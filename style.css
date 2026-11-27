@@ -2902,3 +2902,44 @@ button[data-record-action]:focus-visible, #dismissBudgetTipBtn:focus-visible, #t
   *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; transition-duration: 0ms !important; scroll-behavior: auto !important; }
 }
 #cloudSyncSummary[hidden] { display: none; }
+#recentTransactionsList > .transaction-list-item-layout,
+#dashboardTopCardsContainer > div,
+#accountCardsContainer > div,
+#ccHistorySearchInput,
+.main-content-grid .bg-gray-700,
+#transactionDetailModal .bg-gray-700\/30,
+#ccTransactionDetailModal .bg-gray-700\/30 { background-color: var(--bg-tertiary); }
+.main-content-grid .transaction-list-item-layout.bg-gray-700\/50 { background-color: var(--bg-tertiary); }
+.main-content-grid .transaction-list-item-layout.bg-gray-700\/50:hover,
+#recentTransactionsList > .transaction-list-item-layout:hover { background-color: var(--bg-quaternary); }
+[data-theme="dark"] #dashboardTopCardsContainer > div:first-child,
+:root:not([data-theme="light"]) #dashboardTopCardsContainer > div:first-child {
+  background-color: var(--bg-quaternary);
+  box-shadow: inset 0 0 0 1px var(--border-color);
+}
+.category-icon-row { display: flex; align-items: center; gap: .5rem; }
+.category-icon-row .category-icon-tile { width: 1.75rem; height: 1.75rem; background: transparent; border: 0; }
+.category-icon-row .category-icon-tile.category-icon-placeholder { background: transparent; }
+.category-icon-row .category-icon-tile i { font-size: .8125rem; }
+.category-icon-row-copy { flex: 1; min-width: 0; }
+.category-icon-tile {
+  display: inline-grid; place-items: center; flex: none;
+  width: 2rem; height: 2rem; border-radius: .55rem;
+  color: #ffa45c; background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+}
+[data-theme="light"] .category-icon-tile { color: #aa4b0b; }
+.category-icon-tile i { font-size: .95rem; text-shadow: 0 0 3px rgba(255, 135, 56, .6), 0 0 7px rgba(240, 118, 35, .36); }
+.category-icon-tile.category-icon-placeholder { color: var(--text-secondary); background: var(--bg-tertiary); border-color: var(--border-color); }
+.category-icon-tile.category-icon-income { color: var(--income-color); }
+.category-icon-placeholder i, .category-icon-income i { text-shadow: none; }
+.category-icon-trigger { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: .55rem; }
+.is-editing .category-icon-trigger { display: none; }
+.category-picker { display: grid; gap: .875rem; }
+.category-picker-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); gap: .375rem; max-height: 44dvh; overflow: auto; padding: 4px; overscroll-behavior: contain; }
+.category-picker-grid button { min-height: 48px; border-radius: .5rem; display: grid; place-items: center; }
+.category-picker-grid button:hover { background: var(--bg-tertiary); }
+.category-picker-grid .category-icon-tile { background: transparent; border-color: transparent; }
+.category-picker button[aria-pressed="true"] { background: var(--bg-tertiary); box-shadow: inset 0 0 0 1px var(--text-secondary); }
+.category-picker-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.category-picker-actions button { flex: 1 0 auto; min-height: 44px; }
