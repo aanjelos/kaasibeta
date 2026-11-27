@@ -2,6 +2,10 @@
 
 Versioned features, bug fixes, and maintenance updates for Kaasi Beta, listed newest first. V8 development builds use `v7.<internal number>m` until the public V8 release. Earlier maintenance builds are in the [V7 changelog](v7%20Changelog/CHANGELOG_v7.md).
 
+## v7.551m
+
+- Brighten light-mode primary actions while retaining white labels.
+
 ## v7.550m
 
 - Refine light mode with ivory cards on beige, warm chart labels and higher-contrast financial colors and orange accents.

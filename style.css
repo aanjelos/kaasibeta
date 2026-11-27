@@ -127,6 +127,8 @@
   --accent-primary: #a8470b;
   --accent-primary-rgb: 168, 71, 11;
   --accent-hover: #873706;
+  --button-primary-bg: #c15306;
+  --button-primary-hover-bg: #af4906;
   --income-color: #24683e;
   --income-color-rgb: 36, 104, 62;
   --warning-color: #845707;
